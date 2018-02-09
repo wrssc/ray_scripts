@@ -456,7 +456,7 @@ for m in electron_machines:
     for e in electrons:
 
         # Check if beam set exists
-        info = plan.QueryBeamSetInfo(Filter={'Name':'MLC {} cm SSD'.format(s)})
+        info = plan.QueryBeamSetInfo(Filter={'Name':'{} MeV'.format(e)})
         if not info:
         
             # Add electron energy beamset
