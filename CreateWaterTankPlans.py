@@ -437,7 +437,7 @@ for m in photon_machines:
 for m in electron_machines:
 
     # Check if plan exists, and either create one or load it
-    info = case.QueryPlanInfo(Filter={'Name':'{} {} MV'.format(m, e)})
+    info = case.QueryPlanInfo(Filter={'Name':'{} Electrons'.format(m)})
     if not info:
         print 'Creating plan for {} Electrons'.format(m)
         plan = case.AddNewPlan(PlanName='{} Electrons'.format(m), PlannedBy='', \
