@@ -90,13 +90,13 @@ for m in machines:
         
         # Check if plan exists, and either create one or load it
         info = case.QueryPlanInfo(Filter={'Name':'DLG {} {}'.format(m, e)})
-        if not info
+        if not info:
             print 'Creating plan for DLG {} {}'.format(m, e)
             plan = case.AddNewPlan(PlanName='DLG {} {}'.format(m, e), PlannedBy='', \
                 Comment='', ExaminationName=case.Examinations[0].Name, \
                 AllowDuplicateNames=False)
 
-        else
+        else:
             plan = case.LoadPlan(PlanInfo=info[0])
             
         # Set dose grid
@@ -117,7 +117,7 @@ for m in machines:
                 
                 # Check if beam set exists
                 info = plan.QueryBeamSetInfo(Filter={'Name':'{}mm-{}mm'.format(g*10, o*10)})
-                if not info
+                if not info:
                 
                     # Add beamset
                     print 'Creating beamset for {}mm-{}mm'.format(g*10, o*10)
@@ -179,11 +179,10 @@ for m in machines:
 
                         # Query beamset
                         info = plan.QueryBeamSetInfo(Filter={'Name':'{}mm-{}mm'.format(g*10, o*10)})
-                        if not info
+                        if not info:
                             print 'WARNING! Beamset {}mm-{}mm not found'.format(g*10, o*10)
                             
-                        else
-
+                        else:
                             # Get current beamset
                             beamset = plan.LoadBeamSet(BeamSetInfo = info[0])
 

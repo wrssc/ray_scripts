@@ -107,7 +107,7 @@ ds.PixelData = img.tostring()
 # Loop through CT Images
 for i in range(size[2]):
 
-	# Generate unique IDs
+    # Generate unique IDs
     ds.MediaStorageSOPInstanceUID = dicom.UID.generate_uid()
     ds.SOPInstanceUID = ds.MediaStorageSOPInstanceUID
     
@@ -116,6 +116,6 @@ for i in range(size[2]):
     ds.ImagePositionPatient[2] = -ds.SliceLocation
     ds.InstanceNumber = i+1
 
-	# Write CT image
+    # Write CT image
     print 'Writing image ct_{0:0>3}.dcm'.format(i+1)
     ds.save_as('ct_{0:0>3}.dcm'.format(i+1))

@@ -98,13 +98,13 @@ for m in photon_machines:
 
         # Check if plan exists, and either create one or load it
         info = case.QueryPlanInfo(Filter={'Name':'{} {} MV'.format(m, e)})
-        if not info
+        if not info:
             print 'Creating plan for {} {} MV'.format(m, e)
             plan = case.AddNewPlan(PlanName='{} {} MV'.format(m, e), PlannedBy='', \
                 Comment='', ExaminationName=case.Examinations[0].Name, \
                 AllowDuplicateNames=False)
 
-        else
+        else:
             plan = case.LoadPlan(PlanInfo=info[0])
 
         # Set dose grid
@@ -117,7 +117,7 @@ for m in photon_machines:
 
             # Check if beam set exists
             info = plan.QueryBeamSetInfo(Filter={'Name':'Jaw {} cm SSD'.format(s)})
-            if not info
+            if not info:
             
                 # Add JAW beamset
                 print 'Creating Jaw beamset at {} cm SSD'.format(s)
@@ -165,7 +165,7 @@ for m in photon_machines:
 
         # Check if beam set exists
         info = plan.QueryBeamSetInfo(Filter={'Name':'EDW reference'})
-        if not info
+        if not info:
             
             # Add EDW reference beamset
             print 'Creating reference EDW beamset'
@@ -192,7 +192,7 @@ for m in photon_machines:
             await_user_input('Manually set EDWs for {}. Then continue the script.'.format(m));
             patient.Save()
         
-        else
+        else:
             refset = plan.LoadBeamSet(BeamSetInfo = info[0])
 
         # Loop through each SSD
@@ -200,7 +200,7 @@ for m in photon_machines:
 
             # Check if beam set exists
             info = plan.QueryBeamSetInfo(Filter={'Name':'EDW {} cm SSD'.format(s)})
-            if not info
+            if not info:
         
                 # Add EDW beamset
                 print 'Creating EDW beamset at {} cm SSD'.format(s)
@@ -260,7 +260,7 @@ for m in photon_machines:
 
             # Check if beam set exists
             info = plan.QueryBeamSetInfo(Filter={'Name':'MLC {} cm SSD'.format(s)})
-            if not info
+            if not info:
             
                 # Add MLC beamset
                 print 'Creating MLC beamset at {} cm SSD'.format(s)
@@ -438,13 +438,13 @@ for m in electron_machines:
 
     # Check if plan exists, and either create one or load it
     info = case.QueryPlanInfo(Filter={'Name':'{} {} MV'.format(m, e)})
-    if not info
+    if not info:
         print 'Creating plan for {} Electrons'.format(m)
         plan = case.AddNewPlan(PlanName='{} Electrons'.format(m), PlannedBy='', \
             Comment='', ExaminationName=case.Examinations[0].Name, \
             AllowDuplicateNames=False)
 
-    else
+    else:
         plan = case.LoadPlan(PlanInfo=info[0])
         
     # Set dose grid
@@ -457,7 +457,7 @@ for m in electron_machines:
 
         # Check if beam set exists
         info = plan.QueryBeamSetInfo(Filter={'Name':'MLC {} cm SSD'.format(s)})
-        if not info
+        if not info:
         
             # Add electron energy beamset
             print 'Creating {} MeV beamset'.format(e)

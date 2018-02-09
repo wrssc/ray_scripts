@@ -101,13 +101,13 @@ for m in machines:
     
         # Create 6.1 plan
         info = case.QueryPlanInfo(Filter={'Name':'6.1 {} {}'.format(m, e)})
-        if not info
+        if not info:
             print 'Creating plan for 6.1 {} {}'.format(m, e)
             plan = case.AddNewPlan(PlanName='6.1 {} {}'.format(m, e), PlannedBy='', \
                 Comment='', ExaminationName=case.Examinations[0].Name, \
                 AllowDuplicateNames=False)
 
-        else
+        else:
             plan = case.LoadPlan(PlanInfo=info[0])
     
         # Set dose grid
@@ -123,7 +123,7 @@ for m in machines:
         
             # Check if beamset exists
             info = plan.QueryBeamSetInfo(Filter={'Name':'{} x {}'.format(j, j)})
-            if not info
+            if not info:
         
                 # Add beamset
                 print 'Creating beamset for {} x {}'.format(j, j)
@@ -176,13 +176,13 @@ for m in machines:
         
         # Create 6.3 plan
         info = case.QueryPlanInfo(Filter={'Name':'6.3 {} {}'.format(m, e)})
-        if not info
-               print 'Creating plan for 6.3 {} {}'.format(m, e)
+        if not info:
+            print 'Creating plan for 6.3 {} {}'.format(m, e)
             plan = case.AddNewPlan(PlanName='6.3 {} {}'.format(m, e), PlannedBy='', \
-                Comment='', ExaminationName=case.Examinations[0].Name, \
-                AllowDuplicateNames=False)
+            Comment='', ExaminationName=case.Examinations[0].Name, \
+            AllowDuplicateNames=False)
 
-        else
+        else:
             plan = case.LoadPlan(PlanInfo=info[0])
     
         # Set dose grid
@@ -198,7 +198,7 @@ for m in machines:
         
             # Check if beamset exists
             info = plan.QueryBeamSetInfo(Filter={'Name':'{}'.format(w)})
-            if not info
+            if not info:
             
                 # Add beamset
                 print 'Creating beamset for EDW{}OUT'.format(w)
@@ -257,13 +257,13 @@ for m in machines:
         
         # Create 6.4 plan
         info = case.QueryPlanInfo(Filter={'Name':'6.4 {} {}'.format(m, e)})
-        if not info
-               print 'Creating plan for 6.4 {} {}'.format(m, e)
+        if not info:
+            print 'Creating plan for 6.4 {} {}'.format(m, e)
             plan = case.AddNewPlan(PlanName='6.4 {} {}'.format(m, e), PlannedBy='', \
                 Comment='', ExaminationName=case.Examinations[0].Name, \
                 AllowDuplicateNames=False)
 
-        else
+        else:
             plan = case.LoadPlan(PlanInfo=info[0])
     
         # Set dose grid
@@ -279,7 +279,7 @@ for m in machines:
         
             # Check if beamset exists
             info = plan.QueryBeamSetInfo(Filter={'Name':'{}'.format(s)})
-            if not info
+            if not info:
             
                 # Add beamset
                 print 'Creating beamset for {}'.format(s)
@@ -331,13 +331,13 @@ for m in machines:
         
         # Create 6.5 plan
         info = case.QueryPlanInfo(Filter={'Name':'6.5 {} {}'.format(m, e)})
-        if not info
-               print 'Creating plan for 6.5 {} {}'.format(m, e)
+        if not info:
+            print 'Creating plan for 6.5 {} {}'.format(m, e)
             plan = case.AddNewPlan(PlanName='6.5 {} {}'.format(m, e), PlannedBy='', \
                 Comment='', ExaminationName=case.Examinations[0].Name, \
                 AllowDuplicateNames=False)
 
-        else
+        else:
             plan = case.LoadPlan(PlanInfo=info[0])
             
         # Set dose grid
@@ -353,7 +353,7 @@ for m in machines:
         
             # Check if beamset exists
             info = plan.QueryBeamSetInfo(Filter={'Name':'{}'.format(a)})
-            if not info
+            if not info:
         
                 # Add beamset
                 print 'Creating beamset for {}'.format(a)
@@ -405,13 +405,13 @@ for m in machines:
 
         # Create 6.6 plan
         info = case.QueryPlanInfo(Filter={'Name':'6.6 {} {}'.format(m, e)})
-        if not info
-               print 'Creating plan for 6.6 {} {}'.format(m, e)
+        if not info:
+            print 'Creating plan for 6.6 {} {}'.format(m, e)
             plan = case.AddNewPlan(PlanName='6.6 {} {}'.format(m, e), PlannedBy='', \
                 Comment='', ExaminationName=case.Examinations[0].Name, \
                 AllowDuplicateNames=False)
 
-        else
+        else:
             plan = case.LoadPlan(PlanInfo=info[0])
             
         # Set dose grid
@@ -425,7 +425,7 @@ for m in machines:
         # Add beamset
         print 'Creating empty beamset'
         info = plan.QueryBeamSetInfo(Filter={'Name':'beam'})
-        if not info
+        if not info:
             beamset = plan.AddNewBeamSet(Name='beam', \
                 ExaminationName=case.Examinations[0].Name, \
                 MachineName=m, Modality='Photons', TreatmentTechnique='Conformal', \
@@ -514,13 +514,13 @@ for m in machines:
         
         # Create 6.7 plan
         info = case.QueryPlanInfo(Filter={'Name':'6.7 {} {}'.format(m, e)})
-        if not info
+        if not info:
             print 'Creating plan for 6.7 {} {}'.format(m, e)
             plan = case.AddNewPlan(PlanName='6.7 {} {}'.format(m, e), PlannedBy='', \
                 Comment='', ExaminationName=case.Examinations[0].Name, \
                 AllowDuplicateNames=False)
 
-        else
+        else:
             plan = case.LoadPlan(PlanInfo=info[0])
             
         # Set dose grid
@@ -536,7 +536,7 @@ for m in machines:
             
             # Check if beamset exists
             info = plan.QueryBeamSetInfo(Filter={'Name':'{} cm'.format(f)})
-            if not info
+            if not info:
             
                 # Add beamset
                 print 'Creating beamset for {} cm'.format(f)
@@ -608,13 +608,13 @@ for m in machines:
 
         # Create 6.8 plan
         info = case.QueryPlanInfo(Filter={'Name':'6.8 {} {}'.format(m, e)})
-        if not info
+        if not info:
             print 'Creating plan for 6.8 {} {}'.format(m, e)
             plan = case.AddNewPlan(PlanName='6.8 {} {}'.format(m, e), PlannedBy='', \
                 Comment='', ExaminationName=case.Examinations[0].Name, \
                 AllowDuplicateNames=False)
 
-        else
+        else:
             plan = case.LoadPlan(PlanInfo=info[0])
             
         # Set dose grid
@@ -624,7 +624,7 @@ for m in machines:
 
         # Add C Shape beamset
         info = plan.QueryBeamSetInfo(Filter={'Name':'C Shape'})
-        if not info
+        if not info:
             print 'Creating beamset for C Shape'
             beamset = plan.AddNewBeamSet(Name='C Shape', \
                 ExaminationName=case.Examinations[0].Name, \
@@ -699,7 +699,7 @@ for m in machines:
 
         # Add Fence beamset
         info = plan.QueryBeamSetInfo(Filter={'Name':'Fence'})
-        if not info
+        if not info:
             print 'Creating beamset for Fence'
             beamset = plan.AddNewBeamSet(Name='Fence', \
             ExaminationName=case.Examinations[0].Name, \
@@ -770,7 +770,7 @@ for m in machines:
 
         # Add VMAT CP beamset
         info = plan.QueryBeamSetInfo(Filter={'Name':'VMAT CP'})
-        if not info
+        if not info:
             print 'Creating beamset for VMAT CP'
             beamset = plan.AddNewBeamSet(Name='VMAT CP', \
                 ExaminationName=case.Examinations[0].Name, \
