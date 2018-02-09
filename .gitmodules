@@ -1,0 +1,6 @@
+[submodule "pydicom"]
+	path = pydicom
+	url = https://github.com/pydicom/pydicom
+[submodule "numpy"]
+	path = numpy
+	url = https://github.com/numpy/numpy.git
