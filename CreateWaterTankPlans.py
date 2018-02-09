@@ -1,4 +1,4 @@
-""" Create RayStation Water Tank Plans
+""" Create Water Tank Plans
     
     This script creates a series of water tank reference profiles for each machine/energy
     combination defined below. Each plan is created within the current patient case,
