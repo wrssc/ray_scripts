@@ -493,6 +493,7 @@ for m in electron_machines:
                         beamset.Beams['{} MeV_{} cm_{} x {}'.format(e, s, a, a)].BeamMU=mu
 
             # Prompt user to set Monte Carlo histories
+            patient.Save()
             plan.SetCurrent()
             beamset.SetCurrent()
             await_user_input('Update the number of Monte Carlo histories (5e6 recommended)');
