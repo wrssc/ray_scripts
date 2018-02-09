@@ -37,7 +37,7 @@
     """
 
 __author__ = 'Mark Geurts'
-__contact__ = 'mwgeurts@wisc.edu'
+__contact__ = 'mark.w.geurts@gmail.com'
 __date__ = '2018-01-16'
 
 __version__ = '1.0.0'
@@ -49,7 +49,7 @@ __reviewed__ = 'YYYY-MM-DD'
 __raystation__ = '6.1.1.2'
 __maintainer__ = 'Mark Geurts'
 
-__email__ =  'mwgeurts@wisc.edu'
+__email__ =  'mark.w.geurts@gmail.com'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
@@ -88,11 +88,18 @@ for m in machines:
     # Loop through each photon energy
     for e in photons:
         
-        # Create DLG plan
-        print 'Creating plan for DLG {} {}'.format(m, e)
-        plan = case.AddNewPlan(PlanName='DLG {} {}'.format(m, e), PlannedBy='', \
-            Comment='', ExaminationName=case.Examinations[0].Name, \
-            AllowDuplicateNames=False)
+        # Check if plan exists, and either create one or load it
+        info = case.QueryPlanInfo(Filter={'Name':'DLG {} {}'.format(m, e)})
+        if not info
+            print 'Creating plan for DLG {} {}'.format(m, e)
+            plan = case.AddNewPlan(PlanName='DLG {} {}'.format(m, e), PlannedBy='', \
+                Comment='', ExaminationName=case.Examinations[0].Name, \
+                AllowDuplicateNames=False)
+
+        else
+            plan = case.LoadPlan(PlanInfo=info[0])
+            
+        # Set dose grid
         plan.UpdateDoseGrid(Corner={'x': -10, 'y': -0.1, 'z': -10}, \
             VoxelSize={'x': 0.1, 'y': 0.1, 'z': 0.1}, \
             NumberOfVoxels={'x': 200, 'y': 201, 'z': 200})
@@ -108,49 +115,52 @@ for m in machines:
             # Loop through offsets
             for o in offsets:
                 
-                # Add beamset
-                print 'Creating beamset for {}mm-{}mm'.format(g*10, o*10)
-                beamset = plan.AddNewBeamSet(Name='{}mm-{}mm'.format(g*10, o*10), \
-                    ExaminationName=case.Examinations[0].Name, \
-                    MachineName=m, Modality='Photons', TreatmentTechnique='Conformal', \
-                    PatientPosition='HeadFirstSupine', NumberOfFractions=1, \
-                    CreateSetupBeams=False, UseLocalizationPointAsSetupIsocenter=False, \
-                    Comment='', RbeModelReference=None, EnableDynamicTrackingForVero=False)
+                # Check if beam set exists
+                info = plan.QueryBeamSetInfo(Filter={'Name':'{}mm-{}mm'.format(g*10, o*10)})
+                if not info
+                
+                    # Add beamset
+                    print 'Creating beamset for {}mm-{}mm'.format(g*10, o*10)
+                    beamset = plan.AddNewBeamSet(Name='{}mm-{}mm'.format(g*10, o*10), \
+                        ExaminationName=case.Examinations[0].Name, \
+                        MachineName=m, Modality='Photons', TreatmentTechnique='Conformal', \
+                        PatientPosition='HeadFirstSupine', NumberOfFractions=1, \
+                        CreateSetupBeams=False, UseLocalizationPointAsSetupIsocenter=False, \
+                        Comment='', RbeModelReference=None, EnableDynamicTrackingForVero=False)
 
-                # Add beam
-                print 'Creating beam {}mm-{}mm'.format(g*10, o*10)
-                beam = beamset.CreatePhotonBeam(Energy=e, IsocenterData={ \
-                    'Position': {'x': 0, 'y': 0, 'z': 0}, 'NameOfIsocenterToRef': '', \
-                    'Name': '{}mm-{}mm'.format(g*10, o*10), 'Color': \
-                    '98,184,234'}, Name='{}mm-{}mm'.format(g*10, o*10), \
-                    Description='', GantryAngle=0, CouchAngle=0, CollimatorAngle=0)
-                beam.SetBolus(BolusName='')
-                beam.CreateRectangularField(Width=10, Height=10, CenterCoordinate={'x': \
-                    0, 'y': 0}, MoveMLC=False, MoveAllMLCLeaves=True, MoveJaw=True, \
-                    JawMargins={'x': 0, 'y': 0}, DeleteWedge=False, \
-                    PreventExtraLeafPairFromOpening=False)
-                beamset.Beams['{}mm-{}mm'.format(g*10, o*10)].BeamMU=mu
+                    # Add beam
+                    print 'Creating beam {}mm-{}mm'.format(g*10, o*10)
+                    beam = beamset.CreatePhotonBeam(Energy=e, IsocenterData={ \
+                        'Position': {'x': 0, 'y': 0, 'z': 0}, 'NameOfIsocenterToRef': '', \
+                        'Name': '{}mm-{}mm'.format(g*10, o*10), 'Color': \
+                        '98,184,234'}, Name='{}mm-{}mm'.format(g*10, o*10), \
+                        Description='', GantryAngle=0, CouchAngle=0, CollimatorAngle=0)
+                    beam.SetBolus(BolusName='')
+                    beam.CreateRectangularField(Width=10, Height=10, CenterCoordinate={'x': \
+                        0, 'y': 0}, MoveMLC=False, MoveAllMLCLeaves=True, MoveJaw=True, \
+                        JawMargins={'x': 0, 'y': 0}, DeleteWedge=False, \
+                        PreventExtraLeafPairFromOpening=False)
+                    beamset.Beams['{}mm-{}mm'.format(g*10, o*10)].BeamMU=mu
 
-                # Update MLC leaves
-                leaves = beam.Segments[0].LeafPositions
-                for l in range(len(leaves[0])):
-                    if leaves[0][l] != leaves[1][l]:
-                        if l % 2 == 0:
-                            leaves[0][l] = -g/2 - o
-                            leaves[1][l] = g/2 - o
-                        else:
-                            leaves[0][l] = -g/2
-                            leaves[1][l] = g/2
+                    # Update MLC leaves
+                    leaves = beam.Segments[0].LeafPositions
+                    for l in range(len(leaves[0])):
+                        if leaves[0][l] != leaves[1][l]:
+                            if l % 2 == 0:
+                                leaves[0][l] = -g/2 - o
+                                leaves[1][l] = g/2 - o
+                            else:
+                                leaves[0][l] = -g/2
+                                leaves[1][l] = g/2
 
-                beam.Segments[0].LeafPositions = leaves
+                    beam.Segments[0].LeafPositions = leaves
                     
-                # Calculate dose on beamset
-                if calc:
-                    print 'Calculating dose'
-                    beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
-                    patient.Save()
+                    # Calculate dose on beamset
+                    if calc:
+                        print 'Calculating dose'
+                        beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
+                        patient.Save()
                         
-
         # Loop through offsets
         if export:
             for i in iters:
@@ -167,27 +177,34 @@ for m in machines:
                     # Loop through offsets
                     for o in offsets:
 
-                        # Get current beamset
-                        beamset = plan.BeamSets['{}mm-{}mm'.format(g*10, o*10)]
+                        # Query beamset
+                        info = plan.QueryBeamSetInfo(Filter={'Name':'{}mm-{}mm'.format(g*10, o*10)})
+                        if not info
+                            print 'WARNING! Beamset {}mm-{}mm not found'.format(g*10, o*10)
+                            
+                        else
 
-                        # Export beamset to the specified pathd
-                        print 'Exporting RT plan and beam dose'
-                        try:
-                            case.ScriptableDicomExport(AEHostname=host, AEPort=port, \
-                                CallingAETitle='RayStation', CalledAETitle=aet, \
-                                Examinations=[case.Examinations[0].Name], \
-                                RtStructureSetsReferencedFromBeamSets = \
-                                [beamset.BeamSetIdentifier()], \
-                                BeamSets=[beamset.BeamSetIdentifier()], \
-                                BeamSetDoseForBeamSets=[beamset.BeamSetIdentifier()], \
-                                DicomFilter='', IgnorePreConditionWarnings=True)
+                            # Get current beamset
+                            beamset = plan.LoadBeamSet(BeamSetInfo = info[0])
+
+                            # Export beamset to the specified pathd
+                            print 'Exporting RT plan and beam dose'
+                            try:
+                                case.ScriptableDicomExport(AEHostname=host, AEPort=port, \
+                                    CallingAETitle='RayStation', CalledAETitle=aet, \
+                                    Examinations=[case.Examinations[0].Name], \
+                                    RtStructureSetsReferencedFromBeamSets = \
+                                    [beamset.BeamSetIdentifier()], \
+                                    BeamSets=[beamset.BeamSetIdentifier()], \
+                                    BeamSetDoseForBeamSets=[beamset.BeamSetIdentifier()], \
+                                    DicomFilter='', IgnorePreConditionWarnings=True)
                         
-                        except SystemError as error:
-                            print str(error)
+                            except SystemError as error:
+                                print str(error)
 
-                        # Pause execution
-                        print 'Waiting 120 seconds for Mobius3D to catch up'
-                        sleep(120)
+                            # Pause execution
+                            print 'Waiting 120 seconds for Mobius3D to catch up'
+                            sleep(120)
 
 # Restore original patient name
 patient.PatientName = name
