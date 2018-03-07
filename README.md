@@ -13,7 +13,7 @@ which creates a homogeneous phantom.
 ## Installation
 
 All RayStation scripts can be imported into RayStation without any additional installation.
-To use CreateReferenceCT, you will need to install the 
+To use [CreateReferenceCT.py](https://github.com/mwgeurts/ray_scripts/blob/master/CreateReferenceCT.py), you will need to install the 
 [pydicom](http://pydicom.readthedocs.io/en/stable/getting_started.html) and 
 [numpy](https://scipy.org/install.html) packages. Copies of both packages are included as
 submodules within this repository. 
