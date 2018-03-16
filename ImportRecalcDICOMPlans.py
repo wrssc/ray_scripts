@@ -90,8 +90,12 @@ for plan in case.TreatmentPlans:
     # Calculate plan
     beamset = plan.BeamSets[0];
     beamset.SetCurrent();
-    beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
-    patient.Save()
+    try:
+        beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
+        patient.Save()
+
+    except SystemError as error:
+        print str(error)
 
     # Export plan
     if epath != '':
