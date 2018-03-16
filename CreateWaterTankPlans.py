@@ -48,6 +48,10 @@ __copyright__ = 'Copyright (C) 2017, University of Wisconsin Board of Regents'
 
 # Specify import statements
 from connect import *
+import clr
+clr.AddReference('System.Windows.Forms')
+from System.Windows.Forms import FolderBrowserDialog
+from System.Windows.Forms import DialogResult
 
 # Define calcs and export flags (set to True to calculate dose and export)
 calc = True
@@ -84,7 +88,14 @@ applicators = [6, 10, 15, 20, 25]
 mu = 100
 
 # Define the export location
-path = '\\\\uwhfs\\shares\\home2\\mwg120\\Water Tank Reference\\RayStation\\'
+dialog = FolderBrowserDialog()
+dialog.Description = 'Select the path to export RT Dose files to (or cancel to skip export):'
+if (dialog.ShowDialog() == DialogResult.OK):
+    path = dialog.SelectedPath
+else:
+    print 'Folder not selected, export will be skipped'
+    path = ''
+    export = False
 
 # Get current patient, case
 patient = get_current('Patient')
