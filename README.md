@@ -29,6 +29,7 @@ comments within each script for script-specific documentation.
 | [CreateMobius3DValidationPlans.py](https://github.com/mwgeurts/ray_scripts/blob/master/CreateMobius3DValidationPlans.py) | Creates and exports a series of simple validation plans for Mobius3D following [AAPM MPPG 5.a](https://doi.org/10.1120/jacmp.v16i5.5768) guidelines. |
 | [CreateReferenceCT.py](https://github.com/mwgeurts/ray_scripts/blob/master/CreateReferenceCT.py) | Creates a homogeneous phantom CT, for use by other scripts in this repository. |
 | [CreateWaterTankPlans.py](https://github.com/mwgeurts/ray_scripts/blob/master/CreateWaterTankPlans.py) | Creates and exports a series of reference dose distributions for use with the [Water Tank TPS Comparison Tool](https://github.com/mwgeurts/water_tank). |
+| [ImportRecalcDICOMPlans.py](https://github.com/mwgeurts/ray_scripts/blob/master/ImportRecalcDICOMPlans.py) | Imports and re-calculates DICOM RT plans |
 
 ## License
 
