@@ -51,11 +51,17 @@ from connect import *
 import clr
 clr.AddReference('System.Windows.Forms')
 from System.Windows.Forms import FolderBrowserDialog
+from System.Windows.Forms import MessageBox
+from System.Windows.Forms import MessageBoxButtons
 from System.Windows.Forms import DialogResult
 
-# Define calcs and export flags (set to True to calculate dose and export)
-calc = True
-export = True
+# Ask user if they wish to calculate dose
+if (MessageBox.Show('Calculate Doses?', 'Calculate Dose', \
+        MessageBoxButtons.YesNo) == DialogResult.Yes):
+    calc = True
+else:
+    print 'Dose calculation disabled'
+    calc = False
 
 # Define list of machines
 photon_machines = ['TrueBeam', 'TrueBeam_FFF', 'TrueBeamSTx', 'TrueBeamSTx_FFF']
@@ -90,8 +96,10 @@ mu = 100
 # Define the export location
 dialog = FolderBrowserDialog()
 dialog.Description = 'Select the path to export RT Dose files to (or cancel to skip export):'
-if (dialog.ShowDialog() == DialogResult.OK):
+if calc && (dialog.ShowDialog() == DialogResult.OK):
     path = dialog.SelectedPath
+    export = True
+
 else:
     print 'Folder not selected, export will be skipped'
     path = ''
