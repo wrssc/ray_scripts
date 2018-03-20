@@ -67,7 +67,7 @@ if (dialog.ShowDialog() == DialogResult.OK):
     epath = dialog.SelectedPath
     
     # Ask user if they wish to export beams
-    if (MessageBox.Show('Export beam doses?', 'Export Beam Dose', \
+    if (MessageBox.Show('Export beam doses? Beamset doses are always exported', 'Export Beam Dose', \
             MessageBoxButtons.YesNo) == DialogResult.Yes):
         beams = True
     else:
@@ -98,6 +98,7 @@ for plan in case.TreatmentPlans:
 
     # Set dose grid to 2 mm
     plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2})
+    patient.Save()
 
     # Calculate plan
     beamset = plan.BeamSets[0];
@@ -115,7 +116,7 @@ for plan in case.TreatmentPlans:
             if beams:
                 case.ScriptableDicomExport(ExportFolderPath=epath, \
                     BeamSets=[beamset.BeamSetIdentifier()], \
-                    BeamSetDoseForBeamSets=[beamset.BeamSetIdentifier()]
+                    BeamSetDoseForBeamSets=[beamset.BeamSetIdentifier()], \
                     BeamDosesForBeamSets=[beamset.BeamSetIdentifier()], \
                     DicomFilter='', IgnorePreConditionWarnings=True)
             else:
