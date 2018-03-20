@@ -47,6 +47,8 @@ from connect import *
 import clr
 clr.AddReference('System.Windows.Forms')
 from System.Windows.Forms import FolderBrowserDialog
+from System.Windows.Forms import MessageBox
+from System.Windows.Forms import MessageBoxButtons
 from System.Windows.Forms import DialogResult
 
 # Define path to search for RT PLANS
@@ -63,10 +65,20 @@ dialog = FolderBrowserDialog()
 dialog.Description = 'Select the path to export dose to (cancel to skip export):'
 if (dialog.ShowDialog() == DialogResult.OK):
     epath = dialog.SelectedPath
+    
+    # Ask user if they wish to export beams
+    if (MessageBox.Show('Export beam doses?', 'Export Beam Dose', \
+            MessageBoxButtons.YesNo) == DialogResult.Yes):
+        beams = True
+    else:
+        print 'Beam dose export disabled'
+        beams = False
+
 else:
     print 'Folder not selected, export will be skipped'
     epath = ''
-
+    beams = False
+    
 # Get current patient and case
 patient = get_current('Patient')
 case = get_current('Case')
@@ -100,10 +112,17 @@ for plan in case.TreatmentPlans:
     # Export plan
     if epath != '':
         try:
-            case.ScriptableDicomExport(ExportFolderPath=epath, \
-                BeamSets=[beamset.BeamSetIdentifier()], \
-                BeamDosesForBeamSets=[beamset.BeamSetIdentifier()], DicomFilter='', \
-                IgnorePreConditionWarnings=True)
+            if beams:
+                case.ScriptableDicomExport(ExportFolderPath=epath, \
+                    BeamSets=[beamset.BeamSetIdentifier()], \
+                    BeamSetDoseForBeamSets=[beamset.BeamSetIdentifier()]
+                    BeamDosesForBeamSets=[beamset.BeamSetIdentifier()], \
+                    DicomFilter='', IgnorePreConditionWarnings=True)
+            else:
+                case.ScriptableDicomExport(ExportFolderPath=epath, \
+                    BeamSets=[beamset.BeamSetIdentifier()], \
+                    BeamSetDoseForBeamSets=[beamset.BeamSetIdentifier()], \
+                    DicomFilter='', IgnorePreConditionWarnings=True)
     
         except SystemError as error:
             print str(error)
