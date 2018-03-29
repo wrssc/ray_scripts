@@ -1,5 +1,3 @@
-#   RayStation version: 6.1.1.2
-
 """ Creates the structures required for the auto-whole brain block.
     
     This python script will generate a PTV_WB_xxxx that attempts to capture the whole brain
