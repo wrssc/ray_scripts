@@ -8,7 +8,7 @@ by Mark Geurts <mark.w.geurts@gmail.com>
 This repository contains a collection of independent python scripts that were developed 
 for use with the [RayStation treatment planning system](https://www.raysearchlabs.com/raystation/). While most scripts are intended to
 be loaded into RayStation, others provide ancillary functions such as [CreateReferenceCT.py](https://github.com/mwgeurts/ray_scripts/blob/master/general/CreateReferenceCT.py),
-which creates a homogeneous phantom.
+which creates a homogeneous phantom for QA purposes.
 
 ## Installation
 
