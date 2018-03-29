@@ -12,7 +12,8 @@ which creates a homogeneous phantom.
 
 ## Installation
 
-All RayStation scripts can be imported into RayStation without any additional installation.
+This repository is set up so that only one script, [ScriptSelector.py](https://github.com/mwgeurts/ray_scripts/blob/master/ScriptSelector.py), actually needs to be imported into RayStation. After downloading a copy of this repository to a location accessible by the RayStation servers, import [ScriptSelector.py](https://github.com/mwgeurts/ray_scripts/blob/master/ScriptSelector.py) and change the variable `repo` to point to the path of the repository. You can then either leave the `module` variable empty, in which case all scripts will be loaded, or set `module` to be a single subfolder within the repository. Finally, set the script name and module accordingly in RayStation and validate the script. Then, when executed, [ScriptSelector.py](https://github.com/mwgeurts/ray_scripts/blob/master/ScriptSelector.py) will search the provided path for all available Python files, and display a list of all scripts to the user. Clicking on a script will execute it.
+
 To use [CreateReferenceCT.py](https://github.com/mwgeurts/ray_scripts/blob/master/general/CreateReferenceCT.py), you will need to install the 
 [pydicom](http://pydicom.readthedocs.io/en/stable/getting_started.html) and 
 [numpy](https://scipy.org/install.html) packages. Copies of both packages are included as
