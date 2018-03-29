@@ -21,7 +21,7 @@ submodules within this repository.
 
 ## Usage and Documentation
 
-The following list summarizes each script within this repository. Refer to the preamble 
+The following list summarizes each script within this repository as well as the RayStation module it is intended for. Refer to the preamble 
 comments within each script for script-specific documentation.
 
 | Module | Script | Description |
