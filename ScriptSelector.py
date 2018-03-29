@@ -39,7 +39,7 @@ import os
 import sys
 import wpf
 from System.Windows import Window, Thickness
-from System.Windows.Controls import Button, StackPanel
+from System.Windows.Controls import Button, StackPanel, Label
 
 # Specify the location of the repository containing all scripts
 repo = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\Geurts\ray_scripts'
@@ -95,6 +95,12 @@ def RunScript(self, e):
     window.DialogResult = True
     sys.path.append(paths[names.index(self.Content)])
     __import__(scripts[names.index(self.Content)])
+
+# Display warning if no scripts were found
+if len(names) == 0:
+    message = Label()
+    message.Content = 'No scripts were found in module "{}"'.format(module)
+    stack.Children.Add(message)
 
 # List directory contents
 for name, tip in zip(names, tooltips):
