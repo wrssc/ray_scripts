@@ -77,7 +77,7 @@ for root, dirs, files in os.walk(os.path.join(repo, module)):
                     break
                 s.append(l.strip())
             f.close()  
-            tooltips.append(' '.join(s))
+            tooltips.append('\n'.join(s))
 
 # Start XAML content. As each script is found, additional content will be appended
 window = Window()
