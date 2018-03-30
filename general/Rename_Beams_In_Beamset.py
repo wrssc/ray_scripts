@@ -1,6 +1,7 @@
-""" Rename Beams In Beamset v01.00.02
+""" Rename_Beams_In_Beamset
     
-    Written 9Jan2018 to automatically label beams in Raystation
+    Automatically label beams in Raystation according to UW Standard
+
     Determines the primary site of the Beam set by prompting the user
     The user identifies the site using the 4 letter pre-fix from the plan name
     If the user supplies more than 4 chars, the name is cropped
