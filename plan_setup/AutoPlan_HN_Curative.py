@@ -38,34 +38,28 @@ __credits__ = ['']
 
 from connect import *
 import sys
-sys.path.insert(0,r"Z:\bayliss\RayStation\Python Scripts\Head and Neck")
+sys.path.append('..\\library\\')
 
 from CreatePrvs import CreatePrvs
 
+# Execute the PRV Creation
+# Note the numbers below are uniform expansions in cm
+case = get_current("Case")
+examination = get_current("Examination")
+HNPRVs = {
+    "BrainStem"        : 0.3, 
+    "BrachialPlexus_R" : 0.5,
+    "BrachialPlexus_L" : 0.5,
+    "Chiasm"           : 0.3,
+    "Cochlea_R"        : 0.5,
+    "Cochlea_L"        : 0.5,
+    "Esophagus"        : 0.5,
+    "Lens_R"           : 0.5,
+    "Lens_L"           : 0.5,
+    "OpticNerve_R"     : 0.3,
+    "OpticNerve_L"     : 0.3,
+    "SpinalCord"       : 0.5
+         }
 
-def main():
-    # Execute the PRV Creation
-    # Note the numbers below are uniform expansions in cm
-    case = get_current("Case")
-    examination = get_current("Examination")
-    HNPRVs = {
-        "BrainStem"        : 0.3, 
-        "BrachialPlexus_R" : 0.5,
-        "BrachialPlexus_L" : 0.5,
-        "Chiasm"           : 0.3,
-        "Cochlea_R"        : 0.5,
-        "Cochlea_L"        : 0.5,
-        "Esophagus"        : 0.5,
-        "Lens_R"           : 0.5,
-        "Lens_L"           : 0.5,
-        "OpticNerve_R"     : 0.3,
-        "OpticNerve_L"     : 0.3,
-        "SpinalCord"       : 0.5
-             }
-
-    CreatePrvs(case, examination, **HNPRVs)
-    # Prompt the user for the target doses
-
-if __name__ == '__main__':
-    main()
-
+CreatePrvs(case, examination, **HNPRVs)
+# Prompt the user for the target doses
