@@ -45,7 +45,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 # Specify import statements
 from connect import *
 import clr
-from warnings import warn
+from logging import warning
 clr.AddReference('System.Windows.Forms')
 from System.Windows.Forms import FolderBrowserDialog
 from System.Windows.Forms import MessageBox
@@ -58,7 +58,7 @@ dialog.Description = 'Select the path containing DICOM RT Plans to import:'
 if (dialog.ShowDialog() == DialogResult.OK):
     ipath = dialog.SelectedPath
 else:
-    warn('Folder not selected, import will be skipped')
+    warning('Folder not selected, import will be skipped')
     ipath = ''
 
 # Define path to export RT PLAN/DOSE to
@@ -72,11 +72,11 @@ if (dialog.ShowDialog() == DialogResult.OK):
             MessageBoxButtons.YesNo) == DialogResult.Yes):
         beams = True
     else:
-        warn('Beam dose export disabled')
+        warning('Beam dose export disabled')
         beams = False
 
 else:
-    warn('Folder not selected, export will be skipped')
+    warning('Folder not selected, export will be skipped')
     epath = ''
     beams = False
     
@@ -109,7 +109,7 @@ for plan in case.TreatmentPlans:
         patient.Save()
 
     except SystemError as error:
-        warn(str(error))
+        warning(str(error))
 
     # Export plan
     if epath != '':
@@ -127,4 +127,4 @@ for plan in case.TreatmentPlans:
                     DicomFilter='', IgnorePreConditionWarnings=True)
     
         except SystemError as error:
-            warn(str(error))
+            warning(str(error))
