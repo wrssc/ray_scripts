@@ -8,7 +8,7 @@
            passed to the function as an argument
 
     Example Usage:
-    import CreatePRVs
+    import CreatePrvs
     HNPRVs = {"BrainStem":0.3,"BrachialPlexus_R":0.5}
     Create_Prvs(case, examination, **HNPRVs)
        
@@ -43,7 +43,7 @@ __credits__ = ['']
 
 from connect import *
 import sys
-import warnings
+import logging
 
 def CreatePrvs(case, examination, **kwargs):
     Colors = { 
@@ -69,10 +69,14 @@ def CreatePrvs(case, examination, **kwargs):
        
         
     for key in kwargs:
+        # dict key is the source name from the function call
         SourceName = str(key)
+        # Expansion (in cm) is the value from the input dict
         Exp = kwargs[key]
+        # Make a string out of the Exp (noting we are looking for "0.3" 
         StrExp = str(Exp)
         # Format the PRV name, note that I have assumed a mm number here
+        # for example, Exp = 0.3 -> '03'
         PRVName = SourceName+'_PRV'+StrExp.replace('.','')
         # If one isn't found, I am not sure what this error message will do below in the colors list
         Color = Colors.get(SourceName, "Error no matching structure found in the Color list for PRVs")
@@ -93,5 +97,5 @@ def CreatePrvs(case, examination, **kwargs):
                 retval_0.SetMarginExpression(SourceRoiName=SourceName, MarginSettings=ExpDict)
                 retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
         except:
-            warnings.warn("No PRV Generated for Structure: "+SourceName+".  It was not found in the Regions of Interest list.")
+            logging.warning("No PRV Generated for Structure: "+SourceName+".  It was not found in the Regions of Interest list.")
 
