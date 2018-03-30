@@ -1,4 +1,4 @@
-""" Rename_Beams_In_Beamset_v010002
+""" Rename Beams In Beamset v01.00.02
     
     Written 9Jan2018 to automatically label beams in Raystation
     Determines the primary site of the Beam set by prompting the user
