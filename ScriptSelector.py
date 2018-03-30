@@ -38,14 +38,21 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import os
 import sys
 import wpf
+import logging
+from time import time
 from System.Windows import Window, Thickness
-from System.Windows.Controls import Button, StackPanel, Label
+from System.Windows.Controls import Button, StackPanel
 
 # Specify the location of the repository containing all scripts
 repo = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\Geurts\ray_scripts'
 
 # Specify subfolder to scan (to list all, leave blank)
-module = r''
+module = r'general'
+
+# Specify log file location
+logs = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\Geurts\script_log.txt'
+logging.basicConfig(filename=logs, level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S', \
+    format='%(asctime)s\t%(levelname)s\t%(filename)s: %(message)s', mode='a')
 
 """
 # Specify flag indicating whether or not to refresh the repository (git pull) prior to 
@@ -64,7 +71,6 @@ tooltips = []
 for root, dirs, files in os.walk(os.path.join(repo, module)):
     for file in files:
         if file.endswith('.py'):
-            print 'Found {}'.format(os.path.join(root, file))
             paths.append(root)
             scripts.append(file.rstrip('.py'))
             f = open(os.path.join(root, file))
@@ -90,20 +96,18 @@ window.Content = stack
 
 # Define button action
 def RunScript(self, e):
-    print '{} selected, executing {}'.format(self.Content, \
-        scripts[names.index(self.Content)])
     window.DialogResult = True
     sys.path.append(paths[names.index(self.Content)])
-    __import__(scripts[names.index(self.Content)])
-
-# Display warning if no scripts were found
-if len(names) == 0:
-    message = Label()
-    message.Content = 'No scripts were found in module "{}"'.format(module)
-    stack.Children.Add(message)
+    try:
+        logging.info('Executing {}.py'.format(scripts[names.index(self.Content)]))
+        __import__(scripts[names.index(self.Content)])
+    except Exception as e:
+        logging.error('{}.py: {}'.format(scripts[names.index(self.Content)], str(e)))
+        logging.shutdown()
+        raise
 
 # List directory contents
-for name, tip in zip(names, tooltips):
+for name, tip in sorted(zip(names, tooltips)):
     button = Button()
     button.Content = name
     button.Margin = Thickness(5)
@@ -113,3 +117,4 @@ for name, tip in zip(names, tooltips):
        
 # Open window  
 window.ShowDialog()
+logging.shutdown()
