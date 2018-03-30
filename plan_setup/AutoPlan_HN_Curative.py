@@ -37,8 +37,6 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 from connect import *
-import sys
-sys.path.append('..\\library\\')
 
 from CreatePrvs import CreatePrvs
 
