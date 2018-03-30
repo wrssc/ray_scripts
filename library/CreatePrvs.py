@@ -1,10 +1,11 @@
 """ CreatePrvs.py
     
     This script will create all PRV's for the structure names that are passed to 
-    it.  The arguement to the function call herein defined as CreatePrvs takes the 
+    it.  The argument to the function call herein defined as CreatePrvs takes the 
     form of a dict object with an expansion parameter specified in centimeters.  
     
-    Scope: Requires RayStation "Case" and "Examination" to be in the current scope.
+    Scope: Requires RayStation "Case" and "Examination" to be loaded.  They are 
+           passed to the function as an argument
 
     Example Usage:
     import CreatePRVs
