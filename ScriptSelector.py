@@ -49,6 +49,9 @@ repo = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\Geurts\ray_scripts'
 # Specify subfolder to scan (to list all, leave blank)
 module = r'general'
 
+# Specify subfolder to be a library
+library = r'library'
+
 # Specify log file location
 logs = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\Geurts\script_log.txt'
 logging.basicConfig(filename=logs, level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S', \
@@ -97,6 +100,7 @@ window.Content = stack
 # Define button action
 def RunScript(self, e):
     window.DialogResult = True
+    sys.path.append(os.path.join(repo, library))
     sys.path.append(paths[names.index(self.Content)])
     try:
         logging.info('Executing {}.py'.format(scripts[names.index(self.Content)]))
