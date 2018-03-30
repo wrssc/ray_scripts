@@ -1,14 +1,12 @@
-""" Creates the structures required for the auto-whole brain block.
+""" Create Auto-Whole Brain Block Structures
     
     This python script will generate a PTV_WB_xxxx that attempts to capture the whole brain
     block.  It loads, from the MBS, a brain structure that is modified by the user to 
     encompass the extent to which the physician wants inferior coverage.  Then, it looks 
     for existing Lens structures and asks the user to draw them.  
 
-
     How To Use: After insertion of S-frame this script is run to generate the blocking 
                 structures for a whole brain plan.
-
 
     Validation Notes: 
     
