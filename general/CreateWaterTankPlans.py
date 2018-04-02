@@ -191,7 +191,7 @@ mlcs = map(int, mlcbox.Text.split(','))
 dialog = FolderBrowserDialog()
 dialog.Description = 'Select the path to export RT Dose files to (or cancel to skip export):'
 dialog.ShowNewFolderButton = true
-if calc.IsChecked && (dialog.ShowDialog() == DialogResult.OK):
+if calc.IsChecked & (dialog.ShowDialog() == DialogResult.OK):
     path = dialog.SelectedPath
 
 else:
