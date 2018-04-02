@@ -135,4 +135,4 @@ for i in range(size[2]):
 
     # Write CT image
     info('Writing image ct_{0:0>3}.dcm'.format(i+1))
-    ds.save_as(os.path.normpath('{}/ct_{0:0>3}.dcm'.format(path, i+1)))
+    ds.save_as(os.path.normpath('{0}/ct_{1:0>3}.dcm'.format(path, i+1)))
