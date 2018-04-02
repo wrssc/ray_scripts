@@ -52,7 +52,7 @@ import wpf
 import clr
 clr.AddReference('System.Windows.Forms')
 from System.Windows import Window, Thickness, FontWeights
-from System.Windows.Controls import Button, StackPanel, ScrollViweer, Label, \
+from System.Windows.Controls import Button, StackPanel, ScrollViewer, Label, \
     CheckBox, TextBox, ScrollBarVisibility
 from System.Windows.Forms import FolderBrowserDialog, MessageBox, \
     MessageBoxButtons, DialogResult
