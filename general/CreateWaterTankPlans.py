@@ -54,8 +54,7 @@ clr.AddReference('System.Windows.Forms')
 from System.Windows import Window, Thickness, FontWeights
 from System.Windows.Controls import Button, StackPanel, ScrollViewer, Label, \
     CheckBox, TextBox, ScrollBarVisibility
-from System.Windows.Forms import FolderBrowserDialog, MessageBox, \
-    MessageBoxButtons, DialogResult
+from System.Windows.Forms import FolderBrowserDialog, DialogResult
 from logging import info, warning
 
 # Define Varian EDW names
@@ -188,7 +187,7 @@ mlcs = map(int, mlcbox.Text.split(','))
 # Define the export location
 dialog = FolderBrowserDialog()
 dialog.Description = 'Select the path to export RT Dose files to (or cancel to skip export):'
-dialog.ShowNewFolderButton = true
+dialog.ShowNewFolderButton = True
 if calc.IsChecked & (dialog.ShowDialog() == DialogResult.OK):
     path = dialog.SelectedPath
 
