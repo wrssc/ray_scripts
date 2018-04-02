@@ -43,7 +43,7 @@ import os
 import dicom
 import numpy
 import datetime
-from loggin import info, error
+from logging import info, error
 from dicom.dataset import Dataset
 
 # If running from IronPython, prompt user to select folder. Otherwise, ask them
