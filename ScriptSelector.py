@@ -54,7 +54,7 @@ logs = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\Geurts\script_log.tx
 api = 'https://api.github.com/repos/mwgeurts/ray_scripts'
 
 # Specify GitHub access token
-token = '74dbb9edbefdafcabec66245c3d0d4b30ac7f0bb'
+token = ''
 
 # If this is the primary script
 if __name__ == "__main__":
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     import sys
     import wpf
     from System.Windows import Window, Thickness
-    from System.Windows.Controls import Button, StackPanel
+    from System.Windows.Controls import Button, StackPanel, ScrollViewer, ScrollBarVisibility
 
     # Start logging
     if logs != '':
@@ -87,9 +87,13 @@ if __name__ == "__main__":
         window.Width = 400
         window.Height = 500
         window.Title = 'Select a branch to run'
+        scroll = ScrollViewer()
+        scroll.Height = 500
+        scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+        window.Content = scroll
         stack = StackPanel()
         stack.Margin = Thickness(15)
-        window.Content = stack
+        scroll.Content = stack
         
         # Define button action
         def DownloadBranch(self, e):
@@ -185,9 +189,13 @@ if __name__ == "__main__":
     window.Width = 400
     window.Height = 500
     window.Title = 'Select a script to run'
+    scroll = ScrollViewer()
+    scroll.Height = 500
+    scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+    window.Content = scroll
     stack = StackPanel()
     stack.Margin = Thickness(15)
-    window.Content = stack
+    scroll.Content = stack
 
     # Define button action
     def RunScript(self, e):
