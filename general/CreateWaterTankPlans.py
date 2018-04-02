@@ -70,10 +70,6 @@ try:
 except:
     await_user_input('This script requires a patient to be loaded')
 
-# Define function to pause/continue options dialog
-def cont(self, e):
-    window.DialogResult = True
-
 # Prompt user to enter runtime options
 window = Window()
 window.Width = 300
@@ -177,6 +173,8 @@ stack.Children.Add(export)
 button = Button()
 button.Content = 'Continue'
 button.Margin = Thickness(5)
+def cont(self, e):
+    window.DialogResult = True
 button.Click += cont
 stack.Children.Add(button)
 window.ShowDialog()
