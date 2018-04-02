@@ -1,9 +1,9 @@
 """ Create Reference CT
     
-    This script generates a homogeneous phantom CT (0 HU) padded by empty voxels. The 
-    DICOM origin is set to the top (anterior) center of the image. The image size and 
-    dimensions are specified below. The resulting DICOM images are saved to the current 
-    directory using the format ct_###.dcm.
+    This script generates a 65x65x40 cm3 homogeneous phantom CT (0 HU) padded by empty 
+    voxels. The DICOM origin is set to the top (anterior) center of the image. The image 
+    size and dimensions are specified below. The resulting DICOM images are saved to the 
+    provided directory using the format ct_###.dcm.
     
     This script uses the pydicom and numpy packages. For installation instructions, see 
     http://pydicom.readthedocs.io/en/stable/getting_started.html and 
@@ -39,10 +39,27 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify import statements
+import os
 import dicom
 import numpy
 import datetime
+from loggin import info, error
 from dicom.dataset import Dataset
+
+# If running from IronPython, prompt user to select folder. Otherwise, ask them
+try:
+    import clr
+    clr.AddReference('System.Windows.Forms')
+    from System.Windows.Forms import FolderBrowserDialog, DialogResult
+    dialog = FolderBrowserDialog()
+    dialog.Description = 'Select path to write CT to:'
+    dialog.ShowNewFolderButton = True
+    if dialog.ShowDialog() == DialogResult.OK:
+        path = dialog.SelectedPath
+    else:
+        error('A path was not selected')
+except:
+    path = raw_input('Enter path to write CT to: ')
 
 # Declare image size and resolution (in mm), IEC [X,Z,Y]
 size = [651,401,651]
@@ -117,5 +134,5 @@ for i in range(size[2]):
     ds.InstanceNumber = i+1
 
     # Write CT image
-    print 'Writing image ct_{0:0>3}.dcm'.format(i+1)
-    ds.save_as('ct_{0:0>3}.dcm'.format(i+1))
+    info('Writing image ct_{0:0>3}.dcm'.format(i+1))
+    ds.save_as(os.path.normpath('{}/ct_{0:0>3}.dcm'.format(path, i+1)))
