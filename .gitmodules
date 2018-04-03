@@ -7,6 +7,3 @@
 [submodule "requests"]
 	path = requests
 	url = https://github.com/requests/requests.git
-[submodule "urllib3"]
-	path = urllib3
-	url = https://github.com/shazow/urllib3.git
