@@ -4,3 +4,6 @@
 [submodule "numpy"]
 	path = numpy
 	url = https://github.com/numpy/numpy.git
+[submodule "requests"]
+	path = requests
+	url = https://github.com/requests/requests.git
