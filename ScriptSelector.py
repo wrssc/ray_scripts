@@ -77,7 +77,7 @@ if __name__ == "__main__":
         local = 'ray_scripts'
            
         # Get list of branches 
-        from urllib2 import urlopen, urlretrieve, Request
+        from urllib2 import urlopen, Request
         import json
         r = Request(api+'/branches')
         if token != '':
@@ -147,7 +147,7 @@ if __name__ == "__main__":
                         r = Request(l['download_url'])
                         if token != '':
                             r.add_header('Authorization', 'token {}'.format(token))
-                        urlretrieve(r, os.path.join(local, l['path']))
+                        open(os.path.join(local, l['path']), 'wb').write(urlopen(r).read())
         
         # Loop through branches
         for l in list:
