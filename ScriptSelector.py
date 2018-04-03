@@ -39,7 +39,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify the location of a local repository containing all scripts (leave blank to 
 # download a fresh copy each time)
-local = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\Geurts\ray_scripts'
+local = r''
 
 # Specify subfolder to scan (to list all, leave blank)
 module = r'general'
@@ -48,7 +48,7 @@ module = r'general'
 library = r'library'
 
 # Specify log file location (leave blank to not use logging)
-logs = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\Geurts\script_log.txt'
+logs = r''
 
 # Specify GitHub contents API
 api = 'https://api.github.com/repos/mwgeurts/ray_scripts'
@@ -77,10 +77,12 @@ if __name__ == "__main__":
         local = 'ray_scripts'
            
         # Get list of branches 
-        import requests
-        r = requests.get(api+'/branches', \
-            headers={'Authorization': 'token {}'.format(token)})
-        list = r.json()
+        from urllib2 import urlopen, urlretrieve, Request
+        import json
+        r = Request(api+'/branches')
+        if token != '':
+            r.add_header('Authorization', 'token {}'.format(token))
+        list = json.loads(urlopen(r).read())
         
         # Start XAML content. As each branch is found, additional content will be appended
         window = Window()
@@ -102,13 +104,11 @@ if __name__ == "__main__":
             
             # Get branch content
             try:
+                r = Request(api+'/contents?ref='+branch)
                 if token != '':
-                    r = requests.get(api+'/contents?ref='+branch, \
-                        headers={'Authorization': 'token {}'.format(token)})
-                else:
-                    r = requests.get(api+'/contents?ref='+branch)
+                    r.add_header('Authorization', 'token {}'.format(token))
     
-                list = r.json()
+                list = json.loads(urlopen(r).read())
             except:
                 error('Could not access GitHub repository')
                 exit()
@@ -126,15 +126,11 @@ if __name__ == "__main__":
                 if l.get('type'):
                     if l['type'] == u'dir':
                         if l['name'] != u'.git':
+                            r = Request(api +'/contents' + l['path'] + '?ref=' + branch)
                             if token != '':
-                                r = requests.get(api +'/contents' + l['path'] + \
-                                    '?ref='+branch, headers={'Authorization': \
-                                    'token {}'.format(token)})
-                            else:
-                                r = requests.get(api +'/contents' + l['path'] + \
-                                '?ref='+branch)
+                                r.add_header('Authorization', 'token {}'.format(token))
                         
-                            sublist = r.json()
+                            sublist = json.loads(urlopen(r).read())
                             for s in sublist:
                                 list.append(s)
             
@@ -148,8 +144,10 @@ if __name__ == "__main__":
                         print 'Downloading {}'.format(l['download_url'])
                         if os.path.exists(os.path.join(local, l['path'])):
                             os.remove(os.path.join(local, l['path']))
-                        r = requests.get(l['download_url'])
-                        open(os.path.join(local, l['path']), 'wb').write(r.content)
+                        r = Request(l['download_url'])
+                        if token != '':
+                            r.add_header('Authorization', 'token {}'.format(token))
+                        urlretrieve(r, os.path.join(local, l['path']))
         
         # Loop through branches
         for l in list:
