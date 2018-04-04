@@ -35,20 +35,24 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 # Specify import statements
 import requests
 import os
+import sys
+import importlib
 import shutil
 from logging import info, error
-from ScriptSelector import api, token, local
+
+# Retrieve variables from invoking function
+main = importlib.import_module(os.path.basename(sys.modules['__main__'].__file__).split(".")[0])
 
 # Specify branch to download
 branch = 'master'
 
 # Get branch content
 try:
-    if token != '':
-        r = requests.get(api+'/contents?ref='+branch, headers={'Authorization': \
-            'token {}'.format(token)})
+    if main.token != '':
+        r = requests.get(main.api + '/contents?ref=' + branch, headers={'Authorization': \
+            'token {}'.format(main.token)})
     else:
-        r = requests.get(api+'/contents?ref='+branch)
+        r = requests.get(main.api + '/contents?ref=' + branch)
     
     list = r.json()
 except:
@@ -56,7 +60,7 @@ except:
     exit()
 
 # If local is empty, prompt user to select the location
-if local == '':
+if main.local == '':
     import clr
     clr.AddReference('System.Windows.Forms')
     from System.Windows.Forms import FolderBrowserDialog, DialogResult
@@ -67,7 +71,10 @@ if local == '':
     else:
         error('A local folder was not defined')
         exit()
-
+        
+else:
+    local = main.local
+    
 # Clear directory
 if os.path.exists(local):
     try:
@@ -82,11 +89,11 @@ for l in list:
     if l.get('type'):
         if l['type'] == u'dir':
             if l['name'] != u'.git':
-                if token != '':
-                    r = requests.get(api +'/contents' + l['path'] + '?ref='+branch, \
-                        headers={'Authorization': 'token {}'.format(token)})
+                if main.token != '':
+                    r = requests.get(main.api +'/contents' + l['path'] + '?ref=' + branch, \
+                        headers={'Authorization': 'token {}'.format(main.token)})
                 else:
-                    r = requests.get(api +'/contents' + l['path'] + '?ref='+branch)
+                    r = requests.get(main.api +'/contents' + l['path'] + '?ref=' + branch)
                         
                 sublist = r.json()
                 for s in sublist:
@@ -105,5 +112,10 @@ for l in list:
                 os.path.join(local, l['path']))
             if os.path.exists(os.path.join(local, l['path'])):
                 os.remove(os.path.join(local, l['path']))
-            r = requests.get(l['download_url'])
+            if main.token != '':
+                r = requests.get(l['download_url'], \
+                        headers={'Authorization': 'token {}'.format(main.token)})
+            else:
+                r = requests.get(l['download_url'])
+                
             open(os.path.join(local, l['path']), 'wb').write(r.content)
