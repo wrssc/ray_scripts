@@ -62,6 +62,7 @@ else:
 # Define path to export RT PLAN/DOSE to
 dialog = FolderBrowserDialog()
 dialog.Description = 'Select the path to export dose to (cancel to skip export):'
+dialog.ShowNewFolderButton = True
 if (dialog.ShowDialog() == DialogResult.OK):
     epath = dialog.SelectedPath
     
