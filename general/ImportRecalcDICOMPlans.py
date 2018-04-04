@@ -44,13 +44,11 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify import statements
 from connect import *
-import clr
 from logging import warning
+import clr
 clr.AddReference('System.Windows.Forms')
-from System.Windows.Forms import FolderBrowserDialog
-from System.Windows.Forms import MessageBox
-from System.Windows.Forms import MessageBoxButtons
-from System.Windows.Forms import DialogResult
+from System.Windows.Forms import FolderBrowserDialog, DialogResult, MessageBox, \
+    MessageBoxButtons
 
 # Define path to search for RT PLANS
 dialog = FolderBrowserDialog()
