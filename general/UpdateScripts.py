@@ -80,7 +80,8 @@ if os.path.exists(local):
     try:
         shutil.rmtree(local)
     except:
-        error('Could not delete local repository')
+        print 'Could not delete {}'.format(local)
+        error('Could not delete local repository {}'.format(local))
         
 os.mkdir(local)
 
