@@ -40,13 +40,13 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify import statements
 import os
-import dicom
+import pydicom
 import numpy
 import datetime
 from logging import info, error
 from dicom.dataset import Dataset
 
-# If running from IronPython, prompt user to select folder. Otherwise, ask them
+# If running from Windows, prompt user to select folder. Otherwise, ask them via input
 try:
     import clr
     clr.AddReference('System.Windows.Forms')
