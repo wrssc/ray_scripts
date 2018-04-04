@@ -44,7 +44,7 @@ import numpy
 import datetime
 from logging import info, error
 from pydicom.dataset import Dataset
-from pydicom.UID import generate_uid
+from pydicom import UID
 
 # If running from Windows, prompt user to select folder. Otherwise, ask them via input
 try:
@@ -96,9 +96,9 @@ ds.SeriesDescription = 'Uniform Phantom'
 ds.PatientName = 'Water Phantom'
 ds.PatientID = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
 ds.SliceThickness = res[2]
-ds.StudyInstanceUID = generate_uid()
-ds.SeriesInstanceUID = generate_uid()
-ds.FrameOfReferenceUID = generate_uid()
+ds.StudyInstanceUID = UID.generate_uid()
+ds.SeriesInstanceUID = UID.generate_uid()
+ds.FrameOfReferenceUID = UID.generate_uid()
 ds.PatientPosition = 'HFS'
 ds.ImageOrientationPatient = [1,0,0,0,1,0]
 ds.ImagePositionPatient = [-((size[0]-1)*res[0])/2, -res[1]/2, ((size[2]-1)*res[2])/2]
@@ -125,7 +125,7 @@ ds.PixelData = img.tostring()
 for i in range(size[2]):
 
     # Generate unique IDs
-    ds.MediaStorageSOPInstanceUID = generate_uid()
+    ds.MediaStorageSOPInstanceUID = UID.generate_uid()
     ds.SOPInstanceUID = ds.MediaStorageSOPInstanceUID
     
     # Set position info for this image
