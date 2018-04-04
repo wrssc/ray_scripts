@@ -98,13 +98,12 @@ if __name__ == "__main__":
         form.AutoScroll = True
         form.BackColor = Color.White
         table = TableLayoutPanel()
-        table.Width = 369
-        table.Height = 460
         table.ColumnCount = 1
         table.RowCount = 1
         table.GrowStyle = TableLayoutPanelGrowStyle.AddRows
         table.Padding = Padding(0)
         table.BackColor = Color.White
+        table.AutoSize = True
         form.Controls.Add(table)
         
         # Define button action
@@ -189,7 +188,7 @@ if __name__ == "__main__":
             button = Button()
             button.Text = l['name'].decode('utf-8')
             button.Height = 50
-            button.Width = 359
+            button.Width = 345
             button.Margin = Padding(10, 10, 10, 0)
             button.BackColor = Color.LightGray
             button.FlatStyle = FlatStyle.Flat
@@ -203,7 +202,7 @@ if __name__ == "__main__":
         bar.Maximum = 1
         bar.Value = 1
         bar.Step = 1
-        bar.Width = 359
+        bar.Width = 345
         bar.Height = 30
         bar.Margin = Padding(10, 10, 10, 0)
         bar.Style = ProgressBarStyle.Continuous
@@ -216,6 +215,7 @@ if __name__ == "__main__":
     scripts = []
     names = []
     tooltips = []
+    print 'Scanning {} for scripts'.format(os.path.join(local, module))
     for root, dirs, files in os.walk(os.path.join(local, module)):
         for file in files:
             if file.endswith('.py'):
@@ -242,13 +242,12 @@ if __name__ == "__main__":
     form.AutoScroll = True
     form.BackColor = Color.White
     table = TableLayoutPanel()
-    table.Width = 369
-    table.Height = 460
     table.ColumnCount = 1
     table.RowCount = 1
     table.GrowStyle = TableLayoutPanelGrowStyle.AddRows
     table.Padding = Padding(0)
     table.BackColor = Color.White
+    table.AutoSize = True
     form.Controls.Add(table)
 
     # Define button action
@@ -259,18 +258,15 @@ if __name__ == "__main__":
             sys.path.append(os.path.join(local, library))
         sys.path.append(paths[names.index(self.Text)])
         try:
+            print 'Executing {}.py'.format(scripts[names.index(self.Text)])
             if logs != '':
                 logging.info('Executing {}.py'.format(scripts[names.index(self.Text)]))
-            else:
-                print 'Executing {}.py'.format(scripts[names.index(self.Text)])
-                
+
             __import__(scripts[names.index(self.Text)])
         except Exception as e:
             if logs != '':
                 logging.error('{}.py: {}'.format(scripts[names.index(self.Text)], str(e)))
                 logging.shutdown()
-            else:
-                print '{}.py: {}'.format(scripts[names.index(self.Text)], str(e))
 
             raise
 
@@ -279,7 +275,7 @@ if __name__ == "__main__":
         button = Button()
         button.Text = name
         button.Height = 50
-        button.Width = 359
+        button.Width = 345
         button.Margin = Padding(10, 10, 10, 0)
         button.BackColor = Color.LightGray
         button.FlatStyle = FlatStyle.Flat;
