@@ -44,7 +44,7 @@ import numpy
 import datetime
 from logging import info, error
 from pydicom.dataset import Dataset
-from pydicom import UID
+from pydicom.uid import generate_uid
 
 # If running from Windows, prompt user to select folder. Otherwise, ask them via input
 try:
@@ -54,7 +54,7 @@ try:
     dialog = FolderBrowserDialog()
     dialog.Description = 'Select path to write CT to:'
     dialog.ShowNewFolderButton = True
-    if dialog.ShowDialog() == DialogResult.OK:
+    if (dialog.ShowDialog() == DialogResult.OK):
         path = dialog.SelectedPath
     else:
         error('A path was not selected')
@@ -66,7 +66,7 @@ size = [651,401,651]
 res = [1,1,1]
 
 # Get current date, time
-now = datetime.datetime.now()
+now = datetime.datetime.now()    
 
 # Create new dict, and add basic image attributes
 ds = Dataset()
@@ -96,9 +96,9 @@ ds.SeriesDescription = 'Uniform Phantom'
 ds.PatientName = 'Water Phantom'
 ds.PatientID = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
 ds.SliceThickness = res[2]
-ds.StudyInstanceUID = UID.generate_uid()
-ds.SeriesInstanceUID = UID.generate_uid()
-ds.FrameOfReferenceUID = UID.generate_uid()
+ds.StudyInstanceUID = generate_uid()
+ds.SeriesInstanceUID = generate_uid()
+ds.FrameOfReferenceUID = generate_uid()
 ds.PatientPosition = 'HFS'
 ds.ImageOrientationPatient = [1,0,0,0,1,0]
 ds.ImagePositionPatient = [-((size[0]-1)*res[0])/2, -res[1]/2, ((size[2]-1)*res[2])/2]
@@ -125,7 +125,7 @@ ds.PixelData = img.tostring()
 for i in range(size[2]):
 
     # Generate unique IDs
-    ds.MediaStorageSOPInstanceUID = UID.generate_uid()
+    ds.MediaStorageSOPInstanceUID = generate_uid()
     ds.SOPInstanceUID = ds.MediaStorageSOPInstanceUID
     
     # Set position info for this image
