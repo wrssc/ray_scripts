@@ -71,13 +71,13 @@ now = datetime.datetime.now()
 # Create new dict, and add basic image attributes
 ds = Dataset()
 ds.file_meta = Dataset()
-ds.TransferSyntaxUID = '1.2.840.10008.1.2'
-ds.ImplementationClassUID = '1.2.40.0.13.1.1'
-ds.ImplementationVersionName = 'dcm4che-2.0'
+ds.file_meta.TransferSyntaxUID = '1.2.840.10008.1.2'
+ds.file_meta.ImplementationClassUID = '1.2.40.0.13.1.1'
+ds.file_meta.ImplementationVersionName = 'dcm4che-2.0'
 ds.SpecificCharacterSet = 'ISO_IR 100'
-ds.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
+ds.file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
 ds.Modality = 'CT'
-ds.SOPClassUID = ds.MediaStorageSOPClassUID
+ds.SOPClassUID = ds.file_meta.MediaStorageSOPClassUID
 ds.is_little_endian = True
 ds.is_implicit_VR = True
 ds.RescaleIntercept = -1024
@@ -125,8 +125,8 @@ ds.PixelData = img.tostring()
 for i in range(size[2]):
 
     # Generate unique IDs
-    ds.MediaStorageSOPInstanceUID = generate_uid()
-    ds.SOPInstanceUID = ds.MediaStorageSOPInstanceUID
+    ds.file_meta.MediaStorageSOPInstanceUID = generate_uid()
+    ds.SOPInstanceUID = ds.file_meta.MediaStorageSOPInstanceUID
     
     # Set position info for this image
     ds.SliceLocation = -((size[2]-1)*res[2])/2 + i * res[2]
