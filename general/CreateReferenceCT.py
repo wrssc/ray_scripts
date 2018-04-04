@@ -44,7 +44,6 @@ import pydicom
 import numpy
 import datetime
 from logging import info, error
-from dicom.dataset import Dataset
 
 # If running from Windows, prompt user to select folder. Otherwise, ask them via input
 try:
@@ -69,8 +68,8 @@ res = [1,1,1]
 now = datetime.datetime.now()
 
 # Create new dict, and add basic image attributes
-ds = Dataset()
-ds.file_meta = Dataset()
+ds = pydicom.dataset.Dataset()
+ds.file_meta = pydicom.dataset.Dataset()
 ds.TransferSyntaxUID = '1.2.840.10008.1.2'
 ds.ImplementationClassUID = '1.2.40.0.13.1.1'
 ds.ImplementationVersionName = 'dcm4che-2.0'
@@ -96,9 +95,9 @@ ds.SeriesDescription = 'Uniform Phantom'
 ds.PatientName = 'Water Phantom'
 ds.PatientID = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
 ds.SliceThickness = res[2]
-ds.StudyInstanceUID = dicom.UID.generate_uid()
-ds.SeriesInstanceUID = dicom.UID.generate_uid()
-ds.FrameOfReferenceUID = dicom.UID.generate_uid()
+ds.StudyInstanceUID = pydicom.UID.generate_uid()
+ds.SeriesInstanceUID = pydicom.UID.generate_uid()
+ds.FrameOfReferenceUID = pydicom.UID.generate_uid()
 ds.PatientPosition = 'HFS'
 ds.ImageOrientationPatient = [1,0,0,0,1,0]
 ds.ImagePositionPatient = [-((size[0]-1)*res[0])/2, -res[1]/2, ((size[2]-1)*res[2])/2]
@@ -125,7 +124,7 @@ ds.PixelData = img.tostring()
 for i in range(size[2]):
 
     # Generate unique IDs
-    ds.MediaStorageSOPInstanceUID = dicom.UID.generate_uid()
+    ds.MediaStorageSOPInstanceUID = pydicom.UID.generate_uid()
     ds.SOPInstanceUID = ds.MediaStorageSOPInstanceUID
     
     # Set position info for this image
