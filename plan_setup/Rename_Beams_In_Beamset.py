@@ -1,4 +1,4 @@
-""" Rename_Beams_In_Beamset
+""" Rename Beams In Beamset
     
     Automatically label beams in Raystation according to UW Standard
 
