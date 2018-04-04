@@ -23,9 +23,9 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__date__ = '2018-04-02'
+__date__ = '2018-04-04'
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = 'N/A'
@@ -62,9 +62,13 @@ if __name__ == "__main__":
     # Specify import statements
     import os
     import sys
-    import wpf
-    from System.Windows import Window, Thickness
-    from System.Windows.Controls import Button, StackPanel, ScrollViewer, ScrollBarVisibility
+    import clr
+    import shutil
+    clr.AddReference('System.Windows.Forms')
+    from System.Windows.Forms import Form, Button, Padding, FlatStyle, TableLayoutPanel, \
+        TableLayoutPanelGrowStyle, ToolTip, ProgressBar, ProgressBarStyle
+    clr.AddReference('System.Drawing')
+    from System.Drawing import Color
 
     # Start logging
     if logs != '':
@@ -77,88 +81,135 @@ if __name__ == "__main__":
         local = 'ray_scripts'
            
         # Get list of branches 
-        from urllib2 import urlopen, Request
-        import json
-        r = Request(api+'/branches')
+        import requests
         if token != '':
-            r.add_header('Authorization', 'token {}'.format(token))
-        list = json.loads(urlopen(r).read())
+            r = requests.get(api+'/branches', \
+                headers={'Authorization': 'token {}'.format(token)})
+        else:
+            r = requests.get(api+'/branches')
+        list = r.json()
         
         # Start XAML content. As each branch is found, additional content will be appended
-        window = Window()
-        window.Width = 400
-        window.Height = 500
-        window.Title = 'Select a branch to run'
-        scroll = ScrollViewer()
-        scroll.Height = 500
-        scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-        window.Content = scroll
-        stack = StackPanel()
-        stack.Margin = Thickness(15)
-        scroll.Content = stack
+        form = Form()
+        form.Width = 400
+        form.Height = 500
+        form.Padding = Padding(0)
+        form.Text = 'Select a branch to run'
+        form.AutoScroll = True
+        form.BackColor = Color.White
+        table = TableLayoutPanel()
+        table.Width = 369
+        table.Height = 460
+        table.ColumnCount = 1
+        table.RowCount = 1
+        table.GrowStyle = TableLayoutPanelGrowStyle.AddRows
+        table.Padding = Padding(0)
+        table.BackColor = Color.White
+        form.Controls.Add(table)
         
         # Define button action
         def DownloadBranch(self, e):
-            window.DialogResult = True
-            branch = self.Content
-            
+            branch = self.Text
+            form.DialogResult = True
+
             # Get branch content
             try:
-                r = Request(api+'/contents?ref='+branch)
                 if token != '':
-                    r.add_header('Authorization', 'token {}'.format(token))
+                    r = requests.get(api+'/contents?ref='+branch, \
+                        headers={'Authorization': 'token {}'.format(token)})
+                else:
+                    r = requests.get(api+'/contents?ref='+branch)
     
-                list = json.loads(urlopen(r).read())
+                list = r.json()
             except:
-                error('Could not access GitHub repository')
+                if logs != '':
+                    logging.error('Could not access GitHub repository')
+                else:
+                    print 'Could not access GitHub repository'
                 exit()
+
+            # Update progress bar length
+            bar.Maximum = len(list);
+            bar.Visible = True;
 
             # Clear directory
             if os.path.exists(local):
                 try:
                     shutil.rmtree(local)
                 except:
-                    error('Could not delete local repository')
+                    if logs != '':
+                        logging.error('Could not delete local repository')
+                    else:
+                        print 'Could not delete local repository'
             os.mkdir(local)
 
             # Loop through folders in branch, creating folders and pulling content
             for l in list:
-                if l.get('type'):
+                if l.get('type') and not l.get('submodule_git_url'):
                     if l['type'] == u'dir':
                         if l['name'] != u'.git':
-                            r = Request(api +'/contents' + l['path'] + '?ref=' + branch)
                             if token != '':
-                                r.add_header('Authorization', 'token {}'.format(token))
+                                r = requests.get(api +'/contents' + l['path'] + \
+                                    '?ref='+branch, headers={'Authorization': \
+                                    'token {}'.format(token)})
+                            else:
+                                r = requests.get(api +'/contents' + l['path'] + \
+                                '?ref='+branch)
                         
-                            sublist = json.loads(urlopen(r).read())
+                            sublist = r.json()
                             for s in sublist:
                                 list.append(s)
             
                             if not os.path.exists(os.path.join(local, l['path'])):
                                 os.mkdir(os.path.join(local, l['path']))
     
+            # Update progress bar length to full list
+            bar.Value = 1
+            bar.Maximum = len(list)
+    
             # Loop through files in branch, downloading each
             for l in list:
+                bar.PerformStep();
                 if l['type'] == u'file':
                     if l.get('download_url'):
                         print 'Downloading {}'.format(l['download_url'])
                         if os.path.exists(os.path.join(local, l['path'])):
                             os.remove(os.path.join(local, l['path']))
-                        r = Request(l['download_url'])
                         if token != '':
-                            r.add_header('Authorization', 'token {}'.format(token))
-                        open(os.path.join(local, l['path']), 'wb').write(urlopen(r).read())
+                            r = requests.get(l['download_url'], headers={'Authorization': \
+                                'token {}'.format(token)})
+                        else:
+                            r = requests.get(l['download_url'])
+                            
+                        open(os.path.join(local, l['path']), 'wb').write(r.content)
         
+
         # Loop through branches
         for l in list:
             button = Button()
-            button.Content = l['name'].decode('utf-8')
-            button.Margin = Thickness(5)
+            button.Text = l['name'].decode('utf-8')
+            button.Height = 50
+            button.Width = 359
+            button.Margin = Padding(10, 10, 10, 0)
+            button.BackColor = Color.LightGray
+            button.FlatStyle = FlatStyle.Flat
             button.Click += DownloadBranch
-            stack.Children.Add(button)
-            
-        # Show branch selector dialog
-        window.ShowDialog()
+            table.Controls.Add(button)
+        
+        # Add progress bar
+        bar = ProgressBar()
+        bar.Visible = False
+        bar.Minimum = 1
+        bar.Maximum = 1
+        bar.Value = 1
+        bar.Step = 1
+        bar.Width = 359
+        bar.Height = 30
+        bar.Margin = Padding(10, 10, 10, 0)
+        bar.Style = ProgressBarStyle.Continuous
+        table.Controls.Add(bar)
+
+        form.ShowDialog()
 
     # Initialize list of scripts
     paths = []
@@ -183,42 +234,62 @@ if __name__ == "__main__":
                 tooltips.append('\n'.join(s))
 
     # Start XAML content. As each script is found, additional content will be appended
-    window = Window()
-    window.Width = 400
-    window.Height = 500
-    window.Title = 'Select a script to run'
-    scroll = ScrollViewer()
-    scroll.Height = 500
-    scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-    window.Content = scroll
-    stack = StackPanel()
-    stack.Margin = Thickness(15)
-    scroll.Content = stack
+    form = Form()
+    form.Width = 400
+    form.Height = 500
+    form.Padding = Padding(0)
+    form.Text = 'Select a script to run'
+    form.AutoScroll = True
+    form.BackColor = Color.White
+    table = TableLayoutPanel()
+    table.Width = 369
+    table.Height = 460
+    table.ColumnCount = 1
+    table.RowCount = 1
+    table.GrowStyle = TableLayoutPanelGrowStyle.AddRows
+    table.Padding = Padding(0)
+    table.BackColor = Color.White
+    form.Controls.Add(table)
 
     # Define button action
     def RunScript(self, e):
-        window.DialogResult = True
+        form.DialogResult = True
         sys.path.append(local)
         if library != '':
             sys.path.append(os.path.join(local, library))
-        sys.path.append(paths[names.index(self.Content)])
+        sys.path.append(paths[names.index(self.Text)])
         try:
-            logging.info('Executing {}.py'.format(scripts[names.index(self.Content)]))
-            __import__(scripts[names.index(self.Content)])
+            if logs != '':
+                logging.info('Executing {}.py'.format(scripts[names.index(self.Text)]))
+            else:
+                print 'Executing {}.py'.format(scripts[names.index(self.Text)])
+                
+            __import__(scripts[names.index(self.Text)])
         except Exception as e:
-            logging.error('{}.py: {}'.format(scripts[names.index(self.Content)], str(e)))
-            logging.shutdown()
+            if logs != '':
+                logging.error('{}.py: {}'.format(scripts[names.index(self.Text)], str(e)))
+                logging.shutdown()
+            else:
+                print '{}.py: {}'.format(scripts[names.index(self.Text)], str(e))
+
             raise
 
     # List directory contents
     for name, tip in sorted(zip(names, tooltips)):
         button = Button()
-        button.Content = name
-        button.Margin = Thickness(5)
-        button.ToolTip = tip
+        button.Text = name
+        button.Height = 50
+        button.Width = 359
+        button.Margin = Padding(10, 10, 10, 0)
+        button.BackColor = Color.LightGray
+        button.FlatStyle = FlatStyle.Flat;
         button.Click += RunScript
-        stack.Children.Add(button)
+        table.Controls.Add(button)
+        
+        tooltip = ToolTip()
+        tooltip.SetToolTip(button, tip);
        
     # Open window  
-    window.ShowDialog()
-    logging.shutdown()
+    form.ShowDialog()
+    if logs != '':
+        logging.shutdown()
