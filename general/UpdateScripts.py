@@ -77,13 +77,9 @@ else:
     
 # Clear directory
 if os.path.exists(local):
-    try:
-        shutil.rmtree(local)
-    except:
-        print 'Could not delete {}'.format(local)
-        error('Could not delete local repository {}'.format(local))
-        
-os.mkdir(local)
+    shutil.rmtree(local, ignore_errors=True)
+else: 
+    os.mkdir(local)
 
 # Loop through folders in branch, creating folders and pulling content
 for l in list:
@@ -107,16 +103,17 @@ for l in list:
 for l in list:
     if l['type'] == u'file':
         if l.get('download_url'):
-            info('Downloading {} to {}'.format(l['download_url'], \
-                os.path.join(local, l['path'])))
-            print 'Downloading {} to {}'.format(l['download_url'], \
-                os.path.join(local, l['path']))
-            if os.path.exists(os.path.join(local, l['path'])):
-                os.remove(os.path.join(local, l['path']))
-            if main.token != '':
-                r = requests.get(l['download_url'], \
-                        headers={'Authorization': 'token {}'.format(main.token)})
-            else:
-                r = requests.get(l['download_url'])
+            if os.path.basename(l['path'].decode('utf-8')) != os.path.basename(__file__):
+                info('Downloading {} to {}'.format(l['download_url'], \
+                    os.path.join(local, l['path'])))
+                print 'Downloading {} to {}'.format(l['download_url'], \
+                    os.path.join(local, l['path']))
+                if os.path.exists(os.path.join(local, l['path'])):
+                    os.remove(os.path.join(local, l['path']))
+                if main.token != '':
+                    r = requests.get(l['download_url'], \
+                            headers={'Authorization': 'token {}'.format(main.token)})
+                else:
+                    r = requests.get(l['download_url'])
                 
-            open(os.path.join(local, l['path']), 'wb').write(r.content)
+                open(os.path.join(local, l['path']), 'wb').write(r.content)
