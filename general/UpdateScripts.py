@@ -1,6 +1,8 @@
 """ Refresh Production Scripts
     
-    This script refreshes the local list of scripts from the online repository.
+    This script refreshes the local list of scripts from the online repository. This is 
+    only applicable if a local variable was set in the version of ScriptSelector imported 
+    into RayStation.
     
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -34,9 +36,8 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import requests
 import os
 import shutil
-from logging import warning
-from ScriptSelector import local, api, token
-from DownloadRepo import DownloadRepo
+from logging import info, error
+from ScriptSelector import api, token, local
 
 # Specify branch to download
 branch = 'master'
@@ -54,12 +55,26 @@ except:
     error('Could not access GitHub repository')
     exit()
 
+# If local is empty, prompt user to select the location
+if local == '':
+    import clr
+    clr.AddReference('System.Windows.Forms')
+    from System.Windows.Forms import FolderBrowserDialog, DialogResult
+    dialog = FolderBrowserDialog()
+    dialog.Description = 'Select the local path to refresh:'
+    if (dialog.ShowDialog() == DialogResult.OK):
+        local = dialog.SelectedPath
+    else:
+        error('A local folder was not defined')
+        exit()
+
 # Clear directory
 if os.path.exists(local):
     try:
         shutil.rmtree(local)
     except:
         error('Could not delete local repository')
+        
 os.mkdir(local)
 
 # Loop through folders in branch, creating folders and pulling content
@@ -84,7 +99,10 @@ for l in list:
 for l in list:
     if l['type'] == u'file':
         if l.get('download_url'):
-            print 'Downloading {}'.format(l['download_url'])
+            info('Downloading {} to {}'.format(l['download_url'], \
+                os.path.join(local, l['path'])))
+            print 'Downloading {} to {}'.format(l['download_url'], \
+                os.path.join(local, l['path']))
             if os.path.exists(os.path.join(local, l['path'])):
                 os.remove(os.path.join(local, l['path']))
             r = requests.get(l['download_url'])
