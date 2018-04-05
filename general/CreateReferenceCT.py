@@ -56,6 +56,7 @@ dialog.Description = 'Select path to write CT to:'
 dialog.ShowNewFolderButton = True
 print 'Opening file'
 result = dialog.ShowDialog()
+print result
 if (result == DialogResult.OK):
     path = dialog.SelectedPath
 else:
