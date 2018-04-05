@@ -26,7 +26,7 @@ __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
 __date__ = '2018-02-07'
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = 'N/A'
@@ -40,26 +40,26 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify import statements
 import os
-import numpy
+from numpy import zeros, uint16
 import datetime
 from logging import info, error
 from pydicom.dataset import Dataset
 from pydicom.uid import generate_uid
 
 # If running from Windows, prompt user to select folder. Otherwise, ask them via input
-try:
-    import clr
-    clr.AddReference('System.Windows.Forms')
-    from System.Windows.Forms import FolderBrowserDialog, DialogResult
-    dialog = FolderBrowserDialog()
-    dialog.Description = 'Select path to write CT to:'
-    dialog.ShowNewFolderButton = True
-    if (dialog.ShowDialog() == DialogResult.OK):
-        path = dialog.SelectedPath
-    else:
-        error('A path was not selected')
-except:
-    path = raw_input('Enter path to write CT to: ')
+#try:
+import clr
+clr.AddReference('System.Windows.Forms')
+from System.Windows.Forms import FolderBrowserDialog, DialogResult
+dialog = FolderBrowserDialog()
+dialog.Description = 'Select path to write CT to:'
+dialog.ShowNewFolderButton = True
+if (dialog.ShowDialog() == DialogResult.OK):
+    path = dialog.SelectedPath
+else:
+    error('A path was not selected')
+#except:
+#    path = raw_input('Enter path to write CT to: ')
 
 # Declare image size and resolution (in mm), IEC [X,Z,Y]
 size = [651,401,651]
@@ -114,7 +114,7 @@ ds.HighBit = 15
 ds.PixelRepresentation = 0
 
 # Create padded image
-img = numpy.zeros(shape=(size[1],size[0]), dtype=numpy.uint16)
+img = zeros(shape=(size[1],size[0]), dtype=uint16)
 for i in range(1, size[1]-1):
     for j in range(1, size[0]-1):
         img[i,j] = 1024
