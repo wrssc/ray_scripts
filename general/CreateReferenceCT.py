@@ -52,13 +52,11 @@ try:
     ipy = r'c:\Program Files (x86)\IronPython 2.7.1\ipy.exe'
     str = 'Select folder to export CT to:'
     import subprocess
-    print os.path.join(os.path.dirname(os.path.abspath(__file__)), \
-        '..\library\FolderBrowser.py')
     path = subprocess.check_output('"{}" {} "{}"'.format(ipy, \
         os.path.join(os.path.dirname(os.path.abspath(__file__)), \
-        '..\library\FolderBrowser.py'), str))
+        '..\library\FolderBrowser.py'), str)).strip()
 except:
-    path = raw_input('Enter path to write CT to: ')
+    path = raw_input('Enter path to write CT to: ').strip()
 
 # Declare image size and resolution (in mm), IEC [X,Z,Y]
 size = [651,401,651]
