@@ -1,9 +1,9 @@
 """ Create Reference CT
     
-    This script generates a 65x65x40 cm3 homogeneous phantom CT (0 HU) padded by empty 
-    voxels. The DICOM origin is set to the top (anterior) center of the image. The image 
-    size and dimensions are specified below. The resulting DICOM images are saved to the 
-    provided directory using the format ct_###.dcm.
+    This script generates a homogeneous phantom CT (0 HU) padded by empty voxels. The 
+    DICOM origin is set to the top (anterior) center of the image. The image size and 
+    dimensions are specified below. The resulting DICOM images are saved to the provided 
+    directory using the format ct_###.dcm.
     
     This script uses the pydicom and numpy packages. For installation instructions, see 
     http://pydicom.readthedocs.io/en/stable/getting_started.html and 
@@ -50,13 +50,35 @@ from pydicom.uid import generate_uid
 #try:
 import clr
 clr.AddReference('System.Windows.Forms')
-from System.Windows.Forms import FolderBrowserDialog, DialogResult
+from System.Windows.Forms import Form, Label, FolderBrowserDialog, DialogResult
+clr.AddReference('System.Drawing')
+from System.Drawing import Size  
+form = Form()
+form.Width = 400
+form.Height = 300
+form.Padding = Padding(0)
+form.Text = 'Specify CT Parameters'
+form.AutoScroll = True
+form.BackColor = Color.White
+table = TableLayoutPanel()
+table.ColumnCount = 1
+table.RowCount = 1
+table.GrowStyle = TableLayoutPanelGrowStyle.AddRows
+table.Padding = Padding(0)
+table.BackColor = Color.White
+table.AutoSize = True
+form.Controls.Add(table)
+label = Label()
+label.Text = 'This script generates a homogeneous phantom CT (0 HU) padded by empty voxels. The DICOM origin is set to the top (anterior) center of the image. The image size and dimensions are specified below. The resulting DICOM images are saved to the provided directory using the format ct_###.dcm.'
+label.Size = Size(350,20)
+table.Controls.Add(label)
+form.ShowDialog()
+
 dialog = FolderBrowserDialog()
 dialog.Description = 'Select path to write CT to:'
 dialog.ShowNewFolderButton = True
 print 'Opening file'
 result = dialog.ShowDialog()
-print result
 if (result == DialogResult.OK):
     path = dialog.SelectedPath
 else:
