@@ -4,10 +4,8 @@
     list to the user of each script present in the specified subfolder. This script will 
     then execute the script that the user selects. With this approach, this is the only 
     script that needs to be loaded into RayStation, while all of the actual scripts are 
-    dynamically queried and run from this one.
-    
-    If you do not wish to download a fresh copy of the repository each time, you can also 
-    specify a local folder via the local path below. In a
+    dynamically queried and run from this one. See the repository README and wiki for
+    additional information. 
     
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
