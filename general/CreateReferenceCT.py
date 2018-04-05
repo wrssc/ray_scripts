@@ -50,7 +50,7 @@ from pydicom.uid import generate_uid
 #try:
 import clr
 clr.AddReference('System.Windows.Forms')
-from System.Windows.Forms import Form, Label, FolderBrowserDialog, DialogResult
+from System.Windows.Forms import Form, Padding, Label, FolderBrowserDialog, DialogResult
 clr.AddReference('System.Drawing')
 from System.Drawing import Size  
 form = Form()
