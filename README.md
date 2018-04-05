@@ -14,7 +14,7 @@ A full guide to installation is avaiable on the the [Installation](../../wiki/de
 
 Alternatively, users can enter a local directory into the `local` variable in [ScriptSelector.py](https://github.com/mwgeurts/ray_scripts/blob/master/ScriptSelector.py) that contains a local copy of this repository. Instead of downloading a fresh copy each time from GitHub, the local scripts will be displayed to the user for execution.
 
-The `module` variable is used to only show scripts from a particular directory in this repository. For example, setting `module = 'general'` will only show the [general scripts](../../general) to the user. In this way, multiple copies of [ScriptSelector.py](https://github.com/mwgeurts/ray_scripts/blob/master/ScriptSelector.py) can be loaded into RayStation with each pointing to a single focus of scripts.
+The `module` variable is used to only show scripts from a particular directory in this repository. For example, setting `module = 'general'` will only show the [general scripts](general) to the user. In this way, multiple copies of [ScriptSelector.py](https://github.com/mwgeurts/ray_scripts/blob/master/ScriptSelector.py) can be loaded into RayStation with each pointing to a single focus of scripts.
 
 Scripts in this repository make use of one or more of the following python packages:
 [requests](http://docs.python-requests.org/en/master/), [pydicom](http://pydicom.readthedocs.io/en/stable/getting_started.html), and 
