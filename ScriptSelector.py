@@ -182,6 +182,7 @@ if __name__ == "__main__":
                             
                         open(os.path.join(local, l['path']), 'wb').write(r.content)
         
+            form.Dispose()
 
         # Loop through branches
         for l in list:
@@ -253,19 +254,21 @@ if __name__ == "__main__":
     # Define button action
     def RunScript(self, e):
         form.DialogResult = True
+        script = names.index(self.Text)
+        form.Dispose()
         sys.path.append(local)
         if library != '':
             sys.path.append(os.path.join(local, library))
-        sys.path.append(paths[names.index(self.Text)])
+        sys.path.append(paths[script])
         try:
-            print 'Executing {}.py'.format(scripts[names.index(self.Text)])
+            print 'Executing {}.py'.format(scripts[script])
             if logs != '':
-                logging.info('Executing {}.py'.format(scripts[names.index(self.Text)]))
+                logging.info('Executing {}.py'.format(scripts[script]))
 
-            __import__(scripts[names.index(self.Text)])
+            __import__(scripts[script])
         except Exception as e:
             if logs != '':
-                logging.error('{}.py: {}'.format(scripts[names.index(self.Text)], str(e)))
+                logging.error('{}.py: {}'.format(scripts[script], str(e)))
                 logging.shutdown()
 
             raise
