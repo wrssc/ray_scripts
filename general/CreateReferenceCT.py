@@ -52,7 +52,9 @@ try:
     ipy = r'c:\Program Files (x86)\IronPython 2.7.1\ipy.exe'
     str = 'Select folder to export CT to:'
     import subprocess
-    path = subprocess.check_output('"{}" ..\library\FolderBrowser.py "{}"'.format(ipy, str))
+    path = subprocess.check_output('"{}" {} "{}"'.format(ipy, \
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), \
+        '..\library\FolderBrowser.py'), str))
 except:
     path = raw_input('Enter path to write CT to: ')
 
