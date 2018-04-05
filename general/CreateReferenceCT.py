@@ -48,13 +48,15 @@ from pydicom.uid import generate_uid
 
 # If running from Windows, prompt user to select folder. Otherwise, ask them via input
 #try:
-#import clr
-#clr.AddReference('System.Windows.Forms')
+import clr
+clr.AddReference('System.Windows.Forms')
 from System.Windows.Forms import FolderBrowserDialog, DialogResult
 dialog = FolderBrowserDialog()
 dialog.Description = 'Select path to write CT to:'
 dialog.ShowNewFolderButton = True
-if (dialog.ShowDialog() == DialogResult.OK):
+print 'Opening file'
+result = dialog.ShowDialog()
+if (result == DialogResult.OK):
     path = dialog.SelectedPath
 else:
     error('A path was not selected')
