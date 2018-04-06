@@ -31,13 +31,13 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2018-Apr-02'
+__date__ = '2018-Apr-06'
 __version__ = '1.0.0'
 __status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
-__raystation__ = '6.0.0'
+__raystation__ = '7.0.0'
 __maintainer__ = 'One maintainer'
 __email__ =  'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
