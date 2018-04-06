@@ -33,7 +33,6 @@ __credits__ = ['This friend', 'That friend', 'etc']
 import sys
 import csv
 from connect import *
-sys.path.insert(0,r"/Volumes/Physics/bayliss/RayStation/Python Scripts/Testing_AutoOptimize")
 from OptimizePlan import OptimizePlan
 from collections import namedtuple
 
@@ -56,7 +55,7 @@ OptimizationParameters = {
 # Ensure that the first row is a header for the columns
 Row = namedtuple('Row',('FirstName','LastName','PatientID','Case','PlanName','BeamsetName'))
 #filecsv =r"Z:\Physics\bayliss\RayStation\Python Scripts\Testing_AutoOptimize\Test_FileRead.csv"
-filecsv =r"Test_FileRead.csv"
+filecsv =r"testfiles\Test_FileRead.csv"
 with open(filecsv,'r') as f:
     r = csv.reader(f, delimiter=',')
     r.next() # Skip header
