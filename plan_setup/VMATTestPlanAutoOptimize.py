@@ -55,7 +55,7 @@ OptimizationParameters = {
 # Ensure that the first row is a header for the columns
 Row = namedtuple('Row',('FirstName','LastName','PatientID','Case','PlanName','BeamsetName'))
 #filecsv =r"Z:\Physics\bayliss\RayStation\Python Scripts\Testing_AutoOptimize\Test_FileRead.csv"
-filecsv =r"testfiles\Test_FileRead.csv"
+filecsv =r"..\testfiles\Test_FileRead.csv"
 with open(filecsv,'r') as f:
     r = csv.reader(f, delimiter=',')
     r.next() # Skip header
