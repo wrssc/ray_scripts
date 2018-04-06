@@ -1,3 +1,35 @@
+""" Multi-Patient VMAT Optimization
+    
+    Using a user specified csv file mulitple patients are loaded and optimized 
+    using the OptimizePlan.py function defined in ray_scripts/library
+    
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+    
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
+    """
+
+__author__ = 'Adam Bayliss'
+__contact__ = 'rabayliss@wisc.edu'
+__date__ = '2018-04-06'
+__version__ = '1.0.0'
+__status__ = 'Development'
+__deprecated__ = False
+__reviewer__ = 'Someone else'
+__reviewed__ = 'YYYY-MM-DD'
+__raystation__ = '6.0.0'
+__maintainer__ = 'One maintainer'
+__email__ =  'maintainer@wisc.edu'
+__license__ = 'GPLv3'
+__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__credits__ = ['This friend', 'That friend', 'etc']
 import sys
 import csv
 from connect import *
