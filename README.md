@@ -34,5 +34,4 @@ The following list summarizes each script within this repository as well as the 
 
 ## License
 
-Released under the GNU GPL v3.0 License. See the [LICENSE](LICENSE) file for further 
-details.
+Released under the GNU GPL v3.0 License. See the [LICENSE](LICENSE) file for further details.
