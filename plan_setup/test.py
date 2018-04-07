@@ -2,5 +2,8 @@
 
 import sys
 import os
-os.getcwd()
-os.path.abspath('.')
+a = os.getcwd()
+b = os.path.abspath('.')
+
+print a
+print b
