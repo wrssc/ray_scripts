@@ -277,5 +277,5 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     logging.shutdown()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main(local, module, library, logs, api, token)
