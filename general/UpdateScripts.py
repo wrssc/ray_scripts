@@ -18,9 +18,9 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.0.1'
+__version__ = '1.1.0'
 __license__ = 'GPLv3'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Installation'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Local-Repository-Setup'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 
@@ -33,6 +33,14 @@ def main():
     import importlib
     import shutil
     import logging
+    import clr
+    import hashlib
+
+    clr.AddReference('System.Windows.Forms')
+    import System.Windows.Forms
+
+    clr.AddReference('System.Drawing')
+    import System.Drawing
 
     # Retrieve variables from invoking function
     selector = importlib.import_module(os.path.basename(sys.modules['__main__'].__file__).split('.')[0])
@@ -48,7 +56,7 @@ def main():
         else:
             r = requests.get(selector.api + '/contents?ref=' + branch)
 
-        files = r.json()
+        file_list = r.json()
 
     except requests.ConnectionError:
         logging.exception('Could not access GitHub repository')
@@ -65,6 +73,24 @@ def main():
     else:
         local = selector.local
 
+    # Display progress bar
+    form = System.Windows.Forms.Form()
+    form.Width = 350
+    form.Height = 100
+    form.Text = 'Downloading folder structure'
+    bar = System.Windows.Forms.ProgressBar()
+    bar.Visible = True
+    bar.Minimum = 1
+    bar.Maximum = 100
+    bar.Value = 1
+    bar.Step = 1
+    bar.Width = 300
+    bar.Height = 50
+    bar.Margin = System.Windows.Forms.Padding(25, 25, 25, 25)
+    bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
+    form.Controls.Add(bar)
+    form.ShowDialog()
+
     # Clear directory
     if os.path.exists(local):
         shutil.rmtree(local, ignore_errors=True)
@@ -72,25 +98,29 @@ def main():
         os.mkdir(local)
 
     # Loop through folders in branch, creating folders and pulling content
-    for l in files:
+    for l in file_list:
         if l.get('type'):
             if l['type'] == u'dir':
-                if l['name'] != u'.git':
-                    if selector.token != '':
-                        r = requests.get(selector.api + '/contents' + l['path'] + '?ref=' + branch,
-                                         headers={'Authorization': 'token {}'.format(selector.token)})
-                    else:
-                        r = requests.get(selector.api + '/contents' + l['path'] + '?ref=' + branch)
+                if selector.token != '':
+                    r = requests.get(selector.api + '/contents' + l['path'] + '?ref=' + branch,
+                                     headers={'Authorization': 'token {}'.format(selector.token)})
+                else:
+                    r = requests.get(selector.api + '/contents' + l['path'] + '?ref=' + branch)
 
-                    sublist = r.json()
-                    for s in sublist:
-                        files.append(s)
+                sublist = r.json()
+                for s in sublist:
+                    file_list.append(s)
 
-                    if not os.path.exists(os.path.join(local, l['path'])):
-                        os.mkdir(os.path.join(local, l['path']))
+                if not os.path.exists(os.path.join(local, l['path'])):
+                    os.mkdir(os.path.join(local, l['path']))
+
+    # Update progress bar text and length
+    form.Text = 'Downloading files'
+    bar.Maximum = len(file_list) * 2
 
     # Loop through files in branch, downloading each
-    for l in files:
+    for l in file_list:
+        bar.PerformStep()
         if l['type'] == u'file':
             if l.get('download_url'):
                 if os.path.basename(l['path'].decode('utf-8')) != os.path.basename(__file__):
@@ -107,6 +137,30 @@ def main():
                         r = requests.get(l['download_url'])
 
                     open(os.path.join(local, l['path']), 'wb').write(r.content)
+
+    # Update progress bar text and length
+    form.Text = 'Verifying Hashes'
+
+    # Loop through files again, verifying
+    for l in file_list:
+        bar.PerformStep()
+        if l['type'] == u'file':
+            sha1sum = hashlib.sha1()
+            with open(os.path.join(local, l['path']), 'rb') as source:
+                block = source.read(2 ** 16)
+                while len(block) != 0:
+                    sha1sum.update(block)
+                    block = source.read(2 ** 16)
+
+            if l['sha'] == sha1sum.hexdigest():
+                logging.info('Hash {} verified: {}'.format(l['path'], l['sha']))
+                print 'Hash {} verified: {}'.format(l['path'], l['sha'])
+            else:
+                logging.warning('Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest()))
+                print 'Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest())
+
+    # Close form
+    form.DialogResult = True
 
 
 if __name__ == "__main__":
