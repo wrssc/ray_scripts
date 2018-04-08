@@ -25,31 +25,21 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__date__ = '2018-04-05'
-
 __version__ = '1.0.0'
-__status__ = 'Development'
-__deprecated__ = False
-__reviewer__ = 'N/A'
-
-__reviewed__ = 'YYYY-MM-DD'
-__maintainer__ = 'Mark Geurts'
-
-__email__ =  'mark.w.geurts@gmail.com'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify import statements
-import clr
 import sys
+import clr
 clr.AddReference('System.Windows.Forms')
-from System.Windows.Forms import FolderBrowserDialog, DialogResult
+import System.Windows.Forms
 
 # Create FolderBrowserDialog
-dialog = FolderBrowserDialog()
+dialog = System.Windows.Forms.FolderBrowserDialog()
 dialog.Description = sys.argv[1]
 dialog.ShowNewFolderButton = True
 
 # Open dialog and wait for response
-if (dialog.ShowDialog() == DialogResult.OK):
+if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
     print dialog.SelectedPath
