@@ -142,28 +142,33 @@ def main():
     form.Text = 'Verifying Hashes'
 
     # Loop through files again, verifying
+    passed = True
     for l in file_list:
         bar.PerformStep()
         if l['type'] == u'file':
             if l.get('download_url'):
-                sha1sum = hashlib.sha1()
-                with open(os.path.join(local, l['path']), 'rb') as source:
-                    block = source.read(2 ** 16)
-                    while len(block) != 0:
-                        sha1sum.update(block)
-                        block = source.read(2 ** 16)
 
-                if l['sha'] == sha1sum.hexdigest():
+                fid = open(os.path.join(local, l['path']), 'rb')
+                content = fid.read()
+                fid.close()
+                sha = hashlib.sha1('blob {}\0{}'.format(len(content), content)).hexdigest()
+
+                if l['sha'] == sha:
                     logging.info('Hash {} verified: {}'.format(l['path'], l['sha']))
                     print 'Hash {} verified: {}'.format(l['path'], l['sha'])
                 else:
-                    logging.warning('Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest()))
-                    print 'Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest())
+                    logging.warning('Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha))
+                    print 'Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha)
+                    passed = False
 
     # Show success message
     form.DialogResult = True
-    System.Windows.Forms.MessageBox.Show('Script download and checksum verification successful', 'Success',
-                                         System.Windows.Forms.MessageBoxButtons.OK)
+    if passed:
+        System.Windows.Forms.MessageBox.Show('Script download and checksum verification successful', 'Success',
+                                             System.Windows.Forms.MessageBoxButtons.OK)
+    else:
+        System.Windows.Forms.MessageBox.Show('Scripts download, but verification failed', 'Warning',
+                                             System.Windows.Forms.MessageBoxButtons.OK)
 
 
 if __name__ == '__main__':
