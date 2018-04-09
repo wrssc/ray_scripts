@@ -55,9 +55,9 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     import clr
     import shutil
     import logging
+    import importlib
 
     clr.AddReference('System.Windows.Forms')
-    import System.Windows.Forms
 
     clr.AddReference('System.Drawing')
     import System.Drawing
@@ -202,6 +202,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     scripts = []
     names = []
     tooltips = []
+    help_links = []
     print 'Scanning {} for scripts'.format(os.path.join(m_local, m_module))
     for root, dirs, files in os.walk(os.path.join(m_local, m_module)):
         for f in files:
@@ -210,13 +211,20 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                 scripts.append(f.rstrip('.py'))
                 fid = open(os.path.join(root, f))
                 c = fid.readlines()
-                names.append(c.pop(0).strip(' " \n'))
-                c.pop(0)
+                names.append(c.pop(0).strip(' " \n')) # Assume first line contains name
+                c.pop(0) # Skip second line
                 s = []
                 for l in c:
                     if l.isspace():
                         break
                     s.append(l.strip())
+                h = ''
+                for l in c:
+                    if '__help__' in l:
+                        h = l.split('=')[1].strip(' \'"')
+                        break
+
+                help_links.append(h)
                 fid.close()
                 tooltips.append('\n'.join(s))
 
@@ -248,10 +256,10 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         sys.path.append(paths[script])
         try:
             print 'Executing {}.py'.format(scripts[script])
-            if m_logs != '':
-                logging.info('Executing {}.py'.format(scripts[script]))
+            logging.info('Executing {}.py'.format(scripts[script]))
+            code = importlib.import_module(scripts[script])
+            code.main()
 
-            __import__(scripts[script])
         except Exception as e:
             logging.exception('{}.py: {}'.format(scripts[script], str(e)))
             logging.shutdown()
