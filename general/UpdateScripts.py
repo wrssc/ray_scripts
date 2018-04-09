@@ -78,6 +78,7 @@ def main():
     form.Width = 350
     form.Height = 100
     form.Text = 'Downloading folder structure'
+    form.Padding = System.Windows.Forms.Padding(25)
     bar = System.Windows.Forms.ProgressBar()
     bar.Visible = True
     bar.Minimum = 1
@@ -85,11 +86,10 @@ def main():
     bar.Value = 1
     bar.Step = 1
     bar.Width = 300
-    bar.Height = 50
-    bar.Margin = System.Windows.Forms.Padding(25, 25, 25, 25)
+    bar.Height = 30
     bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
     form.Controls.Add(bar)
-    form.ShowDialog()
+    form.Show()
 
     # Clear directory
     if os.path.exists(local):
