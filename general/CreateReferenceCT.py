@@ -30,8 +30,8 @@ __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Create-Reference-CT'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 
+# noinspection PyUnresolvedReferences
 def main():
-
     # Specify import statements
     import os
     import numpy
@@ -43,14 +43,16 @@ def main():
     # prompt user to select folder, otherwise, ask them via raw_input()
     try:
         ipy = r'c:\Program Files (x86)\IronPython 2.7.1\ipy.exe'
-        str = 'Select folder to export CT to:'
+        desc = 'Select folder to export CT to:'
         import subprocess
 
         path = subprocess.check_output('"{}" {} "{}"'.format(ipy,
                                                              os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                          '..\library\FolderBrowser.py'), str)).strip()
-    except:
+                                                                          '..\library\FolderBrowser.py'), desc)).strip()
+    except OSError:
         path = raw_input('Enter path to write CT to: ').strip()
+        if not os.path.exists(path):
+            os.mkdir(path)
 
     # Declare image size and resolution (in mm), IEC [X,Z,Y]
     size = [651, 401, 651]
@@ -114,7 +116,6 @@ def main():
 
     # Loop through CT Images
     for i in range(size[2]):
-
         # Generate unique IDs
         ds.file_meta.MediaStorageSOPInstanceUID = pydicom.uid.generate_uid()
         ds.SOPInstanceUID = ds.file_meta.MediaStorageSOPInstanceUID
@@ -127,6 +128,7 @@ def main():
         # Write CT image
         logging.info('Writing image ct_{0:0>3}.dcm'.format(i + 1))
         ds.save_as(os.path.normpath('{0}/ct_{1:0>3}.dcm'.format(path, i + 1)))
+
 
 if __name__ == '__main__':
     main()
