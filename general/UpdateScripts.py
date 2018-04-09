@@ -145,19 +145,20 @@ def main():
     for l in file_list:
         bar.PerformStep()
         if l['type'] == u'file':
-            sha1sum = hashlib.sha1()
-            with open(os.path.join(local, l['path']), 'rb') as source:
-                block = source.read(2 ** 16)
-                while len(block) != 0:
-                    sha1sum.update(block)
+            if l.get('download_url'):
+                sha1sum = hashlib.sha1()
+                with open(os.path.join(local, l['path']), 'rb') as source:
                     block = source.read(2 ** 16)
+                    while len(block) != 0:
+                        sha1sum.update(block)
+                        block = source.read(2 ** 16)
 
-            if l['sha'] == sha1sum.hexdigest():
-                logging.info('Hash {} verified: {}'.format(l['path'], l['sha']))
-                print 'Hash {} verified: {}'.format(l['path'], l['sha'])
-            else:
-                logging.warning('Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest()))
-                print 'Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest())
+                if l['sha'] == sha1sum.hexdigest():
+                    logging.info('Hash {} verified: {}'.format(l['path'], l['sha']))
+                    print 'Hash {} verified: {}'.format(l['path'], l['sha'])
+                else:
+                    logging.warning('Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest()))
+                    print 'Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest())
 
     # Close form
     form.DialogResult = True
