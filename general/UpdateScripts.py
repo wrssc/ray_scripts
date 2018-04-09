@@ -78,7 +78,6 @@ def main():
     form.Width = 350
     form.Height = 100
     form.Text = 'Downloading folder structure'
-    form.Padding = System.Windows.Forms.Padding(25)
     bar = System.Windows.Forms.ProgressBar()
     bar.Visible = True
     bar.Minimum = 1
@@ -87,6 +86,7 @@ def main():
     bar.Step = 1
     bar.Width = 300
     bar.Height = 30
+    bar.Padding = System.Windows.Forms.Padding(25)
     bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
     form.Controls.Add(bar)
     form.Show()
@@ -123,20 +123,17 @@ def main():
         bar.PerformStep()
         if l['type'] == u'file':
             if l.get('download_url'):
-                if os.path.basename(l['path'].decode('utf-8')) != os.path.basename(__file__):
-                    logging.info('Downloading {} to {}'.format(l['download_url'],
-                                                               os.path.join(local, l['path'])))
-                    print 'Downloading {} to {}'.format(l['download_url'],
-                                                        os.path.join(local, l['path']))
-                    if os.path.exists(os.path.join(local, l['path'])):
-                        os.remove(os.path.join(local, l['path']))
-                    if selector.token != '':
-                        r = requests.get(l['download_url'],
-                                         headers={'Authorization': 'token {}'.format(selector.token)})
-                    else:
-                        r = requests.get(l['download_url'])
+                logging.info('Downloading {} to {}'.format(l['download_url'],
+                                                           os.path.join(local, l['path'])))
+                if os.path.exists(os.path.join(local, l['path'])):
+                    os.remove(os.path.join(local, l['path']))
+                if selector.token != '':
+                    r = requests.get(l['download_url'],
+                                     headers={'Authorization': 'token {}'.format(selector.token)})
+                else:
+                    r = requests.get(l['download_url'])
 
-                    open(os.path.join(local, l['path']), 'wb').write(r.content)
+                open(os.path.join(local, l['path']), 'wb').write(r.content)
 
     # Update progress bar text and length
     form.Text = 'Verifying Hashes'
@@ -148,17 +145,15 @@ def main():
         if l['type'] == u'file':
             if l.get('download_url'):
 
-                fid = open(os.path.join(local, l['path']), 'rb')
-                content = fid.read()
-                fid.close()
+                fh = open(os.path.join(local, l['path']), 'rb')
+                content = fh.read()
+                fh.close()
                 sha = hashlib.sha1('blob {}\0{}'.format(len(content), content)).hexdigest()
 
                 if l['sha'] == sha:
                     logging.info('Hash {} verified: {}'.format(l['path'], l['sha']))
-                    print 'Hash {} verified: {}'.format(l['path'], l['sha'])
                 else:
                     logging.warning('Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha))
-                    print 'Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha)
                     passed = False
 
     # Show success message
