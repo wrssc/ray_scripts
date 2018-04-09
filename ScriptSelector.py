@@ -258,7 +258,8 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             print 'Executing {}.py'.format(scripts[script])
             logging.info('Executing {}.py'.format(scripts[script]))
             code = importlib.import_module(scripts[script])
-            code.main()
+            if hasattr(code, 'main') and callable(getattr(code, 'main')):
+                code.main()
 
         except Exception as e:
             logging.exception('{}.py: {}'.format(scripts[script], str(e)))
