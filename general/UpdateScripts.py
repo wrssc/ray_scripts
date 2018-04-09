@@ -86,7 +86,8 @@ def main():
     bar.Step = 1
     bar.Width = 300
     bar.Height = 30
-    bar.Padding = System.Windows.Forms.Padding(25)
+    bar.Left = 15
+    bar.Top = 15
     bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
     form.Controls.Add(bar)
     form.Show()
