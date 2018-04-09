@@ -160,8 +160,10 @@ def main():
                     logging.warning('Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest()))
                     print 'Hash {} incorrect: {} != {}'.format(l['path'], l['sha'], sha1sum.hexdigest())
 
-    # Close form
+    # Show success message
     form.DialogResult = True
+    System.Windows.Forms.MessageBox.Show('Script download and checksum verification successful', 'Success',
+                                         System.Windows.Forms.MessageBoxButtons.OK)
 
 
 if __name__ == '__main__':
