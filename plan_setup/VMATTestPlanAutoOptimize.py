@@ -63,7 +63,7 @@ def main():
     filecsv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
     if filecsv == '':
         logging.info('No file was selected')
-        exit(0)
+        exit()
 
     with open(filecsv,'r') as f:
         r = csv.reader(f, delimiter=',')
