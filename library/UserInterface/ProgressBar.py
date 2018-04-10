@@ -6,9 +6,11 @@
     this class:
 
     import ProgressBar
-    bar = ProgressBar.ProgressBar('Progress Bar', 'Updating something')
+    import time
+    bar = ProgressBar.ProgressBar('Progress Bar', 'Updating something', 10)
     for i in range(1, 10):
-        bar.update(i/10)
+        bar.update()
+        time.sleep(1)
     bar.close()
 
     This program is free software: you can redistribute it and/or modify it under
@@ -39,40 +41,48 @@ import System.Drawing
 
 class ProgressBar:
 
-    def __init__(self, title='Progress Bar', text=''):
-        """bar = ProgressBar.ProgressBar(title, text)"""
+    def __init__(self, title='Progress Bar', text='', steps = 10):
+        """bar = ProgressBar.ProgressBar('title', 'text')"""
 
         self.form = System.Windows.Forms.Form()
         self.form.Width = 350
-        self.form.Height = 200
+        self.form.Height = 140
         self.form.Text = title
+        self.form.BackColor = System.Drawing.Color.White
         self.bar = System.Windows.Forms.ProgressBar()
         self.bar.Visible = True
-        self.bar.Minimum = 0
-        self.bar.Maximum = 1
-        self.bar.Value = 0
+        self.bar.Minimum = 1
+        self.bar.Maximum = steps
+        self.bar.Value = 1
+        self.bar.Step = 1
         self.bar.Width = 300
         self.bar.Height = 30
         self.bar.Left = 15
         self.bar.Top = 15
         self.bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
         self.form.Controls.Add(self.bar)
-        self.label = System.Windows.Forms.Label
+        self.label = System.Windows.Forms.Label()
         self.label.Width = 300
-        self.label.Height = 30
+        self.label.Height = self.label.PreferredHeight
         self.label.Left = 15
-        self.label.Top = 30
+        self.label.Top = 60
         self.label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         self.label.Text = text
         self.form.Controls.Add(self.label)
         self.form.Show()
+        self.label.Update()
 
-    def update(self, value, text=''):
-        """bar.update(0.5, new_text)"""
-        self.bar.Value = value
+    def __del__(self):
+        """ProgressBar class destructor"""
+        self.form.Dispose()
+
+    def update(self, text=''):
+        """bar.update('new_text')"""
+        self.bar.PerformStep()
         if text != '':
             self.label.Text = text
+            self.label.Update()
 
     def close(self):
         """bar.close()"""
-        self.form.DialogResult = True
+        self.form.Dispose()
