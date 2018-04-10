@@ -44,7 +44,7 @@ def main():
     # If running from Windows (with IronPython installed in the location specified below)
     # prompt user to select folder, otherwise, ask them via raw_input()
     try:
-        import UserInterface
+        import UserInterface.CommonDialog
         browser = UserInterface.CommonDialog.CommonDialog()
         path = browser.folder_browser('Select folder to export CT to:')
 
@@ -115,8 +115,9 @@ def main():
     ds.PixelData = img.tostring()
 
     try:
-        bar = UserInterface.ProgressBar('Writing CT files', step=size[2])
-    except NameError:
+        import UserInterface.ProgressBar
+        bar = UserInterface.ProgressBar.ProgressBar('Writing CT files', step=size[2])
+    except ImportError:
         bar = False
         logging.info('Progress bar not available')
 

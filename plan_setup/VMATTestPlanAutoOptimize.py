@@ -35,7 +35,7 @@ import csv
 from connect import *
 from OptimizePlan import OptimizePlan
 from collections import namedtuple
-import UserInterface
+import UserInterface.CommonDialog
 
 ''' Attempt to load and optimize a patient '''
 
