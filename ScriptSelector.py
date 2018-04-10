@@ -1,13 +1,11 @@
 """ Script Selector
     
     This script downloads a copy of the ray_scripts GitHub repository, then displays a 
-    list to the user of each script present in the specified subfolder. This script will 
+    list to the user of each script present in the specified sub-folder. This script will
     then execute the script that the user selects. With this approach, this is the only 
     script that needs to be loaded into RayStation, while all of the actual scripts are 
-    dynamically queried and run from this one.
-    
-    If you do not wish to download a fresh copy of the repository each time, you can also 
-    specify a local folder via the local path below. In a
+    dynamically queried and run from this one. See the repository README and wiki for
+    additional information. 
     
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -23,180 +21,169 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__date__ = '2018-04-04'
-
-__version__ = '1.1.0'
-__status__ = 'Development'
-__deprecated__ = False
-__reviewer__ = 'N/A'
-
-__reviewed__ = 'YYYY-MM-DD'
-__maintainer__ = 'Mark Geurts'
-
-__email__ =  'mark.w.geurts@gmail.com'
+__version__ = '1.1.1'
 __license__ = 'GPLv3'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Installation'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify the location of a local repository containing all scripts (leave blank to 
 # download a fresh copy each time)
 local = r''
 
-# Specify subfolder to scan (to list all, leave blank)
+# Specify sub-folder to scan (to list all, leave blank)
 module = r'general'
 
-# Specify subfolder to be a library
+# Specify sub-folder to be a library
 library = r'library'
 
 # Specify log file location (leave blank to not use logging)
 logs = r''
 
-# Specify GitHub contents API
-api = 'https://api.github.com/repos/mwgeurts/ray_scripts'
-
 # Specify GitHub access token
 token = ''
 
+# Specify GitHub contents API
+api = 'https://api.github.com/repos/mwgeurts/ray_scripts'
+
+
 # If this is the primary script
-if __name__ == "__main__":
+def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
     # Specify import statements
     import os
     import sys
     import clr
     import shutil
+    import logging
+    import importlib
+
     clr.AddReference('System.Windows.Forms')
-    from System.Windows.Forms import Form, Button, Padding, FlatStyle, TableLayoutPanel, \
-        TableLayoutPanelGrowStyle, ToolTip, ProgressBar, ProgressBarStyle
+
     clr.AddReference('System.Drawing')
-    from System.Drawing import Color
+    import System.Drawing
 
     # Start logging
-    if logs != '':
-        import logging
-        logging.basicConfig(filename=logs, level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S', \
-            format='%(asctime)s\t%(levelname)s\t%(filename)s: %(message)s', mode='a')
+    if m_logs != '':
+        logging.basicConfig(filename=m_logs, level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S',
+                            format='%(asctime)s\t%(levelname)s\t%(filename)s: %(message)s', mode='a')
 
     # Create local scripts directory if one wasn't provided above
-    if local == '':
-        local = 'ray_scripts'
-           
+    if m_local == '':
+        m_local = 'ray_scripts'
+
         # Get list of branches 
         import requests
-        if token != '':
-            r = requests.get(api+'/branches', \
-                headers={'Authorization': 'token {}'.format(token)})
+
+        if m_token != '':
+            r = requests.get(m_api + '/branches',
+                             headers={'Authorization': 'token {}'.format(m_token)})
         else:
-            r = requests.get(api+'/branches')
-        list = r.json()
-        
+            r = requests.get(m_api + '/branches')
+        branch_list = r.json()
+
         # Start XAML content. As each branch is found, additional content will be appended
-        form = Form()
+        form = System.Windows.Forms.Form()
         form.Width = 400
         form.Height = 500
-        form.Padding = Padding(0)
+        form.Padding = System.Windows.Forms.Padding(0)
         form.Text = 'Select a branch to run'
         form.AutoScroll = True
-        form.BackColor = Color.White
-        table = TableLayoutPanel()
+        form.BackColor = System.Drawing.Color.White
+        table = System.Windows.Forms.TableLayoutPanel()
         table.ColumnCount = 1
         table.RowCount = 1
-        table.GrowStyle = TableLayoutPanelGrowStyle.AddRows
-        table.Padding = Padding(0)
-        table.BackColor = Color.White
+        table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
+        table.Padding = System.Windows.Forms.Padding(0)
+        table.BackColor = System.Drawing.Color.White
         table.AutoSize = True
         form.Controls.Add(table)
-        
+
         # Define button action
-        def DownloadBranch(self, e):
+        def download_branch(self, _e):
             branch = self.Text
             form.DialogResult = True
 
             # Get branch content
             try:
-                if token != '':
-                    r = requests.get(api+'/contents?ref='+branch, \
-                        headers={'Authorization': 'token {}'.format(token)})
+                if m_token != '':
+                    y = requests.get(m_api + '/contents?ref=' + branch,
+                                     headers={'Authorization': 'token {}'.format(m_token)})
                 else:
-                    r = requests.get(api+'/contents?ref='+branch)
-    
-                list = r.json()
-            except:
-                if logs != '':
-                    logging.error('Could not access GitHub repository')
-                else:
-                    print 'Could not access GitHub repository'
-                exit()
+                    y = requests.get(m_api + '/contents?ref=' + branch)
+
+                file_list = y.json()
+            except requests.ConnectionError:
+                logging.exception('Could not access GitHub repository')
+                raise
 
             # Update progress bar length
-            bar.Maximum = len(list);
-            bar.Visible = True;
+            bar.Maximum = len(file_list)
+            bar.Visible = True
 
             # Clear directory
-            if os.path.exists(local):
+            if os.path.exists(m_local):
                 try:
-                    shutil.rmtree(local)
-                except:
-                    if logs != '':
-                        logging.error('Could not delete local repository')
-                    else:
-                        print 'Could not delete local repository'
-            os.mkdir(local)
+                    shutil.rmtree(m_local)
+                except OSError:
+                    logging.error('Could not delete local repository')
+            os.mkdir(m_local)
 
             # Loop through folders in branch, creating folders and pulling content
-            for l in list:
-                if l.get('type') and not l.get('submodule_git_url'):
-                    if l['type'] == u'dir':
-                        if l['name'] != u'.git':
-                            if token != '':
-                                r = requests.get(api +'/contents' + l['path'] + \
-                                    '?ref='+branch, headers={'Authorization': \
-                                    'token {}'.format(token)})
+            for x in file_list:
+                if x.get('type') and not x.get('submodule_git_url'):
+                    if x['type'] == u'dir':
+                        if x['name'] != u'.git':
+                            if m_token != '':
+                                y = requests.get(m_api + '/contents' + x['path'] +
+                                                 '?ref=' + branch, headers={'Authorization':
+                                                                            'token {}'.format(m_token)})
                             else:
-                                r = requests.get(api +'/contents' + l['path'] + \
-                                '?ref='+branch)
-                        
-                            sublist = r.json()
-                            for s in sublist:
-                                list.append(s)
-            
-                            if not os.path.exists(os.path.join(local, l['path'])):
-                                os.mkdir(os.path.join(local, l['path']))
-    
+                                y = requests.get(m_api + '/contents' + x['path'] +
+                                                 '?ref=' + branch)
+
+                            sublist = y.json()
+                            for z in sublist:
+                                file_list.append(z)
+
+                            if not os.path.exists(os.path.join(m_local, x['path'])):
+                                os.mkdir(os.path.join(m_local, x['path']))
+
             # Update progress bar length to full list
             bar.Value = 1
-            bar.Maximum = len(list)
-    
+            bar.Maximum = len(file_list)
+
             # Loop through files in branch, downloading each
-            for l in list:
-                bar.PerformStep();
-                if l['type'] == u'file':
-                    if l.get('download_url'):
-                        print 'Downloading {}'.format(l['download_url'])
-                        if os.path.exists(os.path.join(local, l['path'])):
-                            os.remove(os.path.join(local, l['path']))
-                        if token != '':
-                            r = requests.get(l['download_url'], headers={'Authorization': \
-                                'token {}'.format(token)})
+            for x in file_list:
+                bar.PerformStep()
+                if x['type'] == u'file':
+                    if x.get('download_url'):
+                        print 'Downloading {}'.format(x['download_url'])
+                        if os.path.exists(os.path.join(m_local, x['path'])):
+                            os.remove(os.path.join(m_local, x['path']))
+                        if m_token != '':
+                            y = requests.get(x['download_url'], headers={'Authorization':
+                                                                         'token {}'.format(m_token)})
                         else:
-                            r = requests.get(l['download_url'])
-                            
-                        open(os.path.join(local, l['path']), 'wb').write(r.content)
-        
+                            y = requests.get(x['download_url'])
+
+                        open(os.path.join(m_local, x['path']), 'wb').write(y.content)
+
+            form.Dispose()
 
         # Loop through branches
-        for l in list:
-            button = Button()
+        for l in branch_list:
+            button = System.Windows.Forms.Button()
             button.Text = l['name'].decode('utf-8')
             button.Height = 50
             button.Width = 345
-            button.Margin = Padding(10, 10, 10, 0)
-            button.BackColor = Color.LightGray
-            button.FlatStyle = FlatStyle.Flat
-            button.Click += DownloadBranch
+            button.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+            button.BackColor = System.Drawing.Color.LightGray
+            button.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+            button.Click += download_branch
             table.Controls.Add(button)
-        
+
         # Add progress bar
-        bar = ProgressBar()
+        bar = System.Windows.Forms.ProgressBar()
         bar.Visible = False
         bar.Minimum = 1
         bar.Maximum = 1
@@ -204,8 +191,8 @@ if __name__ == "__main__":
         bar.Step = 1
         bar.Width = 345
         bar.Height = 30
-        bar.Margin = Padding(10, 10, 10, 0)
-        bar.Style = ProgressBarStyle.Continuous
+        bar.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
         table.Controls.Add(bar)
 
         form.ShowDialog()
@@ -215,77 +202,89 @@ if __name__ == "__main__":
     scripts = []
     names = []
     tooltips = []
-    print 'Scanning {} for scripts'.format(os.path.join(local, module))
-    for root, dirs, files in os.walk(os.path.join(local, module)):
-        for file in files:
-            if file.endswith('.py'):
+    help_links = []
+    print 'Scanning {} for scripts'.format(os.path.join(m_local, m_module))
+    for root, dirs, files in os.walk(os.path.join(m_local, m_module)):
+        for f in files:
+            if f.endswith('.py'):
                 paths.append(root)
-                scripts.append(file.rstrip('.py'))
-                f = open(os.path.join(root, file))
-                c = f.readlines()
-                names.append(c.pop(0).strip(' " \n'))
-                c.pop(0)
+                scripts.append(f.rstrip('.py'))
+                fid = open(os.path.join(root, f))
+                c = fid.readlines()
+                names.append(c.pop(0).strip(' " \n')) # Assume first line contains name
+                c.pop(0) # Skip second line
                 s = []
                 for l in c:
                     if l.isspace():
                         break
                     s.append(l.strip())
-                f.close()  
+                h = ''
+                for l in c:
+                    if '__help__' in l:
+                        h = l.split('=')[1].strip(' \'"')
+                        break
+
+                help_links.append(h)
+                fid.close()
                 tooltips.append('\n'.join(s))
 
     # Start XAML content. As each script is found, additional content will be appended
-    form = Form()
+    form = System.Windows.Forms.Form()
     form.Width = 400
     form.Height = 500
-    form.Padding = Padding(0)
+    form.Padding = System.Windows.Forms.Padding(0)
     form.Text = 'Select a script to run'
     form.AutoScroll = True
-    form.BackColor = Color.White
-    table = TableLayoutPanel()
+    form.BackColor = System.Drawing.Color.White
+    table = System.Windows.Forms.TableLayoutPanel()
     table.ColumnCount = 1
     table.RowCount = 1
-    table.GrowStyle = TableLayoutPanelGrowStyle.AddRows
-    table.Padding = Padding(0)
-    table.BackColor = Color.White
+    table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
+    table.Padding = System.Windows.Forms.Padding(0)
+    table.BackColor = System.Drawing.Color.White
     table.AutoSize = True
     form.Controls.Add(table)
 
     # Define button action
-    def RunScript(self, e):
+    def run_script(self, _e):
         form.DialogResult = True
-        sys.path.append(local)
-        if library != '':
-            sys.path.append(os.path.join(local, library))
-        sys.path.append(paths[names.index(self.Text)])
+        script = names.index(self.Text)
+        form.Dispose()
+        sys.path.append(m_local)
+        if m_library != '':
+            sys.path.append(os.path.join(m_local, m_library))
+        sys.path.append(paths[script])
         try:
-            print 'Executing {}.py'.format(scripts[names.index(self.Text)])
-            if logs != '':
-                logging.info('Executing {}.py'.format(scripts[names.index(self.Text)]))
+            print 'Executing {}.py'.format(scripts[script])
+            logging.info('Executing {}.py'.format(scripts[script]))
+            code = importlib.import_module(scripts[script])
+            if hasattr(code, 'main') and callable(getattr(code, 'main')):
+                code.main()
 
-            __import__(scripts[names.index(self.Text)])
         except Exception as e:
-            if logs != '':
-                logging.error('{}.py: {}'.format(scripts[names.index(self.Text)], str(e)))
-                logging.shutdown()
-
+            logging.exception('{}.py: {}'.format(scripts[script], str(e)))
+            logging.shutdown()
             raise
 
     # List directory contents
     for name, tip in sorted(zip(names, tooltips)):
-        button = Button()
+        button = System.Windows.Forms.Button()
         button.Text = name
         button.Height = 50
         button.Width = 345
-        button.Margin = Padding(10, 10, 10, 0)
-        button.BackColor = Color.LightGray
-        button.FlatStyle = FlatStyle.Flat;
-        button.Click += RunScript
+        button.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        button.BackColor = System.Drawing.Color.LightGray
+        button.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        button.Click += run_script
         table.Controls.Add(button)
-        
-        tooltip = ToolTip()
-        tooltip.SetToolTip(button, tip);
-       
+
+        tooltip = System.Windows.Forms.ToolTip()
+        tooltip.SetToolTip(button, tip)
+
     # Open window  
     form.ShowDialog()
-    if logs != '':
-        logging.shutdown()
+    logging.shutdown()
+
+
+if __name__ == '__main__':
+    main(local, module, library, logs, api, token)

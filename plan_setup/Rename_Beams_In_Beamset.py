@@ -45,20 +45,6 @@ __email__ =  'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-import wpf
-import clr
-
-clr.AddReference("System.Xml")
-
-from System.Windows import Window
-from System.Xml import XmlReader
-from System.IO import StringReader
-# Bring's in current data sets
-from connect import *
-from inspect import currentframe, getframeinfo
-
-
-
 class MyWindow(Window):
     def __init__(self):
         # read in the markup of the gui
@@ -69,32 +55,42 @@ class MyWindow(Window):
     def submit_click(self, sender, e):
         self.DialogResult = True
 
+def main():
 
+    import wpf
+    import clr
 
+    clr.AddReference("System.Xml")
 
-xaml = """
-<Window 
-       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-       Title="Site Name Specification"  Height="170.0" Width="450">
-  <Grid>
-     <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="150" />
-          <ColumnDefinition Width="60" />
-          <ColumnDefinition Width="30" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="50" />
-          <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>          
-        <Label VerticalAlignment="Center">Enter Site Name, .e.g. BreL:</Label>
-        <TextBox Grid.Column = "1" Name="Site_Name" Margin = "0, 0, 2, 0" VerticalAlignment="Center"/>
-        <Button Grid.Row = "5" Grid.ColumnSpan = "2" Content="Submit" HorizontalAlignment="Left" Margin="5,44,0,0" VerticalAlignment="Center" Width="75" Click="submit_click" />
-  </Grid>
-</Window> 
-"""
+    from System.Windows import Window
+    from System.Xml import XmlReader
+    from System.IO import StringReader
+    # Bring's in current data sets
+    from connect import *
+    from inspect import currentframe, getframeinfo
 
-if __name__ == "__main__":
+    xaml = """
+    <Window 
+           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+           Title="Site Name Specification"  Height="170.0" Width="450">
+      <Grid>
+         <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="150" />
+              <ColumnDefinition Width="60" />
+              <ColumnDefinition Width="30" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="50" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>          
+            <Label VerticalAlignment="Center">Enter Site Name, .e.g. BreL:</Label>
+            <TextBox Grid.Column = "1" Name="Site_Name" Margin = "0, 0, 2, 0" VerticalAlignment="Center"/>
+            <Button Grid.Row = "5" Grid.ColumnSpan = "2" Content="Submit" HorizontalAlignment="Left" Margin="5,44,0,0" VerticalAlignment="Center" Width="75" Click="submit_click" />
+      </Grid>
+    </Window> 
+    """
+
 #    frameinfo = getframeinfo(currentframe())
 #    print 'frameinfo',frameinfo.filename, frameinfo.lineno
     dialog = MyWindow()
@@ -481,4 +477,5 @@ if __name__ == "__main__":
     else:
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
 
-
+if __name__ == '__main__':
+    main()
