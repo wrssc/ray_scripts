@@ -41,6 +41,7 @@ def main():
     from OptimizePlan import OptimizePlan
     from collections import namedtuple
     import UserInterface.CommonDialog
+    import logging
 
     # Plan optimization parameters
 
@@ -61,6 +62,7 @@ def main():
     browser = UserInterface.CommonDialog.CommonDialog()
     filecsv = browser.open_file('Plan List Import', 'CSV Files (*.csv)|*.csv')
     if filecsv == '':
+        logging.info('No file was selected')
         return
 
     with open(filecsv,'r') as f:
