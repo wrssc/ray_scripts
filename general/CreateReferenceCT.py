@@ -39,13 +39,17 @@ def main():
     import datetime
     import logging
     import pydicom
+    import inspect
 
     # If running from Windows (with IronPython installed in the location specified below)
     # prompt user to select folder, otherwise, ask them via raw_input()
     try:
-        import CommonDialog
-        path = CommonDialog.folder_browser('Select folder to export CT to:')
-    except ImportError:
+        import UserInterface
+        browser = UserInterface.CommonDialog()
+        path = browser.folder_browser('Select folder to export CT to:')
+
+    except (ImportError, OSError):
+        logging.info('Folder browser not available')
         path = raw_input('Enter path to write CT to: ').strip()
         if not os.path.exists(path):
             os.mkdir(path)
@@ -110,8 +114,18 @@ def main():
 
     ds.PixelData = img.tostring()
 
+    try:
+        bar = UserInterface.ProgressBar('Writing CT files', step=size[2])
+    except NameError:
+        bar = False
+        logging.info('Progress bar not available')
+
     # Loop through CT Images
     for i in range(size[2]):
+
+        if not isinstance(bar, bool):
+            bar.update('Writing image ct_{0:0>3}.dcm'.format(i + 1))
+
         # Generate unique IDs
         ds.file_meta.MediaStorageSOPInstanceUID = pydicom.uid.generate_uid()
         ds.SOPInstanceUID = ds.file_meta.MediaStorageSOPInstanceUID
