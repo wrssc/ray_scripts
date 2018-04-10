@@ -55,7 +55,7 @@ OptimizationParameters = {
 # Open the csv delimited file containing the list of patients to be reoptimized
 # Ensure that the first row is a header for the columns
 Row = namedtuple('Row',('FirstName','LastName','PatientID','Case','PlanName','BeamsetName'))
-browser = UserInterface.CommonDialog()
+browser = UserInterface.CommonDialog.CommonDialog()
 filecsv = browser.open_file('Plan List Import', 'CSV Files (*.csv)|*.csv')
 with open(filecsv,'r') as f:
     r = csv.reader(f, delimiter=',')

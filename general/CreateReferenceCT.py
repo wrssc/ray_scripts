@@ -45,7 +45,7 @@ def main():
     # prompt user to select folder, otherwise, ask them via raw_input()
     try:
         import UserInterface
-        browser = UserInterface.CommonDialog()
+        browser = UserInterface.CommonDialog.CommonDialog()
         path = browser.folder_browser('Select folder to export CT to:')
 
     except (ImportError, OSError):
