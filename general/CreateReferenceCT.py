@@ -32,6 +32,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # noinspection PyUnresolvedReferences
 def main():
+
     # Specify import statements
     import os
     import numpy
@@ -42,14 +43,9 @@ def main():
     # If running from Windows (with IronPython installed in the location specified below)
     # prompt user to select folder, otherwise, ask them via raw_input()
     try:
-        ipy = r'c:\Program Files (x86)\IronPython 2.7.1\ipy.exe'
-        desc = 'Select folder to export CT to:'
-        import subprocess
-
-        path = subprocess.check_output('"{}" {} "{}"'.format(ipy,
-                                                             os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                          '..\library\FolderBrowser.py'), desc)).strip()
-    except OSError:
+        import CommonDialog
+        path = CommonDialog.folder_browser('Select folder to export CT to:')
+    except ImportError:
         path = raw_input('Enter path to write CT to: ').strip()
         if not os.path.exists(path):
             os.mkdir(path)
