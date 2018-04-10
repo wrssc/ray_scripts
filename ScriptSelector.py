@@ -103,6 +103,9 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             branch = self.Text
             form.DialogResult = True
 
+            if branch == '':
+                return
+
             # Get branch content
             try:
                 if m_token != '':
