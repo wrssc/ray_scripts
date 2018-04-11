@@ -21,10 +21,22 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.1.1'
+__version__ = '1.2.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Installation'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+
+# Specify import statements
+import os
+import sys
+import clr
+import socket
+import getpass
+import connect
+import shutil
+import logging
+import importlib
+import time
 
 # Specify the location of a local repository containing all scripts (leave blank to 
 # download a fresh copy each time)
@@ -36,7 +48,7 @@ module = r'general'
 # Specify sub-folder to be a library
 library = r'library'
 
-# Specify log file location (leave blank to not use logging)
+# Specify log folder location (leave blank to not use logging)
 logs = r''
 
 # Specify GitHub access token
@@ -48,24 +60,57 @@ api = 'https://api.github.com/repos/mwgeurts/ray_scripts'
 
 # If this is the primary script
 def main(m_local, m_module, m_library, m_logs, m_api, m_token):
-
-    # Specify import statements
-    import os
-    import sys
-    import clr
-    import shutil
-    import logging
-    import importlib
-
+    # Link .NET assemblies
     clr.AddReference('System.Windows.Forms')
-
     clr.AddReference('System.Drawing')
-    import System.Drawing
 
-    # Start logging
+    try:
+        patient = connect.get_current('Patient')
+        pat_id = patient.PatientID
+    except SystemError:
+        patient = False
+        pat_id = 'NO_PATIENT'
+
+    # Configure file logging
+    logging.captureWarnings(True)
     if m_logs != '':
-        logging.basicConfig(filename=m_logs, level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S',
-                            format='%(asctime)s\t%(levelname)s\t%(filename)s: %(message)s', mode='a')
+        logging.basicConfig(filename=os.path.normpath('{}/{}.txt'.format(m_logs, pat_id)),
+                            level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S', filemode='a',
+                            format='%(asctime)s\t%(levelname)s\t%(filename)s: %(message)s')
+
+    # Log RayStation and patient info
+    ui = connect.get_current('ui')
+    logging.info('*** Python {} ***'.format(sys.version))
+    logging.info('*** RayStation {} ***'.format(ui.GetApplicationVersion))
+    logging.info('*** Server: {} ***'.format(socket.getfqdn()))
+    logging.info('*** User: {} ***'.format(getpass.getuser()))
+
+    if pat_id != 'NO_PATIENT':
+        logging.info('*** Patient: {}\t{} ***'.format(pat_id, patient.Name))
+
+    else:
+        logging.info('*** Patient: NO_PATIENT ***'.format(pat_id, patient.Name))
+
+    try:
+        case = connect.get_current('Case')
+        logging.info('*** Case: {} ***'.format(case.CaseName))
+
+    except SystemError:
+        logging.info('*** Case: NO_CASE ***')
+
+    try:
+        plan = connect.get_current('Case')
+        logging.info('*** Plan: {} ***'.format(plan.Name))
+
+    except SystemError:
+        logging.info('*** Plan: NO_PLAN ***')
+
+    try:
+        beamset = connect.get_current('BeamSet')
+        logging.info('*** Beamset: {} ***'.format(beamset.DicomPlanLabel))
+
+    except SystemError:
+        logging.info('*** Beamset: NO_BEAMSET ***')
 
     # Create local scripts directory if one wasn't provided above
     if m_local == '':
@@ -214,8 +259,8 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                 scripts.append(f.rstrip('.py'))
                 fid = open(os.path.join(root, f))
                 c = fid.readlines()
-                names.append(c.pop(0).strip(' " \n')) # Assume first line contains name
-                c.pop(0) # Skip second line
+                names.append(c.pop(0).strip(' " \n'))  # Assume first line contains name
+                c.pop(0)  # Skip second line
                 s = []
                 for l in c:
                     if l.isspace():
@@ -257,6 +302,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         if m_library != '':
             sys.path.append(os.path.join(m_local, m_library))
         sys.path.append(paths[script])
+        start = time.clock()
         try:
             print 'Executing {}.py'.format(scripts[script])
             logging.info('Executing {}.py'.format(scripts[script]))
@@ -264,9 +310,21 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             if hasattr(code, 'main') and callable(getattr(code, 'main')):
                 code.main()
 
+            if m_logs != '':
+                with open(os.path.normpath('{}/ScriptSelector.txt').format(m_logs), 'a') as log_file:
+                    log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                      time.clock() - start, getpass.getuser(),
+                                                                      scripts[script], 'SUCCESS'))
+
         except Exception as e:
             logging.exception('{}.py: {}'.format(scripts[script], str(e)))
             logging.shutdown()
+            if m_logs != '':
+                with open(os.path.normpath('{}/ScriptSelector.txt').format(m_logs), 'a') as log_file:
+                    log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                      time.clock() - start, getpass.getuser(),
+                                                                      scripts[script], 'ERROR'))
+
             raise
 
     # List directory contents
