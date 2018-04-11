@@ -53,11 +53,11 @@ class CommonDialog:
         # Create folder_browser script
         self.folder_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
         self.folder_script.write("""
-# Specify import statements
+# Import modules and assemblies
 import sys
 import clr
 clr.AddReference('System.Windows.Forms')
-import System.Windows.Forms
+import System
 
 # Create FolderBrowserDialog
 dialog = System.Windows.Forms.FolderBrowserDialog()
@@ -73,12 +73,12 @@ if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
         # Create open_file script
         self.openfile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
         self.openfile_script.write("""
-# Specify import statements
+# Import modules and assemblies
 import sys
 import clr
 import os
 clr.AddReference('System.Windows.Forms')
-import System.Windows.Forms
+import System
 
 # Create OpenFileDialog
 dialog = System.Windows.Forms.OpenFileDialog()
@@ -104,12 +104,12 @@ if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
         # Create save_file script
         self.savefile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
         self.savefile_script.write("""
-# Specify import statements
+# Import modules and assemblies
 import sys
 import clr
 import os
 clr.AddReference('System.Windows.Forms')
-import System.Windows.Forms
+import System
 
 # Create OpenFileDialog
 dialog = System.Windows.Forms.SaveFileDialog()
