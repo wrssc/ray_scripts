@@ -31,20 +31,18 @@ __version__ = '1.0.0'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-# Specify import statements
+# Import packages
 import clr
-
-clr.AddReference('System.Windows.Forms')
-import System.Windows.Forms
-
-clr.AddReference('System.Drawing')
-import System.Drawing
-
 
 class ProgressBar:
 
-    def __init__(self, title='Progress Bar', text='', steps = 10):
-        """bar = ProgressBar.ProgressBar('title', 'text', steps)"""
+    def __init__(self, text='', title='Progress Bar', steps = 10):
+        """bar = ProgressBar('text', 'title', steps)"""
+
+        # Link .NET assemblies
+        clr.AddReference('System.Windows.Forms')
+        clr.AddReference('System.Drawing')
+        import System
 
         self.form = System.Windows.Forms.Form()
         self.form.Width = 350

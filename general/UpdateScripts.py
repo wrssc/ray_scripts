@@ -87,7 +87,7 @@ def main():
                     os.mkdir(os.path.join(local, l['path']))
 
     # Update progress bar text and length
-    bar = UserInterface.ProgressBar('Update Progress', 'Downloading files', len(file_list) * 2)
+    bar = UserInterface.ProgressBar('Downloading files', 'Update Progress', len(file_list) * 2)
 
     # Loop through files in branch, downloading each
     for l in file_list:
@@ -127,9 +127,9 @@ def main():
     # Show success message
     bar.close()
     if passed:
-        UserInterface.MessageBox('Success', 'Script download and checksum verification successful')
+        UserInterface.MessageBox('Script download and checksum verification successful', 'Success')
     else:
-        UserInterface.WarningBox('Warning', 'Scripts download, but verification failed')
+        UserInterface.WarningBox('Scripts download, but verification failed', 'Warning')
 
 
 if __name__ == '__main__':

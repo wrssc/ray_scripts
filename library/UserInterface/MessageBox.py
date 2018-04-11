@@ -29,20 +29,20 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import clr
 
 clr.AddReference('System.Windows.Forms')
-import System.Windows.Forms
+import System
 
 
 class MessageBox:
 
-    def __init__(self, title='Message Box', text=''):
-        """box = UserInterface.MessageBox('title', 'text')"""
+    def __init__(self, text, title='Message Box'):
+        """box = UserInterface.MessageBox('text', 'title')"""
 
         System.Windows.Forms.MessageBox.Show(text, title, System.Windows.Forms.MessageBoxButtons.OK)
 
 class WarningBox:
 
-    def __init__(self, title='Warning', text=''):
-        """box = UserInterface.WarningBox('title', 'text')"""
+    def __init__(self, text, title='Warning'):
+        """box = UserInterface.WarningBox('text', 'title')"""
 
         System.Windows.Forms.MessageBox.Show(text, title, System.Windows.Forms.MessageBoxButtons.OK,
                                              System.Windows.Forms.MessageBoxIcon.Warning)
