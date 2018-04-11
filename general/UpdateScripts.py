@@ -116,7 +116,7 @@ def main():
                 fh = open(os.path.join(local, l['path']), 'rb')
                 content = fh.read()
                 fh.close()
-                sha = hashlib.sha1('blob {}\0{}'.format(len(content), content)).hexdigest()
+                sha = hashlib.sha1(bytearray('blob {}\0'.format(len(content)), 'utf8') + content).hexdigest()
 
                 if l['sha'] == sha:
                     logging.info('Hash {} verified: {}'.format(l['path'], l['sha']))
@@ -125,7 +125,7 @@ def main():
                     passed = False
 
     # Show success message
-    form.DialogResult = True
+    bar.close()
     if passed:
         UserInterface.MessageBox('Success', 'Script download and checksum verification successful')
     else:
