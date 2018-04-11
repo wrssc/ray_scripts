@@ -81,13 +81,13 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
     # Log system, RayStation, and patient info
     ui = connect.get_current('ui')
-    logging.info('*** Python {} ***'.format(sys.version))
+    logging.debug('*** Python {} ***'.format(sys.version))
     for r in clr.References:
         logging.debug('*** {} ***'.format(r))
 
-    logging.info('*** RayStation {} ***'.format(ui.GetApplicationVersion))
-    logging.info('*** Server: {} ***'.format(socket.getfqdn()))
-    logging.info('*** User: {} ***'.format(getpass.getuser()))
+    logging.debug('*** RayStation {} ***'.format(ui.GetApplicationVersion))
+    logging.debug('*** Server: {} ***'.format(socket.getfqdn()))
+    logging.debug('*** User: {} ***'.format(getpass.getuser()))
 
     if pat_id != 'NO_PATIENT':
         logging.info('*** Patient: {}\t{} ***'.format(pat_id, patient.Name))
@@ -209,7 +209,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                 bar.PerformStep()
                 if x['type'] == u'file':
                     if x.get('download_url'):
-                        print 'Downloading {}'.format(x['download_url'])
+                        logging.debug('Downloading {}'.format(x['download_url']))
                         if os.path.exists(os.path.join(m_local, x['path'])):
                             os.remove(os.path.join(m_local, x['path']))
                         if m_token != '':
@@ -251,7 +251,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
     # Initialize list of scripts
     scripts = {}
-    print 'Scanning {} for scripts'.format(os.path.join(m_local, m_module))
+    logging.debug('Scanning {} for scripts'.format(os.path.join(m_local, m_module)))
     for root, dirs, files in os.walk(os.path.join(m_local, m_module)):
         for f in files:
             if f.endswith('.py'):
