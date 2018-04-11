@@ -26,7 +26,7 @@ __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Installation'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-# Specify import statements
+# Import packages
 import os
 import sys
 import clr
@@ -64,6 +64,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     # Link .NET assemblies
     clr.AddReference('System.Windows.Forms')
     clr.AddReference('System.Drawing')
+    import System
 
     try:
         patient = connect.get_current('Patient')
