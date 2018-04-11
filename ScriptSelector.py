@@ -60,6 +60,7 @@ api = 'https://api.github.com/repos/mwgeurts/ray_scripts'
 
 # If this is the primary script
 def main(m_local, m_module, m_library, m_logs, m_api, m_token):
+
     # Link .NET assemblies
     clr.AddReference('System.Windows.Forms')
     clr.AddReference('System.Drawing')
@@ -246,35 +247,32 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         form.ShowDialog()
 
     # Initialize list of scripts
-    paths = []
-    scripts = []
-    names = []
-    tooltips = []
-    help_links = []
+    scripts = {}
     print 'Scanning {} for scripts'.format(os.path.join(m_local, m_module))
     for root, dirs, files in os.walk(os.path.join(m_local, m_module)):
         for f in files:
             if f.endswith('.py'):
-                paths.append(root)
-                scripts.append(f.rstrip('.py'))
-                fid = open(os.path.join(root, f))
-                c = fid.readlines()
-                names.append(c.pop(0).strip(' " \n'))  # Assume first line contains name
-                c.pop(0)  # Skip second line
-                s = []
-                for l in c:
-                    if l.isspace():
-                        break
-                    s.append(l.strip())
-                h = ''
-                for l in c:
-                    if '__help__' in l:
-                        h = l.split('=')[1].strip(' \'"')
-                        break
+                script = dict()
+                script['path'] = root
+                script['script'] = f.rstrip('.py')
+                with open(os.path.join(root, f)) as fid:
+                    c = fid.readlines()
+                    script['name'] = c.pop(0).strip(' " \n')   # Assume first line contains name
+                    c.pop(0)   # Skip second line
+                    s = []
+                    for l in c:
+                        if l.isspace():
+                            break
+                        s.append(l.strip())
 
-                help_links.append(h)
-                fid.close()
-                tooltips.append('\n'.join(s))
+                    script['tooltip'] = '\n'.join(s)
+
+                    for l in c:
+                        if '__help__' in l:
+                            script['help_link'] = l.split('=')[1].strip(' \'"')
+                            break
+
+                scripts[script['name']] = script
 
     # Start XAML content. As each script is found, additional content will be appended
     form = System.Windows.Forms.Form()
@@ -296,17 +294,15 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     # Define button action
     def run_script(self, _e):
         form.DialogResult = True
-        script = names.index(self.Text)
         form.Dispose()
         sys.path.append(m_local)
         if m_library != '':
             sys.path.append(os.path.join(m_local, m_library))
-        sys.path.append(paths[script])
+        sys.path.append(scripts[self.Text]['path'])
         start = time.clock()
         try:
-            print 'Executing {}.py'.format(scripts[script])
-            logging.info('Executing {}.py'.format(scripts[script]))
-            code = importlib.import_module(scripts[script])
+            logging.info('Executing {}.py'.format(scripts[self.Text]['script']))
+            code = importlib.import_module(scripts[self.Text]['script'])
             if hasattr(code, 'main') and callable(getattr(code, 'main')):
                 code.main()
 
@@ -314,21 +310,21 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                 with open(os.path.normpath('{}/ScriptSelector.txt').format(m_logs), 'a') as log_file:
                     log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
                                                                       time.clock() - start, getpass.getuser(),
-                                                                      scripts[script], 'SUCCESS'))
+                                                                      scripts[self.Text]['script'], 'SUCCESS'))
 
         except Exception as e:
-            logging.exception('{}.py: {}'.format(scripts[script], str(e)))
+            logging.exception('{}.py: {}'.format(scripts[self.Text]['script'], str(e).splitlines()[0]))
             logging.shutdown()
             if m_logs != '':
                 with open(os.path.normpath('{}/ScriptSelector.txt').format(m_logs), 'a') as log_file:
                     log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
                                                                       time.clock() - start, getpass.getuser(),
-                                                                      scripts[script], 'ERROR'))
+                                                                      scripts[self.Text]['script'], 'ERROR'))
 
             raise
 
     # List directory contents
-    for name, tip in sorted(zip(names, tooltips)):
+    for name in sorted(scripts.iterkeys()):
         button = System.Windows.Forms.Button()
         button.Text = name
         button.Height = 50
@@ -340,7 +336,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         table.Controls.Add(button)
 
         tooltip = System.Windows.Forms.ToolTip()
-        tooltip.SetToolTip(button, tip)
+        tooltip.SetToolTip(button, scripts[name]['tooltip'])
 
     # Open window  
     form.ShowDialog()
