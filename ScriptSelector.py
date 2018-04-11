@@ -145,7 +145,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
         # Define button action
         def download_branch(self, _e):
-            branch = self.Text
+            branch = self.Text.split(' ')[0]
             form.DialogResult = True
 
             if branch == '':
@@ -221,7 +221,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         # Loop through branches
         for l in branch_list:
             button = System.Windows.Forms.Button()
-            button.Text = l['name'].decode('utf-8')
+            button.Text = '{} ({})'.format(l['name'].decode('utf-8'), l['commit']['sha'][-7:].decode('utf-8'))
             button.Height = 50
             button.Width = 345
             button.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
