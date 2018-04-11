@@ -5,9 +5,9 @@
     0 and 1. The close() function will close the widget. The following example demonstrates
     this class:
 
-    import ProgressBar
+    import UserInterface
     import time
-    bar = ProgressBar.ProgressBar('Progress Bar', 'Updating something', 10)
+    bar = UserInterface.ProgressBar('Progress Bar', 'Updating something', 10)
     for i in range(1, 10):
         bar.update()
         time.sleep(1)
@@ -33,8 +33,10 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify import statements
 import clr
+
 clr.AddReference('System.Windows.Forms')
 import System.Windows.Forms
+
 clr.AddReference('System.Drawing')
 import System.Drawing
 
@@ -42,7 +44,7 @@ import System.Drawing
 class ProgressBar:
 
     def __init__(self, title='Progress Bar', text='', steps = 10):
-        """bar = ProgressBar.ProgressBar('title', 'text')"""
+        """bar = ProgressBar.ProgressBar('title', 'text', steps)"""
 
         self.form = System.Windows.Forms.Form()
         self.form.Width = 350
