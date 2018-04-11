@@ -79,9 +79,12 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                             level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S', filemode='a',
                             format='%(asctime)s\t%(levelname)s\t%(filename)s: %(message)s')
 
-    # Log RayStation and patient info
+    # Log system, RayStation, and patient info
     ui = connect.get_current('ui')
     logging.info('*** Python {} ***'.format(sys.version))
+    for r in clr.References:
+        logging.debug('*** {} ***'.format(r))
+
     logging.info('*** RayStation {} ***'.format(ui.GetApplicationVersion))
     logging.info('*** Server: {} ***'.format(socket.getfqdn()))
     logging.info('*** User: {} ***'.format(getpass.getuser()))
