@@ -1,4 +1,4 @@
-""" Common Dialog Functions for CPython
+""" Common Dialog UI Widgets
 
     The CommonDialog class contains Windows Presentation Foundation functions typically
     available in IronPython that are otherwise unavailable in CPython. Class functions
@@ -6,7 +6,7 @@
     The following example shows how to use the functions in this class:
 
     import UserInterface
-    common = UserInterface.CommonDialog.CommonDialog()
+    common = UserInterface.CommonDialog()
     path = common.folder_browser('Select a folder containing CT files:')
     filename = common.open_file('Select a file to open:')
     filename = common.save_file('Choose where to save a file:')
@@ -28,7 +28,6 @@ __contact__ = 'mark.w.geurts@gmail.com'
 __version__ = '1.0.0'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-
 
 # Specify import statements
 import os
@@ -132,16 +131,16 @@ if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
         return subprocess.check_output('"{}" {} "{}"'.format(self.ipy, self.folder_script.name, title)).strip()
 
     # open_file function
-    def open_file(self, title='File Browser', filter='All Files (*.*)|*.*', multi=False):
-        """file = common.open_file(title='title', filter='filter', multi=False)"""
+    def open_file(self, title='File Browser', filters='All Files (*.*)|*.*', multi=False):
+        """file = common.open_file(title='title', filters='filter', multi=False)"""
         return subprocess.check_output('"{}" {} "{}" "{}" "{}"'.format(self.ipy, self.openfile_script.name, title,
-                                                                       filter, multi)).strip()
+                                                                       filters, multi)).strip()
 
     # save_file function
-    def save_file(self, title='Save File', filter='All Files (*.*)|*.*'):
-        """file = common.save_file(title='title', filter='filter', multi=False)"""
+    def save_file(self, title='Save File', filters='All Files (*.*)|*.*'):
+        """file = common.save_file(title='title', filters='filter', multi=False)"""
         return subprocess.check_output('"{}" {} "{}" "{}"'.format(self.ipy, self.savefile_script.name, title,
-                                                                  filter)).strip()
+                                                                  filters)).strip()
 
     # Class destructor
     def __del__(self):
