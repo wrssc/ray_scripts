@@ -40,7 +40,7 @@ def main():
     from connect import *
     from OptimizePlan import OptimizePlan
     from collections import namedtuple
-    import UserInterface.CommonDialog
+    import UserInterface
 
     # Plan optimization parameters
 
@@ -58,7 +58,7 @@ def main():
     # Open the csv delimited file containing the list of patients to be reoptimized
     # Ensure that the first row is a header for the columns
     Row = namedtuple('Row',('FirstName','LastName','PatientID','Case','PlanName','BeamsetName'))
-    browser = UserInterface.CommonDialog.CommonDialog()
+    browser = UserInterface.CommonDialog()
     filecsv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
     if filecsv != '':
         with open(filecsv,'r') as f:
