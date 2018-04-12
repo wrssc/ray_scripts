@@ -29,6 +29,7 @@ __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
 __version__ = '1.0.0'
 __license__ = 'GPLv3'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
@@ -44,45 +45,47 @@ class ProgressBar:
         clr.AddReference('System.Drawing')
         import System
 
-        self.form = System.Windows.Forms.Form()
-        self.form.Width = 350
-        self.form.Height = 140
-        self.form.Text = title
-        self.form.BackColor = System.Drawing.Color.White
-        self.bar = System.Windows.Forms.ProgressBar()
-        self.bar.Visible = True
-        self.bar.Minimum = 1
-        self.bar.Maximum = steps
-        self.bar.Value = 1
-        self.bar.Step = 1
-        self.bar.Width = 300
-        self.bar.Height = 30
-        self.bar.Left = 15
-        self.bar.Top = 15
-        self.bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
-        self.form.Controls.Add(self.bar)
-        self.label = System.Windows.Forms.Label()
-        self.label.Width = 300
-        self.label.Height = self.label.PreferredHeight
-        self.label.Left = 15
-        self.label.Top = 60
-        self.label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        self.label.Text = text
-        self.form.Controls.Add(self.label)
-        self.form.Show()
-        self.label.Update()
+        self.__form = System.Windows.Forms.Form()
+        self.__form.Width = 350
+        self.__form.Height = 140
+        self.__form.Text = title
+        self.__form.BackColor = System.Drawing.Color.White
+        self.__bar = System.Windows.Forms.ProgressBar()
+        self.__bar.Visible = True
+        self.__bar.Minimum = 1
+        self.__bar.Maximum = steps
+        self.__bar.Value = 1
+        self.__bar.Step = 1
+        self.__bar.Width = 300
+        self.__bar.Height = 30
+        self.__bar.Left = 15
+        self.__bar.Top = 15
+        self.__bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
+        self.__form.Controls.Add(self.__bar)
+        self.__label = System.Windows.Forms.Label()
+        self.__label.Width = 300
+        self.__label.Height = self.__label.PreferredHeight
+        self.__label.Left = 15
+        self.__label.Top = 60
+        self.__label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        self.__label.Text = text
+        self.__form.Controls.Add(self.__label)
+        self.__form.Show()
+        self.__label.Update()
 
     def __del__(self):
         """ProgressBar class destructor"""
-        self.form.Dispose()
+        self.__form.Dispose()
 
     def update(self, text=''):
         """bar.update('new_text')"""
-        self.bar.PerformStep()
+        if self.__bar.Value == self.__bar.Maximum:
+            self.__bar.Maximum += 1
+        self.__bar.PerformStep()
         if text != '':
-            self.label.Text = text
-            self.label.Update()
+            self.__label.Text = text
+            self.__label.Update()
 
     def close(self):
         """bar.close()"""
-        self.form.Dispose()
+        self.__form.Dispose()
