@@ -69,7 +69,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     try:
         patient = connect.get_current('Patient')
         pat_id = patient.PatientID
-    except SystemError:
+    except Exception:
         patient = False
         pat_id = 'NO_PATIENT'
 
@@ -83,38 +83,36 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     # Log system, RayStation, and patient info
     ui = connect.get_current('ui')
     logging.debug('*** Python {} ***'.format(sys.version))
-    for r in clr.References:
-        logging.debug('*** {} ***'.format(r))
 
-    logging.debug('*** RayStation {} ***'.format(ui.GetApplicationVersion))
+    logging.debug('*** RayStation {} ***'.format(ui.GetApplicationVersion()))
     logging.debug('*** Server: {} ***'.format(socket.getfqdn()))
     logging.debug('*** User: {} ***'.format(getpass.getuser()))
 
     if pat_id != 'NO_PATIENT':
-        logging.info('*** Patient: {}\t{} ***'.format(pat_id, patient.Name))
+        logging.info('*** Patient: {}, {} ***'.format(pat_id, patient.Name))
 
     else:
-        logging.info('*** Patient: NO_PATIENT ***'.format(pat_id, patient.Name))
+        logging.info('*** Patient: NO_PATIENT ***')
 
     try:
         case = connect.get_current('Case')
         logging.info('*** Case: {} ***'.format(case.CaseName))
 
-    except SystemError:
+    except Exception:
         logging.info('*** Case: NO_CASE ***')
 
     try:
         plan = connect.get_current('Case')
         logging.info('*** Plan: {} ***'.format(plan.Name))
 
-    except SystemError:
+    except Exception:
         logging.info('*** Plan: NO_PLAN ***')
 
     try:
         beamset = connect.get_current('BeamSet')
         logging.info('*** Beamset: {} ***'.format(beamset.DicomPlanLabel))
 
-    except SystemError:
+    except Exception:
         logging.info('*** Beamset: NO_BEAMSET ***')
 
     # Create local scripts directory if one wasn't provided above
