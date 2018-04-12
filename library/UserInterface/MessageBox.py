@@ -23,19 +23,20 @@ __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
 __version__ = '1.0.0'
 __license__ = 'GPLv3'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify import statements
 import clr
 
-clr.AddReference('System.Windows.Forms')
-import System
-
-
 class MessageBox:
 
     def __init__(self, text, title='Message Box'):
         """box = UserInterface.MessageBox('text', 'title')"""
+
+        # Link .NET assemblies
+        clr.AddReference('System.Windows.Forms')
+        import System
 
         System.Windows.Forms.MessageBox.Show(text, title, System.Windows.Forms.MessageBoxButtons.OK)
 
@@ -43,6 +44,10 @@ class WarningBox:
 
     def __init__(self, text, title='Warning'):
         """box = UserInterface.WarningBox('text', 'title')"""
+
+        # Link .NET assemblies
+        clr.AddReference('System.Windows.Forms')
+        import System
 
         System.Windows.Forms.MessageBox.Show(text, title, System.Windows.Forms.MessageBoxButtons.OK,
                                              System.Windows.Forms.MessageBoxIcon.Warning)
