@@ -27,6 +27,7 @@ __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
 __version__ = '1.0.0'
 __license__ = 'GPLv3'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Specify import statements
@@ -51,8 +52,8 @@ class CommonDialog:
             raise OSError(2, 'No such file or directory', self.ipy)
 
         # Create folder_browser script
-        self.folder_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
-        self.folder_script.write("""
+        self.__folder_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
+        self.__folder_script.write("""
 # Import modules and assemblies
 import sys
 import clr
@@ -68,11 +69,11 @@ dialog.ShowNewFolderButton = True
 if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
     print dialog.SelectedPath
 """)
-        self.folder_script.close()
+        self.__folder_script.close()
 
         # Create open_file script
-        self.openfile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
-        self.openfile_script.write("""
+        self.__openfile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
+        self.__openfile_script.write("""
 # Import modules and assemblies
 import sys
 import clr
@@ -99,11 +100,11 @@ if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
     else:
         print os.path.join(os.getcwd(), dialog.FileName)
 """)
-        self.openfile_script.close()
+        self.__openfile_script.close()
 
         # Create save_file script
-        self.savefile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
-        self.savefile_script.write("""
+        self.__savefile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
+        self.__savefile_script.write("""
 # Import modules and assemblies
 import sys
 import clr
@@ -123,26 +124,26 @@ dialog.Multiselect = False
 if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
     print os.path.join(os.getcwd(), dialog.FileName)
 """)
-        self.openfile_script.close()
+        self.__openfile_script.close()
 
     # folder_browser function
     def folder_browser(self, title='Folder Browser'):
         """path = common.folder_browser(title='title')"""
-        return subprocess.check_output('"{}" {} "{}"'.format(self.ipy, self.folder_script.name, title)).strip()
+        return subprocess.check_output('"{}" {} "{}"'.format(self.ipy, self.__folder_script.name, title)).strip()
 
     # open_file function
     def open_file(self, title='File Browser', filters='All Files (*.*)|*.*', multi=False):
         """file = common.open_file(title='title', filters='filter', multi=False)"""
-        return subprocess.check_output('"{}" {} "{}" "{}" "{}"'.format(self.ipy, self.openfile_script.name, title,
+        return subprocess.check_output('"{}" {} "{}" "{}" "{}"'.format(self.ipy, self.__openfile_script.name, title,
                                                                        filters, multi)).strip()
 
     # save_file function
     def save_file(self, title='Save File', filters='All Files (*.*)|*.*'):
         """file = common.save_file(title='title', filters='filter', multi=False)"""
-        return subprocess.check_output('"{}" {} "{}" "{}"'.format(self.ipy, self.savefile_script.name, title,
+        return subprocess.check_output('"{}" {} "{}" "{}"'.format(self.ipy, self.__savefile_script.name, title,
                                                                   filters)).strip()
 
     # Class destructor
     def __del__(self):
-        os.unlink(self.folder_script.name)
-        os.unlink(self.openfile_script.name)
+        os.unlink(self.__folder_script.name)
+        os.unlink(self.__openfile_script.name)
