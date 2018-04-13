@@ -177,10 +177,10 @@ class InputDialog:
         def ok(_s, _e):
 
             # Validate required inputs
-            _failed = []
+            failed = []
             for r in self.required:
-                if self.datatype(r) == 'text' and self.__inputs[r].Text == '':
-                    _failed.append(r)
+                if self.datatype[r] == 'text' and self.__inputs[r].Text == '':
+                    failed.append(r)
 
                 elif self.datatype[r] == 'check':
                     n = 0
@@ -189,10 +189,10 @@ class InputDialog:
                             n += 1
 
                     if n == 0:
-                        _failed.append(r)
+                        failed.append(r)
 
                 elif self.datatype[r] == 'combo' and self.__inputs[r].SelectedIndex == -1:
-                    _failed.append(r)
+                    failed.append(r)
 
                 # elif self.datatype[t] == 'list':
 
@@ -201,16 +201,16 @@ class InputDialog:
                 # elif self.datatype[t] == 'bool':
 
                 else:
-                    raise AttributeError('Invalid type: {}'.format(datatype[i]))
+                    raise AttributeError('Invalid type: {}'.format(self.datatype[i]))
 
             # Continue if all required inputs exist
-            if len(_failed) == 0:
+            if len(failed) == 0:
                 self.__form.DialogResult = True
                 self.status = True
 
             # Otherwise warn the user
             else:
-                for f in _failed:
+                for f in failed:
                     self.__labels[f].ForeColor = System.Drawing.Color.Red
 
                 System.Windows.Forms.MessageBox.Show('One or more required fields are missing', 'Required Fields',
