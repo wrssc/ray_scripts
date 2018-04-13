@@ -29,16 +29,17 @@ __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Create-Reference-CT'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+# Import packages
+import os
+import numpy
+import datetime
+import logging
+import pydicom
+import tempfile
+import shutil
+
 
 def main():
-    # Specify import statements
-    import os
-    import numpy
-    import datetime
-    import logging
-    import pydicom
-    import tempfile
-    import shutil
 
     # If running from within RayStation, write to temp folder and import
     ray = False
@@ -144,21 +145,13 @@ def main():
 
     # If in RayStation, import DICOM files
     if ray:
-
-        try:
-            patient_db.ImportPatientFromPath(Path=path,
-                                             Patient={'Name': 'Water Phantom'},
-                                             SeriesFilter={},
-                                             ImportFilters=[])
-            logging.info('Import successful')
-            case = connect.get_current("Case")
-            examination = connect.get_current("Examination")
-
-        except SystemError:
-            logging.error('An error occurred importing the temporary CT files')
-            UserInterface.WarningBox('An error occurred importing the temporary CT files')
-            shutil.rmtree(path, ignore_errors=True)
-            raise
+        patient_db.ImportPatientFromPath(Path=path,
+                                         Patient={'Name': 'Water Phantom'},
+                                         SeriesFilter={},
+                                         ImportFilters=[])
+        logging.info('Import successful')
+        case = connect.get_current("Case")
+        examination = connect.get_current("Examination")
 
         # Set imaging equipment
         ct_scanners = (machine_db.GetCtImagingSystemsNameAndCommissionTime().keys())
