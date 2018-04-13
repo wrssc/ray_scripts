@@ -85,8 +85,8 @@ class ScriptStatus:
         if self.__process.is_alive():
             self.__process.terminate()
 
-    def next_step(self, num=None, text=''):
-        """status.next_step()"""
+    def next_step(self, text='', num=None):
+        """status.next_step('new status')"""
 
         # If abort was pressed
         if self.__abort.is_set():
