@@ -30,7 +30,6 @@ __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Create-Reference-CT'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 
-# noinspection PyUnresolvedReferences
 def main():
 
     # Specify import statements
