@@ -246,6 +246,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
         table.Controls.Add(bar)
 
+        System.Windows.Forms.Application.EnableVisualStyles()
         form.ShowDialog()
 
     # Initialize list of scripts
