@@ -6,7 +6,8 @@
     text argument allows additional (single or multi-line) text to be listed on
     the UI explaining what each step is doing. The finish() function will allow
     display a completion message and hold the parent script until the status
-    window is closed (to exit immediately, use the close() function).
+    window is closed (to exit immediately, use the close() function). To update
+    the status text without progressing to the next step, call update_text()
 
     Note, the window will not display until the first next_step() call, which
     would correspond to the first step. The following example illustrates how to
@@ -129,6 +130,10 @@ class ScriptStatus:
                 self.__process.start()
                 self.__process.join(0.1)
 
+    def add_step(self, text=''):
+        """status.add_step('new step')"""
+        self.__queue.put([-3, text])
+
     def update_text(self, text=''):
         """status.update_text('new text')"""
         self.__queue.put([self.current_step, text])
@@ -168,8 +173,8 @@ def _child_process(args, queue, aborted, kill):
     # Initialize form
     form = System.Windows.Forms.Form()
     form.Width = 400
-    form.Height = min(20 * math.ceil(len(args['summary']) / wrap_length) + 15 *
-                      (status_text.count('\n') + 1) + 320, 800)
+    form.Height = min(800, 20 * math.ceil(len(args['summary']) / wrap_length) + 15 *
+                      (status_text.count('\n') + 1) + 230 + max(100, min(500, 20 * len(args['steps']))))
     form.Padding = System.Windows.Forms.Padding(0)
     form.Text = args['title']
     form.AutoScroll = True
@@ -216,7 +221,7 @@ def _child_process(args, queue, aborted, kill):
 
         steps = System.Windows.Forms.ListBox()
         steps.Width = 345
-        steps.Height = min(500, 30 * len(args['steps']))
+        steps.Height = max(100, min(500, 20 * len(args['steps'])))
         steps.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         steps.MultiColumn = False
         steps.Click += read_only
@@ -306,10 +311,17 @@ def _child_process(args, queue, aborted, kill):
         if not queue.empty():
             current_step, status_text = queue.get()
 
-            status.Text = status_text
-            status.Height = 15 * (status_text.count('\n') + 1) + 10
-            form.Height = min(20 * math.ceil(len(args['summary']) / wrap_length) + 15 *
-                              (status_text.count('\n') + 1) + 320, 800)
+            # -3 indicates a step should be added
+            if current_step == -3:
+                args['steps'].append(status_text)
+                steps.Items.Add('{}. {}'.format(len(args['steps']), status_text))
+                current_step = steps.SelectedIndex
+
+            else:
+                status.Text = status_text
+                status.Height = 15 * (status_text.count('\n') + 1) + 10
+                form.Height = min(800, 20 * math.ceil(len(args['summary']) / wrap_length) + 15 *
+                                  (status_text.count('\n') + 1) + 230 + max(100, min(500, 20 * len(args['steps']))))
 
             # -2 indicates script is done
             if current_step == -2:
