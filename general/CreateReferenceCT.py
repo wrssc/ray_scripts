@@ -37,6 +37,7 @@ import logging
 import pydicom
 import tempfile
 import shutil
+import time
 
 
 def main():
@@ -77,6 +78,7 @@ def main():
                                                     'b': '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day),
                                                     'c': '650, 400, 650',
                                                     'd': '1, 1, 1'})
+        time.sleep(1)
         response = inputs.show()
         name = response['a'].strip()
         mrn = response['b'].strip()
