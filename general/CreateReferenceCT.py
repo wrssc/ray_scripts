@@ -66,7 +66,7 @@ def main():
                                                    'Export CT (optional)'],
                                             docstring=__doc__,
                                             help=__help__)
-        status.next_step('For this step, enter the desired phantom details\nin the displayed input box.')
+        status.next_step(text='For this step, enter the desired phantom details\nin the displayed input box.')
 
         # Display input dialog and retrieve phantom size
         inputs = UserInterface.InputDialog(inputs={'a': 'Enter phantom name:',
@@ -85,7 +85,7 @@ def main():
         size = map(int, response['c'].split(','))
         res = map(int, response['d'].split(','))
 
-        status.next_step('Generating temporary CT files based on provided\ndimensions...')
+        status.next_step(text='Generating temporary CT files based on provided\ndimensions...')
 
     except (ImportError, OSError, SystemError):
         logging.info('Running outside RayStation, will prompt user to enter folder')
@@ -187,7 +187,7 @@ def main():
     # If in RayStation, import DICOM files
     if ray:
 
-        status.next_step('Importing the temporary CT into RayStation...')
+        status.next_step(text='Importing the temporary CT into RayStation...')
 
         patient_db.ImportPatientFromPath(Path=path,
                                          Patient={'Name': name},
@@ -211,7 +211,7 @@ def main():
         examination.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=e.Current.Key)
 
         # Create external ROI
-        status.next_step('Generating External Contour...')
+        status.next_step(text='Generating External Contour...')
         logging.debug('Generating External Contour')
         external = case.PatientModel.CreateRoi(Name='External',
                                                Color='Blue',
@@ -223,7 +223,7 @@ def main():
         patient.Save()
 
         # Prompt user to export
-        status.next_step('At this step, you can choose to export the \nphantom CT and structure set')
+        status.next_step(text='At this step, you can choose to export the \nphantom CT and structure set')
         answer = UserInterface.QuestionBox('Do you wish to export the phantom to a folder?')
         if answer.response:
             common = UserInterface.FolderBrowser('Select a folder to export to:')
@@ -241,8 +241,8 @@ def main():
 
         # Finish up
         shutil.rmtree(path, ignore_errors=True)
-        status.finish('Script execution successful. Note, the phantom material\nwas not set to water. If you ' +
-                      'plan on running other QA scripts,\nset the external to water first.')
+        status.finish(text='Script execution successful. Note, the phantom material\nwas not set to water. If you ' +
+                           'plan on running other QA scripts,\nset the external to water first.')
 
     logging.debug('CT generation successful')
 
