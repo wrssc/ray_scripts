@@ -231,7 +231,8 @@ def main():
         status.next_step(text='At this step, you can choose to export the \nphantom CT and structure set')
         answer = UserInterface.QuestionBox('Do you wish to export the phantom to a folder?')
         if answer.yes:
-            common = UserInterface.FolderBrowser('Select a folder to export to:')
+            common = UserInterface.CommonDialog
+            common.folder_browser('Select a folder to export to:')
             export = common.show()
             try:
                 logging.debug('Exporting CT and RTSS to {}'.format(export))
