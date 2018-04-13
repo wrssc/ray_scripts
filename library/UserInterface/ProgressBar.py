@@ -85,7 +85,7 @@ class ProgressBar:
         if self.__bar.Value == self.__bar.Maximum:
             self.__bar.Maximum += 1
         self.__bar.PerformStep()
-        System.Windows.Forms.Application.DoEvents()
+        #System.Windows.Forms.Application.DoEvents()
         if text != '':
             self.__label.Text = text
             self.__label.Update()
