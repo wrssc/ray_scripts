@@ -1,4 +1,4 @@
-""" Create Reference CT
+""" Create Homogeneous Phantom
     
     This script generates a homogeneous phantom CT (0 HU) padded by empty voxels. The 
     DICOM origin is set to the top (anterior) center of the image. The image size and 
@@ -24,7 +24,7 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.0.2'
+__version__ = '1.1.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Create-Reference-CT'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -41,6 +41,9 @@ import shutil
 
 def main():
 
+    # Get current date, time
+    now = datetime.datetime.now()
+
     # If running from within RayStation, write to temp folder and import
     ray = False
     try:
@@ -53,18 +56,50 @@ def main():
         logging.debug('Temporary folder generated at {}'.format(path))
         ray = True
 
+        # Start script status window
+        status = UserInterface.ScriptStatus(steps=['Enter Phantom Dimensions'
+                                                   'Generate Temporary CT Files',
+                                                   'Import Files into RayStation'
+                                                   'Set Imaging Equipment'
+                                                   'Create External Contour'
+                                                   'Export CT (optional)'],
+                                            docstring=__doc__,
+                                            help=__help__)
+        status.next_step('For this step, enter the desired phantom details\nin the displayed input box.')
+
+        # Display input dialog and retrieve phantom size
+        inputs = UserInterface.InputDialog(inputs={'a': 'Enter phantom name:',
+                                                   'b': 'Enter phantom ID:',
+                                                   'c': 'Enter number of voxels in IEC X,Z,Y:',
+                                                   'd': 'Enter resolution in IEC X,Z,Y (mm):'},
+                                           required=['a', 'b', 'c', 'd'],
+                                           initial={'a': 'Water Phantom',
+                                                    'b': '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day),
+                                                    'c': '650, 400, 650',
+                                                    'd': '1, 1, 1'})
+        response = inputs.show()
+        name = response['a'].strip()
+        mrn = response['b'].strip()
+        size = map(int, response['c'].split(','))
+        res = map(int, response['d'].split(','))
+
+        status.next_step('Generating temporary CT files based on provided\ndimensions...')
+
     except (ImportError, OSError, SystemError):
         logging.info('Running outside RayStation, will prompt user to enter folder')
         path = raw_input('Enter path to write CT to: ').strip()
         if not os.path.exists(path):
             os.mkdir(path)
 
-    # Declare image size and resolution (in mm), IEC [X,Z,Y]
-    size = [651, 401, 651]
-    res = [1, 1, 1]
+        # Prompt for name, ID, image size and resolution (in mm), IEC [X,Z,Y]
+        name = raw_input('Enter phantom name: ').strip()
+        mrn = raw_input('Enter phantom ID: ').strip()
+        size = map(int, raw_input('Enter number of voxels in IEC X,Z,Y (650, 400, 650): ').split(','))
+        res = map(int, raw_input('Enter mm resolution in IEC X,Z,Y (1, 1, 1): ').split(','))
 
-    # Get current date, time
-    now = datetime.datetime.now()
+    # Pad X/Z dimensions by a voxel (will be air)
+    size[0] += 2
+    size[1] += 2
 
     # Create new dict, and add basic image attributes
     ds = pydicom.dataset.Dataset()
@@ -91,8 +126,8 @@ def main():
     ds.ManufacturerModelName = 'CreateReferenceCT'
     ds.SoftwareVersion = '1.0'
     ds.SeriesDescription = 'Uniform Phantom'
-    ds.PatientName = 'Water Phantom'
-    ds.PatientID = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
+    ds.PatientName = name
+    ds.PatientID = mrn
     ds.SliceThickness = res[2]
     ds.StudyInstanceUID = pydicom.uid.generate_uid()
     ds.SeriesInstanceUID = pydicom.uid.generate_uid()
@@ -149,13 +184,18 @@ def main():
 
     # If in RayStation, import DICOM files
     if ray:
+
+        status.next_step('Importing the temporary CT into RayStation...')
+
         patient_db.ImportPatientFromPath(Path=path,
-                                         Patient={'Name': 'Water Phantom'},
+                                         Patient={'Name': name},
                                          SeriesFilter={},
                                          ImportFilters=[])
+
         logging.info('Import successful')
-        case = connect.get_current("Case")
-        examination = connect.get_current("Examination")
+        patient = connect.get_current('Patient')
+        case = connect.get_current('Case')
+        examination = connect.get_current('Examination')
 
         # Set imaging equipment
         import clr
@@ -164,20 +204,45 @@ def main():
         ct_dict = machine_db.GetCtImagingSystemsNameAndCommissionTime()
         e = ct_dict.GetEnumerator()
         e.MoveNext()
+        status.next_step('Setting imaging equipment to {}...'.format(e.Current.Key))
+        logging.debug('Setting imaging equipment to {}'.format(e.Current.Key))
         examination.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=e.Current.Key)
 
         # Create external ROI
-        case.PatientModel.CreateRoi(Name='External',
-                                    Color='Blue',
-                                    Type='External',
-                                    TissueName='',
-                                    RbeCellTypeName=None,
-                                    RoiMaterial='Water')
+        status.next_step('Generating External Contour...')
+        logging.debug('Generating External Contour')
+        external = case.PatientModel.CreateRoi(Name='External',
+                                               Color='Blue',
+                                               Type='External',
+                                               TissueName='',
+                                               RbeCellTypeName=None,
+                                               RoiMaterial=None)
+        external.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+        patient.Save()
+
+        # Prompt user to export
+        status.next_step('At this step, you can choose to export the \nphantom CT and structure set')
+        answer = UserInterface.QuestionBox('Do you wish to export the phantom to a folder?')
+        if answer.response:
+            common = UserInterface.FolderBrowser('Select a folder to export to:')
+            export = common.show()
+            try:
+                logging.debug('Exporting CT and RTSS to {}'.format(export))
+                case.ScriptableDicomExport(ExportFolderPath=export,
+                                           Examinations=examination.Name,
+                                           RtStructureSetsForExaminations=examination.Name,
+                                           DicomFilter='',
+                                           IgnorePreConditionWarnings=True)
+
+            except SystemError as error:
+                logging.warning(str(error))
 
         # Finish up
         shutil.rmtree(path, ignore_errors=True)
-        logging.info('CT generation successful')
-        UserInterface.MessageBox('CT generation successful')
+        status.finish('Script execution successful. Note, the phantom material\nwas not set to water. If you ' +
+                      'plan on running other QA scripts,\nset the external to water first.')
+
+    logging.debug('CT generation successful')
 
 
 if __name__ == '__main__':
