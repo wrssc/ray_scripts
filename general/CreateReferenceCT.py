@@ -46,6 +46,7 @@ def main():
     try:
         import connect
         import UserInterface
+
         machine_db = connect.get_current('MachineDB')
         patient_db = connect.get_current('PatientDB')
         path = tempfile.mkdtemp()
@@ -143,6 +144,9 @@ def main():
         logging.debug('Writing image {0}ct_{1:0>3}.dcm'.format(path, i + 1))
         ds.save_as(os.path.normpath('{0}/ct_{1:0>3}.dcm'.format(path, i + 1)))
 
+    if not isinstance(bar, bool):
+        bar.close()
+
     # If in RayStation, import DICOM files
     if ray:
         patient_db.ImportPatientFromPath(Path=path,
@@ -154,8 +158,13 @@ def main():
         examination = connect.get_current("Examination")
 
         # Set imaging equipment
-        ct_scanners = (machine_db.GetCtImagingSystemsNameAndCommissionTime().keys())
-        examination.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=ct_scanners[0])
+        import clr
+        clr.AddReference('System.Collections')
+        import System.Collections.Generic
+        ct_dict = machine_db.GetCtImagingSystemsNameAndCommissionTime()
+        e = ct_dict.GetEnumerator()
+        e.MoveNext()
+        examination.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=e.Current.Key)
 
         # Create external ROI
         case.PatientModel.CreateRoi(Name='External',
