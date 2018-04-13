@@ -37,18 +37,23 @@ def main():
     import numpy
     import datetime
     import logging
-    import pydicom.dataset
-    import pydicom.uid
+    import pydicom
+    import tempfile
+    import shutil
 
-    # If running from Windows (with IronPython installed in the location specified below)
-    # prompt user to select folder, otherwise, ask them via raw_input()
+
+    # If running from within raystation, write to temp folder and import
+    ray = False
     try:
+        import connect
         import UserInterface
-        browser = UserInterface.CommonDialog()
-        path = browser.folder_browser('Select folder to export CT to:')
+        patient_db = connect.get_current('PatientDB')
+        path = tempfile.mkdtemp()
+        logging.debug('Temporary folder generated at {}'.format(path))
+        ray = True
 
-    except (ImportError, OSError):
-        logging.info('Folder browser not available')
+    except (ImportError, OSError, SystemError):
+        logging.info('Running outside RayStation, will prompt user to enter folder')
         path = raw_input('Enter path to write CT to: ').strip()
         if not os.path.exists(path):
             os.mkdir(path)
@@ -136,9 +141,42 @@ def main():
         ds.InstanceNumber = i + 1
 
         # Write CT image
-        logging.info('Writing image ct_{0:0>3}.dcm'.format(i + 1))
+        logging.debug('Writing image {0}ct_{1:0>3}.dcm'.format(path, i + 1))
         ds.save_as(os.path.normpath('{0}/ct_{1:0>3}.dcm'.format(path, i + 1)))
 
+    # If in RayStation, import DICOM files
+    if ray:
+
+        try:
+            patient_db.ImportPatientFromPath(Path=path)
+            logging.info('Import successful')
+            patient = connect.get_current("Patient")
+            case = connect.get_current("Case")
+            examination = connect.get_current("Examination")
+
+        except SystemError:
+            logging.error('An error occurred importing the temporary CT files')
+            UserInterface.WarningBox('An error occurred importing the temporary CT files')
+            shutil.rmtree(path, ignore_errors=True)
+            raise
+
+
+        # Set imaging equipment
+        ct_scanners = (machine_db.GetCtImagingSystemsNameAndCommissionTime().keys())
+        examination.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=ct_scanners[0])
+
+        # Create external ROI
+        case.PatientModel.CreateRoi(Name='External',
+                                    Color='Blue',
+                                    Type='External',
+                                    TissueName='',
+                                    RbeCellTypeName=None,
+                                    RoiMaterial='Water')
+
+        # Finish up
+        shutil.rmtree(path, ignore_errors=True)
+        logging.info('CT generation successful')
+        UserInterface.MessageBox('CT generation successful')
 
 if __name__ == '__main__':
     main()
