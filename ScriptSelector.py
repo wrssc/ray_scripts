@@ -137,6 +137,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         form.Text = 'Select a branch to run'
         form.AutoScroll = True
         form.BackColor = System.Drawing.Color.White
+        form.TopMost = True
         table = System.Windows.Forms.TableLayoutPanel()
         table.ColumnCount = 1
         table.RowCount = 1
@@ -285,6 +286,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     form.Text = 'Select a script to run'
     form.AutoScroll = True
     form.BackColor = System.Drawing.Color.White
+    form.TopMost = True
     table = System.Windows.Forms.TableLayoutPanel()
     table.ColumnCount = 1
     table.RowCount = 1

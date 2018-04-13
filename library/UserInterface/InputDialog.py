@@ -82,6 +82,7 @@ class InputDialog:
             self.__form.Text = title
             self.__form.AutoScroll = True
             self.__form.BackColor = System.Drawing.Color.White
+            self.__form.TopMost = True
 
         else:
             self.__form = form
