@@ -209,6 +209,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             # Loop through files in branch, downloading each
             for x in file_list:
                 bar.PerformStep()
+                System.Windows.Forms.Application.DoEvents()
                 if x['type'] == u'file':
                     if x.get('download_url'):
                         logging.debug('Downloading {}'.format(x['download_url']))

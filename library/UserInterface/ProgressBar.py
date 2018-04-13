@@ -76,6 +76,7 @@ class ProgressBar:
         System.Windows.Forms.Application.EnableVisualStyles()
         self.__form.Show()
         self.__label.Update()
+        System.Windows.Forms.Application.DoEvents()
 
     def __del__(self):
         """ProgressBar class destructor"""
