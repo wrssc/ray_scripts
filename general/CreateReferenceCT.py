@@ -45,6 +45,7 @@ def main():
     try:
         import connect
         import UserInterface
+        machine_db = connect.get_current('MachineDB')
         patient_db = connect.get_current('PatientDB')
         path = tempfile.mkdtemp()
         logging.debug('Temporary folder generated at {}'.format(path))
@@ -145,9 +146,11 @@ def main():
     if ray:
 
         try:
-            patient_db.ImportPatientFromPath(Path=path)
+            patient_db.ImportPatientFromPath(Path=path,
+                                             Patient={'Name': 'Water Phantom'},
+                                             SeriesFilter={},
+                                             ImportFilters=[])
             logging.info('Import successful')
-            patient = connect.get_current("Patient")
             case = connect.get_current("Case")
             examination = connect.get_current("Examination")
 
