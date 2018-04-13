@@ -26,9 +26,154 @@ import textwrap
 import multiprocessing
 
 
-def _ThreadRunner(object, name, summary, title, steps, help):
+def _ChildProcess(args, queue, kill):
 
-    return object._show_form(name, summary, title, steps, help)
+    # Link .NET assemblies
+    clr.AddReference('System.Windows.Forms')
+    clr.AddReference('System.Drawing')
+    import System
+
+    current_step = queue.get()
+
+    # Define text wrap length
+    wrap_length = 60
+
+    # Initialize form
+    form = System.Windows.Forms.Form()
+    form.Width = 400
+    form.Height = min(20 * math.ceil(len(args['summary']) / wrap_length) + 300, 800)
+    form.Padding = System.Windows.Forms.Padding(0)
+    form.Text = args['title']
+    form.AutoScroll = True
+    form.BackColor = System.Drawing.Color.White
+    table = System.Windows.Forms.TableLayoutPanel()
+    table.ColumnCount = 1
+    table.RowCount = 1
+    table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
+    table.Padding = System.Windows.Forms.Padding(0)
+    table.BackColor = System.Drawing.Color.White
+    table.AutoSize = True
+    form.Controls.Add(table)
+
+    # Add script name, summary
+    if args['name'] is not None:
+        name = System.Windows.Forms.Label()
+        name.Text = args['name']
+        name.Width = 345
+        name.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        table.Controls.Add(name)
+
+    if args['summary'] is not None:
+        summary = System.Windows.Forms.Label()
+        summary.Text = '\n'.join(textwrap.wrap(args['summary'], wrap_length))
+        summary.Width = 345
+        summary.Height = 15 * math.ceil(len(args['summary']) / wrap_length)
+        summary.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        table.Controls.Add(summary)
+
+    def read_only(_s, _e):
+        steps.SelectedIndex = current_step
+
+    # Add steps
+    if args['steps'] is not None:
+        step_title = System.Windows.Forms.Label()
+        step_title.Text = 'Steps'
+        step_title.Width = 345
+        step_title.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        table.Controls.Add(step_title)
+
+        steps = System.Windows.Forms.ListBox()
+        steps.Width = 345
+        steps.Height = min(500, 30 * len(args['steps']))
+        steps.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        steps.MultiColumn = False
+        steps.Click += read_only
+        for i in range(len(args['steps'])):
+            steps.Items.Add('{}. {}'.format(i + 1, args['steps'][i]))
+
+        steps.SelectedIndex = current_step
+        table.Controls.Add(steps)
+
+    # Add progress bar
+    bar = System.Windows.Forms.ProgressBar()
+    bar.Visible = True
+    bar.Width = 345
+    bar.Height = 30
+    bar.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+    bar.Style = System.Windows.Forms.ProgressBarStyle.Marquee
+    bar.MarqueeAnimationSpeed = 50
+    table.Controls.Add(bar)
+
+    # Executes when OK is pressed
+    def launch_help(_s, _e):
+        print 'TODO: launch help'
+
+    # Executes when cancel is pressed
+    def stop_script(_s, _e):
+        if q >= 0:
+            print 'TODO: abort and revert state'
+
+        form.DialogResult = True
+        kill.set()
+
+    # OK/Cancel buttons
+    button_table = System.Windows.Forms.TableLayoutPanel()
+    button_table.ColumnCount = 2
+    button_table.RowCount = 1
+    button_table.Padding = System.Windows.Forms.Padding(0)
+    button_table.BackColor = System.Drawing.Color.White
+    button_table.AutoSize = True
+    button_table.Anchor = System.Windows.Forms.AnchorStyles.Right
+    table.Controls.Add(button_table)
+
+    help = System.Windows.Forms.Button()
+    help.Text = 'Help'
+    help.Height = 30
+    help.Width = 70
+    help.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+    help.BackColor = System.Drawing.Color.LightGray
+    help.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+    help.Click += launch_help
+    button_table.Controls.Add(help)
+
+    abort = System.Windows.Forms.Button()
+    abort.Text = 'Abort'
+    abort.Height = 30
+    abort.Width = 70
+    abort.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+    abort.BackColor = System.Drawing.Color.LightGray
+    abort.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+    abort.Click += stop_script
+    button_table.Controls.Add(abort)
+
+    # Display form
+    System.Windows.Forms.Application.EnableVisualStyles()
+    form.Update()
+    form.Show()
+
+    while True:
+        if not queue.empty():
+            q = queue.get()
+
+            # -1 indicates script is done
+            if q == -1:
+                form.Visible = False
+                bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
+                bar.Minimum = 1
+                bar.Value = 10
+                bar.Maximum = 10
+                abort.Text = 'Close'
+                form.ShowDialog()
+
+
+            # queue is step index
+            elif q >= 0:
+                current_step = q
+                steps.SelectedIndex = current_step
+
+
+        System.Windows.Forms.Application.DoEvents()
+
     
 class ScriptStatus:
 
@@ -47,76 +192,6 @@ class ScriptStatus:
         summary = ' '.join(s)
         return name, summary
 
-    def _show_form(self, name, summary, title, steps, help):
-
-        # Link .NET assemblies
-        clr.AddReference('System.Windows.Forms')
-        clr.AddReference('System.Drawing')
-        import System
-
-        # Define text wrap length
-        wrap_length = 60
-
-        # Initialize form
-        self.__form = System.Windows.Forms.Form()
-        self.__form.Width = 400
-        self.__form.Height = min(20 * math.ceil(len(summary) / wrap_length) + 300, 800)
-        self.__form.Padding = System.Windows.Forms.Padding(0)
-        self.__form.Text = title
-        self.__form.AutoScroll = True
-        self.__form.BackColor = System.Drawing.Color.White
-        self.__table = System.Windows.Forms.TableLayoutPanel()
-        self.__table.ColumnCount = 1
-        self.__table.RowCount = 1
-        self.__table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-        self.__table.Padding = System.Windows.Forms.Padding(0)
-        self.__table.BackColor = System.Drawing.Color.White
-        self.__table.AutoSize = True
-        self.__form.Controls.Add(self.__table)
-
-        # Add script name, summary
-        if name is not None:
-            self.__name = System.Windows.Forms.Label()
-            self.__name.Text = name
-            self.__name.Width = 345
-            self.__name.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-            self.__table.Controls.Add(self.__name)
-
-        if summary is not None:
-            self.__summary = System.Windows.Forms.Label()
-            self.__summary.Text = '\n'.join(textwrap.wrap(summary, wrap_length))
-            self.__summary.Width = 345
-            self.__summary.Height = 15 * math.ceil(len(summary) / wrap_length)
-            self.__summary.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-            self.__table.Controls.Add(self.__summary)
-
-        def read_only(s, _e):
-            self.__steps.SelectedIndex = self.step
-
-        self.step = 0
-
-        # Add steps
-        if steps is not None:
-            self.__step_title = System.Windows.Forms.Label()
-            self.__step_title.Text = 'Steps'
-            self.__step_title.Width = 345
-            self.__step_title.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-            self.__table.Controls.Add(self.__step_title)
-
-            self.__steps = System.Windows.Forms.ListBox()
-            self.__steps.Width = 345
-            self.__steps.Height = min(500, 30 * len(steps))
-            self.__steps.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-            self.__steps.MultiColumn = False
-            self.__steps.Click += read_only
-            for i in range(len(steps)):
-                self.__steps.Items.Add('{}. {}'.format(i + 1, steps[i]))
-            self.__steps.SelectedIndex = self.step
-            self.__table.Controls.Add(self.__steps)
-
-        self.__form.ShowDialog()
-        self.__child_conn.close()
-
     def __init__(self, name=None, summary=None, title='Script Status', steps=None, docstring=None, help=None):
         """status = UserInterface.ScriptStatus(steps=['Step A', 'Step B'], docstring=__doc__, help=__help__)"""
 
@@ -124,28 +199,45 @@ class ScriptStatus:
         if docstring is not None:
             name, summary = self.__parse_docstring(docstring)
 
+        # Store inputs and initialize step counter
+        self.args = {'name': name, 'summary': summary, 'title': title, 'steps': steps, 'help': help}
+        self.current_step = 0
+
         # Launch separate thread
+        self.__kill = multiprocessing.Event()
+        self.__queue = multiprocessing.Queue()
+        self.__queue.put(0)
         self.__parent_conn, self.__child_conn = multiprocessing.Pipe()
-        self.__process = multiprocessing.Process(target=_ThreadRunner, args=(self, name, summary, title, steps, help))
+        self.__process = multiprocessing.Process(target=_ChildProcess,
+                                                 args=(self.args, self.__queue, self.__kill))
         self.__process.start()
         self.__process.join(1)
-
-    def add_step(self, step):
-        """status.add_step('Step C')"""
 
     def next_step(self, num=None, text=None):
         """status.next_step()"""
 
-        if num is not None:
-            self.step += 1
+        if num is None:
+            self.current_step += 1
         else:
-            self.step = num
+            self.current_step = num
 
-        self.__steps.SelectedIndex = self.step
-        self.__form.Update()
+        self.__queue.put(min(self.current_step, len(self.args['steps'])))
+
+    def finish(self, text=None):
+
+        self.__queue.put(-1)
+        while not self.__kill.is_set():
+            self.__process.join(1)
+
+        self.__process.terminate()
+
+    def add_step(self, step):
+        """status.add_step('Step C')"""
+
 
     def ask_input(self, inputs, initial=None, datatype=None, options=None, required=None):
         """status.ask_input({'a':'Enter a value for a:'})"""
+
 
     def __del__(self):
         """ScriptStatus class destructor"""
@@ -155,10 +247,15 @@ class ScriptStatus:
         """status.close()"""
         self.__del__()
 
-
+'''
 if __name__ == '__main__':
     import time
-    status = ScriptStatus(steps=['Step A', 'Step B'], docstring=__doc__, help=__help__)
+    status = ScriptStatus(steps=['Step A', 'Step B', 'Step C'], docstring=__doc__, help=__help__)
     time.sleep(2)
     status.next_step()
-    status.close()
+    time.sleep(2)
+    status.next_step()
+    time.sleep(2)
+    status.finish()
+'''
+
