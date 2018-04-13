@@ -232,9 +232,9 @@ def main():
                               'Answer Yes or No in the displayed message box.')
         answer = UserInterface.QuestionBox('Do you wish to export the phantom to a folder?')
         if answer.yes:
-            common = UserInterface.CommonDialog
+            common = UserInterface.CommonDialog()
             export = common.folder_browser('Select a folder to export to:')
-            
+
             try:
                 logging.debug('Exporting CT and RTSS to {}'.format(export))
                 case.ScriptableDicomExport(ExportFolderPath=export,
