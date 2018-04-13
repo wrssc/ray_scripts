@@ -31,7 +31,6 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 
 def main():
-
     # Specify import statements
     import os
     import numpy
@@ -41,8 +40,7 @@ def main():
     import tempfile
     import shutil
 
-
-    # If running from within raystation, write to temp folder and import
+    # If running from within RayStation, write to temp folder and import
     ray = False
     try:
         import connect
@@ -119,7 +117,6 @@ def main():
     ds.PixelData = img.tostring()
 
     try:
-        import UserInterface
         bar = UserInterface.ProgressBar(text='Writing CT files', steps=size[2])
     except ImportError:
         bar = False
@@ -160,7 +157,6 @@ def main():
             shutil.rmtree(path, ignore_errors=True)
             raise
 
-
         # Set imaging equipment
         ct_scanners = (machine_db.GetCtImagingSystemsNameAndCommissionTime().keys())
         examination.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=ct_scanners[0])
@@ -177,6 +173,7 @@ def main():
         shutil.rmtree(path, ignore_errors=True)
         logging.info('CT generation successful')
         UserInterface.MessageBox('CT generation successful')
+
 
 if __name__ == '__main__':
     main()
