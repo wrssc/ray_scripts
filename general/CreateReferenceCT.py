@@ -80,6 +80,11 @@ def main():
                                                     'd': '1, 1, 1'})
         time.sleep(1)
         response = inputs.show()
+        if response == {}:
+            logging.warning('Input dialog closed')
+            status.finish(text='The input dialog was closed, script cancelled')
+            exit()
+
         name = response['a'].strip()
         mrn = response['b'].strip()
         size = map(int, response['c'].split(','))
