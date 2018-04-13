@@ -174,7 +174,7 @@ def _child_process(args, queue, aborted, kill):
     form = System.Windows.Forms.Form()
     form.Width = 400
     form.Height = min(800, 20 * math.ceil(len(args['summary']) / wrap_length) + 15 *
-                      (status_text.count('\n') + 1) + 250 + max(50, min(500, 20 * len(args['steps']))))
+                      (status_text.count('\n') + 1) + 260 + max(50, min(500, 20 * len(args['steps']))))
     form.Padding = System.Windows.Forms.Padding(0)
     form.Text = args['title']
     form.AutoScroll = True
@@ -321,7 +321,7 @@ def _child_process(args, queue, aborted, kill):
                 status.Text = status_text
                 status.Height = 15 * (status_text.count('\n') + 1) + 10
                 form.Height = min(800, 20 * math.ceil(len(args['summary']) / wrap_length) + 15 *
-                                  (status_text.count('\n') + 1) + 250 + max(50, min(500, 20 * len(args['steps']))))
+                                  (status_text.count('\n') + 1) + 260 + max(50, min(500, 20 * len(args['steps']))))
 
             # -2 indicates script is done
             if current_step == -2:
