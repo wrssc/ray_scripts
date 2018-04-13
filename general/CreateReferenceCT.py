@@ -115,7 +115,7 @@ def main():
 
     try:
         import UserInterface
-        bar = UserInterface.ProgressBar('Writing CT files', step=size[2])
+        bar = UserInterface.ProgressBar(text='Writing CT files', steps=size[2])
     except ImportError:
         bar = False
         logging.info('Progress bar not available')
