@@ -200,9 +200,6 @@ class InputDialog:
 
                 # elif self.datatype[t] == 'bool':
 
-                else:
-                    raise AttributeError('Invalid type: {}'.format(self.datatype[i]))
-
             # Continue if all required inputs exist
             if len(failed) == 0:
                 self.__form.DialogResult = True
