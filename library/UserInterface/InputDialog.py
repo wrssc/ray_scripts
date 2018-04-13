@@ -75,42 +75,42 @@ class InputDialog:
             clr.AddReference('System.Drawing')
             import System
 
-            self.__form = System.Windows.Forms.Form()
-            self.__form.Width = 400
-            self.__form.Height = min(55 * len(inputs) + 100, 800)
-            self.__form.Padding = System.Windows.Forms.Padding(0)
-            self.__form.Text = title
-            self.__form.AutoScroll = True
-            self.__form.BackColor = System.Drawing.Color.White
-            self.__form.TopMost = True
+            self.form = System.Windows.Forms.Form()
+            self.form.Width = 400
+            self.form.Height = min(55 * len(inputs) + 100, 800)
+            self.form.Padding = System.Windows.Forms.Padding(0)
+            self.form.Text = title
+            self.form.AutoScroll = True
+            self.form.BackColor = System.Drawing.Color.White
+            self.form.TopMost = True
 
         else:
-            self.__form = form
+            self.form = form
 
         # Add table layout
-        self.__table = System.Windows.Forms.TableLayoutPanel()
-        self.__table.ColumnCount = 1
-        self.__table.RowCount = 1
-        self.__table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-        self.__table.Padding = System.Windows.Forms.Padding(0)
-        self.__table.BackColor = System.Drawing.Color.White
-        self.__table.AutoSize = True
-        self.__form.Controls.Add(self.__table)
+        self.table = System.Windows.Forms.TableLayoutPanel()
+        self.table.ColumnCount = 1
+        self.table.RowCount = 1
+        self.table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
+        self.table.Padding = System.Windows.Forms.Padding(0)
+        self.table.BackColor = System.Drawing.Color.White
+        self.table.AutoSize = True
+        self.form.Controls.Add(self.table)
 
         # Initialize variables
-        self.__labels = {}
-        self.__inputs = {}
+        self.labels = {}
+        self.inputs = {}
         self.values = {}
 
         # Add form inputs
         for i in sorted(inputs):
 
             # Label
-            self.__labels[i] = System.Windows.Forms.Label()
-            self.__labels[i].Text = inputs[i]
-            self.__labels[i].Width = 345
-            self.__labels[i].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-            self.__table.Controls.Add(self.__labels[i])
+            self.labels[i] = System.Windows.Forms.Label()
+            self.labels[i].Text = inputs[i]
+            self.labels[i].Width = 345
+            self.labels[i].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+            self.table.Controls.Add(self.labels[i])
 
             # Validate data type
             if (i not in self.datatype and i not in self.options) or self.datatype[i] == 'text':
@@ -130,39 +130,39 @@ class InputDialog:
 
             # Textbox
             if self.datatype[i] == 'text':
-                self.__inputs[i] = System.Windows.Forms.TextBox()
-                self.__inputs[i].Height = 30
-                self.__inputs[i].Width = 345
+                self.inputs[i] = System.Windows.Forms.TextBox()
+                self.inputs[i].Height = 30
+                self.inputs[i].Width = 345
                 if i in initial:
-                    self.__inputs[i].Text = initial[i]
+                    self.inputs[i].Text = initial[i]
 
-                self.__inputs[i].Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
-                self.__table.Controls.Add(self.__inputs[i])
+                self.inputs[i].Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
+                self.table.Controls.Add(self.inputs[i])
 
             # Checkbox
             elif self.datatype[i] == 'check':
-                self.__form.Height = min(self.__form.Height + 20 * (len(options[i]) - 1), 800)
-                self.__inputs[i] = {}
+                self.form.Height = min(self.form.Height + 20 * (len(options[i]) - 1), 800)
+                self.inputs[i] = {}
                 for o in self.options[i]:
-                    self.__inputs[i][o] = System.Windows.Forms.CheckBox()
-                    self.__inputs[i][o].Text = o
-                    self.__inputs[i][o].Margin = System.Windows.Forms.Padding(20, 0, 10, 0)
+                    self.inputs[i][o] = System.Windows.Forms.CheckBox()
+                    self.inputs[i][o].Text = o
+                    self.inputs[i][o].Margin = System.Windows.Forms.Padding(20, 0, 10, 0)
                     if i in initial and o in initial[i]:
-                        self.__inputs[i][o].Checked = True
+                        self.inputs[i][o].Checked = True
 
-                    self.__table.Controls.Add(self.__inputs[i][o])
+                    self.table.Controls.Add(self.inputs[i][o])
 
             # Combobox/dropdown menu
             elif self.datatype[i] == 'combo':
-                self.__inputs[i] = System.Windows.Forms.ComboBox()
-                self.__inputs[i].Height = 30
-                self.__inputs[i].Width = 345
-                self.__inputs[i].Items.AddRange(options[i])
+                self.inputs[i] = System.Windows.Forms.ComboBox()
+                self.inputs[i].Height = 30
+                self.inputs[i].Width = 345
+                self.inputs[i].Items.AddRange(options[i])
                 if i in initial and initial[i] in options[i]:
-                    self.__inputs[i].SelectedItem = initial[i]
+                    self.inputs[i].SelectedItem = initial[i]
 
-                self.__inputs[i].Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
-                self.__table.Controls.Add(self.__inputs[i])
+                self.inputs[i].Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
+                self.table.Controls.Add(self.inputs[i])
 
             # elif self.datatype[t] == 'list':
 
@@ -179,19 +179,19 @@ class InputDialog:
             # Validate required inputs
             failed = []
             for r in self.required:
-                if self.datatype[r] == 'text' and self.__inputs[r].Text == '':
+                if self.datatype[r] == 'text' and self.inputs[r].Text == '':
                     failed.append(r)
 
                 elif self.datatype[r] == 'check':
                     n = 0
-                    for x in self.__inputs[r]:
-                        if self.__inputs[r][x].Checked:
+                    for x in self.inputs[r]:
+                        if self.inputs[r][x].Checked:
                             n += 1
 
                     if n == 0:
                         failed.append(r)
 
-                elif self.datatype[r] == 'combo' and self.__inputs[r].SelectedIndex == -1:
+                elif self.datatype[r] == 'combo' and self.inputs[r].SelectedIndex == -1:
                     failed.append(r)
 
                 # elif self.datatype[t] == 'list':
@@ -202,13 +202,13 @@ class InputDialog:
 
             # Continue if all required inputs exist
             if len(failed) == 0:
-                self.__form.DialogResult = True
+                self.form.DialogResult = True
                 self.status = True
 
             # Otherwise warn the user
             else:
                 for f in failed:
-                    self.__labels[f].ForeColor = System.Drawing.Color.Red
+                    self.labels[f].ForeColor = System.Drawing.Color.Red
 
                 System.Windows.Forms.MessageBox.Show('One or more required fields are missing', 'Required Fields',
                                                      System.Windows.Forms.MessageBoxButtons.OK,
@@ -217,38 +217,38 @@ class InputDialog:
 
         # Executes when cancel is pressed
         def cancel(_s, _e):
-            self.__form.DialogResult = True
+            self.form.DialogResult = True
             self.status = False
 
         # OK/Cancel buttons
-        self.__button_table = System.Windows.Forms.TableLayoutPanel()
-        self.__button_table.ColumnCount = 2
-        self.__button_table.RowCount = 1
-        self.__button_table.Padding = System.Windows.Forms.Padding(0)
-        self.__button_table.BackColor = System.Drawing.Color.White
-        self.__button_table.AutoSize = True
-        self.__button_table.Anchor = System.Windows.Forms.AnchorStyles.Right
-        self.__table.Controls.Add(self.__button_table)
+        self.button_table = System.Windows.Forms.TableLayoutPanel()
+        self.button_table.ColumnCount = 2
+        self.button_table.RowCount = 1
+        self.button_table.Padding = System.Windows.Forms.Padding(0)
+        self.button_table.BackColor = System.Drawing.Color.White
+        self.button_table.AutoSize = True
+        self.button_table.Anchor = System.Windows.Forms.AnchorStyles.Right
+        self.table.Controls.Add(self.button_table)
 
-        self.__ok = System.Windows.Forms.Button()
-        self.__ok.Text = 'OK'
-        self.__ok.Height = 30
-        self.__ok.Width = 50
-        self.__ok.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        self.__ok.BackColor = System.Drawing.Color.LightGray
-        self.__ok.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        self.__ok.Click += ok
-        self.__button_table.Controls.Add(self.__ok)
+        self.ok = System.Windows.Forms.Button()
+        self.ok.Text = 'OK'
+        self.ok.Height = 30
+        self.ok.Width = 50
+        self.ok.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        self.ok.BackColor = System.Drawing.Color.LightGray
+        self.ok.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        self.ok.Click += ok
+        self.button_table.Controls.Add(self.ok)
 
-        self.__cancel = System.Windows.Forms.Button()
-        self.__cancel.Text = 'Cancel'
-        self.__cancel.Height = 30
-        self.__cancel.Width = 70
-        self.__cancel.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
-        self.__cancel.BackColor = System.Drawing.Color.LightGray
-        self.__cancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat
-        self.__cancel.Click += cancel
-        self.__button_table.Controls.Add(self.__cancel)
+        self.cancel = System.Windows.Forms.Button()
+        self.cancel.Text = 'Cancel'
+        self.cancel.Height = 30
+        self.cancel.Width = 70
+        self.cancel.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+        self.cancel.BackColor = System.Drawing.Color.LightGray
+        self.cancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat
+        self.cancel.Click += cancel
+        self.button_table.Controls.Add(self.cancel)
 
         # self.status stores the overall state of this object; True means the user provided
         # data, false means they didn't (Cancel or closed form) or that required data is missing
@@ -256,22 +256,23 @@ class InputDialog:
 
     def show(self):
         """results = input.show()"""
-        self.__form.ShowDialog()
+        self.values = {}
+        self.form.ShowDialog()
 
         # Retrieve values and return as a dict
         if self.status:
-            for t in self.__inputs:
+            for t in self.inputs:
                 if self.datatype[t] == 'text':
-                    self.values[t] = self.__inputs[t].Text
+                    self.values[t] = self.inputs[t].Text.encode('ascii', 'ignore')
 
                 elif self.datatype[t] == 'check':
                     self.values[t] = []
-                    for o in self.__inputs[t]:
-                        if self.__inputs[t][o].Checked:
-                            self.values[t].append(o)
+                    for o in self.inputs[t]:
+                        if self.inputs[t][o].Checked:
+                            self.values[t].append(o.encode('ascii', 'ignore'))
 
                 elif self.datatype[t] == 'combo':
-                    self.values[t] = self.__inputs[t].SelectedItem
+                    self.values[t] = self.inputs[t].SelectedItem.encode('ascii', 'ignore')
 
                 # elif self.datatype[t] == 'radio':
 
@@ -286,5 +287,5 @@ class InputDialog:
 
     def __del__(self):
         """InputDialog class destructor"""
-        self.__form.Dispose()
+        self.form.Dispose()
 
