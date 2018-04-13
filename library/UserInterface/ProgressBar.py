@@ -50,6 +50,7 @@ class ProgressBar:
         self.__form.Height = 140
         self.__form.Text = title
         self.__form.BackColor = System.Drawing.Color.White
+
         self.__bar = System.Windows.Forms.ProgressBar()
         self.__bar.Visible = True
         self.__bar.Minimum = 1
@@ -62,6 +63,7 @@ class ProgressBar:
         self.__bar.Top = 15
         self.__bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
         self.__form.Controls.Add(self.__bar)
+
         self.__label = System.Windows.Forms.Label()
         self.__label.Width = 300
         self.__label.Height = self.__label.PreferredHeight
@@ -70,6 +72,8 @@ class ProgressBar:
         self.__label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
         self.__label.Text = text
         self.__form.Controls.Add(self.__label)
+
+        System.Windows.Forms.Application.EnableVisualStyles()
         self.__form.Show()
         self.__label.Update()
 
