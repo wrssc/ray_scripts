@@ -37,8 +37,8 @@ def main():
     import numpy
     import datetime
     import logging
-    import pydicom
-    import inspect
+    import pydicom.dataset
+    import pydicom.uid
 
     # If running from Windows (with IronPython installed in the location specified below)
     # prompt user to select folder, otherwise, ask them via raw_input()
