@@ -32,18 +32,16 @@ __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-# Import packages
+# Import packages and ;ink .NET assemblies
 import clr
+clr.AddReference('System.Windows.Forms')
+clr.AddReference('System.Drawing')
+import System
 
 class ProgressBar:
 
     def __init__(self, text='', title='Progress Bar', steps = 10):
         """bar = ProgressBar('text', 'title', steps)"""
-
-        # Link .NET assemblies
-        clr.AddReference('System.Windows.Forms')
-        clr.AddReference('System.Drawing')
-        import System
 
         self.__form = System.Windows.Forms.Form()
         self.__form.Width = 350
