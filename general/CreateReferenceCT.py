@@ -90,7 +90,7 @@ def main():
         size = map(int, response['c'].split(','))
         res = map(int, response['d'].split(','))
 
-        status.next_step(text='Generating temporary CT files based on provided\ndimensions...')
+        status.next_step(text='Generating temporary CT files based on provided dimensions...')
 
     except (ImportError, OSError, SystemError):
         logging.info('Running outside RayStation, will prompt user to enter folder')
@@ -228,12 +228,13 @@ def main():
         patient.Save()
 
         # Prompt user to export
-        status.next_step(text='At this step, you can choose to export the \nphantom CT and structure set')
+        status.next_step(text='At this step, you can choose to export the phantom CT and\nstructure set. ' +
+                              'Answer Yes or No in the displayed message box.')
         answer = UserInterface.QuestionBox('Do you wish to export the phantom to a folder?')
         if answer.yes:
             common = UserInterface.CommonDialog
-            common.folder_browser('Select a folder to export to:')
-            export = common.show()
+            export = common.folder_browser('Select a folder to export to:')
+            
             try:
                 logging.debug('Exporting CT and RTSS to {}'.format(export))
                 case.ScriptableDicomExport(ExportFolderPath=export,
