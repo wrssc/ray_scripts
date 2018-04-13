@@ -123,10 +123,10 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         import requests
 
         if m_token != '':
-            r = requests.get(m_api + '/branches',
-                             headers={'Authorization': 'token {}'.format(m_token)})
+            r = requests.get(m_api + '/branches', headers={'Authorization': 'token {}'.format(m_token),
+                                                           'Accept': 'application/vnd.github.v3+json'})
         else:
-            r = requests.get(m_api + '/branches')
+            r = requests.get(m_api + '/branches', headers={'Accept': 'application/vnd.github.v3+json'})
         branch_list = r.json()
 
         # Start XAML content. As each branch is found, additional content will be appended
@@ -159,9 +159,11 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             try:
                 if m_token != '':
                     y = requests.get(m_api + '/contents?ref=' + branch,
-                                     headers={'Authorization': 'token {}'.format(m_token)})
+                                     headers={'Authorization': 'token {}'.format(m_token),
+                                              'Accept': 'application/vnd.github.v3+json'})
                 else:
-                    y = requests.get(m_api + '/contents?ref=' + branch)
+                    y = requests.get(m_api + '/contents?ref=' + branch,
+                                     headers={'Accept': 'application/vnd.github.v3+json'})
 
                 file_list = y.json()
             except requests.ConnectionError:
@@ -186,12 +188,12 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                     if x['type'] == u'dir':
                         if x['name'] != u'.git':
                             if m_token != '':
-                                y = requests.get(m_api + '/contents' + x['path'] +
-                                                 '?ref=' + branch, headers={'Authorization':
-                                                                            'token {}'.format(m_token)})
+                                y = requests.get(m_api + '/contents' + x['path'] + '?ref=' + branch,
+                                                 headers={'Authorization': 'token {}'.format(m_token),
+                                                          'Accept': 'application/vnd.github.v3+json'})
                             else:
-                                y = requests.get(m_api + '/contents' + x['path'] +
-                                                 '?ref=' + branch)
+                                y = requests.get(m_api + '/contents' + x['path'] + '?ref=' + branch,
+                                                 headers={'Accept': 'application/vnd.github.v3+json'})
 
                             sublist = y.json()
                             for z in sublist:
@@ -214,9 +216,10 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                             os.remove(os.path.join(m_local, x['path']))
                         if m_token != '':
                             y = requests.get(x['download_url'], headers={'Authorization':
-                                                                         'token {}'.format(m_token)})
+                                                                         'token {}'.format(m_token),
+                                                                         'Accept': 'application/vnd.github.v3+json'})
                         else:
-                            y = requests.get(x['download_url'])
+                            y = requests.get(x['download_url'], headers={'Accept': 'application/vnd.github.v3+json'})
 
                         open(os.path.join(m_local, x['path']), 'wb').write(y.content)
 
@@ -304,7 +307,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         if m_library != '':
             sys.path.append(os.path.join(m_local, m_library))
         sys.path.append(scripts[self.Text]['path'])
-        start = time.clock()
+        tic = time.time()
         try:
             logging.info('Executing {}.py'.format(scripts[self.Text]['script']))
             code = importlib.import_module(scripts[self.Text]['script'])
@@ -314,7 +317,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             if m_logs != '':
                 with open(os.path.normpath('{}/ScriptSelector.txt').format(m_logs), 'a') as log_file:
                     log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
-                                                                      time.clock() - start, getpass.getuser(),
+                                                                      time.time() - tic, getpass.getuser(),
                                                                       scripts[self.Text]['script'], 'SUCCESS'))
 
         except Exception as e:
@@ -323,7 +326,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             if m_logs != '':
                 with open(os.path.normpath('{}/ScriptSelector.txt').format(m_logs), 'a') as log_file:
                     log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
-                                                                      time.clock() - start, getpass.getuser(),
+                                                                      time.time() - tic, getpass.getuser(),
                                                                       scripts[self.Text]['script'], 'ERROR'))
 
             raise
