@@ -51,3 +51,23 @@ class WarningBox:
 
         System.Windows.Forms.MessageBox.Show(text, title, System.Windows.Forms.MessageBoxButtons.OK,
                                              System.Windows.Forms.MessageBoxIcon.Warning)
+
+class QuestionBox:
+
+    def __init__(self, text, title='Question'):
+        """box = UserInterface.MessageBox('text', 'title')"""
+
+        # Link .NET assemblies
+        clr.AddReference('System.Windows.Forms')
+        import System
+
+        r = System.Windows.Forms.MessageBox.Show(text, title, System.Windows.Forms.MessageBoxButtons.YesNo,
+                                                      System.Windows.Forms.MessageBoxIcon.Question)
+
+        if r == System.Windows.Forms.DialogResult.Yes:
+            self.yes = True
+            self.no = False
+
+        else:
+            self.yes = False
+            self.no = True
