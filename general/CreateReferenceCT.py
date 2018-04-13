@@ -58,7 +58,7 @@ def main():
         ray = True
 
         # Start script status window
-        status = UserInterface.ScriptStatus(steps=['Enter Phantom Dimensions'
+        status = UserInterface.ScriptStatus(steps=['Enter Phantom Dimensions',
                                                    'Generate Temporary CT Files',
                                                    'Import Files into RayStation',
                                                    'Set Imaging Equipment',
@@ -230,7 +230,7 @@ def main():
         # Prompt user to export
         status.next_step(text='At this step, you can choose to export the \nphantom CT and structure set')
         answer = UserInterface.QuestionBox('Do you wish to export the phantom to a folder?')
-        if answer.response:
+        if answer.yes:
             common = UserInterface.FolderBrowser('Select a folder to export to:')
             export = common.show()
             try:
