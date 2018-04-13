@@ -60,9 +60,9 @@ def main():
         # Start script status window
         status = UserInterface.ScriptStatus(steps=['Enter Phantom Dimensions'
                                                    'Generate Temporary CT Files',
-                                                   'Import Files into RayStation'
-                                                   'Set Imaging Equipment'
-                                                   'Create External Contour'
+                                                   'Import Files into RayStation',
+                                                   'Set Imaging Equipment',
+                                                   'Create External Contour',
                                                    'Export CT (optional)'],
                                             docstring=__doc__,
                                             help=__help__)
