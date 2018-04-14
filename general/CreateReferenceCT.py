@@ -239,7 +239,8 @@ def main():
                 export = common.folder_browser('Select a folder to export to:')
 
                 try:
-                    logging.debug('Exporting CT and RTSS to {}'.format(export))
+                    status.update_text('Exporting CT and structure set...')
+                    logging.debug('Exporting CT and structure set to {}'.format(export))
                     case.ScriptableDicomExport(ExportFolderPath=export,
                                                Examinations=[examination.Name],
                                                RtStructureSetsForExaminations=[examination.Name],
