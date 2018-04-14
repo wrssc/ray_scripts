@@ -175,8 +175,6 @@ def _child_process(args, queue, aborted, kill):
     form.Width = 400
     form.Height = min(800, 20 * math.ceil(len(args['summary']) / wrap_length) + 15 *
                       (status_text.count('\n') + 1) + 300 + max(50, min(500, 20 * len(args['steps']))))
-    form.Left = System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Right - form.Width
-    form.Top = 100
     form.Padding = System.Windows.Forms.Padding(0)
     form.Text = args['title']
     form.AutoScroll = True
@@ -307,6 +305,7 @@ def _child_process(args, queue, aborted, kill):
     System.Windows.Forms.Application.EnableVisualStyles()
     form.Update()
     form.Show()
+    form.SetDesktopLocation(System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Right - form.Width, 100)
     System.Windows.Forms.Application.DoEvents()
 
     while True:
