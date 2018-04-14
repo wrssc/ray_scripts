@@ -125,7 +125,7 @@ def main():
             os.mkdir(path)
 
     # Only continue if inputs were provided
-    if name is not '' and mrn is not '' and len(size) == 3 and len(res) == 3:
+    if name != '' and mrn != '' and len(size) == 3 and len(res) == 3:
 
         # Pad X/Z dimensions by a voxel (will be air)
         if pad:
