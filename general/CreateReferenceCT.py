@@ -238,8 +238,8 @@ def main():
             try:
                 logging.debug('Exporting CT and RTSS to {}'.format(export))
                 case.ScriptableDicomExport(ExportFolderPath=export,
-                                           Examinations=examination.Name,
-                                           RtStructureSetsForExaminations=examination.Name,
+                                           Examinations=[examination.Name],
+                                           RtStructureSetsForExaminations=[examination.Name],
                                            DicomFilter='',
                                            IgnorePreConditionWarnings=True)
 
