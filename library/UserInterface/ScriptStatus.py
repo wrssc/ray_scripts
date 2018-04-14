@@ -305,7 +305,7 @@ def _child_process(args, queue, aborted, kill):
     System.Windows.Forms.Application.EnableVisualStyles()
     form.Update()
     form.Show()
-    form.SetDesktopLocation(System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Right - form.Width, 100)
+    form.SetDesktopLocation(System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Right - form.Width, 50)
     System.Windows.Forms.Application.DoEvents()
 
     while True:
