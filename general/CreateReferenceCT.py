@@ -83,14 +83,14 @@ def main():
         if response == {}:
             logging.warning('Input dialog closed')
             status.finish(text='The input dialog was closed, script cancelled')
-            exit(0)
+            name = ''
 
-        name = response['a'].strip()
-        mrn = response['b'].strip()
-        size = map(int, response['c'].split(','))
-        res = map(int, response['d'].split(','))
-
-        status.next_step(text='Generating temporary CT files based on provided dimensions...')
+        else:
+            name = response['a'].strip()
+            mrn = response['b'].strip()
+            size = map(int, response['c'].split(','))
+            res = map(int, response['d'].split(','))
+            status.next_step(text='Generating temporary CT files based on provided dimensions...')
 
     except (ImportError, OSError, SystemError):
         logging.info('Running outside RayStation, will prompt user to enter folder')
@@ -104,154 +104,160 @@ def main():
         size = map(int, raw_input('Enter number of voxels in IEC X,Z,Y (650, 400, 650): ').split(','))
         res = map(int, raw_input('Enter mm resolution in IEC X,Z,Y (1, 1, 1): ').split(','))
 
-    # Pad X/Z dimensions by a voxel (will be air)
-    size[0] += 2
-    size[1] += 2
+    # Only continue if inputs were provided
+    if name is not '' and mrn is not '' and len(size) == 3 and len(res) == 3:
 
-    # Create new dict, and add basic image attributes
-    ds = pydicom.dataset.Dataset()
-    ds.file_meta = pydicom.dataset.Dataset()
-    ds.file_meta.TransferSyntaxUID = '1.2.840.10008.1.2'
-    ds.file_meta.ImplementationClassUID = '1.2.40.0.13.1.1'
-    ds.file_meta.ImplementationVersionName = 'dcm4che-2.0'
-    ds.SpecificCharacterSet = 'ISO_IR 100'
-    ds.file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
-    ds.Modality = 'CT'
-    ds.SOPClassUID = ds.file_meta.MediaStorageSOPClassUID
-    ds.is_little_endian = True
-    ds.is_implicit_VR = True
-    ds.RescaleIntercept = -1024
-    ds.RescaleSlope = 1
-    ds.InstanceCreationDate = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
-    ds.InstanceCreationTime = '{0:0>2}{1:0>2}{2:0>2}'.format(now.hour, now.minute, now.second)
-    ds.StudyDate = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
-    ds.StudyTime = '{0:0>2}{1:0>2}{2:0>2}'.format(now.hour, now.minute, now.second)
-    ds.AcquisitionDate = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
-    ds.AcquisitionTime = '{0:0>2}{1:0>2}{2:0>2}'.format(now.hour, now.minute, now.second)
-    ds.ImageType = 'ORIGINAL\PRIMARY\AXIAL'
-    ds.Manufacturer = 'pydicom'
-    ds.ManufacturerModelName = 'CreateReferenceCT'
-    ds.SoftwareVersion = '1.0'
-    ds.SeriesDescription = 'Uniform Phantom'
-    ds.PatientName = name
-    ds.PatientID = mrn
-    ds.SliceThickness = res[2]
-    ds.StudyInstanceUID = pydicom.uid.generate_uid()
-    ds.SeriesInstanceUID = pydicom.uid.generate_uid()
-    ds.FrameOfReferenceUID = pydicom.uid.generate_uid()
-    ds.PatientPosition = 'HFS'
-    ds.ImageOrientationPatient = [1, 0, 0, 0, 1, 0]
-    ds.ImagePositionPatient = [-((size[0] - 1) * res[0]) / 2, -res[1] / 2, ((size[2] - 1) * res[2]) / 2]
-    ds.ImagesInAcquisition = size[2]
-    ds.SamplesPerPixel = 1
-    ds.PhotometricInterpretation = 'MONOCHROME2'
-    ds.Rows = size[1]
-    ds.Columns = size[0]
-    ds.PixelSpacing = [res[0], res[1]]
-    ds.BitsAllocated = 16
-    ds.BitsStored = 16
-    ds.HighBit = 15
-    ds.PixelRepresentation = 0
+        # Pad X/Z dimensions by a voxel (will be air)
+        size[0] += 2
+        size[1] += 2
 
-    # Create padded image
-    img = numpy.zeros(shape=(size[1], size[0]), dtype=numpy.uint16)
-    for i in range(1, size[1] - 1):
-        for j in range(1, size[0] - 1):
-            img[i, j] = 1024
+        # Create new dict, and add basic image attributes
+        ds = pydicom.dataset.Dataset()
+        ds.file_meta = pydicom.dataset.Dataset()
+        ds.file_meta.TransferSyntaxUID = '1.2.840.10008.1.2'
+        ds.file_meta.ImplementationClassUID = '1.2.40.0.13.1.1'
+        ds.file_meta.ImplementationVersionName = 'dcm4che-2.0'
+        ds.SpecificCharacterSet = 'ISO_IR 100'
+        ds.file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
+        ds.Modality = 'CT'
+        ds.SOPClassUID = ds.file_meta.MediaStorageSOPClassUID
+        ds.is_little_endian = True
+        ds.is_implicit_VR = True
+        ds.RescaleIntercept = -1024
+        ds.RescaleSlope = 1
+        ds.InstanceCreationDate = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
+        ds.InstanceCreationTime = '{0:0>2}{1:0>2}{2:0>2}'.format(now.hour, now.minute, now.second)
+        ds.StudyDate = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
+        ds.StudyTime = '{0:0>2}{1:0>2}{2:0>2}'.format(now.hour, now.minute, now.second)
+        ds.AcquisitionDate = '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day)
+        ds.AcquisitionTime = '{0:0>2}{1:0>2}{2:0>2}'.format(now.hour, now.minute, now.second)
+        ds.ImageType = 'ORIGINAL\PRIMARY\AXIAL'
+        ds.Manufacturer = 'pydicom'
+        ds.ManufacturerModelName = 'CreateReferenceCT'
+        ds.SoftwareVersion = '1.0'
+        ds.SeriesDescription = 'Uniform Phantom'
+        ds.PatientName = name
+        ds.PatientID = mrn
+        ds.SliceThickness = res[2]
+        ds.StudyInstanceUID = pydicom.uid.generate_uid()
+        ds.SeriesInstanceUID = pydicom.uid.generate_uid()
+        ds.FrameOfReferenceUID = pydicom.uid.generate_uid()
+        ds.PatientPosition = 'HFS'
+        ds.ImageOrientationPatient = [1, 0, 0, 0, 1, 0]
+        ds.ImagePositionPatient = [-((size[0] - 1) * res[0]) / 2, -res[1] / 2, ((size[2] - 1) * res[2]) / 2]
+        ds.ImagesInAcquisition = size[2]
+        ds.SamplesPerPixel = 1
+        ds.PhotometricInterpretation = 'MONOCHROME2'
+        ds.Rows = size[1]
+        ds.Columns = size[0]
+        ds.PixelSpacing = [res[0], res[1]]
+        ds.BitsAllocated = 16
+        ds.BitsStored = 16
+        ds.HighBit = 15
+        ds.PixelRepresentation = 0
 
-    ds.PixelData = img.tostring()
+        # Create padded image
+        img = numpy.zeros(shape=(size[1], size[0]), dtype=numpy.uint16)
+        for i in range(1, size[1] - 1):
+            for j in range(1, size[0] - 1):
+                img[i, j] = 1024
 
-    try:
-        bar = UserInterface.ProgressBar(text='Writing CT files', steps=size[2])
-    except ImportError:
-        bar = False
-        logging.info('Progress bar not available')
+        ds.PixelData = img.tostring()
 
-    # Loop through CT Images
-    for i in range(size[2]):
+        try:
+            bar = UserInterface.ProgressBar(text='Writing CT files', steps=size[2])
+        except ImportError:
+            bar = False
+            logging.info('Progress bar not available')
+
+        # Loop through CT Images
+        for i in range(size[2]):
+
+            if not isinstance(bar, bool):
+                bar.update('Writing image ct_{0:0>3}.dcm'.format(i + 1))
+
+            # Generate unique IDs
+            ds.file_meta.MediaStorageSOPInstanceUID = pydicom.uid.generate_uid()
+            ds.SOPInstanceUID = ds.file_meta.MediaStorageSOPInstanceUID
+
+            # Set position info for this image
+            ds.SliceLocation = -((size[2] - 1) * res[2]) / 2 + i * res[2]
+            ds.ImagePositionPatient[2] = -ds.SliceLocation
+            ds.InstanceNumber = i + 1
+
+            # Write CT image
+            logging.debug('Writing image {0}ct_{1:0>3}.dcm'.format(path, i + 1))
+            ds.save_as(os.path.normpath('{0}/ct_{1:0>3}.dcm'.format(path, i + 1)))
 
         if not isinstance(bar, bool):
-            bar.update('Writing image ct_{0:0>3}.dcm'.format(i + 1))
+            bar.close()
 
-        # Generate unique IDs
-        ds.file_meta.MediaStorageSOPInstanceUID = pydicom.uid.generate_uid()
-        ds.SOPInstanceUID = ds.file_meta.MediaStorageSOPInstanceUID
+        # If in RayStation, import DICOM files
+        if ray:
 
-        # Set position info for this image
-        ds.SliceLocation = -((size[2] - 1) * res[2]) / 2 + i * res[2]
-        ds.ImagePositionPatient[2] = -ds.SliceLocation
-        ds.InstanceNumber = i + 1
+            status.next_step(text='Importing the temporary CT into RayStation...')
 
-        # Write CT image
-        logging.debug('Writing image {0}ct_{1:0>3}.dcm'.format(path, i + 1))
-        ds.save_as(os.path.normpath('{0}/ct_{1:0>3}.dcm'.format(path, i + 1)))
+            patient_db.ImportPatientFromPath(Path=path,
+                                             Patient={'Name': name},
+                                             SeriesFilter={},
+                                             ImportFilters=[])
 
-    if not isinstance(bar, bool):
-        bar.close()
+            logging.info('Import successful')
+            patient = connect.get_current('Patient')
+            case = connect.get_current('Case')
+            examination = connect.get_current('Examination')
 
-    # If in RayStation, import DICOM files
-    if ray:
+            # Set imaging equipment
+            import clr
+            clr.AddReference('System.Collections')
+            import System.Collections.Generic
+            ct_dict = machine_db.GetCtImagingSystemsNameAndCommissionTime()
+            e = ct_dict.GetEnumerator()
+            e.MoveNext()
+            status.next_step('Setting imaging equipment to {}...'.format(e.Current.Key))
+            logging.debug('Setting imaging equipment to {}'.format(e.Current.Key))
+            examination.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=e.Current.Key)
 
-        status.next_step(text='Importing the temporary CT into RayStation...')
+            # Create external ROI
+            status.next_step(text='Generating External Contour...')
+            logging.debug('Generating External Contour')
+            external = case.PatientModel.CreateRoi(Name='External',
+                                                   Color='Blue',
+                                                   Type='External',
+                                                   TissueName='',
+                                                   RbeCellTypeName=None,
+                                                   RoiMaterial=None)
+            external.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+            patient.Save()
 
-        patient_db.ImportPatientFromPath(Path=path,
-                                         Patient={'Name': name},
-                                         SeriesFilter={},
-                                         ImportFilters=[])
+            # Prompt user to export
+            status.next_step(text='At this step, you can choose to export the phantom CT and\nstructure set. ' +
+                                  'Answer Yes or No in the displayed message box.')
+            answer = UserInterface.QuestionBox('Do you wish to export the phantom to a folder?')
+            if answer.yes:
+                common = UserInterface.CommonDialog()
+                export = common.folder_browser('Select a folder to export to:')
 
-        logging.info('Import successful')
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
-        examination = connect.get_current('Examination')
+                try:
+                    logging.debug('Exporting CT and RTSS to {}'.format(export))
+                    case.ScriptableDicomExport(ExportFolderPath=export,
+                                               Examinations=[examination.Name],
+                                               RtStructureSetsForExaminations=[examination.Name],
+                                               DicomFilter='',
+                                               IgnorePreConditionWarnings=True)
 
-        # Set imaging equipment
-        import clr
-        clr.AddReference('System.Collections')
-        import System.Collections.Generic
-        ct_dict = machine_db.GetCtImagingSystemsNameAndCommissionTime()
-        e = ct_dict.GetEnumerator()
-        e.MoveNext()
-        status.next_step('Setting imaging equipment to {}...'.format(e.Current.Key))
-        logging.debug('Setting imaging equipment to {}'.format(e.Current.Key))
-        examination.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=e.Current.Key)
+                except SystemError as error:
+                    logging.warning(str(error))
 
-        # Create external ROI
-        status.next_step(text='Generating External Contour...')
-        logging.debug('Generating External Contour')
-        external = case.PatientModel.CreateRoi(Name='External',
-                                               Color='Blue',
-                                               Type='External',
-                                               TissueName='',
-                                               RbeCellTypeName=None,
-                                               RoiMaterial=None)
-        external.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
-        patient.Save()
+            # Finish up
+            shutil.rmtree(path, ignore_errors=True)
+            status.finish(text='Script execution successful. Note, the phantom material\nwas not set to water. If you ' +
+                               'plan on running other QA scripts,\nset the external to water first.')
 
-        # Prompt user to export
-        status.next_step(text='At this step, you can choose to export the phantom CT and\nstructure set. ' +
-                              'Answer Yes or No in the displayed message box.')
-        answer = UserInterface.QuestionBox('Do you wish to export the phantom to a folder?')
-        if answer.yes:
-            common = UserInterface.CommonDialog()
-            export = common.folder_browser('Select a folder to export to:')
+        logging.debug('CT generation successful')
 
-            try:
-                logging.debug('Exporting CT and RTSS to {}'.format(export))
-                case.ScriptableDicomExport(ExportFolderPath=export,
-                                           Examinations=[examination.Name],
-                                           RtStructureSetsForExaminations=[examination.Name],
-                                           DicomFilter='',
-                                           IgnorePreConditionWarnings=True)
-
-            except SystemError as error:
-                logging.warning(str(error))
-
-        # Finish up
-        shutil.rmtree(path, ignore_errors=True)
-        status.finish(text='Script execution successful. Note, the phantom material\nwas not set to water. If you ' +
-                           'plan on running other QA scripts,\nset the external to water first.')
-
-    logging.debug('CT generation successful')
+    else:
+        logging.warning('Patient name, MRN, size, or resolution invalid')
 
 
 if __name__ == '__main__':
