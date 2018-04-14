@@ -37,6 +37,7 @@ import shutil
 import logging
 import importlib
 import time
+import multiprocessing
 
 # Specify the location of a local repository containing all scripts (leave blank to 
 # download a fresh copy each time)
@@ -322,6 +323,8 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                                                                       scripts[self.Text]['script'], 'SUCCESS'))
 
         except Exception as e:
+            for p in multiprocessing.active_children():
+                p.terminate()
             logging.exception('{}.py: {}'.format(scripts[self.Text]['script'], str(e).splitlines()[0]))
             logging.shutdown()
             if m_logs != '':
