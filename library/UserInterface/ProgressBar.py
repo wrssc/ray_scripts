@@ -43,53 +43,54 @@ class ProgressBar:
     def __init__(self, text='', title='Progress Bar', steps = 10):
         """bar = ProgressBar('text', 'title', steps)"""
 
-        self.__form = System.Windows.Forms.Form()
-        self.__form.Width = 350
-        self.__form.Height = 140
-        self.__form.Text = title
-        self.__form.BackColor = System.Drawing.Color.White
+        self.form = System.Windows.Forms.Form()
+        self.form.Width = 350
+        self.form.Height = 140
+        self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        self.form.Text = title
+        self.form.BackColor = System.Drawing.Color.White
 
-        self.__bar = System.Windows.Forms.ProgressBar()
-        self.__bar.Visible = True
-        self.__bar.Minimum = 1
-        self.__bar.Maximum = steps
-        self.__bar.Value = 1
-        self.__bar.Step = 1
-        self.__bar.Width = 300
-        self.__bar.Height = 30
-        self.__bar.Left = 15
-        self.__bar.Top = 15
-        self.__bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
-        self.__form.Controls.Add(self.__bar)
+        self.bar = System.Windows.Forms.ProgressBar()
+        self.bar.Visible = True
+        self.bar.Minimum = 1
+        self.bar.Maximum = steps
+        self.bar.Value = 1
+        self.bar.Step = 1
+        self.bar.Width = 300
+        self.bar.Height = 30
+        self.bar.Left = 15
+        self.bar.Top = 15
+        self.bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
+        self.form.Controls.Add(self.bar)
 
-        self.__label = System.Windows.Forms.Label()
-        self.__label.Width = 300
-        self.__label.Height = self.__label.PreferredHeight
-        self.__label.Left = 15
-        self.__label.Top = 60
-        self.__label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
-        self.__label.Text = text
-        self.__form.Controls.Add(self.__label)
+        self.label = System.Windows.Forms.Label()
+        self.label.Width = 300
+        self.label.Height = self.label.PreferredHeight
+        self.label.Left = 15
+        self.label.Top = 60
+        self.label.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+        self.label.Text = text
+        self.form.Controls.Add(self.label)
 
         System.Windows.Forms.Application.EnableVisualStyles()
-        self.__form.Show()
-        self.__label.Update()
+        self.form.Show()
+        self.label.Update()
         System.Windows.Forms.Application.DoEvents()
 
     def __del__(self):
         """ProgressBar class destructor"""
-        self.__form.Dispose()
+        self.form.Dispose()
 
     def update(self, text=''):
         """bar.update('new_text')"""
-        if self.__bar.Value == self.__bar.Maximum:
-            self.__bar.Maximum += 1
-        self.__bar.PerformStep()
+        if self.bar.Value == self.bar.Maximum:
+            self.bar.Maximum += 1
+        self.bar.PerformStep()
         #System.Windows.Forms.Application.DoEvents()
         if text != '':
-            self.__label.Text = text
-            self.__label.Update()
+            self.label.Text = text
+            self.label.Update()
 
     def close(self):
         """bar.close()"""
-        self.__form.Dispose()
+        self.form.Dispose()

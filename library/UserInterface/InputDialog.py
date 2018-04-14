@@ -78,6 +78,7 @@ class InputDialog:
             self.form = System.Windows.Forms.Form()
             self.form.Width = 400
             self.form.Height = min(55 * len(inputs) + 100, 800)
+            self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
             self.form.Padding = System.Windows.Forms.Padding(0)
             self.form.Text = title
             self.form.AutoScroll = True
