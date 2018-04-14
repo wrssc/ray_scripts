@@ -40,7 +40,6 @@ import pydicom
 import tempfile
 import shutil
 import time
-import inspect
 
 
 def main():
@@ -53,9 +52,9 @@ def main():
     res = []
     path = ''
     pad = True
-    status = False
-    patient_db = False
-    machine_db = False
+    status = None
+    patient_db = None
+    machine_db = None
 
     # If running from within RayStation, write to temp folder and import
     try:
@@ -193,11 +192,11 @@ def main():
         ds.PixelData = img.tostring()
 
         # Only display progress bar
-        if inspect.ismodule(UserInterface):
+        if isinstance(status, UserInterface.ScriptStatus):
             bar = UserInterface.ProgressBar(text='Writing CT files', steps=size[2])
 
         else:
-            bar = False
+            bar = None
 
         # Loop through CT Images
         for i in range(size[2]):
@@ -212,18 +211,18 @@ def main():
             ds.InstanceNumber = i + 1
 
             # Write CT image
-            if inspect.isclass(bar):
+            if isinstance(bar, UserInterface.ProgressBar):
                 bar.update('Writing image ct_{0:0>3}.dcm'.format(i + 1))
 
             if path != '':
                 logging.debug('Writing image {0}/ct_{1:0>3}.dcm'.format(path, i + 1))
                 ds.save_as(os.path.normpath('{0}/ct_{1:0>3}.dcm'.format(path, i + 1)))
 
-        if inspect.isclass(bar):
+        if isinstance(bar, UserInterface.ProgressBar):
             bar.close()
 
         # If in RayStation, import DICOM files
-        if inspect.isclass(status) and inspect.isclass(patient_db):
+        if isinstance(status, UserInterface.ScriptStatus) and patient_db is not None:
 
             status.next_step(text='Importing the temporary CT into RayStation...')
             logging.debug('Executing ImportPatientFromPath against {}'.format(path))
@@ -238,7 +237,7 @@ def main():
             logging.info('Import successful, patient name: {}, MRN: {}'.format(patient.Name, patient.PatientID))
 
             # Set imaging equipment
-            if inspect.isclass(machine_db):
+            if machine_db is not None:
                 try:
                     import clr
                     clr.AddReference('System.Collections')
