@@ -7,7 +7,7 @@
     the UI explaining what each step is doing. The finish() function will allow
     display a completion message and hold the parent script until the status
     window is closed (to exit immediately, use the close() function). To update
-    the status text without progressing to the next step, call update_text()
+    the status text without progressing to the next step, call update_text().
 
     Note, the window will not display until the first next_step() call, which
     would correspond to the first step. The following example illustrates how to
