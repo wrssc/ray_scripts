@@ -1,14 +1,16 @@
 """ Create Homogeneous Phantom
     
     This script generates a homogeneous phantom CT (0 HU) padded by empty voxels. The 
-    DICOM origin is set to the top (anterior) center of the image. The image size and 
-    dimensions are specified below. The resulting DICOM images are saved to the provided 
-    directory using the format ct_###.dcm.
+    DICOM origin is set to the top (anterior) center of the image. If run in RayStation,
+    this script will create a new patient with the CT. Otherwise, it will export the CT
+    to a specified directory. During execution, users are prompted to provide the
+    patient name, ID, and phantom size.
     
     This script uses the pydicom and numpy packages. For installation instructions, see 
     http://pydicom.readthedocs.io/en/stable/getting_started.html and 
     https://scipy.org/install.html, respectively. Copies of both packages are included as
-    submodules within this repository. 
+    submodules within this repository. All other packages are part of the Standard
+    Library.
     
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -93,16 +95,16 @@ def main():
             status.next_step(text='Generating temporary CT files based on provided dimensions...')
 
     except (ImportError, OSError, SystemError):
-        logging.info('Running outside RayStation, will prompt user to enter folder')
-        path = raw_input('Enter path to write CT to: ').strip()
-        if not os.path.exists(path):
-            os.mkdir(path)
+        logging.info('Running outside RayStation, will prompt user to enter info via input')
 
         # Prompt for name, ID, image size and resolution (in mm), IEC [X,Z,Y]
         name = raw_input('Enter phantom name: ').strip()
         mrn = raw_input('Enter phantom ID: ').strip()
         size = map(int, raw_input('Enter number of voxels in IEC X,Z,Y (650, 400, 650): ').split(','))
         res = map(int, raw_input('Enter mm resolution in IEC X,Z,Y (1, 1, 1): ').split(','))
+        path = raw_input('Enter path to write CT to: ').strip()
+        if not os.path.exists(path):
+            os.mkdir(path)
 
     # Only continue if inputs were provided
     if name is not '' and mrn is not '' and len(size) == 3 and len(res) == 3:
