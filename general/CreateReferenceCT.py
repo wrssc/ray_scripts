@@ -83,7 +83,7 @@ def main():
         if response == {}:
             logging.warning('Input dialog closed')
             status.finish(text='The input dialog was closed, script cancelled')
-            exit()
+            exit(0)
 
         name = response['a'].strip()
         mrn = response['b'].strip()
