@@ -318,9 +318,9 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
             if m_logs != '':
                 with open(os.path.normpath('{}/ScriptSelector.txt').format(m_logs), 'a') as log_file:
-                    log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
-                                                                      time.time() - tic, getpass.getuser(),
-                                                                      scripts[self.Text]['script'], 'SUCCESS'))
+                    log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}\r\n'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                          time.time() - tic, getpass.getuser(),
+                                                                          scripts[self.Text]['script'], 'SUCCESS'))
 
         except Exception as e:
             for p in multiprocessing.active_children():
@@ -329,9 +329,9 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             logging.shutdown()
             if m_logs != '':
                 with open(os.path.normpath('{}/ScriptSelector.txt').format(m_logs), 'a') as log_file:
-                    log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
-                                                                      time.time() - tic, getpass.getuser(),
-                                                                      scripts[self.Text]['script'], 'ERROR'))
+                    log_file.write('{}\t{:.3f}\t{}\t{}.py\t{}\r\n'.format(time.strftime('%Y-%m-%d %H:%M:%S'),
+                                                                          time.time() - tic, getpass.getuser(),
+                                                                          scripts[self.Text]['script'], 'ERROR'))
 
             raise
 
