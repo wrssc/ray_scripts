@@ -10,12 +10,12 @@
     The following example illustrates this class:
 
     import UserInterface
-    results = InputDialog({'a': 'Enter a value: ', 'b': 'Select checkboxes:', 'c': 'Select combobox option:'},
-                          datatype={'b': 'check', 'c': 'combo'},
-                          initial={'a': '5', 'b': ['1'], 'c': 'C'},
-                          options={'b': ['1', '2'], 'c': ['A', 'B', 'C']},
-                          required=['a', 'b', 'c'])
-    print results.show()
+    dialog = InputDialog(inputs={'a': 'Enter a value: ', 'b': 'Select checkboxes:', 'c': 'Select combobox option:'},
+                         datatype={'b': 'check', 'c': 'combo'},
+                         initial={'a': '5', 'b': ['1'], 'c': 'C'},
+                         options={'b': ['1', '2'], 'c': ['A', 'B', 'C']},
+                         required=['a', 'b', 'c'])
+    print dialog.show()
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -43,7 +43,7 @@ import clr
 class InputDialog:
 
     def __init__(self, inputs, title='Input Dialog', initial=None, datatype=None, options=None, required=None, form=None):
-        """input = UserInterface.InputDialog({'a':'Enter a value for a:'})"""
+        """dialog = UserInterface.InputDialog({'a':'Enter a value for a:'})"""
 
         # Initialize optional args
         if initial is None:
@@ -256,7 +256,7 @@ class InputDialog:
         self.status = False
 
     def show(self):
-        """results = input.show()"""
+        """results = dialog.show()"""
         self.values = {}
         self.form.ShowDialog()
 
