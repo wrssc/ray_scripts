@@ -7,7 +7,7 @@
 
     import UserInterface
     import time
-    bar = UserInterface.ProgressBar('Progress Bar', 'Updating something', 10)
+    bar = UserInterface.ProgressBar(text='Updating something', title='Progress Bar', steps=10)
     for i in range(1, 10):
         bar.update()
         time.sleep(1)
@@ -27,26 +27,30 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-# Import packages and ;ink .NET assemblies
+# Import packages
 import clr
-clr.AddReference('System.Windows.Forms')
-clr.AddReference('System.Drawing')
-import System
+
 
 class ProgressBar:
 
-    def __init__(self, text='', title='Progress Bar', steps = 10):
+    def __init__(self, text='', title='Progress Bar', steps=10):
         """bar = ProgressBar('text', 'title', steps)"""
+
+        # Import packages and ;ink .NET assemblies
+        clr.AddReference('System.Windows.Forms')
+        clr.AddReference('System.Drawing')
+        import System
 
         self.form = System.Windows.Forms.Form()
         self.form.Width = 350
         self.form.Height = 140
         self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        self.form.TopMost = True
         self.form.Text = title
         self.form.BackColor = System.Drawing.Color.White
 
@@ -56,7 +60,7 @@ class ProgressBar:
         self.bar.Maximum = steps
         self.bar.Value = 1
         self.bar.Step = 1
-        self.bar.Width = 300
+        self.bar.Width = self.form.Width - 50
         self.bar.Height = 30
         self.bar.Left = 15
         self.bar.Top = 15
@@ -82,11 +86,13 @@ class ProgressBar:
         self.form.Dispose()
 
     def update(self, text=''):
+        import System
+
         """bar.update('new_text')"""
         if self.bar.Value == self.bar.Maximum:
             self.bar.Maximum += 1
         self.bar.PerformStep()
-        #System.Windows.Forms.Application.DoEvents()
+        System.Windows.Forms.Application.DoEvents()
         if text != '':
             self.label.Text = text
             self.label.Update()
