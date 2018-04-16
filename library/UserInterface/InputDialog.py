@@ -10,11 +10,12 @@
     The following example illustrates this class:
 
     import UserInterface
-    dialog = InputDialog(inputs={'a': 'Enter a value: ', 'b': 'Select checkboxes:', 'c': 'Select combobox option:'},
-                         datatype={'b': 'check', 'c': 'combo'},
-                         initial={'a': '5', 'b': ['1'], 'c': 'C'},
-                         options={'b': ['1', '2'], 'c': ['A', 'B', 'C']},
-                         required=['a', 'b', 'c'])
+    dialog = UserInterface.InputDialog(inputs={'a': 'Enter a value: ', 'b': 'Select checkboxes:',
+                                               'c': 'Select combobox option:'},
+                                       datatype={'b': 'check', 'c': 'combo'},
+                                       initial={'a': '5', 'b': ['1'], 'c': 'C'},
+                                       options={'b': ['1', '2'], 'c': ['A', 'B', 'C']},
+                                       required=['a', 'b', 'c'])
     print dialog.show()
 
     This program is free software: you can redistribute it and/or modify it under
@@ -31,7 +32,7 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -42,8 +43,14 @@ import clr
 
 class InputDialog:
 
-    def __init__(self, inputs, title='Input Dialog', initial=None, datatype=None, options=None, required=None, form=None):
+    def __init__(self, inputs, text='', title='Input Dialog', initial=None, datatype=None, options=None, required=None,
+                 form=None):
         """dialog = UserInterface.InputDialog({'a':'Enter a value for a:'})"""
+
+        # Link .NET assemblies
+        clr.AddReference('System.Windows.Forms')
+        clr.AddReference('System.Drawing')
+        import System
 
         # Initialize optional args
         if initial is None:
@@ -69,15 +76,10 @@ class InputDialog:
 
         # Initialize form (if provided, use existing)
         if form is None:
-
-            # Link .NET assemblies
-            clr.AddReference('System.Windows.Forms')
-            clr.AddReference('System.Drawing')
-            import System
-
             self.form = System.Windows.Forms.Form()
-            self.form.Width = 400
-            self.form.Height = min(55 * len(inputs) + 100, 800)
+            self.form.AutoSize = True
+            self.form.MaximumSize = System.Drawing.Size(400,
+                                                        System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
             self.form.Padding = System.Windows.Forms.Padding(0)
             self.form.Text = title
@@ -98,6 +100,16 @@ class InputDialog:
         self.table.AutoSize = True
         self.form.Controls.Add(self.table)
 
+        # Add intro text
+        if text != '':
+            self.intro = System.Windows.Forms.Label()
+            self.intro.Text = text
+            self.intro.AutoSize = True
+            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 50,
+                                                         System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+            self.intro.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+            self.table.Controls.Add(self.intro)
+
         # Initialize variables
         self.labels = {}
         self.inputs = {}
@@ -109,7 +121,9 @@ class InputDialog:
             # Label
             self.labels[i] = System.Windows.Forms.Label()
             self.labels[i].Text = inputs[i]
-            self.labels[i].Width = 345
+            self.labels[i].MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 50,
+                                                         System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+            self.labels[i].AutoSize = True
             self.labels[i].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             self.table.Controls.Add(self.labels[i])
 
@@ -133,7 +147,7 @@ class InputDialog:
             if self.datatype[i] == 'text':
                 self.inputs[i] = System.Windows.Forms.TextBox()
                 self.inputs[i].Height = 30
-                self.inputs[i].Width = 345
+                self.inputs[i].Width = self.form.MaximumSize.Width - 50
                 if i in initial:
                     self.inputs[i].Text = initial[i]
 
@@ -142,7 +156,6 @@ class InputDialog:
 
             # Checkbox
             elif self.datatype[i] == 'check':
-                self.form.Height = min(self.form.Height + 20 * (len(options[i]) - 1), 800)
                 self.inputs[i] = {}
                 for o in self.options[i]:
                     self.inputs[i][o] = System.Windows.Forms.CheckBox()
@@ -157,7 +170,7 @@ class InputDialog:
             elif self.datatype[i] == 'combo':
                 self.inputs[i] = System.Windows.Forms.ComboBox()
                 self.inputs[i].Height = 30
-                self.inputs[i].Width = 345
+                self.inputs[i].Width = self.form.MaximumSize.Width - 50
                 self.inputs[i].Items.AddRange(options[i])
                 if i in initial and initial[i] in options[i]:
                     self.inputs[i].SelectedItem = initial[i]
@@ -273,7 +286,8 @@ class InputDialog:
                             self.values[t].append(o.encode('ascii', 'ignore'))
 
                 elif self.datatype[t] == 'combo':
-                    self.values[t] = self.inputs[t].SelectedItem.encode('ascii', 'ignore')
+                    if self.inputs[t].SelectedIndex >= 0:
+                        self.values[t] = self.inputs[t].SelectedItem.encode('ascii', 'ignore')
 
                 # elif self.datatype[t] == 'radio':
 
