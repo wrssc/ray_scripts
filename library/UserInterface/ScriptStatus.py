@@ -316,6 +316,7 @@ def _child_process(args, queue, aborted, kill):
             if current_step == -3:
                 args['steps'].append(status_text)
                 steps.Items.Add(status_text)
+                steps.Height = max(50, min(500, 20 * len(args['steps'])))
                 current_step = steps.SelectedIndex
 
             else:
