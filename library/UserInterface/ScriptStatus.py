@@ -50,6 +50,7 @@ __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
+import sys
 import clr
 import math
 import textwrap
@@ -109,7 +110,7 @@ class ScriptStatus:
             while not self.__kill.is_set():
                 self.__process.join(0.1)
 
-            exit()
+            sys.exit('The script was aborted')
 
         else:
 

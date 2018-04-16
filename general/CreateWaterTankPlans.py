@@ -42,6 +42,7 @@ __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Create-Water-Tank-Plans
 __copyright__ = 'Copyright (C) 2017-2018, University of Wisconsin Board of Regents'
 
 # Import packages
+import sys
 import connect
 import UserInterface
 import logging
@@ -61,7 +62,7 @@ def main():
 
     except Exception:
         UserInterface.WarningBox('This script requires a patient to be loaded')
-        exit()
+        sys.exit('This script requires a patient to be loaded')
 
     # Start script status
     status = UserInterface.ScriptStatus(steps=['Enter runtime options'],
