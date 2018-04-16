@@ -54,6 +54,7 @@ edws = ['EDW10IN', 'EDW10OUT', 'EDW15IN', 'EDW15OUT', 'EDW20IN', 'EDW20OUT', 'ED
 
 
 def main():
+
     # Get current patient, case, and machine DB
     machine_db = connect.get_current('MachineDB')
     try:
