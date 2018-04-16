@@ -10,20 +10,12 @@
     following examples illustrate how to use this function.
 
     import UserInterface
-    dialog = ListMatchDialog(inputs=['bladder', 'rect', 'pros_MD'],
-                             options=['Bladder', 'Rectum', 'Prostate', 'External'])
+    dialog = UserInterface.MatchDialog(inputs=['bladder', 'rect', 'pros_MD'],
+                                       options=['Bladder', 'Rectum', 'Prostate', 'External']
+                                       text='Match the following list of template contours on the left to a ' +
+                                            'corresponding user provided contour on the right:')
 
-    # Show match dialog with Levenshtein match (default)
     print dialog.show()
-
-    # Show match dialog with exact match (default)
-    print dialog.show(method='exact')
-
-    # Show again, but match to regular expressions
-    print dialog.show(method='regexp', regexp={'Bladder': '^bladder$',
-                                               'Rectum': '^rectum$'
-                                               'Prostate': '^pros$',
-                                               'External': 'ext|body'})
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -51,9 +43,14 @@ import re
 
 class MatchDialog:
 
-    def __init__(self, inputs, options, text='', title='Match Values', initial=None, empty=True, form=None,
-                 method='Levenshtein', regexp=None):
+    def __init__(self, inputs, options, text='', title='Match Values', initial=None, form=None, method='Levenshtein',
+                 regexp=None, threshold = 0.6):
         """dialog = UserInterface.MatchDialog(['a', 'b', 'c'], ['d', 'e', 'f'])"""
+
+        # Link .NET assemblies
+        clr.AddReference('System.Windows.Forms')
+        clr.AddReference('System.Drawing')
+        import System
 
         # Initialize variables
         self.labels = {}
@@ -64,20 +61,17 @@ class MatchDialog:
         # Initialize form (if provided, use existing)
         if form is None:
 
-            # Link .NET assemblies
-            clr.AddReference('System.Windows.Forms')
-            clr.AddReference('System.Drawing')
-            import System
-
             self.form = System.Windows.Forms.Form()
-            self.form.Width = 600
-            self.form.Height = min(25 * len(inputs) + 100, 800)
+            self.form.AutoSize = True
+            self.form.MaximumSize = System.Drawing.Size(400,
+                                                         System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
             self.form.Padding = System.Windows.Forms.Padding(0)
             self.form.Text = title
             self.form.AutoScroll = True
             self.form.BackColor = System.Drawing.Color.White
             self.form.TopMost = True
+
 
         else:
             self.form = form
@@ -94,10 +88,12 @@ class MatchDialog:
 
         # Add intro text
         if text != '':
+
             self.intro = System.Windows.Forms.Label()
             self.intro.Text = text
-            self.intro.Width = 545
-            self.intro.Height = 15 * (text.count('\n') + 1) + 10
+            self.intro.AutoSize = True
+            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 50,
+                                                         System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.intro.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             self.outer_table.Controls.Add(self.intro)
 
@@ -116,31 +112,27 @@ class MatchDialog:
 
             self.labels[i] = System.Windows.Forms.Label()
             self.labels[i].Text = i
-            self.labels[i].Width = 200
+            self.labels[i].AutoSize = True
             self.labels[i].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             self.list_table.Controls.Add(self.labels[i])
 
             self.inputs[i] = System.Windows.Forms.ComboBox()
             self.inputs[i].Height = 30
-            self.inputs[i].Width = 200
-            if empty:
-                self.inputs[i].Items.AddRange(['', self.options])
-
-            else:
-                self.inputs[i].Items.AddRange(self.options)
+            self.inputs[i].AutoSize = True
+            self.inputs[i].Items.AddRange(self.options)
 
             if initial is not None and i in initial and initial[i] in options:
                 self.inputs[i].SelectedItem = initial[i]
 
             elif method.lower() == 'exact':
                 for o in self.options:
-                    if i.lower == o.lower():
+                    if i.lower() == o.lower():
                         self.inputs[i].SelectedItem = o
                         break
 
             elif method.lower() == 'levenshtein':
                 m, d = _levenshtein_match(i, self.options)
-                if m is not None:
+                if m is not None and d < len(i) * threshold:
                     self.inputs[i].SelectedItem = m
 
             elif method.lower() == 'regexp':
@@ -200,32 +192,8 @@ class MatchDialog:
         # data, false means they didn't (Cancel or closed form) or that required data is missing
         self.status = False
 
-    def show(self, initial=None, method=None, regexp=None):
+    def show(self):
         """matches = dialog.show()"""
-        for i in self.inputs:
-            if initial is not None and i in initial and initial[i] in self.options:
-                self.inputs[i].SelectedItem = initial[i]
-
-            elif method.lower() == 'exact':
-                for o in self.options:
-                    if i.lower == o.lower():
-                        self.inputs[i].SelectedItem = o
-                        break
-
-            elif method.lower() == 'levenshtein':
-                m, d = _levenshtein_match(i, self.options)
-                if m is not None:
-                    self.inputs[i].SelectedItem = m
-
-            elif method.lower() == 'regexp':
-                for o in self.options:
-                    if o in regexp and re.search(regexp[o], i, flags=re.IGNORECASE) is not None:
-                        self.inputs[i].SelectedItem = o
-                        break
-
-                    elif i in regexp and re.search(regexp[i], o, flags=re.IGNORECASE) is not None:
-                        self.inputs[i].SelectedItem = o
-                        break
 
         self.values = {}
         self.form.ShowDialog()
@@ -233,7 +201,8 @@ class MatchDialog:
         # Retrieve values and return as a dict
         if self.status:
             for t in self.inputs:
-                self.values[t] = self.inputs[t].SelectedItem.encode('ascii', 'ignore')
+                if self.inputs[t].SelectedIndex >= 0:
+                    self.values[t] = self.inputs[t].SelectedItem.encode('ascii', 'ignore')
 
             return self.values
         else:
