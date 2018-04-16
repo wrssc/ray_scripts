@@ -3,11 +3,13 @@
     This script creates a series of water tank reference profiles for each machine/energy
     combination entered during execution. Each plan is created within the current patient 
     case, where the plan name is the machine and energy for photons or machine followed 
-    by "Electrons" for electrons. Within each photon plan, three courses are created for
-    each SSD: Jaw, MLC, and EDW. Within the electorn plan, a beamset is created for each
-    energy. Only open electron fields are supported at this time. The beams are created
-    with the naming format "[energy]_[SSD]_[description]" so that they can be parsed
-    using the WaterTankAnalysis (https://github.com/mwgeurts/water_tank) tool.
+    by "Electrons" for electrons.
+
+    Within each photon plan, three courses are created for each SSD: Jaw, MLC, and EDW.
+    Within the electron plan, a beamset is created for each energy. Only open electron
+    fields are supported at this time. The beams are created with the naming format
+    "[energy]_[SSD]_[description]" so that they can be parsed using the
+    WaterTankAnalysis (https://github.com/mwgeurts/water_tank) tool.
 
     Note, this script will create each EDW plan but cannot set the wedge angles. Each
     wedge must be manually set during execution of the script. A GUI prompt is displayed
@@ -62,7 +64,7 @@ def main():
         exit()
 
     # Start script status
-    status = UserInterface.ScriptStatus(steps=['Enter runtime options', 'Build plan list'],
+    status = UserInterface.ScriptStatus(steps=['Enter runtime options'],
                                         docstring=__doc__, help=__help__)
 
     # Prompt user to enter runtime options
@@ -93,7 +95,7 @@ def main():
 
     # Parse responses
     response = inputs.show()
-    status.next_step(text='Parsing inputs...')
+    status.update_text(text='Parsing inputs...')
 
     machines = response['a']
     mu = int(response['b'])
@@ -175,6 +177,7 @@ def main():
                 if not info:
 
                     # Add JAW beamset
+                    time.sleep(1)
                     logging.debug('Creating Jaw beamset at {} cm SSD'.format(s))
                     beamset = plan.AddNewBeamSet(Name='Jaw {} cm SSD'.format(s),
                                                  ExaminationName=case.Examinations[0].Name,
@@ -217,14 +220,17 @@ def main():
 
                     # Calculate dose on beamset
                     if calc:
-                        status.update_text('Calculating dose for Jaw {} cm SSD'.format(s))
+                        time.sleep(1)
+                        status.update_text('Calculating dose for Jaw {} cm SSD...'.format(s))
                         logging.debug('Calculating dose for Jaw {} cm SSD'.format(s))
                         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
+                        time.sleep(1)
                         patient.Save()
 
                     # Export beamset to the specified path
                     if export:
-                        status.update_text('Exporting RT dose for Jaw {} cm SSD'.format(s))
+                        time.sleep(1)
+                        status.update_text('Exporting RT dose for Jaw {} cm SSD...'.format(s))
                         logging.debug('Exporting RT dose for Jaw {} cm SSD'.format(s))
                         try:
                             case.ScriptableDicomExport(ExportFolderPath=path,
@@ -241,6 +247,7 @@ def main():
             if not info:
 
                 # Add EDW reference beamset
+                time.sleep(1)
                 status.update_text('Creating reference EDW beamset...')
                 logging.debug('Creating reference EDW beamset')
                 refset = plan.AddNewBeamSet(Name='EDW reference',
@@ -272,12 +279,14 @@ def main():
                     beam.SetBolus(BolusName='')
 
                 # Display prompt reminding user to set EDW angles
+                time.sleep(1)
                 patient.Save()
                 plan.SetCurrent()
                 refset.SetCurrent()
                 status.update_text('Manually set the EDW beams for {} according to the beam name. ' +
                                    'Then continue the script.'.format(m))
                 connect.await_user_input('Manually set EDWs for {}. Then continue the script.'.format(m))
+                time.sleep(1)
                 patient.Save()
 
             else:
@@ -291,6 +300,7 @@ def main():
                 if not info:
 
                     # Add EDW beamset
+                    time.sleep(1)
                     logging.debug('Creating EDW beamset at {} cm SSD'.format(s))
                     beamset = plan.AddNewBeamSet(Name='EDW {} cm SSD'.format(s),
                                                  ExaminationName=case.Examinations[0].Name,
@@ -332,14 +342,17 @@ def main():
 
                     # Calculate dose on beamset
                     if calc:
+                        time.sleep(1)
                         status.update_text('Calculating dose for EDW {} cm SSD...'.format(s))
                         logging.debug('Calculating dose')
                         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
+                        time.sleep(1)
                         patient.Save()
 
                     # Export beamset to the specified path
                     if export:
-                        status.update_text('Exporting RT dose for EDW {} cm SSD'.format(s))
+                        time.sleep(1)
+                        status.update_text('Exporting RT dose for EDW {} cm SSD...'.format(s))
                         logging.debug('Exporting RT dose for EDW {} cm SSD'.format(s))
                         try:
                             case.ScriptableDicomExport(ExportFolderPath=path,
@@ -358,7 +371,8 @@ def main():
             for s in ssds:
 
                 # Check if beam set exists
-                status.update_text('Creating plan MLC {} cm SSD'.format(s))
+                time.sleep(1)
+                status.update_text('Creating plan MLC {} cm SSD...'.format(s))
                 info = plan.QueryBeamSetInfo(Filter={'Name': 'MLC {} cm SSD'.format(s)})
                 if not info:
 
@@ -405,7 +419,8 @@ def main():
                         beamset.Beams['{} MV_{} cm_MLC {} x {}'.format(e, s, l, l)].BeamMU = mu
 
                     # Add MPPG 5.a field shapes
-                    status.update_text('Creating MPPG 5.a fields')
+                    time.sleep(1)
+                    status.update_text('Creating MPPG 5.a fields...')
                     logging.debug('Creating MPPG 5.a fields')
 
                     # Create 5.4 Small MLC
@@ -591,13 +606,16 @@ def main():
 
                     # Calculate dose on beamset
                     if calc:
+                        time.sleep(1)
                         status.update_text('Calculating dose for MPPG 5.a fields...')
                         logging.debug('Calculating dose for MPPG 5.a fields')
                         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
+                        time.sleep(1)
                         patient.Save()
 
                     # Export beamset to the specified path
                     if export:
+                        time.sleep(1)
                         status.update_text('Exporting RT dose for MPPG 5.a fields...')
                         logging.debug('Exporting RT dose for MPPG 5.a fields')
                         try:
@@ -611,6 +629,7 @@ def main():
                             logging.warning(str(error))
 
         # Check if electron plan exists, and either create one or load it
+        time.sleep(1)
         status.next_step(text='Creating plan {} Electrons...'.format(m))
         info = case.QueryPlanInfo(Filter={'Name': '{} Electrons'.format(m)})
         if not info:
@@ -682,6 +701,7 @@ def main():
                             beamset.Beams['{} MeV_{} cm_{}'.format(e, s, a.Name)].BeamMU = mu
 
                 # Prompt user to set Monte Carlo histories
+                time.sleep(1)
                 patient.Save()
                 plan.SetCurrent()
                 beamset.SetCurrent()
@@ -691,13 +711,16 @@ def main():
 
                 # Calculate dose on beamset
                 if calc:
+                    time.sleep(1)
                     status.update_text('Calculating dose for {} Electrons...'.format(m))
                     logging.debug('Calculating dose for {} Electrons'.format(m))
                     beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='ElectronMonteCarlo')
+                    time.sleep(1)
                     patient.Save()
 
                 # Export beamset to the specified path
                 if export:
+                    time.sleep(1)
                     status.update_text('Exporting RT dose for {} Electrons...'.format(m))
                     logging.debug('Exporting RT dose for {} Electrons'.format(m))
                     try:
@@ -711,7 +734,9 @@ def main():
                         logging.warning(str(error))
 
     # Finish up
+    time.sleep(1)
     patient.Save()
+    time.sleep(1)
     logging.debug('Script completed successfully in {.3f} seconds'.format(time.time() - tic))
     if export:
         status.finish('Script completed successfully. The resulting dose volumes have been exported to {}'.format(path))
