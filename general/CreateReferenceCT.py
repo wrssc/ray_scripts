@@ -68,6 +68,16 @@ def main():
         machine_db = connect.get_current('MachineDB')
         patient_db = connect.get_current('PatientDB')
 
+        # If an existing patient is loaded, warn the user before saving
+        try:
+            patient = connect.get_current('Patient')
+            case = connect.get_current('Case')
+            box = UserInterface.WarningeBox('An existing patient is loaded, and will be saved and closed')
+            patient.Save()
+
+        except Exception:
+            logging.info('No patient is loaded')
+
         # Start script status window
         status = UserInterface.ScriptStatus(steps=['Enter Phantom Dimensions',
                                                    'Generate Temporary CT Files',
