@@ -119,7 +119,6 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     # Create local scripts directory if one wasn't provided above
     if m_local == '':
         m_local = 'ray_scripts'
-        branch = ''
 
         # Get list of branches 
         import requests
@@ -226,8 +225,6 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
                         open(os.path.join(m_local, x['path']), 'wb').write(y.content)
 
-            form.Dispose()
-
         # Loop through branches
         for l in branch_list:
             button = System.Windows.Forms.Button()
@@ -255,9 +252,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
         System.Windows.Forms.Application.EnableVisualStyles()
         form.ShowDialog()
-
-        if branch == '':
-            exit()
+        form.Dispose()
 
     # Initialize list of scripts
     scripts = {}
