@@ -44,7 +44,7 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -167,19 +167,17 @@ def _child_process(args, queue, aborted, kill):
 
     current_step, status_text = queue.get()
 
-    # Define text wrap length
-    wrap_length = 60
-
     # Initialize form
     form = System.Windows.Forms.Form()
-    form.Width = 400
-    form.Height = min(800, 20 * math.ceil(len(args['summary']) / wrap_length) + 15 *
-                      (status_text.count('\n') + 1) + 300 + max(50, min(500, 20 * len(args['steps']))))
+    form.AutoSize = True
+    form.MaximumSize = System.Drawing.Size(400, System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+    form.Width = form.MaximumSize.Width
     form.Padding = System.Windows.Forms.Padding(0)
     form.Text = args['title']
     form.AutoScroll = True
     form.BackColor = System.Drawing.Color.White
     form.TopMost = True
+
     table = System.Windows.Forms.TableLayoutPanel()
     table.ColumnCount = 1
     table.RowCount = 1
@@ -193,7 +191,7 @@ def _child_process(args, queue, aborted, kill):
     if args['name'] is not None:
         name = System.Windows.Forms.Label()
         name.Text = args['name']
-        name.Width = 345
+        name.AutoSize = True
         name.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         name.Font = System.Drawing.Font(name.Font, name.Font.Style | System.Drawing.FontStyle.Bold)
         name.TextAlign = System.Drawing.ContentAlignment.TopCenter
@@ -201,9 +199,10 @@ def _child_process(args, queue, aborted, kill):
 
     if args['summary'] is not None:
         summary = System.Windows.Forms.Label()
-        summary.Text = textwrap.fill(args['summary'], wrap_length)
-        summary.Width = 345
-        summary.Height = 20 * math.ceil(len(args['summary']) / wrap_length)
+        summary.Text = args['summary']
+        summary.AutoSize = True
+        summary.MaximumSize = System.Drawing.Size(form.MaximumSize.Width - 50,
+                                                  System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
         summary.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         table.Controls.Add(summary)
 
@@ -214,19 +213,19 @@ def _child_process(args, queue, aborted, kill):
     if args['steps'] is not None:
         step_title = System.Windows.Forms.Label()
         step_title.Text = 'Steps:'
-        step_title.Width = 345
+        step_title.AutoSize = True
         step_title.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         step_title.Font = System.Drawing.Font(step_title.Font, step_title.Font.Style | System.Drawing.FontStyle.Bold)
         table.Controls.Add(step_title)
 
-        steps = System.Windows.Forms.ListBox()
+        steps = System.Windows.Forms.CheckedListBox()
         steps.Width = 345
         steps.Height = max(50, min(500, 20 * len(args['steps'])))
         steps.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         steps.MultiColumn = False
         steps.Click += read_only
-        for i in range(len(args['steps'])):
-            steps.Items.Add('{}. {}'.format(i + 1, args['steps'][i]))
+        for a in args['steps']:
+            steps.Items.Add(a)
 
         steps.SelectedIndex = current_step
         table.Controls.Add(steps)
@@ -234,7 +233,7 @@ def _child_process(args, queue, aborted, kill):
     # Add script status label
     status_label = System.Windows.Forms.Label()
     status_label.Text = 'Execution Status:'
-    status_label.Width = 345
+    status_label.AutoSize = True
     status_label.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
     status_label.Font = System.Drawing.Font(status_label.Font, status_label.Font.Style | System.Drawing.FontStyle.Bold)
     table.Controls.Add(status_label)
@@ -242,15 +241,16 @@ def _child_process(args, queue, aborted, kill):
     # Add script status
     status = System.Windows.Forms.Label()
     status.Text = status_text
-    status.Width = 345
-    status.Height = 15 * (status_text.count('\n') + 1) + 10
+    status.AutoSize = True
+    status.MaximumSize = System.Drawing.Size(form.MaximumSize.Width - 50,
+                                             System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
     status.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
     table.Controls.Add(status)
 
     # Add progress bar
     bar = System.Windows.Forms.ProgressBar()
     bar.Visible = True
-    bar.Width = 345
+    bar.Width = form.MaximumSize.Width - 50
     bar.Height = 30
     bar.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
     bar.Style = System.Windows.Forms.ProgressBarStyle.Marquee
@@ -315,17 +315,15 @@ def _child_process(args, queue, aborted, kill):
             # -3 indicates a step should be added
             if current_step == -3:
                 args['steps'].append(status_text)
-                steps.Items.Add('{}. {}'.format(len(args['steps']), status_text))
+                steps.Items.Add(status_text)
                 current_step = steps.SelectedIndex
 
             else:
                 status.Text = status_text
-                status.Height = 15 * (status_text.count('\n') + 1) + 10
-                form.Height = min(800, 20 * math.ceil(len(args['summary']) / wrap_length) + 15 *
-                                  (status_text.count('\n') + 1) + 300 + max(50, min(500, 20 * len(args['steps']))))
 
             # -2 indicates script is done
             if current_step == -2:
+                steps.SetItemChecked(steps.SelectedIndex, True)
                 form.Visible = False
                 bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
                 bar.Minimum = 1
@@ -339,6 +337,8 @@ def _child_process(args, queue, aborted, kill):
                 form.Visible = False
                 if args['steps'] is not None:
                     steps.SelectedIndex = current_step
+                    if current_step > 0:
+                        steps.SetItemChecked(current_step - 1, True)
 
                 bar.Style = System.Windows.Forms.ProgressBarStyle.Marquee
                 form.Visible = True
