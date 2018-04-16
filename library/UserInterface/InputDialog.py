@@ -160,6 +160,7 @@ class InputDialog:
                 for o in self.options[i]:
                     self.inputs[i][o] = System.Windows.Forms.CheckBox()
                     self.inputs[i][o].Text = o
+                    self.inputs[i][o].Width = self.form.MaximumSize.Width - 70
                     self.inputs[i][o].Margin = System.Windows.Forms.Padding(20, 0, 10, 0)
                     if i in initial and o in initial[i]:
                         self.inputs[i][o].Checked = True
