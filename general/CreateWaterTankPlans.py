@@ -149,10 +149,11 @@ def main():
         for q in machine.PhotonBeamQualities:
 
             # Store nominal energy
-            e = q.NominalEnergy
+            e = q.NominalEnergy.int()
 
             # Check if plan exists, and either create one or load it
             status.next_step(text='Creating plan {} {} MV...'.format(m, e))
+            time.sleep(1)
             info = case.QueryPlanInfo(Filter={'Name': '{} {} MV'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for {} {} MV'.format(m, e))
@@ -653,7 +654,7 @@ def main():
         for q in machine.ElectronBeamQualities:
 
             # Store nominal energy
-            e = q.NominalEnergy
+            e = q.NominalEnergy.int()
 
             # Check if beam set exists
             info = plan.QueryBeamSetInfo(Filter={'Name': '{} MeV'.format(e)})
