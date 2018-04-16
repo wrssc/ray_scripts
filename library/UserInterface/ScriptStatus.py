@@ -183,7 +183,7 @@ def _child_process(args, queue, aborted, kill):
     table.ColumnCount = 1
     table.RowCount = 1
     table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-    table.Padding = System.Windows.Forms.Padding(0)
+    table.Padding = System.Windows.Forms.Padding(0, 0, 0, 10)
     table.BackColor = System.Drawing.Color.White
     table.AutoSize = True
     form.Controls.Add(table)

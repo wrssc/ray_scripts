@@ -95,7 +95,7 @@ class InputDialog:
         self.table.ColumnCount = 1
         self.table.RowCount = 1
         self.table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-        self.table.Padding = System.Windows.Forms.Padding(0)
+        self.table.Padding = System.Windows.Forms.Padding(0, 0, 0, 10)
         self.table.BackColor = System.Drawing.Color.White
         self.table.AutoSize = True
         self.form.Controls.Add(self.table)

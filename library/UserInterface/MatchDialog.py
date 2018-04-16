@@ -64,7 +64,7 @@ class MatchDialog:
             self.form = System.Windows.Forms.Form()
             self.form.AutoSize = True
             self.form.MaximumSize = System.Drawing.Size(400,
-                                                         System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+                                                        System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
             self.form.Padding = System.Windows.Forms.Padding(0)
             self.form.Text = title
@@ -81,7 +81,7 @@ class MatchDialog:
         self.outer_table.ColumnCount = 1
         self.outer_table.RowCount = 1
         self.outer_table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-        self.outer_table.Padding = System.Windows.Forms.Padding(0)
+        self.outer_table.Padding = System.Windows.Forms.Padding(0, 0, 0, 10)
         self.outer_table.BackColor = System.Drawing.Color.White
         self.outer_table.AutoSize = True
         self.form.Controls.Add(self.outer_table)
