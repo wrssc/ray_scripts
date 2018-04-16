@@ -72,7 +72,7 @@ def main():
         if m['IsCommissioned']:
             machine_list.append(m['Name'])
 
-    status.next_step(text='Fill in the runtime options')
+    status.next_step(text='Fill in the runtime options and click OK to continue')
     inputs = UserInterface.InputDialog(inputs={'a': 'Select machines to create plans for:',
                                                'b': 'Enter MU for each beam:',
                                                'c': 'Enter SDDs to compute at (cm):',
@@ -93,7 +93,7 @@ def main():
 
     # Parse responses
     response = inputs.show()
-    status.next_step('Parsing inputs')
+    status.next_step(text='Parsing inputs...')
 
     machines = response['a']
     mu = int(response['b'])
@@ -117,9 +117,10 @@ def main():
         status.add_step('Create {} Electrons plan'.format(m))
 
     # Define the export location
+
     if 'Calculate dose' in response['g'] and 'Export dose' in response['g']:
-        path = UserInterface.CommonDialog().folder_browser('Select the path to export RT Dose files' +
-                                                           ' to (or cancel to skip export):')
+        common = UserInterface.CommonDialog()
+        path = common.folder_browser('Select the path to export RT Dose files to (or cancel to skip export):')
 
         if path == '':
             logging.warning('Folder not selected, export will be skipped')
@@ -148,7 +149,7 @@ def main():
             e = q.NominalEnergy
 
             # Check if plan exists, and either create one or load it
-            status.next_step('Creating plan {} {} MV'.format(m, e))
+            status.next_step(text='Creating plan {} {} MV...'.format(m, e))
             info = case.QueryPlanInfo(Filter={'Name': '{} {} MV'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for {} {} MV'.format(m, e))
@@ -240,7 +241,7 @@ def main():
             if not info:
 
                 # Add EDW reference beamset
-                status.update_text('Creating reference EDW beamset')
+                status.update_text('Creating reference EDW beamset...')
                 logging.debug('Creating reference EDW beamset')
                 refset = plan.AddNewBeamSet(Name='EDW reference',
                                             ExaminationName=case.Examinations[0].Name,
@@ -274,7 +275,7 @@ def main():
                 patient.Save()
                 plan.SetCurrent()
                 refset.SetCurrent()
-                status.update_text('At this step, manually set the EDW beams for {} \naccording to the beam name. ' +
+                status.update_text('Manually set the EDW beams for {} according to the beam name. ' +
                                    'Then continue the script.'.format(m))
                 connect.await_user_input('Manually set EDWs for {}. Then continue the script.'.format(m))
                 patient.Save()
@@ -331,7 +332,7 @@ def main():
 
                     # Calculate dose on beamset
                     if calc:
-                        status.update_text('Calculating dose for EDW {} cm SSD'.format(s))
+                        status.update_text('Calculating dose for EDW {} cm SSD...'.format(s))
                         logging.debug('Calculating dose')
                         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
                         patient.Save()
@@ -590,14 +591,14 @@ def main():
 
                     # Calculate dose on beamset
                     if calc:
-                        status.update_text('Calculating dose for MPPG 5.a fields')
+                        status.update_text('Calculating dose for MPPG 5.a fields...')
                         logging.debug('Calculating dose for MPPG 5.a fields')
                         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='CCDose')
                         patient.Save()
 
                     # Export beamset to the specified path
                     if export:
-                        status.update_text('Exporting RT dose for MPPG 5.a fields')
+                        status.update_text('Exporting RT dose for MPPG 5.a fields...')
                         logging.debug('Exporting RT dose for MPPG 5.a fields')
                         try:
                             case.ScriptableDicomExport(ExportFolderPath=path,
@@ -610,7 +611,7 @@ def main():
                             logging.warning(str(error))
 
         # Check if electron plan exists, and either create one or load it
-        status.next_step('Creating plan {} Electrons'.format(m))
+        status.next_step(text='Creating plan {} Electrons...'.format(m))
         info = case.QueryPlanInfo(Filter={'Name': '{} Electrons'.format(m)})
         if not info:
             logging.debug('Creating plan for {} Electrons'.format(m))
@@ -684,18 +685,20 @@ def main():
                 patient.Save()
                 plan.SetCurrent()
                 beamset.SetCurrent()
+                status.update_text('Manually set the number of Monte Carlo histories for this plan (5e6 is ' +
+                                   'recommended). Then continue the script.')
                 connect.await_user_input('Update the number of Monte Carlo histories (5e6 recommended)')
 
                 # Calculate dose on beamset
                 if calc:
-                    status.update_text('Calculating dose for {} Electrons'.format(m))
+                    status.update_text('Calculating dose for {} Electrons...'.format(m))
                     logging.debug('Calculating dose for {} Electrons'.format(m))
                     beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm='ElectronMonteCarlo')
                     patient.Save()
 
                 # Export beamset to the specified path
                 if export:
-                    status.update_text('Exporting RT dose for {} Electrons'.format(m))
+                    status.update_text('Exporting RT dose for {} Electrons...'.format(m))
                     logging.debug('Exporting RT dose for {} Electrons'.format(m))
                     try:
                         case.ScriptableDicomExport(ExportFolderPath=path,
@@ -710,7 +713,10 @@ def main():
     # Finish up
     patient.Save()
     logging.debug('Script completed successfully in {.3f} seconds'.format(time.time() - tic))
-    status.finish('Script completed successfully')
+    if export:
+        status.finish('Script completed successfully. The resulting dose volumes have been exported to {}'.format(path))
+    else:
+        status.finish('Script completed successfully')
 
 
 if __name__ == '__main__':
