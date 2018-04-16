@@ -77,7 +77,7 @@ def main():
                                                    'Export CT (optional)'],
                                             docstring=__doc__,
                                             help=__help__)
-        status.next_step(text='For this step, enter the desired phantom details\nin the displayed input box.')
+        status.next_step(text='For this step, enter the desired phantom details in the displayed input box.')
 
         # Display input dialog and retrieve phantom size
         inputs = UserInterface.InputDialog(inputs={'a': 'Enter phantom name:',
@@ -269,7 +269,7 @@ def main():
 
             # Prompt user to export
             logging.debug('Displaying export question box')
-            status.next_step(text='At this step, you can choose to export the phantom CT and\nstructure set. ' +
+            status.next_step(text='At this step, you can choose to export the phantom CT and structure set. ' +
                                   'Answer Yes or No in the displayed message box.')
             answer = UserInterface.QuestionBox('Do you wish to export the phantom to a folder?')
             if answer.yes:
@@ -292,8 +292,8 @@ def main():
             # Finish up
             logging.debug('Cleanup started, deleting temporary folder {}'.format(path))
             shutil.rmtree(path, ignore_errors=True)
-            status.finish(text='Script execution successful. Note, the phantom material\nwas not set to water.' +
-                               ' If you plan on running other QA scripts,\nset the external to water first.')
+            status.finish(text='Script execution successful. Note, the phantom material was not set to water.' +
+                               ' If you plan on running other QA scripts, set the external to water first.')
 
         logging.debug('CreateReferenceCT finished successfully')
 
