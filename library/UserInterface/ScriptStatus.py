@@ -191,7 +191,7 @@ def _child_process(args, queue, aborted, kill):
     if args['name'] is not None:
         name = System.Windows.Forms.Label()
         name.Text = args['name']
-        name.AutoSize = True
+        name.Width = form.MaximumSize.Width - 50
         name.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         name.Font = System.Drawing.Font(name.Font, name.Font.Style | System.Drawing.FontStyle.Bold)
         name.TextAlign = System.Drawing.ContentAlignment.TopCenter
