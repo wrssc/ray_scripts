@@ -21,7 +21,7 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Installation'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -119,6 +119,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     # Create local scripts directory if one wasn't provided above
     if m_local == '':
         m_local = 'ray_scripts'
+        branch = ''
 
         # Get list of branches 
         import requests
@@ -132,8 +133,8 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
         # Start XAML content. As each branch is found, additional content will be appended
         form = System.Windows.Forms.Form()
-        form.Width = 400
-        form.Height = 500
+        form.AutoSize = True
+        form.MaximumSize = System.Drawing.Size(400, 500)
         form.Padding = System.Windows.Forms.Padding(0)
         form.Text = 'Select a branch to run'
         form.AutoScroll = True
@@ -143,7 +144,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         table.ColumnCount = 1
         table.RowCount = 1
         table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-        table.Padding = System.Windows.Forms.Padding(0)
+        table.Padding = System.Windows.Forms.Padding(0, 0, 0, 10)
         table.BackColor = System.Drawing.Color.White
         table.AutoSize = True
         form.Controls.Add(table)
@@ -154,7 +155,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             form.DialogResult = True
 
             if branch == '':
-                return
+                exit()
 
             # Get branch content
             try:
@@ -232,7 +233,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             button = System.Windows.Forms.Button()
             button.Text = '{} ({})'.format(l['name'].decode('utf-8'), l['commit']['sha'][:7].decode('utf-8'))
             button.Height = 50
-            button.Width = 345
+            button.Width = form.MaximumSize.Width - 50
             button.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             button.BackColor = System.Drawing.Color.LightGray
             button.FlatStyle = System.Windows.Forms.FlatStyle.Flat
@@ -254,6 +255,9 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
         System.Windows.Forms.Application.EnableVisualStyles()
         form.ShowDialog()
+
+        if branch == '':
+            exit()
 
     # Initialize list of scripts
     scripts = {}
@@ -285,8 +289,8 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
 
     # Start XAML content. As each script is found, additional content will be appended
     form = System.Windows.Forms.Form()
-    form.Width = 400
-    form.Height = 500
+    form.AutoSize = True
+    form.MaximumSize = System.Drawing.Size(400, 500)
     form.Padding = System.Windows.Forms.Padding(0)
     form.Text = 'Select a script to run'
     form.AutoScroll = True
@@ -296,7 +300,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     table.ColumnCount = 1
     table.RowCount = 1
     table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-    table.Padding = System.Windows.Forms.Padding(0)
+    table.Padding = System.Windows.Forms.Padding(0, 0, 0, 10)
     table.BackColor = System.Drawing.Color.White
     table.AutoSize = True
     form.Controls.Add(table)
@@ -340,7 +344,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         button = System.Windows.Forms.Button()
         button.Text = name
         button.Height = 50
-        button.Width = 345
+        button.Width = form.MaximumSize.Width - 50
         button.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         button.BackColor = System.Drawing.Color.LightGray
         button.FlatStyle = System.Windows.Forms.FlatStyle.Flat
