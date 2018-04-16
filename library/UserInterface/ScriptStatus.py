@@ -356,7 +356,7 @@ def _parse_docstring(docstring):
     lines.pop(0)  # Skip second line
     s = []
     for l in lines:
-        if l.isspace():
+        if l.strip() == '':
             break
         s.append(l.strip())
 

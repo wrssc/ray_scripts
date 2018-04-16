@@ -269,7 +269,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                     c.pop(0)   # Skip second line
                     s = []
                     for l in c:
-                        if l.isspace():
+                        if l.strip() == '':
                             break
                         s.append(l.strip())
 
