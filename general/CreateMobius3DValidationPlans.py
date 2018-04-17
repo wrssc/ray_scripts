@@ -98,9 +98,14 @@ def main():
         patient.Save()
 
     water = None
-    for i in range(20):
-        if case.PatientModel.Materials[i].Name == 'Water':
-            water = case.PatientModel.Materials[i]
+    try:
+        for i in range(20):
+            if case.PatientModel.Materials[i].Name == 'Water':
+                water = case.PatientModel.Materials[i]
+                break
+
+    except Exception:
+        logging.warning('A water density override was not found')
 
     if water is None:
         connect.await_user_input('At least one structure must be overridden to water. Do so, then continue the script')
@@ -112,7 +117,8 @@ def main():
                     break
 
         except Exception:
-            logging.warning('A water density override was not found')
+            logging.error('A water density override was still not found')
+            status.finish('A water density override is required; the script cannot continue')
 
     # Prompt user to enter runtime options
     machines = machine_db.QueryCommissionedMachineInfo(Filter={})
