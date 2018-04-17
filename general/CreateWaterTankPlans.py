@@ -36,7 +36,7 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.0.1'
+__version__ = '1.1.2'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Create-Water-Tank-Plans'
 __copyright__ = 'Copyright (C) 2017-2018, University of Wisconsin Board of Regents'
@@ -89,8 +89,17 @@ def main():
             external = True
 
     if not external:
-        connect.await_user_input('No external contour was found. Generate an external contour, then continue ' +
-                                 'the script.')
+        logging.debug('Executing PatientModel.CreateRoi for External')
+        external = case.PatientModel.CreateRoi(Name='External',
+                                               Color='Blue',
+                                               Type='External',
+                                               TissueName='',
+                                               RbeCellTypeName=None,
+                                               RoiMaterial=None)
+
+        logging.debug('Executing CreateExternalGeometry for External')
+        external.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+        logging.debug('Saving patient')
         patient.Save()
 
     # Prompt user to enter runtime options
