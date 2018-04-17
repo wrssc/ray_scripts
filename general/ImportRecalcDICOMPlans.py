@@ -113,6 +113,10 @@ def main():
     inputs = dialog.show()
     if hasattr(inputs, 'a'):
         machine = inputs['a']
+
+    else:
+        machine = ''
+        
     res = float(inputs['c'])/10
     if inputs['b'] == 'Yes':
         center = True
