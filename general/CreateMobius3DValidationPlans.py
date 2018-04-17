@@ -243,6 +243,9 @@ def main():
                                                gender='Unknown',
                                                dateOfBirth='{0}-{1}-{2}'.format(now.year, now.month, now.day))
                 connect.await_user_input('Change patient ID to a new value, then continue the script.')
+                time.sleep(1)
+                patient.Save()
+                time.sleep(1)
 
             # Create 6.1 plan
             status.update_text(text='Creating, calculating, and exporting 6.1 plan...')
@@ -1184,13 +1187,14 @@ def main():
                         logging.warning(str(error))
 
     # Finish up, restoring original patient name
-    patient.EditPatientInformation(title='',
-                                   firstName=name[1],
-                                   middleName=name[2],
-                                   lastName=name[0],
-                                   suffix=name[3],
-                                   gender='Unknown',
-                                   dateOfBirth='{0}-{1}-{2}'.format(now.year, now.month, now.day))
+    if export:
+        patient.EditPatientInformation(title='',
+                                       firstName=name[1],
+                                       middleName=name[2],
+                                       lastName=name[0],
+                                       suffix=name[3],
+                                       gender='Unknown',
+                                       dateOfBirth='{0}-{1}-{2}'.format(now.year, now.month, now.day))
     time.sleep(1)
     patient.Save()
     time.sleep(1)
