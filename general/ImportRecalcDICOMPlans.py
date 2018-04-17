@@ -61,7 +61,8 @@ def main():
     # Confirm a CT density table was set
     examination = connect.get_current('Examination')
     if examination.EquipmentInfo.ImagingSystemReference is None:
-        connect.await_user_input('The CT imaging system is not set. Set it now, then press continue')
+        connect.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
+        patient.Save()
 
     # Start script status
     status = UserInterface.ScriptStatus(steps=['Select folder to import DICOM RT plans from',
