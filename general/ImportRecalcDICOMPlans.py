@@ -58,10 +58,15 @@ def main():
         UserInterface.WarningBox('This script requires a patient to be loaded')
         sys.exit('This script requires a patient to be loaded')
 
+    # Confirm a CT density table was set
+    examination = connect.get_current('Examination')
+    if examination.EquipmentInfo.ImagingSystemReference is None:
+        connect.await_user_input('The CT imaging system is not set. Set it now, then press continue')
+
     # Start script status
     status = UserInterface.ScriptStatus(steps=['Select folder to import DICOM RT plans from',
                                                'Select folder to export calculated dose to',
-                                               'Choose a machine model to re-calculate with',
+                                               'Choose import overrides and calculation options',
                                                'Import, re-calculate, and export plans'],
                                         docstring=__doc__)
 
@@ -125,7 +130,8 @@ def main():
         center = False
 
     # Walk through import folder, looking for DICOM RT plans
-    status.next_step(text='The script is searching for DICOM RT plans...')
+    status.next_step(text='The script is searching for DICOM RT plans. With each plan, the script will import, ' +
+                          're-calculate, and export the resulting dose volumes (if selected).')
     patient.Save()
     for s, d, files in os.walk(import_path):
         for f in files:
@@ -141,6 +147,7 @@ def main():
                     # Update DICOM RT plan
                     ds.PatientName = pydicom.valuerep.PersonName(patient.Name)
                     ds.PatientID = patient.PatientID
+                    ds.FrameOfReferenceUID = examination.EquipmentInfo.FrameOfReference
                     for b in ds.BeamSequence:
                         if machine != '':
                             b.TreatmentMachineName = machine
