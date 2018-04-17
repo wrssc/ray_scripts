@@ -36,6 +36,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import sys
 import connect
 import UserInterface
+import datetime
 import logging
 import time
 import re
@@ -208,7 +209,8 @@ def main():
     tic = time.time()
 
     # Store original patient name and ID
-    name = patient.PatientName
+    name = (patient.Name + '^^^').split()
+    now = datetime.datetime.now()
 
     # Loop through each machine
     for m in machines:
@@ -233,7 +235,13 @@ def main():
 
             # Change name and prompt user to change patient ID in prep for export
             if export:
-                patient.PatientName = 'M3D {} {} MV'.format(m, e)
+                patient.EditPatientInformation(title='',
+                                               firstName='',
+                                               middleName='',
+                                               lastName='M3D {} {} MV'.format(m, e),
+                                               suffix='',
+                                               gender='Unknown',
+                                               dateOfBirth='{0}-{1}-{2}'.format(now.year, now.month, now.day))
                 connect.await_user_input('Change patient ID to a new value, then continue the script.')
 
             # Create 6.1 plan
@@ -1176,7 +1184,13 @@ def main():
                         logging.warning(str(error))
 
     # Finish up, restoring original patient name
-    patient.PatientName = name
+    patient.EditPatientInformation(title='',
+                                   firstName=name[1],
+                                   middleName=name[2],
+                                   lastName=name[0],
+                                   suffix=name[3],
+                                   gender='Unknown',
+                                   dateOfBirth='{0}-{1}-{2}'.format(now.year, now.month, now.day))
     time.sleep(1)
     patient.Save()
     time.sleep(1)
