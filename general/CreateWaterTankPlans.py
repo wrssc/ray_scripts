@@ -60,6 +60,7 @@ def main():
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
+        patient.Save()
 
     except Exception:
         UserInterface.WarningBox('This script requires a patient to be loaded')

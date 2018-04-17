@@ -52,6 +52,7 @@ def main():
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
+        patient.Save()
 
     except Exception:
         UserInterface.WarningBox('This script requires a patient to be loaded')
@@ -68,23 +69,23 @@ def main():
     status.next_step(text='For this step, select a folder containing one or more DICOM RT Plans to import, then ' +
                      'click OK. the plans may be from the same patient, or different patients.')
     common = UserInterface.CommonDialog()
-    ipath = common.folder_browser('Select the path containing DICOM RT Plans to import:')
-    if ipath == '':
+    import_path = common.folder_browser('Select the path containing DICOM RT Plans to import:')
+    if import_path == '':
         logging.info('Folder not selected, import will be skipped')
 
     else:
-        logging.info('Import folder set to {}'.format(ipath))
+        logging.info('Import folder set to {}'.format(import_path))
 
     # Define path to export RT PLAN/DOSE to
     status.next_step(text='Next, select a folder to export the resulting DICOM RT dose volumes to, then click OK. ' +
                      'You can also skip export by clicking Cancel.')
-    epath = common.folder_browser('Select the path to export dose to (cancel to skip export):')
+    export_path = common.folder_browser('Select the path to export dose to (cancel to skip export):')
     beams = False
-    if epath == '':
+    if export_path == '':
         logging.info('Folder not selected, export will be skipped')
 
     else:
-        logging.info('Export folder set to {}'.format(epath))
+        logging.info('Export folder set to {}'.format(export_path))
         beams = UserInterface.QuestionBox('Export beam doses? Beamset doses are always exported', 'Export Beam Dose')
 
         if beams.no:
@@ -120,13 +121,13 @@ def main():
     # Walk through import folder, looking for DICOM RT plans
     status.next_step(text='The script is searching for DICOM RT plans...')
     patient.Save()
-    for s, d, files in os.walk(ipath):
+    for s, d, files in os.walk(import_path):
         for f in files:
 
             # Try to open as a DICOM file
             try:
                 logging.debug('Reading file {}'.format(os.path.join(s, f)))
-                ds = pydicom.dcmread(os.path.join(ipath, s, f))
+                ds = pydicom.dcmread(os.path.join(import_path, s, f))
 
                 # If this is a DICOM RT plan
                 if ds.file_meta.MediaStorageSOPClassUID == '1.2.840.10008.5.1.4.1.1.481.5':
@@ -172,17 +173,17 @@ def main():
                         logging.warning(str(e))
 
                     # Export plan
-                    if epath != '':
+                    if export_path != '':
                         try:
                             if beams.yes:
-                                case.ScriptableDicomExport(ExportFolderPath=epath,
+                                case.ScriptableDicomExport(ExportFolderPath=export_path,
                                                            BeamSets=[beamset.BeamSetIdentifier()],
                                                            BeamSetDoseForBeamSets=[beamset.BeamSetIdentifier()],
                                                            BeamDosesForBeamSets=[beamset.BeamSetIdentifier()],
                                                            DicomFilter='',
                                                            IgnorePreConditionWarnings=True)
                             else:
-                                case.ScriptableDicomExport(ExportFolderPath=epath,
+                                case.ScriptableDicomExport(ExportFolderPath=export_path,
                                                            BeamSets=[beamset.BeamSetIdentifier()],
                                                            BeamSetDoseForBeamSets=[beamset.BeamSetIdentifier()],
                                                            DicomFilter='',
@@ -195,7 +196,7 @@ def main():
 
             except pydicom.errors.InvalidDicomError:
                 logging.debug('File {} could not be read as a DICOM file, skipping'.
-                              format(os.path.join(ipath, s, f)))
+                              format(os.path.join(import_path, s, f)))
 
     # Finish up
     status.finish(text='Script execution successful.')
