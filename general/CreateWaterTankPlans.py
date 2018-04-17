@@ -66,6 +66,11 @@ def main():
         UserInterface.WarningBox('This script requires a patient to be loaded')
         sys.exit('This script requires a patient to be loaded')
 
+    # Confirm a CT density table was set
+    examination = connect.get_current('Examination')
+    if examination.EquipmentInfo.ImagingSystemReference is None:
+        connect.await_user_input('The CT imaging system is not set. Set it now, then press continue')
+
     # Start script status
     status = UserInterface.ScriptStatus(steps=['Enter runtime options'],
                                         docstring=__doc__, help=__help__)
