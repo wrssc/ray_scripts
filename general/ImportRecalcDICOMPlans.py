@@ -6,14 +6,12 @@
 
     This script is useful when you have a large group of patient specific RT Plans
     (created from QA Preparation, for example) that you would like to quickly
-    re-compute and re-export for analysis. If the import directory is empty (user
-    clicked Cancel), the script will still update and re-calculate all existing plans.
-    If the export directory is empty, the script will import and re-calculate but not
-    export the files.
+    re-compute and re-export for analysis. If the export folder browser is cancelled,
+    the script will import and re-calculate but not export the files.
 
     This script will re-write each DICOM RT plan to a temporary directory, first to
     re-identify the file to the selected patient, then to update the machine and/or
-    beam isocenter.
+    beam isocenter depending on the import overrides.
     
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -43,6 +41,7 @@ import logging
 import pydicom
 import tempfile
 import shutil
+import time
 
 
 def main():
@@ -52,24 +51,38 @@ def main():
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
-        patient.Save()
 
     except Exception:
         UserInterface.WarningBox('This script requires a patient to be loaded')
         sys.exit('This script requires a patient to be loaded')
 
-    # Confirm a CT density table was set
+    # Start script status
+    status = UserInterface.ScriptStatus(steps=['Verify CT density table and external are set',
+                                               'Select folder to import DICOM RT plans from',
+                                               'Select folder to export calculated dose to',
+                                               'Choose import overrides and calculation options',
+                                               'Import, re-calculate, and export plans'],
+                                        docstring=__doc__)
+
+    # Confirm a CT density table and external contour was set
+    status.next_step(text='Prior to execution, the script is making sure ')
     examination = connect.get_current('Examination')
     if examination.EquipmentInfo.ImagingSystemReference is None:
         connect.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
         patient.Save()
 
-    # Start script status
-    status = UserInterface.ScriptStatus(steps=['Select folder to import DICOM RT plans from',
-                                               'Select folder to export calculated dose to',
-                                               'Choose import overrides and calculation options',
-                                               'Import, re-calculate, and export plans'],
-                                        docstring=__doc__)
+    else:
+        patient.Save()
+
+    external = False
+    for r in case.PatientModel.RegionsOfInterest:
+        if r.Type == 'External':
+            external = True
+
+    if not external:
+        connect.await_user_input('No external contour was found. Generate an external contour, then continue ' +
+                                 'the script.')
+        patient.Save()
 
     # Define path to search for RT PLANS
     status.next_step(text='For this step, select a folder containing one or more DICOM RT Plans to import, then ' +
@@ -108,8 +121,9 @@ def main():
         if m['IsCommissioned']:
             machine_list.append(m['Name'])
 
-    dialog = UserInterface.InputDialog(title='Select calculation options',
-                                       inputs={'a': 'Select a machine model to re-calculate plans:',
+    dialog = UserInterface.InputDialog(title='Select Import Overrides',
+                                       inputs={'a': 'Select a machine model to re-calculate plans (leave blank to ' +
+                                                    'use existing machine):',
                                                'b': 'Choose whether to re-center isocenter to (0,0,0):',
                                                'c': 'Enter the calculation resolution (mm):'},
                                        datatype={'a': 'combo', 'b': 'combo', 'c': 'text'},
