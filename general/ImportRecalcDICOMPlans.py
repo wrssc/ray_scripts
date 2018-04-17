@@ -61,7 +61,7 @@ def main():
     # Start script status
     status = UserInterface.ScriptStatus(steps=['Select folder to import DICOM RT plans from',
                                                'Select folder to export calculated dose to',
-                                               'Choose a machine model to re-calculate with'
+                                               'Choose a machine model to re-calculate with',
                                                'Import, re-calculate, and export plans'],
                                         docstring=__doc__)
 
