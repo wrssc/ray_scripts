@@ -27,14 +27,13 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Mobius3D-QA'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
 import sys
-import clr
 import connect
 import UserInterface
 import logging
@@ -42,11 +41,12 @@ import time
 import re
 import math
 
-# Define Varian EDWOUT names
-edw_list = ['EDW10OUT', 'EDW15OUT', 'EDW20OUT', 'EDW25OUT', 'EDW30OUT', 'EDW45OUT', 'EDW60OUT']
+# Define Varian EDWIN names
+edw_list = ['EDW10IN', 'EDW15IN', 'EDW20IN', 'EDW25IN', 'EDW30IN', 'EDW45IN', 'EDW60IN']
 
 
 def main():
+
     # Get current patient, case, and machine DB
     machine_db = connect.get_current('MachineDB')
     try:
@@ -67,7 +67,7 @@ def main():
     # Confirm a CT density table and external contour was set
     status.next_step(text='Prior to execution, the script will make sure that a CT density table, External, ' +
                           'and Box_1/Box_2 contours are set for the current plan. Also, at least one contour must be ' +
-                          'overridden to water. This is required for script execution.')
+                          'overridden to water.')
     examination = connect.get_current('Examination')
     if examination.EquipmentInfo.ImagingSystemReference is None:
         connect.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
@@ -89,14 +89,47 @@ def main():
             boxes[1] = True
 
     if not external:
-        connect.await_user_input('No external contour was found. Generate an external contour, then continue ' +
-                                 'the script.')
-        patient.Save()
+        logging.debug('Executing PatientModel.CreateRoi for External')
+        external = case.PatientModel.CreateRoi(Name='External',
+                                               Color='Blue',
+                                               Type='External',
+                                               TissueName='',
+                                               RbeCellTypeName=None,
+                                               RoiMaterial=None)
 
-    if not boxes[0] or not boxes[1]:
-        connect.await_user_input('This script requires two structures for density overrides, named Box_1 and Box_2. ' +
-                                 'Add them now, override to water, then continue the script.')
-        patient.Save()
+        logging.debug('Executing CreateExternalGeometry for External')
+        external.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+
+    if not boxes[0]:
+        logging.debug('Adding Box_1 contour')
+        box = case.PatientModel.CreateRoi(Name='Box_1',
+                                          Color='Red',
+                                          Type='Organ',
+                                          TissueName=None,
+                                          RbeCellTypeName=None,
+                                          RoiMaterial=None)
+        box.CreateBoxGeometry(Size={'x': 20, 'y': 5, 'z': 20},
+                              Examination=examination,
+                              Center={'x': 0, 'y': -5, 'z': 0},
+                              Representation='Voxels',
+                              VoxelSize=None)
+
+    if not boxes[1]:
+        logging.debug('Adding Box_2 contour')
+        box = case.PatientModel.CreateRoi(Name='Box_2',
+                                          Color='Orange',
+                                          Type='Organ',
+                                          TissueName=None,
+                                          RbeCellTypeName=None,
+                                          RoiMaterial=None)
+        box.CreateBoxGeometry(Size={'x': 20, 'y': 5, 'z': 20},
+                              Examination=examination,
+                              Center={'x': 0, 'y': -15, 'z': 0},
+                              Representation='Voxels',
+                              VoxelSize=None)
+
+    logging.debug('Saving patient')
+    patient.Save()
 
     water = None
     try:
@@ -109,7 +142,7 @@ def main():
         logging.warning('A water density override was not found')
 
     if water is None:
-        connect.await_user_input('At least one structure must be overridden to water. Do so, then continue the script')
+        connect.await_user_input('Either Box_1 or Box_2 must be overridden to water. Do so, then continue the script')
         patient.Save()
         try:
             for i in range(20):
@@ -119,7 +152,7 @@ def main():
 
         except Exception:
             logging.error('A water density override was still not found')
-            status.finish('A water density override is required; the script cannot continue')
+            status.finish('Script cancelled, a water density override is required')
 
     # Prompt user to enter runtime options
     machines = machine_db.QueryCommissionedMachineInfo(Filter={})
@@ -130,6 +163,7 @@ def main():
 
     time.sleep(1)
     status.next_step(text='Next, fill in the runtime options and click OK to continue.')
+    time.sleep(1)
     inputs = UserInterface.InputDialog(inputs={'a': 'Select machines to create plans for:',
                                                'b': 'Enter MU for each beam:',
                                                'c': '6.1 Enter open field jaw sizes (cm):',
@@ -215,12 +249,7 @@ def main():
 
     # Start timer
     tic = time.time()
-
-    # Store original patient name and ID
-    name = (patient.Name + '^^^').split()
-    if export:
-        clr.AddReference('System.Runtime')
-        import System
+    counter = 0
 
     # Loop through each machine
     for m in machines:
@@ -239,26 +268,11 @@ def main():
 
             # Store nominal energy
             e = int(q.NominalEnergy)
-            status.next_step(text='Calculating plans for {} {} MV. In order to limit the number of plans sent to ' +
-                                  'Mobius3D under the same patient, this script will pause and prompt you to change ' +
-                                  'the patient ID to a different value and continue the script.'.format(m, e))
-
-            # Change name and prompt user to change patient ID in prep for export
-            if export:
-                patient.EditPatientInformation(title='',
-                                               firstName='',
-                                               middleName='',
-                                               lastName='M3D {} {} MV'.format(m, e),
-                                               suffix='',
-                                               gender='Unknown',
-                                               dateOfBirth=System.DateTime.UtcNow.Date)
-                connect.await_user_input('Change patient ID to a new value, then continue the script.')
-                time.sleep(1)
-                patient.Save()
-                time.sleep(1)
+            counter += 1
 
             # Create 6.1 plan
-            status.update_text(text='Creating, calculating, and exporting the 6.1 plan...')
+            time.sleep(1)
+            status.next_step(text='Creating, calculating, and exporting the 6.1 plan...')
             info = case.QueryPlanInfo(Filter={'Name': '6.1 {} {}'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for 6.1 {} {}'.format(m, e))
@@ -334,7 +348,10 @@ def main():
                     if export:
                         logging.debug('Exporting RT plan and beam dose for plan {} x {}'.format(j, j))
                         try:
-                            case.ScriptableDicomExport(AEHostname=host,
+                            case.ScriptableDicomExport(Anonymize=True,
+                                                       AnonymizedName='M3D {} {} MV'.format(m, e),
+                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
                                                        CalledAETitle=aet,
@@ -439,7 +456,10 @@ def main():
                     if export:
                         logging.debug('Exporting RT plan and beam dose for plan {}'.format(w))
                         try:
-                            case.ScriptableDicomExport(AEHostname=host,
+                            case.ScriptableDicomExport(Anonymize=True,
+                                                       AnonymizedName='M3D {} {} MV'.format(m, e),
+                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
                                                        CalledAETitle=aet,
@@ -535,7 +555,10 @@ def main():
                     if export:
                         logging.debug('Exporting RT plan and beam dose for plan {}'.format(s))
                         try:
-                            case.ScriptableDicomExport(AEHostname=host,
+                            case.ScriptableDicomExport(Anonymize=True,
+                                                       AnonymizedName='M3D {} {} MV'.format(m, e),
+                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
                                                        CalledAETitle=aet,
@@ -630,7 +653,10 @@ def main():
                     if export:
                         logging.debug('Exporting RT plan and beam dose for plan {]'.format(a))
                         try:
-                            case.ScriptableDicomExport(AEHostname=host,
+                            case.ScriptableDicomExport(Anonymize=True,
+                                                       AnonymizedName='M3D {} {} MV'.format(m, e),
+                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
                                                        CalledAETitle=aet,
@@ -754,7 +780,10 @@ def main():
                     if export:
                         logging.debug('Exporting RT plan and beam dose for {} g/cc'.format(d))
                         try:
-                            case.ScriptableDicomExport(AEHostname=host,
+                            case.ScriptableDicomExport(Anonymize=True,
+                                                       AnonymizedName='M3D {} {} MV'.format(m, e),
+                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
                                                        CalledAETitle=aet,
@@ -871,7 +900,10 @@ def main():
                     if export:
                         logging.debug('Exporting RT plan and beam dose for plan {} cm'.format(f))
                         try:
-                            case.ScriptableDicomExport(AEHostname=host,
+                            case.ScriptableDicomExport(Anonymize=True,
+                                                       AnonymizedName='M3D {} {} MV'.format(m, e),
+                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
                                                        CalledAETitle=aet,
@@ -983,7 +1015,10 @@ def main():
                 if export:
                     logging.debug('Exporting RT plan and beam dose for plan C Shape')
                     try:
-                        case.ScriptableDicomExport(AEHostname=host,
+                        case.ScriptableDicomExport(Anonymize=True,
+                                                   AnonymizedName='M3D {} {} MV'.format(m, e),
+                                                   AnonymizedID='{0:0>4}'.format(counter),
+                                                   AEHostname=host,
                                                    AEPort=port,
                                                    CallingAETitle='RayStation',
                                                    CalledAETitle=aet,
@@ -1072,7 +1107,10 @@ def main():
                 if export:
                     logging.debug('Exporting RT plan and beam dose for plan Fence')
                     try:
-                        case.ScriptableDicomExport(AEHostname=host,
+                        case.ScriptableDicomExport(Anonymize=True,
+                                                   AnonymizedName='M3D {} {} MV'.format(m, e),
+                                                   AnonymizedID='{0:0>4}'.format(counter),
+                                                   AEHostname=host,
                                                    AEPort=port,
                                                    CallingAETitle='RayStation',
                                                    CalledAETitle=aet,
@@ -1181,7 +1219,10 @@ def main():
                 if export:
                     logging.debug('Exporting RT plan and beam dose for plan VMAT CP')
                     try:
-                        case.ScriptableDicomExport(AEHostname=host,
+                        case.ScriptableDicomExport(Anonymize=True,
+                                                   AnonymizedName='M3D {} {} MV'.format(m, e),
+                                                   AnonymizedID='{0:0>4}'.format(counter),
+                                                   AEHostname=host,
                                                    AEPort=port,
                                                    CallingAETitle='RayStation',
                                                    CalledAETitle=aet,
@@ -1196,15 +1237,7 @@ def main():
                     except Exception as error:
                         logging.warning(str(error))
 
-    # Finish up, restoring original patient name
-    if export:
-        patient.EditPatientInformation(title='',
-                                       firstName=name[1],
-                                       middleName=name[2],
-                                       lastName=name[0],
-                                       suffix=name[3],
-                                       gender='Unknown',
-                                       dateOfBirth=System.DateTime.UtcNow.Date)
+    # Finish up
     time.sleep(1)
     patient.Save()
     time.sleep(1)
