@@ -123,7 +123,7 @@ class ScriptStatus:
             self.current_step = min(self.current_step, len(self.__args['steps']) - 1)
 
             # Send step, what's next text to child process
-            logging.info('ScriptStatus updated to step {}'.format(self.current_step + 1))
+            logging.debug('ScriptStatus updated to step {}'.format(self.current_step + 1))
             self.__queue.put([self.current_step, text])
 
             # If the child is not yet started
@@ -141,7 +141,7 @@ class ScriptStatus:
 
     def finish(self, text=''):
 
-        logging.info('ScriptStatus finished at step {}'.format(self.current_step + 1))
+        logging.debug('ScriptStatus finished at step {}'.format(self.current_step + 1))
         self.__queue.put([-2, text])
         while not self.__kill.is_set():
             self.__process.join(0.1)
