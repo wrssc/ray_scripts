@@ -111,7 +111,7 @@ def main():
                     water = case.PatientModel.Materials[i]
                     break
 
-        except (IndexError, ValueError):
+        except Exception:
             logging.warning('A water density override was not found')
 
     # Prompt user to enter runtime options
@@ -696,7 +696,7 @@ def main():
                                 idx = i
                                 break
 
-                    except (IndexError, ValueError):
+                    except Exception:
                         idx = i
 
                     # Create material if it does not exist
