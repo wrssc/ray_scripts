@@ -166,6 +166,13 @@ def main():
 
     # Parse responses
     response = inputs.show()
+    if response == {}:
+        status.finish('Script cancelled, inputs were not supplied')
+        sys.exit('Script cancelled')
+
+    else:
+        status.update_text(text='Parsing inputs...')
+        
     machines = response['a']
     mu = float(response['b'])
     jaws = map(float, response['c'].split(','))
