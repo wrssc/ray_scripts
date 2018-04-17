@@ -41,7 +41,6 @@ import logging
 import pydicom
 import tempfile
 import shutil
-import time
 
 
 def main():
@@ -62,10 +61,12 @@ def main():
                                                'Select folder to export calculated dose to',
                                                'Choose import overrides and calculation options',
                                                'Import, re-calculate, and export plans'],
-                                        docstring=__doc__)
+                                        docstring=__doc__,
+                                        help=__help__)
 
     # Confirm a CT density table and external contour was set
-    status.next_step(text='Prior to execution, the script is making sure ')
+    status.next_step(text='Prior to execution, the script will make sure that a CT density table and External ' +
+                          'contour are set for the current plan. These are required for dose calculation.')
     examination = connect.get_current('Examination')
     if examination.EquipmentInfo.ImagingSystemReference is None:
         connect.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
