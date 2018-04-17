@@ -124,11 +124,11 @@ def main():
     status.update_text(text='Parsing inputs...')
 
     machines = response['a']
-    mu = int(response['b'])
-    ssds = map(int, response['c'].split(','))
-    jaws = map(int, response['d'].split(','))
-    edwjaws = map(int, response['e'].split(','))
-    mlcs = map(int, response['f'].split(','))
+    mu = float(response['b'])
+    ssds = map(float, response['c'].split(','))
+    jaws = map(float, response['d'].split(','))
+    edwjaws = map(float, response['e'].split(','))
+    mlcs = map(float, response['f'].split(','))
     if 'Calculate dose' in response['g']:
         calc = True
 

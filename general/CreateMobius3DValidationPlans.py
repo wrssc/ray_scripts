@@ -160,19 +160,19 @@ def main():
                                        options={'a': machine_list,
                                                 'd': edw_list,
                                                 'i': ['C Shape', 'Fence', 'VMAT CP'],
-                                                'j': ['Calculate dose', 'Export dose']},
+                                                'j': ['Calculate plan', 'Export plan']},
                                        required=['a', 'b'])
 
     # Parse responses
     response = inputs.show()
     machines = response['a']
-    mu = int(response['b'])
-    jaws = map(int, response['c'].split(','))
+    mu = float(response['b'])
+    jaws = map(float, response['c'].split(','))
     edws = response['d']
-    ssds = map(int, response['e'].split(','))
-    angles = map(int, response['f'].split(','))
-    densities = map(int, response['g'].split(','))
-    fields = map(int, response['h'].split(','))
+    ssds = map(float, response['e'].split(','))
+    angles = map(float, response['f'].split(','))
+    densities = map(float, response['g'].split(','))
+    fields = map(float, response['h'].split(','))
     shapes = response['i']
     if 'Calculate plan' in response['j']:
         calc = True
@@ -185,7 +185,7 @@ def main():
     port = int(response['l'])
     aet = response['m']
     try:
-        delay = int(response['n'])
+        delay = float(response['n'])
 
     except ValueError:
         delay = 0
