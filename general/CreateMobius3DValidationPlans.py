@@ -34,9 +34,9 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
 import sys
+import clr
 import connect
 import UserInterface
-import datetime
 import logging
 import time
 import re
@@ -210,7 +210,9 @@ def main():
 
     # Store original patient name and ID
     name = (patient.Name + '^^^').split()
-    now = datetime.datetime.now()
+    if export:
+        clr.AddReference('System.Runtime')
+        import System
 
     # Loop through each machine
     for m in machines:
@@ -241,7 +243,7 @@ def main():
                                                lastName='M3D {} {} MV'.format(m, e),
                                                suffix='',
                                                gender='Unknown',
-                                               dateOfBirth='{0}-{1}-{2}'.format(now.year, now.month, now.day))
+                                               dateOfBirth=System.Runtime.DateTime.UtcNow)
                 connect.await_user_input('Change patient ID to a new value, then continue the script.')
                 time.sleep(1)
                 patient.Save()
@@ -1194,7 +1196,7 @@ def main():
                                        lastName=name[0],
                                        suffix=name[3],
                                        gender='Unknown',
-                                       dateOfBirth='{0}-{1}-{2}'.format(now.year, now.month, now.day))
+                                       dateOfBirth=System.Runtime.DateTime.UtcNow)
     time.sleep(1)
     patient.Save()
     time.sleep(1)
