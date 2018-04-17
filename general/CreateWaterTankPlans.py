@@ -66,15 +66,32 @@ def main():
         UserInterface.WarningBox('This script requires a patient to be loaded')
         sys.exit('This script requires a patient to be loaded')
 
-    # Confirm a CT density table was set
+    # Start script status
+    status = UserInterface.ScriptStatus(steps=['Verify CT density table and external are set',
+                                               'Enter script runtime options'],
+                                        docstring=__doc__,
+                                        help=__help__)
+
+    # Confirm a CT density table and external contour was set
+    status.next_step(text='Prior to execution, the script will make sure that a CT density table and External ' +
+                          'contour are set for the current plan. These are required for dose calculation.')
     examination = connect.get_current('Examination')
     if examination.EquipmentInfo.ImagingSystemReference is None:
         connect.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
         patient.Save()
 
-    # Start script status
-    status = UserInterface.ScriptStatus(steps=['Enter runtime options'],
-                                        docstring=__doc__, help=__help__)
+    else:
+        patient.Save()
+
+    external = False
+    for r in case.PatientModel.RegionsOfInterest:
+        if r.Type == 'External':
+            external = True
+
+    if not external:
+        connect.await_user_input('No external contour was found. Generate an external contour, then continue ' +
+                                 'the script.')
+        patient.Save()
 
     # Prompt user to enter runtime options
     machines = machine_db.QueryCommissionedMachineInfo(Filter={})
