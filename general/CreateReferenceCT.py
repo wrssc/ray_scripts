@@ -303,7 +303,7 @@ def main():
             logging.debug('Cleanup started, deleting temporary folder {}'.format(path))
             shutil.rmtree(path, ignore_errors=True)
             status.finish(text='Script execution successful. Note, the phantom material was not set to water.' +
-                               ' If you plan on running other QA scripts, set the external to water first.')
+                               ' If you plan on running other QA scripts, you may want to do so.')
 
         logging.debug('CreateReferenceCT finished successfully')
 
