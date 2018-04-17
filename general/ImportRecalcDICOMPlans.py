@@ -67,7 +67,7 @@ def main():
 
     # Define path to search for RT PLANS
     status.next_step(text='For this step, select a folder containing one or more DICOM RT Plans to import, then ' +
-                     'click OK. the plans may be from the same patient, or different patients.')
+                          'click OK. the plans may be from the same patient, or different patients.')
     common = UserInterface.CommonDialog()
     import_path = common.folder_browser('Select the path containing DICOM RT Plans to import:')
     if import_path == '':
@@ -78,7 +78,7 @@ def main():
 
     # Define path to export RT PLAN/DOSE to
     status.next_step(text='Next, select a folder to export the resulting DICOM RT dose volumes to, then click OK. ' +
-                     'You can also skip export by clicking Cancel.')
+                          'You can also skip export by clicking Cancel.')
     export_path = common.folder_browser('Select the path to export dose to (cancel to skip export):')
     beams = False
     if export_path == '':
@@ -92,9 +92,10 @@ def main():
             logging.info('Beam dose export disabled')
 
     # Ask the user to select a machine to re-compute on
-    status.next_step(text='Next, select a machine model to compute on. You can also choose whether or not to ' +
-                     're-center each plan to the CT origin (0,0,0). Note, if the selected machine is not ' +
-                     'compatible with a plan (due to energy or MLC differences), the import will be skipped.')
+    status.next_step(text='Next, select a machine model to compute on. If left blank, the existing machine in the ' +
+                          'DICOM RT Plan will be used. You can also choose whether or not to re-center each plan to ' +
+                          'the CT origin (0,0,0). Note, if the selected machine is not compatible with a plan (due ' +
+                          'to energy or MLC differences), the import will be skipped.')
     machines = machine_db.QueryCommissionedMachineInfo(Filter={})
     machine_list = []
     for i, m in enumerate(machines):
@@ -108,9 +109,10 @@ def main():
                                        datatype={'a': 'combo', 'b': 'combo', 'c': 'text'},
                                        options={'a': machine_list, 'b': ['Yes', 'No']},
                                        initial={'b': 'No', 'c': '2'},
-                                       required=['a', 'b'])
+                                       required=['b', 'c'])
     inputs = dialog.show()
-    machine = inputs['a']
+    if hasattr(inputs, 'a'):
+        machine = inputs['a']
     res = float(inputs['c'])/10
     if inputs['b'] == 'Yes':
         center = True
@@ -133,10 +135,12 @@ def main():
                 if ds.file_meta.MediaStorageSOPClassUID == '1.2.840.10008.5.1.4.1.1.481.5':
 
                     # Update DICOM RT plan
-                    ds.PatientName = patient.Name
+                    ds.PatientName = pydicom.valuerep.PersonName(patient.Name)
                     ds.PatientID = patient.PatientID
                     for b in ds.BeamSequence:
-                        b.TreatmentMachineName = machine
+                        if machine != '':
+                            b.TreatmentMachineName = machine
+
                         if center:
                             for c in b.ControlPointSequence:
                                 if hasattr(c, 'IsocenterPosition'):
