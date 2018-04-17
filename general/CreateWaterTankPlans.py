@@ -196,9 +196,9 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -28, 'y': -0.1, 'z': -28},
+            plan.UpdateDoseGrid(Corner={'x': -28, 'y': -0.4, 'z': -28},
                                 VoxelSize={'x': 0.1, 'y': 0.1, 'z': 0.1},
-                                NumberOfVoxels={'x': 560, 'y': 401, 'z': 560})
+                                NumberOfVoxels={'x': 560, 'y': 404, 'z': 560})
 
             # Loop through each SSD
             for s in ssds:
@@ -675,9 +675,9 @@ def main():
             plan = case.LoadPlan(PlanInfo=info[0])
 
         # Set dose grid
-        plan.UpdateDoseGrid(Corner={'x': -20, 'y': -0.1, 'z': -20},
+        plan.UpdateDoseGrid(Corner={'x': -20, 'y': -0.4, 'z': -20},
                             VoxelSize={'x': 0.2, 'y': 0.1, 'z': 0.2},
-                            NumberOfVoxels={'x': 200, 'y': 201, 'z': 200})
+                            NumberOfVoxels={'x': 200, 'y': 204, 'z': 200})
 
         # Loop through electrons
         for q in machine.ElectronBeamQualities:

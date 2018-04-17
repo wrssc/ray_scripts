@@ -128,7 +128,8 @@ def main():
         if m['IsCommissioned']:
             machine_list.append(m['Name'])
 
-    status.next_step(text='Fill in the runtime options and click OK to continue')
+    time.sleep(1)
+    status.next_step(text='Next, fill in the runtime options and click OK to continue.')
     inputs = UserInterface.InputDialog(inputs={'a': 'Select machines to create plans for:',
                                                'b': 'Enter MU for each beam:',
                                                'c': '6.1 Enter open field jaw sizes (cm):',
@@ -257,7 +258,7 @@ def main():
                 time.sleep(1)
 
             # Create 6.1 plan
-            status.update_text(text='Creating, calculating, and exporting 6.1 plan...')
+            status.update_text(text='Creating, calculating, and exporting the 6.1 plan...')
             info = case.QueryPlanInfo(Filter={'Name': '6.1 {} {}'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for 6.1 {} {}'.format(m, e))
@@ -271,9 +272,9 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.2, 'z': -30},
+            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
                                 VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 201, 'z': 300})
+                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
 
             # Loop through each field size
             for j in jaws:
@@ -353,7 +354,7 @@ def main():
                         time.sleep(delay)
 
             # Create 6.3 plan
-            status.update_text(text='Creating, calculating, and exporting 6.3 plans. For each plan, you will need to ' +
+            status.update_text(text='Creating, calculating, and exporting the 6.3 plans. For each plan, you will need to ' +
                                     'manually set the EDW.')
             info = case.QueryPlanInfo(Filter={'Name': '6.3 {} {}'.format(m, e)})
             if not info:
@@ -368,9 +369,9 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.2, 'z': -30},
+            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
                                 VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 201, 'z': 300})
+                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
 
             # Loop through each EDW
             for w in edws:
@@ -458,7 +459,7 @@ def main():
                         time.sleep(delay)
 
             # Create 6.4 plan
-            status.update_text(text='Creating, calculating, and exporting 6.4 plan...')
+            status.update_text(text='Creating, calculating, and exporting the 6.4 plan...')
             info = case.QueryPlanInfo(Filter={'Name': '6.4 {} {}'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for 6.4 {} {}'.format(m, e))
@@ -472,9 +473,9 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.2, 'z': -30},
+            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
                                 VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 201, 'z': 300})
+                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
 
             # Loop through each SSD
             for s in ssds:
@@ -553,7 +554,7 @@ def main():
                         time.sleep(delay)
 
             # Create 6.5 plan
-            status.update_text(text='Creating, calculating, and exporting 6.5 plan...')
+            status.update_text(text='Creating, calculating, and exporting the 6.5 plan...')
             info = case.QueryPlanInfo(Filter={'Name': '6.5 {} {}'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for 6.5 {} {}'.format(m, e))
@@ -567,9 +568,9 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.2, 'z': -30},
+            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
                                 VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 201, 'z': 300})
+                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
 
             # Loop through each gantry angle
             for a in angles:
@@ -649,7 +650,7 @@ def main():
                         time.sleep(delay)
 
             # Create 6.6 plan
-            status.update_text(text='Creating, calculating, and exporting 6.6 plan...')
+            status.update_text(text='Creating, calculating, and exporting the 6.6 plan...')
             info = case.QueryPlanInfo(Filter={'Name': '6.6 {} {}'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for 6.6 {} {}'.format(m, e))
@@ -663,9 +664,9 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.2, 'z': -30},
+            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
                                 VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 201, 'z': 300})
+                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
 
             # Add beamset
             logging.debug('Creating empty 6.6 beamset')
@@ -779,7 +780,7 @@ def main():
                     .OfRoi.SetRoiMaterial(Material=water)
 
             # Create 6.7 plan
-            status.update_text(text='Creating, calculating, and exporting 6.7 plan...')
+            status.update_text(text='Creating, calculating, and exporting the 6.7 plan...')
             info = case.QueryPlanInfo(Filter={'Name': '6.7 {} {}'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for 6.7 {} {}'.format(m, e))
@@ -793,9 +794,9 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.2, 'z': -30},
+            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
                                 VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 201, 'z': 300})
+                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
 
             # Loop through each field size
             for f in fields:
@@ -890,7 +891,7 @@ def main():
                         time.sleep(delay)
 
             # Create 6.8 plan
-            status.update_text(text='Creating, calculating, and exporting 6.8 plan...')
+            status.update_text(text='Creating, calculating, and exporting the 6.8 plan...')
             info = case.QueryPlanInfo(Filter={'Name': '6.8 {} {}'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for 6.8 {} {}'.format(m, e))
@@ -904,9 +905,9 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.2, 'z': -30},
+            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
                                 VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 201, 'z': 300})
+                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
 
             # Add C Shape beamset
             info = plan.QueryBeamSetInfo(Filter={'Name': 'C Shape'})
