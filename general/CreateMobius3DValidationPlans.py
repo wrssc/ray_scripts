@@ -228,7 +228,7 @@ def main():
         for q in machine.PhotonBeamQualities:
 
             # Store nominal energy
-            e = q.NominalEnergy.int()
+            e = int(q.NominalEnergy)
             status.next_step(text='Calculating plans for {} {} MV. In order to limit the number of plans sent to ' +
                                   'Mobius3D under the same patient, this script will pause and prompt you to change ' +
                                   'the patient ID to a different value and continue the script.'.format(m, e))

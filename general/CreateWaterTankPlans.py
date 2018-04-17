@@ -173,7 +173,7 @@ def main():
         for q in machine.PhotonBeamQualities:
 
             # Store nominal energy
-            e = q.NominalEnergy.int()
+            e = int(q.NominalEnergy)
 
             # Check if plan exists, and either create one or load it
             status.next_step(text='Creating plan {} {} MV...'.format(m, e))
