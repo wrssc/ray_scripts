@@ -140,12 +140,11 @@ def main():
     for m in machines:
         machine = machine_db.GetTreatmentMachine(machineName=m, lockMode=None)
         for q in machine.PhotonBeamQualities:
-            status.add_step('Create {} {} MV plan'.format(m, q.NominalEnergy))
+            status.add_step('Create {} {} MV plans'.format(m, q.NominalEnergy))
 
         status.add_step('Create {} Electrons plan'.format(m))
 
     # Define the export location
-
     if 'Calculate dose' in response['g'] and 'Export dose' in response['g']:
         common = UserInterface.CommonDialog()
         path = common.folder_browser('Select the path to export RT Dose files to (or cancel to skip export):')
@@ -266,7 +265,7 @@ def main():
                                                        DicomFilter='',
                                                        IgnorePreConditionWarnings=True)
 
-                        except SystemError as error:
+                        except Exception as error:
                             logging.warning(str(error))
 
             # Check if beam set exists
@@ -388,7 +387,7 @@ def main():
                                                        DicomFilter='',
                                                        IgnorePreConditionWarnings=True)
 
-                        except SystemError as error:
+                        except Exception as error:
                             logging.warning(str(error))
 
             # Delete reference EDW beam set
@@ -652,7 +651,7 @@ def main():
                                                        DicomFilter='',
                                                        IgnorePreConditionWarnings=True)
 
-                        except SystemError as error:
+                        except Exception as error:
                             logging.warning(str(error))
 
         # Check if electron plan exists, and either create one or load it
@@ -757,7 +756,7 @@ def main():
                                                    DicomFilter='',
                                                    IgnorePreConditionWarnings=True)
 
-                    except SystemError as error:
+                    except Exception as error:
                         logging.warning(str(error))
 
     # Finish up
