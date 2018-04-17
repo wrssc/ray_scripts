@@ -243,7 +243,7 @@ def main():
                                                lastName='M3D {} {} MV'.format(m, e),
                                                suffix='',
                                                gender='Unknown',
-                                               dateOfBirth=System.DateTime.UtcNow)
+                                               dateOfBirth=System.DateTime.UtcNow.Date)
                 connect.await_user_input('Change patient ID to a new value, then continue the script.')
                 time.sleep(1)
                 patient.Save()
@@ -1196,7 +1196,7 @@ def main():
                                        lastName=name[0],
                                        suffix=name[3],
                                        gender='Unknown',
-                                       dateOfBirth=System.DateTime.UtcNow)
+                                       dateOfBirth=System.DateTime.UtcNow.Date)
     time.sleep(1)
     patient.Save()
     time.sleep(1)
