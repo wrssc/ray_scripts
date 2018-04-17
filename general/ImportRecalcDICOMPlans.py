@@ -114,7 +114,8 @@ def main():
     status.next_step(text='Next, select a machine model to compute on. If left blank, the existing machine in the ' +
                           'DICOM RT Plan will be used. You can also choose whether or not to re-center each plan to ' +
                           'the CT origin (0,0,0). Note, if the selected machine is not compatible with a plan (due ' +
-                          'to energy or MLC differences), the import will be skipped.')
+                          'to energy or MLC differences), the import will occur but calculation and export will be ' +
+                          'skipped.')
     machines = machine_db.QueryCommissionedMachineInfo(Filter={})
     machine_list = []
     for i, m in enumerate(machines):
