@@ -118,7 +118,6 @@ dialog.Title = sys.argv[1]
 dialog.Filter = sys.argv[2]
 dialog.InitialDirectory = os.path.expanduser('~/Documents')
 dialog.RestoreDirectory = False
-dialog.Multiselect = False
 
 # Open dialog and wait for response
 if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
