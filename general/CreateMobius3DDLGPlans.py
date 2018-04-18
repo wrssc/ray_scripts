@@ -132,7 +132,7 @@ def main():
                                                'm': 'Mobius3D DICOM port:',
                                                'n': 'Mobius3D DICOM AE title:',
                                                'o': 'Time delay between DICOM exports (sec):'},
-                                       datatype={'a': 'check', 'd': 'check', 'i': 'check', 'k': 'check'},
+                                       datatype={'a': 'check', 'k': 'check'},
                                        initial={'a': machine_list,
                                                 'b': '100',
                                                 'c': '0.5, 1.0, 1.5, 2.0',
