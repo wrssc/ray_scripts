@@ -59,12 +59,12 @@ def main():
         sys.exit('This script requires a patient to be loaded')
 
     # Start script status
-    status = UserInterface.ScriptStatus(steps=['Verify CT density table and external are set',
+    status = UserInterface.ScriptStatus(steps=['Verify CT density table, external, and boxes are set',
                                                'Enter script runtime options'],
                                         docstring=__doc__,
                                         help=__help__)
 
-    # Confirm a CT density table and external contour was set
+    # Confirm a CT density table, boxes, and external contour was set
     status.next_step(text='Prior to execution, the script will make sure that a CT density table, External, ' +
                           'and Box_1/Box_2 contours are set for the current plan. Also, at least one contour must be ' +
                           'overridden to water.')
@@ -93,6 +93,7 @@ def main():
         if r.Name == 'Box_2':
             boxes[1] = True
 
+    # If external was not set
     if not external:
         logging.debug('Executing PatientModel.CreateRoi for External')
         external = case.PatientModel.CreateRoi(Name='External',
@@ -106,12 +107,14 @@ def main():
         external.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
         for r in case.PatientModel.RegionsOfInterest:
             if r.Type == 'External':
-                external = True
                 b = case.PatientModel.StructureSets[examination.Name].RoiGeometries[r.Name].GetBoundingBox()
                 bounds = [b[0].x, b[1].x, b[0].y, b[1].y, b[0].z, b[1].z]
                 break
 
+    # Set isocenter to the center of the top plane of the external structure
     iso = [(bounds[1]+bounds[0])/2, -bounds[2], (bounds[5]+bounds[4])/2]
+
+    # Search for water density override
     water = None
     try:
         for i in range(20):
@@ -122,6 +125,7 @@ def main():
     except Exception:
         logging.warning('A water density override was not found')
 
+    # If Box_1 or Box_2 don't exist
     if not boxes[0]:
         logging.debug('Adding Box_1 contour')
         box = case.PatientModel.CreateRoi(Name='Box_1',
@@ -135,8 +139,8 @@ def main():
                               Center={'x': 0, 'y': 5, 'z': 0},
                               Representation='Voxels',
                               VoxelSize=None)
-        box.SetRoiMaterial(Material=water)
-
+        if water is not None:
+            box.SetRoiMaterial(Material=water)
 
     if not boxes[1]:
         logging.debug('Adding Box_2 contour')
@@ -151,12 +155,14 @@ def main():
                               Center={'x': 0, 'y': 15, 'z': 0},
                               Representation='Voxels',
                               VoxelSize=None)
-        box.SetRoiMaterial(Material=water)
+        if water is not None:
+            box.SetRoiMaterial(Material=water)
 
     logging.debug('Saving patient')
     time.sleep(1)
     patient.Save()
 
+    # If a water density override was not set, do so now
     if water is None:
         connect.await_user_input('Either Box_1 or Box_2 must be overridden to water. Do so, then continue the script')
         patient.Save()
@@ -252,11 +258,11 @@ def main():
     except ValueError:
         delay = 0
 
-    # Append steps
+    # Append script status step list with each machine/energy
     for m in machines:
         machine = machine_db.GetTreatmentMachine(machineName=m, lockMode=None)
         for q in machine.PhotonBeamQualities:
-            status.add_step('Create {} {} MV plans'.format(m, q.NominalEnergy))
+            status.add_step('Create {} {} MV plans'.format(m, int(q.NominalEnergy)))
 
     # Validate export options
     if calc and 'Export plan' in response['k'] and response['l'] != '' and response['m'] != '' and response['n'] != '':
@@ -393,8 +399,8 @@ def main():
                         time.sleep(delay)
 
             # Create 6.3 plan
-            status.update_text(text='Creating, calculating, and exporting the 6.3 plans. For each plan, you will need to ' +
-                                    'manually set the EDW, then click Continue on the script panel.')
+            status.update_text(text='Creating, calculating, and exporting the 6.3 plans. For each plan, you will ' +
+                                    'need to manually set the EDW, then click Continue on the script panel.')
             info = case.QueryPlanInfo(Filter={'Name': '6.3 {} {} MV'.format(m, e)})
             if not info:
                 logging.debug('Creating plan for 6.3 {} {} MV'.format(m, e))
