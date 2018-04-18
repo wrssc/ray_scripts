@@ -100,6 +100,16 @@ def main():
         logging.debug('Executing CreateExternalGeometry for External')
         external.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
 
+    water = None
+    try:
+        for i in range(20):
+            if case.PatientModel.Materials[i].Name == 'Water':
+                water = case.PatientModel.Materials[i]
+                break
+
+    except Exception:
+        logging.warning('A water density override was not found')
+
     if not boxes[0]:
         logging.debug('Adding Box_1 contour')
         box = case.PatientModel.CreateRoi(Name='Box_1',
@@ -107,7 +117,7 @@ def main():
                                           Type='Organ',
                                           TissueName=None,
                                           RbeCellTypeName=None,
-                                          RoiMaterial=None)
+                                          RoiMaterial=water)
         box.CreateBoxGeometry(Size={'x': 20, 'y': 5, 'z': 20},
                               Examination=examination,
                               Center={'x': 0, 'y': -5, 'z': 0},
@@ -121,7 +131,7 @@ def main():
                                           Type='Organ',
                                           TissueName=None,
                                           RbeCellTypeName=None,
-                                          RoiMaterial=None)
+                                          RoiMaterial=water)
         box.CreateBoxGeometry(Size={'x': 20, 'y': 5, 'z': 20},
                               Examination=examination,
                               Center={'x': 0, 'y': -15, 'z': 0},
@@ -130,16 +140,6 @@ def main():
 
     logging.debug('Saving patient')
     patient.Save()
-
-    water = None
-    try:
-        for i in range(20):
-            if case.PatientModel.Materials[i].Name == 'Water':
-                water = case.PatientModel.Materials[i]
-                break
-
-    except Exception:
-        logging.warning('A water density override was not found')
 
     if water is None:
         connect.await_user_input('Either Box_1 or Box_2 must be overridden to water. Do so, then continue the script')
