@@ -79,10 +79,13 @@ def main():
         patient.Save()
 
     external = False
+    bounds = [-30, 30, 0, 40, -30, 30]
     boxes = [False, False]
     for r in case.PatientModel.RegionsOfInterest:
         if r.Type == 'External':
             external = True
+            b = case.PatientModel.StructureSets[examination.Name].RoiGeometries[r.Name].GetBoundingBox()
+            bounds = [b[0].x, b[1].x, b[0].y, b[1].y, b[0].z, b[1].z]
 
         if r.Name == 'Box_1':
             boxes[0] = True
@@ -101,7 +104,14 @@ def main():
 
         logging.debug('Executing CreateExternalGeometry for External')
         external.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+        for r in case.PatientModel.RegionsOfInterest:
+            if r.Type == 'External':
+                external = True
+                b = case.PatientModel.StructureSets[examination.Name].RoiGeometries[r.Name].GetBoundingBox()
+                bounds = [b[0].x, b[1].x, b[0].y, b[1].y, b[0].z, b[1].z]
+                break
 
+    iso = [(bounds[1]+bounds[0])/2, -bounds[2], (bounds[5]+bounds[4])/2]
     water = None
     try:
         for i in range(20):
@@ -120,7 +130,7 @@ def main():
                                           TissueName=None,
                                           RbeCellTypeName=None,
                                           RoiMaterial=None)
-        box.CreateBoxGeometry(Size={'x': 60, 'y': 5, 'z': 60},
+        box.CreateBoxGeometry(Size={'x': abs(bounds[1]-bounds[0])-1, 'y': 5, 'z': abs(bounds[5]-bounds[4])-1},
                               Examination=examination,
                               Center={'x': 0, 'y': 5, 'z': 0},
                               Representation='Voxels',
@@ -136,7 +146,7 @@ def main():
                                           TissueName=None,
                                           RbeCellTypeName=None,
                                           RoiMaterial=None)
-        box.CreateBoxGeometry(Size={'x': 60, 'y': 5, 'z': 60},
+        box.CreateBoxGeometry(Size={'x': abs(bounds[1]-bounds[0])-1, 'y': 5, 'z': abs(bounds[5]-bounds[4])-1},
                               Examination=examination,
                               Center={'x': 0, 'y': 15, 'z': 0},
                               Representation='Voxels',
@@ -179,12 +189,13 @@ def main():
                                                'g': '6.6 Enter density overrides (g/cc):',
                                                'h': '6.7 Enter circular field MLC sizes (cm):',
                                                'i': '6.8 Select custom MLC shapes:',
-                                               'j': 'Runtime options:',
-                                               'k': 'Mobius3D host name/IP address:',
-                                               'l': 'Mobius3D DICOM port:',
-                                               'm': 'Mobius3D DICOM AE title:',
-                                               'n': 'Time delay between DICOM exports (sec):'},
-                                       datatype={'a': 'check', 'd': 'check', 'i': 'check', 'j': 'check'},
+                                               'j': 'Dose grid resolution (mm):',
+                                               'k': 'Runtime options:',
+                                               'l': 'Mobius3D host name/IP address:',
+                                               'm': 'Mobius3D DICOM port:',
+                                               'n': 'Mobius3D DICOM AE title:',
+                                               'o': 'Time delay between DICOM exports (sec):'},
+                                       datatype={'a': 'check', 'd': 'check', 'i': 'check', 'k': 'check'},
                                        initial={'a': machine_list,
                                                 'b': '100',
                                                 'c': '2, 5, 10, 15, 20, 30, 40',
@@ -194,16 +205,17 @@ def main():
                                                 'g': '0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75',
                                                 'h': '2, 5, 10, 15, 20, 30, 40',
                                                 'i': ['C Shape', 'Fence', 'VMAT CP'],
-                                                'j': ['Calculate plan', 'Export plan'],
-                                                'k': 'mobius.uwhealth.wisc.edu',
-                                                'l': '104',
-                                                'm': 'MOBIUS3D',
-                                                'n': '60'},
+                                                'j': '2',
+                                                'k': ['Calculate plan', 'Export plan'],
+                                                'l': 'mobius.uwhealth.wisc.edu',
+                                                'm': '104',
+                                                'n': 'MOBIUS3D',
+                                                'o': '60'},
                                        options={'a': machine_list,
                                                 'd': edw_list,
                                                 'i': ['C Shape', 'Fence', 'VMAT CP'],
-                                                'j': ['Calculate plan', 'Export plan']},
-                                       required=['a', 'b'])
+                                                'k': ['Calculate plan', 'Export plan']},
+                                       required=['a', 'b', 'j'])
 
     # Parse responses
     response = inputs.show()
@@ -223,18 +235,19 @@ def main():
     densities = map(float, response['g'].split(','))
     fields = map(float, response['h'].split(','))
     shapes = response['i']
-    if 'Calculate plan' in response['j']:
+    res = float(response['j'])/10
+    if 'Calculate plan' in response['k']:
         calc = True
 
     else:
         calc = False
         logging.info('Calculation was disabled')
 
-    host = response['k']
-    port = int(response['l'])
-    aet = response['m']
+    host = response['l']
+    port = int(response['m'])
+    aet = response['n']
     try:
-        delay = float(response['n'])
+        delay = float(response['o'])
 
     except ValueError:
         delay = 0
@@ -246,7 +259,7 @@ def main():
             status.add_step('Create {} {} MV plans'.format(m, q.NominalEnergy))
 
     # Validate export options
-    if calc and 'Export plan' in response['j'] and response['k'] != '' and response['l'] != '' and response['m'] != '':
+    if calc and 'Export plan' in response['k'] and response['l'] != '' and response['m'] != '' and response['n'] != '':
         export = True
 
     else:
@@ -279,10 +292,10 @@ def main():
             # Create 6.1 plan
             time.sleep(1)
             status.next_step(text='Creating, calculating, and exporting the 6.1 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.1 {} {}'.format(m, e)})
+            info = case.QueryPlanInfo(Filter={'Name': '6.1 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.1 {} {}'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.1 {} {}'.format(m, e),
+                logging.debug('Creating plan for 6.1 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='6.1 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -292,9 +305,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
-                                VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
+            plan.SetCurrent()
+            plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Loop through each field size
             for j in jaws:
@@ -321,7 +333,7 @@ def main():
                     # Add beam
                     logging.debug('Creating beam {} x {}'.format(j, j))
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': 0, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name': '{} x {}'.format(j, j),
                                                                    'Color': '98,184,234'},
@@ -356,7 +368,7 @@ def main():
                         try:
                             case.ScriptableDicomExport(Anonymize=True,
                                                        AnonymizedName='M3D {} {} MV'.format(m, e),
-                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AnonymizedId='{0:0>4}'.format(counter),
                                                        AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
@@ -378,11 +390,11 @@ def main():
 
             # Create 6.3 plan
             status.update_text(text='Creating, calculating, and exporting the 6.3 plans. For each plan, you will need to ' +
-                                    'manually set the EDW.')
-            info = case.QueryPlanInfo(Filter={'Name': '6.3 {} {}'.format(m, e)})
+                                    'manually set the EDW, then click Continue on the script panel.')
+            info = case.QueryPlanInfo(Filter={'Name': '6.3 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.3 {} {}'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.3 {} {}'.format(m, e),
+                logging.debug('Creating plan for 6.3 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='6.3 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -392,9 +404,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
-                                VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
+            plan.SetCurrent()
+            plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Loop through each EDW
             for w in edws:
@@ -421,7 +432,7 @@ def main():
                     # Add beam
                     logging.debug('Creating beam {}'.format(w))
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': 0, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name': '{}'.format(w),
                                                                    'Color': '98,184,234'},
@@ -464,7 +475,7 @@ def main():
                         try:
                             case.ScriptableDicomExport(Anonymize=True,
                                                        AnonymizedName='M3D {} {} MV'.format(m, e),
-                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AnonymizedId='{0:0>4}'.format(counter),
                                                        AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
@@ -486,10 +497,10 @@ def main():
 
             # Create 6.4 plan
             status.update_text(text='Creating, calculating, and exporting the 6.4 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.4 {} {}'.format(m, e)})
+            info = case.QueryPlanInfo(Filter={'Name': '6.4 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.4 {} {}'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.4 {} {}'.format(m, e),
+                logging.debug('Creating plan for 6.4 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='6.4 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -499,9 +510,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
-                                VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
+            plan.SetCurrent()
+            plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Loop through each SSD
             for s in ssds:
@@ -528,7 +538,9 @@ def main():
                     # Add beam
                     logging.debug('Creating beam {}'.format(s))
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': sad - s, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0],
+                                                                                'y': iso[1] + sad - s,
+                                                                                'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name': '{}'.format(s),
                                                                    'Color': '98,184,234'},
@@ -563,7 +575,7 @@ def main():
                         try:
                             case.ScriptableDicomExport(Anonymize=True,
                                                        AnonymizedName='M3D {} {} MV'.format(m, e),
-                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AnonymizedId='{0:0>4}'.format(counter),
                                                        AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
@@ -584,10 +596,10 @@ def main():
 
             # Create 6.5 plan
             status.update_text(text='Creating, calculating, and exporting the 6.5 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.5 {} {}'.format(m, e)})
+            info = case.QueryPlanInfo(Filter={'Name': '6.5 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.5 {} {}'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.5 {} {}'.format(m, e),
+                logging.debug('Creating plan for 6.5 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='6.5 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -597,9 +609,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
-                                VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
+            plan.SetCurrent()
+            plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Loop through each gantry angle
             for a in angles:
@@ -626,7 +637,7 @@ def main():
                     # Add beam
                     print 'Creating beam {}'.format(a)
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': 0, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name': '{}'.format(a),
                                                                    'Color': '98,184,234'},
@@ -657,11 +668,11 @@ def main():
 
                     # Export beamset to the specified path
                     if export:
-                        logging.debug('Exporting RT plan and beam dose for plan {]'.format(a))
+                        logging.debug('Exporting RT plan and beam dose for plan {}'.format(a))
                         try:
                             case.ScriptableDicomExport(Anonymize=True,
                                                        AnonymizedName='M3D {} {} MV'.format(m, e),
-                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AnonymizedId='{0:0>4}'.format(counter),
                                                        AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
@@ -683,10 +694,10 @@ def main():
 
             # Create 6.6 plan
             status.update_text(text='Creating, calculating, and exporting the 6.6 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.6 {} {}'.format(m, e)})
+            info = case.QueryPlanInfo(Filter={'Name': '6.6 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.6 {} {}'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.6 {} {}'.format(m, e),
+                logging.debug('Creating plan for 6.6 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='6.6 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -696,9 +707,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
-                                VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
+            plan.SetCurrent()
+            plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Add beamset
             logging.debug('Creating empty 6.6 beamset')
@@ -720,7 +730,7 @@ def main():
                 # Add beam
                 logging.debug('Creating empty beam')
                 beam = beamset.CreatePhotonBeam(Energy=e,
-                                                IsocenterData={'Position': {'x': 0, 'y': 0, 'z': 0},
+                                                IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                'NameOfIsocenterToRef': '',
                                                                'Name': 'beam',
                                                                'Color': '98,184,234'},
@@ -769,10 +779,10 @@ def main():
                     beam.Name = '{} g/cc'.format(d)
 
                     # Update density for box 1 and box 2
-                    case.PatientModel.StructureSets[examination.Name].RoiGeometries['Box_1'] \
-                        .OfRoi.SetRoiMaterial(Material=case.PatientModel.Materials[idx])
-                    case.PatientModel.StructureSets[examination.Name].RoiGeometries['Box_2'] \
-                        .OfRoi.SetRoiMaterial(Material=case.PatientModel.Materials[idx])
+                    case.PatientModel.RegionsOfInterest['Box_1'].SetRoiMaterial(
+                        Material=case.PatientModel.Materials[idx])
+                    case.PatientModel.RegionsOfInterest['Box_2'].SetRoiMaterial(
+                        Material=case.PatientModel.Materials[idx])
 
                     # Calculate dose on beamset
                     if calc:
@@ -788,7 +798,7 @@ def main():
                         try:
                             case.ScriptableDicomExport(Anonymize=True,
                                                        AnonymizedName='M3D {} {} MV'.format(m, e),
-                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AnonymizedId='{0:0>4}'.format(counter),
                                                        AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
@@ -816,10 +826,10 @@ def main():
 
             # Create 6.7 plan
             status.update_text(text='Creating, calculating, and exporting the 6.7 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.7 {} {}'.format(m, e)})
+            info = case.QueryPlanInfo(Filter={'Name': '6.7 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.7 {} {}'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.7 {} {}'.format(m, e),
+                logging.debug('Creating plan for 6.7 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='6.7 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -829,9 +839,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
-                                VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
+            plan.SetCurrent()
+            plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Loop through each field size
             for f in fields:
@@ -858,7 +867,7 @@ def main():
                     # Add beam
                     logging.debug('Creating beam {} cm'.format(f))
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': 0, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name': '{} cm'.format(f),
                                                                    'Color': '98,184,234'},
@@ -908,7 +917,7 @@ def main():
                         try:
                             case.ScriptableDicomExport(Anonymize=True,
                                                        AnonymizedName='M3D {} {} MV'.format(m, e),
-                                                       AnonymizedID='{0:0>4}'.format(counter),
+                                                       AnonymizedId='{0:0>4}'.format(counter),
                                                        AEHostname=host,
                                                        AEPort=port,
                                                        CallingAETitle='RayStation',
@@ -930,10 +939,10 @@ def main():
 
             # Create 6.8 plan
             status.update_text(text='Creating, calculating, and exporting the 6.8 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.8 {} {}'.format(m, e)})
+            info = case.QueryPlanInfo(Filter={'Name': '6.8 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.8 {} {}'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.8 {} {}'.format(m, e),
+                logging.debug('Creating plan for 6.8 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='6.8 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -943,9 +952,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -30, 'y': -0.4, 'z': -30},
-                                VoxelSize={'x': 0.2, 'y': 0.2, 'z': 0.2},
-                                NumberOfVoxels={'x': 300, 'y': 202, 'z': 300})
+            plan.SetCurrent()
+            plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Add C Shape beamset
             info = plan.QueryBeamSetInfo(Filter={'Name': 'C Shape'})
@@ -967,7 +975,7 @@ def main():
                 # Add C Shape beam
                 logging.debug('Creating beam C Shape')
                 beam = beamset.CreatePhotonBeam(Energy=e,
-                                                IsocenterData={'Position': {'x': 0, 'y': 0, 'z': 0},
+                                                IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                'NameOfIsocenterToRef': '',
                                                                'Name': 'C Shape',
                                                                'Color': '98,184,234'},
@@ -1023,7 +1031,7 @@ def main():
                     try:
                         case.ScriptableDicomExport(Anonymize=True,
                                                    AnonymizedName='M3D {} {} MV'.format(m, e),
-                                                   AnonymizedID='{0:0>4}'.format(counter),
+                                                   AnonymizedId='{0:0>4}'.format(counter),
                                                    AEHostname=host,
                                                    AEPort=port,
                                                    CallingAETitle='RayStation',
@@ -1063,7 +1071,7 @@ def main():
                 # Add Fence beam
                 logging.debug('Creating beam Fence')
                 beam = beamset.CreatePhotonBeam(Energy=e,
-                                                IsocenterData={'Position': {'x': 0, 'y': 0, 'z': 0},
+                                                IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                'NameOfIsocenterToRef': '',
                                                                'Name': 'Fence',
                                                                'Color': '98,184,234'},
@@ -1115,7 +1123,7 @@ def main():
                     try:
                         case.ScriptableDicomExport(Anonymize=True,
                                                    AnonymizedName='M3D {} {} MV'.format(m, e),
-                                                   AnonymizedID='{0:0>4}'.format(counter),
+                                                   AnonymizedId='{0:0>4}'.format(counter),
                                                    AEHostname=host,
                                                    AEPort=port,
                                                    CallingAETitle='RayStation',
@@ -1155,7 +1163,7 @@ def main():
                 # Add VMAT CP beam
                 logging.debug('Creating beam VMAT CP')
                 beam = beamset.CreatePhotonBeam(Energy=e,
-                                                IsocenterData={'Position': {'x': 0, 'y': 0, 'z': 0},
+                                                IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                'NameOfIsocenterToRef': '',
                                                                'Name': 'VMAT CP',
                                                                'Color': '98,184,234'},
@@ -1227,7 +1235,7 @@ def main():
                     try:
                         case.ScriptableDicomExport(Anonymize=True,
                                                    AnonymizedName='M3D {} {} MV'.format(m, e),
-                                                   AnonymizedID='{0:0>4}'.format(counter),
+                                                   AnonymizedId='{0:0>4}'.format(counter),
                                                    AEHostname=host,
                                                    AEPort=port,
                                                    CallingAETitle='RayStation',
