@@ -117,12 +117,14 @@ def main():
                                           Type='Organ',
                                           TissueName=None,
                                           RbeCellTypeName=None,
-                                          RoiMaterial=water)
+                                          RoiMaterial=None)
         box.CreateBoxGeometry(Size={'x': 20, 'y': 5, 'z': 20},
                               Examination=examination,
                               Center={'x': 0, 'y': -5, 'z': 0},
                               Representation='Voxels',
                               VoxelSize=None)
+        box.SetRoiMaterial(Material=water)
+
 
     if not boxes[1]:
         logging.debug('Adding Box_2 contour')
@@ -131,12 +133,13 @@ def main():
                                           Type='Organ',
                                           TissueName=None,
                                           RbeCellTypeName=None,
-                                          RoiMaterial=water)
+                                          RoiMaterial=None)
         box.CreateBoxGeometry(Size={'x': 20, 'y': 5, 'z': 20},
                               Examination=examination,
                               Center={'x': 0, 'y': -15, 'z': 0},
                               Representation='Voxels',
                               VoxelSize=None)
+        box.SetRoiMaterial(Material=water)
 
     logging.debug('Saving patient')
     patient.Save()
@@ -763,9 +766,9 @@ def main():
                     beam.Name = '{} g/cc'.format(d)
 
                     # Update density for box 1 and box 2
-                    case.PatientModel.StructureSets[case.Examinations[0].Name].RoiGeometries['Box_1'] \
+                    case.PatientModel.StructureSets[examination.Name].RoiGeometries['Box_1'] \
                         .OfRoi.SetRoiMaterial(Material=case.PatientModel.Materials[idx])
-                    case.PatientModel.StructureSets[case.Examinations[0].Name].RoiGeometries['Box_2'] \
+                    case.PatientModel.StructureSets[examination.Name].RoiGeometries['Box_2'] \
                         .OfRoi.SetRoiMaterial(Material=case.PatientModel.Materials[idx])
 
                     # Calculate dose on beamset
