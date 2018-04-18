@@ -20,7 +20,7 @@ Packages not included as part of the standard library have been included as subm
 
 ## Documentation and Help
 
-With the exception of the library folder, each python file in this script performs a different function in RayStation.  See the [wiki](../../wiki) for information on what each script does, how it is used, and to see troubleshooting tips. If you experience issues with a script or have improvements to suggest please submit an [Issue](../../issues), otherwise contact the script author for questions or feedback.
+With the exception of the library folder, each python script in this repository performs a different function in RayStation.  See the [wiki](../../wiki) for information on what each script does, how it is used, and to see troubleshooting tips. If you experience issues with a script or have improvements to suggest please submit an [Issue](../../issues), otherwise contact the script author for questions or feedback.
 
 ## License
 
