@@ -52,8 +52,6 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 # Import packages
 import sys
 import clr
-import math
-import textwrap
 import multiprocessing
 import webbrowser
 import logging
@@ -133,6 +131,7 @@ class ScriptStatus:
 
     def add_step(self, text=''):
         """status.add_step('new step')"""
+        self.__args['steps'].append(text)
         self.__queue.put([-3, text])
 
     def update_text(self, text=''):
