@@ -33,14 +33,8 @@ def main():
     import importlib
     import shutil
     import logging
-    import clr
     import hashlib
-
-    clr.AddReference('System.Windows.Forms')
-    import System.Windows.Forms
-
-    clr.AddReference('System.Drawing')
-    import System.Drawing
+    import UserInterface
 
     # Retrieve variables from invoking function
     selector = importlib.import_module(os.path.basename(sys.modules['__main__'].__file__).split('.')[0])
@@ -64,33 +58,10 @@ def main():
 
     # If local is empty, prompt user to select the location
     if selector.local == '':
-        import subprocess
-        ipy = r'c:\Program Files (x86)\IronPython 2.7.1\ipy.exe'
-        s = 'Select folder to export CT to:'
-        local = subprocess.check_output('"{}" {} "{}"'.format(ipy,
-                                                              os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                                                           '..\library\FolderBrowser.py'), s)).strip()
+        browser = UserInterface.CommonDialog()
+        local = browser.folder_browser('Select folder to export CT to:')
     else:
         local = selector.local
-
-    # Display progress bar
-    form = System.Windows.Forms.Form()
-    form.Width = 350
-    form.Height = 100
-    form.Text = 'Downloading folder structure'
-    bar = System.Windows.Forms.ProgressBar()
-    bar.Visible = True
-    bar.Minimum = 1
-    bar.Maximum = 100
-    bar.Value = 1
-    bar.Step = 1
-    bar.Width = 300
-    bar.Height = 30
-    bar.Left = 15
-    bar.Top = 15
-    bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
-    form.Controls.Add(bar)
-    form.Show()
 
     # Clear directory
     if os.path.exists(local):
@@ -116,12 +87,11 @@ def main():
                     os.mkdir(os.path.join(local, l['path']))
 
     # Update progress bar text and length
-    form.Text = 'Downloading files'
-    bar.Maximum = len(file_list) * 2
+    bar = UserInterface.ProgressBar('Downloading files', 'Update Progress', len(file_list) * 2)
 
     # Loop through files in branch, downloading each
     for l in file_list:
-        bar.PerformStep()
+        bar.update('Downloading {}'.format(l['path']))
         if l['type'] == u'file':
             if l.get('download_url'):
                 logging.info('Downloading {} to {}'.format(l['download_url'],
@@ -136,20 +106,17 @@ def main():
 
                 open(os.path.join(local, l['path']), 'wb').write(r.content)
 
-    # Update progress bar text and length
-    form.Text = 'Verifying Hashes'
-
     # Loop through files again, verifying
     passed = True
     for l in file_list:
-        bar.PerformStep()
+        bar.update('Verifying Hashes')
         if l['type'] == u'file':
             if l.get('download_url'):
 
                 fh = open(os.path.join(local, l['path']), 'rb')
                 content = fh.read()
                 fh.close()
-                sha = hashlib.sha1('blob {}\0{}'.format(len(content), content)).hexdigest()
+                sha = hashlib.sha1(bytearray('blob {}\0'.format(len(content)), 'utf8') + content).hexdigest()
 
                 if l['sha'] == sha:
                     logging.info('Hash {} verified: {}'.format(l['path'], l['sha']))
@@ -158,13 +125,11 @@ def main():
                     passed = False
 
     # Show success message
-    form.DialogResult = True
+    bar.close()
     if passed:
-        System.Windows.Forms.MessageBox.Show('Script download and checksum verification successful', 'Success',
-                                             System.Windows.Forms.MessageBoxButtons.OK)
+        UserInterface.MessageBox('Script download and checksum verification successful', 'Success')
     else:
-        System.Windows.Forms.MessageBox.Show('Scripts download, but verification failed', 'Warning',
-                                             System.Windows.Forms.MessageBoxButtons.OK)
+        UserInterface.WarningBox('Scripts download, but verification failed', 'Warning')
 
 
 if __name__ == '__main__':

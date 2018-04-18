@@ -2,3 +2,4 @@
 .idea/
 *_tmp_*
 *.swp
+*.pyc
