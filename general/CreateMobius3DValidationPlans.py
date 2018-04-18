@@ -305,7 +305,11 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
+            time.sleep(1)
+            logging.debug('Saving patient prior to SetCurrent(), SetDefaultDoseGrid() calls')
+            patient.Save()
             plan.SetCurrent()
+            logging.debug('Setting default dose grid with {} cm resolution'.format(res))
             plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Loop through each field size
@@ -404,7 +408,11 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
+            time.sleep(1)
+            logging.debug('Saving patient prior to SetCurrent(), SetDefaultDoseGrid() calls')
+            patient.Save()
             plan.SetCurrent()
+            logging.debug('Setting default dose grid with {} cm resolution'.format(res))
             plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Loop through each EDW
@@ -454,6 +462,8 @@ def main():
                     beamset.Beams[re.sub('\D', '', w)].BeamMU = mu
 
                     # Display prompt reminding user to set EDW angles
+                    time.sleep(1)
+                    logging.debug('Saving patient prior to SetCurrent() call')
                     patient.Save()
                     plan.SetCurrent()
                     beamset.SetCurrent()
@@ -510,6 +520,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
+            time.sleep(1)
+            patient.Save()
             plan.SetCurrent()
             plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
@@ -609,6 +621,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
+            time.sleep(1)
+            patient.Save()
             plan.SetCurrent()
             plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
@@ -707,6 +721,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
+            time.sleep(1)
+            patient.Save()
             plan.SetCurrent()
             plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
@@ -839,6 +855,8 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
+            time.sleep(1)
+            patient.Save()
             plan.SetCurrent()
             plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
@@ -952,7 +970,11 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
+            time.sleep(1)
+            logging.debug('Saving patient prior to SetCurrent(), SetDefaultDoseGrid() calls')
+            patient.Save()
             plan.SetCurrent()
+            logging.debug('Setting default dose grid with {} cm resolution'.format(res))
             plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Add C Shape beamset
