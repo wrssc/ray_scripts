@@ -68,6 +68,8 @@ def main():
     status.next_step(text='Prior to execution, the script will make sure that a CT density table, External, ' +
                           'and Box_1/Box_2 contours are set for the current plan. Also, at least one contour must be ' +
                           'overridden to water.')
+    time.sleep(1)
+
     examination = connect.get_current('Examination')
     if examination.EquipmentInfo.ImagingSystemReference is None:
         connect.await_user_input('The CT imaging system is not set. Set it now, then continue the script.')
@@ -118,9 +120,9 @@ def main():
                                           TissueName=None,
                                           RbeCellTypeName=None,
                                           RoiMaterial=None)
-        box.CreateBoxGeometry(Size={'x': 20, 'y': 5, 'z': 20},
+        box.CreateBoxGeometry(Size={'x': 60, 'y': 5, 'z': 60},
                               Examination=examination,
-                              Center={'x': 0, 'y': -5, 'z': 0},
+                              Center={'x': 0, 'y': 5, 'z': 0},
                               Representation='Voxels',
                               VoxelSize=None)
         box.SetRoiMaterial(Material=water)
@@ -134,14 +136,15 @@ def main():
                                           TissueName=None,
                                           RbeCellTypeName=None,
                                           RoiMaterial=None)
-        box.CreateBoxGeometry(Size={'x': 20, 'y': 5, 'z': 20},
+        box.CreateBoxGeometry(Size={'x': 60, 'y': 5, 'z': 60},
                               Examination=examination,
-                              Center={'x': 0, 'y': -15, 'z': 0},
+                              Center={'x': 0, 'y': 15, 'z': 0},
                               Representation='Voxels',
                               VoxelSize=None)
         box.SetRoiMaterial(Material=water)
 
     logging.debug('Saving patient')
+    time.sleep(1)
     patient.Save()
 
     if water is None:
