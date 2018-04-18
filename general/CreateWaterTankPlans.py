@@ -84,9 +84,14 @@ def main():
         patient.Save()
 
     external = False
+    bounds = [-30, 30, 0, 40, -30, 30]
+    res = 0.1
     for r in case.PatientModel.RegionsOfInterest:
         if r.Type == 'External':
             external = True
+            b = case.PatientModel.StructureSets[examination.Name].RoiGeometries[r.Name].GetBoundingBox()
+            bounds = [b[0].x, b[1].x, b[0].y, b[1].y, b[0].z, b[1].z]
+            break
 
     if not external:
         logging.debug('Executing PatientModel.CreateRoi for External')
@@ -99,10 +104,21 @@ def main():
 
         logging.debug('Executing CreateExternalGeometry for External')
         external.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+        for r in case.PatientModel.RegionsOfInterest:
+            if r.Type == 'External':
+                b = case.PatientModel.StructureSets[examination.Name].RoiGeometries[r.Name].GetBoundingBox()
+                bounds = [b[0].x, b[1].x, b[0].y, b[1].y, b[0].z, b[1].z]
+                break
+
         logging.debug('Saving patient')
         patient.Save()
 
+    # Set isocenter to the center of the top plane of the external structure
+    iso = [(bounds[0] + bounds[1]) / 2, -bounds[2], (bounds[4] + bounds[5]) / 2]
+
     # Prompt user to enter runtime options
+    export = False
+    path = ''
     machines = machine_db.QueryCommissionedMachineInfo(Filter={})
     machine_list = []
     for i, m in enumerate(machines):
@@ -205,9 +221,12 @@ def main():
                 plan = case.LoadPlan(PlanInfo=info[0])
 
             # Set dose grid
-            plan.UpdateDoseGrid(Corner={'x': -28, 'y': -0.4, 'z': -28},
-                                VoxelSize={'x': 0.1, 'y': 0.1, 'z': 0.1},
-                                NumberOfVoxels={'x': 560, 'y': 404, 'z': 560})
+            time.sleep(1)
+            logging.debug('Saving patient prior to SetCurrent(), SetDefaultDoseGrid() calls')
+            patient.Save()
+            plan.SetCurrent()
+            logging.debug('Setting default dose grid with {} cm resolution'.format(res))
+            plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Loop through each SSD
             for s in ssds:
@@ -237,7 +256,9 @@ def main():
                         # Add beam for this energy, SSD, and field size
                         logging.debug('Creating beam {} MV_{} cm_{} x {}'.format(e, s, j, j))
                         beam = beamset.CreatePhotonBeam(Energy=e,
-                                                        IsocenterData={'Position': {'x': 0, 'y': sad - s, 'z': 0},
+                                                        IsocenterData={'Position': {'x': iso[0],
+                                                                                    'y': iso[1] + sad - s,
+                                                                                    'z': iso[2]},
                                                                        'NameOfIsocenterToRef': '',
                                                                        'Name': '{} MV_{} cm_{} x {}'.format(e, s, j, j),
                                                                        'Color': '98,184,234'},
@@ -307,7 +328,7 @@ def main():
                 for w in edws:
                     logging.debug('Creating reference beam {}'.format(w))
                     beam = refset.CreatePhotonBeam(Energy=e,
-                                                   IsocenterData={'Position': {'x': 0, 'y': 0, 'z': 0},
+                                                   IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                   'NameOfIsocenterToRef': '',
                                                                   'Name': w,
                                                                   'Color': '98,184,234'},
@@ -368,7 +389,7 @@ def main():
                             # Set name, isocenter position, and field size
                             beam.Name = '{} MV_{} cm_{} {} x {}'.format(e, s, w, j, j)
                             beam.Isocenter.EditIsocenter(Name='{} MV_{} cm_{} {} x {}'.format(e, s, w, j, j),
-                                                         Position={'x': 0, 'y': sad - s, 'z': 0})
+                                                         Position={'x': iso[0], 'y': iso[1] + sad - s, 'z': iso[2]})
                             beam.CreateRectangularField(Width=j,
                                                         Height=j,
                                                         CenterCoordinate={'x': 0, 'y': 0},
@@ -436,7 +457,9 @@ def main():
                         # Add beam for this energy, SSD, and field size
                         logging.debug('Creating beam {} MV_{} cm_MLC {} x {}'.format(e, s, l, l))
                         beam = beamset.CreatePhotonBeam(Energy=e,
-                                                        IsocenterData={'Position': {'x': 0, 'y': sad - s, 'z': 0},
+                                                        IsocenterData={'Position': {'x': iso[0],
+                                                                                    'y': iso[1] + sad - s,
+                                                                                    'z': iso[2]},
                                                                        'NameOfIsocenterToRef': '',
                                                                        'Name':
                                                                            '{} MV_{} cm_MLC {} x {}'.format(e, s, l, l),
@@ -465,7 +488,9 @@ def main():
 
                     # Create 5.4 Small MLC
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': sad - s, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0],
+                                                                                'y': iso[1] + sad - s,
+                                                                                'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name':
                                                                        '{} MV_{} cm_MPPG 5.4 Small MLC'.format(e, s),
@@ -515,7 +540,9 @@ def main():
 
                     # Create 5.5 Small MLC
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': sad - s, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0],
+                                                                                'y': iso[1] + sad - s,
+                                                                                'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name':
                                                                        '{} MV_{} cm_MPPG 5.5 Large MLC'.format(e, s),
@@ -561,7 +588,9 @@ def main():
 
                     # Create 5.6 Off Axis
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': sad - s, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0],
+                                                                                'y': iso[1] + sad - s,
+                                                                                'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name': '{} MV_{} cm_MPPG 5.6 Off Axis'.format(e, s),
                                                                    'Color': '98,184,234'},
@@ -599,7 +628,9 @@ def main():
 
                     # Create 5.7 Asymmetric
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': sad - s, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0],
+                                                                                'y': iso[1] + sad - s,
+                                                                                'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name':
                                                                        '{} MV_{} cm_MPPG 5.7 Asymmetric'.format(e, s),
@@ -623,7 +654,9 @@ def main():
 
                     # Create 5.8 Oblique
                     beam = beamset.CreatePhotonBeam(Energy=e,
-                                                    IsocenterData={'Position': {'x': 0, 'y': sad - s, 'z': 0},
+                                                    IsocenterData={'Position': {'x': iso[0],
+                                                                                'y': iso[1] + sad - s,
+                                                                                'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',
                                                                    'Name': '{} MV_{} cm_MPPG 5.8 Oblique'.format(e, s),
                                                                    'Color': '98,184,234'},
@@ -684,9 +717,12 @@ def main():
             plan = case.LoadPlan(PlanInfo=info[0])
 
         # Set dose grid
-        plan.UpdateDoseGrid(Corner={'x': -20, 'y': -0.4, 'z': -20},
-                            VoxelSize={'x': 0.2, 'y': 0.1, 'z': 0.2},
-                            NumberOfVoxels={'x': 200, 'y': 204, 'z': 200})
+        time.sleep(1)
+        logging.debug('Saving patient prior to SetCurrent(), SetDefaultDoseGrid() calls')
+        patient.Save()
+        plan.SetCurrent()
+        logging.debug('Setting default dose grid with {} cm resolution'.format(res))
+        plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2, 'y': 0.1, 'z': 0.2})
 
         # Loop through electrons
         for q in machine.ElectronBeamQualities:
@@ -727,7 +763,9 @@ def main():
                                                               Energy=e,
                                                               InsertName='',
                                                               IsAddCutoutChecked=False,
-                                                              IsocenterData={'Position': {'x': 0, 'y': sad - s, 'z': 0},
+                                                              IsocenterData={'Position': {'x': iso[0],
+                                                                                          'y': iso[1] + sad - s,
+                                                                                          'z': iso[2]},
                                                                              'NameOfIsocenterToRef': '',
                                                                              'Name':
                                                                                  '{} MeV_{} cm_{}'.format(e, s, a.Name),
