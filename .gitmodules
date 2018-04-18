@@ -10,3 +10,9 @@
 [submodule "XlsxWriter"]
 	path = XlsxWriter
 	url = https://github.com/jmcnamara/XlsxWriter
+[submodule "pynetdicom3"]
+	path = pynetdicom3
+	url = https://github.com/pydicom/pynetdicom3
+[submodule "reportlab"]
+	path = reportlab
+	url = https://github.com/Distrotech/reportlab
