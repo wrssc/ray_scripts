@@ -10,8 +10,8 @@
     homogeneous CT), external contour, and two heterogeneity contours named Box_1 and 
     Box_2 with at least one structure overridden to water. The script will change the
     density of the two boxes during execution, so any density overrides for the
-    surrounding phantom should exclude these ROIs. The CT must be at least 60x40x60 cm
-    in the LR/AP/SI dimensions.
+    surrounding phantom should exclude these ROIs. If not present, the script will
+    attempt to create the external as well as standard rectangles for Box_1 and Box_2.
     
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -112,7 +112,7 @@ def main():
                 break
 
     # Set isocenter to the center of the top plane of the external structure
-    iso = [(bounds[1]+bounds[0])/2, -bounds[2], (bounds[5]+bounds[4])/2]
+    iso = [(bounds[0] + bounds[1]) / 2, -bounds[2], (bounds[4] + bounds[5]) / 2]
 
     # Search for water density override
     water = None
@@ -188,13 +188,13 @@ def main():
     time.sleep(1)
     inputs = UserInterface.InputDialog(inputs={'a': 'Select machines to create plans for:',
                                                'b': 'Enter MU for each beam:',
-                                               'c': '6.1 Enter open field jaw sizes (cm):',
-                                               'd': '6.3 Select EDWs:',
-                                               'e': '6.4 Enter SDDs (cm):',
-                                               'f': '6.5 Enter oblique angles (deg):',
-                                               'g': '6.6 Enter density overrides (g/cc):',
-                                               'h': '6.7 Enter circular field MLC sizes (cm):',
-                                               'i': '6.8 Select custom MLC shapes:',
+                                               'c': 'T1. Enter open field jaw sizes (cm):',
+                                               'd': 'T3. Select EDWs:',
+                                               'e': 'T4. Enter SDDs (cm):',
+                                               'f': 'T5. Enter oblique angles (deg):',
+                                               'g': 'T6. Enter density overrides (g/cc):',
+                                               'h': 'T7. Enter circular field MLC sizes (cm):',
+                                               'i': 'T8. Select custom MLC shapes:',
                                                'j': 'Dose grid resolution (mm):',
                                                'k': 'Runtime options:',
                                                'l': 'Mobius3D host name/IP address:',
@@ -211,7 +211,7 @@ def main():
                                                 'g': '0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75',
                                                 'h': '2, 5, 10, 15, 20, 30, 40',
                                                 'i': ['C Shape', 'Fence', 'VMAT CP'],
-                                                'j': '2',
+                                                'j': '2.0',
                                                 'k': ['Calculate plan', 'Export plan'],
                                                 'l': 'mobius.uwhealth.wisc.edu',
                                                 'm': '104',
@@ -295,13 +295,13 @@ def main():
             e = int(q.NominalEnergy)
             counter += 1
 
-            # Create 6.1 plan
+            # Create T1 plan
             time.sleep(1)
-            status.next_step(text='Creating, calculating, and exporting the 6.1 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.1 {} {} MV'.format(m, e)})
+            status.next_step(text='Creating, calculating, and exporting the T1 plan...')
+            info = case.QueryPlanInfo(Filter={'Name': 'T1 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.1 {} {} MV'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.1 {} {} MV'.format(m, e),
+                logging.debug('Creating plan for T1 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='T1 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -398,13 +398,13 @@ def main():
                         logging.debug('Waiting {} seconds for Mobius3D to catch up'.format(delay))
                         time.sleep(delay)
 
-            # Create 6.3 plan
-            status.update_text(text='Creating, calculating, and exporting the 6.3 plans. For each plan, you will ' +
+            # Create T3 plan
+            status.update_text(text='Creating, calculating, and exporting the T3 plans. For each plan, you will ' +
                                     'need to manually set the EDW, then click Continue on the script panel.')
-            info = case.QueryPlanInfo(Filter={'Name': '6.3 {} {} MV'.format(m, e)})
+            info = case.QueryPlanInfo(Filter={'Name': 'T3 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.3 {} {} MV'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.3 {} {} MV'.format(m, e),
+                logging.debug('Creating plan for T3 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='T3 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -511,12 +511,12 @@ def main():
                         logging.debug('Waiting {} seconds for Mobius3D to catch up'.format(delay))
                         time.sleep(delay)
 
-            # Create 6.4 plan
-            status.update_text(text='Creating, calculating, and exporting the 6.4 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.4 {} {} MV'.format(m, e)})
+            # Create T4 plan
+            status.update_text(text='Creating, calculating, and exporting the T4 plan...')
+            info = case.QueryPlanInfo(Filter={'Name': 'T4 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.4 {} {} MV'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.4 {} {} MV'.format(m, e),
+                logging.debug('Creating plan for T4 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='T4 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -612,12 +612,12 @@ def main():
                         logging.debug('Waiting {} seconds for Mobius3D to catch up'.format(delay))
                         time.sleep(delay)
 
-            # Create 6.5 plan
-            status.update_text(text='Creating, calculating, and exporting the 6.5 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.5 {} {} MV'.format(m, e)})
+            # Create T5 plan
+            status.update_text(text='Creating, calculating, and exporting the T5 plan...')
+            info = case.QueryPlanInfo(Filter={'Name': 'T5 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.5 {} {} MV'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.5 {} {} MV'.format(m, e),
+                logging.debug('Creating plan for T5 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='T5 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -712,12 +712,14 @@ def main():
                         logging.debug('Waiting {} seconds for Mobius3D to catch up'.format(delay))
                         time.sleep(delay)
 
-            # Create 6.6 plan
-            status.update_text(text='Creating, calculating, and exporting the 6.6 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.6 {} {} MV'.format(m, e)})
+            # Create T6 plan
+            status.update_text(text='Creating, calculating, and exporting the T6 plan. During execution, a window ' +
+                                    'will appear stating that density changes will invalidate existing dose. When ' +
+                                    'it appears, click Continue.')
+            info = case.QueryPlanInfo(Filter={'Name': 'T6 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.6 {} {} MV'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.6 {} {} MV'.format(m, e),
+                logging.debug('Creating plan for T6 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='T6 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -733,7 +735,7 @@ def main():
             plan.SetDefaultDoseGrid(VoxelSize={'x': res, 'y': res, 'z': res})
 
             # Add beamset
-            logging.debug('Creating empty 6.6 beamset')
+            logging.debug('Creating empty T6 beamset')
             info = plan.QueryBeamSetInfo(Filter={'Name': 'beam'})
             if not info:
                 beamset = plan.AddNewBeamSet(Name='beam',
@@ -846,12 +848,12 @@ def main():
                 case.PatientModel.StructureSets[case.Examinations[0].Name].RoiGeometries['Box_2'] \
                     .OfRoi.SetRoiMaterial(Material=water)
 
-            # Create 6.7 plan
-            status.update_text(text='Creating, calculating, and exporting the 6.7 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.7 {} {} MV'.format(m, e)})
+            # Create T7 plan
+            status.update_text(text='Creating, calculating, and exporting the T7 plan...')
+            info = case.QueryPlanInfo(Filter={'Name': 'T7 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.7 {} {} MV'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.7 {} {} MV'.format(m, e),
+                logging.debug('Creating plan for T7 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='T7 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -961,12 +963,12 @@ def main():
                         logging.debug('Waiting {} seconds for Mobius3D to catch up'.format(delay))
                         time.sleep(delay)
 
-            # Create 6.8 plan
-            status.update_text(text='Creating, calculating, and exporting the 6.8 plan...')
-            info = case.QueryPlanInfo(Filter={'Name': '6.8 {} {} MV'.format(m, e)})
+            # Create T8 plan
+            status.update_text(text='Creating, calculating, and exporting the T8 plan...')
+            info = case.QueryPlanInfo(Filter={'Name': 'T8 {} {} MV'.format(m, e)})
             if not info:
-                logging.debug('Creating plan for 6.8 {} {} MV'.format(m, e))
-                plan = case.AddNewPlan(PlanName='6.8 {} {} MV'.format(m, e),
+                logging.debug('Creating plan for T8 {} {} MV'.format(m, e))
+                plan = case.AddNewPlan(PlanName='T8 {} {} MV'.format(m, e),
                                        PlannedBy='',
                                        Comment='',
                                        ExaminationName=case.Examinations[0].Name,
@@ -1245,7 +1247,7 @@ def main():
                         leaves[1][l] = stdb[l]
 
                     else:
-                        logging.warning('Unsupported MLC configuration for 6.8 test VMAT CP')
+                        logging.warning('Unsupported MLC configuration for T8 test VMAT CP')
 
                 beam.Segments[0].LeafPositions = leaves
 
