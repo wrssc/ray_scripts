@@ -1111,8 +1111,8 @@ def main():
                                                 CouchAngle=0,
                                                 CollimatorAngle=90)
                 beam.SetBolus(BolusName='')
-                beam.CreateRectangularField(Width=22,
-                                            Height=22,
+                beam.CreateRectangularField(Width=10,
+                                            Height=40,
                                             CenterCoordinate={'x': 0, 'y': 0},
                                             MoveMLC=True,
                                             MoveAllMLCLeaves=True,
@@ -1203,7 +1203,7 @@ def main():
                                                 CouchAngle=0,
                                                 CollimatorAngle=90)
                 beam.SetBolus(BolusName='')
-                beam.CreateRectangularField(Width=22,
+                beam.CreateRectangularField(Width=10,
                                             Height=22,
                                             CenterCoordinate={'x': 0, 'y': 0},
                                             MoveMLC=True,
