@@ -136,6 +136,9 @@ def main():
     # Only continue if inputs were provided
     if name != '' and mrn != '' and len(size) == 3 and len(res) == 3:
 
+        # Start timer
+        tic = time.time()
+
         # Pad X/Z dimensions by a voxel (will be air)
         if pad:
             logging.debug('Padding image in X/Z dimensions')
@@ -305,7 +308,7 @@ def main():
             status.finish(text='Script execution successful. Note, the phantom material was not set to water.' +
                                ' If you plan on running other QA scripts, you may want to do so.')
 
-        logging.debug('CreateReferenceCT finished successfully')
+        logging.debug('CreateReferenceCT finished successfully in {:.3f} seconds'.format(time.time() - tic))
 
     else:
         logging.warning('Patient name, MRN, size, or resolution invalid')

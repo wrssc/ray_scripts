@@ -815,7 +815,7 @@ def main():
     time.sleep(1)
     patient.Save()
     time.sleep(1)
-    logging.debug('Script completed successfully in {.3f} seconds'.format(time.time() - tic))
+    logging.debug('Script completed successfully in {:.3f} seconds'.format(time.time() - tic))
     if export:
         status.finish('Script completed successfully. The resulting dose volumes have been exported to {}'.format(path))
     else:

@@ -360,7 +360,7 @@ def main():
     time.sleep(1)
     patient.Save()
     time.sleep(1)
-    logging.debug('Script completed successfully in {.3f} seconds'.format(time.time() - tic))
+    logging.debug('Script completed successfully in {:.3f} seconds'.format(time.time() - tic))
     status.finish('Script completed successfully')
 
 

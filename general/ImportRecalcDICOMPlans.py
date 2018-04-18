@@ -41,6 +41,7 @@ import logging
 import pydicom
 import tempfile
 import shutil
+import time
 
 
 def main():
@@ -147,6 +148,7 @@ def main():
         center = False
 
     # Walk through import folder, looking for DICOM RT plans
+    tic = time.time()
     status.next_step(text='The script is searching for DICOM RT plans. With each plan, the script will import, ' +
                           're-calculate, and export the resulting dose volumes (if selected).')
     patient.Save()
@@ -231,6 +233,7 @@ def main():
                               format(os.path.join(import_path, s, f)))
 
     # Finish up
+    logging.debug('ImportRecalcDICOMPlans finished successfully in {:.3f} seconds'.format(time.time() - tic))
     status.finish(text='Script execution successful.')
 
 
