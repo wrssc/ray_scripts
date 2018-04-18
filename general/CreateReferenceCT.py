@@ -97,7 +97,7 @@ def main():
                                            required=['a', 'b', 'c', 'd'],
                                            initial={'a': 'Water Phantom',
                                                     'b': '{0}{1:0>2}{2:0>2}'.format(now.year, now.month, now.day),
-                                                    'c': '650, 400, 650',
+                                                    'c': '600, 400, 600',
                                                     'd': '1, 1, 1'})
 
         # Wait a second to make sure the script selector is displayed before the input dialog
@@ -126,7 +126,7 @@ def main():
         logging.info('Likely running outside RayStation, prompting user to enter info via raw_input()')
         name = raw_input('Enter phantom name: ').strip()
         mrn = raw_input('Enter phantom ID: ').strip()
-        size = map(int, raw_input('Enter number of voxels in IEC X,Z,Y (650, 400, 650): ').split(','))
+        size = map(int, raw_input('Enter number of voxels in IEC X,Z,Y (600, 400, 600): ').split(','))
         res = map(int, raw_input('Enter mm resolution in IEC X,Z,Y (1, 1, 1): ').split(','))
         path = raw_input('Enter path to write CT to: ').strip()
         if not os.path.exists(path):
@@ -176,7 +176,7 @@ def main():
         ds.FrameOfReferenceUID = pydicom.uid.generate_uid()
         ds.PatientPosition = 'HFS'
         ds.ImageOrientationPatient = [1, 0, 0, 0, 1, 0]
-        ds.ImagePositionPatient = [-((size[0] - 1) * res[0]) / 2, -res[1] / 2, ((size[2] - 1) * res[2]) / 2]
+        ds.ImagePositionPatient = [-((size[0] - 0.5) * res[0]) / 2, -res[1] / 2, ((size[2] - 0.5) * res[2]) / 2]
         ds.ImagesInAcquisition = size[2]
         ds.SamplesPerPixel = 1
         ds.PhotometricInterpretation = 'MONOCHROME2'
