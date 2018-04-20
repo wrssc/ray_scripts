@@ -1,68 +1,42 @@
 <filters>
     <filter type="machine/energy">
-        <from>
-            <machine>TrueBeam</machine>
-            <energy>6</energy>
-        </from>
-        <to>
-            <machine>TrueBeam2588</machine>
-            <energy>6</energy>
-        </to>
-        <to>
-            <machine>TrueBeam2871</machine>
-            <energy>6</energy>
-        </to>
+        <from><machine>TB_Unified</machine><energy type="photon">6</energy></from>
+        <to><machine>TrueBeam2588</machine><energy type="photon">6</energy></to>
+        <to><machine>TrueBeam2871</machine><energy type="photon">6</energy></to>
     </filter>
     <filter type="machine/energy">
-        <from>
-            <machine>TrueBeam</machine>
-            <energy>7</energy>
-        </from>
-        <to>
-            <machine>TrueBeam2588</machine>
-            <energy>6FFF</energy>
-        </to>
-        <to>
-            <machine>TrueBeam2871</machine>
-            <energy>6FFF</energy>
-        </to>
+        <from><machine>TB_Unified</machine><energy type="photon">7</energy></from>
+        <to><machine>TrueBeam2588</machine><energy type="photon">6FFF</energy></to>
+        <to><machine>TrueBeam2871</machine><energy type="photon">6FFF</energy></to>
     </filter>
     <filter type="machine/energy">
-        <from>
-            <machine>TrueBeam</machine>
-            <energy>10</energy>
-        </from>
-        <to>
-            <machine>TrueBeam2588</machine>
-            <energy>10</energy>
-        </to>
-        <to>
-            <machine>TrueBeam2871</machine>
-            <energy>10</energy>
-        </to>
+        <from><machine>TB_Unified</machine><energy type="photon">10</energy></from>
+        <to><machine>TrueBeam2588</machine><energy type="photon">10</energy></to>
+        <to><machine>TrueBeam2871</machine><energy type="photon">10</energy></to>
     </filter>
     <filter type="machine/energy">
-        <from>
-            <machine>TrueBeam</machine>
-            <energy>11</energy>
-        </from>
-        <to>
-            <machine>TrueBeam2588</machine>
-            <energy>10FFF</energy>
-        </to>
-        <to>
-            <machine>TrueBeam2871</machine>
-            <energy>10FFF</energy>
-        </to>
+        <from><machine>TB_Unified</machine><energy type="photon">11</energy></from>
+        <to><machine>TrueBeam2588</machine><energy type="photon">10FFF</energy></to>
+        <to><machine>TrueBeam2871</machine><energy type="photon">10FFF</energy></to>
     </filter>
     <filter type="machine/energy">
-        <from>
-            <machine>TrueBeam</machine>
-            <energy>15</energy>
-        </from>
-        <to>
-            <machine>TrueBeam2871</machine>
-            <energy>15</energy>
-        </to>
+        <from><machine>TB_Unified</machine><energy type="photon">15</energy></from>
+        <to><machine>TrueBeam2871</machine><energy type="photon">15</energy></to>
+    </filter>
+    <filter type="machine/energy">
+        <from><machine>TrueBeamSTx</machine><energy type="photon">6</energy></from>
+        <to><machine>TrueBeam1358</machine><energy type="photon">6</energy></to>
+    </filter>
+    <filter type="machine/energy">
+        <from><machine>TrueBeamSTx</machine><energy type="photon">7</energy></from>
+        <to><machine>TrueBeam1358</machine><energy type="photon">6FFF</energy></to>
+    </filter>
+    <filter type="machine/energy">
+        <from><machine>TrueBeamSTx</machine><energy type="photon">10</energy></from>
+        <to><machine>TrueBeam1358</machine><energy type="photon">10</energy></to>
+    </filter>
+    <filter type="machine/energy">
+        <from><machine>TrueBeamSTx</machine><energy type="photon">11</energy></from>
+        <to><machine>TrueBeam1358</machine><energy type="photon">10FFF</energy></to>
     </filter>
 </filters>
