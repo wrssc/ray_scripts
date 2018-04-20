@@ -70,7 +70,7 @@ class ProgressBar:
             self.bar.Step = 1
             self.bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
 
-        self.bar.Width = self.form.Width - 50
+        self.bar.Width = self.form.Width - 55
         self.bar.Height = 30
         self.bar.Left = 15
         self.bar.Top = 15

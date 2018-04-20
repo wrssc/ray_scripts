@@ -92,7 +92,7 @@ class MatchDialog:
             self.intro = System.Windows.Forms.Label()
             self.intro.Text = text
             self.intro.AutoSize = True
-            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 50,
+            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 55,
                                                          System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.intro.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             self.outer_table.Controls.Add(self.intro)

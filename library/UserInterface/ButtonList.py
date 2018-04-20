@@ -75,7 +75,7 @@ class ButtonList:
             self.intro = System.Windows.Forms.Label()
             self.intro.Text = text
             self.intro.AutoSize = True
-            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 50,
+            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width- 55,
                                                          System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.intro.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             self.table.Controls.Add(self.intro)
@@ -91,7 +91,7 @@ class ButtonList:
             self.buttons[i] = System.Windows.Forms.Button()
             self.buttons[i].Text = i
             self.buttons[i].Height = 50
-            self.buttons[i].Width = form.MaximumSize.Width - 50
+            self.buttons[i].Width = form.MaximumSize.Width- 55
             self.buttons[i].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             self.buttons[i].BackColor = System.Drawing.Color.LightGray
             self.buttons[i].FlatStyle = System.Windows.Forms.FlatStyle.Flat
