@@ -86,7 +86,7 @@ def main():
             else:
                 struct_approval = False
 
-        except ValueError:
+        except Exception:
             struct_approval = False
 
         if not struct_approval:
