@@ -66,7 +66,7 @@ def main():
     status.next_step(text='Prior to export, this script will check if the plan is approved, and will ask if want to ' +
                           'do so prior to approval if not.')
     patient.Save()
-    warnings = True
+    ignore = False
     if beamset is not None and plan.Review.ApprovalStatus != 'Approved':
         approve = UserInterface.QuestionBox('The selected plan is not currently approved. Would you like to approve ' +
                                             'it prior to export?', 'Approve Plan')
@@ -75,7 +75,7 @@ def main():
 
         else:
             logging.warning('The user chose to export the plan without approval')
-            warnings = False
+            ignore = True
 
     # Check if structure set is approved
     if beamset is not None:
@@ -97,32 +97,19 @@ def main():
 
             else:
                 logging.warning('The user chose to export the structure set without approval')
-                warnings = False
+                ignore = True
 
     # Prompt user for DICOM export details
     status.next_step(text='In the dialog window that appears, check each DICOM destination that you would like to ' +
                           'export to, what should be exported, and if a beamset is loaded, what treatment delivery ' +
                           'system to convert to.')
-    inputs = {}
-    options = {}
-    initial = {}
-    types = {}
-    required = []
 
-    # Display option to select DICOM destinations
-    inputs['a'] = 'Check one or more DICOM destinations to export to:'
-    required.append('a')
-    types['a'] = 'check'
-    options['a'] = DicomExport.destinations()
-
-    # Display option to select data to export
-    inputs['b'] = 'Select which data elements to export:'
-    required.append('b')
-    types['b'] = 'check'
-    options['b'] = ['CT', 'Structures']
-    initial['b'] = ['CT', 'Structures']
-
-    # If a beamset is also loaded, allow other options
+    # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
+    inputs = {'a': 'Check one or more DICOM destinations to export to:', 'b': 'Select which data elements to export:'}
+    required = ['a', 'b']
+    types = {'a': 'check', 'b': 'check'}
+    options = {'a': DicomExport.destinations(), 'b': ['CT', 'Structures']}
+    initial = {'b': ['CT', 'Structures']}
     if beamset is not None:
         options['b'].append('Plan')
         initial['b'].append('Plan')
@@ -133,8 +120,15 @@ def main():
         required.append('c')
         types['c'] = 'combo'
         options['c'] = DicomExport.machines(beamset)
+        if len(options['c']) == 1:
+            initial['c'] = options['c'][0]
 
-    dialog = UserInterface.InputDialog(inputs=inputs, options=options, initial=initial, required=required)
+    dialog = UserInterface.InputDialog(inputs=inputs,
+                                       datatype=types,
+                                       options=options,
+                                       initial=initial,
+                                       required=required,
+                                       title='Export Options')
     response = dialog.show()
     if response == {}:
         status.finish('DICOM export was cancelled')
@@ -154,7 +148,7 @@ def main():
                                structures='Structures' in response['b'],
                                plandose='Plan Dose' in response['b'],
                                beamdose='Beam Dose' in response['b'],
-                               ignore_warnings=warnings,
+                               ignore_warnings=ignore,
                                ignore_errors=False,
                                anonymize=None,
                                filters=['machine', 'energy'],
