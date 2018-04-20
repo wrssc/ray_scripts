@@ -51,6 +51,7 @@ filter_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__),
 
 # local_AET defines the AE title that will be used by the script when communicating with the destination
 local_AET = 'RAYSTATION_SSCP'
+local_port = 105
 
 def send(case,
          destination,
@@ -116,9 +117,11 @@ def send(case,
     for d in destination:
         info = destination_info(d)
         if len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
-            ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.1.1'], ae_title=local_AET)
+            ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.1.1'],
+                                ae_title=local_AET,
+                                port=local_port)
             logging.debug('Requesting Association with {}'.format(info['host']))
-            assoc = ae.associate(info['host'], int(info['port']))
+            assoc = ae.associate(info['host'], int(info['port']), ae_title=info['aet'])
 
             # Throw errors unless C-ECHO responds
             if assoc.is_established:
@@ -346,8 +349,10 @@ def send(case,
 
                 # Send to SCP via pynetdicom3
                 if len({'host', 'aet', 'port'}.difference(info)) == 0:
-                    ae = pynetdicom3.AE(scu_sop_class=pynetdicom3.StorageSOPClassList, ae_title=local_AET)
-                    assoc = ae.associate(info['host'], int(info['port']))
+                    ae = pynetdicom3.AE(scu_sop_class=pynetdicom3.StorageSOPClassList,
+                                        ae_title=local_AET,
+                                        port=local_port)
+                    assoc = ae.associate(info['host'], int(info['port']), ae_title=info['aet'])
                     if assoc.is_established:
                         status = assoc.send_c_store(dataset=ds,
                                                     msg_id=1,
