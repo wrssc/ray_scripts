@@ -82,6 +82,10 @@ def main():
             approve = UserInterface.QuestionBox('The selected plan is not currently approved. Would you like to ' +
                                                 'approve it prior to export?', 'Approve Plan')
             if approve.yes:
+                ui = connect.get_current('ui')
+                ui.TitleBar.MenuItem['Plan Evaluation'].Click()
+                ui.TitleBar.MenuItem['Plan Evaluation'].Popup.MenuItem['Plan Evaluation'].Click()
+                ui.TabControl_ToolBar.Approval.Select()
                 connect.await_user_input('Approve the plan now, then continue the script')
 
             else:
@@ -102,6 +106,10 @@ def main():
             approve = UserInterface.QuestionBox('The selected structure set is not currently approved. Would you ' +
                                                 'like to approve it prior to export?', 'Approve Structure Set')
             if approve.yes:
+                ui = connect.get_current('ui')
+                ui.TitleBar.MenuItem['Patient Modeling'].Click()
+                ui.TitleBar.MenuItem['Patient Modeling'].Popup.MenuItem['Structure Definition'].Click()
+                ui.TabControl_ToolBar.Approval.Select()
                 connect.await_user_input('Approve the structure set now, then continue the script')
 
             else:
