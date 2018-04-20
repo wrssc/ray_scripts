@@ -62,34 +62,43 @@ def main():
                                         docstring=__doc__,
                                         help=__help__)
 
-    # Check if plan is approved
+    # Check if plan and/or structure set is approved
     status.next_step(text='Prior to export, this script will check if the plan is approved, and will ask if want to ' +
                           'do so prior to approval if not.')
     patient.Save()
     ignore = False
-    if beamset is not None and (plan.Review is None or plan.Review.ApprovalStatus != 'Approved'):
-        approve = UserInterface.QuestionBox('The selected plan is not currently approved. Would you like to approve ' +
-                                            'it prior to export?', 'Approve Plan')
-        if approve.yes:
-            connect.await_user_input('Approve the plan now, then continue the script')
-
-        else:
-            logging.warning('The user chose to export the plan without approval')
-            ignore = True
-
-    # Check if structure set is approved
     if beamset is not None:
         try:
-            if case.PatientModel.StructureSets[exam.Name].ApprovedStructureSets[0].Review.ApprovalStatus != 'Approved':
-                struct_approval = False
+            if plan.Review is None or plan.Review.ApprovalStatus != 'Approved':
+                plan_approved = False
 
             else:
-                struct_approval = True
+                plan_approved = True
 
         except Exception:
-            struct_approval = False
+            plan_approved = False
 
-        if not struct_approval:
+        if not plan_approved:
+            approve = UserInterface.QuestionBox('The selected plan is not currently approved. Would you like to ' +
+                                                'approve it prior to export?', 'Approve Plan')
+            if approve.yes:
+                connect.await_user_input('Approve the plan now, then continue the script')
+
+            else:
+                logging.warning('The user chose to export the plan without approval')
+                ignore = True
+
+        try:
+            if case.PatientModel.StructureSets[exam.Name].ApprovedStructureSets[0].Review.ApprovalStatus != 'Approved':
+                struct_approved = False
+
+            else:
+                struct_approved = True
+
+        except Exception:
+            struct_approved = False
+
+        if not struct_approved:
             approve = UserInterface.QuestionBox('The selected structure set is not currently approved. Would you ' +
                                                 'like to approve it prior to export?', 'Approve Structure Set')
             if approve.yes:
