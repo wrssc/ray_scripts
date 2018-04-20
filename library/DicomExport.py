@@ -50,7 +50,8 @@ def send(case,
          ignore_errors=False,
          anonymize=None,
          filters=None,
-         machine=None):
+         machine=None,
+         bar=True):
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
 
@@ -90,9 +91,11 @@ def send(case,
         energy_list = energies(beamset, machine)
 
     # Establish connections with all SCP destinations
-    bar = UserInterface.ProgressBar(text='Establishing connection to DICOM destinations',
-                                    title='Export Progress',
-                                    marquee=True)
+    if not bar:
+        bar = UserInterface.ProgressBar(text='Establishing connection to DICOM destinations',
+                                        title='Export Progress',
+                                        marquee=True)
+
     for d in destination:
         info = destination_info(d)
         if len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
@@ -136,7 +139,9 @@ def send(case,
         args['AnonymizedId'] = anonymize['id']
 
     # Export data to temp folder
-    bar.update(text='Exporting DICOM files to temporary folder')
+    if isinstance(bar, UserInterface.ProgressBar):
+        bar.update(text='Exporting DICOM files to temporary folder')
+
     try:
         logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
         case.ScriptableDicomExport(**args)
@@ -146,12 +151,16 @@ def send(case,
             logging.warning(str(error))
 
         else:
-            bar.close()
+            if isinstance(bar, UserInterface.ProgressBar):
+                bar.close()
+
             raise
 
     # Load the DICOM files back in, applying filters
     edited = {}
-    bar.update(text='Applying filters')
+    if isinstance(bar, UserInterface.ProgressBar):
+        bar.update(text='Applying filters')
+
     for o in os.listdir(original):
 
         # Try to open as a DICOM file
@@ -213,7 +222,9 @@ def send(case,
                 logging.warning('File {} could not be read during modification, skipping'.format(o))
 
             else:
-                bar.close()
+                if isinstance(bar, UserInterface.ProgressBar):
+                    bar.close()
+
                 raise
 
     # Validate and/or send each file
@@ -221,7 +232,9 @@ def send(case,
     total = len(os.listdir(modified))
     for m in os.listdir(modified):
         i += 1
-        bar.update(text='Validating and Exporting Files ({} of {})'.format(i, total))
+        if isinstance(bar, UserInterface.ProgressBar):
+            bar.update(text='Validating and Exporting Files ({} of {})'.format(i, total))
+
         try:
             logging.debug('Reading modified file {}'.format(os.path.join(modified, m)))
             ds = pydicom.dcmread(os.path.join(modified, m))
@@ -241,7 +254,11 @@ def send(case,
                                             if ds[k0].value[i0][k1].value[i1][k2].VR == 'SQ':
                                                 for i2 in range(len(ds[k0].value[i0][k1].value[i1][k2].value)):
                                                     for k3 in ds[k0].value[i0][k1].value[i1][k2].value[i2].keys():
-                                                        if ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].VR == 'SQ':
+                                                        if ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].VR == 'SQ' \
+                                                                and not ignore_errors:
+                                                            if isinstance(bar, UserInterface.ProgressBar):
+                                                                bar.close()
+
                                                             raise KeyError('Too many nested sequences')
 
                                                         elif k3 not in dso[k0].value[i0][k1]. \
@@ -282,7 +299,9 @@ def send(case,
                     logging.error('Expected modification tags: ' + ', '.join(edited[m]))
                     logging.error('Observed modification tags: ' + ', '.join(edits))
                     if not ignore_errors:
-                        bar.close()
+                        if isinstance(bar, UserInterface.ProgressBar):
+                            bar.close()
+
                         raise KeyError('DICOM Export modification inconsistency detected')
 
             # Send file
@@ -301,21 +320,31 @@ def send(case,
                                                     originator_id=None)
                         assoc.release()
                         logging.info('{0} -> {1} C-STORE status: 0x{2:04x}'.format(m, d, status.Status))
-                        if status.Status != 0:
+                        if status.Status != 0 and not ignore_errors:
+                            if isinstance(bar, UserInterface.ProgressBar):
+                                bar.close()
+
                             raise IOError('C-STORE ERROR: 0x{2:04x}'.format(m, d, status.Status))
 
-                    elif assoc.is_rejected:
-                        bar.close()
+                    elif assoc.is_rejected and not ignore_errors:
+                        if isinstance(bar, UserInterface.ProgressBar):
+                            bar.close()
+
                         raise IOError('Association to {} was rejected by the peer'.format(info['host']))
 
-                    elif assoc.is_aborted:
-                        bar.close()
+                    elif assoc.is_aborted and not ignore_errors:
+                        if isinstance(bar, UserInterface.ProgressBar):
+                            bar.close()
+
                         raise IOError('Received A-ABORT from the peer during association to {}'.format(info['host']))
 
-                # Send to folder via file copy
+                # Send to folder based on PatientID via file copy
                 elif 'path' in info:
-                    logging.info('Exporting {} to {}'.format(m, info['path']))
-                    shutil.copy(os.path.join(modified, m), info['path'])
+                    if not os.path.exists(os.path.join(info['path'], ds.PatientID)):
+                        os.mkdir(os.path.join(info['path'], ds.PatientID))
+
+                    logging.info('Exporting {} to {}'.format(m, os.path.join(info['path'], ds.PatientID)))
+                    shutil.copy(os.path.join(modified, m), os.path.join(info['path'], ds.PatientID))
 
         # If pydicom fails, stop export unless ignore_errors flag is set
         except pydicom.errors.InvalidDicomError:
@@ -323,7 +352,9 @@ def send(case,
                 logging.warning('File {} could not be read during modification, skipping'.format(m))
 
             else:
-                bar.close()
+                if isinstance(bar, UserInterface.ProgressBar):
+                    bar.close()
+
                 raise
 
     # Delete temporary folders
@@ -334,7 +365,9 @@ def send(case,
 
     # Log completion
     logging.debug('Export completed successfully in {:.3f} seconds'.format(time.time() - tic))
-    bar.close()
+    if isinstance(bar, UserInterface.ProgressBar):
+        bar.close()
+
     UserInterface.MessageBox('DICOM Export Successful', 'Export Success')
 
 
@@ -381,7 +414,7 @@ def energies(beamset=None, machine=None):
     energy_list = {}
 
     # Loop through each filter
-    for c in filter_xml.getroot('filter'):
+    for c in filter_xml.findall('filter'):
 
         # If the filter is a machine and energy filter, verify the machine matches
         if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
@@ -420,23 +453,3 @@ def destination_info(destination):
                 info[e.tag] = e.text
 
     return info
-
-
-from connect import *
-import sys
-
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(levelname)s\t%(message)s')
-ch.setFormatter(formatter)
-root.addHandler(ch)
-
-send(case=get_current('Case'),
-     destination='Transfer Folder',
-     exam=get_current('Examination'),
-     beamset=get_current('BeamSet'),
-     filters=['machine', 'energy'],
-     ignore_warnings=True)
