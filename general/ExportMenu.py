@@ -67,7 +67,7 @@ def main():
                           'do so prior to approval if not.')
     patient.Save()
     warnings = True
-    if beamset is not None and plan.Review.ApprovalStatus == 'Unapproved':
+    if beamset is not None and plan.Review.ApprovalStatus != 'Approved':
         approve = UserInterface.QuestionBox('The selected plan is not currently approved. Would you like to approve ' +
                                             'it prior to export?', 'Approve Plan')
         if approve.yes:
