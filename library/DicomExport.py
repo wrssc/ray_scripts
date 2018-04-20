@@ -421,7 +421,7 @@ def machines(beamset=None):
     for c in filter_xml.findall('filter'):
 
         # The FROM machine corresponds to the machine model
-        m = c.findall('from/machine')[0].text
+        m = c.findall('to/machine')[0].text
 
         # If the filter is both machine and energy, verify the al beam energies match
         if beamset is not None and 'type' in c.attrib and c.attrib['type'] == 'machine/energy':
