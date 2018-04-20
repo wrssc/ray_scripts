@@ -34,20 +34,20 @@ __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/DICOM-Export'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+import os
 import xml.etree.ElementTree
 import time
 import tempfile
 import logging
 import UserInterface
-import os
 import pydicom
 import pynetdicom3
 import shutil
 import re
 
 # Parse destination and filters XML files
-dest_xml = xml.etree.ElementTree.parse('DicomDestinations.xml')
-filter_xml = xml.etree.ElementTree.parse('DicomFilters.xml')
+dest_xml = xml.etree.ElementTree.parse(os.path.join(os.path.realpath(__file__), 'DicomDestinations.xml'))
+filter_xml = xml.etree.ElementTree.parse(os.path.join(os.path.realpath(__file__), 'DicomFilters.xml'))
 
 
 def send(case,
