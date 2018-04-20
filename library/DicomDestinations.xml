@@ -11,6 +11,48 @@
         <aet>MOBIUS3D</aet>
         <port>104</port>
     </destination>
+    <destination>
+        <name>ARIA</name>
+        <host>aria.uwhealth.wisc.edu</host>
+        <aet>ARIA</aet>
+        <port>106</port>
+    </destination>
+    <destination>
+        <name>Tomo (Room C)</name>
+        <host>10.151.1.73</host>
+        <aet>TomoProvider1</aet>
+        <port>104</port>
+    </destination>
+    <destination>
+        <name>Tomo (Room B)</name>
+        <host>10.151.1.141</host>
+        <aet>TomoProvider2</aet>
+        <port>104</port>
+    </destination>
+    <destination>
+        <name>ViewRay</name>
+        <host>10.105.10.25</host>
+        <aet>VIEWRAY_STORAGE</aet>
+        <port>11115</port>
+    </destination>
+    <destination>
+        <name>OSMS (East)</name>
+        <host>10.32.16.32</host>
+        <aet>OSMS_EAST</aet>
+        <port>104</port>
+    </destination>
+    <destination>
+        <name>OSMS (Room A)</name>
+        <host>10.105.10.31</host>
+        <aet>OSMS0490</aet>
+        <port>104</port>
+    </destination>
+    <destination>
+        <name>ARIA</name>
+        <host>aria.uwhealth.wisc.edu</host>
+        <aet>ARIA</aet>
+        <port>106</port>
+    </destination>
     <destination type="folder">
         <name>Delta4</name>
         <path>\\aria.uwhealth.wisc.edu\echart\Delta4\DICOM</path>
