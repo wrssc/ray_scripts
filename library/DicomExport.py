@@ -102,6 +102,9 @@ def send(case,
     if filters is not None and 'energy' in filters and beamset is not None:
         energy_list = energies(beamset, machine)
 
+    else:
+        energy_list = None
+
     # Establish connections with all SCP destinations
     if not bar:
         bar = UserInterface.ProgressBar(text='Establishing connection to DICOM destinations',
@@ -206,7 +209,7 @@ def send(case,
                             edits.append(str(b.data_element('TreatmentMachineName').tag))
 
                     # If applying an energy filter
-                    if filters is not None and 'energy' in filters and hasattr(b, 'ControlPointSequence'):
+                    if energy_list is not None and hasattr(b, 'ControlPointSequence'):
                         for c in b.ControlPointSequence:
                             if hasattr(c, 'NominalBeamEnergy') and c.NominalBeamEnergy in energy_list.keys():
                                 e = float(re.sub('\D+', '', energy_list[c.NominalBeamEnergy]))
@@ -294,8 +297,7 @@ def send(case,
                                                                              value[i2][k3].tag))
 
                                                         elif ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].value != \
-                                                                dso[k0].value[i0][k1].value[i1][k2]. \
-                                                                        value[i2][k3].value:
+                                                                dso[k0].value[i0][k1].value[i1][k2].value[i2][k3].value:
                                                             edits.append(str(ds[k0].value[i0][k1].value[i1][k2].
                                                                              value[i2][k3].tag))
 
@@ -417,36 +419,34 @@ def machines(beamset=None):
 
     machine_list = []
 
-    # Loop through each filter tag in the XML file
-    for c in filter_xml.findall('filter'):
+    # If a beamset is provided, search through each beam and store a list of matching to machines
+    if beamset is not None:
+        beam_list = []
+        for b in range(len(beamset.Beams)):
+            beam_list.append([])
+            for c in filter_xml.findall('filter'):
+                if c.findall('from/machine')[0].text == beamset.Beams[b].MachineReference.MachineName:
+                    for t in c.findall('to'):
+                        if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
+                                beamset.Beams[b].MachineReference.Energy == float(c.findall('from/energy')[0].text):
+                            beam_list[b].append(t.findall('machine')[0].text)
 
-        # The FROM machine corresponds to the machine model
-        m = c.findall('to/machine')[0].text
+                        elif 'type' in c.attrib and c.attrib['type'] == 'machine':
+                            beam_list[b].append(t.findall('machine')[0].text)
 
-        # If the filter is both machine and energy, verify the al beam energies match
-        if beamset is not None and 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
-                c.findall('from/machine')[0].text == beamset.MachineReference.MachineName:
-            match = True
-            e = float(c.findall('from/energy')[0].text)
-            for b in beamset.Beams:
-                if b.MachineReference.Energy != e:
-                    match = False
-                    break
+        sets = iter(map(set, beam_list))
+        machine_list = sets.next()
+        for s in sets:
+            machine_list = machine_list.intersection(s)
 
-            if match:
-                machine_list.append(m)
+        return list(sorted(machine_list))
 
-        # Otherwise, if this is only a machine filter
-        elif beamset is not None and 'type' in c.attrib and c.attrib['type'] == 'machine' and \
-                c.findall('from/machine')[0].text == beamset.MachineReference.MachineName:
-            machine_list.append(m)
+    # Otherwise just return a list of all to machines
+    else:
+        for m in filter_xml.findall('filter/to/machine'):
+            machine_list.append(m.text)
 
-        # If no machine is provided, return a full list
-        elif beamset is None:
-            machine_list.append(m)
-
-    # Return a unique, sorted list
-    return list(sorted(set(machine_list)))
+        return list(sorted(set(machine_list)))
 
 
 def energies(beamset=None, machine=None):
