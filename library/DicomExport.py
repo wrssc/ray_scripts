@@ -126,11 +126,15 @@ def send(case,
                 logging.debug('C-ECHO Response: 0x{0:04x}'.format(status.Status))
 
             elif assoc.is_rejected and not ignore_errors:
-                bar.close()
+                if isinstance(bar, UserInterface.ProgressBar):
+                    bar.close()
+                    
                 raise IOError('Association to {} was rejected by the peer'.format(info['host']))
 
             elif assoc.is_aborted and not ignore_errors:
-                bar.close()
+                if isinstance(bar, UserInterface.ProgressBar):
+                    bar.close()
+
                 raise IOError('Received A-ABORT from the peer during association to {}'.format(info['host']))
 
             else:
