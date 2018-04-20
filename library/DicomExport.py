@@ -37,12 +37,23 @@ import shutil
 import re
 
 # Parse destination and filters XML files
-destinations = xml.etree.ElementTree.parse('DicomDestinations.xml')
-filters = xml.etree.ElementTree.parse('DicomFilters.xml')
+dest_xml = xml.etree.ElementTree.parse('DicomDestinations.xml')
+filter_xml = xml.etree.ElementTree.parse('DicomFilters.xml')
 
 
-def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warnings=False, ignore_errors=False,
-         anonymize=None, filter=None, machine=None):
+def send(case,
+         destination,
+         exam=None,
+         beamset=None,
+         beamdose=False,
+         ignore_warnings=False,
+         ignore_errors=False,
+         anonymize=None,
+         filters=None,
+         machine=None):
+    """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
+                        beamset=get_current('BeamSet'))"""
+
     # Start timer
     tic = time.time()
 
@@ -51,64 +62,45 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
         destination = [destination]
 
     # Filter machine and energy by default
-    if filter is None:
-        filter = ['machine', 'energy']
+    if filters is None:
+        filters = ['machine', 'energy']
 
     # Create temporary folders to store original and modified exports
     original = tempfile.mkdtemp()
     modified = tempfile.mkdtemp()
 
     # Validate destinations
+    dest_list = destinations()
     for d in destination:
-        if d not in destinations.keys():
+        if d not in dest_list:
             raise IndexError('The provided DICOM destination is not in the available list')
 
     # If multiple machine filter options exist, prompt the user to select one
-    if machine is None and filter is not None and 'machine' in filter and beamset is not None and filters is not None:
-        machine_list = []
-        for c in filters.getroot():
-            if c.tag == 'filter' and c.attrib['type'] == 'machine/energy':
-                match = True
-                m = c.findall('from/machine')[0]
-                e = float(c.findall('from/energy')[0])
-                for b in beamset.Beams:
-                    if b.MachineReference.MachineName == m and b.MachineReference.Energy != e:
-                        match = False
-                        break
-
-                if match:
-                    machine_list.append(m)
-
-            elif c.tag == 'filter' and c.attrib['type'] == 'machine' and \
-                    c.findall('from/machine')[0] == beamset.MachineReference.MachineName:
-                machine_list.append(m)
-
+    if machine is None and filters is not None and 'machine' in filters and beamset is not None:
+        machine_list = machines(beamset)
         if len(machine_list) == 1:
-            machine = filters['machine'][beamset.MachineReference.MachineName][0]
+            machine = machine_list[0]
 
         elif len(machine_list) > 1:
             dialog = UserInterface.ButtonList(inputs=machine_list, title='Select a machine to export as')
             machine = dialog.show()
 
     # Load energy filters for selected machine
-    if machine is None and filter is not None and 'machine' in filter and beamset is not None:
-        energy_list = {}
-        for c in filters.getroot():
-            if c.tag == 'filter' and c.attrib['type'] == 'machine/energy' and \
-                    c.findall('from/machine')[0] == beamset.MachineReference.MachineName:
-                for t in c.findall('to'):
-                    if t.findall('machine')[0] == machine:
-                        energy_list[float(c.findall('from/energy')[0])] = t.findall('energy')[0]
+    if filters is not None and 'energy' in filters and beamset is not None:
+        energy_list = energies(beamset, machine)
 
     # Establish connections with all SCP destinations
     bar = UserInterface.ProgressBar(text='Establishing connection to DICOM destinations',
                                     title='Export Progress',
                                     marquee=True)
     for d in destination:
-        if len({'host', 'aet', 'port'}.difference(destinations[d])) == 0:
+        info = destination_info(d)
+        if len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
             ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.1.1'])
-            logging.debug('Requesting Association with {}'.format(destinations[d]['host']))
-            assoc = ae.associate(destinations[d]['host'], destinations[d]['port'])
+            logging.debug('Requesting Association with {}'.format(info['host']))
+            assoc = ae.associate(info['host'], info['port'])
+
+            # Throw errors unless C-ECHO responds
             if assoc.is_established:
                 logging.debug('Association accepted by the peer')
                 status = assoc.send_c_echo()
@@ -117,31 +109,33 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
 
             elif assoc.is_rejected:
                 bar.close()
-                raise IOError('Association to {} was rejected by the peer'.format(destinations[d]['host']))
+                raise IOError('Association to {} was rejected by the peer'.format(info['host']))
 
             elif assoc.is_aborted:
                 bar.close()
-                raise IOError('Received A-ABORT from the peer during association to {}'.
-                              format(destinations[d]['host']))
+                raise IOError('Received A-ABORT from the peer during association to {}'.format(info['host']))
 
-    # Export data to original folder
+    # Initialize ScriptableDicomExport() arguments
     args = {'IgnorePreConditionWarnings': ignore_warnings, 'DicomFilter': '', 'ExportFolderPath': original}
 
+    # Append exam to export CT
     if exam is not None:
         args['Examinations'] = [exam.Name]
 
+    # Append beamset to export RTSS and Dose
     if beamset is not None:
         args['RtStructureSetsReferencedFromBeamSets'] = [beamset.BeamSetIdentifier()]
         args['BeamSets'] = [beamset.BeamSetIdentifier()]
-
         if beamdose:
             args['BeamDosesForBeamSets'] = [beamset.BeamSetIdentifier()]
 
+    # Append anonymization parameters
     if anonymize is not None and hasattr(anonymize, 'name') and hasattr(anonymize, 'id'):
         args['Anonymize'] = True
         args['AnonymizedName'] = anonymize['name']
         args['AnonymizedId'] = anonymize['id']
 
+    # Export data to temp folder
     bar.update(text='Exporting DICOM files to temporary folder')
     try:
         logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
@@ -168,11 +162,10 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
             # If this is a DICOM RT plan
             edits = []
             if ds.file_meta.MediaStorageSOPClassUID == '1.2.840.10008.5.1.4.1.1.481.5':
-
-                # If applying a machine filter
                 for b in ds.BeamSequence:
-                    if machine is not None:
 
+                    # If applying a machine filter
+                    if machine is not None:
                         if b.TreatmentMachineName != machine:
                             logging.debug('Updating {} on beam {} to {}'.format(
                                 str(b.data_element('TreatmentMachineName').tag), b.BeamNumber, machine))
@@ -180,7 +173,7 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
                             edits.append(str(b.data_element('TreatmentMachineName').tag))
 
                     # If applying an energy filter
-                    if filter is not None and 'energy' in filter and hasattr(b, 'ControlPointSequence'):
+                    if filters is not None and 'energy' in filters and hasattr(b, 'ControlPointSequence'):
                         for c in b.ControlPointSequence:
                             if hasattr(c, 'NominalBeamEnergy') and c.NominalBeamEnergy in energy_list.keys():
                                 e = float(re.sub('\D+', '', energy_list[c.NominalBeamEnergy]))
@@ -191,17 +184,16 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
                                     c.NominalBeamEnergy = e
                                     edits.append(str(c.data_element('NominalBeamEnergy').tag))
 
+                                # If a non-standard fluence, add mode ID and NON_STANDARD flag
                                 if not hasattr(b, 'FluenceModeID') or b.FluenceModeID != m:
                                     logging.debug('Updating {} on beam {}, CP {} to {}'.format(
                                         str(b.data_element('FluenceModeID').tag), b.BeamNumber, c.ControlPointIndex, m))
-
                                     b.FluenceModeID = m
                                     edits.append(str(b.data_element('FluenceModeID').tag))
                                     if m != '':
                                         logging.debug('Updating {} on beam {}, CP {} to {}'.format(
                                             str(b.data_element('FluenceMode').tag), b.BeamNumber, c.ControlPointIndex,
                                             'NON_STANDARD'))
-
                                         b.FluenceMode = 'NON_STANDARD'
                                         edits.append(str(b.data_element('FluenceMode').tag))
 
@@ -215,6 +207,7 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
                 logging.debug('File {} re-saved with {} edits'.format(o, len(edits)))
                 ds.save_as(os.path.join(modified, o))
 
+        # If pydicom fails, stop export unless ignore_errors flag is set
         except pydicom.errors.InvalidDicomError:
             if ignore_errors:
                 logging.warning('File {} could not be read during modification, skipping'.format(o))
@@ -223,33 +216,30 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
                 bar.close()
                 raise
 
-    # Send each file
+    # Validate and/or send each file
     i = 0
     total = len(os.listdir(modified))
     for m in os.listdir(modified):
         i += 1
         bar.update(text='Validating and Exporting Files ({} of {})'.format(i, total))
         try:
-            logging.debug('Reading modified file {}'.format(m))
+            logging.debug('Reading modified file {}'.format(os.path.join(modified, m)))
             ds = pydicom.dcmread(os.path.join(modified, m))
 
-            # Validate changes against original file
+            # Validate changes against original file, recursively searching through sequences
             if m in edited:
-                logging.debug('Validating edits')
+                logging.debug('Validating edits against {}'.format(os.path.join(original, m)))
                 dso = pydicom.dcmread(os.path.join(original, m))
                 edits = []
                 for k0 in ds.keys():
                     if ds[k0].VR == 'SQ':
                         for i0 in range(len(ds[k0].value)):
-                            print '1 Checking {} index {}'.format(str(ds[k0].tag), i0)
                             for k1 in ds[k0].value[i0].keys():
                                 if ds[k0].value[i0][k1].VR == 'SQ':
                                     for i1 in range(len(ds[k0].value[i0][k1].value)):
-                                        print '2 Checking {} index {}'.format(str(ds[k0].value[i0][k1].tag), i1)
                                         for k2 in ds[k0].value[i0][k1].value[i1].keys():
                                             if ds[k0].value[i0][k1].value[i1][k2].VR == 'SQ':
                                                 for i2 in range(len(ds[k0].value[i0][k1].value[i1][k2].value)):
-                                                    print '3 Checking {} index {}'.format(str(ds[k0].value[i0][k1].value[i1][k2].tag), i2)
                                                     for k3 in ds[k0].value[i0][k1].value[i1][k2].value[i2].keys():
                                                         if ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].VR == 'SQ':
                                                             raise KeyError('Too many nested sequences')
@@ -284,19 +274,25 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
                     elif ds[k0].value != dso[k0].value:
                         edits.append(str(ds[k0].tag))
 
+                # The edits list should match the expected list generated above
                 if len(edits) == len(edited[m]) and edits.sort() == edited[m].sort():
                     logging.debug('File {} edits are consistent with expected'.format(m))
 
                 else:
-                    bar.close()
                     logging.error('Expected modification tags: ' + ', '.join(edited[m]))
                     logging.error('Observed modification tags: ' + ', '.join(edits))
-                    raise KeyError('DICOM Export modification inconsistency detected')
+                    if not ignore_errors:
+                        bar.close()
+                        raise KeyError('DICOM Export modification inconsistency detected')
 
+            # Send file
             for d in destination:
-                if len({'host', 'aet', 'port'}.difference(destinations[d])) == 0:
+                info = destination_info(d)
+
+                # Send to SCP via pynetdicom3
+                if len({'host', 'aet', 'port'}.difference(info)) == 0:
                     ae = pynetdicom3.AE(scu_sop_class=pynetdicom3.StorageSOPClassList)
-                    assoc = ae.associate(destinations[d]['host'], destinations[d]['port'])
+                    assoc = ae.associate(info['host'], info['port'])
                     if assoc.is_established:
                         status = assoc.send_c_store(dataset=ds,
                                                     msg_id=1,
@@ -310,17 +306,18 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
 
                     elif assoc.is_rejected:
                         bar.close()
-                        raise IOError('Association to {} was rejected by the peer'.format(destinations[d]['host']))
+                        raise IOError('Association to {} was rejected by the peer'.format(info['host']))
 
                     elif assoc.is_aborted:
                         bar.close()
-                        raise IOError('Received A-ABORT from the peer during association to {}'.
-                                      format(destinations[d]['host']))
+                        raise IOError('Received A-ABORT from the peer during association to {}'.format(info['host']))
 
-                elif 'path' in destinations[d]:
-                    logging.info('Exporting {} to {}'.format(m, destinations[d]['path']))
-                    shutil.copy(os.path.join(modified, m), destinations[d]['path'])
+                # Send to folder via file copy
+                elif 'path' in info:
+                    logging.info('Exporting {} to {}'.format(m, info['path']))
+                    shutil.copy(os.path.join(modified, m), info['path'])
 
+        # If pydicom fails, stop export unless ignore_errors flag is set
         except pydicom.errors.InvalidDicomError:
             if ignore_errors:
                 logging.warning('File {} could not be read during modification, skipping'.format(m))
@@ -341,6 +338,90 @@ def send(case, destination, exam=None, beamset=None, beamdose=False, ignore_warn
     UserInterface.MessageBox('DICOM Export Successful', 'Export Success')
 
 
+def machines(beamset=None):
+    """machine_list = DicomExport.machines(beamset=get_current('BeamSet'))"""
+
+    machine_list = []
+
+    # Loop through each filter tag in the XML file
+    for c in filter_xml.findall('filter'):
+
+        # The FROM machine corresponds to the machine model
+        m = c.findall('from/machine')[0].text
+
+        # If the filter is both machine and energy, verify the al beam energies match
+        if beamset is not None and 'type' in c.attrib and c.attrib['type'] == 'machine/energy':
+            match = True
+            e = float(c.findall('from/energy')[0].text)
+            for b in beamset.Beams:
+                if b.MachineReference.MachineName == m and b.MachineReference.Energy != e:
+                    match = False
+                    break
+
+            if match:
+                machine_list.append(m)
+
+        # Otherwise, if this is only a machine filter
+        elif beamset is not None and 'type' in c.attrib and c.attrib['type'] == 'machine' and \
+                c.findall('from/machine')[0] == beamset.MachineReference.MachineName:
+            machine_list.append(m)
+
+        # If no machine is provided, return a full list
+        elif beamset is None:
+            machine_list.append(m)
+
+    # Return a unique, sorted list
+    return list(sorted(set(machine_list)))
+
+
+def energies(beamset=None, machine=None):
+    """energy_list = DicomExport.energies(beamset=get_current('BeamSet'), machine='TrueBeam')"""
+
+    # The energy list is a key/value dictionary
+    energy_list = {}
+
+    # Loop through each filter
+    for c in filter_xml.getroot('filter'):
+
+        # If the filter is a machine and energy filter, verify the machine matches
+        if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
+                c.findall('from/machine')[0] == beamset.MachineReference.MachineName:
+            for t in c.findall('to'):
+                if machine is None or t.findall('machine')[0] == machine:
+                    energy_list[float(c.findall('from/energy')[0])] = t.findall('energy')[0].text
+
+        # Otherwise, if only an energy filter
+        elif 'type' in c.attrib and c.attrib['type'] == 'energy':
+            for t in c.findall('to'):
+                energy_list[float(c.findall('from/energy')[0])] = t.findall('energy')[0].text
+
+    return energy_list
+
+
+def destinations():
+    """dest_list = DicomExport.destinations()"""
+
+    # Return a list of all DICOM destinations
+    dest_list = []
+    for d in dest_xml.findall('destination/name'):
+        dest_list.append(d.text)
+
+    return sorted(dest_list)
+
+
+def destination_info(destination):
+    """info = DicomExport.destination_info('MIM')"""
+
+    # Return a dictionary of DICOM destination parameters
+    info = {}
+    for d in dest_xml.findall('destination'):
+        if d.findall('name')[0].text == destination:
+            for e in d.findall('*'):
+                info[e.tag] = e.text
+
+    return info
+
+
 from connect import *
 import sys
 
@@ -357,5 +438,5 @@ send(case=get_current('Case'),
      destination='Transfer Folder',
      exam=get_current('Examination'),
      beamset=get_current('BeamSet'),
-     filter=['machine', 'energy'],
+     filters=['machine', 'energy'],
      ignore_warnings=True)
