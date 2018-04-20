@@ -12,12 +12,6 @@
         <port>104</port>
     </destination>
     <destination>
-        <name>ARIA</name>
-        <host>aria.uwhealth.wisc.edu</host>
-        <aet>ARIA</aet>
-        <port>106</port>
-    </destination>
-    <destination>
         <name>Tomo (Room C)</name>
         <host>10.151.1.73</host>
         <aet>TomoProvider1</aet>
