@@ -46,8 +46,8 @@ import shutil
 import re
 
 # Parse destination and filters XML files
-dest_xml = xml.etree.ElementTree.parse(os.path.join(os.path.realpath(__file__), 'DicomDestinations.xml'))
-filter_xml = xml.etree.ElementTree.parse(os.path.join(os.path.realpath(__file__), 'DicomFilters.xml'))
+dest_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomDestinations.xml'))
+filter_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomFilters.xml'))
 
 
 def send(case,
