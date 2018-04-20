@@ -65,6 +65,7 @@ def main():
     # Check if plan and/or structure set is approved
     status.next_step(text='Prior to export, this script will check if the plan is approved, and will ask if want to ' +
                           'do so prior to approval if not.')
+    time.sleep(1)
     patient.Save()
     ignore = False
     if beamset is not None:
@@ -150,6 +151,9 @@ def main():
     if response == {}:
         status.finish('DICOM export was cancelled')
         sys.exit('DICOM export was cancelled')
+
+    if 'CT' not in response['b']:
+        exam = None
 
     if 'Plan' not in response['b'] and 'Plan Dose' not in response['b'] and 'Beam Dose' not in response['b']:
         beamset = None
