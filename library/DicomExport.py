@@ -6,6 +6,15 @@
     modified files to one or more destinations. In this manner, machine names and
     non-standard beam energies (FFF) can be configured in the system.
 
+    Below is an example of how to call the send() function
+
+    DicomExport.send(case=get_current('Case'),
+                     destination='Transfer Folder',
+                     exam=get_current('Examination'),
+                     beamset=get_current('BeamSet'),
+                     filters=['machine', 'energy'],
+                     ignore_warnings=True)
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
@@ -45,6 +54,8 @@ def send(case,
          destination,
          exam=None,
          beamset=None,
+         structures=True,
+         plandose=True,
          beamdose=False,
          ignore_warnings=False,
          ignore_errors=False,
@@ -57,6 +68,7 @@ def send(case,
 
     # Start timer
     tic = time.time()
+    status = True
 
     # Re-cast string destination as list
     if isinstance(destination, str):
@@ -110,13 +122,16 @@ def send(case,
                 assoc.release()
                 logging.debug('C-ECHO Response: 0x{0:04x}'.format(status.Status))
 
-            elif assoc.is_rejected:
+            elif assoc.is_rejected and not ignore_errors:
                 bar.close()
                 raise IOError('Association to {} was rejected by the peer'.format(info['host']))
 
-            elif assoc.is_aborted:
+            elif assoc.is_aborted and not ignore_errors:
                 bar.close()
                 raise IOError('Received A-ABORT from the peer during association to {}'.format(info['host']))
+
+            else:
+                status = False
 
     # Initialize ScriptableDicomExport() arguments
     args = {'IgnorePreConditionWarnings': ignore_warnings, 'DicomFilter': '', 'ExportFolderPath': original}
@@ -125,12 +140,20 @@ def send(case,
     if exam is not None:
         args['Examinations'] = [exam.Name]
 
-    # Append beamset to export RTSS and Dose
+    # Append beamset to export RTSS and Dose (if beamset is not present, export RTSS from exam)
     if beamset is not None:
-        args['RtStructureSetsReferencedFromBeamSets'] = [beamset.BeamSetIdentifier()]
+        if structures:
+            args['RtStructureSetsReferencedFromBeamSets'] = [beamset.BeamSetIdentifier()]
+
         args['BeamSets'] = [beamset.BeamSetIdentifier()]
+        if plandose:
+            args['BeamSetDoseForBeamSets'] = [beamset.BeamSetIdentifier()]
+
         if beamdose:
             args['BeamDosesForBeamSets'] = [beamset.BeamSetIdentifier()]
+
+    elif exam is not None and structures:
+        args['RtStructureSetsForExaminations'] = [exam.Name]
 
     # Append anonymization parameters
     if anonymize is not None and hasattr(anonymize, 'name') and hasattr(anonymize, 'id'):
@@ -149,6 +172,7 @@ def send(case,
     except Exception as error:
         if ignore_errors:
             logging.warning(str(error))
+            status = False
 
         else:
             if isinstance(bar, UserInterface.ProgressBar):
@@ -220,6 +244,7 @@ def send(case,
         except pydicom.errors.InvalidDicomError:
             if ignore_errors:
                 logging.warning('File {} could not be read during modification, skipping'.format(o))
+                status = False
 
             else:
                 if isinstance(bar, UserInterface.ProgressBar):
@@ -254,12 +279,14 @@ def send(case,
                                             if ds[k0].value[i0][k1].value[i1][k2].VR == 'SQ':
                                                 for i2 in range(len(ds[k0].value[i0][k1].value[i1][k2].value)):
                                                     for k3 in ds[k0].value[i0][k1].value[i1][k2].value[i2].keys():
-                                                        if ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].VR == 'SQ' \
-                                                                and not ignore_errors:
-                                                            if isinstance(bar, UserInterface.ProgressBar):
-                                                                bar.close()
+                                                        if ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].VR == 'SQ':
+                                                            if not ignore_errors:
+                                                                if isinstance(bar, UserInterface.ProgressBar):
+                                                                    bar.close()
 
-                                                            raise KeyError('Too many nested sequences')
+                                                                raise KeyError('Too many nested sequences')
+                                                            else:
+                                                                status = False
 
                                                         elif k3 not in dso[k0].value[i0][k1]. \
                                                                 value[i1][k2].value[i2]:
@@ -298,6 +325,7 @@ def send(case,
                 else:
                     logging.error('Expected modification tags: ' + ', '.join(edited[m]))
                     logging.error('Observed modification tags: ' + ', '.join(edits))
+                    status = False
                     if not ignore_errors:
                         if isinstance(bar, UserInterface.ProgressBar):
                             bar.close()
@@ -320,11 +348,13 @@ def send(case,
                                                     originator_id=None)
                         assoc.release()
                         logging.info('{0} -> {1} C-STORE status: 0x{2:04x}'.format(m, d, status.Status))
-                        if status.Status != 0 and not ignore_errors:
-                            if isinstance(bar, UserInterface.ProgressBar):
-                                bar.close()
+                        if status.Status != 0:
+                            status = False
+                            if not ignore_errors:
+                                if isinstance(bar, UserInterface.ProgressBar):
+                                    bar.close()
 
-                            raise IOError('C-STORE ERROR: 0x{2:04x}'.format(m, d, status.Status))
+                                raise IOError('C-STORE ERROR: 0x{2:04x}'.format(m, d, status.Status))
 
                     elif assoc.is_rejected and not ignore_errors:
                         if isinstance(bar, UserInterface.ProgressBar):
@@ -338,6 +368,9 @@ def send(case,
 
                         raise IOError('Received A-ABORT from the peer during association to {}'.format(info['host']))
 
+                    else:
+                        status = False
+
                 # Send to folder based on PatientID via file copy
                 elif 'path' in info:
                     if not os.path.exists(os.path.join(info['path'], ds.PatientID)):
@@ -350,6 +383,7 @@ def send(case,
         except pydicom.errors.InvalidDicomError:
             if ignore_errors:
                 logging.warning('File {} could not be read during modification, skipping'.format(m))
+                status = False
 
             else:
                 if isinstance(bar, UserInterface.ProgressBar):
@@ -363,12 +397,19 @@ def send(case,
     logging.debug('Deleting temporary folder {}'.format(modified))
     shutil.rmtree(modified)
 
-    # Log completion
-    logging.debug('Export completed successfully in {:.3f} seconds'.format(time.time() - tic))
+    # Finish up
     if isinstance(bar, UserInterface.ProgressBar):
         bar.close()
 
-    UserInterface.MessageBox('DICOM Export Successful', 'Export Success')
+    if status:
+        logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
+        UserInterface.MessageBox('DICOM export was successful', 'Export Success')
+
+    else:
+        logging.warning('DicomExport completed with errors in {:.3f} seconds'.format(time.time() - tic))
+        UserInterface.WarningBox('DICOM export finished but with errors', 'Export Warning')
+
+    return status
 
 
 def machines(beamset=None):
