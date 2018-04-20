@@ -67,7 +67,7 @@ def main():
                           'do so prior to approval if not.')
     patient.Save()
     ignore = False
-    if beamset is not None and plan.Review.ApprovalStatus != 'Approved':
+    if beamset is not None and (plan.Review is None or plan.Review.ApprovalStatus != 'Approved'):
         approve = UserInterface.QuestionBox('The selected plan is not currently approved. Would you like to approve ' +
                                             'it prior to export?', 'Approve Plan')
         if approve.yes:
@@ -80,11 +80,11 @@ def main():
     # Check if structure set is approved
     if beamset is not None:
         try:
-            if case.PatientModel.StructureSets[exam.Name].ApprovedStructureSets[0].Review.ApprovalStatus == 'Approved':
-                struct_approval = True
+            if case.PatientModel.StructureSets[exam.Name].ApprovedStructureSets[0].Review.ApprovalStatus != 'Approved':
+                struct_approval = False
 
             else:
-                struct_approval = False
+                struct_approval = True
 
         except Exception:
             struct_approval = False
