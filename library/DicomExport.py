@@ -49,6 +49,8 @@ import re
 dest_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomDestinations.xml'))
 filter_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomFilters.xml'))
 
+# local_AET defines the AE title that will be used by the script when communicating with the destination
+local_AET = 'RAYSTATION_SSCP'
 
 def send(case,
          destination,
@@ -114,7 +116,7 @@ def send(case,
     for d in destination:
         info = destination_info(d)
         if len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
-            ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.1.1'])
+            ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.1.1'], ae_title=local_AET)
             logging.debug('Requesting Association with {}'.format(info['host']))
             assoc = ae.associate(info['host'], int(info['port']))
 
@@ -128,7 +130,7 @@ def send(case,
             elif assoc.is_rejected and not ignore_errors:
                 if isinstance(bar, UserInterface.ProgressBar):
                     bar.close()
-                    
+
                 raise IOError('Association to {} was rejected by the peer'.format(info['host']))
 
             elif assoc.is_aborted and not ignore_errors:
@@ -344,7 +346,7 @@ def send(case,
 
                 # Send to SCP via pynetdicom3
                 if len({'host', 'aet', 'port'}.difference(info)) == 0:
-                    ae = pynetdicom3.AE(scu_sop_class=pynetdicom3.StorageSOPClassList)
+                    ae = pynetdicom3.AE(scu_sop_class=pynetdicom3.StorageSOPClassList, ae_title=local_AET)
                     assoc = ae.associate(info['host'], int(info['port']))
                     if assoc.is_established:
                         status = assoc.send_c_store(dataset=ds,
