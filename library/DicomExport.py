@@ -113,7 +113,7 @@ def send(case,
         if len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
             ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.1.1'])
             logging.debug('Requesting Association with {}'.format(info['host']))
-            assoc = ae.associate(info['host'], info['port'])
+            assoc = ae.associate(info['host'], int(info['port']))
 
             # Throw errors unless C-ECHO responds
             if assoc.is_established:
@@ -339,7 +339,7 @@ def send(case,
                 # Send to SCP via pynetdicom3
                 if len({'host', 'aet', 'port'}.difference(info)) == 0:
                     ae = pynetdicom3.AE(scu_sop_class=pynetdicom3.StorageSOPClassList)
-                    assoc = ae.associate(info['host'], info['port'])
+                    assoc = ae.associate(info['host'], int(info['port']))
                     if assoc.is_established:
                         status = assoc.send_c_store(dataset=ds,
                                                     msg_id=1,
@@ -424,11 +424,12 @@ def machines(beamset=None):
         m = c.findall('to/machine')[0].text
 
         # If the filter is both machine and energy, verify the al beam energies match
-        if beamset is not None and 'type' in c.attrib and c.attrib['type'] == 'machine/energy':
+        if beamset is not None and 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
+                c.findall('from/machine')[0].text == beamset.MachineReference.MachineName:
             match = True
             e = float(c.findall('from/energy')[0].text)
             for b in beamset.Beams:
-                if b.MachineReference.MachineName == m and b.MachineReference.Energy != e:
+                if b.MachineReference.Energy != e:
                     match = False
                     break
 
@@ -437,7 +438,7 @@ def machines(beamset=None):
 
         # Otherwise, if this is only a machine filter
         elif beamset is not None and 'type' in c.attrib and c.attrib['type'] == 'machine' and \
-                c.findall('from/machine')[0] == beamset.MachineReference.MachineName:
+                c.findall('from/machine')[0].text == beamset.MachineReference.MachineName:
             machine_list.append(m)
 
         # If no machine is provided, return a full list
