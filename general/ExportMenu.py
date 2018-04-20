@@ -165,7 +165,7 @@ def main():
                                structures='Structures' in response['b'],
                                plandose='Plan Dose' in response['b'],
                                beamdose='Beam Dose' in response['b'],
-                               ignore_warnings=ignore,
+                               ignore_warnings=True,  # =ignore,
                                ignore_errors=False,
                                anonymize=None,
                                filters=['machine', 'energy'],
