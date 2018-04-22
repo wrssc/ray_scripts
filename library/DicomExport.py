@@ -367,6 +367,10 @@ def send(case,
 
                 raise
 
+    # Generate random names/ID
+    random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
+    random_id = ''.join(random.choice(string.digits) for _ in range(8))
+
     # Validate and/or send each file
     i = 0
     total = len(os.listdir(modified))
@@ -424,8 +428,8 @@ def send(case,
                             phi[t] = getattr(ds, t)
                             delattr(ds, t)
 
-                    ds.PatientName = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
-                    ds.PatientID = ''.join(random.choice(string.digits) for _ in range(8))
+                    ds.PatientName = random_name
+                    ds.PatientID = random_id
                     ds.PatientBirthdate = ''
 
                 # Send to SCP via pynetdicom3
