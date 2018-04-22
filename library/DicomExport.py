@@ -1,15 +1,28 @@
-""" DICOM Export Function
+""" DICOM Export Functions
 
     The DicomExport.send() function uses the RayStation ScriptableDicomExport()
-    function, pydicom, and pynetdicom3 to export DICOM RT plan data to a temporary
-    folder, then modify the contents of the DICOM files, and finally to send the
-    modified files to one or more destinations. In this manner, machine names and
-    non-standard beam energies (FFF) can be configured in the system.
+    function, pydicom, and pynetdicom3 to export DICOM RT data to a temporary folder
+    then modify the contents of the DICOM files, and finally to send the modified
+    files to one or more destinations. In this manner, machine names and non-standard
+    beam energies (FFF) can be corrected during export to the Record & Verify system.
 
-    Below is an example of how to call the send() function
+    This function will read in two XML files during import: DicomDestinations.xml
+    and DicomFilters.xml. They should contain DICOM destination and machine/energy
+    filters, respectively. For information on their required formats, see the
+    provided wiki link in __help__.
 
+    Below is an example of how to call the send() function. There are multiple
+    additional input arguments that can be added to further filter the DICOM files,
+    such as anonymization, overriding table positions, rounding jaws, or setting
+    block IDs. For a full description of how to use these settings, see the provided
+    wiki link in __help__.
+
+    # Get a list of configured DICOM destinations
+    d = DicomExport.destinations()
+
+    # Send the currently loaded plan to the first destination
     DicomExport.send(case=get_current('Case'),
-                     destination='Transfer Folder',
+                     destination=d[0],
                      exam=get_current('Examination'),
                      beamset=get_current('BeamSet'),
                      filters=['machine', 'energy'],
@@ -44,6 +57,9 @@ import pydicom
 import pynetdicom3
 import shutil
 import re
+import math
+import random
+import string
 
 # Parse destination and filters XML files
 dest_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomDestinations.xml'))
@@ -52,6 +68,10 @@ filter_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__),
 # local_AET defines the AE title that will be used by the script when communicating with the destination
 local_AET = 'RAYSTATION_SSCP'
 local_port = 105
+
+# Define personal_tags (for anonymization)
+personal_tags = ['PatientName', 'PatientID', 'OtherPatientIDs', 'OtherPatientIDsSequence', 'PatientBirthDate']
+
 
 def send(case,
          destination,
@@ -65,6 +85,10 @@ def send(case,
          anonymize=None,
          filters=None,
          machine=None,
+         table=None,
+         ref_point=False,
+         round_jaws=False,
+         block_id=False,
          bar=True):
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
@@ -76,10 +100,6 @@ def send(case,
     # Re-cast string destination as list
     if isinstance(destination, str):
         destination = [destination]
-
-    # Filter machine and energy by default
-    if filters is None:
-        filters = ['machine', 'energy']
 
     # Create temporary folders to store original and modified exports
     original = tempfile.mkdtemp()
@@ -168,7 +188,7 @@ def send(case,
         args['RtStructureSetsForExaminations'] = [exam.Name]
 
     # Append anonymization parameters
-    if anonymize is not None and hasattr(anonymize, 'name') and hasattr(anonymize, 'id'):
+    if anonymize is not None and 'name' in anonymize and 'id' in anonymize:
         args['Anonymize'] = True
         args['AnonymizedName'] = anonymize['name']
         args['AnonymizedId'] = anonymize['id']
@@ -217,10 +237,57 @@ def send(case,
                             logging.debug('Updating {} on beam {} to {}'.format(
                                 str(b.data_element('TreatmentMachineName').tag), b.BeamNumber, machine))
 
-                    # If applying an energy filter
+                    # If updating electron block ID
+                    if block_id and hasattr(b, 'RadiationType') and b.RadiationType == 'ELECTRON' and \
+                            hasattr(b, 'NumberOfBlocks') and b.NumberOfBlocks == 1 and hasattr(b, 'BlockName'):
+                        b.BlockID = b.BlockName
+                        edits.append(str(b.data_element('BlockID').tag))
+                        logging.debug('Updating {} on beam {} to {}'.format(str(
+                            b.data_element('BlockID').tag), b.BeamNumber, b.BlockName))
+
+                    # If updating table position
+                    if table is not None and hasattr(b, 'ControlPointSequence'):
+                        for c in b.ControlPointSequence:
+                            if hasattr(c, 'TableTopLateralPosition') and c.TableTopLateralPosition != table[0]:
+                                c.TableTopLateralPosition = table[0]
+                                edits.append(str(c.data_element('TableTopLateralPosition').tag))
+                                logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
+                                    c.data_element('TableTopLateralPosition').tag), b.BeamNumber,
+                                    c.ControlPointIndex, table[0]))
+
+                            if hasattr(c, 'TableTopLongitudinalPosition') and \
+                                    c.TableTopLongitudinalPosition != table[2]:
+                                c.TableTopLongitudinalPosition = table[2]
+                                edits.append(str(c.data_element('TableTopLongitudinalPosition').tag))
+                                logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
+                                    c.data_element('TableTopLongitudinalPosition').tag), b.BeamNumber,
+                                    c.ControlPointIndex, table[2]))
+
+                            if hasattr(c, 'TableTopVerticalPosition') and c.TableTopVerticalPosition != table[2]:
+                                c.TableTopVerticalPosition = table[2]
+                                edits.append(str(c.data_element('TableTopVerticalPosition').tag))
+                                logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
+                                    c.data_element('TableTopVerticalPosition').tag), b.BeamNumber,
+                                    c.ControlPointIndex, table[2]))
+
+                    # If rounding jaws
+                    if round_jaws:
+                        for c in b.ControlPointSequence:
+                            if hasattr(c, 'BeamLimitingDevicePositionSequence'):
+                                for p in c.BeamLimitingDevicePositionSequence:
+                                    if hasattr(p, 'LeafJawPositions') and len(p.LeafJawPositions) == 2:
+                                        p.LeafJawPositions[0] = math.floor(p.LeafJawPositions[0])
+                                        p.LeafJawPositions[1] = math.ceil(p.LeafJawPositions[1])
+                                        edits.append(str(p.data_element('LeafJawPositions').tag))
+                                        logging.debug('Updating {} on beam {}, CP {} to [{}, {}]'.format(str(
+                                            p.data_element('LeafJawPositions').tag), b.BeamNumber, c.ControlPointIndex,
+                                            p.LeafJawPositions[0], p.LeafJawPositions[1]))
+
+                    # If applying an energy filter (note only photon are supported)
                     if energy_list is not None and hasattr(b, 'ControlPointSequence'):
                         for c in b.ControlPointSequence:
-                            if hasattr(c, 'NominalBeamEnergy') and c.NominalBeamEnergy in energy_list.keys():
+                            if hasattr(c, 'NominalBeamEnergy') and c.NominalBeamEnergy in energy_list.keys() and \
+                                    hasattr(b, 'RadiationType') and b.RadiationType == 'PHOTON':
                                 e = float(re.sub('\D+', '', energy_list[c.NominalBeamEnergy]))
                                 m = re.sub('\d+', '', energy_list[c.NominalBeamEnergy])
                                 if c.NominalBeamEnergy != e:
@@ -241,6 +308,42 @@ def send(case,
                                         logging.debug('Updating {} on beam {}, CP {} to {}'.format(
                                             str(b.data_element('FluenceMode').tag), b.BeamNumber, c.ControlPointIndex,
                                             'NON_STANDARD'))
+
+                # If adding reference points
+                if ref_point and beamset.Prescription.PrimaryDosePrescription is not None and \
+                        hasattr(ds, 'FractionGroupSequence') and \
+                        len(ds.FractionGroupSequence[0].ReferencedBeamSequence) > 0:
+
+                    # Create reference point for primary dose prescription
+                    ref = pydicom.Dataset()
+                    ref.DoseRefererenceNumber = 1
+                    ref.DoseReferenceStructureType = 'COORDINATES'
+                    if hasattr(beamset.Prescription.PrimaryDosePrescription.OnStructure, 'Name'):
+                        ref.DoseReferenceDescription = beamset.Prescription.PrimaryDosePrescription.OnStructure.Name
+
+                    else:
+                        ref.DoseReferenceDescription = 'PTV'
+
+                    ref.DoseReferencePointCoordinates = \
+                        ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint
+                    ref.DoseReferenceType = 'ORGAN_AT_RISK'
+                    ref.DeliveryMaximumDose = beamset.Prescription.PrimaryDosePrescription.DoseValue / 100
+                    ref.OrganAtRiskMaximumDose = beamset.Prescription.PrimaryDosePrescription.DoseValue / 100
+                    ds.DoseReferenceSequence = pydicom.Sequence([ref])
+
+                    edits.append(str(ds.data_element('DoseReferenceSequence').tag))
+                    logging.debug('Added {} sequence'.format(str(ds.data_element('DoseReferenceSequence').tag)))
+
+                    # Adjust beam doses to sum to primary dose point
+                    total_dose = 0
+                    for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+                        if hasattr(b, 'BeamDose'):
+                            total_dose += b.BeamDose
+
+                    for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+                        if hasattr(b, 'BeamDose'):
+                            b.BeamDose = b.BeamDose * ref.DeliveryMaximumDose / \
+                                         (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
 
             # If no edits are needed, copy the file to the modified directory
             if len(edits) == 0:
@@ -280,54 +383,20 @@ def send(case,
             if m in edited:
                 logging.debug('Validating edits against {}'.format(os.path.join(original, m)))
                 dso = pydicom.dcmread(os.path.join(original, m))
-                edits = []
-                for k0 in ds.keys():
-                    if ds[k0].VR == 'SQ':
-                        for i0 in range(len(ds[k0].value)):
-                            for k1 in ds[k0].value[i0].keys():
-                                if ds[k0].value[i0][k1].VR == 'SQ':
-                                    for i1 in range(len(ds[k0].value[i0][k1].value)):
-                                        for k2 in ds[k0].value[i0][k1].value[i1].keys():
-                                            if ds[k0].value[i0][k1].value[i1][k2].VR == 'SQ':
-                                                for i2 in range(len(ds[k0].value[i0][k1].value[i1][k2].value)):
-                                                    for k3 in ds[k0].value[i0][k1].value[i1][k2].value[i2].keys():
-                                                        if ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].VR == 'SQ':
-                                                            if not ignore_errors:
-                                                                if isinstance(bar, UserInterface.ProgressBar):
-                                                                    bar.close()
 
-                                                                raise KeyError('Too many nested sequences')
-                                                            else:
-                                                                status = False
+                try:
+                    edits = compare(ds, dso)
+                except KeyError:
+                    edits = []
+                    if ignore_errors:
+                        logging.warning('DICOM validation encountered too many nested sequences')
+                        status = False
 
-                                                        elif k3 not in dso[k0].value[i0][k1]. \
-                                                                value[i1][k2].value[i2]:
-                                                            edits.append(str(ds[k0].value[i0][k1].value[i1][k2].
-                                                                             value[i2][k3].tag))
+                    else:
+                        if isinstance(bar, UserInterface.ProgressBar):
+                            bar.close()
 
-                                                        elif ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].value != \
-                                                                dso[k0].value[i0][k1].value[i1][k2].value[i2][k3].value:
-                                                            edits.append(str(ds[k0].value[i0][k1].value[i1][k2].
-                                                                             value[i2][k3].tag))
-
-                                            elif k2 not in dso[k0].value[i0][k1].value[i1]:
-                                                edits.append(str(ds[k0].value[i0][k1].value[i1][k2].tag))
-
-                                            elif ds[k0].value[i0][k1].value[i1][k2].value != \
-                                                    dso[k0].value[i0][k1].value[i1][k2].value:
-                                                edits.append(str(ds[k0].value[i0][k1].value[i1][k2].tag))
-
-                                elif k1 not in dso[k0].value[i0]:
-                                    edits.append(str(ds[k0].value[i0][k1].tag))
-
-                                elif ds[k0].value[i0][k1].value != dso[k0].value[i0][k1].value:
-                                    edits.append(str(ds[k0].value[i0][k1].tag))
-
-                    elif k0 not in dso:
-                        edits.append(str(ds[k0].tag))
-
-                    elif ds[k0].value != dso[k0].value:
-                        edits.append(str(ds[k0].tag))
+                        raise
 
                 # The edits list should match the expected list generated above
                 if len(edits) == len(edited[m]) and edits.sort() == edited[m].sort():
@@ -346,6 +415,18 @@ def send(case,
             # Send file
             for d in destination:
                 info = destination_info(d)
+
+                # If destination has a anonymize tag, remove personal info
+                phi = {}
+                if 'anonymize' in info and info['anonymize']:
+                    for t in personal_tags:
+                        if hasattr(ds, t):
+                            phi[t] = getattr(ds, t)
+                            delattr(ds, t)
+
+                    ds.PatientName = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
+                    ds.PatientID = ''.join(random.choice(string.digits) for _ in range(8))
+                    ds.PatientBirthdate = ''
 
                 # Send to SCP via pynetdicom3
                 if len({'host', 'aet', 'port'}.difference(info)) == 0:
@@ -396,6 +477,10 @@ def send(case,
 
                     logging.info('Exporting {} to {}'.format(m, os.path.join(info['path'], ds.PatientID)))
                     shutil.copy(os.path.join(modified, m), os.path.join(info['path'], ds.PatientID))
+
+                # If destination had a anonymize tag, set values back
+                for k, v in phi.items():
+                    setattr(ds, k, v)
 
         # If pydicom fails, stop export unless ignore_errors flag is set
         except pydicom.errors.InvalidDicomError:
@@ -478,7 +563,8 @@ def energies(beamset=None, machine=None):
         if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
                 c.findall('from/machine')[0].text == beamset.MachineReference.MachineName:
             for t in c.findall('to'):
-                if machine is None or t.findall('machine')[0].text == machine:
+                if machine is None or t.findall('machine')[0].text == machine and 'type' in \
+                        t.findall('energy')[0].attrib and t.findall('energy')[0].attrib['type'] == 'photon':
                     energy_list[float(c.findall('from/energy')[0].text)] = t.findall('energy')[0].text
 
         # Otherwise, if only an energy filter
@@ -508,6 +594,64 @@ def destination_info(destination):
     for d in dest_xml.findall('destination'):
         if d.findall('name')[0].text == destination:
             for e in d.findall('*'):
-                info[e.tag] = e.text
+                if 'type' in e.attrib and e.attrib['type'] == 'text':
+                    info[e.tag] = e.text
+                elif 'type' in e.attrib and e.attrib['type'] == 'int':
+                    info[e.tag] = int(e.text)
+                elif 'type' in e.attrib and e.attrib['type'] == 'float':
+                    info[e.tag] = float(e.text)
+                elif 'type' in e.attrib and e.attrib['type'] == 'bool':
+                    info[e.tag] = e.text.lower() == 'true'
+                else:
+                    info[e.tag] = e.text
 
     return info
+
+
+def compare(ds, dso):
+    """edits = DicomExport.compare(dataset1, dataset2)"""
+
+    edits = []
+    for k0 in ds.keys():
+        if k0 not in dso:
+            edits.append(str(ds[k0].tag))
+
+        elif ds[k0].VR == 'SQ':
+            for i0 in range(len(ds[k0].value)):
+                for k1 in ds[k0].value[i0].keys():
+                    if k1 not in dso[k0].value[i0]:
+                        edits.append(str(ds[k0].value[i0][k1].tag))
+
+                    elif ds[k0].value[i0][k1].VR == 'SQ':
+                        for i1 in range(len(ds[k0].value[i0][k1].value)):
+                            for k2 in ds[k0].value[i0][k1].value[i1].keys():
+                                if k2 not in dso[k0].value[i0][k1].value[i1]:
+                                    edits.append(str(ds[k0].value[i0][k1].value[i1][k2].tag))
+
+                                elif ds[k0].value[i0][k1].value[i1][k2].VR == 'SQ':
+                                    for i2 in range(len(ds[k0].value[i0][k1].value[i1][k2].value)):
+                                        for k3 in ds[k0].value[i0][k1].value[i1][k2].value[i2].keys():
+                                            if k3 not in dso[k0].value[i0][k1]. \
+                                                    value[i1][k2].value[i2]:
+                                                edits.append(str(ds[k0].value[i0][k1].value[i1][k2].
+                                                                 value[i2][k3].tag))
+
+                                            elif ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].VR == 'SQ':
+                                                raise KeyError('Unsupported number of nested sequences')
+
+                                            elif ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].value != \
+                                                    dso[k0].value[i0][k1].value[i1][k2].value[i2][k3].value:
+                                                edits.append(str(ds[k0].value[i0][k1].value[i1][k2].
+                                                                 value[i2][k3].tag))
+
+                                elif ds[k0].value[i0][k1].value[i1][k2].value != \
+                                        dso[k0].value[i0][k1].value[i1][k2].value:
+                                    edits.append(str(ds[k0].value[i0][k1].value[i1][k2].tag))
+
+                    elif ds[k0].value[i0][k1].value != dso[k0].value[i0][k1].value:
+                        edits.append(str(ds[k0].value[i0][k1].tag))
+
+        elif ds[k0].value != dso[k0].value:
+            edits.append(str(ds[k0].tag))
+
+    return edits
