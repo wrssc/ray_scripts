@@ -1,58 +1,59 @@
 <destinations>
     <destination type="scp">
-        <name>MIM</name>
-        <host>mim.uwhealth.wisc.edu</host>
-        <aet>AE_MIM</aet>
-        <port>4008</port>
+        <name type="text">MIM</name>
+        <host type="text">mim.uwhealth.wisc.edu</host>
+        <aet type="text">AE_MIM</aet>
+        <port type="int">4008</port>
     </destination>
     <destination type="scp">
-        <name>Mobius3D</name>
-        <host>mobius.uwhealth.wisc.edu</host>
-        <aet>MOBIUS3D</aet>
-        <port>104</port>
+        <name type="text">Mobius3D</name>
+        <host type="text">mobius.uwhealth.wisc.edu</host>
+        <aet type="text">MOBIUS3D</aet>
+        <port type="int">104</port>
     </destination>
-    <destination>
-        <name>Tomo (Room C)</name>
-        <host>10.151.1.73</host>
-        <aet>TomoProvider1</aet>
-        <port>104</port>
+    <destination type="scp">
+        <name type="text">Tomo (Room C)</name>
+        <host type="text">10.151.1.73</host>
+        <aet type="text">TomoProvider1</aet>
+        <port type="int">104</port>
     </destination>
-    <destination>
-        <name>Tomo (Room B)</name>
-        <host>10.151.1.141</host>
-        <aet>TomoProvider2</aet>
-        <port>104</port>
+    <destination type="scp">
+        <name type="text">Tomo (Room B)</name>
+        <host type="text">10.151.1.141</host>
+        <aet type="text">TomoProvider2</aet>
+        <port type="int">104</port>
     </destination>
-    <destination>
-        <name>ViewRay</name>
-        <host>10.105.10.25</host>
-        <aet>VIEWRAY_STORAGE</aet>
-        <port>11115</port>
+    <destination type="scp">
+        <name type="text">ViewRay</name>
+        <host type="text">10.105.10.25</host>
+        <aet type="text">VIEWRAY_STORAGE</aet>
+        <port type="int">11115</port>
     </destination>
-    <destination>
-        <name>OSMS (East)</name>
-        <host>10.32.16.32</host>
-        <aet>OSMS_EAST</aet>
-        <port>104</port>
+    <destination type="scp">
+        <name type="text">OSMS (East)</name>
+        <host type="text">10.32.16.32</host>
+        <aet type="text">OSMS_EAST</aet>
+        <port type="int">104</port>
     </destination>
-    <destination>
-        <name>OSMS (Room A)</name>
-        <host>10.105.10.31</host>
-        <aet>OSMS0490</aet>
-        <port>104</port>
+    <destination type="scp">
+        <name type="text">OSMS (Room A)</name>
+        <host type="text">10.105.10.31</host>
+        <aet type="text">OSMS0490</aet>
+        <port type="int">104</port>
     </destination>
-    <destination>
-        <name>ARIA</name>
-        <host>aria.uwhealth.wisc.edu</host>
-        <aet>ARIA</aet>
-        <port>106</port>
-    </destination>
-    <destination type="folder">
-        <name>Delta4</name>
-        <path>\\aria.uwhealth.wisc.edu\echart\Delta4\DICOM</path>
+    <destination type="scp">
+        <name type="text">ARIA</name>
+        <host type="text">aria.uwhealth.wisc.edu</host>
+        <aet type="text">ARIA</aet>
+        <port type="int">106</port>
     </destination>
     <destination type="folder">
-        <name>Transfer Folder</name>
-        <path>\\uwhis.hosp.wisc.edu\UFS\UWHealth\RadOnc\ShareAll\Transfer</path>
+        <name type="text">Delta4</name>
+        <path type="text">\\aria.uwhealth.wisc.edu\echart\Delta4\DICOM</path>
+    </destination>
+    <destination type="folder">
+        <name type="text">Transfer Folder</name>
+        <path type="text">\\uwhis.hosp.wisc.edu\UFS\UWHealth\RadOnc\ShareAll\Transfer</path>
+        <anonymize type="bool">True</anonymize>
     </destination>
 </destinations>
