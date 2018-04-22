@@ -174,6 +174,10 @@ def main():
                                anonymize=None,
                                filters=['machine', 'energy'],
                                machine=response['c'],
+                               table=[0, 1000, 0],
+                               round_jaws=True,
+                               block_id=True,
+                               ref_point=True,
                                bar=True)
 
     # Finish up
