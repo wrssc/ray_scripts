@@ -86,6 +86,7 @@ def send(case,
          filters=None,
          machine=None,
          table=None,
+         pa_threshold=None,
          ref_point=False,
          round_jaws=False,
          block_id=False,
@@ -282,6 +283,25 @@ def send(case,
                                         logging.debug('Updating {} on beam {}, CP {} to [{}, {}]'.format(str(
                                             p.data_element('LeafJawPositions').tag), b.BeamNumber, c.ControlPointIndex,
                                             p.LeafJawPositions[0], p.LeafJawPositions[1]))
+
+                    # If adjusting PA beam angle for right sided targets
+                    if pa_threshold is not None:
+                        right_pa = True
+                        for c in b.ControlPointSequence:
+                            if not hasattr(c, 'GantryAngle') or c.GantryAngle != 180 or not \
+                                    hasattr(c, 'GantryRotationDirection') or c.GantryRotationDirection != 'NONE' or \
+                                    (hasattr(c, 'IsocenterPosition') and c.IsocenterPosition < pa_threshold):
+                                right_pa = False
+                                break
+
+                        if right_pa:
+                            for c in b.ControlPointSequence:
+                                if hasattr(c, 'GantryAngle'):
+                                    c.GantryAngle == 180.000001
+                                    edits.append(str(c.data_element('GantryAngle').tag))
+                                    logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
+                                        c.data_element('GantryAngle').tag), b.BeamNumber, c.ControlPointIndex,
+                                        c.GantryAngle))
 
                     # If applying an energy filter (note only photon are supported)
                     if energy_list is not None and hasattr(b, 'ControlPointSequence'):
