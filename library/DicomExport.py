@@ -231,32 +231,32 @@ def send(case,
                 for b in ds.BeamSequence:
 
                     # If applying a machine filter
-                    if machine is not None:
-                        if b.TreatmentMachineName != machine:
-                            b.TreatmentMachineName = machine
-                            edits.append(str(b.data_element('TreatmentMachineName').tag))
-                            logging.debug('Updating {} on beam {} to {}'.format(
-                                str(b.data_element('TreatmentMachineName').tag), b.BeamNumber, machine))
+                    if machine is not None and 'TreatmentMachineName' in b and b.TreatmentMachineName != machine:
+                        b.TreatmentMachineName = machine
+                        edits.append(str(b.data_element('TreatmentMachineName').tag))
+                        logging.debug('Updating {} on beam {} to {}'.format(
+                            str(b.data_element('TreatmentMachineName').tag), b.BeamNumber, machine))
 
                     # If updating electron block ID
-                    if block_id and hasattr(b, 'RadiationType') and b.RadiationType == 'ELECTRON' and \
-                            hasattr(b, 'NumberOfBlocks') and b.NumberOfBlocks == 1 and hasattr(b, 'BlockName'):
+                    if block_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
+                            'NumberOfBlocks' in b and b.NumberOfBlocks == 1 and 'BlockName' in b and \
+                            ('BlockID' not in b or b.BlockID != b.BlockName):
                         b.BlockID = b.BlockName
                         edits.append(str(b.data_element('BlockID').tag))
                         logging.debug('Updating {} on beam {} to {}'.format(str(
                             b.data_element('BlockID').tag), b.BeamNumber, b.BlockName))
 
                     # If updating table position
-                    if table is not None and hasattr(b, 'ControlPointSequence'):
+                    if table is not None and 'ControlPointSequence' in b:
                         for c in b.ControlPointSequence:
-                            if hasattr(c, 'TableTopLateralPosition') and c.TableTopLateralPosition != table[0]:
+                            if 'TableTopLateralPosition' in c and c.TableTopLateralPosition != table[0]:
                                 c.TableTopLateralPosition = table[0]
                                 edits.append(str(c.data_element('TableTopLateralPosition').tag))
                                 logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
                                     c.data_element('TableTopLateralPosition').tag), b.BeamNumber,
                                     c.ControlPointIndex, table[0]))
 
-                            if hasattr(c, 'TableTopLongitudinalPosition') and \
+                            if 'TableTopLongitudinalPosition' in c and \
                                     c.TableTopLongitudinalPosition != table[2]:
                                 c.TableTopLongitudinalPosition = table[2]
                                 edits.append(str(c.data_element('TableTopLongitudinalPosition').tag))
@@ -264,7 +264,7 @@ def send(case,
                                     c.data_element('TableTopLongitudinalPosition').tag), b.BeamNumber,
                                     c.ControlPointIndex, table[2]))
 
-                            if hasattr(c, 'TableTopVerticalPosition') and c.TableTopVerticalPosition != table[2]:
+                            if 'TableTopVerticalPosition' in c and c.TableTopVerticalPosition != table[2]:
                                 c.TableTopVerticalPosition = table[2]
                                 edits.append(str(c.data_element('TableTopVerticalPosition').tag))
                                 logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
@@ -272,11 +272,13 @@ def send(case,
                                     c.ControlPointIndex, table[2]))
 
                     # If rounding jaws
-                    if round_jaws:
+                    if round_jaws and 'ControlPointSequence' in b:
                         for c in b.ControlPointSequence:
                             if hasattr(c, 'BeamLimitingDevicePositionSequence'):
                                 for p in c.BeamLimitingDevicePositionSequence:
-                                    if hasattr(p, 'LeafJawPositions') and len(p.LeafJawPositions) == 2:
+                                    if 'LeafJawPositions' in p and len(p.LeafJawPositions) == 2 and \
+                                            (p.LeafJawPositions[0] != math.floor(p.LeafJawPositions[0]) or
+                                             p.LeafJawPositions[1] != math.ceil(p.LeafJawPositions[1])):
                                         p.LeafJawPositions[0] = math.floor(p.LeafJawPositions[0])
                                         p.LeafJawPositions[1] = math.ceil(p.LeafJawPositions[1])
                                         edits.append(str(p.data_element('LeafJawPositions').tag))
@@ -288,26 +290,26 @@ def send(case,
                     if pa_threshold is not None:
                         right_pa = True
                         for c in b.ControlPointSequence:
-                            if not hasattr(c, 'GantryAngle') or c.GantryAngle != 180 or not \
-                                    hasattr(c, 'GantryRotationDirection') or c.GantryRotationDirection != 'NONE' or \
-                                    (hasattr(c, 'IsocenterPosition') and c.IsocenterPosition < pa_threshold):
+                            if 'GantryAngle' not in c or c.GantryAngle != 180 or \
+                                    'GantryRotationDirection' not in c or c.GantryRotationDirection != 'NONE' or \
+                                    ('IsocenterPosition' in c and c.IsocenterPosition < pa_threshold):
                                 right_pa = False
                                 break
 
                         if right_pa:
                             for c in b.ControlPointSequence:
-                                if hasattr(c, 'GantryAngle'):
-                                    c.GantryAngle == 180.000001
+                                if 'GantryAngle' in c:
+                                    c.GantryAngle = 180.000001
                                     edits.append(str(c.data_element('GantryAngle').tag))
                                     logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
                                         c.data_element('GantryAngle').tag), b.BeamNumber, c.ControlPointIndex,
                                         c.GantryAngle))
 
                     # If applying an energy filter (note only photon are supported)
-                    if energy_list is not None and hasattr(b, 'ControlPointSequence'):
+                    if energy_list is not None and 'ControlPointSequence' in b:
                         for c in b.ControlPointSequence:
-                            if hasattr(c, 'NominalBeamEnergy') and c.NominalBeamEnergy in energy_list.keys() and \
-                                    hasattr(b, 'RadiationType') and b.RadiationType == 'PHOTON':
+                            if 'NominalBeamEnergy' in c and c.NominalBeamEnergy in energy_list.keys() and \
+                                    'RadiationType' in b and b.RadiationType == 'PHOTON':
                                 e = float(re.sub('\D+', '', energy_list[c.NominalBeamEnergy]))
                                 m = re.sub('\d+', '', energy_list[c.NominalBeamEnergy])
                                 if c.NominalBeamEnergy != e:
@@ -317,7 +319,7 @@ def send(case,
                                         c.data_element('NominalBeamEnergy').tag), b.BeamNumber, c.ControlPointIndex, e))
 
                                 # If a non-standard fluence, add mode ID and NON_STANDARD flag
-                                if not hasattr(b, 'FluenceModeID') or b.FluenceModeID != m:
+                                if 'FluenceModeID' not in b or b.FluenceModeID != m:
                                     b.FluenceModeID = m
                                     edits.append(str(b.data_element('FluenceModeID').tag))
                                     logging.debug('Updating {} on beam {}, CP {} to {}'.format(
@@ -331,8 +333,7 @@ def send(case,
 
                 # If adding reference points
                 if ref_point and beamset.Prescription.PrimaryDosePrescription is not None and \
-                        hasattr(ds, 'FractionGroupSequence') and \
-                        len(ds.FractionGroupSequence[0].ReferencedBeamSequence) > 0:
+                        'FractionGroupSequence' in ds and len(ds.FractionGroupSequence[0].ReferencedBeamSequence) > 0:
 
                     # Create reference point for primary dose prescription
                     ref = pydicom.Dataset()
@@ -349,10 +350,58 @@ def send(case,
                     ref.DoseReferenceType = 'ORGAN_AT_RISK'
                     ref.DeliveryMaximumDose = beamset.Prescription.PrimaryDosePrescription.DoseValue / 100
                     ref.OrganAtRiskMaximumDose = beamset.Prescription.PrimaryDosePrescription.DoseValue / 100
-                    ds.DoseReferenceSequence = pydicom.Sequence([ref])
 
-                    edits.append(str(ds.data_element('DoseReferenceSequence').tag))
-                    logging.debug('Added {} sequence'.format(str(ds.data_element('DoseReferenceSequence').tag)))
+                    if 'DoseReferenceSequence' not in ds:
+                        ds.DoseReferenceSequence = pydicom.Sequence([ref])
+                        edits.append(str(ds.data_element('DoseReferenceSequence').tag))
+                        logging.debug('Added {} sequence'.format(str(ds.data_element('DoseReferenceSequence').tag)))
+
+                    else:
+                        if 'DoseRefererenceNumber' not in ds.DoseReferenceSequence[0] or \
+                                ds.DoseReferenceSequence[0].DoseRefererenceNumber != ref.DoseRefererenceNumber:
+                            edits.append(str(ref.data_element('DoseRefererenceNumber').tag))
+                            logging.debug('Updated {} to '.format(str(ref.data_element('DoseRefererenceNumber').tag),
+                                                                  ref.DoseRefererenceNumber))
+
+                        if 'DoseReferenceStructureType' not in ds.DoseReferenceSequence[0] or \
+                                ds.DoseReferenceSequence[0].DoseReferenceStructureType != \
+                                ref.DoseReferenceStructureType:
+                            edits.append(str(ref.data_element('DoseReferenceStructureType').tag))
+                            logging.debug('Updated {} to '.format(str(ref.data_element(
+                                'DoseReferenceStructureType').tag), ref.DoseReferenceStructureType))
+
+                        if 'DoseReferenceDescription' not in ds.DoseReferenceSequence[0] or \
+                                ds.DoseReferenceSequence[0].DoseReferenceDescription != ref.DoseReferenceDescription:
+                            edits.append(str(ref.data_element('DoseReferenceDescription').tag))
+                            logging.debug('Updated {} to '.format(str(ref.data_element('DoseReferenceDescription').tag),
+                                                                  ref.DoseReferenceDescription))
+
+                        if 'DoseReferencePointCoordinates' not in ds.DoseReferenceSequence[0] or \
+                                ds.DoseReferenceSequence[0].DoseReferencePointCoordinates != \
+                                ref.DoseReferencePointCoordinates:
+                            edits.append(str(ref.data_element('DoseReferencePointCoordinates').tag))
+                            logging.debug('Updated {} to '.format(str(ref.data_element(
+                                'DoseReferencePointCoordinates').tag), ref.DoseReferenceStructureType))
+
+                        if 'DoseReferenceType' not in ds.DoseReferenceSequence[0] or \
+                                ds.DoseReferenceSequence[0].DoseReferenceType != ref.DoseReferenceType:
+                            edits.append(str(ref.data_element('DoseReferenceType').tag))
+                            logging.debug('Updated {} to '.format(str(ref.data_element('DoseReferenceType').tag),
+                                                                  ref.DoseReferenceType))
+
+                        if 'DeliveryMaximumDose' not in ds.DoseReferenceSequence[0] or \
+                                ds.DoseReferenceSequence[0].DeliveryMaximumDose != ref.DeliveryMaximumDose:
+                            edits.append(str(ref.data_element('DeliveryMaximumDose').tag))
+                            logging.debug('Updated {} to '.format(str(ref.data_element('DeliveryMaximumDose').tag),
+                                                                  ref.DeliveryMaximumDose))
+
+                        if 'OrganAtRiskMaximumDose' not in ds.DoseReferenceSequence[0] or \
+                                ds.DoseReferenceSequence[0].OrganAtRiskMaximumDose != ref.OrganAtRiskMaximumDose:
+                            edits.append(str(ref.data_element('OrganAtRiskMaximumDose').tag))
+                            logging.debug('Updated {} to '.format(str(ref.data_element('OrganAtRiskMaximumDose').tag),
+                                                                  ref.OrganAtRiskMaximumDose))
+
+                        ds.DoseReferenceSequence = pydicom.Sequence([ref])
 
                     # Adjust beam doses to sum to primary dose point
                     total_dose = 0
@@ -361,9 +410,13 @@ def send(case,
                             total_dose += b.BeamDose
 
                     for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
-                        if hasattr(b, 'BeamDose'):
+                        if hasattr(b, 'BeamDose') and b.BeamDose != b.BeamDose * ref.DeliveryMaximumDose / \
+                                (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned):
                             b.BeamDose = b.BeamDose * ref.DeliveryMaximumDose / \
                                          (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
+                            edits.append(str(ds.data_element('BeamDose').tag))
+                            logging.debug('Updating {} on beam {} to {}'.format(str(ds.data_element(
+                                'DoseReferenceSequence').tag), b.BeamNumber, b.BeamDose))
 
             # If no edits are needed, copy the file to the modified directory
             if len(edits) == 0:
@@ -427,8 +480,8 @@ def send(case,
                     logging.debug('File {} edits are consistent with expected'.format(m))
 
                 else:
-                    logging.error('Expected modification tags: ' + ', '.join(edited[m]))
-                    logging.error('Observed modification tags: ' + ', '.join(edits))
+                    logging.error('Expected modification tags: ' + ', '.join(edited[m]).sort())
+                    logging.error('Observed modification tags: ' + ', '.join(edits).sort())
                     status = False
                     if not ignore_errors:
                         if isinstance(bar, UserInterface.ProgressBar):
