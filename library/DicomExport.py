@@ -333,7 +333,7 @@ def send(case,
                                         str(b.data_element('FluenceMode').tag), b.BeamNumber, c.ControlPointIndex,
                                         b.FluenceMode))
 
-                                if m != '' and 'FluenceModeID' not in b or b.FluenceModeID != m:
+                                if m != '' and ('FluenceModeID' not in b or b.FluenceModeID != m):
                                     b.FluenceModeID = m
                                     edits.append(str(b.data_element('FluenceModeID').tag))
                                     logging.debug('Updating {} on beam {}, CP {} to {}'.format(
