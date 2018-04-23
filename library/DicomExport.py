@@ -319,17 +319,25 @@ def send(case,
                                         c.data_element('NominalBeamEnergy').tag), b.BeamNumber, c.ControlPointIndex, e))
 
                                 # If a non-standard fluence, add mode ID and NON_STANDARD flag
-                                if 'FluenceModeID' not in b or b.FluenceModeID != m:
+                                if 'FluenceMode' not in b or (b.FluenceMode != 'NON_STANDARD' and m != '') or \
+                                        (b.FluenceMode != 'STANDARD' and m == ''):
+
+                                    if m != '':
+                                        b.FluenceMode = 'NON_STANDARD'
+
+                                    else:
+                                        b.FluenceMode = 'STANDARD'
+
+                                    edits.append(str(b.data_element('FluenceMode').tag))
+                                    logging.debug('Updating {} on beam {}, CP {} to {}'.format(
+                                        str(b.data_element('FluenceMode').tag), b.BeamNumber, c.ControlPointIndex,
+                                        b.FluenceMode))
+
+                                if m != '' and 'FluenceModeID' not in b or b.FluenceModeID != m:
                                     b.FluenceModeID = m
                                     edits.append(str(b.data_element('FluenceModeID').tag))
                                     logging.debug('Updating {} on beam {}, CP {} to {}'.format(
                                         str(b.data_element('FluenceModeID').tag), b.BeamNumber, c.ControlPointIndex, m))
-                                    if m != '':
-                                        b.FluenceMode = 'NON_STANDARD'
-                                        edits.append(str(b.data_element('FluenceMode').tag))
-                                        logging.debug('Updating {} on beam {}, CP {} to {}'.format(
-                                            str(b.data_element('FluenceMode').tag), b.BeamNumber, c.ControlPointIndex,
-                                            'NON_STANDARD'))
 
                 # If adding reference points
                 if ref_point and beamset.Prescription.PrimaryDosePrescription is not None and \
