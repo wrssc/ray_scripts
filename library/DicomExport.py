@@ -361,53 +361,46 @@ def send(case,
 
                     if 'DoseReferenceSequence' not in ds:
                         ds.DoseReferenceSequence = pydicom.Sequence([ref])
-                        edits.append(str(ds.data_element('DoseReferenceSequence').tag))
-                        logging.debug('Added {} sequence'.format(str(ds.data_element('DoseReferenceSequence').tag)))
+                        edits.append('(300a, 0010)')
+                        logging.debug('Added (300a, 0010) sequence')
 
                     else:
                         if 'DoseRefererenceNumber' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseRefererenceNumber != ref.DoseRefererenceNumber:
-                            edits.append(str(ref.data_element('DoseRefererenceNumber').tag))
-                            logging.debug('Updated {} to '.format(str(ref.data_element('DoseRefererenceNumber').tag),
-                                                                  ref.DoseRefererenceNumber))
+                            edits.append('(300a, 0012)')
+                            logging.debug('Updated (300a, 0012) to {}'.format(ref.DoseRefererenceNumber))
 
                         if 'DoseReferenceStructureType' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferenceStructureType != \
                                 ref.DoseReferenceStructureType:
-                            edits.append(str(ref.data_element('DoseReferenceStructureType').tag))
-                            logging.debug('Updated {} to '.format(str(ref.data_element(
-                                'DoseReferenceStructureType').tag), ref.DoseReferenceStructureType))
+                            edits.append('(300a, 0014)')
+                            logging.debug('Updated (300a, 0014) to {}'.format(ref.DoseReferenceStructureType))
 
                         if 'DoseReferenceDescription' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferenceDescription != ref.DoseReferenceDescription:
-                            edits.append(str(ref.data_element('DoseReferenceDescription').tag))
-                            logging.debug('Updated {} to '.format(str(ref.data_element('DoseReferenceDescription').tag),
-                                                                  ref.DoseReferenceDescription))
+                            edits.append('(300a, 0016)')
+                            logging.debug('Updated (300a, 0016) to {}'.format(ref.DoseReferenceDescription))
 
                         if 'DoseReferencePointCoordinates' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferencePointCoordinates != \
                                 ref.DoseReferencePointCoordinates:
-                            edits.append(str(ref.data_element('DoseReferencePointCoordinates').tag))
-                            logging.debug('Updated {} to '.format(str(ref.data_element(
-                                'DoseReferencePointCoordinates').tag), ref.DoseReferenceStructureType))
+                            edits.append('(300a, 0018)')
+                            logging.debug('Updated (300a, 0018) to {}'.format(ref.DoseReferenceStructureType))
 
                         if 'DoseReferenceType' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferenceType != ref.DoseReferenceType:
-                            edits.append(str(ref.data_element('DoseReferenceType').tag))
-                            logging.debug('Updated {} to '.format(str(ref.data_element('DoseReferenceType').tag),
-                                                                  ref.DoseReferenceType))
+                            edits.append('(300a, 0020)')
+                            logging.debug('Updated (300a, 0020) to {}'.format(ref.DoseReferenceType))
 
                         if 'DeliveryMaximumDose' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DeliveryMaximumDose != ref.DeliveryMaximumDose:
-                            edits.append(str(ref.data_element('DeliveryMaximumDose').tag))
-                            logging.debug('Updated {} to '.format(str(ref.data_element('DeliveryMaximumDose').tag),
-                                                                  ref.DeliveryMaximumDose))
+                            edits.append('(300a, 0023)')
+                            logging.debug('Updated (300a, 0023) to {}'.format(ref.DeliveryMaximumDose))
 
                         if 'OrganAtRiskMaximumDose' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].OrganAtRiskMaximumDose != ref.OrganAtRiskMaximumDose:
-                            edits.append(str(ref.data_element('OrganAtRiskMaximumDose').tag))
-                            logging.debug('Updated {} to '.format(str(ref.data_element('OrganAtRiskMaximumDose').tag),
-                                                                  ref.OrganAtRiskMaximumDose))
+                            edits.append('(300a, 002c)')
+                            logging.debug('Updated (300a, 002c) to {}'.format(ref.OrganAtRiskMaximumDose))
 
                         ds.DoseReferenceSequence = pydicom.Sequence([ref])
 
@@ -422,9 +415,8 @@ def send(case,
                                 (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned):
                             b.BeamDose = b.BeamDose * ref.DeliveryMaximumDose / \
                                          (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
-                            edits.append(str(ds.data_element('BeamDose').tag))
-                            logging.debug('Updating {} on beam {} to {}'.format(str(ds.data_element(
-                                'DoseReferenceSequence').tag), b.BeamNumber, b.BeamDose))
+                            edits.append('(300a, 0084)')
+                            logging.debug('Updating (300a, 0084) on beam {} to {}'.format(b.BeamNumber, b.BeamDose))
 
             # If no edits are needed, copy the file to the modified directory
             if len(edits) == 0:
