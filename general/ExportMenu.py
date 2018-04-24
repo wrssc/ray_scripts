@@ -167,8 +167,8 @@ def main():
                                exam=exam,
                                beamset=beamset,
                                structures='Structures' in response['b'],
-                               plandose='Plan Dose' in response['b'],
-                               beamdose='Beam Dose' in response['b'],
+                               plan_dose='Plan Dose' in response['b'],
+                               beam_dose='Beam Dose' in response['b'],
                                ignore_warnings=True,  # =ignore,
                                ignore_errors=False,
                                anonymize=None,
@@ -177,7 +177,7 @@ def main():
                                table=[0, 1000, 0],
                                round_jaws=True,
                                block_id=True,
-                               ref_point=True,
+                               prescription=True,
                                bar=True)
 
     # Finish up

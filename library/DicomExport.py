@@ -78,8 +78,8 @@ def send(case,
          exam=None,
          beamset=None,
          structures=True,
-         plandose=True,
-         beamdose=False,
+         plan_dose=True,
+         beam_dose=False,
          ignore_warnings=False,
          ignore_errors=False,
          anonymize=None,
@@ -87,7 +87,7 @@ def send(case,
          machine=None,
          table=None,
          pa_threshold=None,
-         ref_point=False,
+         prescription=False,
          round_jaws=False,
          block_id=False,
          bar=True):
@@ -125,7 +125,6 @@ def send(case,
     # Load energy filters for selected machine
     if filters is not None and 'energy' in filters and beamset is not None:
         energy_list = energies(beamset, machine)
-        print energy_list
     else:
         energy_list = None
 
@@ -179,10 +178,10 @@ def send(case,
             args['RtStructureSetsReferencedFromBeamSets'] = [beamset.BeamSetIdentifier()]
 
         args['BeamSets'] = [beamset.BeamSetIdentifier()]
-        if plandose:
+        if plan_dose:
             args['BeamSetDoseForBeamSets'] = [beamset.BeamSetIdentifier()]
 
-        if beamdose:
+        if beam_dose:
             args['BeamDosesForBeamSets'] = [beamset.BeamSetIdentifier()]
 
     elif exam is not None and structures:
@@ -226,50 +225,37 @@ def send(case,
             ds = pydicom.dcmread(os.path.join(original, o))
 
             # If this is a DICOM RT plan
-            edits = []
+            expected = _Edits()
             if ds.file_meta.MediaStorageSOPClassUID == '1.2.840.10008.5.1.4.1.1.481.5':
                 for b in ds.BeamSequence:
 
                     # If applying a machine filter
                     if machine is not None and 'TreatmentMachineName' in b and b.TreatmentMachineName != machine:
                         b.TreatmentMachineName = machine
-                        edits.append(str(b.data_element('TreatmentMachineName').tag))
-                        logging.debug('Updating {} on beam {} to {}'.format(
-                            str(b.data_element('TreatmentMachineName').tag), b.BeamNumber, machine))
+                        expected.add(b.data_element('TreatmentMachineName'), beam=b)
 
                     # If updating electron block ID
                     if block_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
                             'NumberOfBlocks' in b and b.NumberOfBlocks == 1 and 'BlockName' in b and \
                             ('BlockID' not in b or b.BlockID != b.BlockName):
                         b.BlockID = b.BlockName
-                        edits.append(str(b.data_element('BlockID').tag))
-                        logging.debug('Updating {} on beam {} to {}'.format(str(
-                            b.data_element('BlockID').tag), b.BeamNumber, b.BlockName))
+                        expected.add(b.data_element('BlockID'), beam=b)
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
                         for c in b.ControlPointSequence:
                             if 'TableTopLateralPosition' in c and c.TableTopLateralPosition != table[0]:
                                 c.TableTopLateralPosition = table[0]
-                                edits.append(str(c.data_element('TableTopLateralPosition').tag))
-                                logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
-                                    c.data_element('TableTopLateralPosition').tag), b.BeamNumber,
-                                    c.ControlPointIndex, table[0]))
+                                expected.add(c.data_element('TableTopLateralPosition'), beam=b, cp=c)
 
                             if 'TableTopLongitudinalPosition' in c and \
-                                    c.TableTopLongitudinalPosition != table[2]:
-                                c.TableTopLongitudinalPosition = table[2]
-                                edits.append(str(c.data_element('TableTopLongitudinalPosition').tag))
-                                logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
-                                    c.data_element('TableTopLongitudinalPosition').tag), b.BeamNumber,
-                                    c.ControlPointIndex, table[2]))
+                                    c.TableTopLongitudinalPosition != table[1]:
+                                c.TableTopLongitudinalPosition = table[1]
+                                expected.add(c.data_element('TableTopLongitudinalPosition'), beam=b, cp=c)
 
                             if 'TableTopVerticalPosition' in c and c.TableTopVerticalPosition != table[2]:
                                 c.TableTopVerticalPosition = table[2]
-                                edits.append(str(c.data_element('TableTopVerticalPosition').tag))
-                                logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
-                                    c.data_element('TableTopVerticalPosition').tag), b.BeamNumber,
-                                    c.ControlPointIndex, table[2]))
+                                expected.add(c.data_element('TableTopVerticalPosition'), beam=b, cp=c)
 
                     # If rounding jaws
                     if round_jaws and 'ControlPointSequence' in b:
@@ -281,10 +267,7 @@ def send(case,
                                              p.LeafJawPositions[1] != math.ceil(p.LeafJawPositions[1])):
                                         p.LeafJawPositions[0] = math.floor(p.LeafJawPositions[0])
                                         p.LeafJawPositions[1] = math.ceil(p.LeafJawPositions[1])
-                                        edits.append(str(p.data_element('LeafJawPositions').tag))
-                                        logging.debug('Updating {} on beam {}, CP {} to [{}, {}]'.format(str(
-                                            p.data_element('LeafJawPositions').tag), b.BeamNumber, c.ControlPointIndex,
-                                            p.LeafJawPositions[0], p.LeafJawPositions[1]))
+                                        expected.add(p.data_element('LeafJawPositions'), beam=b, cp=c)
 
                     # If adjusting PA beam angle for right sided targets
                     if pa_threshold is not None:
@@ -299,11 +282,8 @@ def send(case,
                         if right_pa:
                             for c in b.ControlPointSequence:
                                 if 'GantryAngle' in c:
-                                    c.GantryAngle = 180.000001
-                                    edits.append(str(c.data_element('GantryAngle').tag))
-                                    logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
-                                        c.data_element('GantryAngle').tag), b.BeamNumber, c.ControlPointIndex,
-                                        c.GantryAngle))
+                                    c.GantryAngle = 180.1
+                                    expected.add(c.data_element('GantryAngle'), beam=b, cp=c)
 
                     # If applying an energy filter (note only photon are supported)
                     if energy_list is not None and 'ControlPointSequence' in b:
@@ -314,9 +294,7 @@ def send(case,
                                 m = re.sub('\d+', '', energy_list[c.NominalBeamEnergy])
                                 if c.NominalBeamEnergy != e:
                                     c.NominalBeamEnergy = e
-                                    edits.append(str(c.data_element('NominalBeamEnergy').tag))
-                                    logging.debug('Updating {} on beam {}, CP {} to {}'.format(str(
-                                        c.data_element('NominalBeamEnergy').tag), b.BeamNumber, c.ControlPointIndex, e))
+                                    expected.add(c[0x300a0114], beam=b, cp=c)
 
                                 # If a non-standard fluence, add mode ID and NON_STANDARD flag
                                 if 'FluenceMode' not in b or (b.FluenceMode != 'NON_STANDARD' and m != '') or \
@@ -328,79 +306,62 @@ def send(case,
                                     else:
                                         b.FluenceMode = 'STANDARD'
 
-                                    edits.append(str(b.data_element('FluenceMode').tag))
-                                    logging.debug('Updating {} on beam {}, CP {} to {}'.format(
-                                        str(b.data_element('FluenceMode').tag), b.BeamNumber, c.ControlPointIndex,
-                                        b.FluenceMode))
+                                    expected.add(b[0x30020051], beam=b, cp=c)
 
                                 if m != '' and ('FluenceModeID' not in b or b.FluenceModeID != m):
                                     b.FluenceModeID = m
-                                    edits.append(str(b.data_element('FluenceModeID').tag))
-                                    logging.debug('Updating {} on beam {}, CP {} to {}'.format(
-                                        str(b.data_element('FluenceModeID').tag), b.BeamNumber, c.ControlPointIndex, m))
+                                    expected.add(b[0x30020052], beam=b, cp=c)
 
                 # If adding reference points
-                if ref_point and beamset.Prescription.PrimaryDosePrescription is not None and \
+                if prescription and beamset.Prescription.PrimaryDosePrescription is not None and \
                         'FractionGroupSequence' in ds and len(ds.FractionGroupSequence[0].ReferencedBeamSequence) > 0:
 
                     # Create reference point for primary dose prescription
                     ref = pydicom.Dataset()
-                    ref.DoseRefererenceNumber = 1
-                    ref.DoseReferenceStructureType = 'COORDINATES'
+                    ref.add_new(0x300a0012, 'IS', 1)
+                    ref.add_new(0x300a0014, 'CS', 'COORDINATES')
                     if hasattr(beamset.Prescription.PrimaryDosePrescription.OnStructure, 'Name'):
-                        ref.DoseReferenceDescription = beamset.Prescription.PrimaryDosePrescription.OnStructure.Name
+                        ref.add_new(0x300a0016, 'LO', beamset.Prescription.PrimaryDosePrescription.OnStructure.Name)
 
                     else:
-                        ref.DoseReferenceDescription = 'PTV'
+                        ref.add_new(0x300a0016, 'LO', 'PTV')
 
-                    ref.DoseReferencePointCoordinates = \
-                        ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint
-                    ref.DoseReferenceType = 'ORGAN_AT_RISK'
-                    ref.DeliveryMaximumDose = beamset.Prescription.PrimaryDosePrescription.DoseValue / 100
-                    ref.OrganAtRiskMaximumDose = beamset.Prescription.PrimaryDosePrescription.DoseValue / 100
+                    ref.add_new(0x300a0018, 'DS',
+                                ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint)
+                    ref.add_new(0x300a0020, 'CS', 'ORGAN_AT_RISK')
+                    ref.add_new(0x300a0023, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
+                    ref.add_new(0x300a002c, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
 
                     if 'DoseReferenceSequence' not in ds:
-                        ds.DoseReferenceSequence = pydicom.Sequence([ref])
-                        edits.append('(300a, 0010)')
-                        logging.debug('Added (300a, 0010) sequence')
+                        ds.add_new(0x300a0010, 'SQ', pydicom.Sequence([ref]))
+                        expected.add(ds[0x300a0010])
 
                     else:
-                        if 'DoseRefererenceNumber' not in ds.DoseReferenceSequence[0] or \
-                                ds.DoseReferenceSequence[0].DoseRefererenceNumber != ref.DoseRefererenceNumber:
-                            edits.append('(300a, 0012)')
-                            logging.debug('Updated (300a, 0012) to {}'.format(ref.DoseRefererenceNumber))
-
                         if 'DoseReferenceStructureType' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferenceStructureType != \
                                 ref.DoseReferenceStructureType:
-                            edits.append('(300a, 0014)')
-                            logging.debug('Updated (300a, 0014) to {}'.format(ref.DoseReferenceStructureType))
+                            expected.add(ref[0x300a0014])
 
                         if 'DoseReferenceDescription' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferenceDescription != ref.DoseReferenceDescription:
-                            edits.append('(300a, 0016)')
-                            logging.debug('Updated (300a, 0016) to {}'.format(ref.DoseReferenceDescription))
+                            expected.add(ref[0x300a0016])
 
                         if 'DoseReferencePointCoordinates' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferencePointCoordinates != \
                                 ref.DoseReferencePointCoordinates:
-                            edits.append('(300a, 0018)')
-                            logging.debug('Updated (300a, 0018) to {}'.format(ref.DoseReferenceStructureType))
+                            expected.add(ref[0x300a0018])
 
                         if 'DoseReferenceType' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferenceType != ref.DoseReferenceType:
-                            edits.append('(300a, 0020)')
-                            logging.debug('Updated (300a, 0020) to {}'.format(ref.DoseReferenceType))
+                            expected.add(ref[0x300a0020])
 
                         if 'DeliveryMaximumDose' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DeliveryMaximumDose != ref.DeliveryMaximumDose:
-                            edits.append('(300a, 0023)')
-                            logging.debug('Updated (300a, 0023) to {}'.format(ref.DeliveryMaximumDose))
+                            expected.add(ref[0x300a0023])
 
                         if 'OrganAtRiskMaximumDose' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].OrganAtRiskMaximumDose != ref.OrganAtRiskMaximumDose:
-                            edits.append('(300a, 002c)')
-                            logging.debug('Updated (300a, 002c) to {}'.format(ref.OrganAtRiskMaximumDose))
+                            expected.add(ref[0x300a002c])
 
                         ds.DoseReferenceSequence = pydicom.Sequence([ref])
 
@@ -415,17 +376,16 @@ def send(case,
                                 (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned):
                             b.BeamDose = b.BeamDose * ref.DeliveryMaximumDose / \
                                          (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
-                            edits.append('(300a, 0084)')
-                            logging.debug('Updating (300a, 0084) on beam {} to {}'.format(b.BeamNumber, b.BeamDose))
+                            expected.add(b.data_element('BeamDose'), beam=b)
 
             # If no edits are needed, copy the file to the modified directory
-            if len(edits) == 0:
+            if expected.length() == 0:
                 logging.debug('File {} does not require modification, and will be copied directly'.format(o))
                 shutil.copy(os.path.join(original, o), modified)
 
             else:
-                edited[o] = edits
-                logging.debug('File {} re-saved with {} edits'.format(o, len(edits)))
+                edited[o] = expected
+                logging.debug('File {} re-saved with {} edits'.format(o, expected.length()))
                 ds.save_as(os.path.join(modified, o))
 
         # If pydicom fails, stop export unless ignore_errors flag is set
@@ -462,9 +422,19 @@ def send(case,
                 dso = pydicom.dcmread(os.path.join(original, m))
 
                 try:
-                    edits = compare(ds, dso)
+                    # The Edits list should match the expected list generated above
+                    if edited[m].matches(compare(ds, dso)):
+                        logging.debug('File {} edits are consistent with expected'.format(m))
+
+                    else:
+                        status = False
+                        if not ignore_errors:
+                            if isinstance(bar, UserInterface.ProgressBar):
+                                bar.close()
+
+                            raise KeyError('DICOM Export modification inconsistency detected')
+
                 except KeyError:
-                    edits = []
                     if ignore_errors:
                         logging.warning('DICOM validation encountered too many nested sequences')
                         status = False
@@ -474,20 +444,6 @@ def send(case,
                             bar.close()
 
                         raise
-
-                # The edits list should match the expected list generated above
-                if len(edits) == len(edited[m]) and edits.sort() == edited[m].sort():
-                    logging.debug('File {} edits are consistent with expected'.format(m))
-
-                else:
-                    logging.error('Expected modification tags: ' + ', '.join(edited[m]).sort())
-                    logging.error('Observed modification tags: ' + ', '.join(edits).sort())
-                    status = False
-                    if not ignore_errors:
-                        if isinstance(bar, UserInterface.ProgressBar):
-                            bar.close()
-
-                        raise KeyError('DICOM Export modification inconsistency detected')
 
             # Send file
             for d in destination:
@@ -552,8 +508,20 @@ def send(case,
                     if not os.path.exists(os.path.join(info['path'], ds.PatientID)):
                         os.mkdir(os.path.join(info['path'], ds.PatientID))
 
-                    logging.info('Exporting {} to {}'.format(m, os.path.join(info['path'], ds.PatientID)))
-                    shutil.copy(os.path.join(modified, m), os.path.join(info['path'], ds.PatientID))
+                    try:
+                        shutil.copy(os.path.join(modified, m), os.path.join(info['path'], ds.PatientID))
+                        logging.info('{} -> {} copied'.format(m, os.path.join(info['path'], ds.PatientID)))
+
+                    except IOError:
+                        status = False
+                        if ignore_errors:
+                            logging.warning('{} -> {} IOError'.format(m, os.path.join(info['path'], ds.PatientID)))
+
+                        else:
+                            if isinstance(bar, UserInterface.ProgressBar):
+                                bar.close()
+
+                            raise
 
                 # If destination had a anonymize tag, set values back
                 for k, v in phi.items():
@@ -572,10 +540,13 @@ def send(case,
                 raise
 
     # Delete temporary folders
-    logging.debug('Deleting temporary folder {}'.format(original))
-    shutil.rmtree(original)
-    logging.debug('Deleting temporary folder {}'.format(modified))
-    shutil.rmtree(modified)
+    try:
+        logging.debug('Deleting temporary folder {}'.format(original))
+        shutil.rmtree(original)
+        logging.debug('Deleting temporary folder {}'.format(modified))
+        shutil.rmtree(modified)
+    except IOError:
+        logging.warning('One or more temporary folders could not be removed')
 
     # Finish up
     if isinstance(bar, UserInterface.ProgressBar):
@@ -653,7 +624,7 @@ def energies(beamset=None, machine=None):
 
 
 def destinations():
-    """dest_list = DicomExport.destinations()"""
+    """destination_list = DicomExport.destinations()"""
 
     # Return a list of all DICOM destinations
     dest_list = []
@@ -688,47 +659,97 @@ def destination_info(destination):
 def compare(ds, dso):
     """edits = DicomExport.compare(dataset1, dataset2)"""
 
-    edits = []
+    edits = _Edits()
     for k0 in ds.keys():
         if k0 not in dso:
-            edits.append(str(ds[k0].tag))
+            edits.add(ds[k0])
 
         elif ds[k0].VR == 'SQ':
             for i0 in range(len(ds[k0].value)):
                 for k1 in ds[k0].value[i0].keys():
                     if k1 not in dso[k0].value[i0]:
-                        edits.append(str(ds[k0].value[i0][k1].tag))
+                        edits.add(ds[k0].value[i0][k1])
 
                     elif ds[k0].value[i0][k1].VR == 'SQ':
                         for i1 in range(len(ds[k0].value[i0][k1].value)):
                             for k2 in ds[k0].value[i0][k1].value[i1].keys():
                                 if k2 not in dso[k0].value[i0][k1].value[i1]:
-                                    edits.append(str(ds[k0].value[i0][k1].value[i1][k2].tag))
+                                    edits.add(ds[k0].value[i0][k1].value[i1][k2])
 
                                 elif ds[k0].value[i0][k1].value[i1][k2].VR == 'SQ':
                                     for i2 in range(len(ds[k0].value[i0][k1].value[i1][k2].value)):
                                         for k3 in ds[k0].value[i0][k1].value[i1][k2].value[i2].keys():
                                             if k3 not in dso[k0].value[i0][k1]. \
                                                     value[i1][k2].value[i2]:
-                                                edits.append(str(ds[k0].value[i0][k1].value[i1][k2].
-                                                                 value[i2][k3].tag))
+                                                edits.add(ds[k0].value[i0][k1].value[i1][k2].value[i2][k3])
 
                                             elif ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].VR == 'SQ':
                                                 raise KeyError('Unsupported number of nested sequences')
 
                                             elif ds[k0].value[i0][k1].value[i1][k2].value[i2][k3].value != \
                                                     dso[k0].value[i0][k1].value[i1][k2].value[i2][k3].value:
-                                                edits.append(str(ds[k0].value[i0][k1].value[i1][k2].
-                                                                 value[i2][k3].tag))
+                                                edits.add(ds[k0].value[i0][k1].value[i1][k2].value[i2][k3])
 
                                 elif ds[k0].value[i0][k1].value[i1][k2].value != \
                                         dso[k0].value[i0][k1].value[i1][k2].value:
-                                    edits.append(str(ds[k0].value[i0][k1].value[i1][k2].tag))
+                                    edits.add(ds[k0].value[i0][k1].value[i1][k2])
 
                     elif ds[k0].value[i0][k1].value != dso[k0].value[i0][k1].value:
-                        edits.append(str(ds[k0].value[i0][k1].tag))
+                        edits.add(ds[k0].value[i0][k1])
 
         elif ds[k0].value != dso[k0].value:
-            edits.append(str(ds[k0].tag))
+            edits.add(ds[k0])
 
     return edits
+
+
+class _Edits:
+    """_Edits is an internal class that is used by DicomExport.send() to keep track of DICOM tag edits"""
+
+    def __init__(self):
+        """edits = _Edits()"""
+        self.elements = []
+        self.tags = []
+
+    def add(self, element, beam=None, cp=None):
+        """edits.add(ds.TagName)"""
+
+        self.elements.append(element)
+        self.tags.append("0x{0:04x}{1:04x}".format(element.tag.group, element.tag.element))
+        if beam is not None and cp is not None:
+            if 'BeamNumber' in beam:
+                logging.debug('Element {} on beam {}, CP {} is now {}'.format(self.tags[-1],
+                                                                           beam.BeamNumber,
+                                                                           cp.ControlPointIndex,
+                                                                           element.value))
+            elif 'ReferencedBeamNumber' in beam:
+                logging.debug('Element {} on beam {}, CP {} is now {}'.format(self.tags[-1],
+                                                                           beam.ReferencedBeamNumber,
+                                                                           cp.ControlPointIndex,
+                                                                           element.value))
+        elif beam is not None:
+            if 'BeamNumber' in beam:
+                logging.debug('Element {} on beam {} is now {}'.format(self.tags[-1],
+                                                                    beam.BeamNumber,
+                                                                    element.value))
+            elif 'ReferencedBeamNumber' in beam:
+                logging.debug('Element {} on beam {} is now {}'.format(self.tags[-1],
+                                                                    beam.ReferencedBeamNumber,
+                                                                    element.value))
+        else:
+            logging.debug('Element {} is now {}'.format(self.tags[-1], element.value))
+
+    def length(self):
+        return len(self.elements)
+
+    def matches(self, edits):
+        """boolean = edits.matches(other_edits)"""
+
+        self.tags.sort()
+        edits.tags.sort()
+        if len(self.tags) == len(edits.tags) and self.tags == edits.tags:
+            return True
+        else:
+            logging.warning('Expected modification tags: ' + ', '.join(self.tags))
+            logging.warning('Observed modification tags: ' + ', '.join(edits.tags))
+            return False
