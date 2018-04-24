@@ -176,7 +176,7 @@ def main():
                                machine=response['c'],
                                table=[0, 1000, 0],
                                round_jaws=True,
-                               block_id=True,
+                               block_accessory=True,
                                prescription=True,
                                bar=True)
 

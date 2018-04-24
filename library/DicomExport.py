@@ -89,7 +89,7 @@ def send(case,
          pa_threshold=None,
          prescription=False,
          round_jaws=False,
-         block_id=False,
+         block_accessory=False,
          bar=True):
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
@@ -232,30 +232,42 @@ def send(case,
                     # If applying a machine filter
                     if machine is not None and 'TreatmentMachineName' in b and b.TreatmentMachineName != machine:
                         b.TreatmentMachineName = machine
-                        expected.add(b.data_element('TreatmentMachineName'), beam=b)
+                        expected.add(b[0x300a00b2], beam=b)
 
-                    # If updating electron block ID
-                    if block_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                            'NumberOfBlocks' in b and b.NumberOfBlocks == 1 and 'BlockName' in b and \
-                            ('BlockID' not in b or b.BlockID != b.BlockName):
-                        b.BlockID = b.BlockName
-                        expected.add(b.data_element('BlockID'), beam=b)
+                    # If converting electron block into accessory (note, accessory ID tags are currently hard coded
+                    if block_accessory and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
+                            'BlockSequence' in b and 'BlockName' in b.BlockSequence[0] and \
+                            'GeneralAccessorySequence' not in b:
+
+                        acc = pydicom.Dataset()
+                        acc.add_new(0x300a00f9, 'LO', b.BlockSequence[0].BlockName)
+                        if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
+                                b.ApplicatorSequence.ApplicatorID == 'A6':
+                            acc.add_new(0x300a0421, 'SH', 'CustomFFDA6')
+
+                        else:
+                            acc.add_new(0x300a0421, 'SH', 'CustomFFDA')
+
+                        acc.add_new(0x300a0423, 'CS', 'TRAY')
+                        acc.add_new(0x300a0424, 'IS', 1)
+                        b.add_new(0x300a0420, 'SQ', pydicom.Sequence([acc]))
+                        expected.add(b[0x300a0420])
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
                         for c in b.ControlPointSequence:
                             if 'TableTopLateralPosition' in c and c.TableTopLateralPosition != table[0]:
                                 c.TableTopLateralPosition = table[0]
-                                expected.add(c.data_element('TableTopLateralPosition'), beam=b, cp=c)
+                                expected.add(c[0x300a012a], beam=b, cp=c)
 
                             if 'TableTopLongitudinalPosition' in c and \
                                     c.TableTopLongitudinalPosition != table[1]:
                                 c.TableTopLongitudinalPosition = table[1]
-                                expected.add(c.data_element('TableTopLongitudinalPosition'), beam=b, cp=c)
+                                expected.add(c[0x300a0129], beam=b, cp=c)
 
                             if 'TableTopVerticalPosition' in c and c.TableTopVerticalPosition != table[2]:
                                 c.TableTopVerticalPosition = table[2]
-                                expected.add(c.data_element('TableTopVerticalPosition'), beam=b, cp=c)
+                                expected.add(c[0x300a0128], beam=b, cp=c)
 
                     # If rounding jaws
                     if round_jaws and 'ControlPointSequence' in b:
@@ -267,7 +279,7 @@ def send(case,
                                              p.LeafJawPositions[1] != math.ceil(p.LeafJawPositions[1])):
                                         p.LeafJawPositions[0] = math.floor(p.LeafJawPositions[0])
                                         p.LeafJawPositions[1] = math.ceil(p.LeafJawPositions[1])
-                                        expected.add(p.data_element('LeafJawPositions'), beam=b, cp=c)
+                                        expected.add(p[0x300a011c], beam=b, cp=c)
 
                     # If adjusting PA beam angle for right sided targets
                     if pa_threshold is not None:
@@ -283,7 +295,7 @@ def send(case,
                             for c in b.ControlPointSequence:
                                 if 'GantryAngle' in c:
                                     c.GantryAngle = 180.1
-                                    expected.add(c.data_element('GantryAngle'), beam=b, cp=c)
+                                    expected.add(c[0x300a011e], beam=b, cp=c)
 
                     # If applying an energy filter (note only photon are supported)
                     if energy_list is not None and 'ControlPointSequence' in b:
@@ -326,8 +338,13 @@ def send(case,
                     else:
                         ref.add_new(0x300a0016, 'LO', 'PTV')
 
-                    ref.add_new(0x300a0018, 'DS',
-                                ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint)
+                    if 'BeamDoseSpecificationPoint' in ds.FractionGroupSequence[0].ReferencedBeamSequence[0]:
+                        ref.add_new(0x300a0018, 'DS',
+                                    ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint)
+
+                    else:
+                        ref.add_new(0x300a0018, 'DS', [0, 0, 0])
+
                     ref.add_new(0x300a0020, 'CS', 'ORGAN_AT_RISK')
                     ref.add_new(0x300a0023, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
                     ref.add_new(0x300a002c, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
@@ -376,7 +393,7 @@ def send(case,
                                 (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned):
                             b.BeamDose = b.BeamDose * ref.DeliveryMaximumDose / \
                                          (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
-                            expected.add(b.data_element('BeamDose'), beam=b)
+                            expected.add(b[0x300a0084], beam=b)
 
             # If no edits are needed, copy the file to the modified directory
             if expected.length() == 0:
@@ -577,7 +594,8 @@ def machines(beamset=None):
                 if c.findall('from/machine')[0].text == beamset.Beams[b].MachineReference.MachineName:
                     for t in c.findall('to'):
                         if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
-                                beamset.Beams[b].MachineReference.Energy == float(c.findall('from/energy')[0].text):
+                                beamset.Beams[b].MachineReference.Energy == float(c.findall('from/energy')[0].text) \
+                                and c.findall('from/energy')[0].attrib['type'].lower() == beamset.Modality.lower():
                             beam_list[b].append(t.findall('machine')[0].text)
 
                         elif 'type' in c.attrib and c.attrib['type'] == 'machine':
@@ -609,14 +627,16 @@ def energies(beamset=None, machine=None):
 
         # If the filter is a machine and energy filter, verify the machine matches
         if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
-                c.findall('from/machine')[0].text == beamset.MachineReference.MachineName:
+                (beamset is None or c.findall('from/machine')[0].text == beamset.MachineReference.MachineName):
             for t in c.findall('to'):
                 if machine is None or t.findall('machine')[0].text == machine and 'type' in \
-                        t.findall('energy')[0].attrib and t.findall('energy')[0].attrib['type'] == 'photon':
+                        t.findall('energy')[0].attrib and \
+                        (beamset is None or t.findall('energy')[0].attrib['type'].lower() == beamset.Modality.lower()):
                     energy_list[float(c.findall('from/energy')[0].text)] = t.findall('energy')[0].text
 
         # Otherwise, if only an energy filter
-        elif 'type' in c.attrib and c.attrib['type'] == 'energy':
+        elif 'type' in c.attrib and c.attrib['type'] == 'energy' and \
+                (beamset is None or c.findall('from/energy')[0].attrib['type'].lower() == beamset.Modality.lower()):
             for t in c.findall('to'):
                 energy_list[float(c.findall('from/energy')[0].text)] = t.findall('energy')[0].text
 
@@ -719,23 +739,23 @@ class _Edits:
         if beam is not None and cp is not None:
             if 'BeamNumber' in beam:
                 logging.debug('Element {} on beam {}, CP {} is now {}'.format(self.tags[-1],
-                                                                           beam.BeamNumber,
-                                                                           cp.ControlPointIndex,
-                                                                           element.value))
+                                                                              beam.BeamNumber,
+                                                                              cp.ControlPointIndex,
+                                                                              element.value))
             elif 'ReferencedBeamNumber' in beam:
                 logging.debug('Element {} on beam {}, CP {} is now {}'.format(self.tags[-1],
-                                                                           beam.ReferencedBeamNumber,
-                                                                           cp.ControlPointIndex,
-                                                                           element.value))
+                                                                              beam.ReferencedBeamNumber,
+                                                                              cp.ControlPointIndex,
+                                                                              element.value))
         elif beam is not None:
             if 'BeamNumber' in beam:
                 logging.debug('Element {} on beam {} is now {}'.format(self.tags[-1],
-                                                                    beam.BeamNumber,
-                                                                    element.value))
+                                                                       beam.BeamNumber,
+                                                                       element.value))
             elif 'ReferencedBeamNumber' in beam:
                 logging.debug('Element {} on beam {} is now {}'.format(self.tags[-1],
-                                                                    beam.ReferencedBeamNumber,
-                                                                    element.value))
+                                                                       beam.ReferencedBeamNumber,
+                                                                       element.value))
         else:
             logging.debug('Element {} is now {}'.format(self.tags[-1], element.value))
 
