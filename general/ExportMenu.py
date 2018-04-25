@@ -1,7 +1,7 @@
 """ DICOM Export Menu
 
     This script presents a menu to the user to select which data to export and to which
-    destinations. An option is also available, if a plan is loaded, to choose which
+    destination. An option is also available, if a plan is loaded, to choose which
     treatment delivery system to convert the plan to. This conversion is performed
     according to the DICOM filters.
 
@@ -33,6 +33,7 @@ import DicomExport
 
 
 def main():
+
     # Get current patient, case, exam, plan, and beamset
     try:
         patient = connect.get_current('Patient')
@@ -122,24 +123,42 @@ def main():
                           'export to, what should be exported, and if a beamset is loaded, what treatment delivery ' +
                           'system to convert to.')
 
+    # Define filter descriptions
+    filters = ['Convert machine name',
+               'Convert machine energy (FFF)',
+               'Set couch to (0, 100, 0)',
+               'Round jaw positions to 0.1 mm',
+               'Create reference point',
+               'Set block tray ID (electrons only)']
+
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
-    inputs = {'a': 'Check one or more DICOM destinations to export to:', 'b': 'Select which data elements to export:'}
-    required = ['a', 'b']
-    types = {'a': 'check', 'b': 'check'}
-    options = {'a': DicomExport.destinations(), 'b': ['CT', 'Structures']}
-    initial = {'b': ['CT', 'Structures']}
+    inputs = {'a': 'Select which data elements to export:',
+              'b': 'Check one or more DICOM destinations to export to:',
+              'd': 'Ignore DICOM export warnings:'}
+    required = ['a', 'b', 'd']
+    types = {'a': 'check', 'b': 'check', 'd': 'combo'}
+    options = {'a': ['CT', 'Structures'], 'b': DicomExport.destinations(), 'd': ['Yes', 'No']}
+    initial = {'a': ['CT', 'Structures'], 'd': 'No'}
+    if ignore:
+        initial['d'] = 'Yes'
+
     if beamset is not None:
-        options['b'].append('Plan')
-        initial['b'].append('Plan')
-        options['b'].append('Plan Dose')
-        initial['b'].append('Plan Dose')
-        options['b'].append('Beam Dose')
+        options['a'].append('Plan')
+        initial['a'].append('Plan')
+        options['a'].append('Plan Dose')
+        initial['a'].append('Plan Dose')
+        options['a'].append('Beam Dose')
         inputs['c'] = 'Select which delivery system to export as:'
         required.append('c')
         types['c'] = 'combo'
         options['c'] = DicomExport.machines(beamset)
         if len(options['c']) == 1:
             initial['c'] = options['c'][0]
+
+        inputs['e'] = 'Export options:'
+        types['e'] = 'check'
+        options['e'] = filters
+        initial['e'] = filters
 
     dialog = UserInterface.InputDialog(inputs=inputs,
                                        datatype=types,
@@ -152,32 +171,46 @@ def main():
         status.finish('DICOM export was cancelled')
         sys.exit('DICOM export was cancelled')
 
-    if 'CT' not in response['b']:
-        exam = None
-
-    if 'Plan' not in response['b'] and 'Plan Dose' not in response['b'] and 'Beam Dose' not in response['b']:
-        beamset = None
-
     # Execute DicomExport.send() given user response
     status.next_step(text='The DICOM datasets are now being exported to a temporary directory, converted to a ' +
-                          'treatment delivery system, and sent to each selected destination. Please be patient, as ' +
+                          'treatment delivery system, and sent to the selected destination. Please be patient, as ' +
                           'this can take several minutes...')
+
+    if beamset is not None:
+        f = []
+        if filters[0] in response['e']:
+            f.append('machine')
+
+        if filters[1] in response['e']:
+            f.append('energy')
+
+        if filters[2] in response['e']:
+            t = [0, 1000, 0]
+
+    else:
+        f = None
+        t = None
+        response['e'] = []
+        response['c'] = None
+
     success = DicomExport.send(case=case,
-                               destination=response['a'],
+                               destination=response['b'],
                                exam=exam,
                                beamset=beamset,
-                               structures='Structures' in response['b'],
-                               plan_dose='Plan Dose' in response['b'],
-                               beam_dose='Beam Dose' in response['b'],
-                               ignore_warnings=True,  # =ignore,
+                               ct='CT' in response['a'],
+                               structures='Structures' in response['a'],
+                               plan='Plan' in response['a'],
+                               plan_dose='Plan Dose' in response['a'],
+                               beam_dose='Beam Dose' in response['a'],
+                               ignore_warnings=ignore,
                                ignore_errors=False,
-                               anonymize=None,
-                               filters=['machine', 'energy'],
+                               rename=None,
+                               filters=f,
                                machine=response['c'],
-                               table=[0, 1000, 0],
-                               round_jaws=True,
-                               block_accessory=True,
-                               prescription=True,
+                               table=t,
+                               round_jaws=filters[3] in response['e'],
+                               prescription=filters[4] in response['e'],
+                               block_accessory=filters[5] in response['e'],
                                bar=True)
 
     # Finish up
