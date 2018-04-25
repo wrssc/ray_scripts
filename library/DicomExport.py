@@ -276,7 +276,7 @@ def send(case,
                         acc.add_new(0x300a0423, 'CS', 'TRAY')
                         acc.add_new(0x300a0424, 'IS', 1)
                         b.add_new(0x300a0420, 'SQ', pydicom.Sequence([acc]))
-                        expected.add(b[0x300a0420], beam=b)
+                        expected.add(b[0x300a0420])
 
                     # If overriding the block tray ID
                     if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
@@ -284,7 +284,7 @@ def send(case,
                             ('BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID !=
                              b.BlockSequence[0].MaterialID):
                         b.BlockSequence[0].BlockTrayID = b.BlockSequence[0].MaterialID
-                        expected.add(b[0x300a00f5], beam=b)
+                        expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
