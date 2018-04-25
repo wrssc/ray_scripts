@@ -77,12 +77,14 @@ def send(case,
          destination,
          exam=None,
          beamset=None,
+         ct=True,
          structures=True,
+         plan=True,
          plan_dose=True,
          beam_dose=False,
          ignore_warnings=False,
          ignore_errors=False,
-         anonymize=None,
+         rename=None,
          filters=None,
          machine=None,
          table=None,
@@ -94,7 +96,8 @@ def send(case,
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
 
-    # Start timer
+    # Start logigng and timer
+    logging.debug('Executing DICOM send() function, version {}'.format(__version__))
     tic = time.time()
     status = True
 
@@ -104,13 +107,18 @@ def send(case,
 
     # Create temporary folders to store original and modified exports
     original = tempfile.mkdtemp()
+    logging.debug('Temporary folder created for original files at {}'.format(original))
     modified = tempfile.mkdtemp()
+    logging.debug('Temporary folder created for modified files at {}'.format(modified))
 
     # Validate destinations
     dest_list = destinations()
     for d in destination:
         if d not in dest_list:
-            raise IndexError('The provided DICOM destination is not in the available list')
+            raise IndexError('The provided DICOM destination list is not valid')
+
+        else:
+            logging.debug('Provided destination {} was found'.format(d))
 
     # If multiple machine filter options exist, prompt the user to select one
     if machine is None and filters is not None and 'machine' in filters and beamset is not None:
@@ -121,6 +129,11 @@ def send(case,
         elif len(machine_list) > 1:
             dialog = UserInterface.ButtonList(inputs=machine_list, title='Select a machine to export as')
             machine = dialog.show()
+            if machine is not None:
+                logging.debug('User selected machine {} for RT plan export'.format(machine))
+
+            else:
+                raise IndexError('No machine was selected for RT plan export')
 
     # Load energy filters for selected machine
     if filters is not None and 'energy' in filters and beamset is not None:
@@ -168,30 +181,41 @@ def send(case,
     # Initialize ScriptableDicomExport() arguments
     args = {'IgnorePreConditionWarnings': ignore_warnings, 'DicomFilter': '', 'ExportFolderPath': original}
 
-    # Append exam to export CT
-    if exam is not None:
+    # Append Examinations to export CT
+    if ct and exam is not None:
+        logging.debug('Examination {} selected for export'.format(exam.Name))
         args['Examinations'] = [exam.Name]
 
-    # Append beamset to export RTSS and Dose (if beamset is not present, export RTSS from exam)
-    if beamset is not None:
-        if structures:
+    # Append BeamSets to export RT plan
+    if plan and beamset is not None:
+        logging.debug('RT Plan {} selected for export'.format(beamset.BeamSetIdentifier()))
+        args['BeamSets'] = [beamset.BeamSetIdentifier()]
+
+    # Append beamset to export RTSS (if beamset is not present, export RTSS from exam)
+    if structures:
+        if beamset is not None:
+            logging.debug('Plan structure set selected for export')
             args['RtStructureSetsReferencedFromBeamSets'] = [beamset.BeamSetIdentifier()]
 
-        args['BeamSets'] = [beamset.BeamSetIdentifier()]
-        if plan_dose:
-            args['BeamSetDoseForBeamSets'] = [beamset.BeamSetIdentifier()]
+        elif exam is not None:
+            logging.debug('Exam structure set selected for export')
+            args['RtStructureSetsForExaminations'] = [exam.Name]
 
-        if beam_dose:
-            args['BeamDosesForBeamSets'] = [beamset.BeamSetIdentifier()]
+    # Append BeamDosesForBeamSets and/or BeamSetDoseForBeamSets to export RT Dose
+    if plan_dose and beamset is not None:
+        logging.debug('Plan {} dose selected for export'.format(beamset.BeamSetIdentifier()))
+        args['BeamSetDoseForBeamSets'] = [beamset.BeamSetIdentifier()]
 
-    elif exam is not None and structures:
-        args['RtStructureSetsForExaminations'] = [exam.Name]
+    if beam_dose and beamset is not None:
+        logging.debug('Beam dose for plan {} selected for export'.format(beamset.BeamSetIdentifier()))
+        args['BeamDosesForBeamSets'] = [beamset.BeamSetIdentifier()]
 
-    # Append anonymization parameters
-    if anonymize is not None and 'name' in anonymize and 'id' in anonymize:
+    # Append anonymization parameters to re-identify patient
+    if rename is not None and 'name' in rename and 'id' in rename:
+        logging.debug('Patient re-named to {}, ID {} for export'.format(rename['name'], rename['id']))
         args['Anonymize'] = True
-        args['AnonymizedName'] = anonymize['name']
-        args['AnonymizedId'] = anonymize['id']
+        args['AnonymizedName'] = rename['name']
+        args['AnonymizedId'] = rename['id']
 
     # Export data to temp folder
     if isinstance(bar, UserInterface.ProgressBar):
@@ -420,6 +444,11 @@ def send(case,
     # Generate random names/ID
     random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
     random_id = ''.join(random.choice(string.digits) for _ in range(8))
+    for d in destination:
+        info = destination_info(d)
+        if 'anonymize' in info and info['anonymize']:
+            logging.debug('Export destination {} is anonymous, patient will be stored under name {} and ID {}'.
+                          format(d, random_name, random_id))
 
     # Validate and/or send each file
     i = 0
