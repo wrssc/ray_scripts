@@ -284,10 +284,10 @@ def send(case,
 
                         if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
                                 b.ApplicatorSequence.ApplicatorID == 'A6':
-                            tray = 'FFDA(A06)'
+                            tray = 'CustomFFDA6'
 
                         else:
-                            tray = 'FFDA(A10+)'
+                            tray = 'CustomFFDA'
 
                         if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
                             b.BlockSequence[0].BlockTrayID = tray
