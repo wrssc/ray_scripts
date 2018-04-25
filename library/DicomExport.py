@@ -784,7 +784,7 @@ class _Edits:
         self.elements.append(element)
         self.tags.append(tag)
         if element.VR == 'SQ':
-            string_value = 'a SEQUENCE'
+            string_value = 'SEQUENCE'
 
         else:
             string_value = str(element.value)
