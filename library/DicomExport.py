@@ -280,13 +280,11 @@ def send(case,
 
                     # If overriding the block tray ID
                     if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                            'BlockSequence' in b and 'MaterialID' in b.BlockSequence[0]:
-
-                        if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != \
-                                b.BlockSequence[0].MaterialID:
-                            expected.add(b[0x300a00f5], beam=b)
-
+                            'BlockSequence' in b and 'MaterialID' in b.BlockSequence[0] and \
+                            ('BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID !=
+                             b.BlockSequence[0].MaterialID):
                         b.BlockSequence[0].BlockTrayID = b.BlockSequence[0].MaterialID
+                        expected.add(b[0x300a00f5], beam=b)
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
@@ -782,30 +780,37 @@ class _Edits:
     def add(self, element, beam=None, cp=None):
         """edits.add(ds.TagName)"""
 
+        tag = "0x{0:04x}{1:04x}".format(element.tag.group, element.tag.element)
         self.elements.append(element)
-        self.tags.append("0x{0:04x}{1:04x}".format(element.tag.group, element.tag.element))
+        self.tags.append(tag)
+        if element.VR == 'SQ':
+            string_value = 'a SEQUENCE'
+
+        else:
+            string_value = str(element.value)
+
         if beam is not None and cp is not None:
             if 'BeamNumber' in beam:
-                logging.debug('Element {} on beam {}, CP {} is now {}'.format(self.tags[-1],
+                logging.debug('Element {} on beam {}, CP {} is now {}'.format(tag,
                                                                               beam.BeamNumber,
                                                                               cp.ControlPointIndex,
-                                                                              element.value))
+                                                                              string_value))
             elif 'ReferencedBeamNumber' in beam:
-                logging.debug('Element {} on beam {}, CP {} is now {}'.format(self.tags[-1],
+                logging.debug('Element {} on beam {}, CP {} is now {}'.format(tag,
                                                                               beam.ReferencedBeamNumber,
                                                                               cp.ControlPointIndex,
-                                                                              element.value))
+                                                                              string_value))
         elif beam is not None:
             if 'BeamNumber' in beam:
-                logging.debug('Element {} on beam {} is now {}'.format(self.tags[-1],
+                logging.debug('Element {} on beam {} is now {}'.format(tag,
                                                                        beam.BeamNumber,
-                                                                       element.value))
+                                                                       string_value))
             elif 'ReferencedBeamNumber' in beam:
-                logging.debug('Element {} on beam {} is now {}'.format(self.tags[-1],
+                logging.debug('Element {} on beam {} is now {}'.format(tag,
                                                                        beam.ReferencedBeamNumber,
-                                                                       element.value))
+                                                                       string_value))
         else:
-            logging.debug('Element {} is now {}'.format(self.tags[-1], element.value))
+            logging.debug('Element {} is now {}'.format(tag, string_value))
 
     def length(self):
         return len(self.elements)
