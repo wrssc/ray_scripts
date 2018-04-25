@@ -280,11 +280,18 @@ def send(case,
 
                     # If overriding the block tray ID
                     if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                            'BlockSequence' in b and 'MaterialID' in b.BlockSequence[0] and \
-                            ('BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID !=
-                             b.BlockSequence[0].MaterialID):
-                        b.BlockSequence[0].BlockTrayID = b.BlockSequence[0].MaterialID
-                        expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
+                            'BlockSequence' in b:
+
+                        if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
+                                b.ApplicatorSequence.ApplicatorID == 'A6':
+                            tray = 'FFDA(A06)'
+
+                        else:
+                            tray = 'FFDA(A10+)'
+
+                        if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
+                            b.BlockSequence[0].BlockTrayID = tray
+                            expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
