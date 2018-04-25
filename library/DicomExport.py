@@ -406,18 +406,27 @@ def send(case,
 
                         ds.DoseReferenceSequence = pydicom.Sequence([ref])
 
-                    # Adjust beam doses to sum to primary dose point
+                    # Adjust beam doses to sum to primary dose point (if dose was not specified, evenly distribute it)
                     total_dose = 0
                     for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
                         if hasattr(b, 'BeamDose'):
                             total_dose += b.BeamDose
 
-                    for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
-                        if hasattr(b, 'BeamDose') and b.BeamDose != b.BeamDose * ref.DeliveryMaximumDose / \
-                                (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned):
-                            b.BeamDose = b.BeamDose * ref.DeliveryMaximumDose / \
-                                         (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
+                    if total_dose == 0:
+                        for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+                            b.add_new(0x300a0084, 'DS', ref.DeliveryMaximumDose /
+                                      len(ds.FractionGroupSequence[0].ReferencedBeamSequence))
                             expected.add(b[0x300a0084], beam=b)
+
+                    else:
+                        for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+                            if hasattr(b, 'BeamDose') and b.BeamDose != b.BeamDose * ref.DeliveryMaximumDose / \
+                                    (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned):
+                                b.BeamDose = b.BeamDose * ref.DeliveryMaximumDose / \
+                                             (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
+                                expected.add(b[0x300a0084], beam=b)
+
+
 
             # If no edits are needed, copy the file to the modified directory
             if expected.length() == 0:
