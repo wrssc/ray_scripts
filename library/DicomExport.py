@@ -368,23 +368,20 @@ def send(case,
                     if hasattr(beamset.Prescription.PrimaryDosePrescription, 'OnStructure') and \
                             hasattr(beamset.Prescription.PrimaryDosePrescription.OnStructure, 'Name'):
                         ref.add_new(0x300a0016, 'LO', beamset.Prescription.PrimaryDosePrescription.OnStructure.Name)
-                        if 'BeamDoseSpecificationPoint' in ds.FractionGroupSequence[0].ReferencedBeamSequence[0]:
-                            ref.add_new(0x300a0018, 'DS',
-                                        ds.FractionGroupSequence[0].ReferencedBeamSequence[
-                                            0].BeamDoseSpecificationPoint)
-
-                        else:
-                            ref.add_new(0x300a0018, 'DS', [0, 0, 0])
 
                     elif hasattr(beamset.Prescription.PrimaryDosePrescription, 'OnDoseSpecificationPoint') and \
                             hasattr(beamset.Prescription.PrimaryDosePrescription.OnDoseSpecificationPoint, 'Name'):
                         ref.add_new(0x300a0016, 'LO',
                                     beamset.Prescription.PrimaryDosePrescription.OnDoseSpecificationPoint.Name)
-                        c = beamset.Prescription.PrimaryDosePrescription.OnDoseSpecificationPoint.Coordinates
-                        ref.add_new(0x300a0018, 'DS', [c.x * 10, c.y * 10, c.z * 10])
 
                     else:
                         ref.add_new(0x300a0016, 'LO', 'Target')
+
+                    if 'BeamDoseSpecificationPoint' in ds.FractionGroupSequence[0].ReferencedBeamSequence[0]:
+                        ref.add_new(0x300a0018, 'DS',
+                                    ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint)
+
+                    else:
                         ref.add_new(0x300a0018, 'DS', [0, 0, 0])
 
                     ref.add_new(0x300a0020, 'CS', 'ORGAN_AT_RISK')
@@ -431,6 +428,10 @@ def send(case,
                         total_count += 1
                         if hasattr(b, 'BeamDose'):
                             total_dose += b.BeamDose
+
+                        if 'BeamDoseSpecificationPoint' not in b:
+                            b.add_new(0x300a0082, 'DS', ref.DoseReferencePointCoordinates)
+                            expected.add(b[0x300a0082], beam=b)
 
                     if total_dose == 0:
                         for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
