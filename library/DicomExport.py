@@ -92,6 +92,7 @@ def send(case,
          prescription=False,
          round_jaws=False,
          block_accessory=False,
+         block_tray_id=False,
          bar=True):
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
@@ -275,7 +276,17 @@ def send(case,
                         acc.add_new(0x300a0423, 'CS', 'TRAY')
                         acc.add_new(0x300a0424, 'IS', 1)
                         b.add_new(0x300a0420, 'SQ', pydicom.Sequence([acc]))
-                        expected.add(b[0x300a0420])
+                        expected.add(b[0x300a0420], beam=b)
+
+                    # If overriding the block tray ID
+                    if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
+                            'BlockSequence' in b and 'MaterialID' in b.BlockSequence[0]:
+
+                        if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != \
+                                b.BlockSequence[0].MaterialID:
+                            expected.add(b[0x300a00f5], beam=b)
+
+                        b.BlockSequence[0].BlockTrayID = b.BlockSequence[0].MaterialID
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
@@ -408,14 +419,15 @@ def send(case,
 
                     # Adjust beam doses to sum to primary dose point (if dose was not specified, evenly distribute it)
                     total_dose = 0
+                    total_count = 0
                     for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
+                        total_count += 1
                         if hasattr(b, 'BeamDose'):
                             total_dose += b.BeamDose
 
                     if total_dose == 0:
                         for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
-                            b.add_new(0x300a0084, 'DS', ref.DeliveryMaximumDose /
-                                      len(ds.FractionGroupSequence[0].ReferencedBeamSequence))
+                            b.add_new(0x300a0084, 'DS', ref.DeliveryMaximumDose / total_count)
                             expected.add(b[0x300a0084], beam=b)
 
                     else:

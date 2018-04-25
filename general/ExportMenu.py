@@ -129,7 +129,7 @@ def main():
                'Set couch to (0, 100, 0)',
                'Round jaw positions to 0.1 mm',
                'Create reference point',
-               'Set block tray ID (electrons only)']
+               'Set block tray and slot ID (electrons only)']
 
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'a': 'Select which data elements to export:',
@@ -211,6 +211,7 @@ def main():
                                round_jaws=filters[3] in response['e'],
                                prescription=filters[4] in response['e'],
                                block_accessory=filters[5] in response['e'],
+                               block_tray_id=filters[5] in response['e'],
                                bar=True)
 
     # Finish up
