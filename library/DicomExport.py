@@ -278,23 +278,20 @@ def send(case,
                         b.add_new(0x300a0420, 'SQ', pydicom.Sequence([acc]))
                         expected.add(b[0x300a0420])
 
-                    # If deleting the block tray ID
+                    # If overriding the block tray ID
                     if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
                             'BlockSequence' in b:
 
-                        if 'BlockTrayID' in b.BlockSequence[0]:
-                            del b.BlockSequence[0].BlockTrayID
-
-                        '''if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
+                        if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
                                 b.ApplicatorSequence.ApplicatorID == 'A6':
-                            tray = 'CustomFFDA6'
+                            tray = 'FFDA(A06)'
 
                         else:
-                            tray = 'CustomFFDA'
+                            tray = 'FFDA(A10+)'
 
                         if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
                             b.BlockSequence[0].BlockTrayID = tray
-                            expected.add(b.BlockSequence[0][0x300a00f5], beam=b)'''
+                            expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
