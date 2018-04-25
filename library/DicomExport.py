@@ -441,90 +441,88 @@ def send(case,
 
                 raise
 
-    # Generate random names/ID
-    random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
-    random_id = ''.join(random.choice(string.digits) for _ in range(8))
+    # Validate and/or send each file
     for d in destination:
         info = destination_info(d)
         if 'anonymize' in info and info['anonymize']:
+            random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
+            random_id = ''.join(random.choice(string.digits) for _ in range(8))
             logging.debug('Export destination {} is anonymous, patient will be stored under name {} and ID {}'.
                           format(d, random_name, random_id))
 
-    # Validate and/or send each file
-    i = 0
-    total = len(os.listdir(modified))
-    for m in os.listdir(modified):
-        i += 1
-        if isinstance(bar, UserInterface.ProgressBar):
-            bar.update(text='Validating and Exporting Files ({} of {})'.format(i, total))
+        # If an AE destination, establish pynetdicom3 association
+        if len({'host', 'aet', 'port'}.difference(info)) == 0:
+            ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.5.1.4.1.1.481.5',
+                                               '1.2.840.10008.5.1.4.1.1.481.3',
+                                               '1.2.840.10008.5.1.4.1.1.481.2',
+                                               '1.2.840.10008.5.1.4.1.1.2'],
+                                ae_title=local_AET,
+                                port=local_port,
+                                transfer_syntax=['1.2.840.10008.1.2'])
 
-        try:
-            logging.debug('Reading modified file {}'.format(os.path.join(modified, m)))
-            ds = pydicom.dcmread(os.path.join(modified, m))
+            assoc = ae.associate(info['host'], int(info['port']), ae_title=info['aet'])
 
-            # Validate changes against original file, recursively searching through sequences
-            if m in edited:
-                logging.debug('Validating edits against {}'.format(os.path.join(original, m)))
-                dso = pydicom.dcmread(os.path.join(original, m))
+        else:
+            assoc = None
 
-                try:
-                    # The Edits list should match the expected list generated above
-                    if edited[m].matches(compare(ds, dso)):
-                        logging.debug('File {} edits are consistent with expected'.format(m))
+        i = 0
+        total = len(os.listdir(modified))
+        for m in os.listdir(modified):
+            i += 1
+            if isinstance(bar, UserInterface.ProgressBar):
+                bar.update(text='Validating and Exporting Files to {} ({} of {})'.format(d, i, total))
 
-                    else:
-                        status = False
-                        if not ignore_errors:
+            try:
+                logging.debug('Reading modified file {}'.format(os.path.join(modified, m)))
+                ds = pydicom.dcmread(os.path.join(modified, m))
+
+                # Validate changes against original file, recursively searching through sequences
+                if m in edited:
+                    logging.debug('Validating edits against {}'.format(os.path.join(original, m)))
+                    dso = pydicom.dcmread(os.path.join(original, m))
+
+                    try:
+                        # The Edits list should match the expected list generated above
+                        if edited[m].matches(compare(ds, dso)):
+                            logging.debug('File {} edits are consistent with expected'.format(m))
+
+                        else:
+                            status = False
+                            if not ignore_errors:
+                                if isinstance(bar, UserInterface.ProgressBar):
+                                    bar.close()
+
+                                raise KeyError('DICOM Export modification inconsistency detected')
+
+                    except KeyError:
+                        if ignore_errors:
+                            logging.warning('DICOM validation encountered too many nested sequences')
+                            status = False
+
+                        else:
                             if isinstance(bar, UserInterface.ProgressBar):
                                 bar.close()
 
-                            raise KeyError('DICOM Export modification inconsistency detected')
-
-                except KeyError:
-                    if ignore_errors:
-                        logging.warning('DICOM validation encountered too many nested sequences')
-                        status = False
-
-                    else:
-                        if isinstance(bar, UserInterface.ProgressBar):
-                            bar.close()
-
-                        raise
-
-            # Send file
-            for d in destination:
-                info = destination_info(d)
+                            raise
 
                 # If destination has a anonymize tag, remove personal info
-                phi = {}
                 if 'anonymize' in info and info['anonymize']:
                     for t in personal_tags:
                         if hasattr(ds, t):
-                            phi[t] = getattr(ds, t)
                             delattr(ds, t)
 
-                    ds.PatientName = random_name
-                    ds.PatientID = random_id
+                    ds.PatientName = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
+                    ds.PatientID = ''.join(random.choice(string.digits) for _ in range(8))
                     ds.PatientBirthdate = ''
 
                 # Send to SCP via pynetdicom3
-                if len({'host', 'aet', 'port'}.difference(info)) == 0:
-                    ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.5.1.4.1.1.481.5',
-                                                       '1.2.840.10008.5.1.4.1.1.481.3',
-                                                       '1.2.840.10008.5.1.4.1.1.481.2',
-                                                       '1.2.840.10008.5.1.4.1.1.2'],
-                                        ae_title=local_AET,
-                                        port=local_port,
-                                        transfer_syntax=['1.2.840.10008.1.2'])
-
-                    assoc = ae.associate(info['host'], int(info['port']), ae_title=info['aet'])
+                if assoc is not None:
                     if assoc.is_established:
                         response = assoc.send_c_store(dataset=ds,
                                                       msg_id=1,
                                                       priority=0,
                                                       originator_aet=None,
                                                       originator_id=None)
-                        assoc.release()
                         logging.info('{0} -> {1} C-STORE status: 0x{2:04x}'.format(m, d, response.Status))
                         if response.Status != 0:
                             status = False
@@ -569,21 +567,21 @@ def send(case,
 
                             raise
 
-                # If destination had a anonymize tag, set values back
-                for k, v in phi.items():
-                    setattr(ds, k, v)
+            # If pydicom fails, stop export unless ignore_errors flag is set
+            except pydicom.errors.InvalidDicomError:
+                if ignore_errors:
+                    logging.warning('File {} could not be read during modification, skipping'.format(m))
+                    status = False
 
-        # If pydicom fails, stop export unless ignore_errors flag is set
-        except pydicom.errors.InvalidDicomError:
-            if ignore_errors:
-                logging.warning('File {} could not be read during modification, skipping'.format(m))
-                status = False
+                else:
+                    if isinstance(bar, UserInterface.ProgressBar):
+                        bar.close()
 
-            else:
-                if isinstance(bar, UserInterface.ProgressBar):
-                    bar.close()
+                    raise
 
-                raise
+        if assoc is not None:
+            if assoc.is_established:
+                assoc.release()
 
     # Delete temporary folders
     try:
