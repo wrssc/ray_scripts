@@ -161,7 +161,7 @@ class InputDialog:
                 for o in self.options[i]:
                     self.inputs[i][o] = System.Windows.Forms.CheckBox()
                     self.inputs[i][o].Text = o
-                    self.inputs[i][o].Width = self.form.MaximumSize.Width - 70
+                    self.inputs[i][o].Width = self.form.MaximumSize.Width - 75
                     self.inputs[i][o].Margin = System.Windows.Forms.Padding(20, 0, 10, 0)
                     if i in initial and o in initial[i]:
                         self.inputs[i][o].Checked = True
@@ -172,7 +172,7 @@ class InputDialog:
             elif self.datatype[i] == 'combo':
                 self.inputs[i] = System.Windows.Forms.ComboBox()
                 self.inputs[i].Height = 30
-                self.inputs[i].Width = self.form.MaximumSize.Width - 55
+                self.inputs[i].Width = self.form.MaximumSize.Width - 60
                 self.inputs[i].Items.AddRange(options[i])
                 if i in initial and initial[i] in options[i]:
                     self.inputs[i].SelectedItem = initial[i]
