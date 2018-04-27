@@ -1,0 +1,84 @@
+<protocol name="UWProstate">
+    <ct>
+        <seriesdescription>PELVIS</seriesdescription>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+        <diagnosis>Stage I prostate cancer</diagnosis>
+        <diagnosis>Stage II prostate cancer</diagnosis>
+        <diagnosis>Stage III prostate cancer</diagnosis>
+        <diagnosis>Stage IV prostate cancer</diagnosis>
+    </diagnoses>
+    <order name="Prostate Only">
+        <prescription fractions="28" frequency="Daily" imaging="CBCT" modality="VMAT" prefix="Pros_">
+            <roi name="PTV" type="dx" volume="95%" dose="70" color="red">PTV</roi>
+        </prescription>
+        <goals>
+            <roi type="vx" dose="95%" volume="+99%" priority="1">PTV</roi>
+            <roi type="max" dose="l110%" priority="1">PTV</roi>
+            <roi type="vx" dose="60" volume="-15%" priority="2">Rectum</roi>
+            <roi type="vx" dose="40" volume="-35%" priority="2">Rectum</roi>
+            <roi type="vx" dose="50" volume="-20%" priority="2">Bladder</roi>
+            <roi type="vx" dose="50" volume="-50%" priority="2">PenileBulb</roi>
+            <roi type="max" dose="40" priority="2">FemoralHeadR</roi>
+            <roi type="max" dose="40" priority="2">FemoralHeadL</roi>
+            <roi type="max" dose="105%" priority="3">Urethra</roi>
+            <roi type="vx" dose="30" volume="1cc" priority="2">Skin</roi>
+            <goalset priority="4">QUANTEC</goalset>
+        </goals>
+    </order>
+    <order name="Prostate + Nodes">
+        <prescription fractions="28" frequency="Daily" imaging="CBCT" modality="VMAT" prefix="Pros_">
+            <roi name="PTV" type="dx" volume="95%" dose="70" color="red">PTV</roi>
+        </prescription>
+        <goals>
+            <roi type="vx" dose="95%" volume="+99%" priority="1">PTV</roi>
+            <roi type="max" dose="-110%" priority="1">PTV</roi>
+            <roi type="vx" dose="60" volume="-15%" priority="2">Rectum</roi>
+            <roi type="vx" dose="40" volume="-35%" priority="2">Rectum</roi>
+            <roi type="vx" dose="50" volume="-50%" priority="2">Bladder</roi>
+            <roi type="vx" dose="45" volume="175cc" priority="2">Bowel</roi>
+            <roi type="vx" dose="50" volume="-50%" priority="2">PenileBulb</roi>
+            <roi type="max" dose="40" priority="2">FemoralHeadR</roi>
+            <roi type="max" dose="40" priority="2">FemoralHeadL</roi>
+            <roi type="max" dose="105%" priority="3">Urethra</roi>
+            <roi type="vx" dose="30" volume="-1cc" priority="2">Skin</roi>
+            <goalset priority="4">QUANTEC</goalset>
+        </goals>
+    </order>
+    <planning>
+        <roi type="external" threshold="-500">External</roi>
+        <roi type="derived">
+            <start>PTV</start>
+            <expand>1</expand>
+            <subtract>PTV</subtract>
+            <save>Ring</save>
+        </roi>
+    </planning>
+    <optimization name="Default Optimization">
+        <phase description="Initial optimization">
+            <constraint type="min" dose="100%" weight="10">PTV</constraint>
+            <constraint type="uniform" dose="100%" weight="10">PTV</constraint>
+            <constraint type="max" dose="100%" weight="10">PTV</constraint>
+            <constraint type="dvh" dose="30" volume="30%" weight="1">Rectum</constraint>
+            <constraint type="dvh" dose="30" volume="30%" weight="1">Bladder</constraint>
+        </phase>
+        <phase description="1st of 2 warm starts">
+            <iterations>50</iterations>
+        </phase>
+        <phase description="2nd of 2 warm starts">
+            <constraint type="max" dose="100%" weight="20">PTV</constraint>
+            <iterations>50</iterations>
+        </phase>
+        <phase description="Reduce OAR dose">
+            <reduceOAR>10</reduceOAR>
+        </phase>
+        <phase description="Normalize Dose">
+            <normalize type="prescription">PTV</normalize>
+        </phase>
+    </optimization>
+</protocol>

@@ -1,0 +1,14 @@
+<goalsets>
+    <set name="QUANTEC">
+        <roi type="max" dose="60" note="Symptomatic necrosis <3%">Brain</roi>
+        <roi type="max" dose="72" note="Symptomatic necrosis 5%">Brain</roi>
+        <roi type="max" dose="90" note="Symptomatic necrosis 10%">Brain</roi>
+        <roi type="max" dose="54" note="Permanent cranial neuropathy <5%">Brainstem</roi>
+        <roi type="dx" volume="1cc" dose="59" note="Permanent cranial neuropathy <5%, 1-10cc">Brainstem</roi>
+        <roi type="max" dose="64" note="Permanent cranial neuropathy <5%, point dose << 1 cc">Brainstem</roi>
+    </set>
+    <set name="QUANTEC-SRS">
+        <roi type="vx" dose="12" volume="<5cc" note="Symptomatic necrosis <20%, rapid rise above 10 cc, 5-10cc">Brain</roi>
+        <roi type="max" dose="12.5" note="Permanent cranial neuropathy <5%, for patients with acoustic tumors">Brainstem</roi>
+    </set>
+</goalsets>
