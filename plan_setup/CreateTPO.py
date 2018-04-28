@@ -78,16 +78,19 @@ def main():
         if f.endswith('.xml'):
             fxml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), f))
             if fxml.getroot().tag == 'protocol':
-                protocols[fxml.getroot().attrib['name']] = fxml.getroot()
+                n = fxml.findall('name')[0].text
+                if n in protocols:
+                    protocols[n].extend(fxml.getroot())
+                else:
+                    protocols[n] = fxml.getroot()
 
             elif fxml.getroot().tag == 'goalsets':
-                for g in fxml.findall('/set'):
-                    goalsets[g.attrib['name']] = g
-
-
-
-
-
+                for g in fxml.findall('set'):
+                    n = g.findall('name')[0].text
+                    if n in goalsets:
+                        goalsets[n].extend(g)
+                    else:
+                        goalsets[n] = g
 
 
 
