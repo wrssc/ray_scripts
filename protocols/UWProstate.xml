@@ -1,4 +1,5 @@
-<protocol name="UWProstate">
+<protocol>
+    <name>UWProstate</name>
     <ct>
         <seriesdescription>PELVIS</seriesdescription>
     </ct>
@@ -13,72 +14,264 @@
         <diagnosis>Stage III prostate cancer</diagnosis>
         <diagnosis>Stage IV prostate cancer</diagnosis>
     </diagnoses>
-    <order name="Prostate Only">
-        <prescription fractions="28" frequency="Daily" imaging="CBCT" modality="VMAT" prefix="Pros_">
-            <roi name="PTV" type="dx" volume="95%" dose="70" color="red">PTV</roi>
+    <order>
+        <name>Prostate Only</name>
+        <prescription>
+            <fractions>28</fractions>
+            <frequency>Daily</frequency>
+            <imaging>CBCT</imaging>
+            <modality>VMAT</modality>
+            <prefix>Pros_</prefix>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy">70</dose>
+            </roi>
         </prescription>
         <goals>
-            <roi type="vx" dose="95%" volume="+99%" priority="1">PTV</roi>
-            <roi type="max" dose="l110%" priority="1">PTV</roi>
-            <roi type="vx" dose="60" volume="-15%" priority="2">Rectum</roi>
-            <roi type="vx" dose="40" volume="-35%" priority="2">Rectum</roi>
-            <roi type="vx" dose="50" volume="-20%" priority="2">Bladder</roi>
-            <roi type="vx" dose="50" volume="-50%" priority="2">PenileBulb</roi>
-            <roi type="max" dose="40" priority="2">FemoralHeadR</roi>
-            <roi type="max" dose="40" priority="2">FemoralHeadL</roi>
-            <roi type="max" dose="105%" priority="3">Urethra</roi>
-            <roi type="vx" dose="30" volume="1cc" priority="2">Skin</roi>
-            <goalset priority="4">QUANTEC</goalset>
+            <roi>
+                <name>PTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV">99</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PTV</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV">110</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">60</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="le">VX</type>
+                <volume units="%">35</volume>
+                <dose units="Gy">40</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="le">VX</type>
+                <volume units="%">20</volume>
+                <dose units="Gy">50</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">50</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>FemoralHeadR</name>
+                <type>Max</type>
+                <dose units="Gy">40</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>FemoralHeadL</name>
+                <type>Max</type>
+                <dose units="Gy">40</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV">100%</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Skin</name>
+                <type dir="le">VX</type>
+                <volume units="cc">1</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>4</priority>
+            </goalset>
         </goals>
     </order>
-    <order name="Prostate + Nodes">
-        <prescription fractions="28" frequency="Daily" imaging="CBCT" modality="VMAT" prefix="Pros_">
-            <roi name="PTV" type="dx" volume="95%" dose="70" color="red">PTV</roi>
+    <order>
+        <name>Prostate + Nodes</name>
+        <prescription>
+            <fractions>28</fractions>
+            <frequency>Daily</frequency>
+            <imaging>CBCT</imaging>
+            <modality>VMAT</modality>
+            <prefix>Pros_</prefix>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy">70</dose>
+            </roi>
         </prescription>
         <goals>
-            <roi type="vx" dose="95%" volume="+99%" priority="1">PTV</roi>
-            <roi type="max" dose="-110%" priority="1">PTV</roi>
-            <roi type="vx" dose="60" volume="-15%" priority="2">Rectum</roi>
-            <roi type="vx" dose="40" volume="-35%" priority="2">Rectum</roi>
-            <roi type="vx" dose="50" volume="-50%" priority="2">Bladder</roi>
-            <roi type="vx" dose="45" volume="175cc" priority="2">Bowel</roi>
-            <roi type="vx" dose="50" volume="-50%" priority="2">PenileBulb</roi>
-            <roi type="max" dose="40" priority="2">FemoralHeadR</roi>
-            <roi type="max" dose="40" priority="2">FemoralHeadL</roi>
-            <roi type="max" dose="105%" priority="3">Urethra</roi>
-            <roi type="vx" dose="30" volume="-1cc" priority="2">Skin</roi>
-            <goalset priority="4">QUANTEC</goalset>
+            <roi>
+                <name>PTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV">99</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PTV</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV">110</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">60</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="le">VX</type>
+                <volume units="%">35</volume>
+                <dose units="Gy">40</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">50</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">50</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bowel</name>
+                <type dir="le">VX</type>
+                <volume units="cc">175</volume>
+                <dose units="Gy">45</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>FemoralHeadR</name>
+                <type>Max</type>
+                <dose units="Gy">40</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>FemoralHeadL</name>
+                <type>Max</type>
+                <dose units="Gy">40</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV">100%</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Skin</name>
+                <type dir="le">VX</type>
+                <volume units="cc">1</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>4</priority>
+            </goalset>
         </goals>
     </order>
     <planning>
-        <roi type="external" threshold="-500">External</roi>
-        <roi type="derived">
+        <roi>
+            <name>External</name>
+            <type>External</type>
+            <threshold>-500</threshold>
+        </roi>
+        <roi>
+            <name>Ring</name>
+            <type>Derived</type>
             <start>PTV</start>
             <expand>1</expand>
             <subtract>PTV</subtract>
-            <save>Ring</save>
         </roi>
     </planning>
-    <optimization name="Default Optimization">
-        <phase description="Initial optimization">
-            <constraint type="min" dose="100%" weight="10">PTV</constraint>
-            <constraint type="uniform" dose="100%" weight="10">PTV</constraint>
-            <constraint type="max" dose="100%" weight="10">PTV</constraint>
-            <constraint type="dvh" dose="30" volume="30%" weight="1">Rectum</constraint>
-            <constraint type="dvh" dose="30" volume="30%" weight="1">Bladder</constraint>
+    <optimization>
+        <name>Default Optimization</name>
+        <phase>
+            <description>Initial optimization</description>
+            <constraint>
+                <roi>PTV</roi>
+                <type>Min</type>
+                <dose units="%" roi="PTV">100</dose>
+                <weight>10</weight>
+            </constraint>
+            <constraint>
+                <roi>PTV</roi>
+                <type>Uniform</type>
+                <dose units="%" roi="PTV">100</dose>
+                <weight>10</weight>
+            </constraint>
+            <constraint>
+                <roi>PTV</roi>
+                <type>Max</type>
+                <dose units="%" roi="PTV">100</dose>
+                <weight>10</weight>
+            </constraint>
+            <constraint>
+                <roi>Rectum</roi>
+                <type>DVH</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">30</volume>
+                <weight>1</weight>
+            </constraint>
+            <constraint>
+                <roi>Bladder</roi>
+                <type>DVH</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">30</volume>
+                <weight>1</weight>
+            </constraint>
         </phase>
-        <phase description="1st of 2 warm starts">
+        <phase>
+            <description>1st of 2 warm starts</description>
             <iterations>50</iterations>
         </phase>
-        <phase description="2nd of 2 warm starts">
-            <constraint type="max" dose="100%" weight="20">PTV</constraint>
+        <phase>
+            <description>2nd of 2 warm starts</description>
+            <constraint>
+                <roi>PTV</roi>
+                <type>Uniform</type>
+                <dose units="%" roi="PTV">100</dose>
+                <weight>20</weight>
+            </constraint>
             <iterations>50</iterations>
         </phase>
-        <phase description="Reduce OAR dose">
+        <phase>
+            <description>Reduce OAR dose</description>
             <reduceOAR>10</reduceOAR>
         </phase>
-        <phase description="Normalize Dose">
-            <normalize type="prescription">PTV</normalize>
+        <phase>
+            <description>Normalize Dose</description>
+            <normalize>
+                <dose units="%" roi="PTV">100</dose>
+                <volume units="%">95</volume>
+            </normalize>
         </phase>
     </optimization>
 </protocol>
