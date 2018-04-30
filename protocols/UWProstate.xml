@@ -18,18 +18,19 @@
     </diagnoses>
     <order>
         <name>Prostate Only</name>
+        <prefix>Pros_</prefix>
         <prescription>
-            <fractions>28</fractions>
-            <frequency>Daily</frequency>
-            <imaging>CBCT</imaging>
-            <modality>VMAT</modality>
-            <prefix>Pros_</prefix>
             <roi>
                 <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy">70</dose>
             </roi>
+            <fractions>28</fractions>
+            <frequency>Daily</frequency>
+            <imaging>CBCT</imaging>
+            <modality>VMAT</modality>
+            <motion>Free motion</motion>
         </prescription>
         <goals>
             <roi>
@@ -106,18 +107,19 @@
     </order>
     <order>
         <name>Prostate + Nodes</name>
+        <prefix>Pros_</prefix>
         <prescription>
-            <fractions>28</fractions>
-            <frequency>Daily</frequency>
-            <imaging>CBCT</imaging>
-            <modality>VMAT</modality>
-            <prefix>Pros_</prefix>
             <roi>
                 <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy">70</dose>
             </roi>
+            <fractions>28</fractions>
+            <frequency>Daily</frequency>
+            <imaging>CBCT</imaging>
+            <modality>VMAT</modality>
+            <motion>Free motion</motion>
         </prescription>
         <goals>
             <roi>
