@@ -36,7 +36,6 @@ import connect
 import UserInterface
 import logging
 import time
-import xml.etree.ElementTree
 
 # Define the protocol XML directory
 protocol_folder = '../protocols'
@@ -71,27 +70,9 @@ def main():
     status.next_step(text='In order to approve the plan and create a TPO, please fill out the displayed form ' +
                           'with information about the plan. Once completed, click OK to continue.')
 
-    # Search protocol list, parsing each XML file for protocols
-    protocols = {}
-    goalsets = {}
-    for f in os.listdir(os.path.join(os.path.dirname(__file__), protocol_folder)):
-        if f.endswith('.xml'):
-            fxml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), f))
-            if fxml.getroot().tag == 'protocol':
-                n = fxml.findall('name')[0].text
-                if n in protocols:
-                    protocols[n].extend(fxml.getroot())
-                else:
-                    protocols[n] = fxml.getroot()
 
-            elif fxml.getroot().tag == 'goalsets':
-                for g in fxml.findall('set'):
-                    n = g.findall('name')[0].text
-                    if n in goalsets:
-                        goalsets[n].extend(g)
-                    else:
-                        goalsets[n] = g
-
+    tpo = UserInterface.TPODialog()
+    tpo.load_protocols(os.path.join(os.path.dirname(__file__), protocol_folder))
 
 
 
