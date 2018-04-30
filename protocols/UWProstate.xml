@@ -1,7 +1,9 @@
 <protocol>
     <name>UWProstate</name>
     <ct>
-        <seriesdescription>PELVIS</seriesdescription>
+        <protocol>8.1 XRT PELVIS</protocol>
+        <protocol>8.2 Pelvis without contrast 0.8sec</protocol>
+        <protocol>XRT_PELVIS</protocol>
     </ct>
     <institutions>
         <institution>UWHC</institution>
@@ -9,10 +11,10 @@
         <institution>Johnson Creek</institution>
     </institutions>
     <diagnoses>
-        <diagnosis>Stage I prostate cancer</diagnosis>
-        <diagnosis>Stage II prostate cancer</diagnosis>
-        <diagnosis>Stage III prostate cancer</diagnosis>
-        <diagnosis>Stage IV prostate cancer</diagnosis>
+        <diagnosis icd9="185" icd10="C61">Stage I prostate cancer</diagnosis>
+        <diagnosis icd9="185" icd10="C61">Stage II prostate cancer</diagnosis>
+        <diagnosis icd9="185" icd10="C61">Stage III prostate cancer</diagnosis>
+        <diagnosis icd9="185" icd10="C61">Stage IV prostate cancer</diagnosis>
     </diagnoses>
     <order>
         <name>Prostate Only</name>
