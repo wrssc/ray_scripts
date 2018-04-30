@@ -1,9 +1,9 @@
 <protocol>
     <name>UWProstate</name>
     <ct>
-        <protocol>8.1 XRT PELVIS</protocol>
-        <protocol>8.2 Pelvis without contrast 0.8sec</protocol>
-        <protocol>XRT_PELVIS</protocol>
+        <protocol institution="Johnson Creek">>8.1 XRT PELVIS</protocol>
+        <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
+        <protocol institution="UWHC">XRT_PELVIS</protocol>
     </ct>
     <institutions>
         <institution>UWHC</institution>
@@ -212,6 +212,20 @@
             <expand>1</expand>
             <subtract>PTV</subtract>
         </roi>
+        <beam>
+            <name>Arc_1_CW</name>
+            <energy>6</energy>
+            <gantry type="start">181</gantry>
+            <gantry type="end">179</gantry>
+            <collimator>5</collimator>
+        </beam>
+        <beam>
+            <name>Arc_2_CCW</name>
+            <energy>6</energy>
+            <gantry type="start">179</gantry>
+            <gantry type="end">181</gantry>
+            <collimator>355</collimator>
+        </beam>
     </planning>
     <optimization>
         <name>Default Optimization</name>
