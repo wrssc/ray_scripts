@@ -442,7 +442,8 @@ def send(case,
 
                     if total_dose == 0:
                         for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
-                            b.add_new(0x300a0084, 'DS', ref.DeliveryMaximumDose / total_count)
+                            b.add_new(0x300a0084, 'DS', ref.DeliveryMaximumDose /
+                                      (total_count * ds.FractionGroupSequence[0].NumberOfFractionsPlanned))
                             expected.add(b[0x300a0084], beam=b)
 
                     else:
