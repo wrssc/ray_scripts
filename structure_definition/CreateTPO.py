@@ -71,14 +71,13 @@ def main():
     status.next_step(text='In order to approve the plan and create a TPO, please fill out the displayed form ' +
                           'with information about the plan. Once completed, click OK to continue.')
 
-
-    tpo = UserInterface.TPODialog()
+    tpo = UserInterface.TpoDialog(title='TPO Dialog', icd=10, match_threshold=0.6)
     tpo.load_protocols(os.path.join(os.path.dirname(__file__), protocol_folder))
     print tpo.show(case=case, exam=exam)
 
-
-
-
+    #
+    # TODO: steps 2 through 6
+    #
 
     # Finish up
     patient.Save()
