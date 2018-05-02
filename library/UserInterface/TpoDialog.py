@@ -57,6 +57,7 @@ class TpoDialog:
         self.oars = {}
         self.structures = []
         self.match_threshold = match_threshold
+        self.values = {}
         self.suggested = '--------- above are suggested ---------'
 
         # Initialize form
@@ -181,6 +182,8 @@ class TpoDialog:
                         break
 
                 # Update fractionation
+                self.form.SuspendLayout()
+                self.right_table.Hide()
                 self.prescription_label.Visible = True
                 if order.find('prescription/fractions') is not None:
                     self.fractions_label.Visible = True
@@ -260,7 +263,7 @@ class TpoDialog:
                     if 'default' in p.attrib and p.attrib('default').lower() == 'true':
                         self.imaging.SelectedItem = p.text
 
-                for p in order.findall('prescription/modality'):
+                for p in order.findall('prescription/imaging'):
                     imaging_list.append(p.text)
                     if 'default' in p.attrib and p.attrib('default').lower() == 'true':
                         self.imaging.SelectedItem = p.text
@@ -323,7 +326,7 @@ class TpoDialog:
                     self.target_table.RowStyles.Clear()
 
                     self.target_name = System.Windows.Forms.Label()
-                    self.target_name.Text = 'Name'
+                    self.target_name.Text = 'Use'
                     self.target_name.AutoSize = True
                     self.target_name.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
                     self.target_table.Controls.Add(self.target_name)
@@ -341,9 +344,10 @@ class TpoDialog:
                     self.target_table.Controls.Add(self.target_dose)
 
                     for t in sorted(self.targets.iterkeys()):
-                        self.targets[t]['name'] = System.Windows.Forms.Label()
+                        self.targets[t]['name'] = System.Windows.Forms.CheckBox()
+                        self.targets[t]['name'].Checked = True
                         self.targets[t]['name'].Text = t
-                        self.targets[t]['name'].Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+                        self.targets[t]['name'].Margin = System.Windows.Forms.Padding(5, 8, 10, 0)
                         self.target_table.Controls.Add(self.targets[t]['name'])
 
                         self.targets[t]['structure'] = System.Windows.Forms.ComboBox()
@@ -390,7 +394,7 @@ class TpoDialog:
                     self.oar_table.RowStyles.Clear()
 
                     self.oar_name = System.Windows.Forms.Label()
-                    self.oar_name.Text = 'Name'
+                    self.oar_name.Text = 'Use'
                     self.oar_name.AutoSize = True
                     self.oar_name.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
                     self.oar_table.Controls.Add(self.oar_name)
@@ -408,9 +412,10 @@ class TpoDialog:
                     self.oar_table.Controls.Add(self.oar_goal)
 
                     for o in sorted(self.oars.iterkeys()):
-                        self.oars[o]['name'] = System.Windows.Forms.Label()
+                        self.oars[o]['name'] = System.Windows.Forms.CheckBox()
+                        self.oars[o]['name'].Checked = True
                         self.oars[o]['name'].Text = o
-                        self.oars[o]['name'].Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+                        self.oars[o]['name'].Margin = System.Windows.Forms.Padding(5, 8, 10, 0)
                         self.oar_table.Controls.Add(self.oars[o]['name'])
 
                         self.oars[o]['structure'] = System.Windows.Forms.ComboBox()
@@ -423,7 +428,6 @@ class TpoDialog:
                             self.oars[o]['structure'].SelectedItem = m
 
                         goals = []
-                        print self.oars[o]['element']
                         for g in self.oars[o]['element']:
                             if g.find('type').text == 'DX':
                                 if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
@@ -484,13 +488,16 @@ class TpoDialog:
                         self.oars[o]['goal'] = System.Windows.Forms.Label()
                         self.oars[o]['goal'].Text = '\n'.join(goals)
                         self.oars[o]['goal'].AutoSize = True
-                        self.oars[o]['goal'].Margin = System.Windows.Forms.Padding(10, 8, 10, 0)
+                        self.oars[o]['goal'].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
                         self.oar_table.Controls.Add(self.oars[o]['goal'])
 
                 else:
                     self.oar_table.Visible = False
                     self.oar_table.Controls.Clear()
                     self.oar_table.RowStyles.Clear()
+
+                self.form.ResumeLayout()
+                self.right_table.Show()
 
             else:
                 self.prescription_label.Visible = False
@@ -535,11 +542,11 @@ class TpoDialog:
         self.protocol.SelectedIndexChanged += update_left
         self.left.Controls.Add(self.protocol)
 
-        self.prder_label = System.Windows.Forms.Label()
-        self.prder_label.Text = 'Select planning order:'
-        self.prder_label.AutoSize = True
-        self.prder_label.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        self.left.Controls.Add(self.prder_label)
+        self.order_label = System.Windows.Forms.Label()
+        self.order_label.Text = 'Select planning order:'
+        self.order_label.AutoSize = True
+        self.order_label.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        self.left.Controls.Add(self.order_label)
 
         self.order = System.Windows.Forms.ComboBox()
         self.order.Name = 'order'
@@ -579,39 +586,39 @@ class TpoDialog:
         self.previous_xrt = System.Windows.Forms.CheckBox()
         self.previous_xrt.Text = 'Previous radiation therapy'
         self.previous_xrt.AutoSize = True
-        self.previous_xrt.Margin = System.Windows.Forms.Padding(20, 5, 10, 0)
+        self.previous_xrt.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.left.Controls.Add(self.previous_xrt)
 
         self.chemo = System.Windows.Forms.CheckBox()
         self.chemo.Text = 'Coordinate start with chemotherapy'
         self.chemo.AutoSize = True
-        self.chemo.Margin = System.Windows.Forms.Padding(20, 5, 10, 0)
+        self.chemo.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.left.Controls.Add(self.chemo)
 
         self.pacemaker = System.Windows.Forms.CheckBox()
         self.pacemaker.Text = 'CEID/Pacemaker'
         self.pacemaker.AutoSize = True
-        self.pacemaker.Margin = System.Windows.Forms.Padding(20, 5, 10, 0)
+        self.pacemaker.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.left.Controls.Add(self.pacemaker)
 
         self.weekly_qa = System.Windows.Forms.CheckBox()
         self.weekly_qa.Text = 'Weekly physics QA check'
         self.weekly_qa.AutoSize = True
-        self.weekly_qa.Margin = System.Windows.Forms.Padding(20, 5, 10, 0)
+        self.weekly_qa.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.weekly_qa.Checked = True
         self.left.Controls.Add(self.weekly_qa)
 
         self.verification = System.Windows.Forms.CheckBox()
         self.verification.Text = 'Verification simulation on first day of treatment'
         self.verification.AutoSize = True
-        self.verification.Margin = System.Windows.Forms.Padding(20, 5, 10, 0)
+        self.verification.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.verification.Checked = True
         self.left.Controls.Add(self.verification)
 
         self.accelerated = System.Windows.Forms.CheckBox()
         self.accelerated.Text = 'Accelerated planning requested'
         self.accelerated.AutoSize = True
-        self.accelerated.Margin = System.Windows.Forms.Padding(20, 5, 10, 0)
+        self.accelerated.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.left.Controls.Add(self.accelerated)
 
         # Add right panel placeholders
@@ -766,8 +773,110 @@ class TpoDialog:
         self.bottom.Controls.Add(self.button_table)
 
         def ok(_s, _e):
-            self.form.DialogResult = True
-            self.status = False
+
+            # Verify dropdown inputs are provided
+            missing = []
+            if self.institution.SelectedItem == '' or self.institution.SelectedItem is None:
+                missing.append('institution')
+                self.institution_label.ForeColor = System.Drawing.Color.Red
+
+            else:
+                self.institution_label.ForeColor = System.Drawing.Color.Black
+
+            if self.protocol.SelectedItem == '' or self.protocol.SelectedItem is None:
+                missing.append('protocol')
+                self.protocol_label.ForeColor = System.Drawing.Color.Red
+
+            else:
+                self.protocol_label.ForeColor = System.Drawing.Color.Black
+
+            if self.order.SelectedItem == '' or self.order.SelectedItem is None:
+                missing.append('planning order')
+                self.order_label.ForeColor = System.Drawing.Color.Red
+
+            else:
+                self.order_label.ForeColor = System.Drawing.Color.Black
+
+            if self.diagnosis.Text == '':
+                missing.append('diagnosis')
+                self.diagnosis_label.ForeColor = System.Drawing.Color.Red
+
+            else:
+                self.diagnosis_label.ForeColor = System.Drawing.Color.Black
+
+            if self.fractions.Visible and self.fractions.Text == '':
+                missing.append('fractions')
+                self.fractions_label.ForeColor = System.Drawing.Color.Red
+
+            else:
+                self.fractions_label.ForeColor = System.Drawing.Color.Black
+
+            if self.frequency.Visible and (self.frequency.SelectedItem == '' or self.frequency.SelectedItem is None):
+                missing.append('frequency')
+                self.frequency_label.ForeColor = System.Drawing.Color.Red
+
+            else:
+                self.frequency_label.ForeColor = System.Drawing.Color.Black
+
+            if self.modality.Visible and (self.modality.SelectedItem == '' or self.modality.SelectedItem is None):
+                missing.append('modality')
+                self.modality_label.ForeColor = System.Drawing.Color.Red
+
+            else:
+                self.modality_label.ForeColor = System.Drawing.Color.Black
+
+            if self.imaging.Visible and (self.imaging.SelectedItem == '' or self.imaging.SelectedItem is None):
+                missing.append('imaging')
+                self.imaging_label.ForeColor = System.Drawing.Color.Red
+
+            else:
+                self.imaging_label.ForeColor = System.Drawing.Color.Black
+
+            if self.motion.Visible and (self.motion.SelectedItem == '' or self.motion.SelectedItem is None):
+                missing.append('frequency')
+                self.motion_label.ForeColor = System.Drawing.Color.Red
+
+            else:
+                self.motion_label.ForeColor = System.Drawing.Color.Black
+
+            if len(missing) > 0:
+                self.status = False
+                System.Windows.Forms.MessageBox.Show('The following inputs are required: ' + ', '.join(missing),
+                                                     'Required Fields',
+                                                     System.Windows.Forms.MessageBoxButtons.OK,
+                                                     System.Windows.Forms.MessageBoxIcon.Warning)
+
+            # Otherwise, verify structures are specified
+            else:
+                missing = []
+                for t in self.targets.values():
+                    if t['name'].Checked and (t['structure'].SelectedItem == '' or t['structure'].SelectedItem is None):
+                        missing.append(t['name'].Text)
+                        t['name'].ForeColor = System.Drawing.Color.Red
+
+                    else:
+                        t['name'].ForeColor = System.Drawing.Color.Black
+
+                for o in self.oars.values():
+                    if o['name'].Checked and (o['structure'].SelectedItem == '' or o['structure'].SelectedItem is None):
+                        missing.append(o['name'].Text)
+                        o['name'].ForeColor = System.Drawing.Color.Red
+
+                    else:
+                        o['name'].ForeColor = System.Drawing.Color.Black
+
+                if len(missing) > 0:
+                    self.status = False
+                    System.Windows.Forms.MessageBox.Show('The following targets or OARs are not matched to existing ' +
+                                                         'structures: ' + ', '.join(missing) + ' .Either match them ' +
+                                                         'or uncheck the structures to not constrain them during ' +
+                                                         'planning.', 'Unmatched Structures',
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Warning)
+
+                else:
+                    self.status = True
+                    self.form.DialogResult = True
 
         def cancel(_s, _e):
             self.form.DialogResult = True
@@ -837,8 +946,42 @@ class TpoDialog:
             # TODO: attempt to match structure set to order
             #
 
+        # Display form
         self.form.ShowDialog()
-        return self.status
+
+        # Parse responses
+        if self.status:
+            self.values['institution'] = self.institution.SelectedItem
+            self.values['protocol'] = self.protocol.SelectedItem
+            self.values['order'] = self.order.SelectedItem
+            self.values['diagnosis'] = self.diagnosis.Text
+            self.values['previous_xrt'] = self.previous_xrt.Checked
+            self.values['chemo'] = self.chemo.Checked
+            self.values['pacemaker'] = self.pacemaker.Checked
+            self.values['weekly_qa'] = self.weekly_qa.Checked
+            self.values['verification'] = self.verification.Checked
+            self.values['accelerated'] = self.accelerated.Checked
+            self.values['comments'] = self.comments.Text
+            self.values['fractions'] = self.fractions.Text
+            self.values['frequency'] = self.frequency.SelectedItem
+            self.values['modality'] = self.modality.SelectedItem
+            self.values['imaging'] = self.imaging.SelectedItem
+            self.values['motion'] = self.motion.SelectedItem
+            self.values['targets'] = {}
+            for t in self.targets.values():
+                self.values['targets'][t['name'].Text] = {'use': t['name'].Checked,
+                                                          'structure': t['structure'].SelectedItem,
+                                                          'dose': t['dose'].Text}
+
+            self.values['oars'] = {}
+            for o in self.oars.values():
+                self.values['oars'][o['name'].Text] = {'use': o['name'].Checked,
+                                                       'structure': t['structure'].SelectedItem}
+
+            return self.values
+
+        else:
+            return {}
 
     def load_protocols(self, folder, overwrite=False):
         """tpo.load_protocols(folder)"""
@@ -926,7 +1069,7 @@ class TpoDialog:
             self.order.SelectedItem = order
 
     def __levenshtein_match(self, item, arr):
-        """[match,dist]=_levenshtein_match(item,arr)"""
+        """[match,dist]=__levenshtein_match(item,arr)"""
 
         # Initialize return args
         dist = max(len(item), min(map(len, arr)))
@@ -934,17 +1077,11 @@ class TpoDialog:
 
         # Loop through array of options
         for a in arr:
-
-            # Initialize index vectors
             v0 = range(len(a) + 1) + [0]
             v1 = [0] * len(v0)
-
             for b in range(len(item)):
                 v1[0] = b + 1
-
                 for c in range(len(a)):
-
-                    # min(deletion, insertion, substitution)
                     if item[b].lower() == a[c].lower():
                         v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c])
 
@@ -959,9 +1096,4 @@ class TpoDialog:
 
         return match, dist
 
-
-import connect
-tpo = TpoDialog()
-tpo.load_protocols(os.path.join(os.path.dirname(__file__), '../../protocols/'))
-print tpo.show(connect.get_current('Case'), connect.get_current('Examination'))
 

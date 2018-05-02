@@ -43,10 +43,11 @@ protocol_folder = '../protocols'
 
 def main():
 
-    # Get current patient and case
+    # Get current patient, case, and exam
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
+        exam = connect.get_current('Examination')
         patient.Save()
 
     except Exception:
@@ -73,7 +74,7 @@ def main():
 
     tpo = UserInterface.TPODialog()
     tpo.load_protocols(os.path.join(os.path.dirname(__file__), protocol_folder))
-
+    print tpo.show(case=case, exam=exam)
 
 
 
