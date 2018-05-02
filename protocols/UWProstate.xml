@@ -34,21 +34,21 @@
         <goals>
             <roi>
                 <name>Rectum</name>
-                <type dir="le">VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">15</volume>
                 <dose units="Gy">60</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>Rectum</name>
-                <type dir="le">VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">35</volume>
                 <dose units="Gy">40</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>Bladder</name>
-                <type dir="le">VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">20</volume>
                 <dose units="Gy">50</dose>
                 <priority>2</priority>
@@ -73,21 +73,21 @@
         <goals>
             <roi>
                 <name>Rectum</name>
-                <type dir="le">VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">15</volume>
                 <dose units="Gy">60</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>Rectum</name>
-                <type dir="le">VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">35</volume>
                 <dose units="Gy">40</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>Bladder</name>
-                <type dir="le">VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">50</volume>
                 <dose units="Gy">50</dose>
                 <priority>2</priority>
@@ -110,14 +110,14 @@
         </roi>
         <roi>
             <name>PenileBulb</name>
-            <type dir="le">VX</type>
+            <type dir="lt">VX</type>
             <volume units="%">50</volume>
             <dose units="Gy">50</dose>
             <priority>2</priority>
         </roi>
         <roi>
             <name>Bowel</name>
-            <type dir="le">VX</type>
+            <type dir="lt">VX</type>
             <volume units="cc">175</volume>
             <dose units="Gy">45</dose>
             <priority>2</priority>
@@ -142,7 +142,7 @@
         </roi>
         <roi>
             <name>Skin</name>
-            <type dir="le">VX</type>
+            <type dir="lt">VX</type>
             <volume units="cc">1</volume>
             <dose units="Gy">30</dose>
             <priority>1</priority>
