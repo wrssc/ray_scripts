@@ -34,7 +34,7 @@ import os
 import logging
 import xml.etree.ElementTree
 
-icd = '../protocols/icd10cm_codes_2018.txt'
+icd = '../../protocols/icd10cm_codes_2018.txt'
 
 
 class TpoDialog:
