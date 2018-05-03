@@ -200,6 +200,10 @@ class TpoDialog:
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.fractions[n].Visible = False
+                        self.fractions[n].SelectedItem = ''
+
                 elif protocol.find('prescription/fractions') is not None:
                     self.fractions_label.Visible = True
                     c = 0
@@ -208,10 +212,15 @@ class TpoDialog:
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.fractions[n].Visible = False
+                        self.fractions[n].SelectedItem = ''
+
                 else:
                     self.fractions_label.Visible = False
-                    self.fractions.Visible = False
-                    self.fractions.Text = ''
+                    for n in range(self.num_rx):
+                        self.fractions[n].Visible = False
+                        self.fractions[n].SelectedItem = ''
 
                 # Update treatment frequency
                 if order.find('prescription/frequency') is not None:
@@ -232,6 +241,10 @@ class TpoDialog:
 
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.frequency[n].Visible = False
+                        self.frequency[n].SelectedItem = ''
+
                 elif protocol.find('prescription/frequency') is not None:
                     self.frequency_label.Visible = True
                     c = 0
@@ -250,10 +263,15 @@ class TpoDialog:
 
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.modality[n].Visible = False
+                        self.modality[n].SelectedItem = ''
+
                 else:
                     self.frequency_label.Visible = False
-                    self.frequency.Visible = False
-                    self.frequency.SelectedItem = ''
+                    for n in range(self.num_rx):
+                        self.frequency[n].Visible = False
+                        self.frequency[n].SelectedItem = ''
 
                 # Update treatment modality
                 if order.find('prescription/modality') is not None:
@@ -274,6 +292,10 @@ class TpoDialog:
 
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.modality[n].Visible = False
+                        self.modality[n].SelectedItem = ''
+
                 elif protocol.find('prescription/modality') is not None:
                     self.modality_label.Visible = True
                     c = 0
@@ -292,10 +314,15 @@ class TpoDialog:
 
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.modality[n].Visible = False
+                        self.modality[n].SelectedItem = ''
+
                 else:
                     self.modality_label.Visible = False
-                    self.modality.Visible = False
-                    self.modality.SelectedItem = ''
+                    for n in range(self.num_rx):
+                        self.modality[n].Visible = False
+                        self.modality[n].SelectedItem = ''
 
                 # Update imaging
                 if order.find('prescription/imaging') is not None:
@@ -316,6 +343,10 @@ class TpoDialog:
 
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.imaging[n].Visible = False
+                        self.imaging[n].SelectedItem = ''
+
                 elif protocol.find('prescription/imaging') is not None:
                     self.imaging_label.Visible = True
                     c = 0
@@ -334,10 +365,15 @@ class TpoDialog:
 
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.imaging[n].Visible = False
+                        self.imaging[n].SelectedItem = ''
+
                 else:
                     self.imaging_label.Visible = False
-                    self.imaging.Visible = False
-                    self.imaging.SelectedItem = ''
+                    for n in range(self.num_rx):
+                        self.imaging[n].Visible = False
+                        self.imaging[n].SelectedItem = ''
 
                 # Update motion
                 if order.find('prescription/motion') is not None:
@@ -358,6 +394,10 @@ class TpoDialog:
 
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.motion[n].Visible = False
+                        self.motion[n].SelectedItem = ''
+
                 elif protocol.find('prescription/motion') is not None:
                     self.motion_label.Visible = True
                     c = 0
@@ -376,10 +416,15 @@ class TpoDialog:
 
                         c += 1
 
+                    for n in range(c+1, self.num_rx-1):
+                        self.motion[n].Visible = False
+                        self.motion[n].SelectedItem = ''
+
                 else:
                     self.motion_label.Visible = False
-                    self.motion.Visible = False
-                    self.motion.SelectedItem = ''
+                    for n in range(self.num_rx):
+                        self.motion[n].Visible = False
+                        self.motion[n].SelectedItem = ''
 
                 # Update target dose table
                 self.targets = {}
