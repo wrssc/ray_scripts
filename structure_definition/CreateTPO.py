@@ -236,7 +236,7 @@ def main():
                                     break
 
                         if roi_name == '':
-                            if prescriptions[i].find('roi').find('type') == 'DX'
+                            if prescriptions[i].find('roi').find('type') == 'DX':
                                 vol = float(prescriptions[i].find('roi').find('volume').text)
                                 dose = float(prescriptions[i].find('roi').find('dose').text)
                                 if 'relative' in prescriptions[i].find('roi').find('dose').attrib:
