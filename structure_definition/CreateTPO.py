@@ -36,6 +36,7 @@ import connect
 import UserInterface
 import logging
 import time
+import collections
 
 # Define the protocol XML directory
 protocol_folder = '../protocols'
@@ -61,7 +62,7 @@ def main():
     status = UserInterface.ScriptStatus(steps=['Enter plan information for TPO',
                                                'Clean up structure list',
                                                'Approve structures',
-                                               'Initialize plan',
+                                               'Initialize plan and beamsets',
                                                'Set clinical goals',
                                                'Generate TPO'],
                                         docstring=__doc__,
@@ -126,6 +127,7 @@ def main():
                 changes += 1
 
     # Prompt user to approve structures
+    logging.debug('Prompting user to approve structure set')
     status.next_step(text='You will now be prompted to approve the structure set. Once completed, continue the script.')
     if changes > 0:
         ui = connect.get_current('ui')
@@ -134,7 +136,7 @@ def main():
         ui.TabControl_ToolBar.Approval.Select()
         connect.await_user_input('Approve the structure set now, then continue the script')
 
-    # Create new plan (ICDa-z Protocol) and beam sets (prefix_mod_R0A0)
+    # Create new plan (ICDa-z Protocol)
     status.next_step(text='A new plan will now be created and populated with the TPO template clinical goals...')
     patient.Save()
     for a in range(1, 26):
@@ -145,27 +147,117 @@ def main():
         except Exception:
             break
 
-    case.AddNewPlan(PlanName=plan_name)
+    logging.debug('Creating plan with name {}'.format(plan_name))
+    plan = case.AddNewPlan(PlanName=plan_name,
+                           PlannedBy='',
+                           Comment=response['order'],
+                           ExaminationName=exam.Name,
+                           AllowDuplicateNames=False)
+    plan.SetCurrent()
 
-    """ Beamset name
-    name = 'Plan'
+    # Create beamsets (prefix_middle_R0A0) and set prescription
+    beam_prefix = 'Plan'
     for o in response['xml'].findall('order'):
         if o.find('name') == response['order'] and o.find('prefix') is not None:
-            name = o.find('prefix').text
+            beam_prefix = o.find('prefix').text
             break
-    if response['modality'] == 'VMAT':
-        name += '_VMA'
 
-    elif response['modality'] == '3DCRT':
-        name += '_3DC'
+    prescriptions = []
+    for o in response['xml'].findall('order'):
+        if o.find('name') == response['order']:
+            for p in o.findall('prescription'):
+                prescriptions.append(p)
 
-    elif response['modality'] == 'Electrons':
-        name += '_ELE'
+    for p in response['xml'].findall('prescription'):
+        prescriptions.append(p)
 
-    name += '_R0A0'
-    """
+    for i in range(len(prescriptions)):
+        for t in prescriptions[i].find('technique'):
+            if t.text == response['modality'][i]:
+                if 'code' in t.attrib:
+                    beam_name = beam_prefix + t.attrib['code'] + '{}_R{}A{}'.format(i, 0, 0)
 
+                else:
+                    beam_name = beam_prefix + '{}_R{}A{}'.format(i, 0, 0)
 
+                if 'machine' in t.attrib:
+                    machine = t.attrib['machine']
+
+                else:
+                    machine_db = connect.get_current('MachineDB')
+                    machines = machine_db.QueryCommissionedMachineInfo(Filter={})
+                    for _i, m in enumerate(machines):
+                        if m['IsCommissioned']:
+                            machine = m['Name']
+                            break
+
+                if 'modality' in t.attrib:
+                    modality = t.attrib['modality']
+
+                else:
+                    modality = 'Photons'
+
+                if 'technique' in t.attrib:
+                    technique = t.attrib['technique']
+
+                else:
+                    technique = 'Conformal'
+
+                beamset = plan.AddNewBeamSet(Name=beam_name,
+                                             ExaminationName=exam.Name,
+                                             MachineName=machine,
+                                             Modality=modality,
+                                             TreatmentTechnique=technique,
+                                             PatientPosition=exam.PatientPosition,
+                                             NumberOfFractions=int(response['fractions'][i]),
+                                             CreateSetupBeams=False,
+                                             UseLocalizationPointAsSetupIsocenter=False,
+                                             Comment='',
+                                             RbeModelReference=None,
+                                             EnableDynamicTrackingForVero=False,
+                                             NewDoseSpecificationPointNames=[],
+                                             NewDoseSpecificationPoints=[],
+                                             RespiratoryMotionCompensationTechnique='Disabled',
+                                             RespiratorySignalSource='Disabled')
+
+                if prescriptions[i].find('roi') is not None and \
+                        prescriptions[i].find('roi').text in response['targets']:
+                    try:
+                        roi_name = ''
+                        for roi in case.PatientModel.RegionsOfInterest:
+                            if roi.Name == prescriptions[i].find('roi').text:
+                                roi_name = roi.Name
+                                break
+
+                        if roi_name == '':
+                            for roi in case.PatientModel.RegionsOfInterest:
+                                if roi.Name == response['targets'][prescriptions[i].find('roi').text]['structure']:
+                                    roi_name = roi.Name
+                                    break
+
+                        if roi_name == '':
+                            if prescriptions[i].find('roi').find('type') == 'DX'
+                                vol = float(prescriptions[i].find('roi').find('volume').text)
+                                dose = float(prescriptions[i].find('roi').find('dose').text)
+                                if 'relative' in prescriptions[i].find('roi').find('dose').attrib:
+                                    rel = float(prescriptions[i].find('roi').find('dose').attrib['relative'])
+
+                                else:
+                                    rel = 1
+
+                                beamset.AddDosePrescriptionToRoi(RoiName=roi.Name,
+                                                                 PrescriptionType='DoseAtVolume',
+                                                                 DoseVolume=vol,
+                                                                 DoseValue=dose,
+                                                                 RelativePrescriptionLevel=rel,
+                                                                 AutoScaleDose=True)
+
+                        else:
+                            logging.warning('Could not find structure {} to set prescription to on beamset {}'.
+                                            format(prescriptions[i].find('roi').text, beam_name))
+
+                    except Exception:
+                        logging.warning('Error occurred generating prescription for beamset {}'.format(beam_name))
 
     #
     # TODO: steps 5 through 6
@@ -177,7 +269,6 @@ def main():
     logging.debug('Script completed successfully in {:.3f} seconds'.format(time.time() - tic))
     status.finish('Script completed successfully. You may now import the saved TPO into ARIA and notify dosimetry ' +
                   'that this case is ready for planning.')
-
 
 if __name__ == '__main__':
     main()
