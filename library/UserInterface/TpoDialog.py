@@ -51,7 +51,6 @@ class TpoDialog:
         self.protocols = {}
         self.status = False
         self.institution_list = []
-
         self.protocol_list = []
         self.order_list = []
         self.targets = {}
@@ -64,10 +63,10 @@ class TpoDialog:
 
         # Load CMS ICD file
         self.diagnosis_list = {}
-        with open(icd, 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), icd), 'r') as f:
             for l in f:
                 s = l.split(' ', 1)
-                if len(s) == 2 and s[0] != '' and s[1] != '':
+                if len(s) == 2 and s[1] != '' and (s[0].startswith('C') or s[0].startswith('D')):
                     if len(s[0]) > 3:
                         self.diagnosis_list[s[0]] = '{}.{} {}'.format(s[0][0:3], s[0][3:], s[1])
                     else:
@@ -153,7 +152,9 @@ class TpoDialog:
                     if self.diagnosis.Items.Count > 0:
                         self.diagnosis.Items.Clear()
 
-                    self.diagnosis.Items.AddRange(diagnoses + [self.suggested] + self.diagnosis_list.values())
+                    sorted_diagnoses = self.diagnosis_list.values()
+                    sorted_diagnoses.sort()
+                    self.diagnosis.Items.AddRange(diagnoses + [self.suggested] + sorted_diagnoses)
                     if len(diagnoses) == 1:
                         self.diagnosis.SelectedItem = diagnoses[0]
 
@@ -183,6 +184,7 @@ class TpoDialog:
 
                 # Store protocol, order element trees
                 protocol = self.protocols[self.protocol.SelectedItem]
+                order = None
                 for o in protocol.findall('order'):
                     if o.find('name').text == self.order.SelectedItem:
                         order = o
@@ -192,7 +194,7 @@ class TpoDialog:
                 self.form.SuspendLayout()
                 self.right_table.Hide()
                 self.prescription_label.Visible = True
-                if order.find('prescription/fractions') is not None:
+                if order is not None and order.find('prescription/fractions') is not None:
                     self.fractions_label.Visible = True
                     c = 0
                     for p in order.findall('prescription'):
@@ -200,9 +202,11 @@ class TpoDialog:
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.fractions[n].Visible = False
                         self.fractions[n].SelectedItem = ''
+
+                    self.right_table.ColumnCount = c + 1
 
                 elif protocol.find('prescription/fractions') is not None:
                     self.fractions_label.Visible = True
@@ -212,9 +216,11 @@ class TpoDialog:
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.fractions[n].Visible = False
                         self.fractions[n].SelectedItem = ''
+
+                    self.right_table.ColumnCount = c + 1
 
                 else:
                     self.fractions_label.Visible = False
@@ -223,7 +229,7 @@ class TpoDialog:
                         self.fractions[n].SelectedItem = ''
 
                 # Update treatment frequency
-                if order.find('prescription/frequency') is not None:
+                if order is not None and order.find('prescription/frequency') is not None:
                     self.frequency_label.Visible = True
                     c = 0
                     for p in order.findall('prescription'):
@@ -235,13 +241,16 @@ class TpoDialog:
                                 self.frequency[c].SelectedItem = f.text
 
                         frequency_list.sort()
+                        if self.frequency[c].Items.Count > 0:
+                            self.frequency[c].Items.Clear()
+
                         self.frequency[c].Items.AddRange(frequency_list)
                         if len(frequency_list) == 1:
                             self.frequency[c].SelectedItem = frequency_list[0]
 
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.frequency[n].Visible = False
                         self.frequency[n].SelectedItem = ''
 
@@ -257,13 +266,16 @@ class TpoDialog:
                                 self.frequency[c].SelectedItem = f.text
 
                         frequency_list.sort()
+                        if self.frequency[c].Items.Count > 0:
+                            self.frequency[c].Items.Clear()
+
                         self.frequency[c].Items.AddRange(frequency_list)
                         if len(frequency_list) == 1:
                             self.frequency[c].SelectedItem = frequency_list[0]
 
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.modality[n].Visible = False
                         self.modality[n].SelectedItem = ''
 
@@ -274,7 +286,7 @@ class TpoDialog:
                         self.frequency[n].SelectedItem = ''
 
                 # Update treatment modality
-                if order.find('prescription/modality') is not None:
+                if order is not None and order.find('prescription/modality') is not None:
                     self.modality_label.Visible = True
                     c = 0
                     for p in order.findall('prescription'):
@@ -286,13 +298,16 @@ class TpoDialog:
                                 self.modality[c].SelectedItem = f.text
 
                         modality_list.sort()
+                        if self.modality[c].Items.Count > 0:
+                            self.modality[c].Items.Clear()
+
                         self.modality[c].Items.AddRange(modality_list)
                         if len(modality_list) == 1:
                             self.modality[c].SelectedItem = modality_list[0]
 
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.modality[n].Visible = False
                         self.modality[n].SelectedItem = ''
 
@@ -308,13 +323,16 @@ class TpoDialog:
                                 self.modality[c].SelectedItem = f.text
 
                         modality_list.sort()
+                        if self.modality[c].Items.Count > 0:
+                            self.modality[c].Items.Clear()
+
                         self.modality[c].Items.AddRange(modality_list)
                         if len(modality_list) == 1:
                             self.modality[c].SelectedItem = modality_list[0]
 
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.modality[n].Visible = False
                         self.modality[n].SelectedItem = ''
 
@@ -325,7 +343,7 @@ class TpoDialog:
                         self.modality[n].SelectedItem = ''
 
                 # Update imaging
-                if order.find('prescription/imaging') is not None:
+                if order is not None and order.find('prescription/imaging') is not None:
                     self.imaging_label.Visible = True
                     c = 0
                     for p in order.findall('prescription'):
@@ -337,13 +355,16 @@ class TpoDialog:
                                 self.imaging[c].SelectedItem = f.text
 
                         imaging_list.sort()
+                        if self.imaging[c].Items.Count > 0:
+                            self.imaging[c].Items.Clear()
+
                         self.imaging[c].Items.AddRange(imaging_list)
                         if len(imaging_list) == 1:
                             self.imaging[c].SelectedItem = imaging_list[0]
 
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.imaging[n].Visible = False
                         self.imaging[n].SelectedItem = ''
 
@@ -359,13 +380,16 @@ class TpoDialog:
                                 self.imaging[c].SelectedItem = f.text
 
                         imaging_list.sort()
+                        if self.imaging[c].Items.Count > 0:
+                            self.imaging[c].Items.Clear()
+
                         self.imaging[c].Items.AddRange(imaging_list)
                         if len(imaging_list) == 1:
                             self.imaging[c].SelectedItem = imaging_list[0]
 
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.imaging[n].Visible = False
                         self.imaging[n].SelectedItem = ''
 
@@ -376,7 +400,7 @@ class TpoDialog:
                         self.imaging[n].SelectedItem = ''
 
                 # Update motion
-                if order.find('prescription/motion') is not None:
+                if order is not None and order.find('prescription/motion') is not None:
                     self.motion_label.Visible = True
                     c = 0
                     for p in order.findall('prescription'):
@@ -388,13 +412,16 @@ class TpoDialog:
                                 self.motion[c].SelectedItem = f.text
 
                         motion_list.sort()
+                        if self.motion[c].Items.Count > 0:
+                            self.motion[c].Items.Clear()
+
                         self.motion[c].Items.AddRange(motion_list)
                         if len(motion_list) == 1:
                             self.motion[c].SelectedItem = motion_list[0]
 
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.motion[n].Visible = False
                         self.motion[n].SelectedItem = ''
 
@@ -410,13 +437,16 @@ class TpoDialog:
                                 self.motion[c].SelectedItem = f.text
 
                         motion_list.sort()
+                        if self.motion[c].Items.Count > 0:
+                            self.motion[c].Items.Clear()
+                            
                         self.motion[c].Items.AddRange(motion_list)
                         if len(motion_list) == 1:
                             self.motion[c].SelectedItem = motion_list[0]
 
                         c += 1
 
-                    for n in range(c+1, self.num_rx-1):
+                    for n in range(c, self.num_rx):
                         self.motion[n].Visible = False
                         self.motion[n].SelectedItem = ''
 
@@ -429,10 +459,20 @@ class TpoDialog:
                 # Update target dose table
                 self.targets = {}
                 for r in protocol.findall('prescription/roi'):
-                    self.targets[r.find('name').text] = {'element': r}
+                    if r.find('name').text in self.targets:
+                        self.targets[r.find('name').text]['element'].append(r)
+
+                    else:
+                        self.targets[r.find('name').text] = {'element': [r]}
 
                 for r in order.findall('prescription/roi'):
-                    self.targets[r.find('name').text] = {'element': r}
+                    if r.find('name').text in self.targets:
+                        self.targets[r.find('name').text]['element'].append(r)
+
+                    else:
+                        self.targets[r.find('name').text] = {'element': [r]}
+
+                print self.targets
 
                 if len(self.targets) > 0:
                     self.target_label.Visible = True
@@ -473,11 +513,21 @@ class TpoDialog:
                         if m is not None and d < len(t) * self.match_threshold:
                             self.targets[t]['structure'].SelectedItem = m
 
-                        self.targets[t]['dose'] = System.Windows.Forms.TextBox()
-                        self.targets[t]['dose'].Text = self.targets[t]['element'].find('dose').text
-                        self.targets[t]['dose'].Width = 50
-                        self.targets[t]['dose'].Margin = System.Windows.Forms.Padding(10, 8, 10, 0)
-                        self.target_table.Controls.Add(self.targets[t]['dose'])
+                        self.targets[t]['dosetable'] = System.Windows.Forms.TableLayoutPanel()
+                        self.targets[t]['dosetable'].ColumnCount = len(self.targets[t]['element'])
+                        self.targets[t]['dosetable'].RowCount = 1
+                        self.targets[t]['dosetable'].Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
+                        self.targets[t]['dosetable'].BackColor = System.Drawing.Color.White
+                        self.targets[t]['dosetable'].AutoSize = True
+                        self.target_table.Controls.Add(self.targets[t]['dosetable'])
+
+                        self.targets[t]['dose'] = []
+                        for n in range(len(self.targets[t]['element'])):
+                            self.targets[t]['dose'].append(System.Windows.Forms.TextBox())
+                            self.targets[t]['dose'][n].Text = self.targets[t]['element'][n].find('dose').text
+                            self.targets[t]['dose'][n].Width = 50
+                            self.targets[t]['dose'][n].Margin = System.Windows.Forms.Padding(10, 8, 10, 0)
+                            self.targets[t]['dosetable'].Controls.Add(self.targets[t]['dose'][n])
 
                 else:
                     self.target_label.Visible = False
@@ -538,7 +588,7 @@ class TpoDialog:
                         self.oars[o]['structure'].Items.AddRange(self.structures)
                         self.oar_table.Controls.Add(self.oars[o]['structure'])
                         m, d = self.__levenshtein_match(o, self.structures)
-                        if m is not None and d < len(t) * self.match_threshold:
+                        if m is not None and d < len(o) * self.match_threshold:
                             self.oars[o]['structure'].SelectedItem = m
 
                         goals = []
@@ -678,6 +728,9 @@ class TpoDialog:
         self.diagnosis = System.Windows.Forms.ComboBox()
         self.diagnosis.Width = self.form.MaximumSize.Width / 3 - 50
         self.diagnosis.Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
+        sorted_diagnoses = self.diagnosis_list.values()
+        sorted_diagnoses.sort()
+        self.diagnosis.Items.AddRange(sorted_diagnoses)
         self.left.Controls.Add(self.diagnosis)
 
         self.options_label = System.Windows.Forms.Label()
@@ -753,8 +806,9 @@ class TpoDialog:
         self.fractions_label.Visible = False
         self.right_table.Controls.Add(self.fractions_label)
 
+        self.fractions = []
         for n in range(self.num_rx):
-            self.fractions[n] = System.Windows.Forms.TextBox()
+            self.fractions.append(System.Windows.Forms.TextBox())
             self.fractions[n].Width = 50
             self.fractions[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
             self.fractions[n].Visible = False
@@ -767,8 +821,9 @@ class TpoDialog:
         self.frequency_label.Visible = False
         self.right_table.Controls.Add(self.frequency_label)
 
+        self.frequency = []
         for n in range(self.num_rx):
-            self.frequency[n] = System.Windows.Forms.ComboBox()
+            self.frequency.append(System.Windows.Forms.ComboBox())
             self.frequency[n].Width = 100
             self.frequency[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
             self.frequency[n].Visible = False
@@ -781,8 +836,9 @@ class TpoDialog:
         self.modality_label.Visible = False
         self.right_table.Controls.Add(self.modality_label)
 
+        self.modality = []
         for n in range(self.num_rx):
-            self.modality[n] = System.Windows.Forms.ComboBox()
+            self.modality.append(System.Windows.Forms.ComboBox())
             self.modality[n].Width = 100
             self.modality[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
             self.modality[n].Visible = False
@@ -795,8 +851,9 @@ class TpoDialog:
         self.imaging_label.Visible = False
         self.right_table.Controls.Add(self.imaging_label)
 
+        self.imaging = []
         for n in range(self.num_rx):
-            self.imaging[n] = System.Windows.Forms.ComboBox()
+            self.imaging.append(System.Windows.Forms.ComboBox())
             self.imaging[n].Width = 100
             self.imaging[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
             self.imaging[n].Visible = False
@@ -809,8 +866,9 @@ class TpoDialog:
         self.motion_label.Visible = False
         self.right_table.Controls.Add(self.motion_label)
 
+        self.motion = []
         for n in range(self.num_rx):
-            self.motion[n] = System.Windows.Forms.ComboBox()
+            self.motion.append(System.Windows.Forms.ComboBox())
             self.motion[n].Width = 100
             self.motion[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
             self.motion[n].Visible = False
@@ -1072,18 +1130,37 @@ class TpoDialog:
             self.values['verification'] = self.verification.Checked
             self.values['accelerated'] = self.accelerated.Checked
             self.values['comments'] = self.comments.Text
-            self.values['fractions'] = self.fractions.Text
-            self.values['frequency'] = self.frequency.SelectedItem
-            self.values['modality'] = self.modality.SelectedItem
-            self.values['imaging'] = self.imaging.SelectedItem
-            self.values['motion'] = self.motion.SelectedItem
+            self.values['fractions'] = []
+            self.values['frequency'] = []
+            self.values['modality'] = []
+            self.values['imaging'] = []
+            self.values['motion'] = []
+            for n in range(self.num_rx):
+                if self.fractions[n].Visible:
+                    self.values['fractions'].append(self.fractions[n].Text)
+
+                if self.fractions[n].Visible:
+                    self.values['frequency'].append(self.frequency[n].SelectedItem)
+
+                if self.fractions[n].Visible:
+                    self.values['modality'].append(self.modality[n].SelectedItem)
+
+                if self.fractions[n].Visible:
+                    self.values['imaging'].append(self.imaging[n].SelectedItem)
+
+                if self.fractions[n].Visible:
+                    self.values['motion'].append(self.motion[n].SelectedItem)
+
             self.values['targets'] = {}
             self.values['structures'] = {}
             self.values['xml'] = self.protocols[self.protocol.SelectedItem]
             for t in self.targets.values():
                 self.values['targets'][t['name'].Text] = {'use': t['name'].Checked,
                                                           'structure': t['structure'].SelectedItem,
-                                                          'dose': t['dose'].Text}
+                                                          'dose': []}
+                for n in range(self.num_rx):
+                    if t['dose'][n].Visible:
+                        self.values['targets'][t['name'].Text]['dose'].append(t['dose'].Text)
 
                 if t['structure'].SelectedItem != '':
                     self.values['structures'][t['structure'].SelectedItem] = t['name'].Text
@@ -1091,7 +1168,7 @@ class TpoDialog:
             self.values['oars'] = {}
             for o in self.oars.values():
                 self.values['oars'][o['name'].Text] = {'use': o['name'].Checked,
-                                                       'structure': t['structure'].SelectedItem}
+                                                       'structure': o['structure'].SelectedItem}
 
                 if o['structure'].SelectedItem != '':
                     self.values['structures'][o['structure'].SelectedItem] = o['name'].Text
@@ -1155,27 +1232,6 @@ class TpoDialog:
 
             self.order.Items.AddRange(self.order_list)
 
-        # Populate diagnosis list
-        self.diagnosis_list = []
-        for p in self.protocols.values():
-            for d in p.findall('diagnoses/diagnosis'):
-                if self.icd == 9 and 'icd9' in d.attrib:
-                    self.diagnosis_list.append('{}: {}'.format(d.attrib['icd9'], d.text))
-
-                elif self.icd == 10 and 'icd10' in d.attrib:
-                    self.diagnosis_list.append('{}: {}'.format(d.attrib['icd10'], d.text))
-
-                else:
-                    self.diagnosis_list.append(d.text)
-
-        if len(self.diagnosis_list) > 0:
-            self.diagnosis_list = list(set(self.diagnosis_list))
-            self.diagnosis_list.sort()
-            if self.diagnosis.Items.Count > 0:
-                self.diagnosis.Items.Clear()
-
-            self.diagnosis.Items.AddRange(self.diagnosis_list)
-
     def select_protocol(self, protocol):
         """tpo.select_protocol('Protocol Name')"""
         if protocol in self.protocol_list:
@@ -1213,5 +1269,3 @@ class TpoDialog:
                 match = a
 
         return match, dist
-
-
