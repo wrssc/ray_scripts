@@ -276,8 +276,8 @@ class TpoDialog:
                         c += 1
 
                     for n in range(c, self.num_rx):
-                        self.modality[n].Visible = False
-                        self.modality[n].SelectedItem = ''
+                        self.technique[n].Visible = False
+                        self.technique[n].SelectedItem = ''
 
                 else:
                     self.frequency_label.Visible = False
@@ -285,62 +285,62 @@ class TpoDialog:
                         self.frequency[n].Visible = False
                         self.frequency[n].SelectedItem = ''
 
-                # Update treatment modality
-                if order is not None and order.find('prescription/modality') is not None:
-                    self.modality_label.Visible = True
+                # Update treatment technique
+                if order is not None and order.find('prescription/technique') is not None:
+                    self.technique_label.Visible = True
                     c = 0
                     for p in order.findall('prescription'):
-                        self.modality[c].Visible = True
-                        modality_list = []
-                        for f in p.findall('modality'):
-                            modality_list.append(f.text)
+                        self.technique[c].Visible = True
+                        technique_list = []
+                        for f in p.findall('technique'):
+                            technique_list.append(f.text)
                             if 'default' in f.attrib and f.attrib('default').lower() == 'true':
-                                self.modality[c].SelectedItem = f.text
+                                self.technique[c].SelectedItem = f.text
 
-                        modality_list.sort()
-                        if self.modality[c].Items.Count > 0:
-                            self.modality[c].Items.Clear()
+                        technique_list.sort()
+                        if self.technique[c].Items.Count > 0:
+                            self.technique[c].Items.Clear()
 
-                        self.modality[c].Items.AddRange(modality_list)
-                        if len(modality_list) == 1:
-                            self.modality[c].SelectedItem = modality_list[0]
+                        self.technique[c].Items.AddRange(technique_list)
+                        if len(technique_list) == 1:
+                            self.technique[c].SelectedItem = technique_list[0]
 
                         c += 1
 
                     for n in range(c, self.num_rx):
-                        self.modality[n].Visible = False
-                        self.modality[n].SelectedItem = ''
+                        self.technique[n].Visible = False
+                        self.technique[n].SelectedItem = ''
 
-                elif protocol.find('prescription/modality') is not None:
-                    self.modality_label.Visible = True
+                elif protocol.find('prescription/technique') is not None:
+                    self.technique_label.Visible = True
                     c = 0
                     for p in protocol.findall('prescription'):
-                        self.modality[c].Visible = True
-                        modality_list = []
-                        for f in p.findall('modality'):
-                            modality_list.append(f.text)
+                        self.technique[c].Visible = True
+                        technique_list = []
+                        for f in p.findall('technique'):
+                            technique_list.append(f.text)
                             if 'default' in f.attrib and f.attrib('default').lower() == 'true':
-                                self.modality[c].SelectedItem = f.text
+                                self.technique[c].SelectedItem = f.text
 
-                        modality_list.sort()
-                        if self.modality[c].Items.Count > 0:
-                            self.modality[c].Items.Clear()
+                        technique_list.sort()
+                        if self.technique[c].Items.Count > 0:
+                            self.technique[c].Items.Clear()
 
-                        self.modality[c].Items.AddRange(modality_list)
-                        if len(modality_list) == 1:
-                            self.modality[c].SelectedItem = modality_list[0]
+                        self.technique[c].Items.AddRange(technique_list)
+                        if len(technique_list) == 1:
+                            self.technique[c].SelectedItem = technique_list[0]
 
                         c += 1
 
                     for n in range(c, self.num_rx):
-                        self.modality[n].Visible = False
-                        self.modality[n].SelectedItem = ''
+                        self.technique[n].Visible = False
+                        self.technique[n].SelectedItem = ''
 
                 else:
-                    self.modality_label.Visible = False
+                    self.technique_label.Visible = False
                     for n in range(self.num_rx):
-                        self.modality[n].Visible = False
-                        self.modality[n].SelectedItem = ''
+                        self.technique[n].Visible = False
+                        self.technique[n].SelectedItem = ''
 
                 # Update imaging
                 if order is not None and order.find('prescription/imaging') is not None:
@@ -526,7 +526,7 @@ class TpoDialog:
                             self.targets[t]['dose'].append(System.Windows.Forms.TextBox())
                             self.targets[t]['dose'][n].Text = self.targets[t]['element'][n].find('dose').text
                             self.targets[t]['dose'][n].Width = 50
-                            self.targets[t]['dose'][n].Margin = System.Windows.Forms.Padding(10, 8, 10, 0)
+                            self.targets[t]['dose'][n].Margin = System.Windows.Forms.Padding(10, 5, 10, 0)
                             self.targets[t]['dosetable'].Controls.Add(self.targets[t]['dose'][n])
 
                 else:
@@ -669,8 +669,8 @@ class TpoDialog:
                 self.fractions.Visible = False
                 self.frequency_label.Visible = False
                 self.frequency.Visible = False
-                self.modality_label.Visible = False
-                self.modality.Visible = False
+                self.technique_label.Visible = False
+                self.technique.Visible = False
                 self.imaging_label.Visible = False
                 self.imaging.Visible = False
                 self.motion_label.Visible = False
@@ -689,7 +689,7 @@ class TpoDialog:
         self.institution = System.Windows.Forms.ComboBox()
         self.institution.Name = 'institution'
         self.institution.Width = self.form.MaximumSize.Width / 3 - 50
-        self.institution.Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
+        self.institution.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.institution.SelectedIndexChanged += update_left
         self.left.Controls.Add(self.institution)
 
@@ -702,7 +702,7 @@ class TpoDialog:
         self.protocol = System.Windows.Forms.ComboBox()
         self.protocol.Name = 'protocol'
         self.protocol.Width = self.form.MaximumSize.Width / 3 - 50
-        self.protocol.Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
+        self.protocol.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.protocol.SelectedIndexChanged += update_left
         self.left.Controls.Add(self.protocol)
 
@@ -715,7 +715,7 @@ class TpoDialog:
         self.order = System.Windows.Forms.ComboBox()
         self.order.Name = 'order'
         self.order.Width = self.form.MaximumSize.Width / 3 - 50
-        self.order.Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
+        self.order.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         self.order.SelectedIndexChanged += update_left
         self.left.Controls.Add(self.order)
 
@@ -727,7 +727,7 @@ class TpoDialog:
 
         self.diagnosis = System.Windows.Forms.ComboBox()
         self.diagnosis.Width = self.form.MaximumSize.Width / 3 - 50
-        self.diagnosis.Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
+        self.diagnosis.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         sorted_diagnoses = self.diagnosis_list.values()
         sorted_diagnoses.sort()
         self.diagnosis.Items.AddRange(sorted_diagnoses)
@@ -829,20 +829,20 @@ class TpoDialog:
             self.frequency[n].Visible = False
             self.right_table.Controls.Add(self.frequency[n])
 
-        self.modality_label = System.Windows.Forms.Label()
-        self.modality_label.Text = 'Treatment modality:'
-        self.modality_label.AutoSize = True
-        self.modality_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
-        self.modality_label.Visible = False
-        self.right_table.Controls.Add(self.modality_label)
+        self.technique_label = System.Windows.Forms.Label()
+        self.technique_label.Text = 'Treatment technique:'
+        self.technique_label.AutoSize = True
+        self.technique_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+        self.technique_label.Visible = False
+        self.right_table.Controls.Add(self.technique_label)
 
-        self.modality = []
+        self.technique = []
         for n in range(self.num_rx):
-            self.modality.append(System.Windows.Forms.ComboBox())
-            self.modality[n].Width = 100
-            self.modality[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
-            self.modality[n].Visible = False
-            self.right_table.Controls.Add(self.modality[n])
+            self.technique.append(System.Windows.Forms.ComboBox())
+            self.technique[n].Width = 100
+            self.technique[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
+            self.technique[n].Visible = False
+            self.right_table.Controls.Add(self.technique[n])
 
         self.imaging_label = System.Windows.Forms.Label()
         self.imaging_label.Text = 'Image guidance:'
@@ -972,42 +972,48 @@ class TpoDialog:
             else:
                 self.diagnosis_label.ForeColor = System.Drawing.Color.Black
 
-            if self.fractions.Visible and self.fractions.Text == '':
-                missing.append('fractions')
-                self.fractions_label.ForeColor = System.Drawing.Color.Red
+            for n in range(self.num_rx):
+                if self.fractions[n].Visible and self.fractions[n].Text == '':
+                    missing.append('fractions')
+                    self.fractions_label.ForeColor = System.Drawing.Color.Red
 
-            else:
-                self.fractions_label.ForeColor = System.Drawing.Color.Black
+                else:
+                    self.fractions_label.ForeColor = System.Drawing.Color.Black
 
-            if self.frequency.Visible and (self.frequency.SelectedItem == '' or self.frequency.SelectedItem is None):
-                missing.append('frequency')
-                self.frequency_label.ForeColor = System.Drawing.Color.Red
+                if self.frequency[n].Visible and (self.frequency[n].SelectedItem == '' or
+                                                  self.frequency[n].SelectedItem is None):
+                    missing.append('frequency')
+                    self.frequency_label.ForeColor = System.Drawing.Color.Red
 
-            else:
-                self.frequency_label.ForeColor = System.Drawing.Color.Black
+                else:
+                    self.frequency_label.ForeColor = System.Drawing.Color.Black
 
-            if self.modality.Visible and (self.modality.SelectedItem == '' or self.modality.SelectedItem is None):
-                missing.append('modality')
-                self.modality_label.ForeColor = System.Drawing.Color.Red
+                if self.technique[n].Visible and (self.technique[n].SelectedItem == '' or
+                                                 self.technique[n].SelectedItem is None):
+                    missing.append('technique')
+                    self.technique_label.ForeColor = System.Drawing.Color.Red
 
-            else:
-                self.modality_label.ForeColor = System.Drawing.Color.Black
+                else:
+                    self.technique_label.ForeColor = System.Drawing.Color.Black
 
-            if self.imaging.Visible and (self.imaging.SelectedItem == '' or self.imaging.SelectedItem is None):
-                missing.append('imaging')
-                self.imaging_label.ForeColor = System.Drawing.Color.Red
+                if self.imaging[n].Visible and (self.imaging[n].SelectedItem == '' or
+                                                self.imaging[n].SelectedItem is None):
+                    missing.append('imaging')
+                    self.imaging_label.ForeColor = System.Drawing.Color.Red
 
-            else:
-                self.imaging_label.ForeColor = System.Drawing.Color.Black
+                else:
+                    self.imaging_label.ForeColor = System.Drawing.Color.Black
 
-            if self.motion.Visible and (self.motion.SelectedItem == '' or self.motion.SelectedItem is None):
-                missing.append('frequency')
-                self.motion_label.ForeColor = System.Drawing.Color.Red
+                if self.motion[n].Visible and (self.motion[n].SelectedItem == '' or
+                                               self.motion[n].SelectedItem is None):
+                    missing.append('frequency')
+                    self.motion_label.ForeColor = System.Drawing.Color.Red
 
-            else:
-                self.motion_label.ForeColor = System.Drawing.Color.Black
+                else:
+                    self.motion_label.ForeColor = System.Drawing.Color.Black
 
             if len(missing) > 0:
+                missing = list(set(missing))
                 self.status = False
                 System.Windows.Forms.MessageBox.Show('The following inputs are required: ' + ', '.join(missing),
                                                      'Required Fields',
@@ -1132,7 +1138,7 @@ class TpoDialog:
             self.values['comments'] = self.comments.Text
             self.values['fractions'] = []
             self.values['frequency'] = []
-            self.values['modality'] = []
+            self.values['technique'] = []
             self.values['imaging'] = []
             self.values['motion'] = []
             for n in range(self.num_rx):
@@ -1143,7 +1149,7 @@ class TpoDialog:
                     self.values['frequency'].append(self.frequency[n].SelectedItem)
 
                 if self.fractions[n].Visible:
-                    self.values['modality'].append(self.modality[n].SelectedItem)
+                    self.values['technique'].append(self.technique[n].SelectedItem)
 
                 if self.fractions[n].Visible:
                     self.values['imaging'].append(self.imaging[n].SelectedItem)

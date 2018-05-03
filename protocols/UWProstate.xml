@@ -21,12 +21,12 @@
                 <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy">70</dose>
+                <dose units="Gy" relative="1.0">70</dose>
             </roi>
             <fractions>28</fractions>
             <frequency>Daily</frequency>
             <imaging>3D Volumetric</imaging>
-            <modality>VMAT</modality>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -60,12 +60,12 @@
                 <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy">70</dose>
+                <dose units="Gy" relative="1.0">70</dose>
             </roi>
             <fractions>28</fractions>
             <frequency>Daily</frequency>
             <imaging>3D Volumetric</imaging>
-            <modality>VMAT</modality>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
