@@ -11,10 +11,7 @@
         <institution>Johnson Creek</institution>
     </institutions>
     <diagnoses>
-        <diagnosis icd9="185" icd10="C61">Prostate cancer, stage I</diagnosis>
-        <diagnosis icd9="185" icd10="C61">Prostate cancer, stage II</diagnosis>
-        <diagnosis icd9="185" icd10="C61">Prostate cancer, stage III</diagnosis>
-        <diagnosis icd9="185" icd10="C61">Prostate cancer, stage IV</diagnosis>
+        <icd>C61</icd>
     </diagnoses>
     <order>
         <name>Prostate Only</name>
@@ -56,7 +53,7 @@
         </goals>
     </order>
     <order>
-        <name>Prostate + Nodes</name>
+        <name>Prostate with Nodes</name>
         <prefix>Pros_</prefix>
         <prescription>
             <roi>
@@ -69,6 +66,59 @@
             <frequency>Daily</frequency>
             <imaging>3D Volumetric</imaging>
             <modality>VMAT</modality>
+        </prescription>
+        <goals>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">60</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <volume units="%">35</volume>
+                <dose units="Gy">40</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">50</dose>
+                <priority>2</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>Prostate Sequential</name>
+        <prefix>Pros_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy">50.4</dose>
+            </roi>
+            <fractions>28</fractions>
+            <frequency>Daily</frequency>
+            <imaging>3D Volumetric</imaging>
+            <modality>VMAT</modality>
+        </prescription>
+        <prescription>
+            <roi>
+                <name>PTV_Prostate</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy">28.8</dose>
+            </roi>
+            <fractions>16</fractions>
+            <frequency>Daily</frequency>
+            <imaging>3D Volumetric</imaging>
+            <imaging>2D Planar</imaging>
+            <modality>VMAT</modality>
+            <modality>3DCRT</modality>
         </prescription>
         <goals>
             <roi>

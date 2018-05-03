@@ -1,0 +1,58 @@
+<goalsets>
+    <set>
+        <name>QUANTEC</name>
+        <roi>
+            <name>Brain</name>
+            <type>Max</type>
+            <dose units="Gy">60</dose>
+            <description>Symptomatic necrosis 3%</description>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type>Max</type>
+            <dose units="Gy">72</dose>
+            <description>Symptomatic necrosis 5%</description>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type>Max</type>
+            <dose units="Gy">90</dose>
+            <description>Symptomatic necrosis 10%</description>
+        </roi>
+        <roi>
+            <name>Brainstem</name>
+            <type>Max</type>
+            <dose units="Gy">54</dose>
+            <description>Permanent cranial neuropathy 5%</description>
+        </roi>
+        <roi>
+            <name>Brainstem</name>
+            <type dir="le">DX</type>
+            <volume units="cc">1</volume>
+            <dose units="Gy">59</dose>
+            <description>Permanent cranial neuropathy 5%, 1-10 cc</description>
+        </roi>
+        <roi>
+            <name>Brainstem</name>
+            <type>Max</type>
+            <dose units="Gy">64</dose>
+            <description>Permanent cranial neuropathy 5%, point dose well below 1 cc</description>
+        </roi>
+    </set>
+    <set>
+        <name>QUANTEC-SRS</name>
+        <roi>
+            <name>Brain</name>
+            <type dir="le">VX</type>
+            <volume units="cc">5</volume>
+            <dose units="Gy">12</dose>
+            <description>Symptomatic necrosis 20%, rapid rise above 10 cc, 5-10cc</description>
+        </roi>
+        <roi>
+            <name>Brainstem</name>
+            <type>Max</type>
+            <dose units="Gy">12.5</dose>
+            <description>Permanent cranial neuropathy 5%, for patients with acoustic tumors</description>
+        </roi>
+    </set>
+</goalsets>
