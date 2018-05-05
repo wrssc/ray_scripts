@@ -1,0 +1,74 @@
+<protocol>
+    <name>UW Brain/CNS</name>
+    <ct>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+    </diagnoses>
+    <order>
+        <name>Brain</name>
+        <prefix>Brai_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%"></volume>
+                <dose units="Gy" relative="1.0"></dose>
+            </roi>
+            <fractions></fractions>
+            <frequency>Daily</frequency>
+            <imaging>Daily CBCT</imaging>
+            <imaging>Weekly kV</imaging>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
+        </prescription>
+    </order>
+    <order>
+        <name>Thoracic and Lumbar Spine</name>
+        <prefix>SpTL_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%"></volume>
+                <dose units="Gy" relative="1.0"></dose>
+            </roi>
+            <fractions></fractions>
+            <frequency>Daily</frequency>
+            <imaging>Daily CBCT</imaging>
+            <imaging>Weekly kV</imaging>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
+        </prescription>
+    </order>
+    <goals>
+        <roi>
+            <name>PTV</name>
+            <type dir="gt">VX</type>
+            <volume units="%">99</volume>
+            <dose units="%" roi="PTV">95</dose>
+            <priority>2</priority>
+        </roi>
+        <roi>
+            <name>PTV</name>
+            <type>Max</type>
+            <dose units="%" roi="PTV">110</dose>
+            <priority>2</priority>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type>Max</type>
+            <dose units="Gy">60</dose>
+            <priority>3</priority>
+        </roi>
+
+        <goalset>
+            <name>QUANTEC</name>
+            <priority>4</priority>
+        </goalset>
+    </goals>
+</protocol>
