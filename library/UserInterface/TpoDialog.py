@@ -58,6 +58,7 @@ class TpoDialog:
         self.structures = []
         self.match_threshold = match_threshold
         self.num_rx = num_rx
+        self.fraction_groups = 1
         self.values = {}
         self.suggested = '--------- above are suggested ---------'
 
@@ -207,6 +208,7 @@ class TpoDialog:
                         self.fractions[n].SelectedItem = ''
 
                     self.right_table.ColumnCount = c + 1
+                    self.fraction_groups = c + 1
 
                 elif protocol.find('prescription/fractions') is not None:
                     self.fractions_label.Visible = True
@@ -221,9 +223,11 @@ class TpoDialog:
                         self.fractions[n].SelectedItem = ''
 
                     self.right_table.ColumnCount = c + 1
+                    self.fraction_groups = c + 1
 
                 else:
                     self.fractions_label.Visible = False
+                    self.fraction_groups = 0
                     for n in range(self.num_rx):
                         self.fractions[n].Visible = False
                         self.fractions[n].SelectedItem = ''
@@ -471,8 +475,6 @@ class TpoDialog:
 
                     else:
                         self.targets[r.find('name').text] = {'element': [r]}
-
-                print self.targets
 
                 if len(self.targets) > 0:
                     self.target_label.Visible = True
@@ -972,7 +974,7 @@ class TpoDialog:
             else:
                 self.diagnosis_label.ForeColor = System.Drawing.Color.Black
 
-            for n in range(self.num_rx):
+            for n in range(self.fraction_groups):
                 if self.fractions[n].Visible and self.fractions[n].Text == '':
                     missing.append('fractions')
                     self.fractions_label.ForeColor = System.Drawing.Color.Red
@@ -1129,44 +1131,36 @@ class TpoDialog:
             self.values['protocol'] = self.protocol.SelectedItem
             self.values['order'] = self.order.SelectedItem
             self.values['diagnosis'] = self.diagnosis.SelectedItem.split(' ', 1)
-            self.values['previous_xrt'] = self.previous_xrt.Checked
-            self.values['chemo'] = self.chemo.Checked
-            self.values['pacemaker'] = self.pacemaker.Checked
-            self.values['weekly_qa'] = self.weekly_qa.Checked
-            self.values['verification'] = self.verification.Checked
-            self.values['accelerated'] = self.accelerated.Checked
+            self.values['options'] = {}
+            self.values['options'][self.previous_xrt.Text] = self.previous_xrt.Checked
+            self.values['options'][self.chemo.Text] = self.chemo.Checked
+            self.values['options'][self.pacemaker.Text] = self.pacemaker.Checked
+            self.values['options'][self.weekly_qa.Text] = self.weekly_qa.Checked
+            self.values['options'][self.verification.Text] = self.verification.Checked
+            self.values['options'][self.accelerated.Text] = self.accelerated.Checked
+            self.values['options'][self.previous_xrt.Text] = self.previous_xrt.Checked
             self.values['comments'] = self.comments.Text
             self.values['fractions'] = []
             self.values['frequency'] = []
             self.values['technique'] = []
             self.values['imaging'] = []
             self.values['motion'] = []
-            for n in range(self.num_rx):
-                if self.fractions[n].Visible:
-                    self.values['fractions'].append(self.fractions[n].Text)
+            for n in range(self.fraction_groups):
+                self.values['fractions'].append(int(self.fractions[n].Text))
+                self.values['frequency'].append(self.frequency[n].SelectedItem)
+                self.values['technique'].append(self.technique[n].SelectedItem)
+                self.values['imaging'].append(self.imaging[n].SelectedItem)
+                self.values['motion'].append(self.motion[n].SelectedItem)
 
-                if self.fractions[n].Visible:
-                    self.values['frequency'].append(self.frequency[n].SelectedItem)
-
-                if self.fractions[n].Visible:
-                    self.values['technique'].append(self.technique[n].SelectedItem)
-
-                if self.fractions[n].Visible:
-                    self.values['imaging'].append(self.imaging[n].SelectedItem)
-
-                if self.fractions[n].Visible:
-                    self.values['motion'].append(self.motion[n].SelectedItem)
-
-            self.values['targets'] = {}
             self.values['structures'] = {}
             self.values['xml'] = self.protocols[self.protocol.SelectedItem]
+            self.values['targets'] = {}
             for t in self.targets.values():
                 self.values['targets'][t['name'].Text] = {'use': t['name'].Checked,
                                                           'structure': t['structure'].SelectedItem,
                                                           'dose': []}
-                for n in range(self.num_rx):
-                    if t['dose'][n].Visible:
-                        self.values['targets'][t['name'].Text]['dose'].append(t['dose'].Text)
+                for n in range(len(t['element'])):
+                    self.values['targets'][t['name'].Text]['dose'].append(float(t['dose'][n].Text))
 
                 if t['structure'].SelectedItem != '':
                     self.values['structures'][t['structure'].SelectedItem] = t['name'].Text
