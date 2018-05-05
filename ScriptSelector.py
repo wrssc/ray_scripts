@@ -176,14 +176,6 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             bar.Maximum = len(file_list)
             bar.Visible = True
 
-            # Clear directory
-            if os.path.exists(m_local):
-                try:
-                    shutil.rmtree(m_local)
-                except OSError:
-                    logging.error('Could not delete local repository')
-            os.mkdir(m_local)
-
             # Loop through folders in branch, creating folders and pulling content
             for x in file_list:
                 if x.get('type') and not x.get('submodule_git_url'):
