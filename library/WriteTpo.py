@@ -252,8 +252,11 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
             logging.warning('An error occurred adding clinical goal {}'.format(c))
 
     goals = [goals_header]
+    oars = []
     for k in sorted(goals_dict.keys()):
         goals.append([P(goals_dict[k][0], s), P(goals_dict[k][1], s), P('{}'.format(goals_dict[k][2]), s)])
+        if len(oars) < 5:
+            oars.append(goals_dict[k][0])
 
     story.append(Table(data=goals,
                        colWidths=[1.5 * inch + width * (len(targets[0]) - 3)] + [width] + [0.75 * inch],
@@ -265,7 +268,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                                          ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
                                          ('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
-    # Generate options and comments tables
+    # Generate options, 3D/IMRT, and comments tables
     options = []
     for o in sorted(fields['options'].iterkeys()):
         if fields['options'][o]:
@@ -278,6 +281,26 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
         options[0].insert(0, P('<b>Plan Options:</b>', s))
         for i in range(1, len(options)):
             options[i].insert(0, P('', s))
+
+    modality = '3D'
+    for b in plan.BeamSets:
+        if b.Modality == 'Photons' and any(s in b.DeliveryTechinque for s in ['SMLC', 'VMAT', 'DMLC']):
+            modality = 'IMRT'
+            break
+
+    justification = 'To avoid complication-inducing doses to the '
+    if len(oars) > 1:
+        justification += '{} and {}'.format(', '.join(oars[0:-1]), oars[-1])
+    elif len(oars) > 0:
+        justification += oars[0]
+    else:
+        justification = 'To avoid excessive dose heterogeneity within the target'
+
+    story.append(Table(data=[[P('<b>Reason for {}: '.format(modality), s), P(justification, s)]],
+                       colWidths=[1.5 * inch, 5 * inch],
+                       spaceAfter=0.25 * inch,
+                       hAlign='LEFT',
+                       style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     story.append(Table(data=options,
                        colWidths=[1.5 * inch, 0.35 * inch, 4.65 * inch],
