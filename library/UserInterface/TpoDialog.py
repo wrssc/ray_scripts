@@ -527,6 +527,8 @@ class TpoDialog:
                         for n in range(len(self.targets[t]['element'])):
                             self.targets[t]['dose'].append(System.Windows.Forms.TextBox())
                             self.targets[t]['dose'][n].Text = self.targets[t]['element'][n].find('dose').text
+                            self.targets[t]['dose'][n].AccessibleDescription = \
+                                self.targets[t]['element'][n].find('volume').text
                             self.targets[t]['dose'][n].Width = 50
                             self.targets[t]['dose'][n].Margin = System.Windows.Forms.Padding(10, 5, 10, 0)
                             self.targets[t]['dosetable'].Controls.Add(self.targets[t]['dose'][n])
@@ -1158,9 +1160,11 @@ class TpoDialog:
             for t in self.targets.values():
                 self.values['targets'][t['name'].Text] = {'use': t['name'].Checked,
                                                           'structure': t['structure'].SelectedItem,
+                                                          'volume': [],
                                                           'dose': []}
                 for n in range(len(t['element'])):
                     self.values['targets'][t['name'].Text]['dose'].append(float(t['dose'][n].Text))
+                    self.values['targets'][t['name'].Text]['volume'].append(float(t['dose'][n].AccessibleDescription))
 
                 if t['structure'].SelectedItem != '':
                     self.values['structures'][t['structure'].SelectedItem] = t['name'].Text
