@@ -334,8 +334,10 @@ def main():
 
         if roi_name == '':
             for roi in case.PatientModel.RegionsOfInterest:
-                if roi.Name == response['oars'][g.find('name').text]['structure'] or \
-                        roi.Name == response['targets'][g.find('name').text]['structure']:
+                if (g.find('name').text in response['oars'] and
+                    roi.Name == response['oars'][g.find('name').text]['structure']) or \
+                        (g.find('name').text in response['targets'] and
+                         roi.Name == response['targets'][g.find('name').text]['structure']):
                     roi_name = roi.Name
                     break
 
