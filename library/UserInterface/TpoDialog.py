@@ -153,9 +153,9 @@ class TpoDialog:
                     if self.diagnosis.Items.Count > 0:
                         self.diagnosis.Items.Clear()
 
-                    sorted_diagnoses = self.diagnosis_list.values()
-                    sorted_diagnoses.sort()
-                    self.diagnosis.Items.AddRange(diagnoses + [self.suggested] + sorted_diagnoses)
+                    sorted_list = self.diagnosis_list.values()
+                    sorted_list.sort()
+                    self.diagnosis.Items.AddRange(diagnoses + [self.suggested] + sorted_list)
                     if len(diagnoses) == 1:
                         self.diagnosis.SelectedItem = diagnoses[0]
 
@@ -189,12 +189,14 @@ class TpoDialog:
                 for o in protocol.findall('order'):
                     if o.find('name').text == self.order.SelectedItem:
                         order = o
+                        logging.debug('Protocol ElementTag found: ' + o)
                         break
 
                 # Update fractionation
                 self.form.SuspendLayout()
                 self.right_table.Hide()
                 self.prescription_label.Visible = True
+                logging.debug('Updating fractionation value(s)')
                 if order is not None and order.find('prescription/fractions') is not None:
                     self.fractions_label.Visible = True
                     c = 0
@@ -233,6 +235,7 @@ class TpoDialog:
                         self.fractions[n].SelectedItem = ''
 
                 # Update treatment frequency
+                logging.debug('Updating treatment frequency list')
                 if order is not None and order.find('prescription/frequency') is not None:
                     self.frequency_label.Visible = True
                     c = 0
@@ -290,16 +293,17 @@ class TpoDialog:
                         self.frequency[n].SelectedItem = ''
 
                 # Update treatment technique
+                logging.debug('Updating treatment technique list')
                 if order is not None and order.find('prescription/technique') is not None:
                     self.technique_label.Visible = True
                     c = 0
                     for p in order.findall('prescription'):
                         self.technique[c].Visible = True
                         technique_list = []
-                        for f in p.findall('technique'):
-                            technique_list.append(f.text)
-                            if 'default' in f.attrib and f.attrib('default').lower() == 'true':
-                                self.technique[c].SelectedItem = f.text
+                        for t in p.findall('technique'):
+                            technique_list.append(t.text)
+                            if 'default' in t.attrib and t.attrib('default').lower() == 'true':
+                                self.technique[c].SelectedItem = t.text
 
                         technique_list.sort()
                         if self.technique[c].Items.Count > 0:
@@ -321,10 +325,10 @@ class TpoDialog:
                     for p in protocol.findall('prescription'):
                         self.technique[c].Visible = True
                         technique_list = []
-                        for f in p.findall('technique'):
-                            technique_list.append(f.text)
-                            if 'default' in f.attrib and f.attrib('default').lower() == 'true':
-                                self.technique[c].SelectedItem = f.text
+                        for t in p.findall('technique'):
+                            technique_list.append(t.text)
+                            if 'default' in t.attrib and t.attrib('default').lower() == 'true':
+                                self.technique[c].SelectedItem = t.text
 
                         technique_list.sort()
                         if self.technique[c].Items.Count > 0:
@@ -347,16 +351,17 @@ class TpoDialog:
                         self.technique[n].SelectedItem = ''
 
                 # Update imaging
+                logging.debug('Updating imaging list')
                 if order is not None and order.find('prescription/imaging') is not None:
                     self.imaging_label.Visible = True
                     c = 0
                     for p in order.findall('prescription'):
                         self.imaging[c].Visible = True
                         imaging_list = []
-                        for f in p.findall('imaging'):
-                            imaging_list.append(f.text)
-                            if 'default' in f.attrib and f.attrib('default').lower() == 'true':
-                                self.imaging[c].SelectedItem = f.text
+                        for i in p.findall('imaging'):
+                            imaging_list.append(i.text)
+                            if 'default' in i.attrib and i.attrib('default').lower() == 'true':
+                                self.imaging[c].SelectedItem = i.text
 
                         imaging_list.sort()
                         if self.imaging[c].Items.Count > 0:
@@ -378,10 +383,10 @@ class TpoDialog:
                     for p in protocol.findall('prescription'):
                         self.imaging[c].Visible = True
                         imaging_list = []
-                        for f in p.findall('imaging'):
-                            imaging_list.append(f.text)
-                            if 'default' in f.attrib and f.attrib('default').lower() == 'true':
-                                self.imaging[c].SelectedItem = f.text
+                        for i in p.findall('imaging'):
+                            imaging_list.append(i.text)
+                            if 'default' in i.attrib and i.attrib('default').lower() == 'true':
+                                self.imaging[c].SelectedItem = i.text
 
                         imaging_list.sort()
                         if self.imaging[c].Items.Count > 0:
@@ -404,6 +409,7 @@ class TpoDialog:
                         self.imaging[n].SelectedItem = ''
 
                 # Update motion
+                logging.debug('Updating motion list')
                 if order is not None and order.find('prescription/motion') is not None:
                     self.motion_label.Visible = True
                     c = 0
@@ -461,6 +467,7 @@ class TpoDialog:
                         self.motion[n].SelectedItem = ''
 
                 # Update target dose table
+                logging.debug('Updating target dose table')
                 self.targets = {}
                 for r in protocol.findall('prescription/roi'):
                     if r.find('name').text in self.targets:
@@ -540,6 +547,7 @@ class TpoDialog:
                     self.target_table.RowStyles.Clear()
 
                 # Update OAR constraint table
+                logging.debug('Updating OAR table')
                 self.oars = {}
                 for r in protocol.findall('goals/roi'):
                     if r.find('name').text not in self.targets:
