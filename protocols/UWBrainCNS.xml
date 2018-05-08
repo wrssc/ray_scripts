@@ -28,241 +28,243 @@
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
         </prescription>
-        <roi>
-            <name>Brain</name>
-            <type>Max</type>
-            <dose units="Gy">60</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Brainstem</name>
-            <type>Max</type>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Brainstem</name>
-            <type dir="lt">VX</type>
-            <dose units="Gy">60</dose>
-            <volume units="%">1</volume>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Brainstem</name>
-            <type>Max</type>
-            <dose units="Gy">64</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Brainstem</name>
-            <type dir="lt">VX</type>
-            <dose units="Gy">59</dose>
-            <volume units="cc">10</volume>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Brainstem_PRV03</name>
-            <type>Max</type>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Chiasm</name>
-            <type>Max</type>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Chiasm</name>
-            <type dir="lt">VX</type>
-            <dose units="Gy">60</dose>
-            <volume units="%">1</volume>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Chiasm_PRV03</name>
-            <type>Max</type>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_L</name>
-            <type>Mean</type>
-            <dose units="Gy">35</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_L</name>
-            <type>Max</type>
-            <dose units="Gy">40</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_L</name>
-            <type>Mean</type>
-            <dose units="Gy">45</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_L</name>
-            <type dir="lt">VX</type>
-            <dose units="Gy">55</dose>
-            <volume units="%">5</volume>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_R</name>
-            <type>Mean</type>
-            <dose units="Gy">35</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_R</name>
-            <type>Max</type>
-            <dose units="Gy">40</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_R</name>
-            <type>Mean</type>
-            <dose units="Gy">45</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_R</name>
-            <type dir="lt">VX</type>
-            <dose units="Gy">55</dose>
-            <volume units="%">5</volume>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Eye_L</name>
-            <type>Max</type>
-            <dose units="Gy">50</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Eye_L</name>
-            <type>Mean</type>
-            <dose units="Gy">35</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Eye_R</name>
-            <type>Max</type>
-            <dose units="Gy">50</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Eye_R</name>
-            <type>Mean</type>
-            <dose units="Gy">35</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Lens_L</name>
-            <type>Max</type>
-            <dose units="Gy">7</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Lens_L</name>
-            <type>Max</type>
-            <dose units="Gy">10</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Lens_R</name>
-            <type>Max</type>
-            <dose units="Gy">7</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Lens_R</name>
-            <type>Max</type>
-            <dose units="Gy">10</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_L</name>
-            <type>Max</type>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_L</name>
-            <type dir="lt">VX</type>
-            <dose units="Gy">60</dose>
-            <volume units="%">1</volume>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_R</name>
-            <type>Max</type>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_R</name>
-            <type dir="lt">VX</type>
-            <dose units="Gy">60</dose>
-            <volume units="%">1</volume>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_L_PRV03</name>
-            <type>Max</type>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_R_PRV03</name>
-            <type>Max</type>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>SpinalCord</name>
-            <type>Max</type>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>SpinalCord</name>
-            <type>Max</type>
-            <dose units="Gy">50</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>SpinalCord_PRV05</name>
-            <type>Max</type>
-            <dose units="Gy">54</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>LacrimalGland_L</name>
-            <type>Max</type>
-            <dose units="Gy">30</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>LacrimalGland_R</name>
-            <type>Max</type>
-            <dose units="Gy">30</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Retina_L</name>
-            <type>Max</type>
-            <dose units="Gy">45</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Retina_R</name>
-            <type>Max</type>
-            <dose units="Gy">45</dose>
-            <priority>1</priority>
-        </roi>
+        <goals>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <dose units="Gy">60</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">1</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">64</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">59</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">1</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">55</dose>
+                <volume units="%">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">55</dose>
+                <volume units="%">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Eye_L</name>
+                <type>Max</type>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Eye_L</name>
+                <type>Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Eye_R</name>
+                <type>Max</type>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Eye_R</name>
+                <type>Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">1</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">1</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <dose units="Gy">54</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Retina_L</name>
+                <type>Max</type>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Retina_R</name>
+                <type>Max</type>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+        </goals>
     </order>
     <order>
         <name>Whole Brain</name>
@@ -279,18 +281,20 @@
             <imaging>Weekly kV</imaging>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
         </prescription>
-        <roi>
-            <name>Lens_L</name>
-            <type>Max</type>
-            <dose units="Gy">7</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Lens_R</name>
-            <type>Max</type>
-            <dose units="Gy">7</dose>
-            <priority>1</priority>
-        </roi>
+        <goals>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <priority>1</priority>
+            </roi>
+        </goals>
     </order>
     <order>
         <name>Whole Brain w/ Hippocampal Sparing</name>
@@ -307,51 +311,53 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="Conformal" code="VMAT" machine="TrueBeam">VMAT</technique>
         </prescription>
-        <roi>
-            <name>PTV</name>
-            <type dir="le">DX</type>
-            <volume units="%">2</volume>
-            <dose units="Gy">37.5</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>PTV</name>
-            <type dir="ge">DX</type>
-            <volume units="%">98</volume>
-            <dose units="Gy">25</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Hippocampus</name>
-            <type dir="le">DX</type>
-            <volume units="%">100</volume>
-            <dose units="Gy">9</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Hippocampus</name>
-            <type>Max</type>
-            <dose units="Gy">16</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_L</name>
-            <type>Max</type>
-            <dose units="Gy">37.5</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_R</name>
-            <type>Max</type>
-            <dose units="Gy">37.5</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Chiasm</name>
-            <type>Max</type>
-            <dose units="Gy">37.5</dose>
-            <priority>3</priority>
-        </roi>
+        <goals>
+            <roi>
+                <name>PTV</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">37.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PTV</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy">25</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus</name>
+                <type dir="le">DX</type>
+                <volume units="%">100</volume>
+                <dose units="Gy">9</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus</name>
+                <type>Max</type>
+                <dose units="Gy">16</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <dose units="Gy">37.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <dose units="Gy">37.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <dose units="Gy">37.5</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
     </order>
     <goals>
         <goalset>
