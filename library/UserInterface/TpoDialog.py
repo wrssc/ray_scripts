@@ -502,7 +502,7 @@ class TpoDialog:
                     for t in sorted(self.targets.iterkeys()):
                         self.targets[t]['name'] = System.Windows.Forms.CheckBox()
                         self.targets[t]['name'].Checked = True
-                        self.targets[t]['name'].Width = 100
+                        self.targets[t]['name'].Width = 150
                         self.targets[t]['name'].Text = t
                         self.targets[t]['name'].Margin = System.Windows.Forms.Padding(5, 8, 10, 0)
                         self.target_table.Controls.Add(self.targets[t]['name'])
@@ -583,7 +583,7 @@ class TpoDialog:
                     for o in sorted(self.oars.iterkeys()):
                         self.oars[o]['name'] = System.Windows.Forms.CheckBox()
                         self.oars[o]['name'].Checked = True
-                        self.oars[o]['name'].Width = 100
+                        self.oars[o]['name'].Width = 150
                         self.oars[o]['name'].Text = o
                         self.oars[o]['name'].Margin = System.Windows.Forms.Padding(5, 8, 10, 0)
                         self.oar_table.Controls.Add(self.oars[o]['name'])
@@ -841,7 +841,7 @@ class TpoDialog:
 
         self.fractions_label = System.Windows.Forms.Label()
         self.fractions_label.Text = 'Number of fractions:'
-        self.fractions_label.Width = 100
+        self.fractions_label.Width = 150
         self.fractions_label.AutoSize = True
         self.fractions_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
         self.fractions_label.Visible = False
@@ -865,7 +865,7 @@ class TpoDialog:
         self.frequency = []
         for n in range(self.num_rx):
             self.frequency.append(System.Windows.Forms.ComboBox())
-            self.frequency[n].Width = 100
+            self.frequency[n].Width = 150
             self.frequency[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
             self.frequency[n].Visible = False
             self.right_table.Controls.Add(self.frequency[n])
@@ -880,7 +880,7 @@ class TpoDialog:
         self.technique = []
         for n in range(self.num_rx):
             self.technique.append(System.Windows.Forms.ComboBox())
-            self.technique[n].Width = 100
+            self.technique[n].Width = 150
             self.technique[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
             self.technique[n].Visible = False
             self.right_table.Controls.Add(self.technique[n])
@@ -895,7 +895,7 @@ class TpoDialog:
         self.imaging = []
         for n in range(self.num_rx):
             self.imaging.append(System.Windows.Forms.ComboBox())
-            self.imaging[n].Width = 100
+            self.imaging[n].Width = 150
             self.imaging[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
             self.imaging[n].Visible = False
             self.right_table.Controls.Add(self.imaging[n])
@@ -910,7 +910,7 @@ class TpoDialog:
         self.motion = []
         for n in range(self.num_rx):
             self.motion.append(System.Windows.Forms.ComboBox())
-            self.motion[n].Width = 100
+            self.motion[n].Width = 150
             self.motion[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
             self.motion[n].Visible = False
             self.right_table.Controls.Add(self.motion[n])
