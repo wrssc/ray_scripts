@@ -159,11 +159,6 @@ class TpoDialog:
                     if len(diagnoses) == 1:
                         self.diagnosis.SelectedItem = diagnoses[0]
 
-                else:
-                    sorted_list = self.diagnosis_list.values()
-                    sorted_list.sort()
-                    self.diagnosis.Items.AddRange(sorted_list)
-
                 # Update order list
                 orders = []
                 for o in self.protocols[s.SelectedItem].findall('order/name'):
@@ -177,15 +172,18 @@ class TpoDialog:
                     orders.sort()
                     self.order.Items.AddRange(orders)
                     if len(orders) == 1:
+                        self.order.SelectedItem = orders[0]
                         self.order.SelectedIndex = 0
                         self.order.SelectedIndexChanged()
 
                     elif self.order.SelectedItem not in orders:
                         self.order.SelectedIndex = -1
+                        self.order.SelectedItem = ''
                         self.order.SelectedText = ''
 
                 else:
                     self.order.SelectedIndex = -1
+                    self.order.SelectedItem = ''
                     self.order.SelectedText = ''
 
             # Otherwise, if an order was changed
@@ -256,9 +254,11 @@ class TpoDialog:
                     for p in order.findall('prescription'):
                         self.frequency[c].Visible = True
                         frequency_list = []
+                        default = None
                         for f in p.findall('frequency'):
                             frequency_list.append(f.text)
                             if 'default' in f.attrib and f.attrib['default'].lower() == 'true':
+                                default = f.text
                                 self.frequency[c].SelectedItem = f.text
 
                         frequency_list.sort()
@@ -268,6 +268,9 @@ class TpoDialog:
                         self.frequency[c].Items.AddRange(frequency_list)
                         if len(frequency_list) == 1:
                             self.frequency[c].SelectedItem = frequency_list[0]
+
+                        elif default is not None:
+                            self.frequency[c].SelectedItem = default
 
                         c += 1
 
@@ -281,10 +284,11 @@ class TpoDialog:
                     for p in protocol.findall('prescription'):
                         self.frequency[c].Visible = True
                         frequency_list = []
+                        default = None
                         for f in p.findall('frequency'):
                             frequency_list.append(f.text)
                             if 'default' in f.attrib and f.attrib['default'].lower() == 'true':
-                                self.frequency[c].SelectedItem = f.text
+                                default = f.text
 
                         frequency_list.sort()
                         if self.frequency[c].Items.Count > 0:
@@ -294,11 +298,14 @@ class TpoDialog:
                         if len(frequency_list) == 1:
                             self.frequency[c].SelectedItem = frequency_list[0]
 
+                        elif default is not None:
+                            self.frequency[c].SelectedItem = default
+
                         c += 1
 
                     for n in range(c, self.num_rx):
-                        self.technique[n].Visible = False
-                        self.technique[n].SelectedItem = ''
+                        self.frequency[n].Visible = False
+                        self.frequency[n].SelectedItem = ''
 
                 else:
                     self.frequency_label.Visible = False
@@ -314,10 +321,11 @@ class TpoDialog:
                     for p in order.findall('prescription'):
                         self.technique[c].Visible = True
                         technique_list = []
+                        default = None
                         for t in p.findall('technique'):
                             technique_list.append(t.text)
                             if 'default' in t.attrib and t.attrib['default'].lower() == 'true':
-                                self.technique[c].SelectedItem = t.text
+                                default = t.text
 
                         technique_list.sort()
                         if self.technique[c].Items.Count > 0:
@@ -326,6 +334,9 @@ class TpoDialog:
                         self.technique[c].Items.AddRange(technique_list)
                         if len(technique_list) == 1:
                             self.technique[c].SelectedItem = technique_list[0]
+
+                        elif default is not None:
+                            self.technique[c].SelectedItem = default
 
                         c += 1
 
@@ -339,10 +350,11 @@ class TpoDialog:
                     for p in protocol.findall('prescription'):
                         self.technique[c].Visible = True
                         technique_list = []
+                        default = None
                         for t in p.findall('technique'):
                             technique_list.append(t.text)
                             if 'default' in t.attrib and t.attrib['default'].lower() == 'true':
-                                self.technique[c].SelectedItem = t.text
+                                default = t.text
 
                         technique_list.sort()
                         if self.technique[c].Items.Count > 0:
@@ -351,6 +363,9 @@ class TpoDialog:
                         self.technique[c].Items.AddRange(technique_list)
                         if len(technique_list) == 1:
                             self.technique[c].SelectedItem = technique_list[0]
+
+                        elif default is not None:
+                            self.technique[c].SelectedItem = default
 
                         c += 1
 
@@ -372,10 +387,11 @@ class TpoDialog:
                     for p in order.findall('prescription'):
                         self.imaging[c].Visible = True
                         imaging_list = []
+                        default = None
                         for i in p.findall('imaging'):
                             imaging_list.append(i.text)
                             if 'default' in i.attrib and i.attrib['default'].lower() == 'true':
-                                self.imaging[c].SelectedItem = i.text
+                                default = i.text
 
                         imaging_list.sort()
                         if self.imaging[c].Items.Count > 0:
@@ -384,6 +400,9 @@ class TpoDialog:
                         self.imaging[c].Items.AddRange(imaging_list)
                         if len(imaging_list) == 1:
                             self.imaging[c].SelectedItem = imaging_list[0]
+
+                        elif default is not None:
+                            self.imaging[c].SelectedItem = default
 
                         c += 1
 
@@ -397,10 +416,11 @@ class TpoDialog:
                     for p in protocol.findall('prescription'):
                         self.imaging[c].Visible = True
                         imaging_list = []
+                        default = None
                         for i in p.findall('imaging'):
                             imaging_list.append(i.text)
                             if 'default' in i.attrib and i.attrib['default'].lower() == 'true':
-                                self.imaging[c].SelectedItem = i.text
+                                default = i.text
 
                         imaging_list.sort()
                         if self.imaging[c].Items.Count > 0:
@@ -409,6 +429,9 @@ class TpoDialog:
                         self.imaging[c].Items.AddRange(imaging_list)
                         if len(imaging_list) == 1:
                             self.imaging[c].SelectedItem = imaging_list[0]
+
+                        elif default is not None:
+                            self.imaging[c].SelectedItem = default
 
                         c += 1
 
@@ -430,10 +453,11 @@ class TpoDialog:
                     for p in order.findall('prescription'):
                         self.motion[c].Visible = True
                         motion_list = []
+                        default = None
                         for f in p.findall('motion'):
                             motion_list.append(f.text)
                             if 'default' in f.attrib and f.attrib['default'].lower() == 'true':
-                                self.motion[c].SelectedItem = f.text
+                                default = f.text
 
                         motion_list.sort()
                         if self.motion[c].Items.Count > 0:
@@ -442,6 +466,9 @@ class TpoDialog:
                         self.motion[c].Items.AddRange(motion_list)
                         if len(motion_list) == 1:
                             self.motion[c].SelectedItem = motion_list[0]
+
+                        elif default is not None:
+                            self.motion[c].SelectedItem = default
 
                         c += 1
 
@@ -455,10 +482,11 @@ class TpoDialog:
                     for p in protocol.findall('prescription'):
                         self.motion[c].Visible = True
                         motion_list = []
+                        default = None
                         for f in p.findall('motion'):
                             motion_list.append(f.text)
                             if 'default' in f.attrib and f.attrib['default'].lower() == 'true':
-                                self.motion[c].SelectedItem = f.text
+                                default = f.text
 
                         motion_list.sort()
                         if self.motion[c].Items.Count > 0:
@@ -467,6 +495,9 @@ class TpoDialog:
                         self.motion[c].Items.AddRange(motion_list)
                         if len(motion_list) == 1:
                             self.motion[c].SelectedItem = motion_list[0]
+
+                        elif default is not None:
+                            self.motion[c].SelectedItem = default
 
                         c += 1
 
