@@ -11,7 +11,7 @@
     </diagnoses>
     <order>
         <name>Brain SABR 5fx</name>
-        <prefix>Plan_</prefix>
+        <prefix>Brai_</prefix>
         <prescription>
             <roi>
                 <name>PTV</name>
@@ -23,7 +23,7 @@
             <frequency>Daily</frequency>
             <frequency>2-3 times per week</frequency>
             <imaging>Daily CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
         </prescription>
     </order>
     <goals>
