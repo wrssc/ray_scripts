@@ -20,7 +20,8 @@
                 <dose units="Gy" relative="1.0"></dose>
             </roi>
             <fractions></fractions>
-            <frequency>Daily</frequency>
+            <frequency default="true">Daily</frequency>
+            <frequency>Twice daily</frequency>
             <frequency>2-3 times per week</frequency>
             <imaging>Daily CBCT</imaging>
             <imaging default="true">Weekly kV</imaging>
