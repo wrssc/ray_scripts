@@ -860,7 +860,7 @@ class TpoDialog:
 
         self.fractions_label = System.Windows.Forms.Label()
         self.fractions_label.Text = 'Number of fractions:'
-        self.fractions_label.Width = 180
+        self.fractions_label.Width = 165
         self.fractions_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
         self.fractions_label.Visible = False
         self.right_table.Controls.Add(self.fractions_label)
