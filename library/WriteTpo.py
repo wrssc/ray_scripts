@@ -106,30 +106,30 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     for p in fields['plans']:
         details_header.append(P('<b>{}</b>'.format(p.replace('_R0A0', '')), s))
 
-    details = [details_header]
+    details = list([details_header])
     details.append([P('Number of Fractions', s)])
     for f in fields['fractions']:
         details[-1].append(P('{}'.format(f), s))
 
-    if 'technique' in fields:
+    if 'technique' in fields and len(fields['technique']) > 0:
         details.append([P('Technique', s)])
         for t in fields['technique']:
             if t is not None:
                 details[-1].append(P(t, s))
 
-    if 'frequency' in fields:
+    if 'frequency' in fields and len(fields['frequency']) > 0:
         details.append([P('Treatment frequency', s)])
         for f in fields['frequency']:
             if f is not None:
                 details[-1].append(P(f, s))
 
-    if 'imaging' in fields:
+    if 'imaging' in fields and len(fields['imaging']) > 0:
         details.append([P('Image guidance', s)])
         for i in fields['imaging']:
             if i is not None:
                 details[-1].append(P(i, s))
 
-    if 'motion' in fields:
+    if 'motion' in fields and len(fields['motion']) > 0:
         details.append([P('Motion management', s)])
         for m in fields['motion']:
             if m is not None:
@@ -185,7 +185,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     # Generate goals table
     goals_header = [P('<b>Clinical Goals</b>', s)]
     if len(fields['plans']) == 1:
-        goals_header.append(P('<b>{}</b>'.format(p.replace('_R0A0', '')), s))
+        goals_header.append(P('<b>{}</b>'.format(fields['plans'][0].replace('_R0A0', '')), s))
 
     else:
         goals_header.append(P('<b>Composite</b>', s))
