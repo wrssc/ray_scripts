@@ -177,13 +177,13 @@ class TpoDialog:
                     orders.sort()
                     self.order.Items.AddRange(orders)
                     if len(orders) == 1:
-                        self.order.SelectedItem = orders[0]
+                        self.order.SelectedIndex = 0
 
                     elif self.order.SelectedItem not in orders:
-                        self.order.SelectedItem = ''
+                        self.order.SelectedIndex = -1
 
                 else:
-                    self.order.SelectedItem = ''
+                    self.order.SelectedIndex = -1
 
             # Otherwise, if an order was changed
             elif s.Name == 'order' and s.SelectedItem in self.order_list:
