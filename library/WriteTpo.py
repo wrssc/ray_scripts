@@ -290,7 +290,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
 
     modality = '3D'
     for b in plan.BeamSets:
-        if b.Modality == 'Photons' and any(s in b.DeliveryTechinque for s in ['SMLC', 'VMAT', 'DMLC']):
+        if b.Modality == 'Photons' and b.PlanGenerationTechnique == 'Imrt':
             modality = 'IMRT'
             break
 
