@@ -24,7 +24,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     logging.debug('Initializing PDF to save to {}'.format(filename))
     doc = BaseDocTemplate(filename,
                           pagesize=letter,
-                          pageTemplates=[PageTemplate(id='allpages',
+                          pageTemplates=[PageTemplate(id='all',
                                                       frames=[Frame(0.75 * inch, 0.75 * inch, 7 * inch, 9.5 * inch,
                                                                     showBoundary=0)])],
                           showBoundary=0,
@@ -95,7 +95,8 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                                                                        info['StudyModule']['StudyDateTime'].Day,
                                                                        info['StudyModule']['StudyDateTime'].Year,
                                                                        info['StudyModule']['StudyDateTime'].Hour,
-                                                                       info['StudyModule']['StudyDateTime'].Minute), s)],
+                                                                       info['StudyModule'][
+                                                                           'StudyDateTime'].Minute), s)],
                              [P('<b>Plan Name:</b>', s), P(plan.Name, s)]
                              ],
                        colWidths=[1.5 * inch, 5 * inch],
