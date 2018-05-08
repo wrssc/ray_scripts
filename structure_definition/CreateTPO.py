@@ -471,8 +471,8 @@ def main():
     time.sleep(1)
     logging.debug('Script completed successfully in {:.3f} seconds'.format(time.time() - tic))
     UserInterface.MessageBox('The TPO was saved as "{}".'.format(tpo), 'TPO Saved')
-    status.finish('Script completed successfully, saving the TPO to "{}". You may now import the saved '.format(tpo) +
-                  'TPO into ARIA and notify dosimetry that this case is ready for planning.')
+    status.finish('Script completed successfully, saving the TPO PDF file to "{}". You may now import '.format(tpo) +
+                  'the saved TPO into ARIA and notify dosimetry that this case is ready for planning.')
 
 
 if __name__ == '__main__':
