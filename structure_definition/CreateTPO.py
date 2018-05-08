@@ -31,8 +31,6 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
 import sys
-
-sys.path.append('../library/')
 import os
 import connect
 import UserInterface
@@ -77,7 +75,8 @@ def main():
     tpo.load_protocols(os.path.join(os.path.dirname(__file__), protocol_folder))
     response = tpo.show(case=case, exam=exam)
     if response == {}:
-        status.finish('This script was cancelled')
+        status.finish('Script cancelled, inputs were not supplied')
+        sys.exit('Script cancelled')
 
     # Re-name/organize structures based on TPO form
     status.next_step(text='The structures are now being renamed and organized based on your input...')
