@@ -147,32 +147,43 @@ class TpoDialog:
                     if d.text in self.diagnosis_list.keys():
                         diagnoses.append(self.diagnosis_list[d.text])
 
+                if self.diagnosis.Items.Count > 0:
+                    self.diagnosis.Items.Clear()
+
                 if len(diagnoses) > 0:
                     diagnoses = list(set(diagnoses))
                     diagnoses.sort()
-                    if self.diagnosis.Items.Count > 0:
-                        self.diagnosis.Items.Clear()
-
                     sorted_list = self.diagnosis_list.values()
                     sorted_list.sort()
                     self.diagnosis.Items.AddRange(diagnoses + [self.suggested] + sorted_list)
                     if len(diagnoses) == 1:
                         self.diagnosis.SelectedItem = diagnoses[0]
 
+                else:
+                    sorted_list = self.diagnosis_list.values()
+                    sorted_list.sort()
+                    self.diagnosis.Items.AddRange(sorted_list)
+
                 # Update order list
                 orders = []
                 for o in self.protocols[s.SelectedItem].findall('order/name'):
                     orders.append(o.text)
 
+                if self.order.Items.Count > 0:
+                    self.order.Items.Clear()
+
                 if len(orders) > 0:
                     orders = list(set(orders))
                     orders.sort()
-                    if self.order.Items.Count > 0:
-                        self.order.Items.Clear()
-
                     self.order.Items.AddRange(orders)
                     if len(orders) == 1:
                         self.order.SelectedItem = orders[0]
+
+                    elif self.order.SelectedItem not in orders:
+                        self.order.SelectedItem = ''
+
+                else:
+                    self.order.SelectedItem = ''
 
             # Otherwise, if an order was changed
             elif s.Name == 'order' and s.SelectedItem in self.order_list:
