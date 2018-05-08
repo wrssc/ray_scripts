@@ -275,20 +275,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                                          ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
                                          ('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
-    # Generate options, 3D/IMRT, and comments tables
-    options = []
-    for o in sorted(fields['options'].iterkeys()):
-        if fields['options'][o]:
-            options.append([P('[X]', s), P(o, s)])
-
-        else:
-            options.append([P('[&nbsp;&nbsp;]', s), P(o, s)])
-
-    if len(options) > 0:
-        options[0].insert(0, P('<b>Plan Options:</b>', s))
-        for i in range(1, len(options)):
-            options[i].insert(0, P('', s))
-
+    # Add billing justification
     modality = '3D'
     for b in plan.BeamSets:
         if b.Modality == 'Photons' and b.PlanGenerationTechnique == 'Imrt':
@@ -309,19 +296,34 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                        hAlign='LEFT',
                        style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
+    # Add plan options
+    options = []
+    for o in sorted(fields['options'].iterkeys()):
+        if fields['options'][o]:
+            options.append([P('[X]', s), P(o, s)])
+
+        else:
+            options.append([P('[&nbsp;&nbsp;]', s), P(o, s)])
+
+    if len(options) > 0:
+        options[0].insert(0, P('<b>Plan Options:</b>', s))
+        for i in range(1, len(options)):
+            options[i].insert(0, P('', s))
+
     story.append(Table(data=options,
                        colWidths=[1.5 * inch, 0.35 * inch, 4.65 * inch],
                        spaceAfter=0.25 * inch,
                        hAlign='LEFT',
                        style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
+    # Add comments
     story.append(Table(data=[[P('<b>Comments:</b>', s), P(fields['comments'].replace('\n', '<br/>'), s)]],
                        colWidths=[1.5 * inch, 5 * inch],
                        spaceAfter=0.25 * inch,
                        hAlign='LEFT',
                        style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
+    # Finish up
     doc.build(story)
     logging.debug('WriteTpo.pdf() completed successfully in {:.3f} seconds'.format(time.time() - tic))
     return filename
-
