@@ -502,6 +502,7 @@ class TpoDialog:
                     for t in sorted(self.targets.iterkeys()):
                         self.targets[t]['name'] = System.Windows.Forms.CheckBox()
                         self.targets[t]['name'].Checked = True
+                        self.targets[t]['name'].Width = 100
                         self.targets[t]['name'].Text = t
                         self.targets[t]['name'].Margin = System.Windows.Forms.Padding(5, 8, 10, 0)
                         self.target_table.Controls.Add(self.targets[t]['name'])
@@ -582,6 +583,7 @@ class TpoDialog:
                     for o in sorted(self.oars.iterkeys()):
                         self.oars[o]['name'] = System.Windows.Forms.CheckBox()
                         self.oars[o]['name'].Checked = True
+                        self.oars[o]['name'].Width = 100
                         self.oars[o]['name'].Text = o
                         self.oars[o]['name'].Margin = System.Windows.Forms.Padding(5, 8, 10, 0)
                         self.oar_table.Controls.Add(self.oars[o]['name'])
@@ -839,6 +841,7 @@ class TpoDialog:
 
         self.fractions_label = System.Windows.Forms.Label()
         self.fractions_label.Text = 'Number of fractions:'
+        self.fractions_label.Width = 100
         self.fractions_label.AutoSize = True
         self.fractions_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
         self.fractions_label.Visible = False
