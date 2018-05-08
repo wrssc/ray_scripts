@@ -1,0 +1,296 @@
+<protocol>
+    <name>UW Brain SABR</name>
+    <ct>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+    </diagnoses>
+    <order>
+        <name>Brain SABR 5fx</name>
+        <prefix>Plan_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" relative="1.0">30</dose>
+            </roi>
+            <fractions>5</fractions>
+            <frequency>Daily</frequency>
+            <frequency>2-3 times per week</frequency>
+            <imaging>Daily CBCT</imaging>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        </prescription>
+    </order>
+    <goals>
+        <roi>
+            <name>PTV</name>
+            <type dir="gt">DX</type>
+            <dose units="%" roi="PTV">90</dose>
+            <volume units="%">99</volume>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Brain-PTV</name>
+            <type>Max</type>
+            <dose units="%" roi="PTV">105</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Brain-PTV</name>
+            <type>VX</type>
+            <dose units="Gy">22</dose>
+            <volume units="cc">50</volume>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Brain-PTV</name>
+            <type>Max</type>
+            <dose units="Gy">30</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Brainstem</name>
+            <type>Max</type>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Brainstem</name>
+            <type>VX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">0.5</volume>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Brainstem</name>
+            <type>Max</type>
+            <dose units="Gy">23</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Brainstem_PRV03</name>
+            <type>Max</type>
+            <dose units="Gy">30</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">24</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">22</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>SpinalCord_PRV05</name>
+            <type>Max</type>
+            <dose units="Gy">24</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>Max</type>
+            <dose units="Gy">23</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>Max</type>
+            <dose units="Gy">20.7</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Chiasm_PRV03</name>
+            <type>Max</type>
+            <dose units="Gy">23</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>Max</type>
+            <dose units="Gy">23</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>Max</type>
+            <dose units="Gy">20.7</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>OpticNerve_L_PRV03</name>
+            <type>Max</type>
+            <dose units="Gy">23</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>Max</type>
+            <dose units="Gy">23</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>Max</type>
+            <dose units="Gy">20.7</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>OpticNerve_R_PRV03</name>
+            <type>Max</type>
+            <dose units="Gy">23</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Lens_L</name>
+            <type>Max</type>
+            <dose units="Gy">8</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Lens_L</name>
+            <type>Max</type>
+            <dose units="Gy">2</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Lens_L_PRV07</name>
+            <type>Max</type>
+            <dose units="Gy">8</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Lens_R</name>
+            <type>Max</type>
+            <dose units="Gy">8</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Lens_R</name>
+            <type>Max</type>
+            <dose units="Gy">2</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Lens_R_PRV07</name>
+            <type>Max</type>
+            <dose units="Gy">8</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Eye_L</name>
+            <type>Max</type>
+            <dose units="Gy">10</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Eye_L</name>
+            <type>Max</type>
+            <dose units="Gy">9</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Eye_L</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">5</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Eye_L</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">4</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Eye_R</name>
+            <type>Max</type>
+            <dose units="Gy">10</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Eye_R</name>
+            <type>Max</type>
+            <dose units="Gy">9</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Eye_R</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">5</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Eye_R</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">4</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Skin</name>
+            <type>Max</type>
+            <dose units="Gy">25</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Cochlea_L</name>
+            <type>Max</type>
+            <dose units="Gy">25</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Cochlea_L</name>
+            <type>Max</type>
+            <dose units="Gy">22.5</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Cochlea_L</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">15</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Cochlea_L</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">13.5</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Cochlea_R</name>
+            <type>Max</type>
+            <dose units="Gy">25</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Cochlea_R</name>
+            <type>Max</type>
+            <dose units="Gy">22.5</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Cochlea_R</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">15</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Cochlea_R</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">13.5</dose>
+            <priority>3</priority>
+        </roi>
+        <goalset>
+            <name>QUANTEC</name>
+            <priority>4</priority>
+        </goalset>
+    </goals>
+</protocol>
