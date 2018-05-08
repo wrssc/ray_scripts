@@ -84,7 +84,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                                                                                  patient.DateOfBirth.Day,
                                                                                  patient.DateOfBirth.Year), s)],
                              [P('<b>Clinic:</b>', s), P(fields['institution'], s)],
-                             [P('<b>Diagnosis:</b>', s), P(fields['diagnosis'], s)],
+                             [P('<b>Diagnosis:</b>', s), P(' '.join(fields['diagnosis']), s)],
                              [P('<b>Order:</b>', s), P(fields['order'], s)],
                              [P('<b>Planning Image:</b>', s), P('{}, {} {} ({}/{:02}/{} {:02}:{:02})'.
                                                                 format(exam.Name,
