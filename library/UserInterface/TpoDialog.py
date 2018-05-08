@@ -1148,11 +1148,16 @@ class TpoDialog:
             self.values['imaging'] = []
             self.values['motion'] = []
             for n in range(self.fraction_groups):
-                self.values['fractions'].append(int(self.fractions[n].Text))
-                self.values['frequency'].append(self.frequency[n].SelectedItem)
-                self.values['technique'].append(self.technique[n].SelectedItem)
-                self.values['imaging'].append(self.imaging[n].SelectedItem)
-                self.values['motion'].append(self.motion[n].SelectedItem)
+                try:
+                    self.values['fractions'].append(int(self.fractions[n].Text))
+                    self.values['frequency'].append(self.frequency[n].SelectedItem)
+                    self.values['technique'].append(self.technique[n].SelectedItem)
+                    self.values['imaging'].append(self.imaging[n].SelectedItem)
+                    self.values['motion'].append(self.motion[n].SelectedItem)
+
+                except ValueError:
+                    logging.debug('Ignored fraction group {} as fraction value {} is invalid'.
+                                  format(n, self.fractions[n].Text))
 
             self.values['structures'] = {}
             self.values['xml'] = self.protocols[self.protocol.SelectedItem]
