@@ -189,7 +189,7 @@ class TpoDialog:
                 for o in protocol.findall('order'):
                     if o.find('name').text == self.order.SelectedItem:
                         order = o
-                        logging.debug('Protocol ElementTag found: ' + o)
+                        logging.debug('Matching protocol ElementTag found: {}'.format(o))
                         break
 
                 # Update fractionation
