@@ -244,7 +244,7 @@ class TpoDialog:
                         frequency_list = []
                         for f in p.findall('frequency'):
                             frequency_list.append(f.text)
-                            if 'default' in f.attrib and f.attrib('default').lower() == 'true':
+                            if 'default' in f.attrib and f.attrib['default'].lower() == 'true':
                                 self.frequency[c].SelectedItem = f.text
 
                         frequency_list.sort()
@@ -269,7 +269,7 @@ class TpoDialog:
                         frequency_list = []
                         for f in p.findall('frequency'):
                             frequency_list.append(f.text)
-                            if 'default' in f.attrib and f.attrib('default').lower() == 'true':
+                            if 'default' in f.attrib and f.attrib['default'].lower() == 'true':
                                 self.frequency[c].SelectedItem = f.text
 
                         frequency_list.sort()
@@ -302,7 +302,7 @@ class TpoDialog:
                         technique_list = []
                         for t in p.findall('technique'):
                             technique_list.append(t.text)
-                            if 'default' in t.attrib and t.attrib('default').lower() == 'true':
+                            if 'default' in t.attrib and t.attrib['default'].lower() == 'true':
                                 self.technique[c].SelectedItem = t.text
 
                         technique_list.sort()
@@ -327,7 +327,7 @@ class TpoDialog:
                         technique_list = []
                         for t in p.findall('technique'):
                             technique_list.append(t.text)
-                            if 'default' in t.attrib and t.attrib('default').lower() == 'true':
+                            if 'default' in t.attrib and t.attrib['default'].lower() == 'true':
                                 self.technique[c].SelectedItem = t.text
 
                         technique_list.sort()
@@ -360,7 +360,7 @@ class TpoDialog:
                         imaging_list = []
                         for i in p.findall('imaging'):
                             imaging_list.append(i.text)
-                            if 'default' in i.attrib and i.attrib('default').lower() == 'true':
+                            if 'default' in i.attrib and i.attrib['default'].lower() == 'true':
                                 self.imaging[c].SelectedItem = i.text
 
                         imaging_list.sort()
@@ -385,7 +385,7 @@ class TpoDialog:
                         imaging_list = []
                         for i in p.findall('imaging'):
                             imaging_list.append(i.text)
-                            if 'default' in i.attrib and i.attrib('default').lower() == 'true':
+                            if 'default' in i.attrib and i.attrib['default'].lower() == 'true':
                                 self.imaging[c].SelectedItem = i.text
 
                         imaging_list.sort()
@@ -418,7 +418,7 @@ class TpoDialog:
                         motion_list = []
                         for f in p.findall('motion'):
                             motion_list.append(f.text)
-                            if 'default' in f.attrib and f.attrib('default').lower() == 'true':
+                            if 'default' in f.attrib and f.attrib['default'].lower() == 'true':
                                 self.motion[c].SelectedItem = f.text
 
                         motion_list.sort()
@@ -443,7 +443,7 @@ class TpoDialog:
                         motion_list = []
                         for f in p.findall('motion'):
                             motion_list.append(f.text)
-                            if 'default' in f.attrib and f.attrib('default').lower() == 'true':
+                            if 'default' in f.attrib and f.attrib['default'].lower() == 'true':
                                 self.motion[c].SelectedItem = f.text
 
                         motion_list.sort()
