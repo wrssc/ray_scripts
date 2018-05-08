@@ -704,7 +704,7 @@ class TpoDialog:
                         self.oar_table.Controls.Add(self.oars[o]['goal'])
 
                 else:
-                    self.oar_table.Visible = False
+                    self.oar_label.Visible = False
                     self.oar_table.Controls.Clear()
                     self.oar_table.RowStyles.Clear()
 
