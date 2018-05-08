@@ -38,8 +38,8 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
 
     # Define text style
     s = ParagraphStyle({'fontName': 'Helvetica',
-                        'fontSize': 11,
-                        'leading': 11,
+                        'fontSize': 10,
+                        'leading': 10,
                         'leftIndent': 0,
                         'rightIndent': 0,
                         'firstLineIndent': 0,
@@ -95,7 +95,8 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                                                                        info['StudyModule']['StudyDateTime'].Day,
                                                                        info['StudyModule']['StudyDateTime'].Year,
                                                                        info['StudyModule']['StudyDateTime'].Hour,
-                                                                       info['StudyModule']['StudyDateTime'].Minute), s)]
+                                                                       info['StudyModule']['StudyDateTime'].Minute), s)],
+                             [P('<b>Plan Name:</b>', s), P(plan.Name, s)]
                              ],
                        colWidths=[1.5 * inch, 5 * inch],
                        spaceAfter=0.25 * inch,
@@ -104,7 +105,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     # Generate plan details table
     details_header = [P('<b>Plan Details</b>', s)]
     for p in fields['plans']:
-        details_header.append(P('<b>{}</b>'.format(p.replace('_R0A0', '')), s))
+        details_header.append(P('<b>{}</b>'.format(p.replace('_R0A0', '_RXAX')), s))
 
     details = list([details_header])
     details.append([P('Number of Fractions', s)])
@@ -148,7 +149,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     # Generate target table
     target_header = [P('<b>Target Dose</b>', s)]
     for p in fields['plans']:
-        target_header.append(P('<b>{}</b>'.format(p.replace('_R0A0', '')), s))
+        target_header.append(P('<b>{}</b>'.format(p.replace('_R0A0', '_RXAX')), s))
 
     if len(fields['plans']) > 1:
         target_header.append(P('<b>Composite</b>', s))
@@ -185,7 +186,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     # Generate goals table
     goals_header = [P('<b>Clinical Goals</b>', s)]
     if len(fields['plans']) == 1:
-        goals_header.append(P('<b>{}</b>'.format(fields['plans'][0].replace('_R0A0', '')), s))
+        goals_header.append(P('<b>{}</b>'.format(fields['plans'][0].replace('_R0A0', '_RXAX')), s))
 
     else:
         goals_header.append(P('<b>Composite</b>', s))
