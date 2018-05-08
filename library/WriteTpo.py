@@ -302,7 +302,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     else:
         justification = 'To avoid excessive dose heterogeneity within the target'
 
-    story.append(Table(data=[[P('<b>Reason for {}: '.format(modality), s), P(justification, s)]],
+    story.append(Table(data=[[P('<b>Reason for {}: </b>'.format(modality), s), P(justification, s)]],
                        colWidths=[1.5 * inch, 5 * inch],
                        spaceAfter=0.25 * inch,
                        hAlign='LEFT',
