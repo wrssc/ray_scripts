@@ -178,12 +178,15 @@ class TpoDialog:
                     self.order.Items.AddRange(orders)
                     if len(orders) == 1:
                         self.order.SelectedIndex = 0
+                        self.order.SelectedIndexChanged()
 
                     elif self.order.SelectedItem not in orders:
                         self.order.SelectedIndex = -1
+                        self.order.SelectedText = ''
 
                 else:
                     self.order.SelectedIndex = -1
+                    self.order.SelectedText = ''
 
             # Otherwise, if an order was changed
             elif s.Name == 'order' and s.SelectedItem in self.order_list:
