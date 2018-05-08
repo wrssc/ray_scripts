@@ -1064,45 +1064,36 @@ class TpoDialog:
             else:
                 self.diagnosis_label.ForeColor = System.Drawing.Color.Black
 
-            for n in range(self.fraction_groups):
-                if self.fractions[n].Visible and self.fractions[n].Text == '':
+            self.fractions_label.ForeColor = System.Drawing.Color.Black
+            self.frequency_label.ForeColor = System.Drawing.Color.Black
+            self.technique_label.ForeColor = System.Drawing.Color.Black
+            self.imaging_label.ForeColor = System.Drawing.Color.Black
+            self.motion_label.ForeColor = System.Drawing.Color.Black
+
+            for g in range(self.fraction_groups):
+                if self.fractions[g].Visible and self.fractions[g].Text == '':
                     missing.append('fractions')
                     self.fractions_label.ForeColor = System.Drawing.Color.Red
 
-                else:
-                    self.fractions_label.ForeColor = System.Drawing.Color.Black
-
-                if self.frequency[n].Visible and (self.frequency[n].SelectedItem == '' or
-                                                  self.frequency[n].SelectedItem is None):
+                if self.frequency[g].Visible and (self.frequency[g].SelectedItem == '' or
+                                                  self.frequency[g].SelectedItem is None):
                     missing.append('frequency')
                     self.frequency_label.ForeColor = System.Drawing.Color.Red
 
-                else:
-                    self.frequency_label.ForeColor = System.Drawing.Color.Black
-
-                if self.technique[n].Visible and (self.technique[n].SelectedItem == '' or
-                                                 self.technique[n].SelectedItem is None):
+                if self.technique[g].Visible and (self.technique[g].SelectedItem == '' or
+                                                 self.technique[g].SelectedItem is None):
                     missing.append('technique')
                     self.technique_label.ForeColor = System.Drawing.Color.Red
 
-                else:
-                    self.technique_label.ForeColor = System.Drawing.Color.Black
-
-                if self.imaging[n].Visible and (self.imaging[n].SelectedItem == '' or
-                                                self.imaging[n].SelectedItem is None):
+                if self.imaging[g].Visible and (self.imaging[g].SelectedItem == '' or
+                                                self.imaging[g].SelectedItem is None):
                     missing.append('imaging')
                     self.imaging_label.ForeColor = System.Drawing.Color.Red
 
-                else:
-                    self.imaging_label.ForeColor = System.Drawing.Color.Black
-
-                if self.motion[n].Visible and (self.motion[n].SelectedItem == '' or
-                                               self.motion[n].SelectedItem is None):
+                if self.motion[g].Visible and (self.motion[g].SelectedItem == '' or
+                                               self.motion[g].SelectedItem is None):
                     missing.append('frequency')
                     self.motion_label.ForeColor = System.Drawing.Color.Red
-
-                else:
-                    self.motion_label.ForeColor = System.Drawing.Color.Black
 
             if len(missing) > 0:
                 missing = list(set(missing))
