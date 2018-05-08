@@ -86,12 +86,12 @@ def main():
     for roi in case.PatientModel.RegionsOfInterest:
         approved = False
         for a in case.PatientModel.StructureSets[exam.Name].ApprovedStructureSets:
-
             try:
-                if a.ApprovedRoiStructures[roi.Name].HasContours() and a.Review.ApprovalStatus == 'Approved':
+                if a.ApprovedRoiStructures[roi.Name].OfRoi.RoiNumber > 0 and a.Review.ApprovalStatus == 'Approved':
                     approved = True
                     logging.debug('Structure {} was approved by {} and therefore will not be modified'.
                                   format(roi.Name, a.Review.ReviewerName))
+                    break
 
             except Exception:
                     logging.debug('Structure {} is not list approved by {}'.format(roi.Name, a.Review.ReviewerName))
