@@ -1205,7 +1205,12 @@ class TpoDialog:
                                                           'dose': []}
                 for n in range(len(t['element'])):
                     self.values['targets'][t['name'].Text]['dose'].append(float(t['dose'][n].Text))
-                    self.values['targets'][t['name'].Text]['volume'].append(float(t['dose'][n].AccessibleDescription))
+                    if t['dose'][n].AccessibleDescription != '':
+                        self.values['targets'][t['name'].Text]['volume'].append(
+                            float(t['dose'][n].AccessibleDescription))
+
+                    else:
+                        self.values['targets'][t['name'].Text]['volume'].append(95)
 
                 if t['structure'].SelectedItem != '':
                     self.values['structures'][t['structure'].SelectedItem] = t['name'].Text
