@@ -470,9 +470,10 @@ def main():
     patient.Save()
     time.sleep(1)
     logging.debug('Script completed successfully in {:.3f} seconds'.format(time.time() - tic))
-    status.finish('Script completed successfully. You may now import the saved TPO into ARIA and notify dosimetry ' +
-                  'that this case is ready for planning.')
     UserInterface.MessageBox('The TPO was saved to {}'.format(tpo), 'TPO Saved')
+    status.finish('Script completed successfully to {}. You may now import the saved TPO into ARIA and notify ' +
+                  'dosimetry that this case is ready for planning.'.format(tpo))
+
 
 
 if __name__ == '__main__':

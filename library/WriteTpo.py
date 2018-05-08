@@ -15,14 +15,14 @@ report_folder = r'\\aria\echart'
 
 def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     tic = time.time()
-    f = os.path.join(report_folder, '{}_{}.pdf'.format(patient.Name.replace('^', '_'), plan.Name))
-    if overwrite and os.path.isfile(f):
+    filename = os.path.join(report_folder, '{}_{}.pdf'.format(patient.Name.replace('^', '_'), plan.Name))
+    if overwrite and os.path.isfile(filename):
         logging.debug('Deleting existing file per overwrite flag')
-        os.remove(f)
+        os.remove(filename)
 
     # Initialize Platypus document
-    logging.debug('Initializing PDF to save to {}'.format(f))
-    doc = BaseDocTemplate(f,
+    logging.debug('Initializing PDF to save to {}'.format(filename))
+    doc = BaseDocTemplate(filename,
                           pagesize=letter,
                           pageTemplates=[PageTemplate(id='allpages',
                                                       frames=[Frame(0.75 * inch, 0.75 * inch, 7 * inch, 9.5 * inch,
@@ -322,5 +322,5 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
 
     doc.build(story)
     logging.debug('WriteTpo.pdf() completed successfully in {:.3f} seconds'.format(time.time() - tic))
-    return f
+    return filename
 
