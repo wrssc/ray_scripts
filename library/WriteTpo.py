@@ -114,22 +114,26 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     if 'technique' in fields:
         details.append([P('Technique', s)])
         for t in fields['technique']:
-            details[-1].append(P(t, s))
+            if t is not None:
+                details[-1].append(P(t, s))
 
     if 'frequency' in fields:
         details.append([P('Treatment frequency', s)])
         for f in fields['frequency']:
-            details[-1].append(P(f, s))
+            if f is not None:
+                details[-1].append(P(f, s))
 
     if 'imaging' in fields:
         details.append([P('Image guidance', s)])
         for i in fields['imaging']:
-            details[-1].append(P(i, s))
+            if i is not None:
+                details[-1].append(P(i, s))
 
     if 'motion' in fields:
         details.append([P('Motion management', s)])
         for m in fields['motion']:
-            details[-1].append(P(m, s))
+            if m is not None:
+                details[-1].append(P(m, s))
 
     width = min(1.5, 4.5 / len(details[0])) * inch
     story.append(Table(data=details,
