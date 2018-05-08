@@ -449,6 +449,25 @@ def main():
                 else:
                     acceptance = float(g.find('dose').text) * 100
 
+            elif g.find('type').text == 'CI':
+                criteria = 'AtLeast'
+                goal_type = 'ConformityIndex'
+                acceptance = float(g.find('index').text)
+
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
+                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
+                    parameter = float(g.find('dose').text) * \
+                                 sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+
+                else:
+                    parameter = float(g.find('dose').text) * 100
+
+            elif g.find('type').text == 'HI':
+                criteria = 'AtLeast'
+                goal_type = 'HomogeneityIndex'
+                acceptance = float(g.find('index').text)
+                parameter = float(g.find('volume').text) / 100
+
             else:
                 logging.warning('Unknown goal type {} for structure {}'.format(g.find('type').text,
                                                                                g.find('name').text))

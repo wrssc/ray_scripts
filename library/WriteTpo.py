@@ -241,6 +241,12 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                     else:
                         goal = 'Mean &gt; {} Gy'.format(f.PlanningGoal.AcceptanceLevel / 100)
 
+                elif f.PlanningGoal.Type == 'ConformityIndex':
+                    goal = 'CI{} &gt; {} '.format(f.PlanningGoal.ParameterValue / 100, f.PlanningGoal.AcceptanceLevel)
+
+                elif f.PlanningGoal.Type == 'HomogeneityIndex':
+                    goal = 'HI{}% &gt; {} '.format(f.PlanningGoal.ParameterValue * 100, f.PlanningGoal.AcceptanceLevel)
+
                 if goal != '':
                     if '{}{}'.format(f.PlanningGoal.Priority, f.ForRegionOfInterest.Name) in goals_dict:
                         goals_dict['{}{}'.format(f.PlanningGoal.Priority,

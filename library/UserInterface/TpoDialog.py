@@ -182,7 +182,6 @@ class TpoDialog:
                     elif self.order.SelectedText not in orders:
                         self.order.SelectedItem = ''
 
-
             # Otherwise, if an order was changed
             elif s.Name == 'order' and s.SelectedItem in self.order_list:
                 logging.debug('Order set to {}'.format(s.SelectedItem))
@@ -735,6 +734,31 @@ class TpoDialog:
 
                                 else:
                                     right = '{} Gy'.format(g.find('dose').text)
+
+                            elif g.find('type').text == 'CI':
+                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                                    left = 'CI{}%'.format(g.find('dose').text)
+
+                                else:
+                                    left = 'CI{}'.format(g.find('dose').text)
+
+                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
+                                    symbol = '>='
+
+                                else:
+                                    symbol = '>'
+
+                                right = g.find('index').text
+
+                            elif g.find('type').text == 'HI':
+                                left = 'HI{}%'.format(g.find('volume').text)
+                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
+                                    symbol = '>='
+
+                                else:
+                                    symbol = '>'
+
+                                right = g.find('index').text
 
                             if left != '':
                                 goals.append('{} {} {}'.format(left, symbol, right))
