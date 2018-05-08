@@ -67,7 +67,9 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                         'justifyBreaks': 0})
 
     # Start report
-    story = [Table(data=[[Image('report_logo.jpg', width=2 * inch, height=0.4306 * inch),
+    story = [Table(data=[[Image(os.path.join(os.path.dirname(__file__), 'report_logo.jpg'),
+                                width=2 * inch,
+                                height=0.4306 * inch),
                           P('<b><font size=14>' + fields['protocol'] + ' Treatment Planning Order</font></b>', s)]],
                    colWidths=[2.5 * inch, 5 * inch],
                    spaceAfter=0.25 * inch,
