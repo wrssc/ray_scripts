@@ -389,31 +389,50 @@ def main():
                     goal_type = 'DoseAtVolume'
                     parameter = float(g.find('volume').text) / 100
 
-                acceptance = float(g.find('dose').text) * 100
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
+                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
+                    acceptance = float(g.find('dose').text) * \
+                                sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+
+                else:
+                    acceptance = float(g.find('dose').text) * 100
 
             elif g.find('type').text == 'Max':
                 criteria = 'AtMost'
                 goal_type = 'DoseAtAbsoluteVolume'
-                acceptance = float(g.find('dose').text) * 100
                 if g.find('volume') is not None:
                     parameter = float(g.find('volume').text)
 
                 else:
                     parameter = 0.03
+
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
+                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
+                    acceptance = float(g.find('dose').text) * \
+                                 sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+
+                else:
+                    acceptance = float(g.find('dose').text) * 100
 
             elif g.find('type').text == 'Min':
                 criteria = 'AtLeast'
                 goal_type = 'DoseAtAbsoluteVolume'
-                acceptance = float(g.find('dose').text) * 100
                 if g.find('volume') is not None:
                     parameter = float(g.find('volume').text)
 
                 else:
                     parameter = 0.03
 
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
+                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
+                    acceptance = float(g.find('dose').text) * \
+                                 sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+
+                else:
+                    acceptance = float(g.find('dose').text) * 100
+
             elif g.find('type').text == 'Mean':
                 goal_type = 'AverageDose'
-                acceptance = float(g.find('dose').text) * 100
                 parameter = None
                 if 'dir' in g.find('type').attrib and \
                         (g.find('type').attrib['dir'] == 'gt' or g.find('type').attrib['dir'] == 'ge'):
@@ -421,6 +440,14 @@ def main():
 
                 else:
                     criteria = 'AtMost'
+
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
+                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
+                    acceptance = float(g.find('dose').text) * \
+                                 sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+
+                else:
+                    acceptance = float(g.find('dose').text) * 100
 
             else:
                 logging.warning('Unknown goal type {} for structure {}'.format(g.find('type').text,
