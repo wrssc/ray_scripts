@@ -322,4 +322,5 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
 
     doc.build(story)
     logging.debug('WriteTpo.pdf() completed successfully in {:.3f} seconds'.format(time.time() - tic))
+    return f
 

@@ -31,6 +31,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
 import sys
+
 sys.path.append('../library/')
 import os
 import connect
@@ -44,7 +45,6 @@ protocol_folder = r'../protocols'
 
 
 def main():
-
     # Get current patient, case, and exam
     try:
         patient = connect.get_current('Patient')
@@ -94,7 +94,7 @@ def main():
                     break
 
             except Exception:
-                    logging.debug('Structure {} is not list approved by {}'.format(roi.Name, a.Review.ReviewerName))
+                logging.debug('Structure {} is not list approved by {}'.format(roi.Name, a.Review.ReviewerName))
 
         if not approved:
             if roi.Name in response['structures'].keys():
@@ -143,9 +143,9 @@ def main():
     # Create new plan (ICDa-z Protocol)
     status.next_step(text='A new plan will now be created and populated with the TPO template clinical goals...')
     patient.Save()
-    
+
     for a in range(1, 26):
-        plan_name = '{}{} {}'.format(response['diagnosis'][0], chr(64+a).lower(), response['order'])
+        plan_name = '{}{} {}'.format(response['diagnosis'][0], chr(64 + a).lower(), response['order'])
         try:
             logging.debug('Plan name already exists: ' + case.TreatmentPlans[plan_name].Name)
 
@@ -293,7 +293,7 @@ def main():
                                 beamset.AddDosePrescriptionToRoi(RoiName=roi_name,
                                                                  PrescriptionType='DoseAtVolume',
                                                                  DoseVolume=vol,
-                                                                 DoseValue=dose*100,
+                                                                 DoseValue=dose * 100,
                                                                  RelativePrescriptionLevel=rel,
                                                                  AutoScaleDose=True)
 
@@ -308,7 +308,7 @@ def main():
 
     # Add clinical goals (first order specific, then protocol)
     status.next_step(text='Clinical goals will now be populated based on the selected protocol. You will be prompted ' +
-                     'to customize these goals for this plan prior to TPO generation.')
+                          'to customize these goals for this plan prior to TPO generation.')
     patient.Save()
     goals = []
     for o in response['xml'].findall('order'):
@@ -396,7 +396,7 @@ def main():
                 criteria = 'AtMost'
                 goal_type = 'DoseAtAbsoluteVolume'
                 acceptance = float(g.find('dose').text) * 100
-                if g.find('volume')is not None:
+                if g.find('volume') is not None:
                     parameter = float(g.find('volume').text)
 
                 else:
@@ -406,7 +406,7 @@ def main():
                 criteria = 'AtLeast'
                 goal_type = 'DoseAtAbsoluteVolume'
                 acceptance = float(g.find('dose').text) * 100
-                if g.find('volume')is not None:
+                if g.find('volume') is not None:
                     parameter = float(g.find('volume').text)
 
                 else:
@@ -460,11 +460,11 @@ def main():
     # Create TPO PDF
     status.next_step(text='A treatment planning order PDF is now being generated...')
     patient.Save()
-    WriteTpo.pdf(patient=patient,
-                 exam=exam,
-                 plan=plan,
-                 fields=response,
-                 overwrite=True)
+    tpo = WriteTpo.pdf(patient=patient,
+                       exam=exam,
+                       plan=plan,
+                       fields=response,
+                       overwrite=True)
 
     # Finish up
     patient.Save()
@@ -472,6 +472,7 @@ def main():
     logging.debug('Script completed successfully in {:.3f} seconds'.format(time.time() - tic))
     status.finish('Script completed successfully. You may now import the saved TPO into ARIA and notify dosimetry ' +
                   'that this case is ready for planning.')
+    UserInterface.MessageBox('The TPO was saved to {}'.format(tpo), 'TPO Saved')
 
 
 if __name__ == '__main__':
