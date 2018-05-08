@@ -137,6 +137,7 @@ def main():
         ui.TitleBar.MenuItem['Patient Modeling'].Click()
         ui.TitleBar.MenuItem['Patient Modeling'].Popup.MenuItem['Structure Definition'].Click()
         ui.TabControl_ToolBar.Approval.Select()
+        ui.ToolPanel.TabItem._Scripting.Select()
         connect.await_user_input('Approve the structure set now, then continue the script')
 
     # Create new plan (ICDa-z Protocol)
@@ -451,6 +452,7 @@ def main():
         ui.TitleBar.MenuItem['Plan Optimization'].Click()
         ui.TitleBar.MenuItem['Plan Optimization'].Popup.MenuItem['Plan Optimization'].Click()
         ui.Workspace.TabControl['DVH'].TabItem['Clinical Goals'].Select()
+        ui.ToolPanel.TabItem._Scripting.Select()
         connect.await_user_input('Customize the clinical goals now, then continue the script')
 
     # Create TPO PDF
