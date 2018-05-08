@@ -147,10 +147,10 @@ class TpoDialog:
                     if d.text in self.diagnosis_list.keys():
                         diagnoses.append(self.diagnosis_list[d.text])
 
-                if self.diagnosis.Items.Count > 0:
-                    self.diagnosis.Items.Clear()
-
                 if len(diagnoses) > 0:
+                    if self.diagnosis.Items.Count > 0:
+                        self.diagnosis.Items.Clear()
+
                     diagnoses = list(set(diagnoses))
                     diagnoses.sort()
                     sorted_list = self.diagnosis_list.values()
@@ -175,7 +175,7 @@ class TpoDialog:
                         self.order.SelectedIndex = 0
                         self.order.SelectedItem = orders[0]
 
-                    elif self.order.SelectedItem not in orders:
+                    elif self.order.SelectedText not in orders:
                         self.order.SelectedIndex = -1
                         self.order.SelectedItem = ''
                         self.order.SelectedText = ''
