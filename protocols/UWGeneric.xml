@@ -23,10 +23,10 @@
             <frequency>Daily</frequency>
             <frequency>2-3 times per week</frequency>
             <imaging>Daily CBCT</imaging>
-            <imaging>Weekly kV</imaging>
+            <imaging default="true">Weekly kV</imaging>
             <imaging>Clinical setup</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
             <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
         </prescription>

@@ -32,7 +32,8 @@
             <fractions>5</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
-            <motion>Daily intrafraction fiducial tracking</motion>
+            <motion default="true">Daily intrafraction fiducial tracking</motion>
+            <motion>No motion management</motion>
             <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
@@ -117,7 +118,8 @@
             <fractions>5</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
-            <motion>Daily intrafraction fiducial tracking</motion>
+            <motion default="true">Daily intrafraction fiducial tracking</motion>
+            <motion>No motion management</motion>
             <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
