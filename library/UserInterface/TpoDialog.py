@@ -76,7 +76,7 @@ class TpoDialog:
         # Initialize form
         self.form = System.Windows.Forms.Form()
         self.form.AutoSize = True
-        self.form.MaximumSize = System.Drawing.Size(800, System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+        self.form.MaximumSize = System.Drawing.Size(850, System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
         self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         self.form.Padding = System.Windows.Forms.Padding(0)
         self.form.Text = title
@@ -597,61 +597,95 @@ class TpoDialog:
 
                         goals = []
                         for g in self.oars[o]['element']:
+                            left = ''
+                            symbol = ''
+                            right = ''
                             if g.find('type').text == 'DX':
+                                left = 'D{}{}'.format(g.find('volume').text, g.find('volume').attrib['units'])
                                 if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
-                                    goals.append('D{}{} <= {}'.format(g.find('volume').text,
-                                                                      g.find('volume').attrib['units'],
-                                                                      g.find('dose').text))
+                                    symbol = '<='
 
                                 elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'lt':
-                                    goals.append('D{}{} < {}'.format(g.find('volume').text,
-                                                                     g.find('volume').attrib['units'],
-                                                                     g.find('dose').text))
+                                    symbol = '<'
 
                                 elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
-                                    goals.append('D{}{} >= {}'.format(g.find('volume').text,
-                                                                      g.find('volume').attrib['units'],
-                                                                      g.find('dose').text))
+                                    symbol = '>='
 
                                 elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'gt':
-                                    goals.append('D{}{} > {}'.format(g.find('volume').text,
-                                                                     g.find('volume').attrib['units'],
-                                                                     g.find('dose').text))
+                                    symbol = '>'
+
+                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                                    right = '{}%'.format(g.find('dose').text)
+
+                                else:
+                                    right = '{} Gy'.format(g.find('dose').text)
 
                             elif g.find('type').text == 'VX':
+                                left = 'V{}'.format(g.find('dose').text)
                                 if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
-                                    goals.append('V{} <= {}{}'.format(g.find('dose').text,
-                                                                      g.find('volume').text,
-                                                                      g.find('volume').attrib['units']))
+                                    symbol = '<='
 
                                 elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'lt':
-                                    goals.append('V{} < {}{}'.format(g.find('dose').text,
-                                                                     g.find('volume').text,
-                                                                     g.find('volume').attrib['units']))
+                                    symbol = '<'
 
                                 elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
-                                    goals.append('V{} >= {}{}'.format(g.find('dose').text,
-                                                                      g.find('volume').text,
-                                                                      g.find('volume').attrib['units']))
+                                    symbol = '>='
 
                                 elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'gt':
-                                    goals.append('V{} > {}{}'.format(g.find('dose').text,
-                                                                     g.find('volume').text,
-                                                                     g.find('volume').attrib['units']))
+                                    symbol = '>'
+
+                                right = '{}{}'.format(g.find('volume').text, g.find('volume').attrib['units'])
 
                             elif g.find('type').text == 'Max':
+                                left = 'Max'
                                 if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
-                                    goals.append('Max <= {} Gy'.format(g.find('dose').text))
+                                    symbol = '<='
 
                                 else:
-                                    goals.append('Max < {} Gy'.format(g.find('dose').text))
+                                    symbol = '<'
+
+                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                                    right = '{}%'.format(g.find('dose').text)
+
+                                else:
+                                    right = '{} Gy'.format(g.find('dose').text)
 
                             elif g.find('type').text == 'Min':
+                                left = 'Min'
                                 if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
-                                    goals.append('Min >= {} Gy'.format(g.find('dose').text))
+                                    symbol = '>='
 
                                 else:
-                                    goals.append('Min > {} Gy'.format(g.find('dose').text))
+                                    symbol = '>'
+
+                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                                    right = '{}%'.format(g.find('dose').text)
+
+                                else:
+                                    right = '{} Gy'.format(g.find('dose').text)
+
+                            elif g.find('type').text == 'Mean':
+                                left = 'Mean'
+                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
+                                    symbol = '<='
+
+                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'lt':
+                                    symbol = '<'
+
+                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
+                                    symbol = '>='
+
+                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'gt':
+                                    symbol = '>'
+
+                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                                    right = '{}%'.format(g.find('dose').text)
+
+                                else:
+                                    right = '{} Gy'.format(g.find('dose').text)
+
+                            if left != '':
+                                goals.append('{} {} {}'.format(left, symbol, right))
 
                         self.oars[o]['goal'] = System.Windows.Forms.Label()
                         self.oars[o]['goal'].Text = '\n'.join(goals)
