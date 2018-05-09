@@ -257,8 +257,8 @@
             <priority>3</priority>
         </roi>
         <goalset>
-            <name>QUANTEC</name>
-            <priority>4</priority>
+            <name>QUANTEC-SBRT</name>
+            <priority>5</priority>
         </goalset>
     </goals>
 </protocol>

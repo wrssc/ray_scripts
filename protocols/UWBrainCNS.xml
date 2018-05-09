@@ -362,7 +362,7 @@
     <goals>
         <goalset>
             <name>QUANTEC</name>
-            <priority>4</priority>
+            <priority>5</priority>
         </goalset>
     </goals>
 </protocol>
