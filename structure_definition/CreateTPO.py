@@ -340,6 +340,7 @@ def main():
                     roi_name = roi.Name
                     break
 
+        # If this structure was found
         if roi_name != '':
 
             # If this is a VX goal
@@ -365,9 +366,15 @@ def main():
                     acceptance = float(g.find('volume').text) / 100
 
                 if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                    parameter = float(g.find('dose').text) * \
-                                sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+                        'roi' in g.find('dose').attrib:
+                    if g.find('dose').attrib['roi'] in response['targets']:
+                        parameter = float(g.find('dose').text) * \
+                                    sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+
+                    else:
+                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
+                                                                                                 g.find('type').text))
+                        continue
 
                 else:
                     parameter = float(g.find('dose').text) * 100
@@ -390,9 +397,14 @@ def main():
                     parameter = float(g.find('volume').text) / 100
 
                 if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                    acceptance = float(g.find('dose').text) * \
-                                sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+                        'roi' in g.find('dose').attrib:
+                    if g.find('dose').attrib['roi'] in response['targets']:
+                        acceptance = float(g.find('dose').text) * \
+                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+                    else:
+                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
+                                                                                                 g.find('type').text))
+                        continue
 
                 else:
                     acceptance = float(g.find('dose').text) * 100
@@ -407,9 +419,15 @@ def main():
                     parameter = 0.03
 
                 if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                    acceptance = float(g.find('dose').text) * \
-                                 sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+                        'roi' in g.find('dose').attrib:
+                    if g.find('dose').attrib['roi'] in response['targets']:
+                        acceptance = float(g.find('dose').text) * \
+                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+
+                    else:
+                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
+                                                                                                 g.find('type').text))
+                        continue
 
                 else:
                     acceptance = float(g.find('dose').text) * 100
@@ -424,9 +442,15 @@ def main():
                     parameter = 0.03
 
                 if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                    acceptance = float(g.find('dose').text) * \
-                                 sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+                        'roi' in g.find('dose').attrib:
+                    if g.find('dose').attrib['roi'] in response['targets']:
+                        acceptance = float(g.find('dose').text) * \
+                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+
+                    else:
+                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
+                                                                                                 g.find('type').text))
+                        continue
 
                 else:
                     acceptance = float(g.find('dose').text) * 100
@@ -442,9 +466,15 @@ def main():
                     criteria = 'AtMost'
 
                 if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                    acceptance = float(g.find('dose').text) * \
-                                 sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+                        'roi' in g.find('dose').attrib:
+                    if g.find('dose').attrib['roi'] in response['targets']:
+                        acceptance = float(g.find('dose').text) * \
+                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+
+                    else:
+                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
+                                                                                                 g.find('type').text))
+                        continue
 
                 else:
                     acceptance = float(g.find('dose').text) * 100
@@ -455,9 +485,14 @@ def main():
                 acceptance = float(g.find('index').text)
 
                 if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                    parameter = float(g.find('dose').text) * \
-                                 sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+                        'roi' in g.find('dose').attrib:
+                    if g.find('dose').attrib['roi'] in response['targets']:
+                        parameter = float(g.find('dose').text) * \
+                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
+                    else:
+                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
+                                                                                                 g.find('type').text))
+                        continue
 
                 else:
                     parameter = float(g.find('dose').text) * 100
