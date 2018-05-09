@@ -365,9 +365,8 @@ def main():
                     goal_type = 'VolumeAtDose'
                     acceptance = float(g.find('volume').text) / 100
 
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib:
-                    if g.find('dose').attrib['roi'] in response['targets']:
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                    if 'units' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
                         parameter = float(g.find('dose').text) * \
                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
 
@@ -396,9 +395,8 @@ def main():
                     goal_type = 'DoseAtVolume'
                     parameter = float(g.find('volume').text) / 100
 
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib:
-                    if g.find('dose').attrib['roi'] in response['targets']:
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                    if 'units' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
                         acceptance = float(g.find('dose').text) * \
                                      sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
                     else:
@@ -418,9 +416,8 @@ def main():
                 else:
                     parameter = 0.03
 
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib:
-                    if g.find('dose').attrib['roi'] in response['targets']:
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                    if 'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
                         acceptance = float(g.find('dose').text) * \
                                      sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
 
@@ -436,14 +433,15 @@ def main():
                 criteria = 'AtLeast'
                 goal_type = 'DoseAtAbsoluteVolume'
                 if g.find('volume') is not None:
-                    parameter = float(g.find('volume').text)
+                    diff = float(g.find('volume').text)
 
                 else:
-                    parameter = 0.03
+                    diff = 0.03
 
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib:
-                    if g.find('dose').attrib['roi'] in response['targets']:
+                parameter = max(0, case.PatientModel.StructureSets[exam.Name].RoiGeometries.GetRoiVolume - diff)
+
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                    if 'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
                         acceptance = float(g.find('dose').text) * \
                                      sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
 
@@ -465,9 +463,8 @@ def main():
                 else:
                     criteria = 'AtMost'
 
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib:
-                    if g.find('dose').attrib['roi'] in response['targets']:
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                    if 'units' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
                         acceptance = float(g.find('dose').text) * \
                                      sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
 
@@ -484,9 +481,8 @@ def main():
                 goal_type = 'ConformityIndex'
                 acceptance = float(g.find('index').text)
 
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%' and \
-                        'roi' in g.find('dose').attrib:
-                    if g.find('dose').attrib['roi'] in response['targets']:
+                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
+                    if 'units' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
                         parameter = float(g.find('dose').text) * \
                                      sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
                     else:
