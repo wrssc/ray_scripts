@@ -86,22 +86,16 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                              [P('<b>Clinic:</b>', s), P(fields['institution'], s)],
                              [P('<b>Diagnosis:</b>', s), P(' '.join(fields['diagnosis']), s)],
                              [P('<b>Order:</b>', s), P(fields['order'], s)],
-                             [P('<b>Planning Image:</b>', s), P('{}, {} {} ({}/{:02}/{} {:02}:{:02})'.
+                             [P('<b>Planning Image:</b>', s), P('{}, {} {}'.
                                                                 format(exam.Name,
-                                                                       info['EquipmentModule']['Manufacturer'],
-                                                                       info['EquipmentModule'][
-                                                                           'ManufacturersModelName'],
-                                                                       info['StudyModule']['StudyDateTime'].Month,
-                                                                       info['StudyModule']['StudyDateTime'].Day,
-                                                                       info['StudyModule']['StudyDateTime'].Year,
-                                                                       info['StudyModule']['StudyDateTime'].Hour,
-                                                                       info['StudyModule'][
-                                                                           'StudyDateTime'].Minute), s)],
+                                                                       info['EquipmentModule']['InstitutionName'],
+                                                                       info['EquipmentModule']['StationName']), s)],
                              [P('<b>Plan Name:</b>', s), P(plan.Name, s)]
                              ],
                        colWidths=[1.5 * inch, 5 * inch],
                        spaceAfter=0.25 * inch,
-                       hAlign='LEFT'))
+                       hAlign='LEFT',
+                       style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Generate plan details table
     details_header = [P('<b>Plan Details</b>', s)]
@@ -145,7 +139,8 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                        hAlign='LEFT',
                        style=TableStyle([('BOX', (0, 0), (-1, -1), 0.25, colors.black),
                                          ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-                                         ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue)])))
+                                         ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+                                         ('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Generate target table
     target_header = [P('<b>Target Dose</b>', s)]
@@ -182,7 +177,8 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                        hAlign='LEFT',
                        style=TableStyle([('BOX', (0, 0), (-1, -1), 0.25, colors.black),
                                          ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-                                         ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue)])))
+                                         ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+                                         ('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Generate goals table
     goals_header = [P('<b>Clinical Goals</b>', s)]
@@ -269,7 +265,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     oars = []
     for k in sorted(goals_dict.keys()):
         goals.append([P(goals_dict[k][0], s), P(goals_dict[k][1], s), P('{}'.format(goals_dict[k][2]), s)])
-        if len(oars) < 5:
+        if len(oars) < 5 and goals_dict[k][0] not in fields['targets']:
             oars.append(goals_dict[k][0])
 
     story.append(Table(data=goals,
@@ -297,7 +293,9 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     else:
         justification = 'To avoid excessive dose heterogeneity within the target'
 
-    story.append(Table(data=[[P('<b>Reason for {}: </b>'.format(modality), s), P(justification, s)]],
+    story.append(Table(data=[[P('<b>Date of Service: </b>', s), P(time.strftime('%m/%d/%Y %I:%M %p',
+                                                                                time.localtime()), s)],
+                             [P('<b>Reason for {}: </b>'.format(modality), s), P(justification, s)]],
                        colWidths=[1.5 * inch, 5 * inch],
                        spaceAfter=0.25 * inch,
                        hAlign='LEFT',
