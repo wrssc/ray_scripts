@@ -1118,7 +1118,7 @@ class TpoDialog:
 
                 if self.motion[g].Visible and (self.motion[g].SelectedItem == '' or
                                                self.motion[g].SelectedItem is None):
-                    missing.append('frequency')
+                    missing.append('motion management')
                     self.motion_label.ForeColor = System.Drawing.Color.Red
 
             if len(missing) > 0:
