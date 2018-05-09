@@ -1,6 +1,8 @@
 <protocol>
     <name>UW Esophagus</name>
     <ct>
+        <protocol institution="UWHC">XRT_CHEST</protocol>
+        <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>
     </ct>
     <institutions>
         <institution>UWHC</institution>
