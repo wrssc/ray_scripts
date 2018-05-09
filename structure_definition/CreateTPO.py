@@ -294,7 +294,7 @@ def main():
                                                                  DoseVolume=vol,
                                                                  DoseValue=dose * 100,
                                                                  RelativePrescriptionLevel=idl,
-                                                                 AutoScaleDose=True)
+                                                                 AutoScaleDose=False)
 
                         else:
                             logging.warning('Could not find structure {} to set prescription to on beamset {}'.
