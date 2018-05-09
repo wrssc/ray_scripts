@@ -39,7 +39,7 @@ icd = '../../protocols/icd10cm_codes_2018.txt'
 
 class TpoDialog:
 
-    def __init__(self, title='TPO Dialog', match_threshold=0.6, num_rx=3):
+    def __init__(self, patient=None, title='TPO Dialog', match_threshold=0.6, num_rx=3):
         """tpo = UserInterface.TPODialog(protocols)"""
 
         # Link .NET assemblies
@@ -66,6 +66,10 @@ class TpoDialog:
         self.diagnosis_list = {}
         with open(os.path.join(os.path.dirname(__file__), icd), 'r') as f:
             for l in f:
+                if (patient is not None and ' male' in l and patient.Gender == 'Female') or \
+                        (patient is not None and ' female' in l and patient.Gender == 'Male'):
+                    continue
+
                 s = l.split(' ', 1)
                 if len(s) == 2 and s[1] != '' and (s[0].startswith('C') or s[0].startswith('D')):
                     if len(s[0]) > 3:
