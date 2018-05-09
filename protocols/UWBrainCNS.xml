@@ -18,7 +18,7 @@
             <roi>
                 <name>PTV</name>
                 <type>DX</type>
-                <volume units="%"></volume>
+                <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
@@ -29,6 +29,13 @@
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
         </prescription>
         <goals>
+            <roi>
+                <name>PTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV">100</dose>
+                <priority>2</priority>
+            </roi>
             <roi>
                 <name>Brain</name>
                 <type>Max</type>
@@ -283,6 +290,13 @@
         </prescription>
         <goals>
             <roi>
+                <name>PTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>Lens_L</name>
                 <type>Max</type>
                 <dose units="Gy">7</dose>
@@ -312,6 +326,13 @@
             <technique modality="Photons" technique="Conformal" code="VMAT" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
+            <roi>
+                <name>PTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV">100</dose>
+                <priority>2</priority>
+            </roi>
             <roi>
                 <name>PTV</name>
                 <type dir="le">DX</type>

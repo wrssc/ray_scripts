@@ -32,6 +32,13 @@
     <goals>
         <roi>
             <name>PTV</name>
+            <type dir="ge">VX</type>
+            <dose units="%" roi="PTV">100</dose>
+            <volume units="%">95</volume>
+            <priority>2</priority>
+        </roi>
+        <roi>
+            <name>PTV</name>
             <type dir="gt">CI</type>
             <dose units="%" roi="PTV">100</dose>
             <index>0.5</index>
@@ -46,7 +53,7 @@
         </roi>
         <roi>
             <name>Brain-GTV</name>
-            <type>VX</type>
+            <type dir="lt">VX</type>
             <dose units="Gy">12</dose>
             <volume units="cc">10</volume>
             <priority>1</priority>

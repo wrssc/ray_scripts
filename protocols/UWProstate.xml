@@ -147,16 +147,23 @@
     <goals>
         <roi>
             <name>PTV</name>
+            <type dir="ge">VX</type>
+            <volume units="%">95</volume>
+            <dose units="%" roi="PTV">100</dose>
+            <priority>2</priority>
+        </roi>
+        <roi>
+            <name>PTV</name>
             <type dir="gt">VX</type>
             <volume units="%">99</volume>
             <dose units="%" roi="PTV">95</dose>
-            <priority>2</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>PTV</name>
             <type>Max</type>
             <dose units="%" roi="PTV">110</dose>
-            <priority>2</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>PenileBulb</name>
@@ -187,7 +194,8 @@
         <roi>
             <name>Urethra</name>
             <type>Max</type>
-            <dose units="%" roi="PTV">100%</dose>
+            <dose units="%" roi="PTV">105%</dose>
+            <volume units="cc">0.2</volume>
             <priority>3</priority>
         </roi>
         <roi>
