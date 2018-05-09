@@ -282,18 +282,18 @@ def main():
                                 else:
                                     dose = float(response['targets'][prescriptions[i].find('roi/name').text]['dose'][0])
 
-                                if 'relative' in prescriptions[i].find('roi/dose').attrib:
-                                    rel = float(prescriptions[i].find('roi/dose').attrib['relative'])
+                                if 'idl' in prescriptions[i].find('roi/dose').attrib:
+                                    idl = float(prescriptions[i].find('roi/dose').attrib['idl'])/100
 
                                 else:
-                                    rel = 1
+                                    idl = 1
 
                                 logging.debug('Setting ROI prescription to structure {}'.format(roi_name))
                                 beamset.AddDosePrescriptionToRoi(RoiName=roi_name,
                                                                  PrescriptionType='DoseAtVolume',
                                                                  DoseVolume=vol,
                                                                  DoseValue=dose * 100,
-                                                                 RelativePrescriptionLevel=rel,
+                                                                 RelativePrescriptionLevel=idl,
                                                                  AutoScaleDose=True)
 
                         else:
@@ -520,13 +520,23 @@ def main():
                                                                                     acceptance,
                                                                                     parameter,
                                                                                     priority))
-            plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi_name,
-                                                                 GoalCriteria=criteria,
-                                                                 GoalType=goal_type,
-                                                                 AcceptanceLevel=acceptance,
-                                                                 ParameterValue=parameter,
-                                                                 IsComparativeGoal=False,
-                                                                 Priority=priority)
+
+            if parameter is None:
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi_name,
+                                                                     GoalCriteria=criteria,
+                                                                     GoalType=goal_type,
+                                                                     AcceptanceLevel=acceptance,
+                                                                     IsComparativeGoal=False,
+                                                                     Priority=priority)
+
+            else:
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi_name,
+                                                                     GoalCriteria=criteria,
+                                                                     GoalType=goal_type,
+                                                                     AcceptanceLevel=acceptance,
+                                                                     ParameterValue=parameter,
+                                                                     IsComparativeGoal=False,
+                                                                     Priority=priority)
 
     if len(goals) > 0:
         patient.Save()

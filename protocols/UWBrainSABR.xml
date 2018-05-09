@@ -18,7 +18,7 @@
                 <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" relative="1.0">30</dose>
+                <dose units="Gy" idl="100">30</dose>
             </roi>
             <fractions>5</fractions>
             <frequency>Daily</frequency>

@@ -76,13 +76,13 @@
                 <name>PTVeval_Breast</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" relative="1.05">40.05</dose>
+                <dose units="Gy" idl="105">40.05</dose>
             </roi>
             <roi>
                 <name>PTVeval_Lumpectomy</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" relative="1.05">40.05</dose>
+                <dose units="Gy" idl="105">40.05</dose>
             </roi>
             <fractions>15</fractions>
             <frequency>Daily</frequency>
@@ -97,7 +97,7 @@
                 <name>PTVeval_Lumpectomy</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" relative="1.05">10</dose>
+                <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
             <frequency>Daily</frequency>
@@ -303,13 +303,13 @@
                 <name>PTVeval_Breast</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" relative="1.05">40.05</dose>
+                <dose units="Gy" idl="105">40.05</dose>
             </roi>
             <roi>
                 <name>PTVeval_Lumpectomy</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" relative="1.05">40.05</dose>
+                <dose units="Gy" idl="105">40.05</dose>
             </roi>
             <fractions>15</fractions>
             <frequency>Daily</frequency>
@@ -323,7 +323,7 @@
                 <name>PTVeval_Lumpectomy</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" relative="1.05">10</dose>
+                <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
             <frequency>Daily</frequency>
