@@ -1,0 +1,134 @@
+<protocol>
+    <name>UW Liver SBRT</name>
+    <ct>
+        <protocol institution="UWHC">XRT_LIVER_WITH_BOLUSTRACKING</protocol>
+        <protocol institution="UWHC">XRT_ABDOMEN_RESPGATING</protocol>
+        <protocol institution="UWHC">XRT_4D_SBRT_ABDOMEN</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+    </diagnoses>
+    <prescription>
+        <frequency>2-3 times per week</frequency>
+        <imaging>Daily CBCT</imaging>
+        <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
+    </prescription>
+    <order>
+        <name>5 fraction SBRT</name>
+        <prefix>Livr_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">90</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions>5</fractions>
+        </prescription>
+    </order>
+    <goals>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">DX</type>
+            <volume units="cc" type="residual">700</volume>
+            <dose units="Gy">15</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">15</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>Max</type>
+            <volume units="cc">0.5</volume>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Stomach</name>
+            <type>Max</type>
+            <volume units="cc">0.5</volume>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>SmallBowel</name>
+            <type>Max</type>
+            <volume units="cc">0.5</volume>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>LargeBowel</name>
+            <type>Max</type>
+            <volume units="cc">0.5</volume>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <volume units="cc">0.5</volume>
+            <dose units="Gy">25</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type>Max</type>
+            <volume units="cc">0.5</volume>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>PTV</name>
+            <type dir="ge">VX</type>
+            <volume units="%">95</volume>
+            <dose units="%" roi="PTV">99</dose>
+            <priority>2</priority>
+        </roi>
+        <roi>
+            <name>Kidney_Total</name>
+            <type dir="lt">DX</type>
+            <volume units="%">33.3</volume>
+            <dose units="Gy">15</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type dir="lt">VX</type>
+            <volume units="cc">15</volume>
+            <dose units="Gy">32</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Skin_05</name>
+            <type>Max</type>
+            <dose units="Gy">40</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Chestwall</name>
+            <type>Max</type>
+            <dose units="Gy">44</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Chestwall</name>
+            <type dir="lt">VX</type>
+            <volume units="cc">30</volume>
+            <dose units="Gy">30</dose>
+            <priority>3</priority>
+        </roi>
+        <goalset>
+            <name>QUANTEC-SBRT</name>
+            <priority>5</priority>
+        </goalset>
+    </goals>
+</protocol>

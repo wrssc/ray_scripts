@@ -1,5 +1,5 @@
 <protocol>
-    <name>UW Brain SABR/FSRT</name>
+    <name>UW Brain SABR</name>
     <ct>
         <protocol institution="UWHC">XRT_FSRT_HEAD</protocol>
     </ct>
@@ -10,22 +10,22 @@
     </institutions>
     <diagnoses>
     </diagnoses>
+    <prescription>
+        <frequency>Daily</frequency>
+        <frequency>2-3 times per week</frequency>
+        <imaging>Daily CBCT</imaging>
+        <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
+    </prescription>
     <order>
-        <name>Brain SABR 5fx</name>
+        <name>5 fraction SABR</name>
         <prefix>Brai_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">30</dose>
-            </roi>
-            <fractions>5</fractions>
-            <frequency>Daily</frequency>
-            <frequency>2-3 times per week</frequency>
-            <imaging>Daily CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
-        </prescription>
+        <roi>
+            <name>PTV</name>
+            <type>DX</type>
+            <volume units="%">95</volume>
+            <dose units="Gy" idl="100">30</dose>
+        </roi>
+        <fractions>5</fractions>
     </order>
     <goals>
         <roi>
@@ -40,21 +40,21 @@
             <type dir="gt">DX</type>
             <dose units="%" roi="PTV">90</dose>
             <volume units="%">99</volume>
-            <priority>3</priority>
+            <priority>2</priority>
         </roi>
         <roi>
             <name>PTV</name>
             <type dir="gt">CI</type>
             <dose units="%" roi="PTV">100</dose>
             <index>0.83</index>
-            <priority>3</priority>
+            <priority>2</priority>
         </roi>
         <roi>
             <name>PTV</name>
             <type dir="gt">CI</type>
             <dose units="%" roi="PTV">50</dose>
             <index>0.286</index>
-            <priority>3</priority>
+            <priority>2</priority>
         </roi>
         <roi>
             <name>Normal_10</name>

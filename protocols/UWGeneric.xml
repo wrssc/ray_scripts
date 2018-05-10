@@ -9,6 +9,18 @@
     </institutions>
     <diagnoses>
     </diagnoses>
+    <prescription>
+        <frequency default="true">Daily</frequency>
+        <frequency>Twice daily</frequency>
+        <frequency>2-3 times per week</frequency>
+        <imaging>Daily CBCT</imaging>
+        <imaging default="true">Weekly kV</imaging>
+        <imaging>Clinical setup</imaging>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+        <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
+        <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
+    </prescription>
     <order>
         <name>Single Target</name>
         <prefix>Plan_</prefix>
@@ -20,16 +32,6 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <frequency>2-3 times per week</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging default="true">Weekly kV</imaging>
-            <imaging>Clinical setup</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
         </prescription>
     </order>
     <order>
@@ -49,16 +51,6 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <frequency>2-3 times per week</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging default="true">Weekly kV</imaging>
-            <imaging>Clinical setup</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
         </prescription>
     </order>
     <order>
@@ -84,16 +76,6 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <frequency>2-3 times per week</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging default="true">Weekly kV</imaging>
-            <imaging>Clinical setup</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
         </prescription>
     </order>
     <order>
@@ -113,35 +95,15 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <frequency>2-3 times per week</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging default="true">Weekly kV</imaging>
-            <imaging>Clinical setup</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
         </prescription>
         <prescription>
             <roi>
-                <name>PTV2</name>
+                <name>PTV1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <frequency>2-3 times per week</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging default="true">Weekly kV</imaging>
-            <imaging>Clinical setup</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
         </prescription>
     </order>
     <order>
@@ -167,69 +129,33 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <frequency>2-3 times per week</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging default="true">Weekly kV</imaging>
-            <imaging>Clinical setup</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
         </prescription>
         <prescription>
+            <roi>
+                <name>PTV1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
             <roi>
                 <name>PTV2</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
-            <roi>
-                <name>PTV3</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <frequency>2-3 times per week</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging default="true">Weekly kV</imaging>
-            <imaging>Clinical setup</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
         </prescription>
         <prescription>
             <roi>
-                <name>PTV3</name>
+                <name>PTV1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <frequency>2-3 times per week</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging default="true">Weekly kV</imaging>
-            <imaging>Clinical setup</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
         </prescription>
     </order>
     <goals>
-        <roi>
-            <name>PTV</name>
-            <type dir="ge">VX</type>
-            <volume units="%">95</volume>
-            <dose units="%" roi="PTV">100</dose>
-        </roi>
         <goalset>
             <name>QUANTEC</name>
             <priority>5</priority>

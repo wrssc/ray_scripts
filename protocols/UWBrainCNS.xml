@@ -11,6 +11,13 @@
     </institutions>
     <diagnoses>
     </diagnoses>
+    <prescription>
+        <frequency>Daily</frequency>
+        <imaging>Daily CBCT</imaging>
+        <imaging default="true">Weekly kV</imaging>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+    </prescription>
     <order>
         <name>Partial Brain</name>
         <prefix>Brai_</prefix>
@@ -22,11 +29,6 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency>Daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging default="true">Weekly kV</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
         </prescription>
         <goals>
             <roi>
@@ -284,7 +286,6 @@
                 <dose units="Gy" idl="100">30</dose>
             </roi>
             <fractions>10</fractions>
-            <frequency>Daily</frequency>
             <imaging>Weekly kV</imaging>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
         </prescription>
@@ -321,7 +322,6 @@
                 <dose units="Gy" idl="100">30</dose>
             </roi>
             <fractions>10</fractions>
-            <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="Conformal" code="VMAT" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -338,14 +338,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="Gy">37.5</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
                 <dose units="Gy">25</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>Hippocampus</name>

@@ -68,6 +68,14 @@
         <icd version="10">C50922</icd>
         <icd version="10">C50929</icd>
     </diagnoses>
+    <prescription>
+        <frequency>Daily</frequency>
+        <imaging>Weekly kV</imaging>
+        <motion>Free breathing</motion>
+        <motion default="true">RPM MIBH gating</motion>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+    </prescription>
     <order>
         <name>Left Breast Hypo-fractionation with Boost</name>
         <prefix>BreL_</prefix>
@@ -85,11 +93,9 @@
                 <dose units="Gy" idl="105">40.05</dose>
             </roi>
             <fractions>15</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <prescription>
@@ -100,8 +106,6 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
@@ -122,7 +126,7 @@
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_Breast">90</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Breast</name>
@@ -143,14 +147,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">35</volume>
                 <dose units="%" roi="PTV_Lumpectomy">100</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Breast</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
                 <dose units="%" roi="PTV_Lumpectomy">94</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Lumpectomy</name>
@@ -164,7 +168,7 @@
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_Lumpectomy">90</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Lumpectomy</name>
@@ -178,7 +182,7 @@
                 <type dir="le">DX</type>
                 <volume units="%">10</volume>
                 <dose units="%" roi="PTV_Lumpectomy">110</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Lumpectomy</name>
@@ -190,7 +194,7 @@
                 <name>PTV_Lumpectomy</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_Lumpectomy">120</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -305,13 +309,8 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">40.05</dose>
             </roi>
-            <fractions>15</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -326,7 +325,7 @@
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_Breast">90</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Breast</name>
@@ -338,7 +337,7 @@
                 <name>PTV_Breast</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_Breast">115</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -460,10 +459,7 @@
                 <dose units="Gy" idl="105">40.05</dose>
             </roi>
             <fractions>15</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
-            <motion>Free breathing</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <prescription>
@@ -474,9 +470,6 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
-            <motion>Free breathing</motion>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
@@ -494,7 +487,7 @@
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_Breast">90</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Breast</name>
@@ -515,14 +508,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">35</volume>
                 <dose units="%" roi="PTV_Lumpectomy">100</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Breast</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
                 <dose units="%" roi="PTV_Lumpectomy">94</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Lumpectomy</name>
@@ -536,7 +529,7 @@
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_Lumpectomy">90</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Lumpectomy</name>
@@ -550,7 +543,7 @@
                 <type dir="le">DX</type>
                 <volume units="%">10</volume>
                 <dose units="%" roi="PTV_Lumpectomy">110</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Lumpectomy</name>
@@ -562,7 +555,7 @@
                 <name>PTV_Lumpectomy</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_Lumpectomy">120</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -670,11 +663,6 @@
                 <dose units="Gy" idl="105">40.05</dose>
             </roi>
             <fractions>15</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
-            <motion>Free breathing</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -827,11 +815,9 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <prescription>
@@ -842,8 +828,6 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
@@ -1108,12 +1092,8 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -1322,11 +1302,9 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <prescription>
@@ -1337,8 +1315,6 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
@@ -1603,12 +1579,8 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -1623,7 +1595,7 @@
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_Chest_Wall">90</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_Chest_Wall</name>
@@ -1635,7 +1607,7 @@
                 <name>PTV_Chest_Wall</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_Chest_Wall">115</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_SCV</name>
@@ -1649,7 +1621,7 @@
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_SCV">90</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_IMN</name>
@@ -1663,7 +1635,7 @@
                 <type dir="ge">DX</type>
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTV_IMN">90</dose>
-                <priority>3</priority>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -1817,10 +1789,7 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
-            <motion>Free breathing</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <prescription>
@@ -1831,9 +1800,6 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
-            <motion>Free breathing</motion>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
@@ -2080,11 +2046,6 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
-            <motion>Free breathing</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -2278,10 +2239,7 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
-            <motion>Free breathing</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <prescription>
@@ -2292,9 +2250,6 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
-            <motion>Free breathing</motion>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
@@ -2541,11 +2496,6 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Weekly kV</imaging>
-            <motion>Free breathing</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>

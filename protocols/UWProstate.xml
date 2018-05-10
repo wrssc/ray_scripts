@@ -13,6 +13,12 @@
     <diagnoses>
         <icd version="10">C61</icd>
     </diagnoses>
+    <prescription>
+        <fractions>28</fractions>
+        <frequency>Daily</frequency>
+        <imaging>Daily CBCT</imaging>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+    </prescription>
     <order>
         <name>Prostate Only</name>
         <prefix>Pros_</prefix>
@@ -23,10 +29,6 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">70</dose>
             </roi>
-            <fractions>28</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -54,18 +56,26 @@
     </order>
     <order>
         <name>Prostate with Nodes</name>
-        <prefix>ProN_</prefix>
+        <prefix>Pros_</prefix>
         <prescription>
             <roi>
-                <name>PTV</name>
+                <name>PTV1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">70</dose>
             </roi>
-            <fractions>28</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <roi>
+                <name>PTV2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV3</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
         </prescription>
         <goals>
             <roi>
@@ -100,7 +110,7 @@
     </order>
     <order>
         <name>Prostate Fossa</name>
-        <prefix>ProF_</prefix>
+        <prefix>Pros_</prefix>
         <prescription>
             <roi>
                 <name>PTV</name>
@@ -108,10 +118,6 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">70</dose>
             </roi>
-            <fractions>28</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -153,19 +159,6 @@
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
-            <type dir="gt">VX</type>
-            <volume units="%">99</volume>
-            <dose units="%" roi="PTV">95</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>PTV</name>
-            <type>Max</type>
-            <dose units="%" roi="PTV">110</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
             <name>PenileBulb</name>
             <type dir="lt">VX</type>
             <volume units="%">50</volume>
@@ -180,13 +173,13 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>FemoralHeadR</name>
+            <name>Femur_R</name>
             <type>Max</type>
             <dose units="Gy">40</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>FemoralHeadL</name>
+            <name>Femur_L</name>
             <type>Max</type>
             <dose units="Gy">40</dose>
             <priority>3</priority>

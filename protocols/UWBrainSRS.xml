@@ -12,22 +12,21 @@
     </institutions>
     <diagnoses>
     </diagnoses>
+    <prescription>
+        <roi>
+            <name>PTV</name>
+            <type>DX</type>
+            <volume units="%">99.5</volume>
+            <dose units="Gy" idl="100"></dose>
+        </roi>
+        <fractions>1</fractions>
+        <frequency>Once</frequency>
+        <imaging>Pre-treatment CBCT</imaging>
+        <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
+    </prescription>
     <order>
-        <name>Intracranial</name>
+        <name>Single fraction</name>
         <prefix>Brai_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV</name>
-                <type>DX</type>
-                <volume units="%">99.5</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions>1</fractions>
-            <frequency>Once</frequency>
-            <frequency>N/A</frequency>
-            <imaging>Pre-treatment CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
-        </prescription>
     </order>
     <goals>
         <roi>
@@ -42,14 +41,14 @@
             <type dir="gt">CI</type>
             <dose units="%" roi="PTV">100</dose>
             <index>0.5</index>
-            <priority>3</priority>
+            <priority>2</priority>
         </roi>
         <roi>
             <name>PTV</name>
             <type dir="gt">CI</type>
             <dose units="%" roi="PTV">50</dose>
             <index>0.25</index>
-            <priority>3</priority>
+            <priority>2</priority>
         </roi>
         <roi>
             <name>Brain-GTV</name>
