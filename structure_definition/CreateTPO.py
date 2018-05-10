@@ -388,8 +388,14 @@ def main():
 
                 if ('units' in g.find('volume').attrib and g.find('volume').attrib['units'] == 'cc') \
                         or float(g.find('volume').text) > 100:
+
                     goal_type = 'DoseAtAbsoluteVolume'
-                    parameter = float(g.find('volume').text)
+                    if 'type' in g.find('volume').attrib and g.find('volume').attrib['type'] == 'residual':
+                        parameter = max(case.PatientModel.StructureSets[exam.Name].RoiGeometries.GetRoiVolume -
+                                        float(g.find('volume').text), 0)
+
+                    else:
+                        parameter = float(g.find('volume').text)
 
                 else:
                     goal_type = 'DoseAtVolume'

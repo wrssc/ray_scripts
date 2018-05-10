@@ -656,7 +656,12 @@ class TpoDialog:
                             symbol = ''
                             right = ''
                             if g.find('type').text == 'DX':
-                                left = 'D{}{}'.format(g.find('volume').text, g.find('volume').attrib['units'])
+                                if 'type' in g.find('volume').attrib and g.find('volume').attrib['type'] == 'residual':
+                                    left = '{}{}'.format(g.find('volume').text, g.find('volume').attrib['units'])
+
+                                else:
+                                    left = 'D{}{}'.format(g.find('volume').text, g.find('volume').attrib['units'])
+
                                 if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
                                     symbol = '<='
 
