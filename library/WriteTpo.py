@@ -104,32 +104,48 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
 
     details = list([details_header])
     details.append([P('Number of Fractions', s)])
-    for f in fields['fractions']:
-        details[-1].append(P('{}'.format(f), s))
+    for n in range(len(fields['plans'])):
+        if len(fields['fractions']) > n and fields['fractions'][n] is not None:
+            details[-1].append(P('{}'.format(fields['fractions'][n]), s))
 
-    if 'technique' in fields and len(fields['technique']) > 0:
+        else:
+            details[-1].append(details[-1][-1])
+
+    if 'technique' in fields and len(fields['technique']) > 0 and fields['technique'][0] is not None:
         details.append([P('Technique', s)])
-        for t in fields['technique']:
-            if t is not None:
-                details[-1].append(P(t, s))
+        for n in range(len(fields['plans'])):
+            if len(fields['technique']) > n and fields['technique'][n] is not None:
+                details[-1].append(P(fields['technique'][n], s))
 
-    if 'frequency' in fields and len(fields['frequency']) > 0:
+            else:
+                details[-1].append(details[-1][-1])
+
+    if 'frequency' in fields and len(fields['frequency']) > 0 and fields['frequency'][0] is not None:
         details.append([P('Treatment frequency', s)])
-        for f in fields['frequency']:
-            if f is not None:
-                details[-1].append(P(f, s))
+        for n in range(len(fields['plans'])):
+            if len(fields['frequency']) > n and fields['frequency'][n] is not None:
+                details[-1].append(P(fields['frequency'][n], s))
 
-    if 'imaging' in fields and len(fields['imaging']) > 0:
+            else:
+                details[-1].append(details[-1][-1])
+
+    if 'imaging' in fields and len(fields['imaging']) > 0 and fields['imaging'][0] is not None:
         details.append([P('Image guidance', s)])
-        for i in fields['imaging']:
-            if i is not None:
-                details[-1].append(P(i, s))
+        for n in range(len(fields['plans'])):
+            if len(fields['imaging']) > n and fields['imaging'][n] is not None:
+                details[-1].append(P(fields['imaging'][n], s))
 
-    if 'motion' in fields and len(fields['motion']) > 0:
+            else:
+                details[-1].append(details[-1][-1])
+
+    if 'motion' in fields and len(fields['motion']) > 0 and fields['motion'][0] is not None:
         details.append([P('Motion management', s)])
-        for m in fields['motion']:
-            if m is not None:
-                details[-1].append(P(m, s))
+        for n in range(len(fields['plans'])):
+            if len(fields['motion']) > n and fields['motion'][n] is not None:
+                details[-1].append(P(fields['motion'][n], s))
+
+            else:
+                details[-1].append(details[-1][-1])
 
     width = min(1.5, 4.5 / len(details[0])) * inch
     story.append(Table(data=details,
