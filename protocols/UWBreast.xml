@@ -71,8 +71,6 @@
     <prescription>
         <frequency>Daily</frequency>
         <imaging>Weekly kV</imaging>
-        <motion>Free breathing</motion>
-        <motion default="true">RPM MIBH gating</motion>
         <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
     </prescription>
