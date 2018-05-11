@@ -1145,8 +1145,8 @@ class TpoDialog:
                     else:
                         t['name'].ForeColor = System.Drawing.Color.Black
 
-                    for n in range(len(self.targets[t]['element'])):
-                        if self.targets[t]['dose'][n].Visible and self.targets[t]['dose'][n].Text == '':
+                    for n in range(len(t['element'])):
+                        if t['dose'][n].Visible and t['dose'][n].Text == '':
                             missing.append(t['name'].Text)
                             t['name'].ForeColor = System.Drawing.Color.Red
 
