@@ -320,11 +320,12 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                        style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Add comments
-    story.append(Table(data=[[P('<b>Comments:</b>', s), P(fields['comments'].replace('\n', '<br/>'), s)]],
-                       colWidths=[1.5 * inch, 5 * inch],
-                       spaceAfter=0.25 * inch,
-                       hAlign='LEFT',
-                       style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
+    if 'comments' in fields and fields['comments'].strip() != '':
+        story.append(Table(data=[[P('<b>Comments:</b>', s), P(fields['comments'].replace('\n', '<br/>'), s)]],
+                           colWidths=[1.5 * inch, 5 * inch],
+                           spaceAfter=0.25 * inch,
+                           hAlign='LEFT',
+                           style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Finish up
     doc.build(story)
