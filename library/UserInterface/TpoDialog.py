@@ -303,7 +303,7 @@ class TpoDialog:
 
                         c += 1
 
-                    for n in range(c, self.fraction_groups):
+                    for n in range(c, self.fraction_groups-1):
                         p = protocol.find('prescription')
                         self.frequency[c].Visible = True
                         frequency_list = []
@@ -392,7 +392,7 @@ class TpoDialog:
 
                         c += 1
 
-                    for n in range(c, self.fraction_groups):
+                    for n in range(c, self.fraction_groups-1):
                         p = protocol.find('prescription')
                         self.technique[c].Visible = True
                         technique_list = []
@@ -481,7 +481,7 @@ class TpoDialog:
 
                         c += 1
 
-                    for n in range(c, self.fraction_groups):
+                    for n in range(c, self.fraction_groups-1):
                         p = protocol.find('prescription')
                         self.imaging[c].Visible = True
                         imaging_list = []
@@ -570,7 +570,7 @@ class TpoDialog:
 
                         c += 1
 
-                    for n in range(c, self.fraction_groups):
+                    for n in range(c, self.fraction_groups-1):
                         p = protocol.find('prescription')
                         self.motion[c].Visible = True
                         motion_list = []
@@ -748,7 +748,7 @@ class TpoDialog:
                             priority = min(priority, float(g.find('priority').text))
 
                         for g in self.oars[o]['element']:
-                            if priority != float(g.find('priority').text) or float(g.find('priority').text) >= 4:
+                            if priority != float(g.find('priority').text) or float(g.find('priority').text) > 4:
                                 continue
 
                             left = ''
