@@ -1145,6 +1145,11 @@ class TpoDialog:
                     else:
                         t['name'].ForeColor = System.Drawing.Color.Black
 
+                    for n in range(len(self.targets[t]['element'])):
+                        if self.targets[t]['dose'][n].Visible and self.targets[t]['dose'][n].Text == '':
+                            missing.append(t['name'].Text)
+                            t['name'].ForeColor = System.Drawing.Color.Red
+
                 for o in self.oars.values():
                     if o['name'].Checked and (o['structure'].SelectedItem == '' or o['structure'].SelectedItem is None):
                         missing.append(o['name'].Text)
@@ -1156,9 +1161,10 @@ class TpoDialog:
                 if len(missing) > 0:
                     self.status = False
                     System.Windows.Forms.MessageBox.Show('The following targets or OARs are not matched to existing ' +
-                                                         'structures: ' + ', '.join(missing) + '. Either match them ' +
+                                                         'structures or are missing a target dose: ' +
+                                                         ', '.join(missing) + '. Either match them ' +
                                                          'or uncheck the structures to not constrain them during ' +
-                                                         'planning.', 'Unmatched Structures',
+                                                         'planning. ', 'Unmatched Structures',
                                                          System.Windows.Forms.MessageBoxButtons.OK,
                                                          System.Windows.Forms.MessageBoxIcon.Warning)
 
