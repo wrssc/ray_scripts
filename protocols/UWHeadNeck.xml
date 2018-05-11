@@ -21,19 +21,19 @@
         <prefix>Nec_</prefix>
         <prescription>
             <roi>
-                <name>PTV1</name>
+                <name>PTV_High</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV2</name>
+                <name>PTV_Mid</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV3</name>
+                <name>PTV_Low</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -46,13 +46,13 @@
         <prefix>Nec_</prefix>
         <prescription>
             <roi>
-                <name>PTV1</name>
+                <name>PTV_High</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV2</name>
+                <name>PTV_Mid</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -61,7 +61,7 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV1</name>
+                <name>PTV_High</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -74,34 +74,19 @@
         <prefix>Nec_</prefix>
         <prescription>
             <roi>
-                <name>PTV1</name>
+                <name>PTV_High</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV2</name>
+                <name>PTV_Mid</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV3</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-        <prescription>
-            <roi>
-                <name>PTV1</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV2</name>
+                <name>PTV_Low</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -110,7 +95,22 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV1</name>
+                <name>PTV_High</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV_Mid</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+        <prescription>
+            <roi>
+                <name>PTV_High</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -120,23 +120,23 @@
     </order>
     <goals>
         <roi>
-            <name>PTV1</name>
+            <name>PTV_High</name>
             <type dir="ge">VX</type>
-            <dose units="%" roi="PTV1">100</dose>
+            <dose units="%" roi="PTV_High">100</dose>
             <volume units="%">95</volume>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV2</name>
+            <name>PTV_Mid</name>
             <type dir="ge">VX</type>
-            <dose units="%" roi="PTV2">100</dose>
+            <dose units="%" roi="PTV_Mid">100</dose>
             <volume units="%">95</volume>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV3</name>
+            <name>PTV_Low</name>
             <type dir="ge">VX</type>
-            <dose units="%" roi="PTV3">100</dose>
+            <dose units="%" roi="PTV_Low">100</dose>
             <volume units="%">95</volume>
             <priority>2</priority>
         </roi>
