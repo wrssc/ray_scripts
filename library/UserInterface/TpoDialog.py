@@ -1277,8 +1277,9 @@ class TpoDialog:
                                                           'structure': t['structure'].SelectedItem,
                                                           'volume': [],
                                                           'dose': []}
-                for n in range(len(t['element'])):
-                    if t['name'].Checked:
+
+                if t['name'].Checked:
+                    for n in range(len(t['element'])):
                         try:
                             self.values['targets'][t['name'].Text]['dose'].append(float(t['dose'][n].Text))
 
@@ -1292,8 +1293,8 @@ class TpoDialog:
                         except ValueError:
                             self.values['targets'][t['name'].Text]['volume'].append(95)
 
-                if t['structure'].SelectedItem != '':
-                    self.values['structures'][t['structure'].SelectedItem] = t['name'].Text
+                    if t['structure'].SelectedItem != '':
+                        self.values['structures'][t['structure'].SelectedItem] = t['name'].Text
 
             self.values['oars'] = {}
             for o in self.oars.values():
