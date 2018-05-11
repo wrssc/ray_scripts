@@ -158,15 +158,16 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
             c = 0
             for n in range(len(fields['plans'])):
                 if len(fields['targets'][t]['dose']) > n and fields['targets'][t]['dose'][n] > 0:
-                    targets[-1].append(P('D{} > {} Gy'.format(fields['targets'][t]['volume'][n],
-                                                              fields['targets'][t]['dose'][n]), s))
+                    targets[-1].append(P('{} Gy @ {} Gy/fx'.format(fields['targets'][t]['dose'][n],
+                                                                   fields['targets'][t]['dose'][n] /
+                                                                   fields['fractions'][n]), s))
                     c += fields['targets'][t]['dose'][n]
 
                 else:
                     targets[-1].append(P(' ', s))
 
             if len(fields['plans']) > 1:
-                targets[-1].append(P('D{} > {} Gy'.format(fields['targets'][t]['volume'][0], c), s))
+                targets[-1].append(P('{} Gy'.format(c), s))
 
             targets[-1].append(P('{}'.format(target_priority), s))
 
