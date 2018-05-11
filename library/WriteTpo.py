@@ -114,38 +114,22 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     if 'technique' in fields and len(fields['technique']) > 0 and fields['technique'][0] is not None:
         details.append([P('Technique', s)])
         for n in range(len(fields['plans'])):
-            if len(fields['technique']) > n and fields['technique'][n] is not None:
-                details[-1].append(P(fields['technique'][n], s))
-
-            else:
-                details[-1].append(details[-1][-1])
+            details[-1].append(P(fields['technique'][max(n, len(fields['technique'])-1)], s))
 
     if 'frequency' in fields and len(fields['frequency']) > 0 and fields['frequency'][0] is not None:
         details.append([P('Treatment frequency', s)])
         for n in range(len(fields['plans'])):
-            if len(fields['frequency']) > n and fields['frequency'][n] is not None:
-                details[-1].append(P(fields['frequency'][n], s))
-
-            else:
-                details[-1].append(details[-1][-1])
+            details[-1].append(P(fields['frequency'][max(n, len(fields['frequency']) - 1)], s))
 
     if 'imaging' in fields and len(fields['imaging']) > 0 and fields['imaging'][0] is not None:
         details.append([P('Image guidance', s)])
         for n in range(len(fields['plans'])):
-            if len(fields['imaging']) > n and fields['imaging'][n] is not None:
-                details[-1].append(P(fields['imaging'][n], s))
-
-            else:
-                details[-1].append(details[-1][-1])
+            details[-1].append(P(fields['imaging'][max(n, len(fields['imaging']) - 1)], s))
 
     if 'motion' in fields and len(fields['motion']) > 0 and fields['motion'][0] is not None:
         details.append([P('Motion management', s)])
         for n in range(len(fields['plans'])):
-            if len(fields['motion']) > n and fields['motion'][n] is not None:
-                details[-1].append(P(fields['motion'][n], s))
-
-            else:
-                details[-1].append(details[-1][-1])
+            details[-1].append(P(fields['motion'][max(n, len(fields['motion']) - 1)], s))
 
     width = min(1.5, 4.5 / len(details[0])) * inch
     story.append(Table(data=details,
