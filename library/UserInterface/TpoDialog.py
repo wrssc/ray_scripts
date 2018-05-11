@@ -80,7 +80,7 @@ class TpoDialog:
         # Initialize form
         self.form = System.Windows.Forms.Form()
         self.form.AutoSize = True
-        self.form.MaximumSize = System.Drawing.Size(850, System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+        self.form.MaximumSize = System.Drawing.Size(900, System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
         self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         self.form.Padding = System.Windows.Forms.Padding(0)
         self.form.Text = title
