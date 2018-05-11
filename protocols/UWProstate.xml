@@ -31,6 +31,13 @@
             </roi>
         </prescription>
         <goals>
+             <roi>
+                <name>PTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV">100</dose>
+                <priority>2</priority>
+            </roi>
             <roi>
                 <name>Rectum</name>
                 <type dir="lt">VX</type>
@@ -141,6 +148,13 @@
             </roi>
         </prescription>
         <goals>
+             <roi>
+                <name>PTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV">100</dose>
+                <priority>2</priority>
+            </roi>
             <roi>
                 <name>Rectum</name>
                 <type dir="lt">VX</type>
@@ -172,13 +186,6 @@
         </goals>
     </order>
     <goals>
-        <roi>
-            <name>PTV</name>
-            <type dir="ge">VX</type>
-            <volume units="%">95</volume>
-            <dose units="%" roi="PTV">100</dose>
-            <priority>2</priority>
-        </roi>
         <roi>
             <name>PenileBulb</name>
             <type dir="lt">VX</type>
