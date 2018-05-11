@@ -653,10 +653,10 @@ class TpoDialog:
                         goals = []
                         priority = 100
                         for g in self.oars[o]['element']:
-                            priority = min(priority, g.find('priority').text)
+                            priority = min(priority, float(g.find('priority').text))
 
                         for g in self.oars[o]['element']:
-                            if priority != g.find('priority').text:
+                            if priority != float(g.find('priority').text) or float(g.find('priority').text) >= 4:
                                 continue
 
                             left = ''
