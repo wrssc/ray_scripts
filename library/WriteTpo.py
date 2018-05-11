@@ -150,7 +150,6 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     if len(fields['plans']) > 1:
         target_header.append(P('<b>Composite</b>', s))
 
-    target_header.append(P('<b>Priority</b>', s))
     targets = [target_header]
     for t in fields['targets'].keys():
         if fields['targets'][t]['use']:
@@ -170,7 +169,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
                 targets[-1].append(P('{} Gy'.format(c), s))
 
     story.append(Table(data=targets,
-                       colWidths=[1.5 * inch] + [width] * (len(targets[0]) - 2),
+                       colWidths=[1.5 * inch] + [width] * (len(targets[0]) - 1),
                        spaceAfter=0.25 * inch,
                        repeatRows=1,
                        hAlign='LEFT',
