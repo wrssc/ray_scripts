@@ -990,7 +990,7 @@
                 <name>Heart</name>
                 <type dir="le">VX</type>
                 <dose units="%" roi="PTV_IMN">50</dose>
-                <volume type="%">10</volume>
+                <volume units="%">10</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1194,7 +1194,7 @@
                 <name>Heart</name>
                 <type dir="le">VX</type>
                 <dose units="%" roi="PTV_IMN">50</dose>
-                <volume type="%">10</volume>
+                <volume units="%">10</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1477,7 +1477,7 @@
                 <name>Heart</name>
                 <type dir="le">VX</type>
                 <dose units="%" roi="PTV_IMN">50</dose>
-                <volume type="%">10</volume>
+                <volume units="%">10</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1681,7 +1681,7 @@
                 <name>Heart</name>
                 <type dir="le">VX</type>
                 <dose units="%" roi="PTV_IMN">50</dose>
-                <volume type="%">10</volume>
+                <volume units="%">10</volume>
                 <priority>3</priority>
             </roi>
             <roi>

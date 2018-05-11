@@ -19,13 +19,15 @@
     <order>
         <name>5 fraction SABR</name>
         <prefix>Brai_</prefix>
-        <roi>
-            <name>PTV</name>
-            <type>DX</type>
-            <volume units="%">95</volume>
-            <dose units="Gy" idl="100">30</dose>
-        </roi>
-        <fractions>5</fractions>
+        <prescription>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <fractions>5</fractions>
+        </prescription>
     </order>
     <goals>
         <roi>

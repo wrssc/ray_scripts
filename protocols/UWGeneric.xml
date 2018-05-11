@@ -39,13 +39,13 @@
         <prefix>Plan_</prefix>
         <prescription>
             <roi>
-                <name>PTV_High</name>
+                <name>PTV1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV_Low</name>
+                <name>PTV2</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -58,19 +58,19 @@
         <prefix>Plan_</prefix>
         <prescription>
             <roi>
-                <name>PTV_High</name>
+                <name>PTV1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV_Mid</name>
+                <name>PTV2</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV_Low</name>
+                <name>PTV3</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
