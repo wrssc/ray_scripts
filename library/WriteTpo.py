@@ -267,7 +267,7 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
             oars.append(goals_dict[k][0])
 
     story.append(Table(data=goals,
-                       colWidths=[1.5 * inch + width * (len(targets[0]) - 3)] + [width] + [0.75 * inch],
+                       colWidths=[1.5 * inch + width * (len(targets[0]) - 2)] + [width] + [0.75 * inch],
                        spaceAfter=0.25 * inch,
                        repeatRows=1,
                        hAlign='LEFT',
