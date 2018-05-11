@@ -69,7 +69,7 @@
                 <name>PTV_High</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100">70</dose>
+                <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
                 <name>PTV_Mid</name>
