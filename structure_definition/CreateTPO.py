@@ -179,7 +179,7 @@ def main():
     response['plans'] = []
     for i in range(len(prescriptions)):
         for t in prescriptions[i].findall('technique'):
-            if t.text == response['technique'][max(i, len(response['technique'])-1)]:
+            if t.text == response['technique'][min(i, len(response['technique'])-1)]:
                 if 'code' in t.attrib:
                     beam_name = beam_prefix + t.attrib['code'] + '{}_R{}A{}'.format(i, 0, 0)
 
