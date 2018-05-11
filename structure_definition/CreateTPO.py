@@ -173,8 +173,15 @@ def main():
             for p in o.findall('prescription'):
                 prescriptions.append(p)
 
-    for p in response['xml'].findall('prescription'):
-        prescriptions.append(p)
+    if len(prescriptions) > 0:
+        c = 0
+        for p in response['xml'].findall('prescription'):
+            prescriptions[min(c, len(prescriptions)-1)].extend(p)
+            c += 1
+
+    else:
+        for p in response['xml'].findall('prescription'):
+            prescriptions.append(p)
 
     response['plans'] = []
     for i in range(len(prescriptions)):
