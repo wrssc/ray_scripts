@@ -651,7 +651,14 @@ class TpoDialog:
                             self.oars[o]['structure'].SelectedItem = m
 
                         goals = []
+                        priority = 100
                         for g in self.oars[o]['element']:
+                            priority = min(priority, g.find('priority').text)
+
+                        for g in self.oars[o]['element']:
+                            if priority != g.find('priority').text:
+                                continue
+
                             left = ''
                             symbol = ''
                             right = ''
