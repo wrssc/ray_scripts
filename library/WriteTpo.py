@@ -169,10 +169,8 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
             if len(fields['plans']) > 1:
                 targets[-1].append(P('{} Gy'.format(c), s))
 
-            targets[-1].append(P('{}'.format(target_priority), s))
-
     story.append(Table(data=targets,
-                       colWidths=[1.5 * inch] + [width] * (len(targets[0]) - 2) + [0.75 * inch],
+                       colWidths=[1.5 * inch] + [width] * (len(targets[0]) - 2),
                        spaceAfter=0.25 * inch,
                        repeatRows=1,
                        hAlign='LEFT',
