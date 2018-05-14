@@ -779,7 +779,7 @@ class TpoDialog:
                             p = min(p, int(g.find('priority').text))
 
                         for g in self.oars[o]['element']:
-                            if p == int(g.find('priority').text) or \
+                            if p != int(g.find('priority').text) or \
                                     int(g.find('priority').text) >= self.priority:
                                 logging.debug('Hiding constraint {} as priority >= {}'.
                                               format(Goals.print_goal(g, 'xml'), self.priority))
@@ -787,11 +787,8 @@ class TpoDialog:
 
                             goals.append(Goals.print_goal(g, 'xml'))
 
-                        print 'Goals = '
-                        print goals
-
                         self.oars[o]['goal'] = System.Windows.Forms.Label()
-                        self.oars[o]['goal'].Text = '\n'.join(goals)
+                        self.oars[o]['goal'].Text = '\n'.join(filter(None, goals))
                         self.oars[o]['goal'].AutoSize = True
                         self.oars[o]['goal'].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
                         self.oar_table.Controls.Add(self.oars[o]['goal'])
