@@ -360,7 +360,7 @@ def add_goal(goal, roi, plan, targets=None, exam=None, case=None):
         priority = int(goal.find('priority').text)
 
     else:
-        priority = 3
+        priority = 5
 
     logging.debug('Adding {} constraint {}, {}, {}, {}, priority {}'.
                   format(roi, criteria, goal_type, acceptance, parameter, priority))
