@@ -1,6 +1,7 @@
 import time
 import os
 import logging
+import Goals
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.units import inch
@@ -13,7 +14,7 @@ from reportlab.lib.styles import ParagraphStyle
 report_folder = r'\\aria\echart'
 
 
-def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
+def pdf(patient, exam, plan, fields, overwrite=True, priority=4):
     tic = time.time()
     filename = os.path.join(report_folder, '{}_{}.pdf'.format(patient.Name.replace('^', '_'), plan.Name))
     if overwrite and os.path.isfile(filename):
@@ -192,55 +193,8 @@ def pdf(patient, exam, plan, fields, target_priority=2, overwrite=True):
     for f in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
         try:
             c += 1
-            if f.PlanningGoal.Priority < 4:
-                goal = ''
-                if f.PlanningGoal.Type == 'VolumeAtDose':
-                    if f.PlanningGoal.GoalCriteria == 'AtMost':
-                        goal = 'V{} &lt; {}%'.format(f.PlanningGoal.ParameterValue / 100,
-                                                     f.PlanningGoal.AcceptanceLevel * 100)
-
-                    else:
-                        goal = 'V{} &gt; {}%'.format(f.PlanningGoal.ParameterValue / 100,
-                                                     f.PlanningGoal.AcceptanceLevel * 100)
-
-                elif f.PlanningGoal.Type == 'AbsoluteVolumeAtDose':
-                    if f.PlanningGoal.GoalCriteria == 'AtMost':
-                        goal = 'V{} &lt; {}cc'.format(f.PlanningGoal.ParameterValue / 100,
-                                                      f.PlanningGoal.AcceptanceLevel)
-
-                    else:
-                        goal = 'V{} &gt; {}cc'.format(f.PlanningGoal.ParameterValue / 100,
-                                                      f.PlanningGoal.AcceptanceLevel)
-
-                elif f.PlanningGoal.Type == 'DoseAtVolume':
-                    if f.PlanningGoal.GoalCriteria == 'AtMost':
-                        goal = 'D{}% &lt; {} Gy'.format(f.PlanningGoal.ParameterValue * 100,
-                                                        f.PlanningGoal.AcceptanceLevel / 100)
-                    else:
-                        goal = 'D{}% &gt; {} Gy'.format(f.PlanningGoal.ParameterValue * 100,
-                                                        f.PlanningGoal.AcceptanceLevel / 100)
-
-                elif f.PlanningGoal.Type == 'DoseAtAbsoluteVolume':
-                    if f.PlanningGoal.GoalCriteria == 'AtMost':
-                        goal = 'D{}cc &lt; {} Gy'.format(f.PlanningGoal.ParameterValue,
-                                                         f.PlanningGoal.AcceptanceLevel / 100)
-                    else:
-                        goal = 'D{}cc &gt; {} Gy'.format(f.PlanningGoal.ParameterValue,
-                                                         f.PlanningGoal.AcceptanceLevel / 100)
-
-                elif f.PlanningGoal.Type == 'AverageDose':
-                    if f.PlanningGoal.GoalCriteria == 'AtMost':
-                        goal = 'Mean &lt; {} Gy'.format(f.PlanningGoal.AcceptanceLevel / 100)
-
-                    else:
-                        goal = 'Mean &gt; {} Gy'.format(f.PlanningGoal.AcceptanceLevel / 100)
-
-                elif f.PlanningGoal.Type == 'ConformityIndex':
-                    goal = 'CI{} &gt; {} '.format(f.PlanningGoal.ParameterValue / 100, f.PlanningGoal.AcceptanceLevel)
-
-                elif f.PlanningGoal.Type == 'HomogeneityIndex':
-                    goal = 'HI{}% &gt; {} '.format(f.PlanningGoal.ParameterValue * 100, f.PlanningGoal.AcceptanceLevel)
-
+            if f.PlanningGoal.Priority < priority:
+                goal = Goals.print_goal(f, 'eval')
                 if goal != '':
                     if '{}{}'.format(f.PlanningGoal.Priority, f.ForRegionOfInterest.Name) in goals_dict:
                         goals_dict['{}{}'.format(f.PlanningGoal.Priority,

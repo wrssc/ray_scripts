@@ -37,9 +37,13 @@ import UserInterface
 import logging
 import time
 import WriteTpo
+import Goals
 
 # Define the protocol XML directory
 protocol_folder = r'../protocols'
+
+# Define the priority at or below which goals are not displayed
+priority = 4
 
 
 def main():
@@ -63,6 +67,7 @@ def main():
                                                'Approve structures',
                                                'Initialize plan and beamsets',
                                                'Set clinical goals',
+                                               'Add planning goals',
                                                'Generate TPO'],
                                         docstring=__doc__,
                                         help=__help__)
@@ -71,7 +76,7 @@ def main():
     status.next_step(text='In order to approve the plan and create a TPO, please fill out the displayed form ' +
                           'with information about the plan. Once completed, click Continue.')
 
-    tpo = UserInterface.TpoDialog()
+    tpo = UserInterface.TpoDialog(patient=patient, title='TPO Dialog', match=0.6, rx=3, priority=priority)
     tpo.load_protocols(os.path.join(os.path.dirname(__file__), protocol_folder))
     response = tpo.show(case=case, exam=exam)
     if response == {}:
@@ -325,229 +330,60 @@ def main():
                          response['targets'][g.find('name').text]['use']):
                     goals.append(g)
 
+            for s in o.findall('goals/goalset'):
+                if s.find('name').text in response['goalsets']:
+                    for g in response['goalsets'][s.find('name').text].findall('roi'):
+                        if (g.find('name').text in response['oars'] and response['oars'][g.find('name').text]['use']) \
+                                or (g.find('name').text in response['targets'] and
+                                    response['targets'][g.find('name').text]['use']):
+                            g.append(s.find('priority'))
+                            goals.append(g)
+
     for g in response['xml'].findall('goals/roi'):
         if (g.find('name').text in response['oars'] and response['oars'][g.find('name').text]['use']) or \
                 (g.find('name').text in response['targets'] and
                  response['targets'][g.find('name').text]['use']):
             goals.append(g)
 
-    for g in goals:
-        roi_name = ''
-        for roi in case.PatientModel.RegionsOfInterest:
-            if roi.Name == g.find('name').text:
-                roi_name = roi.Name
-                break
+    for s in o.findall('goals/goalset'):
+        if s.find('name').text in response['goalsets']:
+            for g in response['goalsets'][s.find('name').text].findall('roi'):
+                if (g.find('name').text in response['oars'] and response['oars'][g.find('name').text]['use']) \
+                        or (g.find('name').text in response['targets'] and
+                            response['targets'][g.find('name').text]['use']):
+                    g.append(s.find('priority'))
+                    goals.append(g)
 
-        if roi_name == '':
+    c = 0
+    for g in goals:
+        if float(g.find('priority')) < priority and \
+                (g.find('fractions') is None or float(g.find('fractions').text) == sum(response['fractions'])):
+            roi_name = ''
             for roi in case.PatientModel.RegionsOfInterest:
-                if (g.find('name').text in response['oars'] and
-                    roi.Name == response['oars'][g.find('name').text]['structure']) or \
-                        (g.find('name').text in response['targets'] and
-                         roi.Name == response['targets'][g.find('name').text]['structure']):
+                if roi.Name == g.find('name').text:
                     roi_name = roi.Name
                     break
 
-        # If this structure was found
-        if roi_name != '':
+            if roi_name == '':
+                for roi in case.PatientModel.RegionsOfInterest:
+                    if (g.find('name').text in response['oars'] and
+                        roi.Name == response['oars'][g.find('name').text]['structure']) or \
+                            (g.find('name').text in response['targets'] and
+                             roi.Name == response['targets'][g.find('name').text]['structure']):
+                        roi_name = roi.Name
+                        break
 
-            # If this is a VX goal
-            if g.find('type').text == 'VX':
+            # If this structure was found and the number of fractions match
+            if roi_name != '':
+                c += 1
+                Goals.add_goal(goal=g,
+                               roi=roi_name,
+                               targets=response['targets'],
+                               plan=plan,
+                               exam=exam,
+                               case=case)
 
-                # If greater than or greater than or equal to (RS doesn't distinguish)
-                if 'dir' in g.find('type').attrib and \
-                        (g.find('type').attrib['dir'] == 'gt' or g.find('type').attrib['dir'] == 'ge'):
-                    criteria = 'AtLeast'
-
-                else:
-                    criteria = 'AtMost'
-
-                # If this is an absolute volume at dose goal
-                if ('units' in g.find('volume').attrib and g.find('volume').attrib['units'] == 'cc') \
-                        or float(g.find('volume').text) > 100:
-                    goal_type = 'AbsoluteVolumeAtDose'
-                    acceptance = float(g.find('volume').text)
-
-                # Otherwise, assume this is a volume at dose goal
-                else:
-                    goal_type = 'VolumeAtDose'
-                    acceptance = float(g.find('volume').text) / 100
-
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                    if 'units' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                        parameter = float(g.find('dose').text) * \
-                                    sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
-
-                    else:
-                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
-                                                                                                 g.find('type').text))
-                        continue
-
-                else:
-                    parameter = float(g.find('dose').text) * 100
-
-            elif g.find('type').text == 'DX':
-                if 'dir' in g.find('type').attrib and \
-                        (g.find('type').attrib['dir'] == 'gt' or g.find('type').attrib['dir'] == 'ge'):
-                    criteria = 'AtLeast'
-
-                else:
-                    criteria = 'AtMost'
-
-                if ('units' in g.find('volume').attrib and g.find('volume').attrib['units'] == 'cc') \
-                        or float(g.find('volume').text) > 100:
-
-                    goal_type = 'DoseAtAbsoluteVolume'
-                    if 'type' in g.find('volume').attrib and g.find('volume').attrib['type'] == 'residual':
-                        parameter = max(case.PatientModel.StructureSets[exam.Name].RoiGeometries.GetRoiVolume -
-                                        float(g.find('volume').text), 0)
-
-                    else:
-                        parameter = float(g.find('volume').text)
-
-                else:
-                    goal_type = 'DoseAtVolume'
-                    parameter = float(g.find('volume').text) / 100
-
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                    if 'units' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                        acceptance = float(g.find('dose').text) * \
-                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
-                    else:
-                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
-                                                                                                 g.find('type').text))
-                        continue
-
-                else:
-                    acceptance = float(g.find('dose').text) * 100
-
-            elif g.find('type').text == 'Max':
-                criteria = 'AtMost'
-                goal_type = 'DoseAtAbsoluteVolume'
-                if g.find('volume') is not None:
-                    parameter = float(g.find('volume').text)
-
-                else:
-                    parameter = 0.03
-
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                    if 'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                        acceptance = float(g.find('dose').text) * \
-                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
-
-                    else:
-                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
-                                                                                                 g.find('type').text))
-                        continue
-
-                else:
-                    acceptance = float(g.find('dose').text) * 100
-
-            elif g.find('type').text == 'Min':
-                criteria = 'AtLeast'
-                goal_type = 'DoseAtAbsoluteVolume'
-                if g.find('volume') is not None:
-                    diff = float(g.find('volume').text)
-
-                else:
-                    diff = 0.03
-
-                parameter = max(0, case.PatientModel.StructureSets[exam.Name].RoiGeometries.GetRoiVolume - diff)
-
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                    if 'roi' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                        acceptance = float(g.find('dose').text) * \
-                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
-
-                    else:
-                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
-                                                                                                 g.find('type').text))
-                        continue
-
-                else:
-                    acceptance = float(g.find('dose').text) * 100
-
-            elif g.find('type').text == 'Mean':
-                goal_type = 'AverageDose'
-                parameter = None
-                if 'dir' in g.find('type').attrib and \
-                        (g.find('type').attrib['dir'] == 'gt' or g.find('type').attrib['dir'] == 'ge'):
-                    criteria = 'AtLeast'
-
-                else:
-                    criteria = 'AtMost'
-
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                    if 'units' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                        acceptance = float(g.find('dose').text) * \
-                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
-
-                    else:
-                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
-                                                                                                 g.find('type').text))
-                        continue
-
-                else:
-                    acceptance = float(g.find('dose').text) * 100
-
-            elif g.find('type').text == 'CI':
-                criteria = 'AtLeast'
-                goal_type = 'ConformityIndex'
-                acceptance = float(g.find('index').text)
-
-                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                    if 'units' in g.find('dose').attrib and g.find('dose').attrib['roi'] in response['targets']:
-                        parameter = float(g.find('dose').text) * \
-                                     sum(response['targets'][g.find('dose').attrib['roi']]['dose'])
-                    else:
-                        logging.debug('Goal {} type {} skipped as reference ROI not used'.format(g.find('name').text,
-                                                                                                 g.find('type').text))
-                        continue
-
-                else:
-                    parameter = float(g.find('dose').text) * 100
-
-            elif g.find('type').text == 'HI':
-                criteria = 'AtLeast'
-                goal_type = 'HomogeneityIndex'
-                acceptance = float(g.find('index').text)
-                parameter = float(g.find('volume').text) / 100
-
-            else:
-                logging.warning('Unknown goal type {} for structure {}'.format(g.find('type').text,
-                                                                               g.find('name').text))
-                continue
-
-            if g.find('priority') is not None:
-                priority = int(g.find('priority').text)
-
-            else:
-                priority = 1
-
-            logging.debug('Adding {} constraint {}, {}, {}, {}, priority {}'.format(roi_name,
-                                                                                    criteria,
-                                                                                    goal_type,
-                                                                                    acceptance,
-                                                                                    parameter,
-                                                                                    priority))
-
-            if parameter is None:
-                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi_name,
-                                                                     GoalCriteria=criteria,
-                                                                     GoalType=goal_type,
-                                                                     AcceptanceLevel=acceptance,
-                                                                     IsComparativeGoal=False,
-                                                                     Priority=priority)
-
-            else:
-                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi_name,
-                                                                     GoalCriteria=criteria,
-                                                                     GoalType=goal_type,
-                                                                     AcceptanceLevel=acceptance,
-                                                                     ParameterValue=parameter,
-                                                                     IsComparativeGoal=False,
-                                                                     Priority=priority)
-
-    if len(goals) > 0:
+    if c > 0:
         patient.Save()
         ui = connect.get_current('ui')
         ui.TitleBar.MenuItem['Plan Optimization'].Click()
@@ -556,6 +392,35 @@ def main():
         ui.ToolPanel.TabItem._Scripting.Select()
         connect.await_user_input('Customize the clinical goals now, then continue the script')
 
+    status.next_step(text='All remaining non-TPO planning goals are now being added...')
+    patient.Save()
+    for g in goals:
+        if float(g.find('priority')) >= priority and \
+                (g.find('fractions') is None or float(g.find('fractions').text) == sum(response['fractions'])):
+            roi_name = ''
+            for roi in case.PatientModel.RegionsOfInterest:
+                if roi.Name == g.find('name').text:
+                    roi_name = roi.Name
+                    break
+
+            if roi_name == '':
+                for roi in case.PatientModel.RegionsOfInterest:
+                    if (g.find('name').text in response['oars'] and
+                        roi.Name == response['oars'][g.find('name').text]['structure']) or \
+                            (g.find('name').text in response['targets'] and
+                             roi.Name == response['targets'][g.find('name').text]['structure']):
+                        roi_name = roi.Name
+                        break
+
+            # If this structure was found and the number of fractions match
+            if roi_name != '':
+                Goals.add_goal(goal=g,
+                               roi=roi_name,
+                               targets=response['targets'],
+                               plan=plan,
+                               exam=exam,
+                               case=case)
+
     # Create TPO PDF
     status.next_step(text='A treatment planning order PDF is now being generated...')
     patient.Save()
@@ -563,7 +428,8 @@ def main():
                        exam=exam,
                        plan=plan,
                        fields=response,
-                       overwrite=True)
+                       overwrite=True,
+                       priority=priority)
 
     # Finish up
     patient.Save()

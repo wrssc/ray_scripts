@@ -33,13 +33,14 @@ import clr
 import os
 import logging
 import xml.etree.ElementTree
+import Goals
 
 icd = '../../protocols/icd10cm_codes_2018.txt'
 
 
 class TpoDialog:
 
-    def __init__(self, patient=None, title='TPO Dialog', match_threshold=0.6, num_rx=3):
+    def __init__(self, patient=None, title='TPO Dialog', match=0.6, rx=3, priority=4):
         """tpo = UserInterface.TPODialog(protocols)"""
 
         # Link .NET assemblies
@@ -49,6 +50,7 @@ class TpoDialog:
 
         # Initialize internal variables
         self.protocols = {}
+        self.goalsets = {}
         self.status = False
         self.institution_list = []
         self.protocol_list = []
@@ -56,8 +58,9 @@ class TpoDialog:
         self.targets = {}
         self.oars = {}
         self.structures = []
-        self.match_threshold = match_threshold
-        self.num_rx = num_rx
+        self.match_threshold = match
+        self.priority = priority
+        self.num_rx = rx
         self.fraction_groups = 1
         self.values = {}
         self.suggested = '--------- above are suggested ---------'
@@ -209,6 +212,7 @@ class TpoDialog:
                 self.right_table.Hide()
                 self.prescription_label.Visible = True
                 logging.debug('Updating fractionation value(s)')
+                fx = 0
                 if order is not None and order.find('prescription/fractions') is not None:
                     self.fractions_label.Visible = True
                     c = 0
@@ -216,6 +220,8 @@ class TpoDialog:
                         self.fractions[c].Visible = True
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
+                        if p.find('fractions').text is not '':
+                            fx += float(p.find('fractions').text)
 
                     for n in range(c, self.num_rx):
                         self.fractions[n].Visible = False
@@ -231,6 +237,8 @@ class TpoDialog:
                         self.fractions[c].Visible = True
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
+                        if p.find('fractions').text is not '':
+                            fx += float(p.find('fractions').text)
 
                     for n in range(c, self.num_rx):
                         self.fractions[n].Visible = False
@@ -702,6 +710,28 @@ class TpoDialog:
                         else:
                             self.oars[r.find('name').text] = {'element': [r]}
 
+                for g in protocol.findall('goals/goalset'):
+                    if g.find('name').text in self.goalsets and float(g.find('priority').text) < self.priority:
+                        for r in self.goalsets[g.find('name').text].findall('roi'):
+                            if r.find('name').text not in self.targets and \
+                                    (r.find('fractions') is None or float(r.find('fractions').text) == fx):
+                                if r.find('name').text in self.oars:
+                                    self.oars[r.find('name').text]['element'].append(r)
+
+                                else:
+                                    self.oars[r.find('name').text] = {'element': [r]}
+
+                for g in order.findall('goals/goalset'):
+                    if g.find('name').text in self.goalsets and float(g.find('priority').text) < self.priority:
+                        for r in self.goalsets[g.find('name').text].findall('roi'):
+                            if r.find('name').text not in self.targets and \
+                                    (r.find('fractions') is None or float(r.find('fractions').text) == fx):
+                                if r.find('name').text in self.oars:
+                                    self.oars[r.find('name').text]['element'].append(r)
+
+                                else:
+                                    self.oars[r.find('name').text] = {'element': [r]}
+
                 if len(self.oars) > 0:
                     self.oar_label.Visible = True
                     self.oar_table.Controls.Clear()
@@ -748,131 +778,14 @@ class TpoDialog:
                             priority = min(priority, float(g.find('priority').text))
 
                         for g in self.oars[o]['element']:
-                            if priority != float(g.find('priority').text) or float(g.find('priority').text) > 4:
+                            if priority == float(g.find('priority').text) or \
+                                    float(g.find('priority').text) >= self.priority:
                                 continue
 
-                            left = ''
-                            symbol = ''
-                            right = ''
-                            if g.find('type').text == 'DX':
-                                if 'type' in g.find('volume').attrib and g.find('volume').attrib['type'] == 'residual':
-                                    left = '{}{}'.format(g.find('volume').text, g.find('volume').attrib['units'])
-
-                                else:
-                                    left = 'D{}{}'.format(g.find('volume').text, g.find('volume').attrib['units'])
-
-                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
-                                    symbol = '<='
-
-                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'lt':
-                                    symbol = '<'
-
-                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
-                                    symbol = '>='
-
-                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'gt':
-                                    symbol = '>'
-
-                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                                    right = '{}%'.format(g.find('dose').text)
-
-                                else:
-                                    right = '{} Gy'.format(g.find('dose').text)
-
-                            elif g.find('type').text == 'VX':
-                                left = 'V{}'.format(g.find('dose').text)
-                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
-                                    symbol = '<='
-
-                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'lt':
-                                    symbol = '<'
-
-                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
-                                    symbol = '>='
-
-                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'gt':
-                                    symbol = '>'
-
-                                right = '{}{}'.format(g.find('volume').text, g.find('volume').attrib['units'])
-
-                            elif g.find('type').text == 'Max':
-                                left = 'Max'
-                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
-                                    symbol = '<='
-
-                                else:
-                                    symbol = '<'
-
-                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                                    right = '{}%'.format(g.find('dose').text)
-
-                                else:
-                                    right = '{} Gy'.format(g.find('dose').text)
-
-                            elif g.find('type').text == 'Min':
-                                left = 'Min'
-                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
-                                    symbol = '>='
-
-                                else:
-                                    symbol = '>'
-
-                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                                    right = '{}%'.format(g.find('dose').text)
-
-                                else:
-                                    right = '{} Gy'.format(g.find('dose').text)
-
-                            elif g.find('type').text == 'Mean':
-                                left = 'Mean'
-                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'le':
-                                    symbol = '<='
-
-                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'lt':
-                                    symbol = '<'
-
-                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
-                                    symbol = '>='
-
-                                elif 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'gt':
-                                    symbol = '>'
-
-                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                                    right = '{}%'.format(g.find('dose').text)
-
-                                else:
-                                    right = '{} Gy'.format(g.find('dose').text)
-
-                            elif g.find('type').text == 'CI':
-                                if 'units' in g.find('dose').attrib and g.find('dose').attrib['units'] == '%':
-                                    left = 'CI{}%'.format(g.find('dose').text)
-
-                                else:
-                                    left = 'CI{}'.format(g.find('dose').text)
-
-                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
-                                    symbol = '>='
-
-                                else:
-                                    symbol = '>'
-
-                                right = g.find('index').text
-
-                            elif g.find('type').text == 'HI':
-                                left = 'HI{}%'.format(g.find('volume').text)
-                                if 'dir' in g.find('type').attrib and g.find('type').attrib['dir'] == 'ge':
-                                    symbol = '>='
-
-                                else:
-                                    symbol = '>'
-
-                                right = g.find('index').text
-
-                            if left != '':
-                                goals.append('{} {} {}'.format(left, symbol, right))
+                            goals.append(Goals.print_goal(g, 'xml'))
 
                         self.oars[o]['goal'] = System.Windows.Forms.Label()
-                        self.oars[o]['goal'].Text = '\n'.join(goals)
+                        self.oars[o]['goal'].Text = '\n'.join(filter(None, goals))
                         self.oars[o]['goal'].AutoSize = True
                         self.oars[o]['goal'].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
                         self.oar_table.Controls.Add(self.oars[o]['goal'])
@@ -1376,6 +1289,7 @@ class TpoDialog:
 
             self.values['structures'] = {}
             self.values['xml'] = self.protocols[self.protocol.SelectedItem]
+            self.values['goalsets'] = self.goalsets
             self.values['targets'] = {}
             for t in self.targets.values():
                 self.values['targets'][t['name'].Text] = {'use': t['name'].Checked,
@@ -1419,17 +1333,26 @@ class TpoDialog:
 
         if overwrite:
             self.protocols = {}
+            self.goalsets = {}
 
-        # Search protocol list, parsing each XML file for protocols
+        # Search protocol list, parsing each XML file for protocols and goalsets
         for f in os.listdir(folder):
             if f.endswith('.xml'):
                 tree = xml.etree.ElementTree.parse(os.path.join(folder, f))
                 if tree.getroot().tag == 'protocol':
-                    n = tree.findall('name')[0].text
+                    n = tree.find('name').text
                     if n in self.protocols:
                         self.protocols[n].extend(tree.getroot())
                     else:
                         self.protocols[n] = tree.getroot()
+
+                elif tree.getroot().tag == 'goalsets':
+                    for s in tree.findall('set'):
+                        n = s.find('name').text
+                        if n in self.goalsets:
+                            self.goalsets[n].extend(s)
+                        else:
+                            self.goalsets[n] = s
 
         # Populate institution list
         self.institution_list = []
