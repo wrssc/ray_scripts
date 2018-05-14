@@ -128,7 +128,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bowel</name>
+                <name>BowelBag</name>
                 <type dir="lt">VX</type>
                 <volume units="cc">175</volume>
                 <dose units="Gy">45</dose>
@@ -177,7 +177,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bowel</name>
+                <name>BowelBag</name>
                 <type dir="lt">VX</type>
                 <volume units="cc">175</volume>
                 <dose units="Gy">45</dose>

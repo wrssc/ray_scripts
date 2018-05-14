@@ -58,21 +58,21 @@
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Brainstem</name>
+            <name>BrainStem</name>
             <type>Max</type>
             <dose units="Gy">15</dose>
             <volume units="cc">0.03</volume>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Brainstem</name>
+            <name>BrainStem</name>
             <type>Max</type>
             <dose units="Gy">10</dose>
             <volume units="cc">0.5</volume>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Brainstem</name>
+            <name>BrainStem</name>
             <type>Max</type>
             <dose units="Gy">15</dose>
             <volume units="cc">0.01</volume>

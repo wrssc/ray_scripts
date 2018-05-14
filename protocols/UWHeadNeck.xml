@@ -147,7 +147,7 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Brainstem</name>
+            <name>BrainStem</name>
             <type>Max</type>
             <dose units="Gy">52</dose>
             <priority>3</priority>

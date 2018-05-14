@@ -84,26 +84,26 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Brainstem</name>
+            <name>BrainStem</name>
             <type>Max</type>
             <dose units="Gy">30</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Brainstem</name>
+            <name>BrainStem</name>
             <type>VX</type>
             <dose units="Gy">23</dose>
             <volume units="cc">0.5</volume>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Brainstem</name>
+            <name>BrainStem</name>
             <type>Max</type>
             <dose units="Gy">23</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Brainstem_PRV03</name>
+            <name>BrainStem_PRV03</name>
             <type>Max</type>
             <dose units="Gy">30</dose>
             <priority>3</priority>
