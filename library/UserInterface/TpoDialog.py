@@ -1332,15 +1332,18 @@ class TpoDialog:
         """tpo.load_protocols(folder)"""
 
         if overwrite:
+            logging.debug('Protocol list will be overriden')
             self.protocols = {}
             self.goalsets = {}
 
         # Search protocol list, parsing each XML file for protocols and goalsets
+        logging.debug('Searching folder {} for protocols, goal sets'.format(folder))
         for f in os.listdir(folder):
             if f.endswith('.xml'):
                 tree = xml.etree.ElementTree.parse(os.path.join(folder, f))
                 if tree.getroot().tag == 'protocol':
                     n = tree.find('name').text
+                    logging.debug('Found protocol {} in {}'.format(n, f))
                     if n in self.protocols:
                         self.protocols[n].extend(tree.getroot())
                     else:
@@ -1349,12 +1352,14 @@ class TpoDialog:
                 elif tree.getroot().tag == 'goalsets':
                     for s in tree.findall('set'):
                         n = s.find('name').text
+                        logging.debug('Found goal set {} in {}'.format(n, f))
                         if n in self.goalsets:
                             self.goalsets[n].extend(s)
                         else:
                             self.goalsets[n] = s
 
         # Populate institution list
+        logging.debug('{} protocols identified'.format(len(self.protocol_list)))
         self.institution_list = []
         for p in self.protocols.values():
             for i in p.findall('institutions/institution'):
@@ -1363,6 +1368,7 @@ class TpoDialog:
         if len(self.institution_list) > 0:
             self.institution_list = list(set(self.institution_list))
             self.institution_list.sort()
+            logging.debug('{} institutions identified from protocols'.format(len(self.institution_list)))
             if self.institution.Items.Count > 0:
                 self.institution.Items.Clear()
 
@@ -1386,6 +1392,7 @@ class TpoDialog:
         if len(self.order_list) > 0:
             self.order_list = list(set(self.order_list))
             self.order_list.sort()
+            logging.debug('{} orders identified from protocols'.format(len(self.order_list)))
             if self.order.Items.Count > 0:
                 self.order.Items.Clear()
 

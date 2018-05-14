@@ -332,6 +332,7 @@ def main():
 
             for s in o.findall('goals/goalset'):
                 if s.find('name').text in response['goalsets']:
+                    logging.debug('Adding goalset {} to goal list'.format(s.find('name').text))
                     for g in response['goalsets'][s.find('name').text].findall('roi'):
                         if (g.find('name').text in response['oars'] and response['oars'][g.find('name').text]['use']) \
                                 or (g.find('name').text in response['targets'] and
@@ -347,6 +348,7 @@ def main():
 
     for s in o.findall('goals/goalset'):
         if s.find('name').text in response['goalsets']:
+            logging.debug('Adding goalset {} to goal list'.format(s.find('name').text))
             for g in response['goalsets'][s.find('name').text].findall('roi'):
                 if (g.find('name').text in response['oars'] and response['oars'][g.find('name').text]['use']) \
                         or (g.find('name').text in response['targets'] and
@@ -357,7 +359,7 @@ def main():
     c = 0
     for g in goals:
         if (g.find('priority') is None or int(g.find('priority').text) < priority) and \
-                (g.find('fractions') is None or float(g.find('fractions').text) == sum(response['fractions'])):
+                (g.find('fractions') is None or int(g.find('fractions').text) == sum(response['fractions'])):
             roi_name = ''
             for roi in case.PatientModel.RegionsOfInterest:
                 if roi.Name == g.find('name').text:
@@ -396,7 +398,7 @@ def main():
     patient.Save()
     for g in goals:
         if int(g.find('priority').text) >= priority and \
-                (g.find('fractions') is None or float(g.find('fractions').text) == sum(response['fractions'])):
+                (g.find('fractions') is None or int(g.find('fractions').text) == sum(response['fractions'])):
             roi_name = ''
             for roi in case.PatientModel.RegionsOfInterest:
                 if roi.Name == g.find('name').text:
