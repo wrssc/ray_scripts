@@ -732,6 +732,7 @@ class TpoDialog:
                                 else:
                                     self.oars[r.find('name').text] = {'element': [r]}
 
+                logging.debug('{} ROIs identified for matching'.format(len(self.oars)))
                 if len(self.oars) > 0:
                     self.oar_label.Visible = True
                     self.oar_table.Controls.Clear()
@@ -773,12 +774,12 @@ class TpoDialog:
                             self.oars[o]['structure'].SelectedItem = m
 
                         goals = []
-                        priority = 100
+                        p = 100
                         for g in self.oars[o]['element']:
-                            priority = min(priority, int(g.find('priority').text))
+                            p = min(p, int(g.find('priority').text))
 
                         for g in self.oars[o]['element']:
-                            if priority == int(g.find('priority').text) or \
+                            if p == int(g.find('priority').text) or \
                                     int(g.find('priority').text) >= self.priority:
                                 continue
 
@@ -1359,7 +1360,7 @@ class TpoDialog:
                             self.goalsets[n] = s
 
         # Populate institution list
-        logging.debug('{} protocols identified'.format(len(self.protocol_list)))
+        logging.debug('{} protocols identified'.format(len(self.protocols)))
         self.institution_list = []
         for p in self.protocols.values():
             for i in p.findall('institutions/institution'):

@@ -1,12 +1,13 @@
 
 import logging
 
-def print_goal(goal, goal_type='xml'):
+
+def print_goal(goal, goal_type):
     left = None
     symbol = None
     right = None
 
-    if goal_type is 'xml':
+    if goal_type == 'xml':
         if goal.find('type').text == 'DX':
             if 'type' in goal.find('volume').attrib and goal.find('volume').attrib['type'] == 'residual':
                 left = '{}{}'.format(goal.find('volume').text, goal.find('volume').attrib['units'])
@@ -121,13 +122,15 @@ def print_goal(goal, goal_type='xml'):
 
             right = goal.find('index').text
 
+        logging.debug('{} {} {}'.format(left, symbol, right))
+
         if left is not None:
             return '{} {} {}'.format(left, symbol, right)
 
         else:
             return None
 
-    elif goal_type is 'eval':
+    elif goal_type == 'eval':
         text = None
         if goal.PlanningGoal.Type == 'VolumeAtDose':
             if goal.PlanningGoal.GoalCriteria == 'AtMost':
