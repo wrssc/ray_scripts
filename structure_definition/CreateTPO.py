@@ -317,7 +317,7 @@ def main():
 
                 break
 
-    # Add clinical goals (first order specific, then protocol)
+    # Add clinical goals
     status.next_step(text='Clinical goals will now be populated based on the selected protocol. You will be prompted ' +
                           'to customize these goals for this plan prior to TPO generation.')
     patient.Save()

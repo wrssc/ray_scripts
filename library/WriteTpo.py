@@ -207,9 +207,6 @@ def pdf(patient, exam, plan, fields, overwrite=True, priority=4):
                 else:
                     logging.warning('Unrecognized type for clinical goal {}'.format(c))
 
-            else:
-                logging.debug('Clinical goal {} has priority greater than 3 and will be skipped'.format(c))
-
         except Exception:
             logging.warning('An error occurred adding clinical goal {}'.format(c))
 
