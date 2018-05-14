@@ -396,6 +396,7 @@ def main():
 
     status.next_step(text='All remaining non-TPO planning goals are now being added...')
     patient.Save()
+    print goals
     for g in goals:
         if int(g.find('priority').text) >= priority and \
                 (g.find('fractions') is None or int(g.find('fractions').text) == sum(response['fractions'])):
