@@ -346,7 +346,7 @@ def main():
                  response['targets'][g.find('name').text]['use']):
             goals.append(g)
 
-    for s in o.findall('goals/goalset'):
+    for s in response['xml'].findall('goals/goalset'):
         if s.find('name').text in response['goalsets']:
             logging.debug('Adding goalset {} to goal list'.format(s.find('name').text))
             for g in response['goalsets'][s.find('name').text].findall('roi'):
@@ -396,7 +396,6 @@ def main():
 
     status.next_step(text='All remaining non-TPO planning goals are now being added...')
     patient.Save()
-    print goals
     for g in goals:
         if int(g.find('priority').text) >= priority and \
                 (g.find('fractions') is None or int(g.find('fractions').text) == sum(response['fractions'])):
