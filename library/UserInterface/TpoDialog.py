@@ -221,7 +221,7 @@ class TpoDialog:
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
                         if p.find('fractions').text is not '':
-                            fx += float(p.find('fractions').text)
+                            fx += int(p.find('fractions').text)
 
                     for n in range(c, self.num_rx):
                         self.fractions[n].Visible = False
@@ -238,7 +238,7 @@ class TpoDialog:
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
                         if p.find('fractions').text is not '':
-                            fx += float(p.find('fractions').text)
+                            fx += int(p.find('fractions').text)
 
                     for n in range(c, self.num_rx):
                         self.fractions[n].Visible = False
@@ -711,10 +711,10 @@ class TpoDialog:
                             self.oars[r.find('name').text] = {'element': [r]}
 
                 for g in protocol.findall('goals/goalset'):
-                    if g.find('name').text in self.goalsets and float(g.find('priority').text) < self.priority:
+                    if g.find('name').text in self.goalsets and int(g.find('priority').text) < self.priority:
                         for r in self.goalsets[g.find('name').text].findall('roi'):
                             if r.find('name').text not in self.targets and \
-                                    (r.find('fractions') is None or float(r.find('fractions').text) == fx):
+                                    (r.find('fractions') is None or int(r.find('fractions').text) == fx):
                                 if r.find('name').text in self.oars:
                                     self.oars[r.find('name').text]['element'].append(r)
 
@@ -722,10 +722,10 @@ class TpoDialog:
                                     self.oars[r.find('name').text] = {'element': [r]}
 
                 for g in order.findall('goals/goalset'):
-                    if g.find('name').text in self.goalsets and float(g.find('priority').text) < self.priority:
+                    if g.find('name').text in self.goalsets and int(g.find('priority').text) < self.priority:
                         for r in self.goalsets[g.find('name').text].findall('roi'):
                             if r.find('name').text not in self.targets and \
-                                    (r.find('fractions') is None or float(r.find('fractions').text) == fx):
+                                    (r.find('fractions') is None or int(r.find('fractions').text) == fx):
                                 if r.find('name').text in self.oars:
                                     self.oars[r.find('name').text]['element'].append(r)
 
@@ -775,11 +775,11 @@ class TpoDialog:
                         goals = []
                         priority = 100
                         for g in self.oars[o]['element']:
-                            priority = min(priority, float(g.find('priority').text))
+                            priority = min(priority, int(g.find('priority').text))
 
                         for g in self.oars[o]['element']:
-                            if priority == float(g.find('priority').text) or \
-                                    float(g.find('priority').text) >= self.priority:
+                            if priority == int(g.find('priority').text) or \
+                                    int(g.find('priority').text) >= self.priority:
                                 continue
 
                             goals.append(Goals.print_goal(g, 'xml'))

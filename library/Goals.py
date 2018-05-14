@@ -360,26 +360,32 @@ def add_goal(goal, roi, plan, targets=None, exam=None, case=None):
         priority = int(goal.find('priority').text)
 
     else:
-        priority = 5
+        priority = 1
 
     logging.debug('Adding {} constraint {}, {}, {}, {}, priority {}'.
                   format(roi, criteria, goal_type, acceptance, parameter, priority))
 
-    if parameter is None:
-        plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi,
-                                                             GoalCriteria=criteria,
-                                                             GoalType=goal_type,
-                                                             AcceptanceLevel=acceptance,
-                                                             IsComparativeGoal=False,
-                                                             Priority=priority)
+    try:
+        if parameter is None:
+            plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi,
+                                                                 GoalCriteria=criteria,
+                                                                 GoalType=goal_type,
+                                                                 AcceptanceLevel=acceptance,
+                                                                 IsComparativeGoal=False,
+                                                                 Priority=priority)
 
-    else:
-        plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi,
-                                                             GoalCriteria=criteria,
-                                                             GoalType=goal_type,
-                                                             AcceptanceLevel=acceptance,
-                                                             ParameterValue=parameter,
-                                                             IsComparativeGoal=False,
-                                                             Priority=priority)
+        else:
+            plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=roi,
+                                                                 GoalCriteria=criteria,
+                                                                 GoalType=goal_type,
+                                                                 AcceptanceLevel=acceptance,
+                                                                 ParameterValue=parameter,
+                                                                 IsComparativeGoal=False,
+                                                                 Priority=priority)
 
-    return True
+        return True
+
+    except Exception as e:
+        logging.warning('{} constraint {}, {}, {}, {}, priority {} could not be added: {}'.
+                        format(roi, criteria, goal_type, acceptance, parameter, priority, str(e).splitlines()[0]))
+        return False

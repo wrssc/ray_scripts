@@ -356,7 +356,7 @@ def main():
 
     c = 0
     for g in goals:
-        if (g.find('priority') is None or float(g.find('priority').text) < priority) and \
+        if (g.find('priority') is None or int(g.find('priority').text) < priority) and \
                 (g.find('fractions') is None or float(g.find('fractions').text) == sum(response['fractions'])):
             roi_name = ''
             for roi in case.PatientModel.RegionsOfInterest:
@@ -395,7 +395,7 @@ def main():
     status.next_step(text='All remaining non-TPO planning goals are now being added...')
     patient.Save()
     for g in goals:
-        if (g.find('priority') is not None or float(g.find('priority')) >= priority) and \
+        if int(g.find('priority').text) >= priority and \
                 (g.find('fractions') is None or float(g.find('fractions').text) == sum(response['fractions'])):
             roi_name = ''
             for roi in case.PatientModel.RegionsOfInterest:
