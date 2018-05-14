@@ -774,13 +774,8 @@ class TpoDialog:
                             self.oars[o]['structure'].SelectedItem = m
 
                         goals = []
-                        p = 100
                         for g in self.oars[o]['element']:
-                            p = min(p, int(g.find('priority').text))
-
-                        for g in self.oars[o]['element']:
-                            if p != int(g.find('priority').text) or \
-                                    int(g.find('priority').text) >= self.priority:
+                            if int(g.find('priority').text) >= self.priority:
                                 logging.debug('Hiding constraint {} as priority >= {}'.
                                               format(Goals.print_goal(g, 'xml'), self.priority))
                                 continue
