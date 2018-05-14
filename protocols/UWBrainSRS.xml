@@ -133,7 +133,11 @@
             <priority>1</priority>
         </roi>
         <goalset>
-            <name>AAPM TG-101</name>
+            <name>QUANTEC-SRS</name>
+            <priority>5</priority>
+        </goalset>
+        <goalset>
+            <name>TG-101</name>
             <priority>5</priority>
         </goalset>
     </goals>
