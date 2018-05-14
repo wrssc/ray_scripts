@@ -930,6 +930,13 @@
                 <priority>4</priority>
             </roi>
             <roi>
+                <name>PTVn_Axillary</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
                 <name>PTVn_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
@@ -1161,6 +1168,13 @@
                 <priority>3</priority>
             </roi>
             <roi>
+                <name>PTVn_Axillary</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
                 <name>Heart</name>
                 <type dir="le">DX</type>
                 <volume units="%">5</volume>
@@ -1306,6 +1320,12 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
+                <name>PTVn_Axillary</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
+            <roi>
                 <name>PTV_Lumpectomy_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
@@ -1442,6 +1462,13 @@
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTVn_IMN">90</dose>
                 <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -1588,6 +1615,12 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
             <fractions>25</fractions>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
@@ -1646,6 +1679,13 @@
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTVn_IMN">90</dose>
                 <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -1798,6 +1838,12 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
             <fractions>25</fractions>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
@@ -1924,6 +1970,13 @@
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTVn_IMN">90</dose>
                 <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -2055,6 +2108,12 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
             <fractions>25</fractions>
         </prescription>
         <goals>
@@ -2111,6 +2170,13 @@
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTVn_IMN">90</dose>
                 <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -2248,6 +2314,12 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
             <fractions>25</fractions>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
@@ -2374,6 +2446,13 @@
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTVn_IMN">90</dose>
                 <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -2505,6 +2584,12 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
             <fractions>25</fractions>
         </prescription>
         <goals>
@@ -2561,6 +2646,13 @@
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTVn_IMN">90</dose>
                 <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PTVn_Axillary</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>Heart</name>
