@@ -781,6 +781,7 @@ class TpoDialog:
                         for g in self.oars[o]['element']:
                             if p == int(g.find('priority').text) or \
                                     int(g.find('priority').text) >= self.priority:
+                                print 'Skipping constraint {} as priority >= {}'.format(Goals.print_goal(g, 'xml'), self.priority)
                                 continue
 
                             goals.append(Goals.print_goal(g, 'xml'))

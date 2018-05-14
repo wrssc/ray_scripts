@@ -122,8 +122,6 @@ def print_goal(goal, goal_type):
 
             right = goal.find('index').text
 
-        logging.debug('{} {} {}'.format(left, symbol, right))
-
         if left is not None:
             return '{} {} {}'.format(left, symbol, right)
 
