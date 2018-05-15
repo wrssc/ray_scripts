@@ -663,10 +663,11 @@ def machines(beamset=None):
                         elif 'type' in c.attrib and c.attrib['type'] == 'machine':
                             beam_list[b].append(t.find('machine').text)
 
-        sets = iter(map(set, beam_list))
-        machine_list = sets.next()
-        for s in sets:
-            machine_list = machine_list.intersection(s)
+        if len(beam_list) > 0:
+            sets = iter(map(set, beam_list))
+            machine_list = sets.next()
+            for s in sets:
+                machine_list = machine_list.intersection(s)
 
         return list(sorted(machine_list))
 
