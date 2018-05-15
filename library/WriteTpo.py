@@ -1,3 +1,37 @@
+""" Generate TPO PDF
+
+    The functions in this script create a Treatment Planning Order (TPO) template
+    based on the provided patient plan's beamset and clinical goals, along with an
+    optional dict of fields. The format of the fields dict is set from the TpoDialog
+    class. Currently only PDF files are supported. The following example illustrates
+    how to use this package:
+
+    import WriteTpo
+    import connect
+    WriteTpo.pdf(patient=connect.get_current('Patient')
+                 exam=connect.get_current('Exam'),
+                 plan=connect.get_current('Plan'))
+
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
+    """
+
+__author__ = 'Mark Geurts'
+__contact__ = 'mark.w.geurts@gmail.com'
+__version__ = '1.0.0'
+__license__ = 'GPLv3'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Create-TPO'
+__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+
+# Import packages
 import time
 import os
 import logging
@@ -14,9 +48,9 @@ from reportlab.lib.styles import ParagraphStyle
 report_folder = r'\\aria\echart'
 
 
-def pdf(patient, exam, plan, fields, overwrite=True, priority=4):
+def pdf(patient, exam, plan, folder=report_folder, fields=None, overwrite=True, priority=4):
     tic = time.time()
-    filename = os.path.join(report_folder, '{}_{}.pdf'.format(patient.Name.replace('^', '_'), plan.Name))
+    filename = os.path.join(folder, '{}_{}.pdf'.format(patient.Name.replace('^', '_'), plan.Name))
     if overwrite and os.path.isfile(filename):
         logging.debug('Deleting existing file per overwrite flag')
         os.remove(filename)
@@ -98,6 +132,14 @@ def pdf(patient, exam, plan, fields, overwrite=True, priority=4):
                        hAlign='LEFT',
                        style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
+    # If a fields dict was not provided, query the provided plan
+    if fields is None:
+        fields = {'plans': [], 'fractions': [], 'technique': []}
+        for b in plan.BeamSets:
+            fields['plans'].append(b.DicomPlanLabel)
+            fields['fractions'].append(b.FractionationPattern.NumberOfFractions)
+            fields['technique'].append(b.DeliveryTechnique)
+
     # Generate plan details table
     details_header = [P('<b>Plan Details</b>', s)]
     for p in fields['plans']:
@@ -144,40 +186,41 @@ def pdf(patient, exam, plan, fields, overwrite=True, priority=4):
                                          ('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Generate target table
-    target_header = [P('<b>Target Dose</b>', s)]
-    for p in fields['plans']:
-        target_header.append(P('<b>{}</b>'.format(p.replace('_R0A0', '_RXAX')), s))
+    if 'targets' in fields:
+        target_header = [P('<b>Target Dose</b>', s)]
+        for p in fields['plans']:
+            target_header.append(P('<b>{}</b>'.format(p.replace('_R0A0', '_RXAX')), s))
 
-    if len(fields['plans']) > 1:
-        target_header.append(P('<b>Composite</b>', s))
+        if len(fields['plans']) > 1:
+            target_header.append(P('<b>Composite</b>', s))
 
-    targets = [target_header]
-    for t in fields['targets'].keys():
-        if fields['targets'][t]['use']:
-            targets.append([P(t, s)])
-            c = 0
-            for n in range(len(fields['plans'])):
-                if len(fields['targets'][t]['dose']) > n and fields['targets'][t]['dose'][n] > 0:
-                    targets[-1].append(P('{} Gy @ {} Gy/fx'.format(fields['targets'][t]['dose'][n],
-                                                                   fields['targets'][t]['dose'][n] /
-                                                                   fields['fractions'][n]), s))
-                    c += fields['targets'][t]['dose'][n]
+        targets = [target_header]
+        for t in fields['targets'].keys():
+            if fields['targets'][t]['use']:
+                targets.append([P(t, s)])
+                c = 0
+                for n in range(len(fields['plans'])):
+                    if len(fields['targets'][t]['dose']) > n and fields['targets'][t]['dose'][n] > 0:
+                        targets[-1].append(P('{} Gy @ {} Gy/fx'.format(fields['targets'][t]['dose'][n],
+                                                                       fields['targets'][t]['dose'][n] /
+                                                                       fields['fractions'][n]), s))
+                        c += fields['targets'][t]['dose'][n]
 
-                else:
-                    targets[-1].append(P(' ', s))
+                    else:
+                        targets[-1].append(P(' ', s))
 
-            if len(fields['plans']) > 1:
-                targets[-1].append(P('{} Gy'.format(c), s))
+                if len(fields['plans']) > 1:
+                    targets[-1].append(P('{} Gy'.format(c), s))
 
-    story.append(Table(data=targets,
-                       colWidths=[1.5 * inch] + [width] * (len(targets[0]) - 1),
-                       spaceAfter=0.25 * inch,
-                       repeatRows=1,
-                       hAlign='LEFT',
-                       style=TableStyle([('BOX', (0, 0), (-1, -1), 0.25, colors.black),
-                                         ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-                                         ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
-                                         ('VALIGN', (0, 0), (-1, -1), 'TOP')])))
+        story.append(Table(data=targets,
+                           colWidths=[1.5 * inch] + [width] * (len(targets[0]) - 1),
+                           spaceAfter=0.25 * inch,
+                           repeatRows=1,
+                           hAlign='LEFT',
+                           style=TableStyle([('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                                             ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
+                                             ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+                                             ('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Generate goals table
     goals_header = [P('<b>Clinical Goals</b>', s)]
@@ -214,7 +257,7 @@ def pdf(patient, exam, plan, fields, overwrite=True, priority=4):
     oars = []
     for k in sorted(goals_dict.keys()):
         goals.append([P(goals_dict[k][0], s), P(goals_dict[k][1], s), P('{}'.format(goals_dict[k][2]), s)])
-        if len(oars) < 5 and goals_dict[k][0] not in fields['targets']:
+        if len(oars) < 5 and ('targets' not in fields or goals_dict[k][0] not in fields['targets']):
             oars.append(goals_dict[k][0])
 
     story.append(Table(data=goals,
@@ -251,24 +294,25 @@ def pdf(patient, exam, plan, fields, overwrite=True, priority=4):
                        style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Add plan options
-    options = []
-    for o in sorted(fields['options'].iterkeys()):
-        if fields['options'][o]:
-            options.append([P('[X]', s), P(o, s)])
+    if 'options' in fields:
+        options = []
+        for o in sorted(fields['options'].iterkeys()):
+            if fields['options'][o]:
+                options.append([P('[X]', s), P(o, s)])
 
-        else:
-            options.append([P('[&nbsp;&nbsp;]', s), P(o, s)])
+            else:
+                options.append([P('[&nbsp;&nbsp;]', s), P(o, s)])
 
-    if len(options) > 0:
-        options[0].insert(0, P('<b>Plan Options:</b>', s))
-        for i in range(1, len(options)):
-            options[i].insert(0, P('', s))
+        if len(options) > 0:
+            options[0].insert(0, P('<b>Plan Options:</b>', s))
+            for i in range(1, len(options)):
+                options[i].insert(0, P('', s))
 
-    story.append(Table(data=options,
-                       colWidths=[1.5 * inch, 0.35 * inch, 4.65 * inch],
-                       spaceAfter=0.25 * inch,
-                       hAlign='LEFT',
-                       style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
+        story.append(Table(data=options,
+                           colWidths=[1.5 * inch, 0.35 * inch, 4.65 * inch],
+                           spaceAfter=0.25 * inch,
+                           hAlign='LEFT',
+                           style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Add comments
     if 'comments' in fields and fields['comments'].strip() != '':

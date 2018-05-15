@@ -1,8 +1,51 @@
+""" Add and Display Clinical Goals
+
+    This package contains functions that manipulate and display clinical goals. The
+    print_goal() function will return an AAPM TG-263 compliant text describing the
+    goal, and accepts either XML format (see __help__ for details) for a RayStation
+    evaluation goal object (default). The following code illustrates how to use this
+    function.
+
+    import connect
+    import Goals
+    plan = connect.get_current('Plan')
+    for f in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
+        print Goals.print_goal(f)
+
+    The add_goal() function will add an XML goal to a provided plan. The following
+    example illustrates how it is used.
+
+    import xml.etree.ElementTree
+    import connect
+    import Goals
+    tree = xml.etree.ElementTree.parse('example_protocol.xml')
+    for g in tree.findall('//goals/roi'):
+        print 'Adding goal ' + Goals.print_goal(g, 'xml')
+        Goals.add_goal(g, connect.get_current('Plan'))
+
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
+    """
+
+__author__ = 'Mark Geurts'
+__contact__ = 'mark.w.geurts@gmail.com'
+__version__ = '1.0.0'
+__license__ = 'GPLv3'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Protocol-XMLs'
+__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
 
 
-def print_goal(goal, goal_type):
+def print_goal(goal, goal_type='eval'):
     left = None
     symbol = None
     right = None
@@ -10,7 +53,7 @@ def print_goal(goal, goal_type):
     if goal_type == 'xml':
         if goal.find('type').text == 'DX':
             if 'type' in goal.find('volume').attrib and goal.find('volume').attrib['type'] == 'residual':
-                left = '{}{}'.format(goal.find('volume').text, goal.find('volume').attrib['units'])
+                left = 'DC{}{}'.format(goal.find('volume').text, goal.find('volume').attrib['units'])
 
             else:
                 left = 'D{}{}'.format(goal.find('volume').text, goal.find('volume').attrib['units'])
@@ -34,7 +77,12 @@ def print_goal(goal, goal_type):
                 right = '{} Gy'.format(goal.find('dose').text)
 
         elif goal.find('type').text == 'VX':
-            left = 'V{}'.format(goal.find('dose').text)
+            if 'units' in goal.find('dose').attrib and goal.find('dose').attrib['units'] == '%':
+                left = 'V{}%'.format(goal.find('dose').text)
+
+            else:
+                left = 'V{}Gy'.format(goal.find('dose').text)
+
             if 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'le':
                 symbol = '<='
 
@@ -102,7 +150,7 @@ def print_goal(goal, goal_type):
                 left = 'CI{}%'.format(goal.find('dose').text)
 
             else:
-                left = 'CI{}'.format(goal.find('dose').text)
+                left = 'CI{}Gy'.format(goal.find('dose').text)
 
             if 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'ge':
                 symbol = '>='
@@ -132,20 +180,20 @@ def print_goal(goal, goal_type):
         text = None
         if goal.PlanningGoal.Type == 'VolumeAtDose':
             if goal.PlanningGoal.GoalCriteria == 'AtMost':
-                text = 'V{} &lt; {}%'.format(goal.PlanningGoal.ParameterValue / 100,
+                text = 'V{}Gy &lt; {}%'.format(goal.PlanningGoal.ParameterValue / 100,
                                              goal.PlanningGoal.AcceptanceLevel * 100)
 
             else:
-                text = 'V{} &gt; {}%'.format(goal.PlanningGoal.ParameterValue / 100,
+                text = 'V{}Gy &gt; {}%'.format(goal.PlanningGoal.ParameterValue / 100,
                                              goal.PlanningGoal.AcceptanceLevel * 100)
 
         elif goal.PlanningGoal.Type == 'AbsoluteVolumeAtDose':
             if goal.PlanningGoal.GoalCriteria == 'AtMost':
-                text = 'V{} &lt; {}cc'.format(goal.PlanningGoal.ParameterValue / 100,
+                text = 'V{}Gy &lt; {}cc'.format(goal.PlanningGoal.ParameterValue / 100,
                                               goal.PlanningGoal.AcceptanceLevel)
 
             else:
-                text = 'V{} &gt; {}cc'.format(goal.PlanningGoal.ParameterValue / 100,
+                text = 'V{}Gy &gt; {}cc'.format(goal.PlanningGoal.ParameterValue / 100,
                                               goal.PlanningGoal.AcceptanceLevel)
 
         elif goal.PlanningGoal.Type == 'DoseAtVolume':
@@ -172,7 +220,7 @@ def print_goal(goal, goal_type):
                 text = 'Mean &gt; {} Gy'.format(goal.PlanningGoal.AcceptanceLevel / 100)
 
         elif goal.PlanningGoal.Type == 'ConformityIndex':
-            text = 'CI{} &gt; {} '.format(goal.PlanningGoal.ParameterValue / 100, goal.PlanningGoal.AcceptanceLevel)
+            text = 'CI{}Gy &gt; {} '.format(goal.PlanningGoal.ParameterValue / 100, goal.PlanningGoal.AcceptanceLevel)
 
         elif goal.PlanningGoal.Type == 'HomogeneityIndex':
             text = 'HI{}% &gt; {} '.format(goal.PlanningGoal.ParameterValue * 100, goal.PlanningGoal.AcceptanceLevel)
@@ -180,7 +228,10 @@ def print_goal(goal, goal_type):
         return text
 
 
-def add_goal(goal, roi, plan, targets=None, exam=None, case=None):
+def add_goal(goal, plan, roi=None, targets=None, exam=None, case=None):
+
+    if roi is None:
+        roi = goal.find('name').text
 
     if targets is None:
         targets = {}
