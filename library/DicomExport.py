@@ -653,15 +653,15 @@ def machines(beamset=None):
         for b in range(len(beamset.Beams)):
             beam_list.append([])
             for c in filter_xml.findall('filter'):
-                if c.findall('from/machine')[0].text == beamset.Beams[b].MachineReference.MachineName:
+                if c.find('from/machine').text == beamset.Beams[b].MachineReference.MachineName:
                     for t in c.findall('to'):
                         if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
-                                beamset.Beams[b].MachineReference.Energy == float(c.findall('from/energy')[0].text) \
-                                and c.findall('from/energy')[0].attrib['type'].lower() == beamset.Modality.lower():
-                            beam_list[b].append(t.findall('machine')[0].text)
+                                beamset.Beams[b].MachineReference.Energy == float(c.find('from/energy').text) \
+                                and c.find('from/energy').attrib['type'].lower() == beamset.Modality.lower():
+                            beam_list[b].append(t.find('machine').text)
 
                         elif 'type' in c.attrib and c.attrib['type'] == 'machine':
-                            beam_list[b].append(t.findall('machine')[0].text)
+                            beam_list[b].append(t.find('machine').text)
 
         sets = iter(map(set, beam_list))
         machine_list = sets.next()
@@ -689,18 +689,18 @@ def energies(beamset=None, machine=None):
 
         # If the filter is a machine and energy filter, verify the machine matches
         if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
-                (beamset is None or c.findall('from/machine')[0].text == beamset.MachineReference.MachineName):
+                (beamset is None or c.find('from/machine').text == beamset.MachineReference.MachineName):
             for t in c.findall('to'):
-                if machine is None or t.findall('machine')[0].text == machine and 'type' in \
-                        t.findall('energy')[0].attrib and \
-                        (beamset is None or t.findall('energy')[0].attrib['type'].lower() == beamset.Modality.lower()):
-                    energy_list[float(c.findall('from/energy')[0].text)] = t.findall('energy')[0].text
+                if machine is None or t.find('machine').text == machine and 'type' in \
+                        t.find('energy').attrib and \
+                        (beamset is None or t.find('energy').attrib['type'].lower() == beamset.Modality.lower()):
+                    energy_list[float(c.find('from/energy').text)] = t.find('energy').text
 
         # Otherwise, if only an energy filter
         elif 'type' in c.attrib and c.attrib['type'] == 'energy' and \
-                (beamset is None or c.findall('from/energy')[0].attrib['type'].lower() == beamset.Modality.lower()):
+                (beamset is None or c.find('from/energy').attrib['type'].lower() == beamset.Modality.lower()):
             for t in c.findall('to'):
-                energy_list[float(c.findall('from/energy')[0].text)] = t.findall('energy')[0].text
+                energy_list[float(c.find('from/energy').text)] = t.find('energy').text
 
     return energy_list
 
@@ -722,7 +722,7 @@ def destination_info(destination):
     # Return a dictionary of DICOM destination parameters
     info = {}
     for d in dest_xml.findall('destination'):
-        if d.findall('name')[0].text == destination:
+        if d.find('name').text == destination:
             for e in d.findall('*'):
                 if 'type' in e.attrib and e.attrib['type'] == 'text':
                     info[e.tag] = e.text
