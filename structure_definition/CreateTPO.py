@@ -268,6 +268,9 @@ def main():
                                              RespiratoryMotionCompensationTechnique='Disabled',
                                              RespiratorySignalSource='Disabled')
 
+                if i > 0:
+                    beamset.FractionationPattern.IsSequentiallyDelivered = True
+
                 if prescriptions[i].find('roi/name') is not None and \
                         prescriptions[i].find('roi/name').text in response['targets'] and \
                         response['targets'][prescriptions[i].find('roi/name').text]['use']:
