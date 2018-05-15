@@ -59,16 +59,16 @@ def print_goal(goal, goal_type='eval'):
                 left = 'D{}{}'.format(goal.find('volume').text, goal.find('volume').attrib['units'])
 
             if 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'le':
-                symbol = '<='
+                symbol = '&le;'
 
             elif 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'lt':
-                symbol = '<'
+                symbol = '&lt;'
 
             elif 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'ge':
-                symbol = '>='
+                symbol = '&ge;'
 
             elif 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'gt':
-                symbol = '>'
+                symbol = '&gt;'
 
             if 'units' in goal.find('dose').attrib and goal.find('dose').attrib['units'] == '%':
                 right = '{}%'.format(goal.find('dose').text)
@@ -84,26 +84,26 @@ def print_goal(goal, goal_type='eval'):
                 left = 'V{}Gy'.format(goal.find('dose').text)
 
             if 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'le':
-                symbol = '<='
+                symbol = '&le;'
 
             elif 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'lt':
-                symbol = '<'
+                symbol = '&lt;'
 
             elif 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'ge':
-                symbol = '>='
+                symbol = '&ge;'
 
             elif 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'gt':
-                symbol = '>'
+                symbol = '&gt;'
 
             right = '{}{}'.format(goal.find('volume').text, goal.find('volume').attrib['units'])
 
         elif goal.find('type').text == 'Max':
             left = 'Max'
             if 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'le':
-                symbol = '<='
+                symbol = '&le;'
 
             else:
-                symbol = '<'
+                symbol = '&lt;'
 
             if 'units' in goal.find('dose').attrib and goal.find('dose').attrib['units'] == '%':
                 right = '{}%'.format(goal.find('dose').text)
@@ -114,10 +114,10 @@ def print_goal(goal, goal_type='eval'):
         elif goal.find('type').text == 'Min':
             left = 'Min'
             if 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'ge':
-                symbol = '>='
+                symbol = '&ge;'
 
             else:
-                symbol = '>'
+                symbol = '&gt;'
 
             if 'units' in goal.find('dose').attrib and goal.find('dose').attrib['units'] == '%':
                 right = '{}%'.format(goal.find('dose').text)
@@ -128,16 +128,16 @@ def print_goal(goal, goal_type='eval'):
         elif goal.find('type').text == 'Mean':
             left = 'Mean'
             if 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'le':
-                symbol = '<='
+                symbol = '&le;'
 
             elif 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'lt':
-                symbol = '<'
+                symbol = '&lt;'
 
             elif 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'ge':
-                symbol = '>='
+                symbol = '&ge;'
 
             elif 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'gt':
-                symbol = '>'
+                symbol = '&gt;'
 
             if 'units' in goal.find('dose').attrib and goal.find('dose').attrib['units'] == '%':
                 right = '{}%'.format(goal.find('dose').text)
@@ -153,20 +153,20 @@ def print_goal(goal, goal_type='eval'):
                 left = 'CI{}Gy'.format(goal.find('dose').text)
 
             if 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'ge':
-                symbol = '>='
+                symbol = '&ge;'
 
             else:
-                symbol = '>'
+                symbol = '&gt;'
 
             right = goal.find('index').text
 
         elif goal.find('type').text == 'HI':
             left = 'HI{}%'.format(goal.find('volume').text)
             if 'dir' in goal.find('type').attrib and goal.find('type').attrib['dir'] == 'ge':
-                symbol = '>='
+                symbol = '&ge;'
 
             else:
-                symbol = '>'
+                symbol = '&gt;'
 
             right = goal.find('index').text
 
