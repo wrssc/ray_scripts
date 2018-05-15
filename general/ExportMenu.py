@@ -142,7 +142,7 @@ def main():
     if ignore:
         initial['d'] = 'Yes'
 
-    if beamset is not None:
+    if beamset is not None and len(DicomExport.machines(beamset)) > 0:
         options['a'].append('Plan')
         initial['a'].append('Plan')
         options['a'].append('Plan Dose')
