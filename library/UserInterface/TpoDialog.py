@@ -220,7 +220,7 @@ class TpoDialog:
                         self.fractions[c].Visible = True
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
-                        if p.find('fractions').text is not '':
+                        if p.find('fractions').text is not None and p.find('fractions').text is not '':
                             fx += int(p.find('fractions').text)
 
                     for n in range(c, self.num_rx):
@@ -237,7 +237,7 @@ class TpoDialog:
                         self.fractions[c].Visible = True
                         self.fractions[c].Text = p.find('fractions').text
                         c += 1
-                        if p.find('fractions').text is not '':
+                        if p.find('fractions').text is not None and p.find('fractions').text is not '':
                             fx += int(p.find('fractions').text)
 
                     for n in range(c, self.num_rx):
