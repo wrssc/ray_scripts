@@ -158,10 +158,30 @@ def main():
         status.update_text(text='Parsing inputs...')
 
     machines = response['a']
-    mu = float(response['b'])
-    gaps = map(float, response['c'].split(','))
-    offsets = map(float, response['d'].split(','))
-    iters = map(float, response['e'].split(','))
+    try:
+        mu = float(response['b'])
+
+    except ValueError:
+        mu = 100
+
+    try:
+        gaps = map(float, response['c'].split(','))
+
+    except ValueError:
+        gaps = []
+
+    try:
+        offsets = map(float, response['d'].split(','))
+
+    except ValueError:
+        offsets = []
+
+    try:
+        iters = map(float, response['e'].split(','))
+
+    except ValueError:
+        iters = []
+
     res = float(response['j']) / 10
     if 'Calculate plan' in response['k']:
         calc = True
@@ -171,7 +191,12 @@ def main():
         logging.info('Calculation was disabled')
 
     host = response['l']
-    port = int(response['m'])
+    try:
+        port = int(response['m'])
+
+    except ValueError:
+        port = 104
+
     aet = response['n']
     try:
         delay = float(response['o'])

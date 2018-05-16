@@ -191,7 +191,7 @@ def _child_process(args, queue, aborted, kill):
     if args['name'] is not None:
         name = System.Windows.Forms.Label()
         name.Text = args['name']
-        name.Width = form.MaximumSize.Width - 50
+        name.Width = form.MaximumSize.Width - 55
         name.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         name.Font = System.Drawing.Font(name.Font, name.Font.Style | System.Drawing.FontStyle.Bold)
         name.TextAlign = System.Drawing.ContentAlignment.TopCenter
@@ -201,7 +201,7 @@ def _child_process(args, queue, aborted, kill):
         summary = System.Windows.Forms.Label()
         summary.Text = args['summary']
         summary.AutoSize = True
-        summary.MaximumSize = System.Drawing.Size(form.MaximumSize.Width - 50,
+        summary.MaximumSize = System.Drawing.Size(form.MaximumSize.Width - 55,
                                                   System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
         summary.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
         table.Controls.Add(summary)
@@ -242,7 +242,7 @@ def _child_process(args, queue, aborted, kill):
     status = System.Windows.Forms.Label()
     status.Text = status_text
     status.AutoSize = True
-    status.MaximumSize = System.Drawing.Size(form.MaximumSize.Width - 50,
+    status.MaximumSize = System.Drawing.Size(form.MaximumSize.Width - 55,
                                              System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
     status.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
     table.Controls.Add(status)
@@ -250,7 +250,7 @@ def _child_process(args, queue, aborted, kill):
     # Add progress bar
     bar = System.Windows.Forms.ProgressBar()
     bar.Visible = True
-    bar.Width = form.MaximumSize.Width - 50
+    bar.Width = form.MaximumSize.Width - 55
     bar.Height = 30
     bar.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
     bar.Style = System.Windows.Forms.ProgressBarStyle.Marquee
