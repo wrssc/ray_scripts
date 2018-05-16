@@ -32,6 +32,7 @@ import sys
 import clr
 import socket
 import getpass
+import tempfile
 import connect
 import shutil
 import logging
@@ -116,9 +117,9 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     except Exception:
         logging.info('*** Beamset: NO_BEAMSET ***')
 
-    # Create local scripts directory if one wasn't provided above
+    # Create temporary local scripts directory if one wasn't provided above
     if m_local == '':
-        m_local = 'ray_scripts'
+        m_local = tempfile.mkdtemp()
 
         # Get list of branches 
         import requests
@@ -174,14 +175,6 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             # Update progress bar length
             bar.Maximum = len(file_list)
             bar.Visible = True
-
-            # Clear directory
-            if os.path.exists(m_local):
-                try:
-                    shutil.rmtree(m_local)
-                except OSError:
-                    logging.error('Could not delete local repository')
-            os.mkdir(m_local)
 
             # Loop through folders in branch, creating folders and pulling content
             for x in file_list:

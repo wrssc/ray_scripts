@@ -1,0 +1,164 @@
+<protocol>
+    <name>UW Generic</name>
+    <ct>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+    </diagnoses>
+    <prescription>
+        <frequency default="true">Daily</frequency>
+        <frequency>Twice daily</frequency>
+        <frequency>2-3 times per week</frequency>
+        <imaging>Daily CBCT</imaging>
+        <imaging default="true">Weekly kV</imaging>
+        <imaging>Clinical setup</imaging>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+        <technique modality="Photons" technique="Conformal" code="2DC" machine="TrueBeam">2D</technique>
+        <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam">Electrons</technique>
+    </prescription>
+    <order>
+        <name>Single Target</name>
+        <prefix>Plan_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+    </order>
+    <order>
+        <name>Two Targets</name>
+        <prefix>Plan_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+    </order>
+    <order>
+        <name>Three Targets</name>
+        <prefix>Plan_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV3</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+    </order>
+    <order>
+        <name>Sequential Boost</name>
+        <prefix>Plan_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_High</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV_Low</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+        <prescription>
+            <roi>
+                <name>PTV_High</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+    </order>
+    <order>
+        <name>Two Sequential Boosts</name>
+        <prefix>Plan_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_High</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV_Mid</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV_Low</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+        <prescription>
+            <roi>
+                <name>PTV_High</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV_Mid</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+        <prescription>
+            <roi>
+                <name>PTV_High</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+    </order>
+    <goals>
+        <goalset>
+            <name>QUANTEC</name>
+            <priority>5</priority>
+        </goalset>
+    </goals>
+</protocol>
