@@ -233,13 +233,44 @@ def main():
         status.update_text(text='Parsing inputs...')
         
     machines = response['a']
-    mu = float(response['b'])
-    jaws = map(float, response['c'].split(','))
+    try:
+        mu = float(response['b'])
+
+    except ValueError:
+        mu = 100
+
+    try:
+        jaws = map(float, response['c'].split(','))
+
+    except ValueError:
+        jaws = []
+
     edws = response['d']
-    ssds = map(float, response['e'].split(','))
-    angles = map(float, response['f'].split(','))
-    densities = map(float, response['g'].split(','))
-    fields = map(float, response['h'].split(','))
+
+    try:
+        ssds = map(float, response['e'].split(','))
+
+    except ValueError:
+        ssds = []
+
+    try:
+        angles = map(float, response['f'].split(','))
+
+    except ValueError:
+        angles = []
+
+    try:
+        densities = map(float, response['g'].split(','))
+
+    except ValueError:
+        densities = []
+
+    try:
+        fields = map(float, response['h'].split(','))
+
+    except ValueError:
+        fields = []
+
     shapes = response['i']
     res = float(response['j'])/10
     if 'Calculate plan' in response['k']:
@@ -250,7 +281,12 @@ def main():
         logging.info('Calculation was disabled')
 
     host = response['l']
-    port = int(response['m'])
+    try:
+        port = int(response['m'])
+
+    except ValueError:
+        port = 104
+
     aet = response['n']
     try:
         delay = float(response['o'])

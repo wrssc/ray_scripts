@@ -10,7 +10,8 @@
     The following example illustrates this class:
 
     import UserInterface
-    dialog = UserInterface.InputDialog(inputs={'a': 'Enter a value: ', 'b': 'Select checkboxes:',
+    dialog = UserInterface.InputDialog(inputs={'a': 'Enter a value: ',
+                                               'b': 'Select checkboxes:',
                                                'c': 'Select combobox option:'},
                                        datatype={'b': 'check', 'c': 'combo'},
                                        initial={'a': '5', 'b': ['1'], 'c': 'C'},
@@ -105,7 +106,7 @@ class InputDialog:
             self.intro = System.Windows.Forms.Label()
             self.intro.Text = text
             self.intro.AutoSize = True
-            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 50,
+            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 55,
                                                          System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.intro.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             self.table.Controls.Add(self.intro)
@@ -121,7 +122,7 @@ class InputDialog:
             # Label
             self.labels[i] = System.Windows.Forms.Label()
             self.labels[i].Text = inputs[i]
-            self.labels[i].MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 50,
+            self.labels[i].MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 55,
                                                          System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.labels[i].AutoSize = True
             self.labels[i].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
@@ -147,7 +148,7 @@ class InputDialog:
             if self.datatype[i] == 'text':
                 self.inputs[i] = System.Windows.Forms.TextBox()
                 self.inputs[i].Height = 30
-                self.inputs[i].Width = self.form.MaximumSize.Width - 50
+                self.inputs[i].Width = self.form.MaximumSize.Width - 55
                 if i in initial:
                     self.inputs[i].Text = initial[i]
 
@@ -160,7 +161,7 @@ class InputDialog:
                 for o in self.options[i]:
                     self.inputs[i][o] = System.Windows.Forms.CheckBox()
                     self.inputs[i][o].Text = o
-                    self.inputs[i][o].Width = self.form.MaximumSize.Width - 70
+                    self.inputs[i][o].Width = self.form.MaximumSize.Width - 75
                     self.inputs[i][o].Margin = System.Windows.Forms.Padding(20, 0, 10, 0)
                     if i in initial and o in initial[i]:
                         self.inputs[i][o].Checked = True
@@ -171,7 +172,7 @@ class InputDialog:
             elif self.datatype[i] == 'combo':
                 self.inputs[i] = System.Windows.Forms.ComboBox()
                 self.inputs[i].Height = 30
-                self.inputs[i].Width = self.form.MaximumSize.Width - 50
+                self.inputs[i].Width = self.form.MaximumSize.Width - 60
                 self.inputs[i].Items.AddRange(options[i])
                 if i in initial and initial[i] in options[i]:
                     self.inputs[i].SelectedItem = initial[i]

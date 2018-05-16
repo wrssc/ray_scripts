@@ -38,8 +38,11 @@ import clr
 
 class ProgressBar:
 
-    def __init__(self, text='', title='Progress Bar', steps=10):
+    def __init__(self, text='', title='Progress Bar', steps=10, marquee=False):
         """bar = ProgressBar('text', 'title', steps)"""
+
+        # Store marquee status
+        self.marquee = marquee
 
         # Import packages and ;ink .NET assemblies
         clr.AddReference('System.Windows.Forms')
@@ -56,15 +59,21 @@ class ProgressBar:
 
         self.bar = System.Windows.Forms.ProgressBar()
         self.bar.Visible = True
-        self.bar.Minimum = 1
-        self.bar.Maximum = steps
-        self.bar.Value = 1
-        self.bar.Step = 1
-        self.bar.Width = self.form.Width - 50
+        if self.marquee:
+            self.bar.Style = System.Windows.Forms.ProgressBarStyle.Marquee
+            self.bar.MarqueeAnimationSpeed = 50
+
+        else:
+            self.bar.Minimum = 1
+            self.bar.Maximum = steps
+            self.bar.Value = 1
+            self.bar.Step = 1
+            self.bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
+
+        self.bar.Width = self.form.Width - 55
         self.bar.Height = 30
         self.bar.Left = 15
         self.bar.Top = 15
-        self.bar.Style = System.Windows.Forms.ProgressBarStyle.Continuous
         self.form.Controls.Add(self.bar)
 
         self.label = System.Windows.Forms.Label()
@@ -86,16 +95,20 @@ class ProgressBar:
         self.form.Dispose()
 
     def update(self, text=''):
+        """bar.update('new_text')"""
+
         import System
 
-        """bar.update('new_text')"""
-        if self.bar.Value == self.bar.Maximum:
-            self.bar.Maximum += 1
-        self.bar.PerformStep()
-        System.Windows.Forms.Application.DoEvents()
+        if not self.marquee:
+            if self.bar.Value == self.bar.Maximum:
+                self.bar.Maximum += 1
+            self.bar.PerformStep()
+
         if text != '':
             self.label.Text = text
             self.label.Update()
+
+        System.Windows.Forms.Application.DoEvents()
 
     def close(self):
         """bar.close()"""

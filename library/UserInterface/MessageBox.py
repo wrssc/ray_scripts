@@ -55,7 +55,7 @@ class WarningBox:
 class QuestionBox:
 
     def __init__(self, text, title='Question'):
-        """box = UserInterface.MessageBox('text', 'title')"""
+        """box = UserInterface.QuestionBox('text', 'title')"""
 
         # Link .NET assemblies
         clr.AddReference('System.Windows.Forms')
