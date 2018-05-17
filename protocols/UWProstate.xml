@@ -1,0 +1,234 @@
+<protocol>
+    <name>UW Prostate</name>
+    <ct>
+        <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
+        <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
+        <protocol institution="UWHC">XRT_PELVIS</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+        <icd version="10">C61</icd>
+    </diagnoses>
+    <prescription>
+        <fractions>28</fractions>
+        <frequency>Daily</frequency>
+        <imaging>Daily CBCT</imaging>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+    </prescription>
+    <order>
+        <name>Prostate Only</name>
+        <prefix>Pros_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">70</dose>
+            </roi>
+        </prescription>
+        <goals>
+             <roi>
+                <name>PTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <volume units="%">35</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <volume units="%">20</volume>
+                <dose units="Gy">50</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>Prostate with Nodes</name>
+        <prefix>Pros_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_High</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV_Mid</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <roi>
+                <name>PTV_Low</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_High</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_High">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_Mid</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_Mid">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_Low</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_Low">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <volume units="%">35</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">50</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BowelBag</name>
+                <type dir="lt">VX</type>
+                <volume units="cc">175</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>Prostate Fossa</name>
+        <prefix>Pros_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">70</dose>
+            </roi>
+        </prescription>
+        <goals>
+             <roi>
+                <name>PTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <volume units="%">35</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <volume units="%">40</volume>
+                <dose units="Gy">50</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BowelBag</name>
+                <type dir="lt">VX</type>
+                <volume units="cc">175</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <goals>
+        <roi>
+            <name>PenileBulb</name>
+            <type dir="lt">VX</type>
+            <volume units="%">50</volume>
+            <dose units="Gy">50</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>BowelBag</name>
+            <type dir="lt">VX</type>
+            <volume units="cc">175</volume>
+            <dose units="Gy">45</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Femur_R</name>
+            <type>Max</type>
+            <dose units="Gy">40</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Femur_L</name>
+            <type>Max</type>
+            <dose units="Gy">40</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Urethra</name>
+            <type>Max</type>
+            <dose units="%" roi="PTV">105</dose>
+            <volume units="cc">0.2</volume>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Skin</name>
+            <type dir="lt">VX</type>
+            <volume units="cc">1</volume>
+            <dose units="Gy">30</dose>
+            <priority>3</priority>
+        </roi>
+        <goalset>
+            <name>QUANTEC</name>
+            <priority>5</priority>
+        </goalset>
+    </goals>
+</protocol>

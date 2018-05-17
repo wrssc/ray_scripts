@@ -44,7 +44,7 @@ import re
 class MatchDialog:
 
     def __init__(self, inputs, options, text='', title='Match Values', initial=None, form=None, method='Levenshtein',
-                 regexp=None, threshold = 0.6):
+                 regexp=None, threshold=0.6):
         """dialog = UserInterface.MatchDialog(['a', 'b', 'c'], ['d', 'e', 'f'])"""
 
         # Link .NET assemblies
@@ -92,7 +92,7 @@ class MatchDialog:
             self.intro = System.Windows.Forms.Label()
             self.intro.Text = text
             self.intro.AutoSize = True
-            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 50,
+            self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 55,
                                                          System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.intro.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             self.outer_table.Controls.Add(self.intro)
@@ -214,7 +214,7 @@ class MatchDialog:
 
 
 def _levenshtein_match(item, arr):
-    """[match,dist]=_match(item,arr)"""
+    """[match,dist]=_levenshtein_match(item,arr)"""
 
     # Initialize return args
     dist = max(len(item), min(map(len, arr)))
