@@ -106,19 +106,19 @@ def main():
                         response['targets'][response['structures'][roi.Name]]['use']:
                     logging.debug('Structure {} renamed to {} and set to Target'.
                                   format(roi.Name, response['structures'][roi.Name]))
+                    changes += 1
                     roi.Name = response['structures'][roi.Name]
                     roi.OrganData.OrganType = 'Target'
                     roi.ExcludeFromExport = False
-                    changes += 1
 
                 elif response['structures'][roi.Name] in response['oars'].keys() and \
                         response['oars'][response['structures'][roi.Name]]['use']:
                     logging.debug('Structure {} renamed to {} and set to OAR'.
                                   format(roi.Name, response['structures'][roi.Name]))
+                    changes += 1
                     roi.Name = response['structures'][roi.Name]
                     roi.OrganData.OrganType = 'OrganAtRisk'
                     roi.ExcludeFromExport = False
-                    changes += 1
 
                 else:
                     logging.debug('Structure {} is not used, set to Other'.format(roi.Name))
@@ -128,9 +128,13 @@ def main():
 
             else:
                 logging.debug('Structure {} is not in TPO template, set to Other'.format(roi.Name))
-                roi.OrganData.OrganType = 'Other'
-                roi.ExcludeFromExport = True
                 changes += 1
+                roi.OrganData.OrganType = 'Other'
+                try:
+                    roi.ExcludeFromExport = True
+
+                except Exception:
+                    logging.warning('Exclude from export could not be set on structure {}'.format(roi.Name))
 
     # Prompt user to approve structures
     logging.debug('Prompting user to approve structure set')
