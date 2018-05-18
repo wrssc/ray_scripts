@@ -122,9 +122,13 @@ def main():
 
                 else:
                     logging.debug('Structure {} is not used, set to Other'.format(roi.Name))
-                    roi.OrganData.OrganType = 'Other'
-                    roi.ExcludeFromExport = True
                     changes += 1
+                    roi.OrganData.OrganType = 'Other'
+                    try:
+                        roi.ExcludeFromExport = True
+
+                    except Exception:
+                        logging.debug('Exclude flag could not be set on structure {}'.format(roi.Name))
 
             else:
                 logging.debug('Structure {} is not in TPO template, set to Other'.format(roi.Name))
