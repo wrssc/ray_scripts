@@ -134,7 +134,7 @@ def main():
                     roi.ExcludeFromExport = True
 
                 except Exception:
-                    logging.warning('Exclude from export could not be set on structure {}'.format(roi.Name))
+                    logging.debug('Exclude flag could not be set on structure {}'.format(roi.Name))
 
     # Prompt user to approve structures
     logging.debug('Prompting user to approve structure set')
