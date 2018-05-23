@@ -29,7 +29,7 @@ __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
 __version__ = '1.1.0'
 __license__ = 'GPLv3'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Import-and-Recalc-Plan-Dose'
+__help__ = 'https://github.com/wrssc/ray_scripts/wiki/Import-and-Recalc-Plan-Dose'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
