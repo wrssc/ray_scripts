@@ -384,12 +384,8 @@ def send(case,
                     else:
                         ref.add_new(0x300a0016, 'LO', 'Target')
 
-                    if 'BeamDoseSpecificationPoint' in ds.FractionGroupSequence[0].ReferencedBeamSequence[0]:
-                        ref.add_new(0x300a0018, 'DS',
-                                    ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint)
-
-                    else:
-                        ref.add_new(0x300a0018, 'DS', [0, 0, 0])
+                    # Set location to 0,0,0
+                    ref.add_new(0x300a0018, 'DS', [0, 0, 0])
 
                     ref.add_new(0x300a0020, 'CS', 'ORGAN_AT_RISK')
                     ref.add_new(0x300a0023, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
