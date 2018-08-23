@@ -50,7 +50,7 @@ __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 
-def main CreateTemplateBeamSets():
+def main:
 
     # Import packages
     import connect 
