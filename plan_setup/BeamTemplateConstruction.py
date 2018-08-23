@@ -142,3 +142,6 @@ def main():
             RaiseError = "Unable to load Beam: %s" % beam.BeamName
             raise IOError(RaiseError)
     patient.Save()
+
+if __name__ == '__main__':
+    main()
