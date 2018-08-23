@@ -1,0 +1,30 @@
+﻿PlanName,BeamSetName,TemplateName,TreatmentTechnique,PatientPosition,BeamName,BeamDescription,GantryStart,GantryStop,ArcDirection,CollimatorAngle,CouchAngle
+HFP Beam Template,VMA_AbdPel_Ce_2A,AbdPelv Central 2Arc,VMAT,HeadFirstProne,1_<SITE>_Arc_c000,1 VMA: CW Arc,192,168,Clockwise,15,0
+HFP Beam Template,VMA_AbdPel_Ce_2A,AbdPelv Central 2Arc,VMAT,HeadFirstProne,2_<SITE>_Arc_c000,2 VMA: CCW Arc,163,187,CounterClockwise,355,0
+HFP Beam Template,VMA_AbdPel_Ce_3A,AbdPelv Central 3Arc,VMAT,HeadFirstProne,1_<SITE>_Arc_c000,1 VMA: CW Arc,192,168,Clockwise,15,0
+HFP Beam Template,VMA_AbdPel_Ce_3A,AbdPelv Central 3Arc,VMAT,HeadFirstProne,2_<SITE>_Arc_c000,2 VMA: CCW Arc,163,187,CounterClockwise,355,0
+HFP Beam Template,VMA_AbdPel_Ce_3A,AbdPelv Central 3Arc,VMAT,HeadFirstProne,3_<SITE>_Arc_c000,3 VMA: CW Arc,192,168,Clockwise,270,0
+HFP Beam Template,VMA_AbdLun_Lt_2A,LungAbd Left 2Arc,VMAT,HeadFirstProne,1_<SITE>_Arc_c000,1 VMA: CW Arc,346,178,Clockwise,15,0
+HFP Beam Template,VMA_AbdLun_Lt_2A,LungAbd Left 2Arc,VMAT,HeadFirstProne,2_<SITE>_Arc_c000,2 VMA: CCW Arc,173,341,CounterClockwise,350,0
+HFP Beam Template,VMA_AbdLun_Lt_4A,LungAbd Left NORPM 4Arc ,VMAT,HeadFirstProne,1_<SITE>_Arc_c000,1 VMA: CW Arc,346,178,Clockwise,15,0
+HFP Beam Template,VMA_AbdLun_Lt_4A,LungAbd Left NORPM 4Arc ,VMAT,HeadFirstProne,2_<SITE>_Arc_c000,2 VMA: CCW Arc,173,341,CounterClockwise,355,0
+HFP Beam Template,VMA_AbdLun_Lt_4A,LungAbd Left NORPM 4Arc ,VMAT,HeadFirstProne,3_<SITE>_Arc_c015,3 VMA: CW Arc,344,80,Clockwise,10,15
+HFP Beam Template,VMA_AbdLun_Lt_4A,LungAbd Left NORPM 4Arc ,VMAT,HeadFirstProne,4_<SITE>_Arc_c090,4 VMA: CCW Arc,21,333,CounterClockwise,90,90
+HFP Beam Template,VMA_AbdLun_Rt_2A,LungAbd Right 2Arc,VMAT,HeadFirstProne,1_<SITE>_Arc_c000,1 VMA: CW Arc,182,14,Clockwise,15,0
+HFP Beam Template,VMA_AbdLun_Rt_2A,LungAbd Right 2Arc,VMAT,HeadFirstProne,2_<SITE>_Arc_c000,2 VMA: CCW Arc,19,187,CounterClockwise,355,0
+HFP Beam Template,VMA_AbdLun_Rt_4A,LungAbd Right NORPM 4Arc,VMAT,HeadFirstProne,1_<SITE>_Arc_c000,1 VMA: CW Arc,182,14,Clockwise,15,0
+HFP Beam Template,VMA_AbdLun_Rt_4A,LungAbd Right NORPM 4Arc,VMAT,HeadFirstProne,2_<SITE>_Arc_c000,2 VMA: CCW Arc,19,187,CounterClockwise,355,0
+HFP Beam Template,VMA_AbdLun_Rt_4A,LungAbd Right NORPM 4Arc,VMAT,HeadFirstProne,3_<SITE>_Arc_c345,3 VMA: CW Arc,282,18,Clockwise,10,345
+HFP Beam Template,VMA_AbdLun_Rt_4A,LungAbd Right NORPM 4Arc,VMAT,HeadFirstProne,4_<SITE>_Arc_c270,4 VMA: CCW Arc,21,333,CounterClockwise,90,270
+HFP Beam Template,3D_HFP_2F_APPA,2Fields (Anterior and Posterior),Conformal,HeadFirstProne,1_<SITE>_AP,1 3DC: MLC Static Field,180,NA,NA,0,0
+HFP Beam Template,3D_HFP_2F_APPA,2Fields (Anterior and Posterior),Conformal,HeadFirstProne,2_<SITE>_PA,2 3DC: MLC Static Field,0,NA,NA,0,0
+HFP Beam Template,3D_HFP_3F_Obl,3Fields (Anterior and PosteriorObliques),Conformal,HeadFirstProne,1_<SITE>_AP,1 3DC: MLC Static Field,180,NA,NA,0,0
+HFP Beam Template,3D_HFP_3F_Obl,3Fields (Anterior and PosteriorObliques),Conformal,HeadFirstProne,2_<SITE>_RPO,2 3DC: MLC Static Field,150,NA,NA,90,0
+HFP Beam Template,3D_HFP_3F_Obl,3Fields (Anterior and PosteriorObliques),Conformal,HeadFirstProne,3_<SITE>_LPO,3 3DC: MLC Static Field,210,NA,NA,90,0
+HFP Beam Template,3D_HFP_3F_Post,3Fields (Posterior and Right/Left Laterals),Conformal,HeadFirstProne,1_<SITE>_RLAT,1 3DC: MLC Static Field,90,NA,NA,90,0
+HFP Beam Template,3D_HFP_3F_Post,3Fields (Posterior and Right/Left Laterals),Conformal,HeadFirstProne,2_<SITE>_LLAT,2 3DC: MLC Static Field,270,NA,NA,90,0
+HFP Beam Template,3D_HFP_3F_Post,3Fields (Posterior and Right/Left Laterals),Conformal,HeadFirstProne,3_<SITE>_PA,3 3DC: MLC Static Field,0,NA,NA,0,0
+HFP Beam Template,3D_HFP_4F,4Fields (Anterior/Posterior and Right/Left Laterals),Conformal,HeadFirstProne,1_<SITE>_RLAT,1 3DC: MLC Static Field,90,NA,NA,90,0
+HFP Beam Template,3D_HFP_4F,4Fields (Anterior/Posterior and Right/Left Laterals),Conformal,HeadFirstProne,2_<SITE>_AP,2 3DC: MLC Static Field,180,NA,NA,0,0
+HFP Beam Template,3D_HFP_4F,4Fields (Anterior/Posterior and Right/Left Laterals),Conformal,HeadFirstProne,3_<SITE>_LLAT,3 3DC: MLC Static Field,270,NA,NA,90,0
+HFP Beam Template,3D_HFP_4F,4Fields (Anterior/Posterior and Right/Left Laterals),Conformal,HeadFirstProne,4_<SITE>_PA,4 3DC: MLC Static Field,0,NA,NA,0,0
