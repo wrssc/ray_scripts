@@ -1,6 +1,7 @@
 <protocol>
     <goal>
-        <name>PTV</name>
+        <roi>
+            <name>PTV</name>
             <type>Max</type>
             <volume units="cc">1</volume>
             <dose units="%" roi="PTV">110</dose>
