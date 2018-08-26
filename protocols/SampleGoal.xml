@@ -1,5 +1,5 @@
 <protocol>
-    <goal>
+    <goals>
         <roi>
             <name>PTV</name>
             <type>Max</type>
@@ -225,9 +225,5 @@
             <dose units="Gy">66</dose>
             <priority>1</priority>
         </roi>
-        <goalset>
-            <name>QUANTEC</name>
-            <priority>5</priority>
-        </goalset>
     </goals>
 </protocol>
