@@ -8,11 +8,11 @@ import xml.etree.ElementTree
 import connect
 import Goals
 
-protocol_folder = r'../protocols/'
+protocol_folder = r'..\protocols\'
 protocol_file = r'SampleGoal.xml'
-protocol_path = os.path.join(os.path.dirname(__file__), protocol_folder+protocol_file)
+protocol_fullpath = os.path.join(os.path.dirname(__file__), protocol_folder+protocol_file)
 
-tree = xml.etree.ElementTree.parse(protocol_path+protocol_file)
+tree = xml.etree.ElementTree.parse(protocol_fullpath)
 for g in tree.findall('//goals/roi'):
     print 'Adding goal ' + Goals.print_goal(g, 'xml')
     Goals.add_goal(g, connect.get_current('Plan'))
