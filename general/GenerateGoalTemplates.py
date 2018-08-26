@@ -9,7 +9,7 @@ import os
 
 protocol_folder = r'../protocols'
 protocol_file = 'SampleGoal.xml'
-protocol_path = os.path.join(os.path.dirname(__file__), protocol_folder))
+protocol_path = os.path.join(os.path.dirname(__file__), protocol_folder)
 
 tree = xml.etree.ElementTree.parse(protocol_path+protocol_file)
 for g in tree.findall('//goals/roi'):
