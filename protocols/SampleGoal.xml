@@ -1,3 +1,4 @@
+<protocol>
     <goal>
         <name>PTV</name>
             <type>Max</type>
@@ -228,3 +229,4 @@
             <priority>5</priority>
         </goalset>
     </goals>
+</protocol>
