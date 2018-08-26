@@ -5,11 +5,13 @@ standard TPO's
 import xml.etree.ElementTree
 import connect
 import Goals
+import os
 
 protocol_folder = r'../protocols'
-protocol_file = protocol_folder+'SampleGoal.xml'
-#os.path.join(os.path.dirname(__file__), protocol_folder))
-tree = xml.etree.ElementTree.parse(protocol_file)
+protocol_file = 'SampleGoal.xml'
+protocol_path = os.path.join(os.path.dirname(__file__), protocol_folder))
+
+tree = xml.etree.ElementTree.parse(protocol_path+protocol_file)
 for g in tree.findall('//goals/roi'):
     print 'Adding goal ' + Goals.print_goal(g, 'xml')
     Goals.add_goal(g, connect.get_current('Plan'))
