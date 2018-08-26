@@ -1,5 +1,55 @@
 <protocol>
+    <name>UW Lung Conventional</name>
+    <ct>
+        <protocol institution="UWHC">XRT_CHEST</protocol>
+        <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>
+        <protocol institution="UWHC">XRT_4D_CHEST</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+    </diagnoses>
+    <prescription>
+        <roi>
+            <name>PTV</name>
+            <type>DX</type>
+            <volume units="%">95</volume>
+            <dose units="Gy" idl="100">60</dose>
+        </roi>
+        <fractions>30</fractions>
+        <frequency>Daily</frequency>
+        <frequency>Twice daily</frequency>
+        <imaging>Daily CBCT</imaging>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        <technique modality="Photons" technique="VMAT" code="3DC" machine="TrueBeam">3DCRT</technique>
+    </prescription>
+    <order>
+        <name>Left Lung</name>
+        <prefix>LunL_</prefix>
+    </order>
+    <order>
+        <name>Right Lung</name>
+        <prefix>LunR_</prefix>
+    </order>
+    <order>
+        <name>Bilateral Lung</name>
+        <prefix>LunB_</prefix>
+    </order>
+    <order>
+        <name>Mediastinum</name>
+        <prefix>Medi_</prefix>
+    </order>
     <goals>
+        <roi>
+            <name>PTV</name>
+            <type dir="ge">DX</type>
+            <volume units="%">95</volume>
+            <dose units="%" roi="PTV">100</dose>
+            <priority>2</priority>
+        </roi>
         <roi>
             <name>PTV</name>
             <type>Max</type>
@@ -225,5 +275,9 @@
             <dose units="Gy">66</dose>
             <priority>1</priority>
         </roi>
+        <goalset>
+            <name>QUANTEC</name>
+            <priority>5</priority>
+        </goalset>
     </goals>
 </protocol>
