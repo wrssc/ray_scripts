@@ -84,7 +84,7 @@ def main():
         common = UserInterface.CommonDialog()
         path = common.folder_browser('Select a folder containing the beam template .csv file')
         filename = common.open_file('Select the beam template csv')
-    elif:
+    else:
         protocol = r'../protocols/UW_HFS_BeamTemplates.csv'
         filename = os.path.join.(os.path.dirname(__file__), protocol)
 
