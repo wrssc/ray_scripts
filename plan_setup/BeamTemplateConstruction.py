@@ -115,7 +115,7 @@ def main():
                 raise IOError(RaiseError)
         if beam.BeamSetName != currentbeamset:
             try: 
-                if beam.TreatmentTechnique == 'VMAT':
+                if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
@@ -159,13 +159,22 @@ def main():
         # Create a new arc beam - note this will need to be changed for accepting 3D plans types.
         try:
             if beam.TreatmentTechnique == 'VMAT':
-                beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop, ArcRotationDirection=beam.ArcDirection,
-                                      Energy=6, IsocenterData=IsoParams, Name=beam.BeamName, Description=beam.BeamDescription,
-                                      GantryAngle=beam.GantryStart, CouchAngle=beam.CouchAngle,
+                beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
+                                      ArcRotationDirection=beam.ArcDirection,
+                                      Energy=6,
+                                      IsocenterData=IsoParams,
+                                      Name=beam.BeamName,
+                                      Description=beam.BeamDescription,
+                                      GantryAngle=beam.GantryStart,
+                                      CouchAngle=beam.CouchAngle,
                                       CollimatorAngle=beam.CollimatorAngle)
             elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
-                beamset.CreatePhotonBeam(Energy = 6, IsocenterData=IsoParams, Name=beam.BeamName,Description=beam.BeamDescription,
-                                         GantryAngle=beam.GantryStart, CouchAngle=beam.CouchAngle,
+                beamset.CreatePhotonBeam(Energy = 6,
+                                         IsocenterData=IsoParams,
+                                         Name=beam.BeamName,
+                                         Description=beam.BeamDescription,
+                                         GantryAngle=beam.GantryStart,
+                                         CouchAngle=beam.CouchAngle,
                                          CollimatorAngle=beam.CollimatorAngle)
         except SystemError:
             RaiseError = "Unable to load Beam: %s" % beam.BeamName
