@@ -197,7 +197,7 @@ def main():
                         IndexNotFound = True
                         OptIndex += 1
                 with CompositeAction('Set Conformal Arc Beam'):
-                    beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
+                    retval_0 = beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
                                       ArcRotationDirection=beam.ArcDirection,
                                       Energy=6,
                                       IsocenterData=IsoParams,
@@ -207,6 +207,7 @@ def main():
                                       CouchAngle=beam.CouchAngle,
                                       CollimatorAngle=beam.CollimatorAngle,
                                       PlanGenerationTechnique = 'Conformal')
+                    retval_0.SetBolus(BolusName="")
                     plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].BeamSettings[
                         BeamIndex].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(ConformalArcStyle=False,
                                                                                                CreateDualArcs=False,
