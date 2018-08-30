@@ -77,12 +77,12 @@ def main():
     except SystemError:
          raise IOError("No Examination loaded. Load patient case and plan.")
 
-    loadscriptfromfile = False
+    load_script_from_file = False
 
-    if loadscriptfromfile == True:
+    if load_script_from_file:
         # Open the folder_browser method from the CommonDialog class and prompt the user to select the csv
         common = UserInterface.CommonDialog()
-        path = common.folder_browser('Select a folder containing the beam template .csv file')
+        #path = common.folder_browser('Select a folder containing the beam template .csv file')
         filename = common.open_file('Select the beam template csv')
     else:
         protocol = r'../protocols/UW_HFS_BeamTemplates.csv'
