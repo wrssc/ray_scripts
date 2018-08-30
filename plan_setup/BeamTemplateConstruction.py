@@ -199,6 +199,32 @@ def main():
                                          CollimatorAngle=beam.CollimatorAngle)
                 BeamIndex += 1
             elif beam.TreatmentTechnique == 'ConformalArc':
+                patient.Save()
+                connect.beamset.SetCurrent()
+                with CompositeAction('Add beam (texp, Beam Set: VMA_ConArc_Full)'):
+
+                    retval_0 = beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
+                                                     ArcRotationDirection=beam.ArcDirection,
+                                                     Energy=6,
+                                                     IsocenterData=IsoParams,
+                                                     Name=beam.BeamName,
+                                                     Description=beam.BeamDescription,
+                                                     GantryAngle=beam.GantryStart,
+                                                     CouchAngle=beam.CouchAngle,
+                                                     CollimatorAngle=beam.CollimatorAngle)
+
+                    retval_0.SetBolus(BolusName="")
+
+                    # Unscriptable Action 'Change context' Completed : SetContextToArcConversionPropertiesPerBeamAction(...)
+
+                    plan.PlanOptimizations[0].OptimizationParameters.TreatmentSetupSettings[0].BeamSettings[
+                        0].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(ConformalArcStyle=False,
+                                                                                               CreateDualArcs=False,
+                                                                                               FinalGantrySpacing=2,
+                                                                                               MaxArcDeliveryTime=0,
+                                                                                               BurstGantrySpacing=None,
+                                                                                               MaxArcMU=None)
+
                 # Find current Beamset Number and determine plan optimization
                 BeamSetName = beamset.DicomPlanLabel
                 #OptIndex = 0
@@ -216,16 +242,16 @@ def main():
                 #        IndexNotFound = True
                 #        OptIndex += 1
                 #with CompositeAction('Set Conformal Arc Beam'):
-                beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
-                                      ArcRotationDirection=beam.ArcDirection,
-                                      Energy=6,
-                                      IsocenterData=IsoParams,
-                                      Name=beam.BeamName,
-                                      Description=beam.BeamDescription,
-                                      GantryAngle=beam.GantryStart,
-                                      CouchAngle=beam.CouchAngle,
-                                      CollimatorAngle=beam.CollimatorAngle,
-                                      PlanGenerationTechnique = 'Conformal')
+                # beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
+                #                       ArcRotationDirection=beam.ArcDirection,
+                #                       Energy=6,
+                #                       IsocenterData=IsoParams,
+                #                       Name=beam.BeamName,
+                #                       Description=beam.BeamDescription,
+                #                       GantryAngle=beam.GantryStart,
+                #                       CouchAngle=beam.CouchAngle,
+                #                       CollimatorAngle=beam.CollimatorAngle,
+                #                       PlanGenerationTechnique = 'Conformal')
                 #    retval_0.SetBolus(BolusName="")
                 #    plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].BeamSettings[
                 #        BeamIndex].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(ConformalArcStyle=False,
