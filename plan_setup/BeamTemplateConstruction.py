@@ -158,7 +158,7 @@ def main():
                 raise IOError("No plan or beamset managed to load.")
         # Create a new arc beam - note this will need to be changed for accepting 3D plans types.
         try:
-            if beam.TreatmentTechnique == 'VMAT':
+            if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
                 beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
                                       ArcRotationDirection=beam.ArcDirection,
                                       Energy=6,
