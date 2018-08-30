@@ -154,6 +154,7 @@ def main():
                 IsoParams['Name'] = "iso_"+beam.BeamSetName
                 IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
                 currentbeamset = beam.BeamSetName
+                BeamIndex = 0
             except SystemError:
                 raise IOError("No plan or beamset managed to load.")
         # Create a new arc beam - note this will need to be changed for accepting 3D plans types.
@@ -168,6 +169,7 @@ def main():
                                       GantryAngle=beam.GantryStart,
                                       CouchAngle=beam.CouchAngle,
                                       CollimatorAngle=beam.CollimatorAngle)
+                BeamIndex += 1
             elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
                 beamset.CreatePhotonBeam(Energy = 6,
                                          IsocenterData=IsoParams,
@@ -176,25 +178,26 @@ def main():
                                          GantryAngle=beam.GantryStart,
                                          CouchAngle=beam.CouchAngle,
                                          CollimatorAngle=beam.CollimatorAngle)
+                BeamIndex += 1
             elif beam.TreatmentTechnique == 'ConformalArc':
                 # Find current Beamset Number and determine plan optimization
                 BeamSetName = beamset.DicomPlanLabel
-                #OptIndex = 0
-                #IndexNotFound = True
+                OptIndex = 0
+                IndexNotFound = True
                 # In RS, OptimizedBeamSets objects are keyed using the DicomPlanLabel, or Beam Set name.
                 # Because the key to the OptimizedBeamSets presupposes the user knows the PlanOptimizations index
                 # this while loop looks for the PlanOptimizations index needed below by searching for a key
                 # that matches the BeamSet DicomPlanLabel
-                #while IndexNotFound:
-                #    try:
-               #         OptName = plan.PlanOptimizations[OptIndex].OptimizedBeamSets[
-                #            beamset.DicomPlanLabel].DicomPlanLabel
-                #        IndexNotFound = False
-                #    except SystemError:
-                #        IndexNotFound = True
-                #        OptIndex += 1
-                #with CompositeAction('Set Conformal Arc Beam'):
-                beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
+                while IndexNotFound:
+                    try:
+                        OptName = plan.PlanOptimizations[OptIndex].OptimizedBeamSets[
+                            beamset.DicomPlanLabel].DicomPlanLabel
+                        IndexNotFound = False
+                    except SystemError:
+                        IndexNotFound = True
+                        OptIndex += 1
+                with CompositeAction('Set Conformal Arc Beam'):
+                    beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
                                       ArcRotationDirection=beam.ArcDirection,
                                       Energy=6,
                                       IsocenterData=IsoParams,
@@ -204,6 +207,15 @@ def main():
                                       CouchAngle=beam.CouchAngle,
                                       CollimatorAngle=beam.CollimatorAngle,
                                       PlanGenerationTechnique = 'Conformal')
+                    plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].BeamSettings[
+                        BeamIndex].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(ConformalArcStyle=False,
+                                                                                               CreateDualArcs=False,
+                                                                                               FinalGantrySpacing=2,
+                                                                                               MaxArcDeliveryTime=0,
+                                                                                               BurstGantrySpacing=None,
+                                                                                               MaxArcMU=None)
+
+                BeamIndex += 1
         except SystemError:
             RaiseError = "Unable to load Beam: %s" % beam.BeamName
             raise IOError(RaiseError)
