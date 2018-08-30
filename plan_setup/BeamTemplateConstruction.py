@@ -203,9 +203,10 @@ def main():
                 connect.beamset.SetCurrent()
                 with CompositeAction('Add beam (texp, Beam Set: VMA_ConArc_Full)'):
 
-                    case = get_current("Case")
-                    plan = get_current("Plan")
-                    beam_set = get_current("BeamSet")
+                    case = connect.get_current("Case")
+                    plan = connect.get_current("Plan")
+                    beam_set = connect.get_current("BeamSet")
+                    print case, plan, beam_set
                     retval_0 = beam_set.CreateArcBeam(ArcStopGantryAngle=178, ArcRotationDirection="Clockwise",
                                                       Energy=6, IsocenterData={
                             'Position': {'x': 0, 'y': -24.95, 'z': 0.550000000000004}, 'NameOfIsocenterToRef': "",
