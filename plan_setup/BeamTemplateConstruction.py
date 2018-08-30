@@ -104,8 +104,11 @@ def main():
     for beam in beams:
         if beam.PlanName != currentplan:
             try: 
-                plan = case.AddNewPlan(PlanName=beam.PlanName, PlannedBy="", Comment="",
-                                       ExaminationName=examination.Name, AllowDuplicateNames=False)
+                plan = case.AddNewPlan(PlanName=beam.PlanName,
+                                       PlannedBy="",
+                                       Comment="",
+                                       ExaminationName=examination.Name,
+                                       AllowDuplicateNames=False)
                 currentplan = beam.PlanName
             except SystemError:
                 RaiseError = "Unable to load Plan: %s" % beam.PlanName
@@ -113,21 +116,39 @@ def main():
         if beam.BeamSetName != currentbeamset:
             try: 
                 if beam.TreatmentTechnique == 'VMAT':
-                    beamset = plan.AddNewBeamSet(Name=beam.BeamSetName, ExaminationName=examination.Name,
-                                                 MachineName="TrueBeam", Modality="Photons", TreatmentTechnique=beam.TreatmentTechnique,
-                                                 PatientPosition=beam.PatientPosition, NumberOfFractions=999, CreateSetupBeams=False,
-                                                 UseLocalizationPointAsSetupIsocenter=False, Comment=beam.TemplateName,
-                                                 RbeModelReference=None, EnableDynamicTrackingForVero=False,
-                                                 NewDoseSpecificationPointNames=[], NewDoseSpecificationPoints=[],
-                                                 RespiratoryMotionCompensationTechnique="Disabled", RespiratorySignalSource="Disabled")
+                    beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
+                                                 ExaminationName=examination.Name,
+                                                 MachineName="TrueBeam",
+                                                 Modality="Photons",
+                                                 TreatmentTechnique=beam.TreatmentTechnique,
+                                                 PatientPosition=beam.PatientPosition,
+                                                 NumberOfFractions=999,
+                                                 CreateSetupBeams=False,
+                                                 UseLocalizationPointAsSetupIsocenter=False,
+                                                 Comment=beam.TemplateName,
+                                                 RbeModelReference=None,
+                                                 EnableDynamicTrackingForVero=False,
+                                                 NewDoseSpecificationPointNames=[],
+                                                 NewDoseSpecificationPoints=[],
+                                                 RespiratoryMotionCompensationTechnique="Disabled",
+                                                 RespiratorySignalSource="Disabled")
                 elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
-                    beamset = plan.AddNewBeamSet(Name=beam.BeamSetName, ExaminationName=examination.Name,
-                                                 MachineName="TrueBeam", Modality="Photons", TreatmentTechnique=beam.TreatmentTechnique,
-                                                 PatientPosition=beam.PatientPosition, NumberOfFractions=999, CreateSetupBeams=False,
-                                                 UseLocalizationPointAsSetupIsocenter=False, Comment=beam.TemplateName,
-                                                 RbeModelReference=None, EnableDynamicTrackingForVero=False,
-                                                 NewDoseSpecificationPointNames=[], NewDoseSpecificationPoints=[],
-                                                 RespiratoryMotionCompensationTechnique="Disabled", RespiratorySignalSource="Disabled")
+                    beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
+                                                 ExaminationName=examination.Name,
+                                                 MachineName="TrueBeam",
+                                                 Modality="Photons",
+                                                 TreatmentTechnique=beam.TreatmentTechnique,
+                                                 PatientPosition=beam.PatientPosition,
+                                                 NumberOfFractions=999,
+                                                 CreateSetupBeams=False,
+                                                 UseLocalizationPointAsSetupIsocenter=False,
+                                                 Comment=beam.TemplateName,
+                                                 RbeModelReference=None,
+                                                 EnableDynamicTrackingForVero=False,
+                                                 NewDoseSpecificationPointNames=[],
+                                                 NewDoseSpecificationPoints=[],
+                                                 RespiratoryMotionCompensationTechnique="Disabled",
+                                                 RespiratorySignalSource="Disabled")
                 # Set an rather arbritrary isocenter position
                 IsoParams = beamset.CreateDefaultIsocenterData(Position = IsoPosition)
                 IsoParams['Name'] = "iso_"+beam.BeamSetName
