@@ -77,9 +77,9 @@ def main():
     except SystemError:
          raise IOError("No Examination loaded. Load patient case and plan.")
 
-    loadscriptfromfile = FALSE
+    loadscriptfromfile = False
 
-    if loadscriptfromfile:
+    if loadscriptfromfile == True:
         # Open the folder_browser method from the CommonDialog class and prompt the user to select the csv
         common = UserInterface.CommonDialog()
         path = common.folder_browser('Select a folder containing the beam template .csv file')
