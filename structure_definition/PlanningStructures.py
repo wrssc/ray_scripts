@@ -1,11 +1,37 @@
-''' Create Planning Structures
+""" Generate Planning Structures
 
-   RayStation version: 7.0.0.19
-   Selected patient: ...
-   '''
+    Raystation script to make structures used for planning.
+    Note:
+
+    Inputs:
+
+    Usage:
+
+
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+from pickle import FALSE
+
+__author__ = 'Adam Bayliss'
+__contact__ = 'rabayliss@wisc.edu'
+__version__ = '1.0.0'
+__license__ = 'GPLv3'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
+__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+
 
 import connect
 import logging
+import UserInterface
 
 
 def MakeBooleanStructure(patient, case, examination, **kwargs):
@@ -74,6 +100,15 @@ def main():
         examination = connect.get_current("Examination")
     except:
         logging.warning("Aww crap, No patient")
+
+    dialog = UserInterface.InputDialog(inputs={'SkinContraction': 'Enter Skin Contraction',
+                                               'a': 'Enter a value: ',
+                                               'b': 'Select checkboxes:',
+                                               'c': 'Select combobox option:'},
+                                       datatype={'b': 'check', 'c': 'combo'},
+                                       initial={'a': '5', 'b': ['1'], 'c': 'C'},
+                                       options={'b': ['1', '2'], 'c': ['A', 'B', 'C']},
+                                       required=['a', 'b', 'c'])
     # Temp list of sources: replace with UI user prompt
     SourceList = ["PTV_72", "PTV_70", "PTV_64", "PTV_60", "PTV_54"]
     # List of PTVs to be used

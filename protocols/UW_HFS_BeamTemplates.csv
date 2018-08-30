@@ -1,4 +1,5 @@
-﻿HFS BeamTemplate,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,1_Brai_RPO,1 SNS: PRDR,240,NA,NA,15,0
+﻿PlanName,BeamSetName,TemplateName,TreatmentTechnique,PatientPosition,BeamName,BeamDescription,GantryStart,GantryStop,ArcDirection,CollimatorAngle,CouchAngle)
+HFS BeamTemplate,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,1_Brai_RPO,1 SNS: PRDR,240,NA,NA,15,0
 HFS BeamTemplate,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,2_Brai_RLAT,2 SNS: PRDR,270,NA,NA,350,0
 HFS BeamTemplate,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,3_Brai_RAO,3 SNS: PRDR,300,NA,NA,355,0
 HFS BeamTemplate,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,4_Brai_LAO,4 SNS: PRDR,60,NA,NA,25,0
