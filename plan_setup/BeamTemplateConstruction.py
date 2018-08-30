@@ -166,8 +166,7 @@ def main():
                                                  NewDoseSpecificationPoints=[],
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
-                    patient.Save()
-                    connect.beamset.SetCurrent()
+                    print beamset.DeliveryTechnique
                 # Set an rather arbritrary isocenter position
                 IsoParams = beamset.CreateDefaultIsocenterData(Position = IsoPosition)
                 IsoParams['Name'] = "iso_"+beam.BeamSetName
