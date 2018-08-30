@@ -85,7 +85,7 @@ def main():
         #path = common.folder_browser('Select a folder containing the beam template .csv file')
         filename = common.open_file('Select the beam template csv')
     else:
-        protocol = r'../protocols/UW_HFS_BeamTemplates.csv'
+        protocol = r'../protocols/FakeTemplate.csv'
         filename = os.path.join(os.path.dirname(__file__), protocol)
 
     # The container for each line of the csv is the Row class listed below
