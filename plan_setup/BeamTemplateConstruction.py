@@ -158,7 +158,7 @@ def main():
                 raise IOError("No plan or beamset managed to load.")
         # Create a new arc beam - note this will need to be changed for accepting 3D plans types.
         try:
-            if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
+            if beam.TreatmentTechnique == 'VMAT':
                 beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
                                       ArcRotationDirection=beam.ArcDirection,
                                       Energy=6,
@@ -176,6 +176,34 @@ def main():
                                          GantryAngle=beam.GantryStart,
                                          CouchAngle=beam.CouchAngle,
                                          CollimatorAngle=beam.CollimatorAngle)
+            elif beam.TreatmentTechnique == 'ConformalArc':
+                # Find current Beamset Number and determine plan optimization
+                BeamSetName = beamset.DicomPlanLabel
+                OptIndex = 0
+                IndexNotFound = True
+                # In RS, OptimizedBeamSets objects are keyed using the DicomPlanLabel, or Beam Set name.
+                # Because the key to the OptimizedBeamSets presupposes the user knows the PlanOptimizations index
+                # this while loop looks for the PlanOptimizations index needed below by searching for a key
+                # that matches the BeamSet DicomPlanLabel
+                while IndexNotFound:
+                    try:
+                        OptName = plan.PlanOptimizations[OptIndex].OptimizedBeamSets[
+                            beamset.DicomPlanLabel].DicomPlanLabel
+                        IndexNotFound = False
+                    except SystemError:
+                        IndexNotFound = True
+                        OptIndex += 1
+                with CompositeAction('Set Conformal Arc Beam'):
+                    beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
+                                          ArcRotationDirection=beam.ArcDirection,
+                                          Energy=6,
+                                          IsocenterData=IsoParams,
+                                          Name=beam.BeamName,
+                                          Description=beam.BeamDescription,
+                                          GantryAngle=beam.GantryStart,
+                                          CouchAngle=beam.CouchAngle,
+                                          CollimatorAngle=beam.CollimatorAngle,
+                                          PlanGenerationTechnique = 'Conformal')
         except SystemError:
             RaiseError = "Unable to load Beam: %s" % beam.BeamName
             raise IOError(RaiseError)
