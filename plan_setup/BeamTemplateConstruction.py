@@ -41,7 +41,6 @@
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from pickle import FALSE
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
@@ -85,7 +84,7 @@ def main():
         #path = common.folder_browser('Select a folder containing the beam template .csv file')
         filename = common.open_file('Select the beam template csv')
     else:
-        protocol = r'../protocols/FakeTemplate.csv'
+        protocol = r'../protocols/UW_HFS_BeamTemplates.csv'
         filename = os.path.join(os.path.dirname(__file__), protocol)
 
     # The container for each line of the csv is the Row class listed below
