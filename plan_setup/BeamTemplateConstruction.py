@@ -108,12 +108,16 @@ def main():
     currentplan = ""
     currentbeamset = ""
     for beam in beams:
-        print "Beamset:{0}, TreatmentTech:{1}, currentplan:{2}".format(
+        print "1: Beamset: {0}, TreatmentTech: {1}, currentplan: {2}".format(
             beam.BeamSetName,
             beam.TreatmentTechnique,
             currentplan)
         if beam.PlanName != currentplan:
-            try: 
+            try:
+                print "2: Beamset: {0}, TreatmentTech: {1}, currentplan: {2}".format(
+                    beam.BeamSetName,
+                    beam.TreatmentTechnique,
+                    currentplan)
                 plan = case.AddNewPlan(PlanName=beam.PlanName,
                                        PlannedBy="",
                                        Comment="",
@@ -126,6 +130,10 @@ def main():
         if beam.BeamSetName != currentbeamset:
             try: 
                 if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
+                    print "3: Beamset: {0}, TreatmentTech: {1}, currentplan: {2}".format(
+                        beam.BeamSetName,
+                        beam.TreatmentTechnique,
+                        currentplan)
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
@@ -146,6 +154,10 @@ def main():
                                                  RespiratorySignalSource="Disabled")
                     currentbeamset = beam.BeamSetName
                 elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
+                    print "4: Beamset: {0}, TreatmentTech: {1}, currentplan: {2}".format(
+                        beam.BeamSetName,
+                        beam.TreatmentTechnique,
+                        currentplan)
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
