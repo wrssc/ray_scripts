@@ -127,9 +127,9 @@ def main():
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
                                                  Modality="Photons",
-                                                 TreatmentTechnique='VMAT',
+                                                 # TreatmentTechnique='VMAT',
                                                  # When RaySearch fixes the API, uncomment this line
-                                                 # TreatmentTechnique=beam.TreatmentTechnique,
+                                                 TreatmentTechnique=beam.TreatmentTechnique,
                                                  PatientPosition=beam.PatientPosition,
                                                  NumberOfFractions=999,
                                                  CreateSetupBeams=False,
