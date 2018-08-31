@@ -108,16 +108,8 @@ def main():
     currentplan = ""
     currentbeamset = ""
     for beam in beams:
-        print "1: Beamset: {0}, TreatmentTech: {1}, currentplan: {2}".format(
-            beam.BeamSetName,
-            beam.TreatmentTechnique,
-            currentplan)
         if beam.PlanName != currentplan:
             try:
-                print "2: Beamset: {0}, TreatmentTech: {1}, currentplan: {2}".format(
-                    beam.BeamSetName,
-                    beam.TreatmentTechnique,
-                    currentplan)
                 plan = case.AddNewPlan(PlanName=beam.PlanName,
                                        PlannedBy="",
                                        Comment="",
@@ -129,11 +121,7 @@ def main():
                 raise IOError(RaiseError)
         if beam.BeamSetName != currentbeamset:
             try: 
-                if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
-                    print "3: Beamset: {0}, TreatmentTech: {1}, currentplan: {2}".format(
-                        beam.BeamSetName,
-                        beam.TreatmentTechnique,
-                        currentplan)
+                if beam.TreatmentTechnique in {'VMAT','ConformalArc'}:
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
@@ -153,11 +141,7 @@ def main():
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
                     currentbeamset = beam.BeamSetName
-                elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
-                    print "4: Beamset: {0}, TreatmentTech: {1}, currentplan: {2}".format(
-                        beam.BeamSetName,
-                        beam.TreatmentTechnique,
-                        currentplan)
+                elif beam.TreatmentTechnique in {'Conformal','SMLC'}:
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
