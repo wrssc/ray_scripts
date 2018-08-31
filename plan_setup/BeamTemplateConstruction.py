@@ -121,7 +121,7 @@ def main():
                 raise IOError(RaiseError)
         if beam.BeamSetName != currentbeamset:
             try: 
-                if beam.TreatmentTechnique in ("VMAT', 'ConformalArc"):
+                if beam.TreatmentTechnique in ("VMAT", "ConformalArc"):
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
