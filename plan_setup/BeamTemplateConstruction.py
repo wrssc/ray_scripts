@@ -176,6 +176,7 @@ def main():
                                                  RespiratorySignalSource="Disabled")
                     # Set an rather arbritrary isocenter position
                     # The API does not support the following operation when using Conformal Arcs
+                    print "At this point"
                     IsoParams = {}
                     IsoParams['Position'] = IsoPosition
                     IsoParams['Color'] = "98, 184, 234"
