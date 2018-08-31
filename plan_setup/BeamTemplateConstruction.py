@@ -142,6 +142,7 @@ def main():
                                                  RespiratorySignalSource="Disabled")
                     currentbeamset = beam.BeamSetName
                 elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
+                    print "Beamset = {0}, TreatmentTech = {1}".format(beam.BeamSetName,beam.TreatmentTechnique)
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
