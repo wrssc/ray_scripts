@@ -108,6 +108,10 @@ def main():
     currentplan = ""
     currentbeamset = ""
     for beam in beams:
+        print "Beamset:{0}, TreatmentTech:{1}, currentplan:{2}".format(
+            beam.BeamSetName,
+            beam.TreatmentTechnique,
+            currentplan)
         if beam.PlanName != currentplan:
             try: 
                 plan = case.AddNewPlan(PlanName=beam.PlanName,
@@ -119,10 +123,6 @@ def main():
             except SystemError:
                 RaiseError = "Unable to load Plan: %s" % beam.PlanName
                 raise IOError(RaiseError)
-        print "Beamset:{0}, TreatmentTech:{1}, currentplan:{2}".format(
-                           beam.BeamSetName,
-                           beam.TreatmentTechnique,
-                           currentplan)
         if beam.BeamSetName != currentbeamset:
             try: 
                 if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
