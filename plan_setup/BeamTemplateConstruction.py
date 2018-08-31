@@ -76,22 +76,24 @@ def main():
     except SystemError:
          raise IOError("No Examination loaded. Load patient case and plan.")
 
-    load_script_from_file = False
+    load_script_from_file = True
+    files = ['../protocols/UW_HFS_3D_BeamTemplates.csv', '../protocols/UW_HFS_VMAT_BeamTemplates.csv']
 
     if load_script_from_file:
         # Open the folder_browser method from the CommonDialog class and prompt the user to select the csv
         common = UserInterface.CommonDialog()
         #path = common.folder_browser('Select a folder containing the beam template .csv file')
         filename = common.open_file('Select the beam template csv')
+        filecsv = filename
     else:
-        protocol = r'../protocols/UW_HFS_BeamTemplates.csv'
+
         filename = os.path.join(os.path.dirname(__file__), protocol)
+        filecsv = filename
 
     # The container for each line of the csv is the Row class listed below
     Row = namedtuple('Row',('PlanName','BeamSetName','TemplateName','TreatmentTechnique','PatientPosition','BeamName','BeamDescription','GantryStart','GantryStop','ArcDirection','CollimatorAngle','CouchAngle'))
     # Open the csv delimited file containing the list beam templates to be loaded
     # Ensure that the first row is a header for the columns
-    filecsv = filename
     with open(filecsv,'r') as f:
         r = csv.reader(f, delimiter=',')
         r.next() # Skip header
