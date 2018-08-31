@@ -165,7 +165,7 @@ def main():
             except SystemError:
                 raise IOError("No plan or beamset managed to load.")
         try:
-            if beam.TreatmentTechnique == 'VMAT':
+            if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
                 beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
                                       ArcRotationDirection=beam.ArcDirection,
                                       Energy=6,
