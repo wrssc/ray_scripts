@@ -181,6 +181,9 @@ def main():
                     IsoParams['Color'] = "98, 184, 234"
                     IsoParams['Name'] = "iso_"+beam.BeamSetName
                     IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
+                    patient.Save()
+                    case.SetCurrent()
+                    plan.SetCurrent()
                     beamset.SetCurrent()
                 currentbeamset = beam.BeamSetName
             except SystemError:
