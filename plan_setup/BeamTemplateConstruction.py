@@ -182,7 +182,6 @@ def main():
                     IsoParams['Name'] = "iso_"+beam.BeamSetName
                     IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
                 currentbeamset = beam.BeamSetName
-                BeamIndex = 0
             except SystemError:
                 raise IOError("No plan or beamset managed to load.")
         # Create a new arc beam - note this will need to be changed for accepting 3D plans types.
@@ -197,7 +196,6 @@ def main():
                                       GantryAngle=beam.GantryStart,
                                       CouchAngle=beam.CouchAngle,
                                       CollimatorAngle=beam.CollimatorAngle)
-                BeamIndex += 1
             elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
                 beamset.CreatePhotonBeam(Energy = 6,
                                          IsocenterData=IsoParams,
@@ -206,93 +204,16 @@ def main():
                                          GantryAngle=beam.GantryStart,
                                          CouchAngle=beam.CouchAngle,
                                          CollimatorAngle=beam.CollimatorAngle)
-                BeamIndex += 1
             elif beam.TreatmentTechnique == 'ConformalArc':
-                patient.Save()
-                connect.beamset.SetCurrent()
-                with CompositeAction('Add beam (texp, Beam Set: VMA_ConArc_Full)'):
-
-                    case = connect.get_current("Case")
-                    plan = connect.get_current("Plan")
-                    beam_set = connect.get_current("BeamSet")
-                    print case, plan, beam_set
-                    retval_0 = beam_set.CreateArcBeam(ArcStopGantryAngle=178, ArcRotationDirection="Clockwise",
-                                                      Energy=6, IsocenterData={
-                            'Position': {'x': 0, 'y': -24.95, 'z': 0.550000000000004}, 'NameOfIsocenterToRef': "",
-                            'Name': "VMA_ConArc_Full 1", 'Color': "98, 184, 234"}, Name="texp", Description="1",
-                                                      GantryAngle=182, CouchAngle=0, CollimatorAngle=0)
-
-                    retval_0.SetBolus(BolusName="")
-
-                    # Unscriptable Action 'Change context' Completed : SetContextToArcConversionPropertiesPerBeamAction(...)
-
-                    plan.PlanOptimizations[0].OptimizationParameters.TreatmentSetupSettings[0].BeamSettings[
-                        0].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(ConformalArcStyle=False,
-                                                                                               CreateDualArcs=False,
-                                                                                               FinalGantrySpacing=2,
-                                                                                               MaxArcDeliveryTime=0,
-                                                                                               BurstGantrySpacing=None,
-                                                                                               MaxArcMU=None)
-
-                ## retval_0 = beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
-                   ##                                  ArcRotationDirection=beam.ArcDirection,
-                   ##                                  Energy=6,
-                   ##                                  IsocenterData=IsoParams,
-                   ##                                  Name=beam.BeamName,
-                   ##                                  Description=beam.BeamDescription,
-                   ##                                  GantryAngle=beam.GantryStart,
-                   ##                                  CouchAngle=beam.CouchAngle,
-                   ##                                  CollimatorAngle=beam.CollimatorAngle)
-##
-##                    retval_0.SetBolus(BolusName="")
-
-                    # Unscriptable Action 'Change context' Completed : SetContextToArcConversionPropertiesPerBeamAction(...)
-
- ##                   plan.PlanOptimizations[0].OptimizationParameters.TreatmentSetupSettings[0].BeamSettings[
- ##                       0].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(ConformalArcStyle=False,
- ##                                                                                              CreateDualArcs=False,
- ##                                                                                              FinalGantrySpacing=2,
- ##                                                                                              MaxArcDeliveryTime=0,
- ##                                                                                              BurstGantrySpacing=None,
- ##                                                                                              MaxArcMU=None)
-
-                # Find current Beamset Number and determine plan optimization
-                BeamSetName = beamset.DicomPlanLabel
-                #OptIndex = 0
-                #IndexNotFound = True
-                # In RS, OptimizedBeamSets objects are keyed using the DicomPlanLabel, or Beam Set name.
-                # Because the key to the OptimizedBeamSets presupposes the user knows the PlanOptimizations index
-                # this while loop looks for the PlanOptimizations index needed below by searching for a key
-                # that matches the BeamSet DicomPlanLabel
-                #while IndexNotFound:
-                #    try:
-                #        OptName = plan.PlanOptimizations[OptIndex].OptimizedBeamSets[
-                #            beamset.DicomPlanLabel].DicomPlanLabel
-                #        IndexNotFound = False
-                #    except SystemError:
-                #        IndexNotFound = True
-                #        OptIndex += 1
-                #with CompositeAction('Set Conformal Arc Beam'):
-                # beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
-                #                       ArcRotationDirection=beam.ArcDirection,
-                #                       Energy=6,
-                #                       IsocenterData=IsoParams,
-                #                       Name=beam.BeamName,
-                #                       Description=beam.BeamDescription,
-                #                       GantryAngle=beam.GantryStart,
-                #                       CouchAngle=beam.CouchAngle,
-                #                       CollimatorAngle=beam.CollimatorAngle,
-                #                       PlanGenerationTechnique = 'Conformal')
-                #    retval_0.SetBolus(BolusName="")
-                #    plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].BeamSettings[
-                #        BeamIndex].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(ConformalArcStyle=False,
-                #                                                                               CreateDualArcs=False,
-                #                                                                               FinalGantrySpacing=2,
-                #                                                                               MaxArcDeliveryTime=0,
-                #                                                                               BurstGantrySpacing=None,
-                #                                                                               MaxArcMU=None)
-#
-#                BeamIndex += 1
+                beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
+                                      ArcRotationDirection=beam.ArcDirection,
+                                      Energy=6,
+                                      IsocenterData=IsoParams,
+                                      Name=beam.BeamName,
+                                      Description=beam.BeamDescription,
+                                      GantryAngle=beam.GantryStart,
+                                      CouchAngle=beam.CouchAngle,
+                                      CollimatorAngle=beam.CollimatorAngle)
         except SystemError:
             RaiseError = "Unable to load Beam: %s" % beam.BeamName
             raise IOError(RaiseError)
