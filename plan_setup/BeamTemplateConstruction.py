@@ -132,6 +132,10 @@ def main():
                                                  NewDoseSpecificationPoints=[],
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
+                    # Set an rather arbritrary isocenter position
+                    IsoParams = beamset.CreateDefaultIsocenterData(Position = IsoPosition)
+                    IsoParams['Name'] = "iso_"+beam.BeamSetName
+                    IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
                 elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
@@ -149,6 +153,10 @@ def main():
                                                  NewDoseSpecificationPoints=[],
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
+                    # Set an rather arbritrary isocenter position
+                    IsoParams = beamset.CreateDefaultIsocenterData(Position = IsoPosition)
+                    IsoParams['Name'] = "iso_"+beam.BeamSetName
+                    IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
                 elif beam.TreatmentTechnique == 'ConformalArc':
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
@@ -166,11 +174,13 @@ def main():
                                                  NewDoseSpecificationPoints=[],
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
-                    print beamset.DeliveryTechnique
-                # Set an rather arbritrary isocenter position
-                IsoParams = beamset.CreateDefaultIsocenterData(Position = IsoPosition)
-                IsoParams['Name'] = "iso_"+beam.BeamSetName
-                IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
+                    # Set an rather arbritrary isocenter position
+                    # The API does not support the following operation when using Conformal Arcs
+                    IsoParams = {}
+                    IsoParams['Position'] = IsoPosition
+                    IsoParams['Color'] = "98, 184, 234"
+                    IsoParams['Name'] = "iso_"+beam.BeamSetName
+                    IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
                 currentbeamset = beam.BeamSetName
                 BeamIndex = 0
             except SystemError:
