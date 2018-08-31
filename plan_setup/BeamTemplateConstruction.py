@@ -121,7 +121,7 @@ def main():
                 raise IOError(RaiseError)
         if beam.BeamSetName != currentbeamset:
             try: 
-                if beam.TreatmentTechnique in {'VMAT','ConformalArc'}:
+                if beam.TreatmentTechnique in {'VMAT', 'ConformalArc'}:
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
@@ -141,7 +141,7 @@ def main():
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
                     currentbeamset = beam.BeamSetName
-                elif beam.TreatmentTechnique in {'Conformal','SMLC'}:
+                elif beam.TreatmentTechnique in {'Conformal', 'SMLC'}:
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
@@ -168,7 +168,7 @@ def main():
             except SystemError:
                 raise IOError("No plan or beamset managed to load.")
         try:
-            if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
+            if beam.TreatmentTechnique in {'VMAT', 'ConformalArc'}:
                 beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
                                       ArcRotationDirection=beam.ArcDirection,
                                       Energy=6,
@@ -178,7 +178,7 @@ def main():
                                       GantryAngle=beam.GantryStart,
                                       CouchAngle=beam.CouchAngle,
                                       CollimatorAngle=beam.CollimatorAngle)
-            elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
+            elif beam.TreatmentTechnique in {'Conformal', 'SMLC'}:
                 beamset.CreatePhotonBeam(Energy = 6,
                                          IsocenterData=IsoParams,
                                          Name=beam.BeamName,
