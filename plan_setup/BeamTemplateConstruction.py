@@ -176,7 +176,6 @@ def main():
                                                  RespiratorySignalSource="Disabled")
                     # Set an rather arbritrary isocenter position
                     # The API does not support the following operation when using Conformal Arcs
-                    print "At this point"
                     IsoParams = {}
                     IsoParams['Position'] = IsoPosition
                     IsoParams['Color'] = "98, 184, 234"
@@ -186,6 +185,7 @@ def main():
             except SystemError:
                 raise IOError("No plan or beamset managed to load.")
         # Create a new arc beam - note this will need to be changed for accepting 3D plans types.
+        print "At this point"
         try:
             if beam.TreatmentTechnique == 'VMAT':
                 beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
