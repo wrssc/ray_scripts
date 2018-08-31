@@ -140,6 +140,7 @@ def main():
                                                  NewDoseSpecificationPoints=[],
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
+                    currentbeamset = beam.BeamSetName
                 elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
@@ -157,11 +158,13 @@ def main():
                                                  NewDoseSpecificationPoints=[],
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
+                    currentbeamset = beam.BeamSetName
+                else:
+                    raise IOError("Treatment Technique not supported")
                 # Set an rather arbritrary isocenter position
                 IsoParams = beamset.CreateDefaultIsocenterData(Position = IsoPosition)
                 IsoParams['Name'] = "iso_"+beam.BeamSetName
                 IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
-                currentbeamset = beam.BeamSetName
             except SystemError:
                 raise IOError("No plan or beamset managed to load.")
         try:
