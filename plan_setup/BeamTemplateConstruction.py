@@ -15,6 +15,11 @@
          dataset in which the template was created. Thus to have FFS beamtemplates successfully
          import from the csv file, you must have a FFS examination open
 
+         -RayStation does not distinguish conformal arc beams from VMAT beams in templates. The API
+         does not actually support creation of conformal arcs either.  Conformal arcs are created
+         identically to VMAT plans. Their template descriptions will have to differentiate them
+         for now.
+
     Inputs:
         - A ".csv" file with the following format:
           PlanName,BeamSetName,TemplateName,TreatmentTechnique,PatientPosition,BeamName...
@@ -116,12 +121,14 @@ def main():
                 raise IOError(RaiseError)
         if beam.BeamSetName != currentbeamset:
             try: 
-                if beam.TreatmentTechnique == 'VMAT':
+                if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
                                                  Modality="Photons",
-                                                 TreatmentTechnique=beam.TreatmentTechnique,
+                                                 TreatmentTechnique='VMAT',
+                                                 # When RaySearch fixes the API, uncomment this line
+                                                 # TreatmentTechnique=beam.TreatmentTechnique,
                                                  PatientPosition=beam.PatientPosition,
                                                  NumberOfFractions=999,
                                                  CreateSetupBeams=False,
@@ -133,10 +140,6 @@ def main():
                                                  NewDoseSpecificationPoints=[],
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
-                    # Set an rather arbritrary isocenter position
-                    IsoParams = beamset.CreateDefaultIsocenterData(Position = IsoPosition)
-                    IsoParams['Name'] = "iso_"+beam.BeamSetName
-                    IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
                 elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
@@ -154,43 +157,13 @@ def main():
                                                  NewDoseSpecificationPoints=[],
                                                  RespiratoryMotionCompensationTechnique="Disabled",
                                                  RespiratorySignalSource="Disabled")
-                    # Set an rather arbritrary isocenter position
-                    IsoParams = beamset.CreateDefaultIsocenterData(Position = IsoPosition)
-                    IsoParams['Name'] = "iso_"+beam.BeamSetName
-                    IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
-                elif beam.TreatmentTechnique == 'ConformalArc':
-                    beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
-                                                 ExaminationName=examination.Name,
-                                                 MachineName="TrueBeam",
-                                                 Modality="Photons",
-                                                 TreatmentTechnique=beam.TreatmentTechnique,
-                                                 PatientPosition=beam.PatientPosition,
-                                                 NumberOfFractions=999,
-                                                 CreateSetupBeams=False,
-                                                 UseLocalizationPointAsSetupIsocenter=False,
-                                                 Comment=beam.TemplateName,
-                                                 RbeModelReference=None,
-                                                 EnableDynamicTrackingForVero=False,
-                                                 NewDoseSpecificationPointNames=[],
-                                                 NewDoseSpecificationPoints=[],
-                                                 RespiratoryMotionCompensationTechnique="Disabled",
-                                                 RespiratorySignalSource="Disabled")
-                    # Set an rather arbritrary isocenter position
-                    # The API does not support the following operation when using Conformal Arcs
-                    IsoParams = {}
-                    IsoParams['Position'] = IsoPosition
-                    IsoParams['Color'] = "98, 184, 234"
-                    IsoParams['Name'] = "iso_"+beam.BeamSetName
-                    IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
-                    patient.Save()
-                    case.SetCurrent()
-                    plan.SetCurrent()
-                    beamset.SetCurrent()
+                # Set an rather arbritrary isocenter position
+                IsoParams = beamset.CreateDefaultIsocenterData(Position = IsoPosition)
+                IsoParams['Name'] = "iso_"+beam.BeamSetName
+                IsoParams['NameOfIsocenterToRef'] = "iso_"+beam.BeamSetName
                 currentbeamset = beam.BeamSetName
             except SystemError:
                 raise IOError("No plan or beamset managed to load.")
-        # Create a new arc beam - note this will need to be changed for accepting 3D plans types.
-        print "At this point"
         try:
             if beam.TreatmentTechnique == 'VMAT':
                 beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
@@ -210,16 +183,6 @@ def main():
                                          GantryAngle=beam.GantryStart,
                                          CouchAngle=beam.CouchAngle,
                                          CollimatorAngle=beam.CollimatorAngle)
-            elif beam.TreatmentTechnique == 'ConformalArc':
-                beamset.CreateArcBeam(ArcStopGantryAngle=beam.GantryStop,
-                                      ArcRotationDirection=beam.ArcDirection,
-                                      Energy=6,
-                                      IsocenterData=IsoParams,
-                                      Name=beam.BeamName,
-                                      Description=beam.BeamDescription,
-                                      GantryAngle=beam.GantryStart,
-                                      CouchAngle=beam.CouchAngle,
-                                      CollimatorAngle=beam.CollimatorAngle)
         except SystemError:
             RaiseError = "Unable to load Beam: %s" % beam.BeamName
             raise IOError(RaiseError)
