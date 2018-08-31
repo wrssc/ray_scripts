@@ -119,6 +119,10 @@ def main():
             except SystemError:
                 RaiseError = "Unable to load Plan: %s" % beam.PlanName
                 raise IOError(RaiseError)
+        print "Beamset:{0}, TreatmentTech:{1}, currentplan:{2}".format(
+                           beam.BeamSetName,
+                           beam.TreatmentTechnique,
+                           currentplan)
         if beam.BeamSetName != currentbeamset:
             try: 
                 if beam.TreatmentTechnique == 'VMAT' or 'ConformalArc':
@@ -142,7 +146,6 @@ def main():
                                                  RespiratorySignalSource="Disabled")
                     currentbeamset = beam.BeamSetName
                 elif beam.TreatmentTechnique == 'Conformal' or 'SMLC':
-                    print "Beamset = {0}, TreatmentTech = {1}".format(beam.BeamSetName,beam.TreatmentTechnique)
                     beamset = plan.AddNewBeamSet(Name=beam.BeamSetName,
                                                  ExaminationName=examination.Name,
                                                  MachineName="TrueBeam",
