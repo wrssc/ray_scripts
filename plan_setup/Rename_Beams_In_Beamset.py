@@ -52,20 +52,8 @@ import UserInterface
 import connect
 import logging
 
-class MyWindow(Window):
-    def __init__(self):
-        # read in the markup of the gui
-        xr = XmlReader.Create(StringReader(xaml))
-        wpf.LoadComponent(self, xr)
-
-    # this is the event handler for the Click event
-    def submit_click(self, sender, e):
-        self.DialogResult = True
-
 def main():
 
-    import wpf
-    import clr
 
     availabletechniques = [
         '2DC: No MLC Static Field',
