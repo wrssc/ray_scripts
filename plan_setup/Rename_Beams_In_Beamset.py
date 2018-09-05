@@ -15,6 +15,8 @@
              "try" to prevent a script failure if set-up beams were not selected
     01.00.02 PH Reviewed, correct FFP positioning issue.  Changed Beamset failure to 
              load to read the same as other IO-Faults
+    01.00.03 RAB Modified for new naming convention on plans and to add support for the
+             field descriptions to be used for billing.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -32,18 +34,23 @@ __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2018-02-18'
 
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = 'Patrick Hill'
 
 __reviewed__ = '2018-02-05'
-__raystation__ = '6.1.1.2'
+__raystation__ = '7.0.0.19'
 __maintainer__ = 'Adam Bayliss'
+
 
 __email__ =  'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+
+import UserInterface
+import connect
+import logging
 
 class MyWindow(Window):
     def __init__(self):
@@ -60,62 +67,51 @@ def main():
     import wpf
     import clr
 
-    clr.AddReference("System.Xml")
+    availabletechniques = [
+        '2DC: No MLC Static Field',
+        '2DC: MLC Static Field',
+        '3DC: No MLC Static Field',
+        '3DC: MLC Static Field',
+        '3D-FiF: MLC Dynamic Field',
+        '3D-PRDR: MLC Static Field',
+        'IMRT-SnS: MLC Dynamic Field',
+        'IMRT-PRDR: MLC Dynamic Field',
+        '3DC-Arc:',
+        'IMRT-VMAT:'
+    ]
 
-    from System.Windows import Window
-    from System.Xml import XmlReader
-    from System.IO import StringReader
-    # Bring's in current data sets
-    from connect import *
-    from inspect import currentframe, getframeinfo
+    dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
+                                               'Technique': 'Select Target Name',
+                                               },
+                                       datatype={'Technique': 'combo'},
+                                       initial={'Technique': 'Select'},
+                                       options={'Technique': availabletechniques}
+                                       required=['PTV1', 'b', 'c'])
+    # Show the dialog
+    print dialog.show()
+    print dialog.values["Site"]
 
-    xaml = """
-    <Window 
-           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
-           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-           Title="Site Name Specification"  Height="170.0" Width="450">
-      <Grid>
-         <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="150" />
-              <ColumnDefinition Width="60" />
-              <ColumnDefinition Width="30" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="50" />
-              <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>          
-            <Label VerticalAlignment="Center">Enter Site Name, .e.g. BreL:</Label>
-            <TextBox Grid.Column = "1" Name="Site_Name" Margin = "0, 0, 2, 0" VerticalAlignment="Center"/>
-            <Button Grid.Row = "5" Grid.ColumnSpan = "2" Content="Submit" HorizontalAlignment="Left" Margin="5,44,0,0" VerticalAlignment="Center" Width="75" Click="submit_click" />
-      </Grid>
-    </Window> 
-    """
-
-#    frameinfo = getframeinfo(currentframe())
-#    print 'frameinfo',frameinfo.filename, frameinfo.lineno
-    dialog = MyWindow()
-    dialog.ShowDialog()
-    SiteName = dialog.Site_Name.Text[:4]
+    SiteName = dialog.values["Site"]
 
     try:
         patient = get_current('Patient')
     except:
-        raise IOError('You load a patientfield')
+        raise IOError('You need to load a patient first')
 
     try:
         case = get_current('Case')
     except:
-        raise IOError('You need to load a casefield')
+        raise IOError('You need to load a case first')
 
     try:
         plan = get_current('Plan')
     except:
-        raise IOError('You need to load a planfield')
+        raise IOError('You need to load a plan first')
 
     try:    
         beamset = get_current("BeamSet")
     except: 
-        raise IOError("No beamset loaded")
+        raise IOError("You need to load a beamset first")
 # 
 # Electrons, 3D, and VMAT Arcs are all that are supported.  Reject plans that aren't
     technique = beamset.DeliveryTechnique

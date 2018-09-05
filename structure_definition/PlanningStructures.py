@@ -21,6 +21,8 @@
 """
 from pickle import FALSE
 
+from typing import List, Any
+
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __version__ = '1.0.0'
@@ -112,26 +114,33 @@ def main():
                                                'PTV5': 'Enter First Target Name',
                                                'PTV5Dose': 'Enter 5th Target Dose',
                                                'SkinContraction': 'Enter Skin Contraction',
-                                               'a': 'Enter a value: ',
                                                'b': 'Select checkboxes:',
                                                'c': 'Select combobox option:'},
                                        datatype={'b': 'check', 'c': 'combo'},
                                        initial={'PTV1': 'PTV1',
-                                                'PTV1Dose': 0,
+                                                'PTV1Dose': '0',
                                                 'PTV2': 'PTV1',
-                                                'PTV2Dose': 0,
+                                                'PTV2Dose': '0',
                                                 'PTV3': 'PTV1',
-                                                'PTV3Dose': 0,
+                                                'PTV3Dose': '0',
                                                 'PTV4': 'PTV4',
-                                                'PTV4Dose': 0,
+                                                'PTV4Dose': '0',
                                                 'PTV5': 'PTV5',
-                                                'PTV5Dose': 0,
-                                                'a': '5',
-                                                'b': ['1'],
+                                                'PTV5Dose': '0',
+                                                'b': ['Target-Specific Rings'],
                                                 'c': 'C'},
-                                       options={'b': ['1', '2'], 'c': ['A', 'B', 'C']},
-                                       required=['a', 'b', 'c'])
-    # Temp list of sources: replace with UI user prompt
+                                       options={'b': ['Target-Specific Rings', '2'], 'c': ['A', 'B', 'C']},
+                                       required=['PTV1', 'b', 'c'])
+    # Show the dialog
+    print dialog.show()
+    print dialog.values["PTV1"]
+    # Find all the structures in the current case
+    if case is not None:
+        structures = []
+        for r in case.PatientModel.RegionsOfInterest:
+            structures.append(r.Name)
+
+    # User-specified targets
     SourceList = ["PTV_72", "PTV_70", "PTV_64", "PTV_60", "PTV_54"]
     # List of PTVs to be used
     GeneratePTVs = True
