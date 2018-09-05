@@ -1,4 +1,4 @@
-""" Rename Beams In Beamset
+""" Rename Beams In Current Beam Set
     
     Automatically label beams in Raystation according to UW Standard
 
@@ -48,12 +48,12 @@ __email__ =  'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-import UserInterface
-import connect
-import logging
 
 def main():
 
+    import UserInterface
+    import connect
+    import logging
 
     availabletechniques = [
         '2DC: No MLC Static Field',
@@ -65,8 +65,7 @@ def main():
         'IMRT-SnS: MLC Dynamic Field',
         'IMRT-PRDR: MLC Dynamic Field',
         '3DC-Arc:',
-        'IMRT-VMAT:'
-    ]
+        'IMRT-VMAT:']
 
     dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
                                                'Technique': 'Select Target Name'},
@@ -81,22 +80,22 @@ def main():
     SiteName = dialog.values["Site"]
 
     try:
-        patient = get_current('Patient')
+        patient = connect.get_current('Patient')
     except:
         raise IOError('You need to load a patient first')
 
     try:
-        case = get_current('Case')
+        case = connect.get_current('Case')
     except:
         raise IOError('You need to load a case first')
 
     try:
-        plan = get_current('Plan')
+        plan = connect.get_current('Plan')
     except:
         raise IOError('You need to load a plan first')
 
     try:    
-        beamset = get_current("BeamSet")
+        beamset = connect.get_current("BeamSet")
     except: 
         raise IOError("You need to load a beamset first")
 # 
