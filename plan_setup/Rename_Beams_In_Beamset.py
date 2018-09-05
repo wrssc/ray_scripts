@@ -81,7 +81,8 @@ def main():
     print dialog.show()
     print dialog.values["Site"]
 
-    SiteName = dialog.values["Site"]
+    SiteName = dialog.values['Site']
+    inputtechnique = dialog.values['Technique']
 
     try:
         patient = connect.get_current('Patient')
@@ -127,18 +128,21 @@ def main():
                 # 
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
-                if technique == 'Arc':
+                if technique == 'DynamicArc':
                     ArcDirection = beamset.Beams[beam_index].ArcRotationDirection
                     if ArcDirection == 'Clockwise':
                         ArcDirectionString = 'CW'
                     else:
-                        ArcDirectionString = 'CC'
+                        ArcDirectionString = 'CCW'
                     if CouchAngle == 0:
-                        StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
-                          '_' + ArcDirectionString)
+                        StandardBeamName = (str(beam_index+1) + SiteName + '_Arc')
+                        BeamDescription = (str(beam_index+1) + inputtechnique +
+                                           ' ' + ArcDirectionString)
                     else:
-                        StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
-                            '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
+                        BeamDescription = (str(beam_index+1) + inputtechnique +
+                                           ' ' + ArcDirectionString)
+                        StandardBeamName = (str(beam_index+1) + SiteName + '_Arc_' +
+                            '_c' + CouchAngleString.zfill(1))
                 else: 
                     if CouchAngle != 0:
                        StandardBeamName = (str(beam_index+1) + '_' + SiteName + '_g' 
@@ -159,11 +163,12 @@ def main():
                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LLAT' 
                     elif GantryAngle > 90 and GantryAngle < 180:
                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LPO' 
-                    beamset.Beams[beam_index].Name = StandardBeamName    
+                beamset.Beams[beam_index].Name = StandardBeamName
+                beamset.Beams[beam_index].Description = BeamDescription
                 beam_index += 1
             except:
                 beamsinrange = False
-        await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
+        connect.await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         #
         # Set-Up Fields
         try:
@@ -215,12 +220,12 @@ def main():
                 # 
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
-                if technique == 'Arc':
+                if technique == 'DynamicArc':
                     ArcDirection = beamset.Beams[beam_index].ArcRotationDirection
                     if ArcDirection == 'Clockwise':
                         ArcDirectionString = 'CW'
                     else:
-                        ArcDirectionString = 'CC'
+                        ArcDirectionString = 'CCW'
                     if CouchAngle == 0:
                         StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
                           '_' + ArcDirectionString)
@@ -304,12 +309,12 @@ def main():
                 # 
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
-                if technique == 'Arc':
+                if technique == 'DynamicArc':
                     ArcDirection = beamset.Beams[beam_index].ArcRotationDirection
                     if ArcDirection == 'Clockwise':
                         ArcDirectionString = 'CW'
                     else:
-                        ArcDirectionString = 'CC'
+                        ArcDirectionString = 'CCW'
                     if CouchAngle == 0:
                         StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
                           '_' + ArcDirectionString)
@@ -390,12 +395,12 @@ def main():
                 # 
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
-                if technique == 'Arc':
+                if technique == 'DynamicArc':
                     ArcDirection = beamset.Beams[beam_index].ArcRotationDirection
                     if ArcDirection == 'Clockwise':
                         ArcDirectionString = 'CW'
                     else:
-                        ArcDirectionString = 'CC'
+                        ArcDirectionString = 'CCW'
                     if CouchAngle == 0:
                         StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
                           '_' + ArcDirectionString)
