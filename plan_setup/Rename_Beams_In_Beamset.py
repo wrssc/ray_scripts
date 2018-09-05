@@ -18,6 +18,12 @@
     01.00.03 RAB Modified for new naming convention on plans and to add support for the
              field descriptions to be used for billing.
 
+    Known Issues:
+
+    Multi-isocenter treatment will be incorrect in the naming conventions for set up
+    fields. The script will rename the first four fields regardless of which isocenter
+    to which they belong.
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
@@ -125,20 +131,23 @@ def main():
                     else:
                         arc_direction_string = 'CCW'
 
+                    # Based on convention for billing, e.g. "1 CCW VMAT -- IMRT"
+                    # set the beam_description
                     beam_description = (str(beam_index + 1) + ' ' + arc_direction_string +
-                                       ' ' + inputtechnique)
+                                        ' ' + inputtechnique)
                     if couch_angle == 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                            + '_c' + couch_angle_string.zfill(2))
+                                              + '_c' + couch_angle_string.zfill(3))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
-                    beam_description = str(beam_index + 1) + inputtechnique
+                    beam_description = str(beam_index + 1) + ' ' + inputtechnique
                     if couch_angle != 0:
-                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_g'
-                                            + gantry_angle_string.zfill(2) + 'c' + couch_angle_string.zfill(2))
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name
+                                              + '_g' + gantry_angle_string.zfill(3)
+                                              + 'c' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
                     elif gantry_angle > 180 and gantry_angle < 270:
@@ -157,8 +166,8 @@ def main():
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
 
                 # Set the beamset names and description according to the convention above
-                beamset.Beams[beam_index].Name = standard_beam_name
-                beamset.Beams[beam_index].Description = beam_description
+                b.Name = standard_beam_name
+                b.Description = beam_description
                 beam_index += 1
             except Exception:
                 UserInterface.WarningBox('Error occured in setting names of beams')
@@ -208,17 +217,17 @@ def main():
             # Address the Head-first prone position
     # Loop through all beams and except when there are no more (beamsinrange = False)
     elif patient_position == 'HeadFirstProne':
-        while beamsinrange:
+        for b in beamset.Beams:
             try:
-                GantryAngle = int(beamset.Beams[beam_index].GantryAngle)
-                CouchAngle = int(beamset.Beams[beam_index].CouchAngle)
+                GantryAngle = int(b.GantryAngle)
+                CouchAngle = int(b.CouchAngle)
                 GantryAngleString = str(int(GantryAngle))
                 CouchAngleString = str(int(CouchAngle))
                 # 
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
                 if technique == 'DynamicArc':
-                    arc_direction = beamset.Beams[beam_index].ArcRotationDirection
+                    arc_direction = b.ArcRotationDirection
                     if arc_direction == 'Clockwise':
                         arc_direction_string = 'CW'
                     else:
@@ -249,7 +258,7 @@ def main():
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
-                    beamset.Beams[beam_index].Name = standard_beam_name
+                    b.Name = standard_beam_name
                 beam_index += 1
             except:
                 beamsinrange = False
@@ -297,10 +306,10 @@ def main():
             # Address the Feet-first supine position
     # Loop through all beams and except when there are no more (beamsinrange = False)
     elif patient_position == 'FeetFirstSupine':
-        while beamsinrange:
+        for b in beamset.Beams:
             try:
-                GantryAngle = int(beamset.Beams[beam_index].GantryAngle)
-                CouchAngle = int(beamset.Beams[beam_index].CouchAngle)
+                GantryAngle = int(b.GantryAngle)
+                CouchAngle = int(b.CouchAngle)
                 GantryAngleString = str(int(GantryAngle))
                 CouchAngleString = str(int(CouchAngle))
 
@@ -308,7 +317,7 @@ def main():
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
                 if technique == 'DynamicArc':
-                    arc_direction = beamset.Beams[beam_index].ArcRotationDirection
+                    arc_direction = b.ArcRotationDirection
                     if arc_direction == 'Clockwise':
                         arc_direction_string = 'CW'
                     else:
@@ -339,7 +348,7 @@ def main():
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
-                    beamset.Beams[beam_index].Name = standard_beam_name
+                    b.Name = standard_beam_name
                 beam_index += 1
             except:
                 beamsinrange = False
@@ -385,17 +394,17 @@ def main():
             # Address the Feet-first prone position
     # Loop through all beams and except when there are no more (beamsinrange = False)
     elif patient_position == 'FeetFirstProne':
-        while beamsinrange:
+        for b in beamset.Beams:
             try:
-                GantryAngle = int(beamset.Beams[beam_index].GantryAngle)
-                CouchAngle = int(beamset.Beams[beam_index].CouchAngle)
+                GantryAngle = int(b.GantryAngle)
+                CouchAngle = int(b.CouchAngle)
                 GantryAngleString = str(int(GantryAngle))
                 CouchAngleString = str(int(CouchAngle))
                 # 
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
                 if technique == 'DynamicArc':
-                    arc_direction = beamset.Beams[beam_index].ArcRotationDirection
+                    arc_direction = b.ArcRotationDirection
                     if arc_direction == 'Clockwise':
                         arc_direction_string = 'CW'
                     else:
@@ -426,7 +435,7 @@ def main():
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
-                    beamset.Beams[beam_index].Name = standard_beam_name
+                    b.Name = standard_beam_name
                 beam_index += 1
             except:
                 beamsinrange = False
