@@ -60,6 +60,8 @@ def main():
     import logging
     import sys
 
+    # These are the techniques associated with billing codes in the clinic
+    # they will be imported
     availabletechniques = [
         'Static MLC -- 2D',
         'Static NoMLC -- 2D',
@@ -73,8 +75,7 @@ def main():
         'VMAT Arc -- IMRT']
     supportedRStechniques = [
         'SMLC',
-        'DynamicArc',
-    ]
+        'DynamicArc']
 
     dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
                                                'Technique': 'Select Treatment Technique (Billing)'},
@@ -108,12 +109,12 @@ def main():
         raise IOError("Technique unsupported, manually name beams according to clinical convention.")
 
     # While loop variable definitions
-    beamsinrange = True
     beam_index = 0
     patient_position = beamset.PatientPosition
+    logging.debug('Renaming and adding set up fields to Beam Set with name {}, patient position {}, technique {}'.
+                  format(beamset.Name, patient_position, technique))
     #
     # HFS Beam Naming
-    # Loop through all beams and except when there are no more (beamsinrange = False)
     if patient_position == 'HeadFirstSupine':
         for b in beamset.Beams:
             try:
@@ -215,7 +216,6 @@ def main():
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
 
             # Address the Head-first prone position
-    # Loop through all beams and except when there are no more (beamsinrange = False)
     elif patient_position == 'HeadFirstProne':
         for b in beamset.Beams:
             try:
@@ -273,7 +273,8 @@ def main():
             except Exception:
                 UserInterface.WarningBox('Error occured in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
-        connect.await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
+        connect.await_user_input(
+            'Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         #
         # Set-Up fields
         try:
@@ -315,7 +316,6 @@ def main():
         except:
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
             # Address the Feet-first supine position
-    # Loop through all beams and except when there are no more (beamsinrange = False)
     elif patient_position == 'FeetFirstSupine':
         for b in beamset.Beams:
             try:
@@ -373,7 +373,8 @@ def main():
             except Exception:
                 UserInterface.WarningBox('Error occured in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
-        connect.await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
+        connect.await_user_input(
+            'Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         #
         # Set-Up Fields
         try:
@@ -413,7 +414,6 @@ def main():
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
 
             # Address the Feet-first prone position
-    # Loop through all beams and except when there are no more (beamsinrange = False)
     elif patient_position == 'FeetFirstProne':
         for b in beamset.Beams:
             try:
@@ -471,7 +471,8 @@ def main():
             except Exception:
                 UserInterface.WarningBox('Error occured in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
-        connect.await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
+        connect.await_user_input(
+            'Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         try:
             # PA set-up field
             beamset.PatientSetup.SetupBeams[0].Name = "SetUp PA"
