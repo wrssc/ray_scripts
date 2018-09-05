@@ -55,7 +55,7 @@ def main():
     import sys
 
     availabletechniques = [
-        'Static MLC -- 2D'
+        'Static MLC -- 2D',
         'Static NoMLC -- 2D',
         'Static MLC -- 3D',
         'Static NoMLC -- 3D',
@@ -111,7 +111,7 @@ def main():
     # HFS Beam Naming
     # Loop through all beams and except when there are no more (beamsinrange = False)
     if patient_position == 'HeadFirstSupine':
-        while beamsinrange:
+        for b in beamset.Beams:
             try:
                 GantryAngle = int(beamset.Beams[beam_index].GantryAngle)
                 CouchAngle = int(beamset.Beams[beam_index].CouchAngle)
@@ -121,7 +121,7 @@ def main():
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
                 if technique == 'DynamicArc':
-                    arc_direction = beamset.Beams[beam_index].ArcRotationDirection
+                    arc_direction = b.ArcRotationDirection
                     if arc_direction == 'Clockwise':
                         arc_direction_string = 'CW'
                     else:
