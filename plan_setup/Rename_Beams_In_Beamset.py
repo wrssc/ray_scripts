@@ -243,9 +243,13 @@ def main():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
                                               + '_c' + couch_angle_string.zfill(3))
                 else:
+                    # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
+                    # set the beam_description
+                    beam_description = str(beam_index + 1) + ' ' + inputtechnique
                     if couch_angle != 0:
-                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_g'
-                                            + gantry_angle_string.zfill(3) + 'c' + couch_angle_string.zfill(3))
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name
+                                              + '_g' + gantry_angle_string.zfill(3)
+                                              + 'c' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
                     elif gantry_angle > 180 and gantry_angle < 270:
@@ -339,9 +343,13 @@ def main():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
                                               + '_c' + couch_angle_string.zfill(3))
                 else:
-                    if CouchAngle != 0:
-                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_g'
-                                            + gantry_angle_string.zfill(3) + 'c' + couch_angle_string.zfill(3))
+                    # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
+                    # set the beam_description
+                    beam_description = str(beam_index + 1) + ' ' + inputtechnique
+                    if couch_angle != 0:
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name
+                                              + '_g' + gantry_angle_string.zfill(3)
+                                              + 'c' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
                     elif gantry_angle > 180 and gantry_angle < 270:
@@ -433,9 +441,13 @@ def main():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
                                               + '_c' + couch_angle_string.zfill(3))
                 else:
-                    if CouchAngle != 0:
-                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_g'
-                                            + gantry_angle_string.zfill(3) + 'c' + couch_angle_string.zfill(3))
+                    # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
+                    # set the beam_description
+                    beam_description = str(beam_index + 1) + ' ' + inputtechnique
+                    if couch_angle != 0:
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name
+                                              + '_g' + gantry_angle_string.zfill(3)
+                                              + 'c' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
                     elif gantry_angle > 180 and gantry_angle < 270:
