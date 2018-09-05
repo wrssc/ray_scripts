@@ -41,11 +41,11 @@ __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2018-09-05'
 
 __version__ = '1.0.3'
-__status__ = 'Development'
+__status__ = 'Production'
 __deprecated__ = False
-__reviewer__ = 'xxxxxxxxxxxx'
+__reviewer__ = 'Adam Bayliss'
 
-__reviewed__ = 'xxxx-xx-xx'
+__reviewed__ = '2018-Sep-05'
 __raystation__ = '7.0.0.19'
 __maintainer__ = 'Adam Bayliss'
 
