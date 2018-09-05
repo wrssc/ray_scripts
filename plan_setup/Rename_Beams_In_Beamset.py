@@ -32,14 +32,14 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2018-02-18'
+__date__ = '2018-09-05'
 
 __version__ = '1.0.3'
 __status__ = 'Development'
 __deprecated__ = False
-__reviewer__ = 'Patrick Hill'
+__reviewer__ = 'xxxxxxxxxxxx'
 
-__reviewed__ = '2018-02-05'
+__reviewed__ = 'xxxx-xx-xx'
 __raystation__ = '7.0.0.19'
 __maintainer__ = 'Adam Bayliss'
 
@@ -52,9 +52,10 @@ def main():
     import UserInterface
     import connect
     import logging
+    import sys
 
     availabletechniques = [
-       'Static MLC -- 2D'
+        'Static MLC -- 2D'
         'Static NoMLC -- 2D',
         'Static MLC -- 3D',
         'Static NoMLC -- 3D',
@@ -77,30 +78,21 @@ def main():
                                        required=['Site', 'Technique'])
     # Show the dialog
     print dialog.show()
-    print dialog.values["Site"]
 
-    SiteName = dialog.values['Site']
+    site_name = dialog.values['Site']
     inputtechnique = dialog.values['Technique']
 
     try:
         patient = connect.get_current('Patient')
-    except:
-        raise IOError('You need to load a patient first')
-
-    try:
         case = connect.get_current('Case')
-    except:
-        raise IOError('You need to load a case first')
-
-    try:
+        exam = connect.get_current('Examination')
         plan = connect.get_current('Plan')
-    except:
-        raise IOError('You need to load a plan first')
-
-    try:
         beamset = connect.get_current("BeamSet")
-    except:
-        raise IOError("You need to load a beamset first")
+
+    except Exception:
+        UserInterface.WarningBox('This script requires a Beam Set to be loaded')
+        sys.exit('This script requires a Beam Set to be loaded')
+
     #
     # Electrons, 3D, and VMAT Arcs are all that are supported.  Reject plans that aren't
     technique = beamset.DeliveryTechnique
@@ -114,6 +106,8 @@ def main():
     beam_index = 0
     patient_position = beamset.PatientPosition
     #
+    # Note: apologies in advance. The following while statement could be replaced with a
+    # for b in beamset.Beam
     # HFS Beam Naming
     # Loop through all beams and except when there are no more (beamsinrange = False)
     if patient_position == 'HeadFirstSupine':
@@ -127,46 +121,46 @@ def main():
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
                 if technique == 'DynamicArc':
-                    ArcDirection = beamset.Beams[beam_index].ArcRotationDirection
-                    if ArcDirection == 'Clockwise':
-                        ArcDirectionString = 'CW'
+                    arc_direction = beamset.Beams[beam_index].ArcRotationDirection
+                    if arc_direction == 'Clockwise':
+                        arc_direction_string = 'CW'
                     else:
-                        ArcDirectionString = 'CCW'
+                        arc_direction_string = 'CCW'
 
-                    BeamDescription = (str(beam_index + 1) + ' ' + ArcDirectionString +
-                                        ' ' + inputtechnique)
+                    beam_description = (str(beam_index + 1) + ' ' + arc_direction_string +
+                                       ' ' + inputtechnique)
                     if CouchAngle == 0:
-                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_Arc')
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
-                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_Arc_'
-                                            + '_c' + CouchAngleString.zfill(1))
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
+                                            + '_c' + CouchAngleString.zfill(2))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
-                    # set the BeamDescription
-                    BeamDescription = str(beam_index + 1) + inputtechnique
+                    # set the beam_description
+                    beam_description = str(beam_index + 1) + inputtechnique
                     if CouchAngle != 0:
-                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_g'
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_g'
                                             + GantryAngleString.zfill(2) + 'c' + CouchAngleString.zfill(2))
                     elif GantryAngle == 180:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_PA'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
                     elif GantryAngle > 180 and GantryAngle < 270:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RPO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
                     elif GantryAngle == 270:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RLAT'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
                     elif GantryAngle > 270 and GantryAngle < 360:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RAO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
                     elif GantryAngle == 0:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_AP'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
                     elif GantryAngle > 0 and GantryAngle < 90:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LAO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
                     elif GantryAngle == 90:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LLAT'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LPO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
 
                 # Set the beamset names and description according to the convention above
-                beamset.Beams[beam_index].Name = StandardBeamName
-                beamset.Beams[beam_index].Description = BeamDescription
+                beamset.Beams[beam_index].Name = standard_beam_name
+                beamset.Beams[beam_index].Description = beam_description
                 beam_index += 1
             except:
                 beamsinrange = False
@@ -225,38 +219,38 @@ def main():
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
                 if technique == 'DynamicArc':
-                    ArcDirection = beamset.Beams[beam_index].ArcRotationDirection
-                    if ArcDirection == 'Clockwise':
-                        ArcDirectionString = 'CW'
+                    arc_direction = beamset.Beams[beam_index].ArcRotationDirection
+                    if arc_direction == 'Clockwise':
+                        arc_direction_string = 'CW'
                     else:
-                        ArcDirectionString = 'CCW'
+                        arc_direction_string = 'CCW'
                     if CouchAngle == 0:
-                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
-                                            '_' + ArcDirectionString)
+                        standard_beam_name = (str(beam_index + 1) + '_Arc_' + site_name +
+                                            '_' + arc_direction_string)
                     else:
-                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
-                                            '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
+                        standard_beam_name = (str(beam_index + 1) + '_Arc_' + site_name +
+                                            '_' + arc_direction_string + '_c' + CouchAngleString.zfill(1))
                 else:
                     if CouchAngle != 0:
-                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_g'
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_g'
                                             + GantryAngleString.zfill(2) + 'c' + CouchAngleString.zfill(2))
                     elif GantryAngle == 180:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_AP'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
                     elif GantryAngle > 180 and GantryAngle < 270:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LAO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
                     elif GantryAngle == 270:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LLAT'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
                     elif GantryAngle > 270 and GantryAngle < 360:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LPO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
                     elif GantryAngle == 0:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_PA'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
                     elif GantryAngle > 0 and GantryAngle < 90:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RPO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
                     elif GantryAngle == 90:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RLAT'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RAO'
-                    beamset.Beams[beam_index].Name = StandardBeamName
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
+                    beamset.Beams[beam_index].Name = standard_beam_name
                 beam_index += 1
             except:
                 beamsinrange = False
@@ -315,38 +309,38 @@ def main():
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
                 if technique == 'DynamicArc':
-                    ArcDirection = beamset.Beams[beam_index].ArcRotationDirection
-                    if ArcDirection == 'Clockwise':
-                        ArcDirectionString = 'CW'
+                    arc_direction = beamset.Beams[beam_index].ArcRotationDirection
+                    if arc_direction == 'Clockwise':
+                        arc_direction_string = 'CW'
                     else:
-                        ArcDirectionString = 'CCW'
+                        arc_direction_string = 'CCW'
                     if CouchAngle == 0:
-                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
-                                            '_' + ArcDirectionString)
+                        standard_beam_name = (str(beam_index + 1) + '_Arc_' + site_name +
+                                            '_' + arc_direction_string)
                     else:
-                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
-                                            '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
+                        standard_beam_name = (str(beam_index + 1) + '_Arc_' + site_name +
+                                            '_' + arc_direction_string + '_c' + CouchAngleString.zfill(1))
                 else:
                     if CouchAngle != 0:
-                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_g'
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_g'
                                             + GantryAngleString.zfill(2) + 'c' + CouchAngleString.zfill(2))
                     elif GantryAngle == 180:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_PA'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
                     elif GantryAngle > 180 and GantryAngle < 270:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LPO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
                     elif GantryAngle == 270:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LLAT'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
                     elif GantryAngle > 270 and GantryAngle < 360:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LAO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
                     elif GantryAngle == 0:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_AP'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
                     elif GantryAngle > 0 and GantryAngle < 90:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RAO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
                     elif GantryAngle == 90:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RLAT'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RPO'
-                    beamset.Beams[beam_index].Name = StandardBeamName
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
+                    beamset.Beams[beam_index].Name = standard_beam_name
                 beam_index += 1
             except:
                 beamsinrange = False
@@ -402,38 +396,38 @@ def main():
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
                 if technique == 'DynamicArc':
-                    ArcDirection = beamset.Beams[beam_index].ArcRotationDirection
-                    if ArcDirection == 'Clockwise':
-                        ArcDirectionString = 'CW'
+                    arc_direction = beamset.Beams[beam_index].ArcRotationDirection
+                    if arc_direction == 'Clockwise':
+                        arc_direction_string = 'CW'
                     else:
-                        ArcDirectionString = 'CCW'
+                        arc_direction_string = 'CCW'
                     if CouchAngle == 0:
-                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
-                                            '_' + ArcDirectionString)
+                        standard_beam_name = (str(beam_index + 1) + '_Arc_' + site_name +
+                                            '_' + arc_direction_string)
                     else:
-                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
-                                            '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
+                        standard_beam_name = (str(beam_index + 1) + '_Arc_' + site_name +
+                                            '_' + arc_direction_string + '_c' + CouchAngleString.zfill(1))
                 else:
                     if CouchAngle != 0:
-                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_g'
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_g'
                                             + GantryAngleString.zfill(2) + 'c' + CouchAngleString.zfill(2))
                     elif GantryAngle == 180:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_AP'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
                     elif GantryAngle > 180 and GantryAngle < 270:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RAO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
                     elif GantryAngle == 270:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RLAT'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
                     elif GantryAngle > 270 and GantryAngle < 360:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RPO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
                     elif GantryAngle == 0:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_PA'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
                     elif GantryAngle > 0 and GantryAngle < 90:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LPO'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
                     elif GantryAngle == 90:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LLAT'
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
-                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LAO'
-                    beamset.Beams[beam_index].Name = StandardBeamName
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
+                    beamset.Beams[beam_index].Name = standard_beam_name
                 beam_index += 1
             except:
                 beamsinrange = False
