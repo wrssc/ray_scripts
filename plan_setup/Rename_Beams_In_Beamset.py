@@ -112,7 +112,7 @@ def main():
     beam_index = 0
     patient_position = beamset.PatientPosition
     logging.debug('Renaming and adding set up fields to Beam Set with name {}, patient position {}, technique {}'.
-                  format(beamset.Name, patient_position, technique))
+                  format(beamset.DicomPlanLabel, patient_position, technique))
     #
     # HFS Beam Naming
     if patient_position == 'HeadFirstSupine':
