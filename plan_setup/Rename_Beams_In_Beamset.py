@@ -43,29 +43,27 @@ __reviewed__ = '2018-02-05'
 __raystation__ = '7.0.0.19'
 __maintainer__ = 'Adam Bayliss'
 
-
-__email__ =  'rabayliss@wisc.edu'
+__email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 
 def main():
-
     import UserInterface
     import connect
     import logging
 
     availabletechniques = [
-        '2DC: No MLC Static Field',
-        '2DC: MLC Static Field',
-        '3DC: No MLC Static Field',
-        '3DC: MLC Static Field',
-        '3D-FiF: MLC Dynamic Field',
-        '3D-PRDR: MLC Static Field',
-        'IMRT-SnS: MLC Dynamic Field',
-        'IMRT-PRDR: MLC Dynamic Field',
-        '3DC-Arc:',
-        'IMRT-VMAT:']
+       'Static MLC -- 2D'
+        'Static NoMLC -- 2D',
+        'Static MLC -- 3D',
+        'Static NoMLC -- 3D',
+        'FiF MLC -- 3D',
+        'Static PRDR MLC -- 3D',
+        'SnS MLC -- IMRT',
+        'SnS PRDR MLC -- IMRT',
+        'Conformal Arc -- 3D',
+        'VMAT Arc -- IMRT']
     supportedRStechniques = [
         'SMLC',
         'DynamicArc',
@@ -99,31 +97,31 @@ def main():
     except:
         raise IOError('You need to load a plan first')
 
-    try:    
+    try:
         beamset = connect.get_current("BeamSet")
-    except: 
+    except:
         raise IOError("You need to load a beamset first")
-# 
-# Electrons, 3D, and VMAT Arcs are all that are supported.  Reject plans that aren't
+    #
+    # Electrons, 3D, and VMAT Arcs are all that are supported.  Reject plans that aren't
     technique = beamset.DeliveryTechnique
     #
     # Oddly enough, Electrons are DeliveryTechnique = 'SMLC'
     if technique not in supportedRStechniques:
-       raise IOError("Technique unsupported, manually name beams according to clinical convention.")   
+        raise IOError("Technique unsupported, manually name beams according to clinical convention.")
 
-# While loop variable definitions
+    # While loop variable definitions
     beamsinrange = True
     beam_index = 0
     patient_position = beamset.PatientPosition
-#
-# HFS Beam Naming
-# Loop through all beams and except when there are no more (beamsinrange = False)
+    #
+    # HFS Beam Naming
+    # Loop through all beams and except when there are no more (beamsinrange = False)
     if patient_position == 'HeadFirstSupine':
         while beamsinrange:
             try:
                 GantryAngle = int(beamset.Beams[beam_index].GantryAngle)
                 CouchAngle = int(beamset.Beams[beam_index].CouchAngle)
-                GantryAngleString = str(int(GantryAngle)) 
+                GantryAngleString = str(int(GantryAngle))
                 CouchAngleString = str(int(CouchAngle))
                 # 
                 # Determine if the type is an Arc or SMLC
@@ -134,41 +132,46 @@ def main():
                         ArcDirectionString = 'CW'
                     else:
                         ArcDirectionString = 'CCW'
+
+                    BeamDescription = (str(beam_index + 1) + ' ' + ArcDirectionString +
+                                        ' ' + inputtechnique)
                     if CouchAngle == 0:
-                        StandardBeamName = (str(beam_index+1) + SiteName + '_Arc')
-                        BeamDescription = (str(beam_index+1) + inputtechnique +
-                                           ' ' + ArcDirectionString)
+                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_Arc')
                     else:
-                        BeamDescription = (str(beam_index+1) + inputtechnique +
-                                           ' ' + ArcDirectionString)
-                        StandardBeamName = (str(beam_index+1) + SiteName + '_Arc_' +
-                            '_c' + CouchAngleString.zfill(1))
-                else: 
+                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_Arc_'
+                                            + '_c' + CouchAngleString.zfill(1))
+                else:
+                    # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
+                    # set the BeamDescription
+                    BeamDescription = str(beam_index + 1) + inputtechnique
                     if CouchAngle != 0:
-                       StandardBeamName = (str(beam_index+1) + '_' + SiteName + '_g' 
-                         + GantryAngleString.zfill(2)  + 'c' + CouchAngleString.zfill(2))
+                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_g'
+                                            + GantryAngleString.zfill(2) + 'c' + CouchAngleString.zfill(2))
                     elif GantryAngle == 180:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_PA'
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_PA'
                     elif GantryAngle > 180 and GantryAngle < 270:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RPO'
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RPO'
                     elif GantryAngle == 270:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RLAT' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RLAT'
                     elif GantryAngle > 270 and GantryAngle < 360:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RAO' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RAO'
                     elif GantryAngle == 0:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_AP' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_AP'
                     elif GantryAngle > 0 and GantryAngle < 90:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LAO' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LAO'
                     elif GantryAngle == 90:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LLAT' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LPO' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LPO'
+
+                # Set the beamset names and description according to the convention above
                 beamset.Beams[beam_index].Name = StandardBeamName
                 beamset.Beams[beam_index].Description = BeamDescription
                 beam_index += 1
             except:
                 beamsinrange = False
-        connect.await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
+        connect.await_user_input(
+            'Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         #
         # Set-Up Fields
         try:
@@ -180,42 +183,43 @@ def main():
             beamset.PatientSetup.SetupBeams[0].Segments[0].DoseRate = "5"
 
             #
-            #Rt Lateral set-up field
+            # Rt Lateral set-up field
             beamset.PatientSetup.SetupBeams[1].Name = "SetUp RtLat"
             beamset.PatientSetup.SetupBeams[1].Description = "SetUp RtLat"
             beamset.PatientSetup.SetupBeams[1].GantryAngle = "270.0"
             beamset.PatientSetup.SetupBeams[1].Segments[0].DoseRate = "5"
 
             #
-            #Lt Lateral set-up field
+            # Lt Lateral set-up field
             beamset.PatientSetup.SetupBeams[2].Name = "SetUp LtLat"
             beamset.PatientSetup.SetupBeams[2].Description = "SetUp LtLat"
             beamset.PatientSetup.SetupBeams[2].GantryAngle = "90.0"
             beamset.PatientSetup.SetupBeams[2].Segments[0].DoseRate = "5"
             #
-            #Cone-Beam CT set-up field
+            # Cone-Beam CT set-up field
             try:
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
             except:
-                await_user_input('Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
+                await_user_input(
+                    'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
         except:
-            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script') 
-        
-    # Address the Head-first prone position
+            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
+
+            # Address the Head-first prone position
     # Loop through all beams and except when there are no more (beamsinrange = False)
     elif patient_position == 'HeadFirstProne':
-        while beamsinrange :
+        while beamsinrange:
             try:
                 GantryAngle = int(beamset.Beams[beam_index].GantryAngle)
                 CouchAngle = int(beamset.Beams[beam_index].CouchAngle)
-                GantryAngleString = str(int(GantryAngle)) 
+                GantryAngleString = str(int(GantryAngle))
                 CouchAngleString = str(int(CouchAngle))
                 # 
                 # Determine if the type is an Arc or SMLC
@@ -227,32 +231,32 @@ def main():
                     else:
                         ArcDirectionString = 'CCW'
                     if CouchAngle == 0:
-                        StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
-                          '_' + ArcDirectionString)
+                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
+                                            '_' + ArcDirectionString)
                     else:
-                        StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
-                                '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
-                else: 
+                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
+                                            '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
+                else:
                     if CouchAngle != 0:
-                       StandardBeamName = (str(beam_index+1) + '_' + SiteName + '_g' 
-                         + GantryAngleString.zfill(2)  + 'c' + CouchAngleString.zfill(2))
+                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_g'
+                                            + GantryAngleString.zfill(2) + 'c' + CouchAngleString.zfill(2))
                     elif GantryAngle == 180:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_AP'
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_AP'
                     elif GantryAngle > 180 and GantryAngle < 270:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LAO'
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LAO'
                     elif GantryAngle == 270:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LLAT' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LLAT'
                     elif GantryAngle > 270 and GantryAngle < 360:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LPO' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LPO'
                     elif GantryAngle == 0:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_PA' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_PA'
                     elif GantryAngle > 0 and GantryAngle < 90:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RPO' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RPO'
                     elif GantryAngle == 90:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RLAT' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RAO' 
-                    beamset.Beams[beam_index].Name = StandardBeamName    
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RAO'
+                    beamset.Beams[beam_index].Name = StandardBeamName
                 beam_index += 1
             except:
                 beamsinrange = False
@@ -289,23 +293,24 @@ def main():
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
             except:
-                await_user_input('Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
+                await_user_input(
+                    'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
         except:
-           raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script') 
-    # Address the Feet-first supine position
+            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
+            # Address the Feet-first supine position
     # Loop through all beams and except when there are no more (beamsinrange = False)
     elif patient_position == 'FeetFirstSupine':
-        while beamsinrange :
+        while beamsinrange:
             try:
                 GantryAngle = int(beamset.Beams[beam_index].GantryAngle)
                 CouchAngle = int(beamset.Beams[beam_index].CouchAngle)
-                GantryAngleString = str(int(GantryAngle)) 
+                GantryAngleString = str(int(GantryAngle))
                 CouchAngleString = str(int(CouchAngle))
-            
+
                 # 
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
@@ -316,32 +321,32 @@ def main():
                     else:
                         ArcDirectionString = 'CCW'
                     if CouchAngle == 0:
-                        StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
-                          '_' + ArcDirectionString)
+                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
+                                            '_' + ArcDirectionString)
                     else:
-                        StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
-                            '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
+                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
+                                            '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
                 else:
                     if CouchAngle != 0:
-                        StandardBeamName = (str(beam_index+1) + '_' + SiteName + '_g' 
-                          + GantryAngleString.zfill(2)  + 'c' + CouchAngleString.zfill(2))
+                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_g'
+                                            + GantryAngleString.zfill(2) + 'c' + CouchAngleString.zfill(2))
                     elif GantryAngle == 180:
-                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_PA'
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_PA'
                     elif GantryAngle > 180 and GantryAngle < 270:
-                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LPO'
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LPO'
                     elif GantryAngle == 270:
-                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LLAT' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LLAT'
                     elif GantryAngle > 270 and GantryAngle < 360:
-                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LAO' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LAO'
                     elif GantryAngle == 0:
-                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_AP' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_AP'
                     elif GantryAngle > 0 and GantryAngle < 90:
-                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RAO' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RAO'
                     elif GantryAngle == 90:
-                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RLAT' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
-                        StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RPO' 
-                    beamset.Beams[beam_index].Name = StandardBeamName    
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RPO'
+                    beamset.Beams[beam_index].Name = StandardBeamName
                 beam_index += 1
             except:
                 beamsinrange = False
@@ -355,42 +360,43 @@ def main():
             beamset.PatientSetup.SetupBeams[0].GantryAngle = "0.0"
             beamset.PatientSetup.SetupBeams[0].Segments[0].DoseRate = "5"
 
-          #Rt Lateral set-up field
+            # Rt Lateral set-up field
             beamset.PatientSetup.SetupBeams[1].Name = "SetUp RtLat"
             beamset.PatientSetup.SetupBeams[1].Description = "SetUp RtLat"
             beamset.PatientSetup.SetupBeams[1].GantryAngle = "90.0"
             beamset.PatientSetup.SetupBeams[1].Segments[0].DoseRate = "5"
 
-          #Lt Lateral set-up field
+            # Lt Lateral set-up field
             beamset.PatientSetup.SetupBeams[2].Name = "SetUp LtLat"
             beamset.PatientSetup.SetupBeams[2].Description = "SetUp LtLat"
             beamset.PatientSetup.SetupBeams[2].GantryAngle = "270.0"
             beamset.PatientSetup.SetupBeams[2].Segments[0].DoseRate = "5"
 
-          #
-          #Cone-Beam CT set-up field
+            #
+            # Cone-Beam CT set-up field
             try:
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
             except:
-                await_user_input('Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
+                await_user_input(
+                    'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
         except:
-            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script') 
+            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
 
-    # Address the Feet-first prone position
+            # Address the Feet-first prone position
     # Loop through all beams and except when there are no more (beamsinrange = False)
     elif patient_position == 'FeetFirstProne':
-        while beamsinrange :
+        while beamsinrange:
             try:
                 GantryAngle = int(beamset.Beams[beam_index].GantryAngle)
                 CouchAngle = int(beamset.Beams[beam_index].CouchAngle)
-                GantryAngleString = str(int(GantryAngle)) 
+                GantryAngleString = str(int(GantryAngle))
                 CouchAngleString = str(int(CouchAngle))
                 # 
                 # Determine if the type is an Arc or SMLC
@@ -402,71 +408,73 @@ def main():
                     else:
                         ArcDirectionString = 'CCW'
                     if CouchAngle == 0:
-                        StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
-                          '_' + ArcDirectionString)
+                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
+                                            '_' + ArcDirectionString)
                     else:
-                        StandardBeamName = (str(beam_index+1) + '_Arc_' + SiteName + 
-                                '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
+                        StandardBeamName = (str(beam_index + 1) + '_Arc_' + SiteName +
+                                            '_' + ArcDirectionString + '_c' + CouchAngleString.zfill(1))
                 else:
                     if CouchAngle != 0:
-                       StandardBeamName = (str(beam_index+1) + '_' + SiteName + '_g' 
-                         + GantryAngleString.zfill(2)  + 'c' + CouchAngleString.zfill(2))
+                        StandardBeamName = (str(beam_index + 1) + '_' + SiteName + '_g'
+                                            + GantryAngleString.zfill(2) + 'c' + CouchAngleString.zfill(2))
                     elif GantryAngle == 180:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_AP'
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_AP'
                     elif GantryAngle > 180 and GantryAngle < 270:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RAO'
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RAO'
                     elif GantryAngle == 270:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RLAT' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RLAT'
                     elif GantryAngle > 270 and GantryAngle < 360:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_RPO' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_RPO'
                     elif GantryAngle == 0:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_PA' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_PA'
                     elif GantryAngle > 0 and GantryAngle < 90:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LPO' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LPO'
                     elif GantryAngle == 90:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LLAT' 
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LLAT'
                     elif GantryAngle > 90 and GantryAngle < 180:
-                       StandardBeamName = str(beam_index+1) + '_' + SiteName + '_LAO' 
-                    beamset.Beams[beam_index].Name = StandardBeamName    
+                        StandardBeamName = str(beam_index + 1) + '_' + SiteName + '_LAO'
+                    beamset.Beams[beam_index].Name = StandardBeamName
                 beam_index += 1
             except:
                 beamsinrange = False
         await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
-        try: 
+        try:
             # PA set-up field
             beamset.PatientSetup.SetupBeams[0].Name = "SetUp PA"
             beamset.PatientSetup.SetupBeams[0].Description = "SetUp PA"
             beamset.PatientSetup.SetupBeams[0].GantryAngle = "0.0"
             beamset.PatientSetup.SetupBeams[0].Segments[0].DoseRate = "5"
 
-            #Rt Lateral set-up field
+            # Rt Lateral set-up field
             beamset.PatientSetup.SetupBeams[1].Name = "SetUp RtLat"
             beamset.PatientSetup.SetupBeams[1].Description = "SetUp RtLat"
             beamset.PatientSetup.SetupBeams[1].GantryAngle = "270.0"
             beamset.PatientSetup.SetupBeams[1].Segments[0].DoseRate = "5"
-  
-            #Lt Lateral set-up field
+
+            # Lt Lateral set-up field
             beamset.PatientSetup.SetupBeams[2].Name = "SetUp LtLat"
             beamset.PatientSetup.SetupBeams[2].Description = "SetUp LtLat"
             beamset.PatientSetup.SetupBeams[2].GantryAngle = "90.0"
             beamset.PatientSetup.SetupBeams[2].Segments[0].DoseRate = "5"
             #
-            #Cone-Beam CT set-up field
+            # Cone-Beam CT set-up field
             try:
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
             except:
-                await_user_input('Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
+                await_user_input(
+                    'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
         except:
-            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script') 
+            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
     else:
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
+
 
 if __name__ == '__main__':
     main()
