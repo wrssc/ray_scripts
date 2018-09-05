@@ -81,12 +81,11 @@ def main():
     ]
 
     dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
-                                               'Technique': 'Select Target Name',
-                                               },
+                                               'Technique': 'Select Target Name'},
                                        datatype={'Technique': 'combo'},
                                        initial={'Technique': 'Select'},
                                        options={'Technique': availabletechniques},
-                                       required=['PTV1', 'b', 'c'])
+                                       required=['Site', 'Technique'])
     # Show the dialog
     print dialog.show()
     print dialog.values["Site"]
