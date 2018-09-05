@@ -66,9 +66,13 @@ def main():
         'IMRT-PRDR: MLC Dynamic Field',
         '3DC-Arc:',
         'IMRT-VMAT:']
+    supportedRStechniques = [
+        'SMLC',
+        'DynamicArc',
+    ]
 
     dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
-                                               'Technique': 'Select Target Name'},
+                                               'Technique': 'Select Treatment Technique (Billing)'},
                                        datatype={'Technique': 'combo'},
                                        initial={'Technique': 'Select'},
                                        options={'Technique': availabletechniques},
@@ -103,7 +107,7 @@ def main():
     technique = beamset.DeliveryTechnique
     #
     # Oddly enough, Electrons are DeliveryTechnique = 'SMLC'
-    if technique != 'SMLC' and technique != 'Arc' :
+    if technique not in supportedRStechniques:
        raise IOError("Technique unsupported, manually name beams according to clinical convention.")   
 
 # While loop variable definitions
