@@ -85,7 +85,7 @@ def main():
                                                },
                                        datatype={'Technique': 'combo'},
                                        initial={'Technique': 'Select'},
-                                       options={'Technique': availabletechniques}
+                                       options={'Technique': availabletechniques},
                                        required=['PTV1', 'b', 'c'])
     # Show the dialog
     print dialog.show()
