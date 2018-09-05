@@ -205,7 +205,7 @@ def main():
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
             except:
-                await_user_input(
+                connect.await_user_input(
                     'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
@@ -262,7 +262,7 @@ def main():
                 beam_index += 1
             except:
                 beamsinrange = False
-        await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
+        connect.await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         #
         # Set-Up fields
         try:
@@ -295,7 +295,7 @@ def main():
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
             except:
-                await_user_input(
+                connect.await_user_input(
                     'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
@@ -352,7 +352,7 @@ def main():
                 beam_index += 1
             except:
                 beamsinrange = False
-        await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
+        connect.await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         #
         # Set-Up Fields
         try:
@@ -382,7 +382,7 @@ def main():
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
             except:
-                await_user_input(
+                connect.await_user_input(
                     'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
@@ -439,7 +439,7 @@ def main():
                 beam_index += 1
             except:
                 beamsinrange = False
-        await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
+        connect.await_user_input('Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         try:
             # PA set-up field
             beamset.PatientSetup.SetupBeams[0].Name = "SetUp PA"
@@ -466,7 +466,7 @@ def main():
                 beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
                 beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
             except:
-                await_user_input(
+                connect.await_user_input(
                     'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
                 beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
                 beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
