@@ -106,17 +106,15 @@ def main():
     beam_index = 0
     patient_position = beamset.PatientPosition
     #
-    # Note: apologies in advance. The following while statement could be replaced with a
-    # for b in beamset.Beam
     # HFS Beam Naming
     # Loop through all beams and except when there are no more (beamsinrange = False)
     if patient_position == 'HeadFirstSupine':
         for b in beamset.Beams:
             try:
-                GantryAngle = int(beamset.Beams[beam_index].GantryAngle)
-                CouchAngle = int(beamset.Beams[beam_index].CouchAngle)
-                GantryAngleString = str(int(GantryAngle))
-                CouchAngleString = str(int(CouchAngle))
+                gantry_angle = int(b.GantryAngle)
+                couch_angle = int(b.CouchAngle)
+                gantry_angle_string = str(int(gantry_angle))
+                couch_angle_string = str(int(couch_angle))
                 # 
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
@@ -129,41 +127,42 @@ def main():
 
                     beam_description = (str(beam_index + 1) + ' ' + arc_direction_string +
                                        ' ' + inputtechnique)
-                    if CouchAngle == 0:
+                    if couch_angle == 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                            + '_c' + CouchAngleString.zfill(2))
+                                            + '_c' + couch_angle_string.zfill(2))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
                     beam_description = str(beam_index + 1) + inputtechnique
-                    if CouchAngle != 0:
+                    if couch_angle != 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_g'
-                                            + GantryAngleString.zfill(2) + 'c' + CouchAngleString.zfill(2))
-                    elif GantryAngle == 180:
+                                            + gantry_angle_string.zfill(2) + 'c' + couch_angle_string.zfill(2))
+                    elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
-                    elif GantryAngle > 180 and GantryAngle < 270:
+                    elif gantry_angle > 180 and gantry_angle < 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
-                    elif GantryAngle == 270:
+                    elif gantry_angle == 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
-                    elif GantryAngle > 270 and GantryAngle < 360:
+                    elif gantry_angle > 270 and gantry_angle < 360:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
-                    elif GantryAngle == 0:
+                    elif gantry_angle == 0:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
-                    elif GantryAngle > 0 and GantryAngle < 90:
+                    elif gantry_angle > 0 and gantry_angle < 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
-                    elif GantryAngle == 90:
+                    elif gantry_angle == 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
-                    elif GantryAngle > 90 and GantryAngle < 180:
+                    elif gantry_angle > 90 and gantry_angle < 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
 
                 # Set the beamset names and description according to the convention above
                 beamset.Beams[beam_index].Name = standard_beam_name
                 beamset.Beams[beam_index].Description = beam_description
                 beam_index += 1
-            except:
-                beamsinrange = False
+            except Exception:
+                UserInterface.WarningBox('Error occured in setting names of beams')
+                sys.exit('Error occurred in setting names of beams')
         connect.await_user_input(
             'Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         #
