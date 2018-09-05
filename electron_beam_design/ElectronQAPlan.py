@@ -52,6 +52,7 @@ __credits__ = []
 def main():
     import connect
     import UserInterface
+    import sys
 
     plan = connect.get_current("Plan")
     beam_set = connect.get_current("BeamSet") # for the currently selected beam set
