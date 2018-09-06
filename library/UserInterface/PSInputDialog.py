@@ -54,6 +54,8 @@ class PSInputDialog:
         clr.AddReference('System.Drawing')
         import System
 
+        # Initialize internal variables
+
         # Initialize optional args
         if initial is None:
             initial = {}
@@ -75,6 +77,8 @@ class PSInputDialog:
 
         if initial is None:
             initial = {}
+
+
 
         # Initialize form
         self.form = System.Windows.Forms.Form()

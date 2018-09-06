@@ -194,7 +194,7 @@ def main():
                 UniformMatches.append(r.Name)
             if r.Name in UnderStructureChoices:
                 UnderMatches.append(r.Name)
-    StructureDialog = UserInterface.PSInputDialog(inputs={
+    StructureDialog = UserInterface.InputDialog(inputs={
                                                'A_PTV1': 'Select 1st Target Source',
                                                'A_PTV1Dose': 'Enter 1st Target Dose in cGy',
                                                'A_PTV2': 'Select 2nd Target Source',
