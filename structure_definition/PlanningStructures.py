@@ -212,8 +212,8 @@ def main():
             'PTV4Dose': 'Enter 4th Target Dose in cGy',
             'PTV5': 'Select 5th Target Source',
             'PTV5Dose': 'Enter 5th Target Dose in cGy',
-            'UnderDose': 'Under Dosing:',
-            'UniformDose': 'Uniform Dosing:',
+            'UnderDose': 'Priority 1 goals present: Use Underdosing',
+            'UniformDose': 'Targets overlap sensitive structures: Use UniformDoses',
         },
         text='Target selection',
         title='Initial Screen',
@@ -237,8 +237,8 @@ def main():
                  'PTV3': TargetMatches,
                  'PTV4': TargetMatches,
                  'PTV5': TargetMatches,
-                 'UniformDose': ['Targets overlap sensitive structures: Use UniformDoses'],
-                 'UnderDose': ['Priority 1 goals present: Use Underdosing'],
+                 'UniformDose': 'Uniformdosing'],
+                 'UnderDose': ['Underdosing'],
                  },
         required=['PTV1'])
     print InitialDialog.show()
@@ -266,13 +266,13 @@ def main():
         SourceList.append(InitialDialog.values['PTV5'])
         source_doses.append(InitialDialog.values['PTV5Dose'])
 
-    if 'UnderDose' in InitialDialog.values:
+    if 'Underdosing' in InitialDialog.values:
         GenerateUnderDose = True
     else:
         GenerateUnderDose = False
 
 
-    if 'UniformDose' in InitialDialog.values:
+    if 'Uniformdosing' in InitialDialog.values:
         GenerateUniformDose = True
     else:
         GenerateUniformDose = False
