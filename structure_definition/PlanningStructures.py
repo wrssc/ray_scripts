@@ -103,43 +103,179 @@ def main():
     except:
         logging.warning("Aww crap, No patient")
 
-    dialog = UserInterface.InputDialog(inputs={'PTV1': 'Enter 1st Target Name',
-                                               'PTV1Dose':'Enter 1st Target Dose',
-                                               'PTV2': 'Enter 2nd Target Name',
-                                               'PTV2Dose': 'Enter 2nd Target Dose',
-                                               'PTV3': 'Enter 3rd Target Name',
-                                               'PTV3Dose': 'Enter 3rd Target Dose',
-                                               'PTV4': 'Enter 4th Target Name',
-                                               'PTV4Dose': 'Enter 4th Target Dose',
-                                               'PTV5': 'Enter First Target Name',
-                                               'PTV5Dose': 'Enter 5th Target Dose',
-                                               'SkinContraction': 'Enter Skin Contraction',
-                                               'b': 'Select checkboxes:',
-                                               'c': 'Select combobox option:'},
-                                       datatype={'b': 'check', 'c': 'combo'},
-                                       initial={'PTV1': 'PTV1',
-                                                'PTV1Dose': '0',
-                                                'PTV2': 'PTV1',
-                                                'PTV2Dose': '0',
-                                                'PTV3': 'PTV1',
-                                                'PTV3Dose': '0',
-                                                'PTV4': 'PTV4',
-                                                'PTV4Dose': '0',
-                                                'PTV5': 'PTV5',
-                                                'PTV5Dose': '0',
-                                                'b': ['Target-Specific Rings'],
-                                                'c': 'C'},
-                                       options={'b': ['Target-Specific Rings', '2'], 'c': ['A', 'B', 'C']},
-                                       required=['PTV1', 'b', 'c'])
-    # Show the dialog
-    print dialog.show()
-    print dialog.values["PTV1"]
-    # Find all the structures in the current case
-    if case is not None:
-        structures = []
-        for r in case.PatientModel.RegionsOfInterest:
-            structures.append(r.Name)
+    # Underdosed Strucutures
+    # Replace with a user prompt that suggests
+    UnderStruct = ["Esophagus", "OpticNerve_L", "OpticNerve_R", "SpinalCord", "BrainStem"]
+    # Uniform dose Structures
+    # Replace with a user prompt that suggest
+    UniformStruct = ["Mandible", "Lips", "ConstrMuscle", "Larynx"]
 
+    # Commonly underdoses structures
+    UnderStructureChoices = [
+        'Aorta',
+        'BrachialPlexus_L',
+        'BrachialPlexus_L_PRV05',
+        'BrachialPlexus_R',
+        'BrachialPlexus_R_PRV05',
+        'BrainStem',
+        'CaudaEquina',
+        'Chiasm',
+        'Cochlea_L',
+        'Cochlea_R',
+        'Duodenum',
+        'Esophagus',
+        'SmallBowel',
+        'Heart',
+        'LargeBowel',
+        'Lens_R',
+        'Lens_L',
+        'Rectum',
+        'Genitalia',
+        'Globe_L',
+        'Globe_R',
+        'Hippocampus_L',
+        'Hippocampus_L_PRV05',
+        'Hippocampus_R',
+        'Hippocampus_R_PRV05',
+        'IliacCrest_L',
+        'IliacCrest_R',
+        'PulmonaryTrunk',
+        'SpinalCord',
+        'SpinalCord_PRV02',
+        'OpticNerve_L',
+        'OpticNerve_R',
+        'ProxBronchialTree',
+        'Trachea',
+    ]
+    # Common uniformly dosed areas
+    UniformStructureChoices = [
+        'Aorta_PRV05'
+        'BrainStem_PRV03',
+        'Bladder',
+        'CaudaEquina_PRV05',
+        'Chiasm_PRV03',
+        'Cochlea_L_PRV05',
+        'Cochlea_R_PRV05',
+        'ConstrMuscle',
+        'Esophagus_PRV05',
+        'Duodenum_PRV05',
+        'Mandible',
+        'LargeBowel',
+        'Larynx',
+        'Lens_L_PRV05',
+        'Lens_R_PRV05',
+        'Lips',
+        'PeritonealCavity',
+        'ProxBronchialTree_PRV05',
+        'PulmonaryTrunk_PRV05',
+        'OpticNerve_L_PRV03',
+        'OpticNerve_R_PRV03',
+        'Rectum',
+        'SmallBowel',
+        'SpinalCord_PRV05',
+        'Stomach',
+        'Trachea',
+        'Vulva',
+    ]
+
+    # Find all the target names and generate the potential dropdown list for the cases
+    # Use the above list for Uniform Structure Choices and Underdose choices, then
+    # autoassign to the potential dropdowns
+    if case is not None:
+        TargetMatches = []
+        UniformMatches = []
+        UnderMatches = []
+        AllOars = []
+        for r in case.PatientModel.RegionsOfInterest:
+            if r.Type == 'Ptv':
+                TargetMatches.append(r.Name)
+            if r.Type == 'Organ' or r.Type == 'Avoidance':
+                AllOars.append(r.Name)
+            if r.Name in UniformStructureChoices:
+                UniformMatches.append(r.Name)
+            if r.Name in UnderStructureChoices:
+                UnderMatches.append(r.Name)
+    StructureDialog = UserInterface.PSInputDialog(inputs={
+        'A_PTV1': 'Select 1st Target Source',
+        'A_PTV1Dose': 'Enter 1st Target Dose in cGy',
+        'A_PTV2': 'Select 2nd Target Source',
+        'A_PTV2Dose': 'Enter 2nd Target Dose in cGy',
+        'A_PTV3': 'Select 3rd Target Source',
+        'A_PTV3Dose': 'Enter 3rd Target Dose in cGy',
+        'A_PTV4': 'Select 4th Target Source',
+        'A_PTV4Dose': 'Enter 4th Target Dose in cGy',
+        'A_PTV5': 'Select 5th Target Source',
+        'A_PTV5Dose': 'Enter 5th Target Dose in cGy',
+        'A_Under1': 'Select UnderDose Structures',
+        'A_Under2': 'Select Unlisted UnderDose OAR',
+        'A_Under3': 'Select Unlisted UnderDose OAR',
+        'A_Uniform1': 'Select UniformDose Structures',
+        'A_Uniform2': 'Select UniformDose OAR',
+        'A_Uniform3': 'Select UniformDose OAR',
+        'B_SkinContraction': 'Enter Skin Contraction in mm',
+        'B_OTVStandoff': 'Enter Optimization Target Standoff in mm',
+        'B_RingStandoff': 'Enter Ring Standoff in mm',
+        'B_UnderStandoff': 'Enter Underdose Standoff in mm',
+        'B_b': 'Select checkboxes:',
+        'B_c': 'Select combobox option:'},
+        datatype={'A_PTV1': 'combo',
+                  'A_PTV2': 'combo',
+                  'A_PTV3': 'combo',
+                  'A_PTV4': 'combo',
+                  'A_PTV5': 'combo',
+                  'A_Uniform1': 'check',
+                  'A_Uniform2': 'combo',
+                  'A_Uniform3': 'combo',
+                  'A_Under1': 'check',
+                  'A_Under2': 'combo',
+                  'A_Under3': 'combo',
+                  'B_b': 'check', 'B_c': 'combo'},
+        initial={'A_PTV1': 'PTV1',
+                 'A_PTV1Dose': '0',
+                 'A_PTV2': 'PTV1',
+                 'A_PTV2Dose': '0',
+                 'A_PTV3': 'PTV1',
+                 'A_PTV3Dose': '0',
+                 'A_PTV4': 'PTV4',
+                 'A_PTV4Dose': '0',
+                 'A_PTV5': 'PTV5',
+                 'A_PTV5Dose': '0',
+                 'B_SkinContraction': '0.5',
+                 'B_OTVStandoff': '0.3',
+                 'B_RingStandoff': '0.2',
+                 'B_UnderStandoff': '0.4',
+                 'B_b': ['Target-Specific Rings'],
+                 'B_c': 'c'},
+        options={'A_PTV1': TargetMatches,
+                 'A_PTV2': TargetMatches,
+                 'A_PTV3': TargetMatches,
+                 'A_PTV4': TargetMatches,
+                 'A_PTV5': TargetMatches,
+                 'A_Uniform1': UniformMatches,
+                 'A_Uniform2': AllOars,
+                 'A_Uniform3': AllOars,
+                 'A_Under1': UnderMatches,
+                 'A_Under2': AllOars,
+                 'A_Under3': AllOars,
+                 'B_b': UnderMatches,
+                 'B_c': UnderMatches},
+        required=['A_PTV1', 'B_b', 'B_c'])
+    SkinContraction = StructureDialog.values['B_SkinContraction']
+    ##
+    # Stand off inputs
+    # cm gap between higher dose targets (used for OTV volumes)
+    OTVStandoff = 0.3
+    # cm Expansion between targets and rings
+    RingStandoff = 0.2
+    ThickHDRing = 1.5
+    ThickLDRing = 7.0
+    # Compute UnderDose Standoff
+    UnderDoseStandoff = 0.4
+    print StructureDialog.show()
+    # Find all the structures in the current case
+    print "The resulting input values are PTV1(Name) {0}".format(StructureDialog.values['A_PTV1'])
+
+    return
     # User-specified targets
     SourceList = ["PTV_72", "PTV_70", "PTV_64", "PTV_60", "PTV_54"]
     # List of PTVs to be used
