@@ -32,8 +32,6 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import connect
 import logging
 import UserInterface
-# from pickle import FALSE
-# from typing import List, Any
 
 
 def MakeBooleanStructure(patient, case, examination, **kwargs):
