@@ -189,7 +189,8 @@ class PSInputDialog:
                     self.inputs[i].Text = initial[i]
 
                 self.inputs[i].Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
-                self.table.Controls.Add(self.inputs[i])
+                self.right.Controls.Add(self.inputs[i])
+                #self.table.Controls.Add(self.inputs[i])
 
             # Checkbox
             elif self.datatype[i] == 'check':
