@@ -200,7 +200,7 @@ def main():
     # Based on those responses:
     # Approve underdose selections
     # Approve uniform dose selections
-    StructureDialog = UserInterface.InputDialog(
+    InitialDialog = UserInterface.InputDialog(
         inputs={
             'PTV1': 'Select 1st Target Source',
             'PTV1Dose': 'Enter 1st Target Dose in cGy',
@@ -243,6 +243,14 @@ def main():
                  'UnderDose': ['Priority 1 goals present: Use Underdosing'],
                  },
         required=['PTV1', 'UniformDose', 'UnderDose'])
+    print InitialDialog.show()
+    print "The resulting input values are PTV1(Name) {0}".format(StructureDialog.values['PTV1'])
+    print "The resulting input values are PTV5(Name) {0}".format(StructureDialog.values['PTV5'])
+    # Parse output
+
+    # SkinContraction = StructureDialog.values['B_SkinContraction']
+    # User-specified targets
+    SourceList = ["PTV_72", "PTV_70", "PTV_64", "PTV_60", "PTV_54"]
     ###
     # StructureDialog = UserInterface.InputDialog(inputs={
     #                                            'PTV1': 'Select 1st Target Source',
@@ -318,13 +326,10 @@ def main():
     ThickLDRing = 7.0
     # Compute UnderDose Standoff
     UnderDoseStandoff = 0.4
-    print StructureDialog.show()
     # Find all the structures in the current case
     print "The resulting input values are PTV1(Name) {0}".format(StructureDialog.values['PTV1'])
     # SkinContraction = StructureDialog.values['B_SkinContraction']
 
-    # User-specified targets
-    SourceList = ["PTV_72", "PTV_70", "PTV_64", "PTV_60", "PTV_54"]
     # List of PTVs to be used
     GeneratePTVs = True
     GeneratePTVEvals = True
