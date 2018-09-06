@@ -194,6 +194,58 @@ def main():
                 UniformMatches.append(r.Name)
             if r.Name in UnderStructureChoices:
                 UnderMatches.append(r.Name)
+    # Using the Standard InputDialog
+    # We want several calls.  The first will determine the target doses and
+    # 1. Do you want Underdose, Uniform Dose, Target-specific rings
+    # Based on those responses:
+    # Approve underdose selections
+    # Approve uniform dose selections
+    StructureDialog = UserInterface.InputDialog(inputs={
+                                               'PTV1': 'Select 1st Target Source',
+                                               'PTV1Dose': 'Enter 1st Target Dose in cGy',
+                                               'PTV2': 'Select 2nd Target Source',
+                                               'PTV2Dose': 'Enter 2nd Target Dose in cGy',
+                                               'PTV3': 'Select 3rd Target Source',
+                                               'PTV3Dose': 'Enter 3rd Target Dose in cGy',
+                                               'PTV4': 'Select 4th Target Source',
+                                               'PTV4Dose': 'Enter 4th Target Dose in cGy',
+                                               'PTV5': 'Select 5th Target Source',
+                                               'PTV5Dose': 'Enter 5th Target Dose in cGy',
+                                               'UnderDose': 'Are you going to need UnderDose?',
+                                               'UniformDose': 'Are you going to need UniformDose?',
+                                               'B_b': 'Select checkboxes:',
+                                               'B_c': 'Select combobox option:'},
+                                       datatype={'PTV1': 'combo',
+                                                 'PTV2': 'combo',
+                                                 'PTV3': 'combo',
+                                                 'PTV4': 'combo',
+                                                 'PTV5': 'combo',
+                                                 'UniformDose': 'check',
+                                                 'UnderDose': 'check',
+                                                 'B_b': 'check', 'B_c': 'combo'},
+                                       initial={'PTV1': 'PTV1',
+                                                'PTV1Dose': '0',
+                                                'PTV2': 'PTV1',
+                                                'PTV2Dose': '0',
+                                                'PTV3': 'PTV1',
+                                                'PTV3Dose': '0',
+                                                'PTV4': 'PTV4',
+                                                'PTV4Dose': '0',
+                                                'PTV5': 'PTV5',
+                                                'PTV5Dose': '0',
+                                                'UnderDose': ['Use UnderDose'],
+                                                'UniformDose': ['Use UniformDose'],
+                                                'B_b': ['Target-Specific Rings'],
+                                                'B_c': 'c'},
+                                       options={'PTV1': TargetMatches,
+                                                'PTV2': TargetMatches,
+                                                'PTV3': TargetMatches,
+                                                'PTV4': TargetMatches,
+                                                'PTV5': TargetMatches,
+                                                'B_b': UnderMatches,
+                                                'B_c': UnderMatches},
+                                       required=['PTV1', 'B_b', 'B_c'])
+
     StructureDialog = UserInterface.InputDialog(inputs={
                                                'A_PTV1': 'Select 1st Target Source',
                                                'A_PTV1Dose': 'Enter 1st Target Dose in cGy',
