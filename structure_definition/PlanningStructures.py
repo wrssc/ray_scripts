@@ -200,21 +200,21 @@ def main():
     # Based on those responses:
     # Approve underdose selections
     # Approve uniform dose selections
-    StructureDialog = UserInterface.InputDialog(inputs={
-        'PTV1': 'Select 1st Target Source',
-        'PTV1Dose': 'Enter 1st Target Dose in cGy',
-        'PTV2': 'Select 2nd Target Source',
-        'PTV2Dose': 'Enter 2nd Target Dose in cGy',
-        'PTV3': 'Select 3rd Target Source',
-        'PTV3Dose': 'Enter 3rd Target Dose in cGy',
-        'PTV4': 'Select 4th Target Source',
-        'PTV4Dose': 'Enter 4th Target Dose in cGy',
-        'PTV5': 'Select 5th Target Source',
-        'PTV5Dose': 'Enter 5th Target Dose in cGy',
-        'UnderDose': 'Under Dosing:',
-        'UniformDose': 'Uniform Dosing:',
-        'b': 'Select checkboxes:',
-        'c': 'Select combobox option:'},
+    StructureDialog = UserInterface.InputDialog(
+        inputs={
+            'PTV1': 'Select 1st Target Source',
+            'PTV1Dose': 'Enter 1st Target Dose in cGy',
+            'PTV2': 'Select 2nd Target Source',
+            'PTV2Dose': 'Enter 2nd Target Dose in cGy',
+            'PTV3': 'Select 3rd Target Source',
+            'PTV3Dose': 'Enter 3rd Target Dose in cGy',
+            'PTV4': 'Select 4th Target Source',
+            'PTV4Dose': 'Enter 4th Target Dose in cGy',
+            'PTV5': 'Select 5th Target Source',
+            'PTV5Dose': 'Enter 5th Target Dose in cGy',
+            'UnderDose': 'Under Dosing:',
+            'UniformDose': 'Uniform Dosing:',
+            },
         datatype={'PTV1': 'combo',
                   'PTV2': 'combo',
                   'PTV3': 'combo',
@@ -222,7 +222,7 @@ def main():
                   'PTV5': 'combo',
                   'UniformDose': 'check',
                   'UnderDose': 'check',
-                  'b': 'check', 'c': 'combo'},
+                  },
         initial={'PTV1': 'PTV1',
                  'PTV1Dose': '0',
                  'PTV2': 'PTV1',
@@ -233,8 +233,7 @@ def main():
                  'PTV4Dose': '0',
                  'PTV5': 'PTV5',
                  'PTV5Dose': '0',
-                 'b': ['Target-Specific Rings'],
-                 'c': 'c'},
+                 },
         options={'PTV1': TargetMatches,
                  'PTV2': TargetMatches,
                  'PTV3': TargetMatches,
@@ -242,9 +241,8 @@ def main():
                  'PTV5': TargetMatches,
                  'UniformDose': ['Targets overlap sensitive structures: Use UniformDoses'],
                  'UnderDose': ['Priority 1 goals present: Use Underdosing'],
-                 'b': UnderMatches,
-                 'c': UnderMatches},
-        required=['PTV1', 'b', 'c'])
+                 },
+        required=['PTV1', 'UniformDose', 'UnderDose'])
     ###
     # StructureDialog = UserInterface.InputDialog(inputs={
     #                                            'PTV1': 'Select 1st Target Source',
