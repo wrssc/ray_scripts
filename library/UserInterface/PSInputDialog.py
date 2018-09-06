@@ -189,8 +189,7 @@ class PSInputDialog:
                     self.inputs[i].Text = initial[i]
 
                 self.inputs[i].Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
-                self.left.Controls.Add(self.inputs[i])
-                #self.table.Controls.Add(self.inputs[i])
+                self.table.Controls.Add(self.inputs[i])
 
             # Checkbox
             elif self.datatype[i] == 'check':
@@ -203,7 +202,8 @@ class PSInputDialog:
                     if i in initial and o in initial[i]:
                         self.inputs[i][o].Checked = True
 
-                    self.table.Controls.Add(self.inputs[i][o])
+                    self.left.Controls.Add(self.inputs[i][o])
+                   # self.table.Controls.Add(self.inputs[i][o])
 
             # Combobox/dropdown menu
             elif self.datatype[i] == 'combo':
