@@ -250,7 +250,7 @@ def main():
                  InitialDialog.values['PTV2'],
                  InitialDialog.values['PTV3'],
                  InitialDialog.values['PTV4'],
-                 InitialDialog.values['PTV5'],]
+                 InitialDialog.values['PTV5']]
 
     ptv_doses = [InputDialog.values['PTV1Dose'],
                 InputDialog.values['PTV2Dose'],
