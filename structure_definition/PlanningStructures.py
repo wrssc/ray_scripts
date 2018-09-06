@@ -32,6 +32,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import connect
 import logging
 import UserInterface
+import sys
 
 
 def MakeBooleanStructure(patient, case, examination, **kwargs):
