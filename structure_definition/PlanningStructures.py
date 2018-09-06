@@ -259,7 +259,7 @@ def main():
                                                 'Uniform1': UniformMatches,
                                                 'Uniform2': AllOars,
                                                 'Uniform3': AllOars,
-                                                'UnderDose': ['Use Underdosing']
+                                                'UnderDose': ['Use Underdosing'],
                                                 'Under2': AllOars,
                                                 'Under3': AllOars,
                                                 'b': UnderMatches,
