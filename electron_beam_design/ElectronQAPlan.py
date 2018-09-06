@@ -19,7 +19,7 @@
                          when the "Mobius MU" plan name is taken.  Also changed the active phantom to 
                          50cmCube for the clinical institution.  Added autorecompute and deleted incorrect
                          plan recomputation syntax.
-                   1.0.2 Added main function call, eliminated blanket connect import
+                   1.0.2 Added main function call, eliminated blanket connect import, autoclick QA prep
   
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -69,6 +69,10 @@ def main():
         UserInterface.WarningBox('This script requires a Beam Set to be loaded')
         sys.exit('This script requires a Beam Set to be loaded')
 
+    # Click magic
+    ui = connect.get_current('ui')
+    ui.TitleBar.MenuItem['QA Preparation'].Click()
+
     try:
         beamset.CreateQAPlan(
             PhantomName="50cm Cube_2",
@@ -84,6 +88,7 @@ def main():
     except Exception:
         UserInterface.WarningBox('QA Plan failed to create')
         sys.exit('QA Plan failed to create')
+
 
 if __name__ == '__main__':
     main()
