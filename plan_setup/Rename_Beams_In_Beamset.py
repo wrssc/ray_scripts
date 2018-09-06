@@ -65,8 +65,10 @@ def main():
     availabletechniques = [
         'Static MLC -- 2D',
         'Static NoMLC -- 2D',
+        'Electron -- 2D',
         'Static MLC -- 3D',
         'Static NoMLC -- 3D',
+        'Electron -- 3D',
         'FiF MLC -- 3D',
         'Static PRDR MLC -- 3D',
         'SnS MLC -- IMRT',

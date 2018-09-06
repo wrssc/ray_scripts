@@ -71,7 +71,7 @@ def main():
 
     # Click magic
     ui = connect.get_current('ui')
-    ui.TitleBar.MenuItem['QA Preparation'].Click()
+    ui.TitleBar.MenuItem['QA Preparation'].Button_QA_Preparation.Click()
 
     try:
         beamset.CreateQAPlan(
