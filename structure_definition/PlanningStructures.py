@@ -240,7 +240,7 @@ def main():
                                                 'PTV3': TargetMatches,
                                                 'PTV4': TargetMatches,
                                                 'PTV5': TargetMatches,
-                                                'UniformDose': ['Targets overlap sensitive structures: Use UniformDoses']
+                                                'UniformDose': ['Targets overlap sensitive structures: Use UniformDoses'],
                                                 'UnderDose': ['Priority 1 goals present: Use Underdosing'],
                                                 'b': UnderMatches,
                                                 'c': UnderMatches},
