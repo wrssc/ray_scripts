@@ -1,0 +1,25 @@
+﻿PlanName,BeamSetName,TemplateName,TreatmentTechnique,PatientPosition,BeamName,BeamDescription,GantryStart,GantryStop,ArcDirection,CollimatorAngle,CouchAngle)
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,1_Brai_RPO,1 SNS: PRDR,240,NA,NA,15,0
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,2_Brai_RLAT,2 SNS: PRDR,270,NA,NA,350,0
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,3_Brai_RAO,3 SNS: PRDR,300,NA,NA,355,0
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,4_Brai_LAO,4 SNS: PRDR,60,NA,NA,25,0
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,5_Brai_LLAT,5 SNS: PRDR,90,NA,NA,345,0
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,6_Brai_LPO,6 SNS: PRDR,120,NA,NA,5,0
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,7_Brai_g045c315,7 SNS: PRDR,45,NA,NA,5,315
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,8_Brai_g135c315,8 SNS: PRDR,135,NA,NA,5,315
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,9_Brai_g315c045,9 SNS: PRDR,315,NA,NA,15,45
+HFS BeamTemplate - 3DSnS,SNS_Brai_PRDR,SNS (PRDR): 10Beam Brain,SMLC,HeadFirstSupine,10_Brai_g225c045,10 SNS: PRDR,225,NA,NA,5,45
+HFS BeamTemplate - 3DSnS,3D_HFS_2F_APPA,2Fields (Anterior and Posterior),Conformal,HeadFirstSupine,1_<SITE>_AP,1 3DC: MLC Static Field,0,NA,NA,0,0
+HFS BeamTemplate - 3DSnS,3D_HFS_2F_APPA,2Fields (Anterior and Posterior),Conformal,HeadFirstSupine,2_<SITE>_PA,2 3DC: MLC Static Field,180,NA,NA,0,0
+HFS BeamTemplate - 3DSnS,3D_HFS_3F_Obl,3Fields (Anterior and PosteriorObliques),Conformal,HeadFirstSupine,1_<SITE>_AP,1 3DC: MLC Static Field,0,NA,NA,0,0
+HFS BeamTemplate - 3DSnS,3D_HFS_3F_Obl,3Fields (Anterior and PosteriorObliques),Conformal,HeadFirstSupine,2_<SITE>_RPO,2 3DC: MLC Static Field,210,NA,NA,210,0
+HFS BeamTemplate - 3DSnS,3D_HFS_3F_Obl,3Fields (Anterior and PosteriorObliques),Conformal,HeadFirstSupine,3_<SITE>_LPO,3 3DC: MLC Static Field,150,NA,NA,150,0
+HFS BeamTemplate - 3DSnS,3D_HFS_3F_Post,3Fields (Posterior and Right/Left Laterals),Conformal,HeadFirstSupine,1_<SITE>_RLAT,1 3DC: MLC Static Field,270,NA,NA,90,0
+HFS BeamTemplate - 3DSnS,3D_HFS_3F_Post,3Fields (Posterior and Right/Left Laterals),Conformal,HeadFirstSupine,2_<SITE>_LLAT,2 3DC: MLC Static Field,90,NA,NA,90,0
+HFS BeamTemplate - 3DSnS,3D_HFS_3F_Post,3Fields (Posterior and Right/Left Laterals),Conformal,HeadFirstSupine,3_<SITE>_PA,3 3DC: MLC Static Field,180,NA,NA,0,0
+HFS BeamTemplate - 3DSnS,3D_HFS_4F,4Fields (Anterior/Posterior and Right/Left Laterals),Conformal,HeadFirstSupine,1_<SITE>_RLAT,1 3DC: MLC Static Field,270,NA,NA,90,0
+HFS BeamTemplate - 3DSnS,3D_HFS_4F,4Fields (Anterior/Posterior and Right/Left Laterals),Conformal,HeadFirstSupine,2_<SITE>_AP,2 3DC: MLC Static Field,0,NA,NA,0,0
+HFS BeamTemplate - 3DSnS,3D_HFS_4F,4Fields (Anterior/Posterior and Right/Left Laterals),Conformal,HeadFirstSupine,3_<SITE>_LLAT,3 3DC: MLC Static Field,90,NA,NA,90,0
+HFS BeamTemplate - 3DSnS,3D_HFS_4F,4Fields (Anterior/Posterior and Right/Left Laterals),Conformal,HeadFirstSupine,4_<SITE>_PA,4 3DC: MLC Static Field,180,NA,NA,0,0
+HFS BeamTemplate - 3DSnS,3D_HFS_WBRT,2Fields (Right/Left Lateral with Couch Adjust),Conformal,HeadFirstSupine,1_Brai_g270c355,1 3DC: MLC Static Field,270,NA,NA,0,355
+HFS BeamTemplate - 3DSnS,3D_HFS_WBRT,2Fields (Right/Left Lateral with Couch Adjust),Conformal,HeadFirstSupine,2_Brai_g090c005,2 3DC: MLC Static Field,90,NA,NA,0,5

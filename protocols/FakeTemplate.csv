@@ -1,0 +1,9 @@
+﻿PlanName,BeamSetName,TemplateName,TreatmentTechnique,PatientPosition,BeamName,BeamDescription,GantryStart,GantryStop,ArcDirection,CollimatorAngle,CouchAngle
+HFS BeamTemplate - Conformal Arc,VMA_ConArc_Full,Conformal Arc Full,ConformalArc,HeadFirstSupine,1_<SITE>_Arc_c000,1 3D: CW Arc,183,178,Clockwise,5,0
+HFS BeamTemplate - Conformal Arc,VMA_ConArc_AR,Conformal Arc Avoid Right,ConformalArc,HeadFirstSupine,1a_<SITE>_Arc_c000,1a 3D: CW Arc,182,225,Clockwise,5,0
+HFS BeamTemplate - Conformal Arc,VMA_ConArc_AR,Conformal Arc Avoid Right,ConformalArc,HeadFirstSupine,1b_<SITE>_Arc_c000,1b 3D: CW Arc,315,178,Clockwise,5,0
+HFS BeamTemplate - Conformal Arc,VMA_ConArc_AA,Conformal Arc Avoid Anterior,ConformalArc,HeadFirstSupine,1a_<SITE>_Arc_c000,1a 3D: CW Arc,182,315,Clockwise,5,0
+HFS BeamTemplate - Conformal Arc,VMA_ConArc_AA,Conformal Arc Avoid Anterior,ConformalArc,HeadFirstSupine,1b_<SITE>_Arc_c000,1b 3D: CW Arc,45,178,Clockwise,5,0
+HFS BeamTemplate - Conformal Arc,VMA_ConArc_AL,Conformal Arc Avoid Left,ConformalArc,HeadFirstSupine,1a_<SITE>_Arc_c000,1a 3D: CW Arc,182,45,Clockwise,5,0
+HFS BeamTemplate - Conformal Arc,VMA_ConArc_AL,Conformal Arc Avoid Left,ConformalArc,HeadFirstSupine,1b_<SITE>_Arc_c000,1b 3D: CW Arc,135,178,Clockwise,5,0
+HFS BeamTemplate - Conformal Arc,VMA_ConArc_AP,Conformal Arc Avoid Posterior,ConformalArc,HeadFirstSupine,1_<SITE>_Arc_c000,1 3D: CW Arc,225,135,Clockwise,5,0
