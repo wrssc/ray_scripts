@@ -244,8 +244,8 @@ def main():
                  },
         required=['PTV1', 'UniformDose', 'UnderDose'])
     print InitialDialog.show()
-    print "The resulting input values are PTV1(Name) {0}".format(InitialDialog.values['PTV1'])
-    print "The resulting input values are PTV5(Name) {0}".format(InitialDialog.values['PTV5'])
+    #print "The resulting input values are PTV1(Name) {0}".format(InitialDialog.values['PTV1'])
+    #print "The resulting input values are PTV5(Name) {0}".format(InitialDialog.values['PTV5'])
     ptv_names = [InitialDialog.values['PTV1'],
                  InitialDialog.values['PTV2'],
                  InitialDialog.values['PTV3'],
