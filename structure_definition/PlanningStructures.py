@@ -94,7 +94,6 @@ def MakeBooleanStructure(patient, case, examination, **kwargs):
 
 
 def main():
-    import UserInterface
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current("Case")

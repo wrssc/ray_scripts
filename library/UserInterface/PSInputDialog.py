@@ -1,6 +1,6 @@
 """ Modified input GUI Widget for the Planning Structure Script
 
-    The InputDialog() class constructor displays a form with input fields for the
+    The PSInputDialog() class constructor displays a form with input fields for the
     user to provide data to scripts. Multiple form inputs can be requested; the
     results are returned as a list. Optional input arguments also allow for custom
     input types (checkboxes, combo boxes), initial values, and required inputs. The
@@ -10,7 +10,7 @@
     The following example illustrates this class:
 
     import UserInterface
-    dialog = UserInterface.InputDialog(inputs={'a': 'Enter a value: ',
+    dialog = UserInterface.PSInputDialog(inputs={'a': 'Enter a value: ',
                                                'b': 'Select checkboxes:',
                                                'c': 'Select combobox option:'},
                                        datatype={'b': 'check', 'c': 'combo'},
