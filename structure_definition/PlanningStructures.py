@@ -264,13 +264,24 @@ def main():
         SourceList.append(InitialDialog.values['PTV5'])
         source_doses.append(InitialDialog.values['PTV5Dose'])
 
-    print '[%s]' % ', '.join(map(str, SourceList))
+    if 'UnderDose' in InitialDialog.values:
+        GenerateUnderDose = True
+    else:
+        GenerateUnderDose = False
 
-    # Parse output
+
+    if 'UniformDose' in InitialDialog.values:
+        GenerateUniformDose = True
+    else:
+        GenerateUniformDose = False
+    # Rephrase the next statement with logging
+    print 'Proceeding with target list: [%s]' % ', '.join(map(str, SourceList))
+    print 'Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses))
+    print 'User selected {} for UnderDose'.format(GenerateUnderDose)
+    print 'User selected {} for UniformDose'.format(GenerateUniformDose)
+
 
     # SkinContraction = StructureDialog.values['B_SkinContraction']
-    # User-specified targets
-    SourceList = ["PTV_72", "PTV_70", "PTV_64", "PTV_60", "PTV_54"]
     ###
     # StructureDialog = UserInterface.InputDialog(inputs={
     #                                            'PTV1': 'Select 1st Target Source',
