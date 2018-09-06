@@ -237,8 +237,8 @@ def main():
                  'PTV3': TargetMatches,
                  'PTV4': TargetMatches,
                  'PTV5': TargetMatches,
-                 'UniformDose': 'Uniformdosing',
-                 'UnderDose': 'Underdosing',
+                 'UniformDose': ['yes','no'],
+                 'UnderDose': ['yes','no']
                  },
         required=['PTV1'])
     print InitialDialog.show()
@@ -267,16 +267,12 @@ def main():
         source_doses.append(InitialDialog.values['PTV5Dose'])
 
     print InitialDialog.values['UniformDose']
-    if 'Underdosing' in InitialDialog.values:
-        GenerateUnderDose = True
-    else:
-        GenerateUnderDose = False
-
-
-    if 'Uniformdosing' in InitialDialog.values:
+    if InitialDialog.values['UniformDose'] == 'yes':
         GenerateUniformDose = True
     else:
-        GenerateUniformDose = False
+        GenerateUniformDose= False
+
+
     # Rephrase the next statement with logging
     print 'Proceeding with target list: [%s]' % ', '.join(map(str, SourceList))
     print 'Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses))
