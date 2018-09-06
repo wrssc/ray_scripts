@@ -267,7 +267,7 @@ def main():
         source_doses.append(InitialDialog.values['PTV5Dose'])
 
     print InitialDialog.values['UniformDose']
-    if InitialDialog.values['UniformDose'] == 'yes':
+    if 'yes' in InitialDialog.values['UniformDose']:
         GenerateUniformDose = True
     else:
         GenerateUniformDose= False
