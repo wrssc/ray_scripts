@@ -237,8 +237,8 @@ def main():
                  'PTV3': TargetMatches,
                  'PTV4': TargetMatches,
                  'PTV5': TargetMatches,
-                 'UniformDose': 'Uniformdosing',
-                 'UnderDose': 'Underdosing',
+                 'UniformDose': ['Uniformdosing'],
+                 'UnderDose': ['Underdosing'],
                  },
         required=['PTV1'])
     print InitialDialog.show()
