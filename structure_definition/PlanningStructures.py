@@ -215,6 +215,8 @@ def main():
             'UnderDose': 'Under Dosing:',
             'UniformDose': 'Uniform Dosing:',
         },
+        text='Target selection',
+        title='Initial Screen',
         datatype={'PTV1': 'combo',
                   'PTV2': 'combo',
                   'PTV3': 'combo',
@@ -238,10 +240,10 @@ def main():
                  'UniformDose': ['Targets overlap sensitive structures: Use UniformDoses'],
                  'UnderDose': ['Priority 1 goals present: Use Underdosing'],
                  },
-        required=['PTV1', 'UniformDose', 'UnderDose'])
+        required=['PTV1'])
     print InitialDialog.show()
-    #print "The resulting input values are PTV1(Name) {0}".format(InitialDialog.values['PTV1'])
-    #print "The resulting input values are PTV5(Name) {0}".format(InitialDialog.values['PTV5'])
+
+    # Parse the output from InitialDialog
     SourceList = []
     source_doses = []
     if 'PTV1' in InitialDialog.values:
@@ -280,9 +282,26 @@ def main():
     print 'User selected {} for UnderDose'.format(GenerateUnderDose)
     print 'User selected {} for UniformDose'.format(GenerateUniformDose)
 
+    if GenerateUniformDose:
+        uniform_dose_dialog = UserInterface.InputDialog(inputs={
+            'Uniform1': 'Select UniformDose Structures',
+            'Uniform2': 'Select UniformDose OAR',
+            'Uniform3': 'Select UniformDose OAR',
+            'b': 'Select checkboxes:',
+            'c': 'Select combobox option:'},
+            datatype={
+                      'Uniform1': 'check',
+                      'Uniform2': 'combo',
+                      'Uniform3': 'combo',
+                      'b': 'check', 'c': 'combo'},
+            initial={},
+            options={
+                     'Uniform1': UniformMatches,
+                     'Uniform2': AllOars,
+                     'Uniform3': AllOars},
+            required=[])
+        print uniform_dose_dialog.show()
 
-    # SkinContraction = StructureDialog.values['B_SkinContraction']
-    ###
     # StructureDialog = UserInterface.InputDialog(inputs={
     #                                            'PTV1': 'Select 1st Target Source',
     #                                            'PTV1Dose': 'Enter 1st Target Dose in cGy',
