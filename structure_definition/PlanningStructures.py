@@ -237,8 +237,8 @@ def main():
                  'PTV3': TargetMatches,
                  'PTV4': TargetMatches,
                  'PTV5': TargetMatches,
-                 'UniformDose': 'Uniformdosing'],
-                 'UnderDose': ['Underdosing'],
+                 'UniformDose': 'Uniformdosing',
+                 'UnderDose': 'Underdosing',
                  },
         required=['PTV1'])
     print InitialDialog.show()
@@ -283,17 +283,17 @@ def main():
     print 'User selected {} for UniformDose'.format(GenerateUniformDose)
 
     if GenerateUniformDose:
-        uniform_dose_dialog = UserInterface.InputDialog(inputs={
+        uniform_dose_dialog = UserInterface.InputDialog(
+            inputs={
             'Uniform1': 'Select UniformDose Structures',
             'Uniform2': 'Select UniformDose OAR',
             'Uniform3': 'Select UniformDose OAR',
-            'b': 'Select checkboxes:',
-            'c': 'Select combobox option:'},
+            },
             datatype={
                       'Uniform1': 'check',
                       'Uniform2': 'combo',
                       'Uniform3': 'combo',
-                      'b': 'check', 'c': 'combo'},
+                     },
             initial={},
             options={
                      'Uniform1': UniformMatches,
