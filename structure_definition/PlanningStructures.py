@@ -214,7 +214,7 @@ def main():
             'PTV5Dose': 'Enter 5th Target Dose in cGy',
             'UnderDose': 'Under Dosing:',
             'UniformDose': 'Uniform Dosing:',
-            },
+        },
         datatype={'PTV1': 'combo',
                   'PTV2': 'combo',
                   'PTV3': 'combo',
@@ -244,8 +244,31 @@ def main():
                  },
         required=['PTV1', 'UniformDose', 'UnderDose'])
     print InitialDialog.show()
-    print "The resulting input values are PTV1(Name) {0}".format(StructureDialog.values['PTV1'])
-    print "The resulting input values are PTV5(Name) {0}".format(StructureDialog.values['PTV5'])
+    print "The resulting input values are PTV1(Name) {0}".format(InitialDialog.values['PTV1'])
+    print "The resulting input values are PTV5(Name) {0}".format(InitialDialog.values['PTV5'])
+    ptv_names = [InitialDialog.values['PTV1'],
+                 InitialDialog.values['PTV2'],
+                 InitialDialog.values['PTV3'],
+                 InitialDialog.values['PTV4'],
+                 InitialDialog.values['PTV5'],]
+
+    ptv_doses = [InputDialog.values['PTV1Dose'],
+                InputDialog.values['PTV2Dose'],
+                InputDialog.values['PTV3Dose'],
+                InputDialog.values['PTV4Dose'],
+                InputDialog.values['PTV5Dose']]
+    SourceList = []
+    source_doses = []
+    for d in ptv_doses:
+        if d != '0':
+            source_doses = source_doses.append(d)
+    for n in ptv_names:
+        if n != None:
+            SourceList = SourceList.append(n)
+
+    print "Sourcelist"
+    print '[%s]' % ', '.join(map(str, SourceList))
+
     # Parse output
 
     # SkinContraction = StructureDialog.values['B_SkinContraction']
