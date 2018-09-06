@@ -126,6 +126,17 @@ class PSInputDialog:
         self.right.AutoSize = True
         self.columns.Controls.Add(self.right)
 
+        # Add right panel placeholders
+        self.prescription_label = System.Windows.Forms.Label()
+        self.prescription_label.Text = 'Prescription Details'
+        self.prescription_label.AutoSize = True
+        self.prescription_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+        self.prescription_label.Font = System.Drawing.Font(self.prescription_label.Font,
+                                                           self.prescription_label.Font.Style |
+                                                           System.Drawing.FontStyle.Bold)
+        self.prescription_label.Visible = False
+        self.right.Controls.Add(self.prescription_label)
+
         # Add intro text
         if text != '':
             self.intro = System.Windows.Forms.Label()
