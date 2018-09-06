@@ -28,7 +28,7 @@ __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-
+# Import packages
 import connect
 import logging
 import UserInterface
@@ -94,6 +94,7 @@ def MakeBooleanStructure(patient, case, examination, **kwargs):
 
 
 def main():
+    import UserInterface
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current("Case")

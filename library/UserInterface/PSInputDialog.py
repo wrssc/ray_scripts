@@ -40,7 +40,8 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
 import clr
-
+import os
+import logging
 
 class PSInputDialog:
 
