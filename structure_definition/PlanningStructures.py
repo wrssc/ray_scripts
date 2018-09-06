@@ -245,24 +245,25 @@ def main():
     SourceList = []
     source_doses = []
     if 'PTV1' in InitialDialog.values:
-        SourceList.append(InitialDialog['PTV1'])
-        source_doses.append('PTV1Dose')
+        SourceList.append(InitialDialog.values['PTV1'])
+        source_doses.append(InitialDialog.values['PTV1Dose'])
 
     if 'PTV2' in InitialDialog.values:
-        SourceList.append(InitialDialog['PTV2'])
-        source_doses.append('PTV2Dose')
+        SourceList.append(InitialDialog.values['PTV2'])
+        source_doses.append(InitialDialog.values['PTV2Dose'])
 
     if 'PTV3' in InitialDialog.values:
-        SourceList.append(InitialDialog['PTV3'])
-        source_doses.append('PTV3Dose')
+        SourceList.append(InitialDialog.values['PTV3'])
+        source_doses.append(InitialDialog.values['PTV3Dose'])
 
     if 'PTV4' in InitialDialog.values:
-        SourceList.append(InitialDialog['PTV4'])
-        source_doses.append('PTV4Dose')
+        SourceList.append(InitialDialog.values['PTV4'])
+        source_doses.append(InitialDialog.values['PTV4Dose'])
 
     if 'PTV5' in InitialDialog.values:
-        SourceList.append(InitialDialog['PTV5'])
-        source_doses.append('PTV5Dose')
+        SourceList.append(InitialDialog.values['PTV5'])
+        source_doses.append(InitialDialog.values['PTV5Dose'])
+
     print '[%s]' % ', '.join(map(str, SourceList))
 
     # Parse output
