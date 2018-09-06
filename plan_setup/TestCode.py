@@ -259,7 +259,6 @@ def main():
                                                 'B_b': UnderMatches,
                                                 'B_c': UnderMatches},
                                        required=['A_PTV1', 'B_b', 'B_c'])
-    SkinContraction = StructureDialog.values['B_SkinContraction']
     ##
     # Stand off inputs
     # cm gap between higher dose targets (used for OTV volumes)
@@ -273,6 +272,7 @@ def main():
     print StructureDialog.show()
     # Find all the structures in the current case
     print "The resulting input values are PTV1(Name) {0}".format(StructureDialog.values['A_PTV1'])
+    SkinContraction = StructureDialog.values['B_SkinContraction']
 
     # User-specified targets
     SourceList = ["PTV_72", "PTV_70", "PTV_64", "PTV_60", "PTV_54"]
