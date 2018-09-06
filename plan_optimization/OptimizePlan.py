@@ -1,4 +1,4 @@
-""" OptimizePlan
+""" Optimize Plan
     
     Automatically optimizize the current case, examination, plan, beamset using
     input optimization parameters
@@ -31,8 +31,8 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2018-Apr-06'
-__version__ = '1.0.0'
+__date__ = '2018-Apr-10'
+__version__ = '1.0.1'
 __status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
@@ -52,24 +52,37 @@ __credits__ = ['']
 # 11/29/17 Commented out the automatic jaw-limit restriction 
 #          as this was required with jaw-tracking on but is no longer needed
 # 11/29/17 Turn off auto-scale prior to optimization -ugh
+# Added logging
 
+# Fix the import all from connect.
 from connect import *
 import sys
 
-def OptimizePlan(patient, case, plan, beamset, **OptParams):
+def OptimizePlan(patient, case, plan, beamset, **OptP):
+    import logging
     #Parameters used for iteration number
-    InitialMaximumIteration =  OptParams.get(InitialMaxIt, 60)
-    InitialIntermediateIteration = OptParams.get(InitialIntIt, 10)
-    SecondMaximumIteration = OptParams.get(SecondMaxIt, 30)
-    SecondIntermediateIteration = OptParams.get(SecondIntIt, 15)
+    InitialMaximumIteration =  OptP.get('InitialMaxIt', 60)
+    InitialIntermediateIteration = OptP.get('InitialIntIt', 10)
+    SecondMaximumIteration = OptP.get('SecondMaxIt', 30)
+    SecondIntermediateIteration = OptP.get('SecondIntIt', 15)
     
     # Grid Sizes
-    DoseDim1 = OptParams.get(DoseDim1 , 0.5)
-    DoseDim2 = OptParams.get(DoseDim2 , 0.4)
-    DoseDim3 = OptParams.get(DoseDim3 , 0.3)
-    DoseDim4 = OptParams.get(DoseDim4 , 0.2)
-    Maximum_Iteration = OptParams.get(NIterations , 12)
+    DoseDim1 = OptP.get('DoseDim1' , 0.5)
+    DoseDim2 = OptP.get('DoseDim2' , 0.4)
+    DoseDim3 = OptP.get('DoseDim3' , 0.3)
+    DoseDim4 = OptP.get('DoseDim4' , 0.2)
+    Maximum_Iteration = OptP.get('NIterations' , 12)
+    print 'InitialMaximumIteration TEST = '+str(InitialMaximumIteration)
+    print 'InitialIntermediateIteration ='+str(InitialIntermediateIteration)
+    print 'SecondMaximumIteration ='+str(SecondMaximumIteration)
+    print 'SecondIntermediateIteration = '+str(SecondIntermediateIteration)
+    print 'DoseDim1 ='+str(DoseDim1)
+    print 'DoseDim2='+str(DoseDim2)
+    print 'DoseDim3='+str(DoseDim3)
+    print 'DoseDim4='+str(DoseDim4)
+    print 'Maximum_Iteration=',str(Maximum_Iteration)
 
+    logging.debug('Set some variables like Niterations, Nits={}'.format(Maximum_Iteration))
     # Maximum Jaw Sizes
     X1limit = -15
     X2limit = 15
@@ -83,26 +96,7 @@ def OptimizePlan(patient, case, plan, beamset, **OptParams):
     OptIndex = 0 
     Optimization_Iteration = 0
 
-    try:
-         Patient = get_current("Patient")
-    except SystemError:
-         raise IOError("No Patient loaded. Load patient case and plan.")
-
-    try:
-         case = get_current("Case")
-    except SystemError:
-         raise IOError("No Case loaded. Load patient case and plan.")
-
-    try:
-         plan = get_current("Plan")
-    except SystemError:
-         raise IOError("No plan loaded. Load patient and plan.")
-
-    try: 
-         beamset = get_current("BeamSet")
-    except SystemError:
-         raise IOError("No beamset loaded")
-
+    
     # Find current Beamset Number and determine plan optimization
     BeamSetName = beamset.DicomPlanLabel
     OptIndex = 0
@@ -153,13 +147,17 @@ def OptimizePlan(patient, case, plan, beamset, **OptParams):
       except:
           beamsinrange = False
 
+    # Reset
+    plan.PlanOptimizations[OptIndex].ResetOptimization()
+
 
     while Optimization_Iteration != Maximum_Iteration:
          UpdateMessage = 'Current iteration = '+str(Optimization_Iteration)+' of '+ str(Maximum_Iteration)
          print UpdateMessage
          # MessageBox.Show(UpdateMessage)
-         if Optimization_Iteration == 2:
-         # Change Dose Grid size
+         if Optimization_Iteration == 0:
+
+            # Change Dose Grid size
             DoseDim = DoseDim1
             with CompositeAction('Set default grid'):
               retval_0 = plan.SetDefaultDoseGrid(VoxelSize={ 'x': DoseDim, 'y': DoseDim, 'z': DoseDim })
@@ -168,21 +166,21 @@ def OptimizePlan(patient, case, plan, beamset, **OptParams):
            # Set the Maximum iterations and segmentation iterattion to a lower number for the initial run
             plan.PlanOptimizations[OptIndex].OptimizationParameters.Algorithm.MaxNumberOfIterations = SecondMaximumIteration
             plan.PlanOptimizations[OptIndex].OptimizationParameters.DoseCalculation.IterationsInPreparationsPhase = SecondIntermediateIteration
-         elif Optimization_Iteration == 4:
+         elif Optimization_Iteration == 2:
          # Change Dose Grid size
             DoseDim = DoseDim2
             with CompositeAction('Set default grid'):
               retval_0 = plan.SetDefaultDoseGrid(VoxelSize={ 'x': DoseDim, 'y': DoseDim, 'z': DoseDim })
               plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
          # CompositeAction ends 
-         elif Optimization_Iteration == 6:
+         elif Optimization_Iteration == 4:
          # Change Dose Grid size
             DoseDim = DoseDim3
             with CompositeAction('Set default grid'):
               retval_0 = plan.SetDefaultDoseGrid(VoxelSize={ 'x': DoseDim, 'y': DoseDim, 'z': DoseDim })
               plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
          # CompositeAction ends 
-         elif Optimization_Iteration == 10:
+         elif Optimization_Iteration == 8:
          # Change Dose Grid size
             DoseDim = DoseDim4
             with CompositeAction('Set default grid'):
@@ -196,6 +194,60 @@ def OptimizePlan(patient, case, plan, beamset, **OptParams):
     #Finish with a Reduce OAR Dose Optimization
     print("Running Reduce OAR Optimization" )
     plan.PlanOptimizations[OptIndex].RunReduceOARDoseOptimization
+
+def main():
+
+    try:
+         Patient = get_current("Patient")
+    except SystemError:
+         raise IOError("No Patient loaded. Load patient case and plan.")
+
+    try:
+         case = get_current("Case")
+    except SystemError:
+         raise IOError("No Case loaded. Load patient case and plan.")
+
+    try:
+         plan = get_current("Plan")
+    except SystemError:
+         raise IOError("No plan loaded. Load patient and plan.")
+
+    try: 
+         beamset = get_current("BeamSet")
+    except SystemError:
+         raise IOError("No beamset loaded")
+#    OptParams = {
+#    'InitialMaxIt' : 500,
+#    'InitialIntIt' : 100,
+#    'SecondMaxIt' : 300,
+#    'SecondIntIt' : 150,
+#    'DoseDim1' : 0.45,
+#    'DoseDim2' : 0.35,
+#    'DoseDim3' : 0.35,
+#    'DoseDim4' : 0.22,
+#    'NIterations' : 3}
+#    OptimizePlan(Patient, case, plan, beamset, **OptParams)
+    OptimizePlan(Patient, case, plan, beamset)
+
+
+if __name__=='__main__':
+    main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
