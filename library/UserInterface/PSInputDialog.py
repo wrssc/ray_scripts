@@ -76,31 +76,55 @@ class PSInputDialog:
         if initial is None:
             initial = {}
 
-        # Initialize form (if provided, use existing)
-        if form is None:
-            self.form = System.Windows.Forms.Form()
-            self.form.AutoSize = True
-            self.form.MaximumSize = System.Drawing.Size(300,
-                                                        System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
-            self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-            self.form.Padding = System.Windows.Forms.Padding(0)
-            self.form.Text = title
-            self.form.AutoScroll = True
-            self.form.BackColor = System.Drawing.Color.White
-            self.form.TopMost = True
-
-        else:
-            self.form = form
+        # Initialize form
+        self.form = System.Windows.Forms.Form()
+        self.form.AutoSize = True
+        self.form.MaximumSize = System.Drawing.Size(900,
+                                                    System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+        self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        self.form.Padding = System.Windows.Forms.Padding(0)
+        self.form.Text = title
+        self.form.AutoScroll = True
+        self.form.BackColor = System.Drawing.Color.White
+        self.form.TopMost = True
 
         # Add table layout
         self.table = System.Windows.Forms.TableLayoutPanel()
         self.table.ColumnCount = 1
-        self.table.RowCount = 1
-        self.table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-        self.table.Padding = System.Windows.Forms.Padding(0, 0, 0, 10)
+        self.table.RowCount = 2
+        self.table.Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
         self.table.BackColor = System.Drawing.Color.White
         self.table.AutoSize = True
         self.form.Controls.Add(self.table)
+
+        # Add columns
+        self.columns = System.Windows.Forms.TableLayoutPanel()
+        self.columns.ColumnCount = 2
+        self.columns.RowCount = 1
+        self.columns.Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
+        self.columns.BackColor = System.Drawing.Color.White
+        self.columns.AutoSize = True
+        self.table.Controls.Add(self.columns)
+
+        # Add left panel
+        self.left = System.Windows.Forms.TableLayoutPanel()
+        self.left.ColumnCount = 1
+        self.left.RowCount = 1
+        self.left.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
+        self.left.Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
+        self.left.BackColor = System.Drawing.Color.White
+        self.left.AutoSize = True
+        self.columns.Controls.Add(self.left)
+
+        # Add right panel
+        self.right = System.Windows.Forms.TableLayoutPanel()
+        self.right.ColumnCount = 1
+        self.right.RowCount = 1
+        self.right.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
+        self.right.Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
+        self.right.BackColor = System.Drawing.Color.White
+        self.right.AutoSize = True
+        self.columns.Controls.Add(self.right)
 
         # Add intro text
         if text != '':
