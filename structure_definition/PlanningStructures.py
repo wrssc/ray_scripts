@@ -19,9 +19,7 @@
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
 """
-# from pickle import FALSE
 
-# from typing import List, Any
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
@@ -34,6 +32,8 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import connect
 import logging
 import UserInterface
+# from pickle import FALSE
+# from typing import List, Any
 
 
 def MakeBooleanStructure(patient, case, examination, **kwargs):
