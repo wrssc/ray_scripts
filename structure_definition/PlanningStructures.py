@@ -305,7 +305,7 @@ def main():
         print uniform_dose_dialog.show()
         uniform_structures = []
         try:
-            uniform_structures.append(uniform_dose_dialog.values['Uniform1'])
+            uniform_structures=list(uniform_dose_dialog.values['Uniform1'])
         except KeyError:
             pass
         try:
