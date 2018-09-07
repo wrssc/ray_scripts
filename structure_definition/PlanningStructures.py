@@ -304,12 +304,19 @@ def main():
             required=[])
         print uniform_dose_dialog.show()
         uniform_structures = []
-        if uniform_dose_dialog.values['Uniform1'] is not None:
+        try:
             uniform_structures.append(uniform_dose_dialog.values['Uniform1'])
-        if uniform_dose_dialog.values['Uniform2'] is not None:
+        except KeyError:
+            pass
+        try:
             uniform_structures.append(uniform_dose_dialog.values['Uniform2'])
-        if uniform_dose_dialog.values['Uniform3'] is not None:
+        except KeyError:
+            pass
+        try:
             uniform_structures.append(uniform_dose_dialog.values['Uniform3'])
+        except KeyError:
+            pass
+
         for structs in uniform_structures: print structs
 
     # StructureDialog = UserInterface.InputDialog(inputs={
