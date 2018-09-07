@@ -305,7 +305,7 @@ def main():
         print uniform_dose_dialog.show()
 
     uniform_structures = []
-    for key, value in uniform_dose_dialog.values['Uniform1']
+    for key, value in uniform_dose_dialog.values['Uniform1']:
         if value:
             uniform_structures.append(value)
     for structs in uniform_structures: print structs
