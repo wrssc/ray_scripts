@@ -185,7 +185,7 @@ def main():
     UnderMatches = []
     AllOars = []
     for r in case.PatientModel.RegionsOfInterest:
-        print "Type:{} and Name:{}".format(r.Type, r.Name)
+       # print "Type:{} and Name:{}".format(r.Type, r.Name)
         if r.Type == 'Ptv':
             TargetMatches.append(r.Name)
         if r.Name in UniformStructureChoices:
@@ -309,7 +309,7 @@ def main():
     for key, value in uniform_dose_dialog.values['Uniform1']
         if value:
             uniform_structures.append(value)
-    print uniform_structures
+    for structs in uniform_structures: print structs
     # StructureDialog = UserInterface.InputDialog(inputs={
     #                                            'PTV1': 'Select 1st Target Source',
     #                                            'PTV1Dose': 'Enter 1st Target Dose in cGy',
