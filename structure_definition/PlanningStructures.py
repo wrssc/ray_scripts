@@ -188,12 +188,12 @@ def main():
         for r in case.PatientModel.RegionsOfInterest:
             if r.Type == 'Ptv':
                 TargetMatches.append(r.Name)
-            if r.Type == 'Organ' or r.Type == 'Avoidance':
-                AllOars.append(r.Name)
             if r.Name in UniformStructureChoices:
                 UniformMatches.append(r.Name)
             if r.Name in UnderStructureChoices:
                 UnderMatches.append(r.Name)
+            if r.Type == 'Organ' or r.Type == 'Avoidance':
+                AllOars.append(r.Name)
     # Using the Standard InputDialog
     # We want several calls.  The first will determine the target doses and
     # 1. Do you want Underdose, Uniform Dose, Target-specific rings
