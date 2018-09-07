@@ -266,11 +266,13 @@ def main():
         SourceList.append(InitialDialog.values['PTV5'])
         source_doses.append(InitialDialog.values['PTV5Dose'])
 
+    # User selected that Uniformdose is required
     if 'yes' in InitialDialog.values['UniformDose']:
         GenerateUniformDose = True
     else:
         GenerateUniformDose= False
 
+    # User selected that Underdose is required
 
     if 'yes' in InitialDialog.values['UnderDose']:
         GenerateUnderDose = True
@@ -303,6 +305,7 @@ def main():
             required=[])
         print uniform_dose_dialog.show()
 
+    next((key, value) for key, value in uniform_dose_dialog.values['Uniform1'] if value)
     # StructureDialog = UserInterface.InputDialog(inputs={
     #                                            'PTV1': 'Select 1st Target Source',
     #                                            'PTV1Dose': 'Enter 1st Target Dose in cGy',
