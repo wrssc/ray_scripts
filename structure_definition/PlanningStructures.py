@@ -148,7 +148,7 @@ def main():
     ]
     # Common uniformly dosed areas
     UniformStructureChoices = [
-        'Aorta_PRV05'
+        'Aorta_PRV05',
         'BrainStem_PRV03',
         'Bladder',
         'CaudaEquina_PRV05',
@@ -180,20 +180,20 @@ def main():
     # Find all the target names and generate the potential dropdown list for the cases
     # Use the above list for Uniform Structure Choices and Underdose choices, then
     # autoassign to the potential dropdowns
-    if case is not None:
-        TargetMatches = []
-        UniformMatches = []
-        UnderMatches = []
-        AllOars = []
-        for r in case.PatientModel.RegionsOfInterest:
-            if r.Type == 'Ptv':
-                TargetMatches.append(r.Name)
-            if r.Name in UniformStructureChoices:
-                UniformMatches.append(r.Name)
-            if r.Name in UnderStructureChoices:
-                UnderMatches.append(r.Name)
-            if r.Type == 'Organ' or r.Type == 'Avoidance':
-                AllOars.append(r.Name)
+    TargetMatches = []
+    UniformMatches = []
+    UnderMatches = []
+    AllOars = []
+    for r in case.PatientModel.RegionsOfInterest:
+        print "Type:{} and Name:{}".format(r.Type, r.Name)
+        if r.Type == 'Ptv':
+            TargetMatches.append(r.Name)
+        if r.Name in UniformStructureChoices:
+            UniformMatches.append(r.Name)
+        if r.Name in UnderStructureChoices:
+            UnderMatches.append(r.Name)
+        if r.OrganData.OrganType == 'OrganAtRisk':
+            AllOars.append(r.Name)
     # Using the Standard InputDialog
     # We want several calls.  The first will determine the target doses and
     # 1. Do you want Underdose, Uniform Dose, Target-specific rings
