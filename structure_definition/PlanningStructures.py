@@ -185,7 +185,6 @@ def main():
     UnderMatches = []
     AllOars = []
     for r in case.PatientModel.RegionsOfInterest:
-       # print "Type:{} and Name:{}".format(r.Type, r.Name)
         if r.Type == 'Ptv':
             TargetMatches.append(r.Name)
         if r.Name in UniformStructureChoices:
