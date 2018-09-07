@@ -302,12 +302,16 @@ def main():
                      'Uniform2': AllOars,
                      'Uniform3': AllOars},
             required=[])
+        uniform_structures = []
+        if uniform_dose_dialog.values['Uniform1'] is not None:
+            uniform_structures.append(uniform_dose_dialog.values['Uniform1'])
+        if uniform_dose_dialog.values['Uniform2'] is not None:
+            uniform_structures.append(uniform_dose_dialog.values['Uniform2'])
+        if uniform_dose_dialog.values['Uniform3'] is not None:
+            uniform_structures.append(uniform_dose_dialog.values['Uniform3'])
+        for structs in uniform_structures: print structs
         print uniform_dose_dialog.show()
 
-    uniform_structures = uniform_dose_dialog.values['Uniform1']
-    uniform_structures.append(uniform_dose_dialog.values['Uniform2'])
-    uniform_structures.append(uniform_dose_dialog.values['Uniform3'])
-    for structs in uniform_structures: print structs
     # StructureDialog = UserInterface.InputDialog(inputs={
     #                                            'PTV1': 'Select 1st Target Source',
     #                                            'PTV1Dose': 'Enter 1st Target Dose in cGy',
