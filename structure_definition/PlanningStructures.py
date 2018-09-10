@@ -382,15 +382,18 @@ def main():
             'input7_thick_ld_ring': 'Thickness of the Low Dose (LD) ring',
         },
         datatype={
-            'Uniform1': 'check',
-            'Uniform2': 'check',
-            'Uniform3': 'check',
+            'input1_otvs': 'check',
+            'input4_skintarget': 'check',
+            'input5_targetrings': 'check',
         },
-        initial={},
+        initial={'input2_otv_standoff': '0.3',
+                 'input3_ring_standoff': '0.2',
+                 'input6_thick_hd_ring': '2',
+                 'input7_thick_ld_ring': '7'},
         options={
-            'Uniform1': UniformMatches,
-            'Uniform2': AllOars,
-            'Uniform3': AllOars},
+            'input1_otvs': 'Use OTVs',
+            'input4_skintarget': 'Preserve Skin Dose',
+            'input5_targetrings': 'Use target-specific rings'},
         required=[])
     print options_dialog.show()
     uniform_structures = []
