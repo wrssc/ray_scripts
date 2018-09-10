@@ -288,24 +288,21 @@ def main():
     if GenerateUnderDose:
         under_dose_dialog = UserInterface.InputDialog(
             inputs={
-                'input1_underdose': 'Select UnderDose Structures',
-                'input2_underdose': 'Select UnderDose OAR',
-                'input3_underdose': 'Select UnderDose OAR',
-                'input4_under_standoff' : 'Underdose Standoff: x cm gap between underdosed volume and targets'
+                'input1_under': 'Select UnderDose Structures',
+                'input2_under': 'Select UnderDose OAR',
+                'input3_under': 'Select UnderDose OAR',
+                'input4_under_standoff': 'UnderDose Standoff: x cm gap between targets and UnderDose volume'
             },
             datatype={
-                'input1_underdose': 'check',
-                'input2_underdose': 'combo',
-                'input3_underdose': 'combo'
+                'input1_under': 'check',
+                'input2_under': 'combo',
+                'input3_under': 'combo',
             },
-            initial={
-                'input4_under_standoff' = '0.4'
-            },
+            initial={'input4_under_standoff': '0.4'},
             options={
-                'input1_underdose': UnderMatches,
-                'input2_underdose': AllOars,
-                'input3_underdose': AllOars
-            },
+                'input1_under': UnderMatches,
+                'input2_under': AllOars,
+                'input3_under': AllOars},
             required=[])
         print under_dose_dialog.show()
         under_structures = []
@@ -321,6 +318,7 @@ def main():
             under_structures.append(under_dose_dialog.values['input3_underdose'])
         except KeyError:
             pass
+        under_dose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
 
     # Replace with a logging debug call
     # for structs in uniform_structures: print structs
@@ -376,8 +374,8 @@ def main():
     options_dialog = UserInterface.InputDialog(
         inputs={
             'input1_otvs': 'Create optimized target volumes',
-            'input2_otv_standoff': 'OTV Standoff:  x cm gap between higher dose targets'
-            'input3_ring_standoff' : 'Ring Standoff: x cm gap between targets and rings'
+            'input2_otv_standoff': 'OTV Standoff: x cm gap between higher dose targets',
+            'input3_ring_standoff': 'Ring Standoff: x cm gap between targets and rings',
             'input4_skintarget': 'Preserve skin dose using skin-specific targets',
             'input5_targetrings': 'Make target specific rings',
             'input6_thick_hd_ring': 'Thickness of the High Dose (HD) ring',
