@@ -225,12 +225,12 @@ def main():
                   'UnderDose': 'check',
                   },
         initial={
-                 'PTV1Dose': '0',
-                 'PTV2Dose': '0',
-                 'PTV3Dose': '0',
-                 'PTV4Dose': '0',
-                 'PTV5Dose': '0',
-                 },
+            'PTV1Dose': '0',
+            'PTV2Dose': '0',
+            'PTV3Dose': '0',
+            'PTV4Dose': '0',
+            'PTV5Dose': '0',
+        },
         options={'PTV1': TargetMatches,
                  'PTV2': TargetMatches,
                  'PTV3': TargetMatches,
@@ -269,14 +269,14 @@ def main():
     if 'yes' in InitialDialog.values['UniformDose']:
         GenerateUniformDose = True
     else:
-        GenerateUniformDose= False
+        GenerateUniformDose = False
 
     # User selected that Underdose is required
 
     if 'yes' in InitialDialog.values['UnderDose']:
         GenerateUnderDose = True
     else:
-        GenerateUnderDose= False
+        GenerateUnderDose = False
 
     # Rephrase the next statement with logging
     print 'Proceeding with target list: [%s]' % ', '.join(map(str, SourceList))
@@ -287,25 +287,25 @@ def main():
     if GenerateUniformDose:
         uniform_dose_dialog = UserInterface.InputDialog(
             inputs={
-            'Uniform1': 'Select UniformDose Structures',
-            'Uniform2': 'Select UniformDose OAR',
-            'Uniform3': 'Select UniformDose OAR',
+                'Uniform1': 'Select UniformDose Structures',
+                'Uniform2': 'Select UniformDose OAR',
+                'Uniform3': 'Select UniformDose OAR',
             },
             datatype={
-                      'Uniform1': 'check',
-                      'Uniform2': 'combo',
-                      'Uniform3': 'combo',
-                     },
+                'Uniform1': 'check',
+                'Uniform2': 'combo',
+                'Uniform3': 'combo',
+            },
             initial={},
             options={
-                     'Uniform1': UniformMatches,
-                     'Uniform2': AllOars,
-                     'Uniform3': AllOars},
+                'Uniform1': UniformMatches,
+                'Uniform2': AllOars,
+                'Uniform3': AllOars},
             required=[])
         print uniform_dose_dialog.show()
         uniform_structures = []
         try:
-            uniform_structures=list(uniform_dose_dialog.values['Uniform1'])
+            uniform_structures = list(uniform_dose_dialog.values['Uniform1'])
         except KeyError:
             pass
         try:
@@ -317,145 +317,112 @@ def main():
         except KeyError:
             pass
 
-        for structs in uniform_structures: print structs
+    # Underdose dialog call
+    if GenerateUnderDose:
+        under_dose_dialog = UserInterface.InputDialog(
+            inputs={
+                'Under1': 'Select UniformDose Structures',
+                'Under2': 'Select UniformDose OAR',
+                'Under3': 'Select UniformDose OAR',
+            },
+            datatype={
+                'Under1': 'check',
+                'Under2': 'combo',
+                'Under3': 'combo',
+            },
+            initial={},
+            options={
+                'Under1': UnderMatches,
+                'Under2': AllOars,
+                'Under3': AllOars},
+            required=[])
+        print under_dose_dialog.show()
+        under_structures = []
+        try:
+            under_structures = list(under_dose_dialog.values['Under1'])
+        except KeyError:
+            pass
+        try:
+            under_structures.append(under_dose_dialog.values['Under2'])
+        except KeyError:
+            pass
+        try:
+            under_structures.append(under_dose_dialog.values['Under3'])
+        except KeyError:
+            pass
 
-    # StructureDialog = UserInterface.InputDialog(inputs={
-    #                                            'PTV1': 'Select 1st Target Source',
-    #                                            'PTV1Dose': 'Enter 1st Target Dose in cGy',
-    #                                            'PTV2': 'Select 2nd Target Source',
-    #                                            'PTV2Dose': 'Enter 2nd Target Dose in cGy',
-    #                                            'PTV3': 'Select 3rd Target Source',
-    #                                            'PTV3Dose': 'Enter 3rd Target Dose in cGy',
-    #                                            'PTV4': 'Select 4th Target Source',
-    #                                            'PTV4Dose': 'Enter 4th Target Dose in cGy',
-    #                                            'PTV5': 'Select 5th Target Source',
-    #                                            'PTV5Dose': 'Enter 5th Target Dose in cGy',
-    #                                            'UnderDose': 'UnderDosing:',
-    #                                            'Under2': 'Select Unlisted UnderDose OAR',
-    #                                            'Under3': 'Select Unlisted UnderDose OAR',
-    #                                            'Uniform1': 'Select UniformDose Structures',
-    #                                            'Uniform2': 'Select UniformDose OAR',
-    #                                            'Uniform3': 'Select UniformDose OAR',
-    #                                            'SkinContraction': 'Enter Skin Contraction in mm',
-    #                                            'OTVStandoff': 'Enter Optimization Target Standoff in mm',
-    #                                            'RingStandoff': 'Enter Ring Standoff in mm',
-    #                                            'UnderStandoff': 'Enter Underdose Standoff in mm',
-    #                                            'b': 'Select checkboxes:',
-    #                                            'c': 'Select combobox option:'},
-    #                                    datatype={'PTV1': 'combo',
-    #                                              'PTV2': 'combo',
-    #                                              'PTV3': 'combo',
-    #                                              'PTV4': 'combo',
-    #                                              'PTV5': 'combo',
-    #                                              'Uniform1': 'check',
-    #                                              'Uniform2': 'combo',
-    #                                              'Uniform3': 'combo',
-    #                                              'UnderDose': 'check',
-    #                                              'Under2': 'combo',
-    #                                              'Under3': 'combo',
-    #                                              'b': 'check', 'c': 'combo'},
-    #                                    initial={'PTV1': 'PTV1',
-    #                                             'PTV1Dose': '0',
-    #                                             'PTV2': 'PTV1',
-    #                                             'PTV2Dose': '0',
-    #                                             'PTV3': 'PTV1',
-    #                                             'PTV3Dose': '0',
-    #                                             'PTV4': 'PTV4',
-    #                                             'PTV4Dose': '0',
-    #                                             'PTV5': 'PTV5',
-    #                                             'PTV5Dose': '0',
-    #                                             'SkinContraction': '0.5',
-    #                                             'OTVStandoff': '0.3',
-    #                                             'RingStandoff': '0.2',
-    #                                             'UnderStandoff': '0.4',
-    #                                             'b': ['Target-Specific Rings'],
-    #                                             'c': 'c'},
-    #                                    options={'PTV1': TargetMatches,
-    #                                             'PTV2': TargetMatches,
-    #                                             'PTV3': TargetMatches,
-    #                                             'PTV4': TargetMatches,
-    #                                             'PTV5': TargetMatches,
-    #                                             'Uniform1': UniformMatches,
-    #                                             'Uniform2': AllOars,
-    #                                             'Uniform3': AllOars,
-    #                                             'UnderDose': ['Priority 1 goals present: Use Underdosing'],
-    #                                             'Under2': AllOars,
-    #                                             'Under3': AllOars,
-    #                                             'b': UnderMatches,
-    #                                             'c': UnderMatches},
-    #                                    required=['PTV1', 'b', 'c'])
-    # Stand off inputs
-    # cm gap between higher dose targets (used for OTV volumes)
-    OTVStandoff = 0.3
-    # cm Expansion between targets and rings
-    RingStandoff = 0.2
-    ThickHDRing = 1.5
-    ThickLDRing = 7.0
-    # Compute UnderDose Standoff
-    UnderDoseStandoff = 0.4
-    # Find all the structures in the current case
-    print "The resulting input values are PTV1(Name) {0}".format(StructureDialog.values['PTV1'])
-    # SkinContraction = StructureDialog.values['B_SkinContraction']
+    # Replace with a logging debug call
+    # for structs in uniform_structures: print structs
 
-    # List of PTVs to be used
-    GeneratePTVs = True
-    GeneratePTVEvals = True
-    GenerateOTVs = True
-    GenerateSkin = True
-    GenerateInnerAir = True
-    GenerateUnderDose = True
-    GenerateUniformDose = True
-    GenerateRingHD = True
-    GenerateRingLD = True
-    GenerateNormal_2cm = True
-    GenerateTargetRings = True
-    GenerateTargetSkin = True
+# Stand off inputs
+# cm gap between higher dose targets (used for OTV volumes)
+OTVStandoff = 0.3
+# cm Expansion between targets and rings
+RingStandoff = 0.2
+ThickHDRing = 1.5
+ThickLDRing = 7.0
+# Compute UnderDose Standoff
+UnderDoseStandoff = 0.4
+# Find all the structures in the current case
+print "The resulting input values are PTV1(Name) {0}".format(StructureDialog.values['PTV1'])
+# SkinContraction = StructureDialog.values['B_SkinContraction']
 
-    PTVPrefix = "PTV_"
-    PTVEvalPrefix = "PTV_Eval_"
-    OTVPrefix = "OTV_"
-    for index, Target in enumerate(SourceList):
-        NumMids = len(SourceList) - 2
-        if index == 0:
-            PTVName = PTVPrefix + "High"
-            PTVList = [PTVName]
-            PTVEvalName = PTVEvalPrefix + "High"
-            PTVEvalList = [PTVEvalName]
-            OTVName = OTVPrefix + "High"
-            OTVList = [OTVName]
-        elif index == len(SourceList) - 1:
-            PTVName = PTVPrefix + "Low"
-            PTVList.append(PTVName)
-            PTVEvalName = PTVEvalPrefix + "Low"
-            PTVEvalList.append(PTVEvalName)
-            OTVName = OTVPrefix + "Low"
-            OTVList.append(OTVName)
-        else:
-            MidTargetNumber = index - 1
-            PTVName = PTVPrefix + "Mid" + str(MidTargetNumber)
-            PTVList.append(PTVName)
-            PTVEvalName = PTVEvalPrefix + "Mid" + str(MidTargetNumber)
-            PTVEvalList.append(PTVEvalName)
-            OTVName = OTVPrefix + "Mid" + str(MidTargetNumber)
-            OTVList.append(OTVName)
-    TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
-    # Contraction in cm to be used in the definition of the skin contour
-    SkinContraction = 0.5
-    ##
-    # Stand off inputs
-    # cm gap between higher dose targets (used for OTV volumes)
-    OTVStandoff = 0.3
-    # cm Expansion between targets and rings
-    RingStandoff = 0.2
-    ThickHDRing = 1.5
-    ThickLDRing = 7.0
-    # Compute UnderDose Standoff
-    UnderDoseStandoff = 0.4
-    ##
-    # InnerAir Parameters
-    # Upper Bound on the air volume to be removed from target coverage considerations
-    InnerAirHU = -900
+# List of PTVs to be used
+GeneratePTVs = True
+GeneratePTVEvals = True
+GenerateOTVs = True
+GenerateSkin = True
+GenerateInnerAir = True
+GenerateRingHD = True
+GenerateRingLD = True
+GenerateNormal_2cm = True
+GenerateTargetRings = True
+GenerateTargetSkin = True
 
+PTVPrefix = "PTV_"
+PTVEvalPrefix = "PTV_Eval_"
+OTVPrefix = "OTV_"
+for index, Target in enumerate(SourceList):
+    NumMids = len(SourceList) - 2
+    if index == 0:
+        PTVName = PTVPrefix + "High"
+        PTVList = [PTVName]
+        PTVEvalName = PTVEvalPrefix + "High"
+        PTVEvalList = [PTVEvalName]
+        OTVName = OTVPrefix + "High"
+        OTVList = [OTVName]
+    elif index == len(SourceList) - 1:
+        PTVName = PTVPrefix + "Low"
+        PTVList.append(PTVName)
+        PTVEvalName = PTVEvalPrefix + "Low"
+        PTVEvalList.append(PTVEvalName)
+        OTVName = OTVPrefix + "Low"
+        OTVList.append(OTVName)
+    else:
+        MidTargetNumber = index - 1
+        PTVName = PTVPrefix + "Mid" + str(MidTargetNumber)
+        PTVList.append(PTVName)
+        PTVEvalName = PTVEvalPrefix + "Mid" + str(MidTargetNumber)
+        PTVEvalList.append(PTVEvalName)
+        OTVName = OTVPrefix + "Mid" + str(MidTargetNumber)
+        OTVList.append(OTVName)
+TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
+# Contraction in cm to be used in the definition of the skin contour
+SkinContraction = 0.5
+##
+# Stand off inputs
+# cm gap between higher dose targets (used for OTV volumes)
+OTVStandoff = 0.3
+# cm Expansion between targets and rings
+RingStandoff = 0.2
+ThickHDRing = 1.5
+ThickLDRing = 7.0
+# Compute UnderDose Standoff
+UnderDoseStandoff = 0.4
+##
+# InnerAir Parameters
+# Upper Bound on the air volume to be removed from target coverage considerations
+InnerAirHU = -900
 
 if __name__ == '__main__':
     main()
