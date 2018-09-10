@@ -391,9 +391,9 @@ def main():
                  'input6_thick_hd_ring': '2',
                  'input7_thick_ld_ring': '7'},
         options={
-            'input1_otvs': 'Use OTVs',
-            'input4_skintarget': 'Preserve Skin Dose',
-            'input5_targetrings': 'Use target-specific rings'},
+            'input1_otvs': ['Use OTVs'],
+            'input4_skintarget': ['Preserve Skin Dose'],
+            'input5_targetrings': ['Use target-specific rings']},
         required=[])
     print options_dialog.show()
     uniform_structures = []
