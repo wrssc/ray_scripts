@@ -291,17 +291,21 @@ def main():
                 'input1_underdose': 'Select UnderDose Structures',
                 'input2_underdose': 'Select UnderDose OAR',
                 'input3_underdose': 'Select UnderDose OAR',
-                'input4_under_standoff' : 'Underdose Standoff: x cm gap between underdosed volume and targets'}
+                'input4_under_standoff' : 'Underdose Standoff: x cm gap between underdosed volume and targets'
+            },
             datatype={
                 'input1_underdose': 'check',
                 'input2_underdose': 'combo',
-                'input3_underdose': 'combo'},
+                'input3_underdose': 'combo'
+            },
             initial={
-                'input4_under_standoff' = '0.4'},
+                'input4_under_standoff' = '0.4'
+            },
             options={
                 'input1_underdose': UnderMatches,
                 'input2_underdose': AllOars,
-                'input3_underdose': AllOars},
+                'input3_underdose': AllOars
+            },
             required=[])
         print under_dose_dialog.show()
         under_structures = []
