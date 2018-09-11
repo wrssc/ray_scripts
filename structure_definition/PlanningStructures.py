@@ -480,7 +480,7 @@ def main():
 
     if GeneratePTVs:
         for index, Target in enumerate(SourceList):
-            print "Creating {} target: {}".format(index,PTVList[index])
+            print "Creating {} target: {}".format(index,[Target])
             PTV_defs = {
                 "StructureName": PTVList[index],
                 "ExcludeFromExport": True,
@@ -503,6 +503,7 @@ def main():
 
     # Create a union of all under dose structures
     if GenerateUnderDose:
+        print "Creating UnderDose ROI using Sources: {}".format(underdose_structures)
         underdose_defs = {
             "StructureName": "UnderDose",
             "ExcludeFromExport": True,
@@ -522,6 +523,7 @@ def main():
             "StructType": "Undefined"}
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **underdose_defs)
     if GenerateUniformDose:
+        print "Creating UniformDose ROI using Sources: {}".format(uniformdose_structures)
         uniformdose_defs = {
             "StructureName": "UniformDose",
             "ExcludeFromExport": True,
