@@ -307,7 +307,7 @@ def main():
         print under_dose_dialog.show()
         underdose_structures = []
         try:
-            underdose_structures = list(under_dose_dialog.values['input1_underdose'])
+            underdose_structures.append(under_dose_dialog.values['input1_underdose'])
         except KeyError:
             pass
         try:
@@ -345,9 +345,9 @@ def main():
                 'Uniform3': AllOars},
             required=[])
         print uniformdose_dialog.show()
-        uniform_structures = []
+        uniformdose_structures = []
         try:
-            uniformdose_structures = list(uniformdose_dialog.values['Uniform1'])
+            uniformdose_structures.append(uniformdose_dialog.values['Uniform1'])
         except KeyError:
             pass
         try:
