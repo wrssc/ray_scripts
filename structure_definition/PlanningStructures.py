@@ -446,9 +446,6 @@ def main():
     high_med_low_targets = False
     numbered_targets = True
 
-    for targets in enumerate(SourceList):
-        print "Targets from Source List {}.".format(targets)
-
     for index, Target in enumerate(SourceList):
         if high_med_low_targets:
             NumMids = len(SourceList) - 2
@@ -483,7 +480,7 @@ def main():
 
     if GeneratePTVs:
         for index, Target in enumerate(SourceList):
-            StructureName = PTVList[index]
+            print "Creating {} target: {}".format(index,PTVList[index])
             PTV_defs = {
                 "StructureName": PTVList[index],
                 "ExcludeFromExport": True,
