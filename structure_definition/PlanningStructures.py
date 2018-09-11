@@ -439,6 +439,9 @@ def main():
     PTVPrefix = "PTV_"
     PTVEvalPrefix = "PTV_Eval_"
     OTVPrefix = "OTV_"
+    PTVList = []
+    PTVEvalList = []
+    OTVList = []
 
     high_med_low_targets = False
     numbered_targets = True
@@ -451,44 +454,28 @@ def main():
             NumMids = len(SourceList) - 2
             if index == 0:
                 PTVName = PTVPrefix + "High"
-                PTVList = [PTVName]
                 PTVEvalName = PTVEvalPrefix + "High"
-                PTVEvalList = [PTVEvalName]
                 OTVName = OTVPrefix + "High"
-                OTVList = [OTVName]
             elif index == len(SourceList) - 1:
                 PTVName = PTVPrefix + "Low"
-                PTVList.append(PTVName)
                 PTVEvalName = PTVEvalPrefix + "Low"
-                PTVEvalList.append(PTVEvalName)
                 OTVName = OTVPrefix + "Low"
-                OTVList.append(OTVName)
             else:
                 MidTargetNumber = index - 1
                 PTVName = PTVPrefix + "Mid" + str(MidTargetNumber)
-                PTVList.append(PTVName)
                 PTVEvalName = PTVEvalPrefix + "Mid" + str(MidTargetNumber)
-                PTVEvalList.append(PTVEvalName)
                 OTVName = OTVPrefix + "Mid" + str(MidTargetNumber)
-                OTVList.append(OTVName)
         elif numbered_targets:
             PTVName = PTVPrefix + str(index + 1)
-            PTVList = [PTVName]
             PTVEvalName = PTVEvalPrefix + str(index + 1)
-            PTVEvalList = [PTVEvalName]
             OTVName = OTVPrefix + str(index + 1)
-            OTVList = [OTVName]
+        PTVList.append(PTVName)
+        PTVEvalList.append(PTVEvalName)
+        OTVList.append(OTVName)
 
     TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
     # Contraction in cm to be used in the definition of the skin contour
     SkinContraction = 0.5
-    ##
-    # cm Expansion between targets and rings
-    RingStandoff = 0.2
-    ThickHDRing = 1.5
-    ThickLDRing = 7.0
-    # Compute UnderDose Standoff
-    UnderDoseStandoff = 0.4
     ##
     # InnerAir Parameters
     # Upper Bound on the air volume to be removed from target coverage considerations
