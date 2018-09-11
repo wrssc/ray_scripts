@@ -318,7 +318,7 @@ def main():
             underdose_structures.append(under_dose_dialog.values['input3_underdose'])
         except KeyError:
             pass
-        under_dose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
+        underdose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
         print "Underdose list selected: {}".format(underdose_structures)
 
     # Replace with a logging debug call
