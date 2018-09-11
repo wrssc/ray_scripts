@@ -510,7 +510,7 @@ def main():
             "VisualizeStructure": False,
             "StructColor": " Blue",
             "OperationA": "Union",
-            "SourcesA": underdose_structures,
+            "SourcesA": [underdose_structures],
             "MarginTypeA": "Expand",
             "ExpA": [0, 0, 0, 0, 0, 0],
             "OperationB": "Union",
