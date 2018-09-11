@@ -347,18 +347,18 @@ def main():
         print uniform_dose_dialog.show()
         uniform_structures = []
         try:
-            uniform_structures = list(uniform_dose_dialog.values['Uniform1'])
+            uniformdose_structures = list(uniform_dose_dialog.values['Uniform1'])
         except KeyError:
             pass
         try:
-            uniform_structures.append(uniform_dose_dialog.values['Uniform2'])
+            uniformdose_structures.append(uniform_dose_dialog.values['Uniform2'])
         except KeyError:
             pass
         try:
-            uniform_structures.append(uniform_dose_dialog.values['Uniform3'])
+            uniformdose_structures.append(uniform_dose_dialog.values['Uniform3'])
         except KeyError:
             pass
-        print "Uniform Dose list selected: {}".format(uniform_dose_structures)
+        print "Uniform Dose list selected: {}".format(uniformdose_structures)
 
     options_dialog = UserInterface.InputDialog(
         inputs={
@@ -531,7 +531,7 @@ def main():
             "VisualizeStructure": False,
             "StructColor": " Blue",
             "OperationA": "Union",
-            "SourcesA": uniform_structures,
+            "SourcesA": uniformdose_structures,
             "MarginTypeA": "Expand",
             "ExpA": [0, 0, 0, 0, 0, 0],
             "OperationB": "Union",
