@@ -311,11 +311,11 @@ def main():
         except KeyError:
             pass
         try:
-            underdose_structures.extend(under_dose_dialog.values['input2_underdose'])
+            underdose_structures.extend([under_dose_dialog.values['input2_underdose']])
         except KeyError:
             pass
         try:
-            underdose_structures.extend(under_dose_dialog.values['input3_underdose'])
+            underdose_structures.extend([under_dose_dialog.values['input3_underdose']])
         except KeyError:
             pass
         underdose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
@@ -351,11 +351,11 @@ def main():
         except KeyError:
             pass
         try:
-            uniformdose_structures.extend(uniformdose_dialog.values['Uniform2'])
+            uniformdose_structures.extend([uniformdose_dialog.values['Uniform2']])
         except KeyError:
             pass
         try:
-            uniformdose_structures.extend(uniformdose_dialog.values['Uniform3'])
+            uniformdose_structures.extend([uniformdose_dialog.values['Uniform3']])
         except KeyError:
             pass
         print "Uniform Dose list selected: {}".format(uniformdose_structures)
