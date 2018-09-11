@@ -501,27 +501,6 @@ def main():
             MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTV_defs)
 
 
-    # Create a union of all under dose structures
-    if GenerateUnderDose:
-        print "Creating UnderDose ROI using Sources: {}".format(underdose_structures)
-        underdose_defs = {
-            "StructureName": "UnderDose",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " Blue",
-            "OperationA": "Union",
-            "SourcesA": underdose_structures,
-            "MarginTypeA": "Expand",
-            "ExpA": [0, 0, 0, 0, 0, 0],
-            "OperationB": "Union",
-            "SourcesB": [],
-            "MarginTypeB": "Expand",
-            "ExpB": [0, 0, 0, 0, 0, 0],
-            "OperationResult": "None",
-            "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
-            "StructType": "Undefined"}
-        MakeBooleanStructure(patient=patient, case=case, examination=examination, **underdose_defs)
     if GenerateUniformDose:
         print "Creating UniformDose ROI using Sources: {}".format(uniformdose_structures)
         uniformdose_defs = {
@@ -638,14 +617,15 @@ def main():
         EvalSources.remove("ExternalClean")
     # Exclusion Zone
     if GenerateUnderDose:
+        print "Creating UnderDose ROI using Sources: {}".format(underdose_structures)
         # Generate the UnderDose structure
-        UnderDose_defs = {
+        underdose_defs = {
             "StructureName": "UnderDose",
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": " Blue",
             "OperationA": "Union",
-            "SourcesA": UnderStruct,
+            "SourcesA": underdose_structures,
             "MarginTypeA": "Expand",
             "ExpA": [0, 0, 0, 0, 0, 0],
             "OperationB": "Union",
@@ -656,26 +636,29 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0, 0, 0, 0, 0, 0],
             "StructType": "Undefined"}
-        MakeBooleanStructure(patient=patient, case=case, examination=examination, **UnderDose_defs)
-        # Generate the PTV_EZ
-        PTVEZ_defs = {
-            "StructureName": "PTV_EZ",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " 255, 0, 255",
-            "OperationA": "Union",
-            "SourcesA": UnderStruct,
-            "MarginTypeA": "Expand",
-            "ExpA": [0, 0, 0, 0, 0, 0],
-            "OperationB": "Union",
-            "SourcesB": PTVList,
-            "MarginTypeB": "Expand",
-            "ExpB": [0, 0, 0, 0, 0, 0],
-            "OperationResult": "Intersection",
-            "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
-            "StructType": "Ptv"}
-        MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTVEZ_defs)
+        MakeBooleanStructure(patient=patient, case=case, examination=examination, **underdose_defs)
+        # Loop over the PTV_EZs
+        for index, Target in enumerate(SourceList):
+            logging.debug('Creating target {}: {}'.format(str(index+1),[Target]))
+            # Generate the PTV_EZ
+            PTVEZ_defs = {
+                "StructureName": 'PTV_EZ_'+str(index+1),
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                "StructColor": " 255, 0, 255",
+                "OperationA": "Union",
+                "SourcesA": UnderStruct,
+                "MarginTypeA": "Expand",
+                "ExpA": [0, 0, 0, 0, 0, 0],
+                "OperationB": "Union",
+                "SourcesB": [Target],
+                "MarginTypeB": "Expand",
+                "ExpB": [0, 0, 0, 0, 0, 0],
+                "OperationResult": "Intersection",
+                "MarginTypeR": "Expand",
+                "ExpR": [0, 0, 0, 0, 0, 0],
+                "StructType": "Ptv"}
+            MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTVEZ_defs)
         # Underdose Expansion now needed
         UnderDoseExp_defs = {
             "StructureName": "UnderDose_Exp",
