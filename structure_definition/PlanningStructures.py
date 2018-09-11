@@ -387,21 +387,21 @@ def main():
     print options_dialog.show()
 
     try:
-        if options_dialog.values['input1_otvs']['Use OTVs'].Checked:
+        if 'Use OTVs' in options_dialog.values['input1_otvs']:
             GenerateOTVs = True
         else:
             GenerateOTVs = False
     except KeyError:
         GenerateOTVs = False
     try:
-        if options_dialog.values['input4_skintarget']['Preserve Skin Dose'].Checked:
+        if 'Preserve Skin Dose' in options_dialog.values['input4_skintarget']:
             GenerateTargetSkin = True
         else:
             GenerateTargetSkin = False
     except KeyError:
         GenerateTargetSkin = False
     try:
-        if options_dialog.values['input5_targetrings']['Use target-specific rings'].Checked:
+        if 'Use target-specific rings' in options_dialog.values['input5_targetrings']:
             GenerateTargetRings = True
         else:
             GenerateTargetRings = False
