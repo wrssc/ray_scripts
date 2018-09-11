@@ -319,6 +319,7 @@ def main():
         except KeyError:
             pass
         under_dose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
+        print "Underdose list selected: {}".format(underdose_structures)
 
     # Replace with a logging debug call
     # for structs in uniform_structures: print structs
@@ -357,8 +358,7 @@ def main():
             uniform_structures.append(uniform_dose_dialog.values['Uniform3'])
         except KeyError:
             pass
-
-
+        print "Uniform Dose list selected: {}".format(uniform_dose_structures)
 
     options_dialog = UserInterface.InputDialog(
         inputs={
@@ -507,7 +507,7 @@ def main():
     # Create a union of all under dose structures
     if GenerateUnderDose:
         underdose_defs = {
-            "StructureName": "UniformDose",
+            "StructureName": "UnderDose",
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": " Blue",
