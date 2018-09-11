@@ -441,7 +441,7 @@ def main():
     high_med_low_targets = False
     numbered_targets = True
 
-    for targets in SourceList:
+    for targets in SourceList[:]:
         print "Targets from Source List {}.".format(targets)
 
     for index, Target in enumerate(SourceList):
