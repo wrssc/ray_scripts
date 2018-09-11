@@ -651,7 +651,7 @@ def main():
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
-                "SourcesB": [Target],
+                "SourcesB": PTVList[index],
                 "MarginTypeB": "Expand",
                 "ExpB": [0, 0, 0, 0, 0, 0],
                 "OperationResult": "Intersection",
