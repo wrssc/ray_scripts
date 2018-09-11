@@ -385,7 +385,6 @@ def main():
             'input5_targetrings': ['Use target-specific rings']},
         required=[])
     print options_dialog.show()
-    uniform_structures = []
 
     try:
         if options_dialog.values['input1_otvs']['Use OTVs'].Checked:
@@ -409,6 +408,9 @@ def main():
     except KeyError:
         GenerateTargetRings = False
 
+    print "User Selected GenerateOTVs: {}".format(GenerateOTVs)
+    print "User Selected Preserve Skin Dose: {}".format(GenerateTargetSkin)
+    print "User Selected Target Rings: {}".format(GenerateTargetRings)
     # Stand - Off Values - Gaps between structures
     # cm gap between higher dose targets (used for OTV volumes)
     otv_standoff = float(options_dialog.values['input2_otv_standoff'])
@@ -441,7 +443,7 @@ def main():
     high_med_low_targets = False
     numbered_targets = True
 
-    for targets in SourceList[:]:
+    for targets in enumerate(SourceList):
         print "Targets from Source List {}.".format(targets)
 
     for index, Target in enumerate(SourceList):
