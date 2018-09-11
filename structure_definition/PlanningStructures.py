@@ -288,21 +288,21 @@ def main():
     if GenerateUnderDose:
         under_dose_dialog = UserInterface.InputDialog(
             inputs={
-                'input1_under': 'Select UnderDose Structures',
-                'input2_under': 'Select UnderDose OAR',
-                'input3_under': 'Select UnderDose OAR',
+                'input1_underdose': 'Select UnderDose Structures',
+                'input2_underdose': 'Select UnderDose OAR',
+                'input3_underdose': 'Select UnderDose OAR',
                 'input4_under_standoff': 'UnderDose Standoff: x cm gap between targets and UnderDose volume'
             },
             datatype={
-                'input1_under': 'check',
-                'input2_under': 'combo',
-                'input3_under': 'combo',
+                'input1_underdose': 'check',
+                'input2_underdose': 'combo',
+                'input3_underdose': 'combo',
             },
             initial={'input4_under_standoff': '0.4'},
             options={
-                'input1_under': UnderMatches,
-                'input2_under': AllOars,
-                'input3_under': AllOars},
+                'input1_underdose': UnderMatches,
+                'input2_underdose': AllOars,
+                'input3_underdose': AllOars},
             required=[])
         print under_dose_dialog.show()
         underdose_structures = []
