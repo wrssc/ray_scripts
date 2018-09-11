@@ -359,17 +359,6 @@ def main():
             pass
 
 
-    # Stand off inputs
-    # cm gap between higher dose targets (used for OTV volumes)
-    OTVStandoff = 0.3
-    # cm Expansion between targets and rings
-    RingStandoff = 0.2
-    ThickHDRing = 1.5
-    ThickLDRing = 7.0
-    # Compute UnderDose Standoff
-    UnderDoseStandoff = 0.4
-    # Find all the structures in the current case
-    # SkinContraction = StructureDialog.values['B_SkinContraction']
 
     options_dialog = UserInterface.InputDialog(
         inputs={
@@ -397,24 +386,46 @@ def main():
         required=[])
     print options_dialog.show()
     uniform_structures = []
+
     try:
-        uniform_structures = list(uniform_dose_dialog.values['Uniform1'])
+        if options_dialog.values['input1_otvs']['Use OTVs'].Checked:
+            GenerateOTVs = True
+        else:
+            GenerateOTVs = False
     except KeyError:
-        pass
+        GenerateOTVs = False
     try:
-        uniform_structures.append(uniform_dose_dialog.values['Uniform2'])
+        if options_dialog.values['input4_skintarget']['Preserve Skin Dose'].Checked:
+            GenerateTargetSkin = True
+        else:
+            GenerateTargetSkin = False
     except KeyError:
-        pass
+        GenerateTargetSkin = False
     try:
-        uniform_structures.append(uniform_dose_dialog.values['Uniform3'])
+        if options_dialog.values['input5_targetrings']['Use target-specific rings'].Checked:
+            GenerateTargetRings = True
+        else:
+            GenerateTargetRings = False
     except KeyError:
-        pass
+        GenerateTargetRings = False
+
+    # Stand - Off Values - Gaps between structures
+    # cm gap between higher dose targets (used for OTV volumes)
+    otv_standoff = float(options_dialog.values['input2_otv_standoff'])
+    # ring_standoff: cm Expansion between targets and rings
+    ring_standoff = float(options_dialog.values['input3_ring_standoff'])
+    thickness_hd_ring = float(options_dialog.values['input6_thick_hd_ring'])
+    thickness_ld_ring = float(options_dialog.values['input7_thick_ld_ring'])
+    # Find all the structures in the current case
+    # SkinContraction = StructureDialog.values['B_SkinContraction']
+
+
+
 
 
     # List of PTVs to be used
     GeneratePTVs = True
     GeneratePTVEvals = True
-    GenerateOTVs = True
     GenerateSkin = True
     GenerateInnerAir = True
     GenerateRingHD = True
@@ -429,6 +440,9 @@ def main():
 
     high_med_low_targets = False
     numbered_targets = True
+
+    for targets in SourceList:
+        print "Targets from Source List {}.".format(targets)
 
     for index, Target in enumerate(SourceList):
         if high_med_low_targets:
@@ -467,9 +481,6 @@ def main():
     # Contraction in cm to be used in the definition of the skin contour
     SkinContraction = 0.5
     ##
-    # Stand off inputs
-    # cm gap between higher dose targets (used for OTV volumes)
-    OTVStandoff = 0.3
     # cm Expansion between targets and rings
     RingStandoff = 0.2
     ThickHDRing = 1.5
