@@ -327,7 +327,7 @@ def main():
 
 
     if GenerateUniformDose:
-        uniform_dose_dialog = UserInterface.InputDialog(
+        uniformdose_dialog = UserInterface.InputDialog(
             inputs={
                 'Uniform1': 'Select UniformDose Structures',
                 'Uniform2': 'Select UniformDose OAR',
@@ -344,18 +344,18 @@ def main():
                 'Uniform2': AllOars,
                 'Uniform3': AllOars},
             required=[])
-        print uniform_dose_dialog.show()
+        print uniformdose_dialog.show()
         uniform_structures = []
         try:
-            uniformdose_structures = list(uniform_dose_dialog.values['Uniform1'])
+            uniformdose_structures = list(uniformdose_dialog.values['Uniform1'])
         except KeyError:
             pass
         try:
-            uniformdose_structures.append(uniform_dose_dialog.values['Uniform2'])
+            uniformdose_structures.append(uniformdose_dialog.values['Uniform2'])
         except KeyError:
             pass
         try:
-            uniformdose_structures.append(uniform_dose_dialog.values['Uniform3'])
+            uniformdose_structures.append(uniformdose_dialog.values['Uniform3'])
         except KeyError:
             pass
         print "Uniform Dose list selected: {}".format(uniformdose_structures)
