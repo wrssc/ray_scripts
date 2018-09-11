@@ -305,17 +305,17 @@ def main():
                 'input3_under': AllOars},
             required=[])
         print under_dose_dialog.show()
-        under_structures = []
+        underdose_structures = []
         try:
-            under_structures = list(under_dose_dialog.values['input1_underdose'])
+            underdose_structures = list(under_dose_dialog.values['input1_underdose'])
         except KeyError:
             pass
         try:
-            under_structures.append(under_dose_dialog.values['input2_underdose'])
+            underdose_structures.append(under_dose_dialog.values['input2_underdose'])
         except KeyError:
             pass
         try:
-            under_structures.append(under_dose_dialog.values['input3_underdose'])
+            underdose_structures.append(under_dose_dialog.values['input3_underdose'])
         except KeyError:
             pass
         under_dose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
@@ -503,16 +503,16 @@ def main():
                 "StructType": "Ptv"}
             MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTV_defs)
 
-    # CompositeAction ends
 
-    if GenerateUniformDose:
-        UniformDose_defs = {
+    # Create a union of all under dose structures
+    if GenerateUnderDose:
+        underdose_defs = {
             "StructureName": "UniformDose",
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": " Blue",
             "OperationA": "Union",
-            "SourcesA": UniformStruct,
+            "SourcesA": underdose_structures,
             "MarginTypeA": "Expand",
             "ExpA": [0, 0, 0, 0, 0, 0],
             "OperationB": "Union",
@@ -523,7 +523,26 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0, 0, 0, 0, 0, 0],
             "StructType": "Undefined"}
-        MakeBooleanStructure(patient=patient, case=case, examination=examination, **UniformDose_defs)
+        MakeBooleanStructure(patient=patient, case=case, examination=examination, **underdose_defs)
+    if GenerateUniformDose:
+        uniformdose_defs = {
+            "StructureName": "UniformDose",
+            "ExcludeFromExport": True,
+            "VisualizeStructure": False,
+            "StructColor": " Blue",
+            "OperationA": "Union",
+            "SourcesA": uniform_structures,
+            "MarginTypeA": "Expand",
+            "ExpA": [0, 0, 0, 0, 0, 0],
+            "OperationB": "Union",
+            "SourcesB": [],
+            "MarginTypeB": "Expand",
+            "ExpB": [0, 0, 0, 0, 0, 0],
+            "OperationResult": "None",
+            "MarginTypeR": "Expand",
+            "ExpR": [0, 0, 0, 0, 0, 0],
+            "StructType": "Undefined"}
+        MakeBooleanStructure(patient=patient, case=case, examination=examination, **uniformdose_defs)
 
     # Redraw the clean external volume if neccessary
     try:
