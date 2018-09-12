@@ -243,26 +243,29 @@ def main():
     print InitialDialog.show()
 
     # Parse the output from InitialDialog
-    SourceList = []
+    # We are going to take a user input input_source_list and convert them into PTV's used for planning
+    # input_source_list consists of the user-specified targets to be massaged into PTV1, PTV2, .... below
+
+    input_source_list = []
     source_doses = []
     if 'PTV1' in InitialDialog.values:
-        SourceList.append(InitialDialog.values['PTV1'])
+        input_source_list.append(InitialDialog.values['PTV1'])
         source_doses.append(InitialDialog.values['PTV1Dose'])
 
     if 'PTV2' in InitialDialog.values:
-        SourceList.append(InitialDialog.values['PTV2'])
+        input_source_list.append(InitialDialog.values['PTV2'])
         source_doses.append(InitialDialog.values['PTV2Dose'])
 
     if 'PTV3' in InitialDialog.values:
-        SourceList.append(InitialDialog.values['PTV3'])
+        input_source_list.append(InitialDialog.values['PTV3'])
         source_doses.append(InitialDialog.values['PTV3Dose'])
 
     if 'PTV4' in InitialDialog.values:
-        SourceList.append(InitialDialog.values['PTV4'])
+        input_source_list.append(InitialDialog.values['PTV4'])
         source_doses.append(InitialDialog.values['PTV4Dose'])
 
     if 'PTV5' in InitialDialog.values:
-        SourceList.append(InitialDialog.values['PTV5'])
+        input_source_list.append(InitialDialog.values['PTV5'])
         source_doses.append(InitialDialog.values['PTV5Dose'])
 
     # User selected that Uniformdose is required
@@ -279,7 +282,7 @@ def main():
         GenerateUnderDose = False
 
     # Rephrase the next statement with logging
-    print 'Proceeding with target list: [%s]' % ', '.join(map(str, SourceList))
+    print 'Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list))
     print 'Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses))
     print 'User selected {} for UnderDose'.format(GenerateUnderDose)
     print 'User selected {} for UniformDose'.format(GenerateUniformDose)
@@ -440,14 +443,14 @@ def main():
     high_med_low_targets = False
     numbered_targets = True
 
-    for index, Target in enumerate(SourceList):
+    for index, Target in enumerate(input_source_list):
         if high_med_low_targets:
-            NumMids = len(SourceList) - 2
+            NumMids = len(input_source_list) - 2
             if index == 0:
                 PTVName = PTVPrefix + "High"
                 PTVEvalName = PTVEvalPrefix + "High"
                 OTVName = OTVPrefix + "High"
-            elif index == len(SourceList) - 1:
+            elif index == len(input_source_list) - 1:
                 PTVName = PTVPrefix + "Low"
                 PTVEvalName = PTVEvalPrefix + "Low"
                 OTVName = OTVPrefix + "Low"
@@ -472,12 +475,28 @@ def main():
     # Upper Bound on the air volume to be removed from target coverage considerations
     InnerAirHU = -900
 
+    # Redraw the clean external volume if necessary
+    try:
+        StructureName = "ExternalClean"
+        retval_ExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
+        logging.warning("Structure " + StructureName + " exists.  Using predefined structure.")
+    except:
+        retval_ExternalClean = case.PatientModel.CreateRoi(Name="ExternalClean", Color="Green", Type="External",
+                                                           TissueName="", RbeCellTypeName=None, RoiMaterial=None)
+        retval_ExternalClean.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+        InExternalClean = case.PatientModel.RegionsOfInterest['ExternalClean']
+        retval_ExternalClean.VolumeThreshold(InputRoi=InExternalClean, Examination=examination, MinVolume=1,
+                                             MaxVolume=200000)
+        retval_ExternalClean.SetAsExternal()
+
     if GeneratePTVs:
+        # Limit each target to the ExternalClean surface
+        ptv_sources = ['ExternalClean']
+        # Initially, there are no targets to use in the subtraction
         subtract_targets = []
-        for index, Target in enumerate(SourceList):
+        for index, Target in enumerate(input_source_list):
             print "Creating {} target: {}".format(index, [Target])
-            # RS is not ok with having an empty structure list for B
-            # when the operation is not None
+            ptv_sources.append(Target)
             if index == 0:
                 PTV_defs = {
                     "StructureName": PTVList[index],
@@ -507,7 +526,7 @@ def main():
                     "MarginTypeA": "Expand",
                     "ExpA": [0, 0, 0, 0, 0, 0],
                     "OperationB": "Union",
-                    "SourcesB": [],
+                    "SourcesB": subtract_targets,
                     "MarginTypeB": "Expand",
                     "ExpB": [0, 0, 0, 0, 0, 0],
                     "OperationResult": "Subtraction",
@@ -538,19 +557,7 @@ def main():
             "StructType": "Undefined"}
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **uniformdose_defs)
 
-    # Redraw the clean external volume if neccessary
-    try:
-        StructureName = "ExternalClean"
-        retval_ExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
-        logging.warning("Structure " + StructureName + " exists.  Using predefined structure.")
-    except:
-        retval_ExternalClean = case.PatientModel.CreateRoi(Name="ExternalClean", Color="Green", Type="External",
-                                                           TissueName="", RbeCellTypeName=None, RoiMaterial=None)
-        retval_ExternalClean.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
-        InExternalClean = case.PatientModel.RegionsOfInterest['ExternalClean']
-        retval_ExternalClean.VolumeThreshold(InputRoi=InExternalClean, Examination=examination, MinVolume=1,
-                                             MaxVolume=200000)
-        retval_ExternalClean.SetAsExternal()
+
 
     if GenerateSkin:
         Skin_defs = {
@@ -607,7 +614,7 @@ def main():
     # Set the Sources Structure for Evals
     EvalSubtract = ["Skin", "InnerAir"]
     if GeneratePTVEvals:
-        for index, Target in enumerate(SourceList):
+        for index, Target in enumerate(PTVList):
             EvalSources = ["ExternalClean"]
             EvalName = PTVEvalList[index]
             EvalSources.append(Target)
@@ -629,6 +636,7 @@ def main():
                 "ExpR": [0, 0, 0, 0, 0, 0],
                 "StructType": "Ptv"}
             MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTVEval_defs)
+            # Append the current target to the list of targets to subtract in the next iteration
             EvalSubtract.append(Target)
         EvalSources.remove("ExternalClean")
     # Exclusion Zone
@@ -654,7 +662,7 @@ def main():
             "StructType": "Undefined"}
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **underdose_defs)
         # Loop over the PTV_EZs
-        for index, Target in enumerate(SourceList):
+        for index, Target in enumerate(input_source_list):
             logging.debug('Creating target {}: {}'.format(str(index + 1), [Target]))
             # Generate the PTV_EZ
             # RS is not ok with having an empty structure list for B
