@@ -463,9 +463,9 @@ def main():
             PTVName = PTVPrefix + str(index + 1)+'_'+source_doses[index]
             PTVEvalName = PTVEvalPrefix + str(index + 1)+'_'+source_doses[index]
             OTVName = OTVPrefix + str(index + 1)+'_'+source_doses[index]
-        PTVList.append(PTVName)
-        PTVEvalList.append(PTVEvalName)
-        OTVList.append(OTVName)
+        PTVList.extend(PTVName)
+        PTVEvalList.extend(PTVEvalName)
+        OTVList.extend(OTVName)
 
     TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
     # Contraction in cm to be used in the definition of the skin contour
