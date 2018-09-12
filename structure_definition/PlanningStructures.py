@@ -486,7 +486,7 @@ def main():
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
-                "SourcesB": subtract_targets,
+                "SourcesB": [subtract_targets],
                 "MarginTypeB": "Expand",
                 "ExpB": [0, 0, 0, 0, 0, 0],
                 "OperationResult": "Subtraction",
