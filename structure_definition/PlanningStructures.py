@@ -513,36 +513,7 @@ def main():
             "StructType": "Undefined"}
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **Skin_defs)
 
-    if GenerateInnerAir:
-        # Automated build of the Air contour
-        try:
-            retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
-        except:
-            retval_AIR = case.PatientModel.CreateRoi(Name="Air", Color="Green", Type="Undefined", TissueName=None,
-                                                     RbeCellTypeName=None, RoiMaterial=None)
-        retval_AIR.GrayLevelThreshold(Examination=examination, LowThreshold=-1024, HighThreshold=InnerAirHU, PetUnit="",
-                                      CbctUnit=None, BoundingBox=None)
 
-        InnerAir_defs = {
-            "StructureName": "InnerAir",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " SaddleBrown",
-            "OperationA": "Intersection",
-            "SourcesA": ["ExternalClean", "Air"],
-            "MarginTypeA": "Expand",
-            "ExpA": [0, 0, 0, 0, 0, 0],
-            "OperationB": "Union",
-            "SourcesB": PTVList,
-            "MarginTypeB": "Expand",
-            "ExpB": [1, 1, 1, 1, 1, 1],
-            "OperationResult": "Intersection",
-            "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
-            "StructType": "Undefined"}
-        MakeBooleanStructure(patient=patient, case=case, examination=examination, **InnerAir_defs)
-        InAir = case.PatientModel.RegionsOfInterest['InnerAir']
-        InAir.VolumeThreshold(InputRoi=InAir, Examination=examination, MinVolume=0.1, MaxVolume=500)
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
     if GenerateUnderDose:
@@ -634,8 +605,7 @@ def main():
                 "StructType": "Undefined"}
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **uniformdose_defs)
 
-
-
+    # Make the primary targets, PTV1... these are limited by external and overlapping targets
     if GeneratePTVs:
         # Limit each target to the ExternalClean surface
         ptv_sources = ['ExternalClean']
@@ -683,6 +653,37 @@ def main():
             MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTV_defs)
             subtract_targets.append(PTVList[index])
 
+    # Make the InnerAir structure
+    if GenerateInnerAir:
+        # Automated build of the Air contour
+        try:
+            retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
+        except:
+            retval_AIR = case.PatientModel.CreateRoi(Name="Air", Color="Green", Type="Undefined", TissueName=None,
+                                                     RbeCellTypeName=None, RoiMaterial=None)
+        retval_AIR.GrayLevelThreshold(Examination=examination, LowThreshold=-1024, HighThreshold=InnerAirHU, PetUnit="",
+                                      CbctUnit=None, BoundingBox=None)
+
+        InnerAir_defs = {
+            "StructureName": "InnerAir",
+            "ExcludeFromExport": True,
+            "VisualizeStructure": False,
+            "StructColor": " SaddleBrown",
+            "OperationA": "Intersection",
+            "SourcesA": ["ExternalClean", "Air"],
+            "MarginTypeA": "Expand",
+            "ExpA": [0, 0, 0, 0, 0, 0],
+            "OperationB": "Union",
+            "SourcesB": PTVList,
+            "MarginTypeB": "Expand",
+            "ExpB": [1, 1, 1, 1, 1, 1],
+            "OperationResult": "Intersection",
+            "MarginTypeR": "Expand",
+            "ExpR": [0, 0, 0, 0, 0, 0],
+            "StructType": "Undefined"}
+        MakeBooleanStructure(patient=patient, case=case, examination=examination, **InnerAir_defs)
+        InAir = case.PatientModel.RegionsOfInterest['InnerAir']
+        InAir.VolumeThreshold(InputRoi=InAir, Examination=examination, MinVolume=0.1, MaxVolume=500)
 
     # Make the PTVEZ objects now
     if GenerateUnderDose:
