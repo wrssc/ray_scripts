@@ -476,23 +476,44 @@ def main():
         subtract_targets = []
         for index, Target in enumerate(SourceList):
             print "Creating {} target: {}".format(index, [Target])
-            PTV_defs = {
-                "StructureName": PTVList[index],
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": TargetColors[index],
-                "OperationA": "Union",
-                "SourcesA": [Target],
-                "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
-                "OperationB": "Union",
-                "SourcesB": [],
-                "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
-                "OperationResult": "Subtraction",
-                "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
-                "StructType": "Ptv"}
+            # RS is not ok with having an empty structure list for B
+            # when the operation is not None
+            if index == 0:
+                PTV_defs = {
+                    "StructureName": PTVList[index],
+                    "ExcludeFromExport": True,
+                    "VisualizeStructure": False,
+                    "StructColor": TargetColors[index],
+                    "OperationA": "Union",
+                    "SourcesA": [Target],
+                    "MarginTypeA": "Expand",
+                    "ExpA": [0, 0, 0, 0, 0, 0],
+                    "OperationB": "Union",
+                    "SourcesB": [],
+                    "MarginTypeB": "Expand",
+                    "ExpB": [0, 0, 0, 0, 0, 0],
+                    "OperationResult": "None",
+                    "MarginTypeR": "Expand",
+                    "ExpR": [0, 0, 0, 0, 0, 0],
+                    "StructType": "Ptv"}
+            else:
+                PTV_defs = {
+                    "StructureName": PTVList[index],
+                    "ExcludeFromExport": True,
+                    "VisualizeStructure": False,
+                    "StructColor": TargetColors[index],
+                    "OperationA": "Union",
+                    "SourcesA": [Target],
+                    "MarginTypeA": "Expand",
+                    "ExpA": [0, 0, 0, 0, 0, 0],
+                    "OperationB": "Union",
+                    "SourcesB": [],
+                    "MarginTypeB": "Expand",
+                    "ExpB": [0, 0, 0, 0, 0, 0],
+                    "OperationResult": "Subtraction",
+                    "MarginTypeR": "Expand",
+                    "ExpR": [0, 0, 0, 0, 0, 0],
+                    "StructType": "Ptv"}
             MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTV_defs)
             subtract_targets.append(PTVList[index])
 
@@ -636,23 +657,44 @@ def main():
         for index, Target in enumerate(SourceList):
             logging.debug('Creating target {}: {}'.format(str(index + 1), [Target]))
             # Generate the PTV_EZ
-            PTVEZ_defs = {
-                "StructureName": 'PTV' + str(index + 1) + '_EZ',
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": " 255, 0, 255",
-                "OperationA": "Union",
-                "SourcesA": underdose_structures,
-                "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
-                "OperationB": "Union",
-                "SourcesB": PTVList[index],
-                "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
-                "OperationResult": "Intersection",
-                "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
-                "StructType": "Ptv"}
+            # RS is not ok with having an empty structure list for B
+            # when the operation is not None
+            if index == 0:
+                PTVEZ_defs = {
+                    "StructureName": PTVList[index],
+                    "ExcludeFromExport": True,
+                    "VisualizeStructure": False,
+                    "StructColor": TargetColors[index],
+                    "OperationA": "Union",
+                    "SourcesA": [Target],
+                    "MarginTypeA": "Expand",
+                    "ExpA": [0, 0, 0, 0, 0, 0],
+                    "OperationB": "Union",
+                    "SourcesB": [],
+                    "MarginTypeB": "Expand",
+                    "ExpB": [0, 0, 0, 0, 0, 0],
+                    "OperationResult": "None",
+                    "MarginTypeR": "Expand",
+                    "ExpR": [0, 0, 0, 0, 0, 0],
+                    "StructType": "Ptv"}
+            else:
+                PTVEZ_defs = {
+                    "StructureName": 'PTV' + str(index + 1) + '_EZ',
+                    "ExcludeFromExport": True,
+                    "VisualizeStructure": False,
+                    "StructColor": " 255, 0, 255",
+                    "OperationA": "Union",
+                    "SourcesA": underdose_structures,
+                    "MarginTypeA": "Expand",
+                    "ExpA": [0, 0, 0, 0, 0, 0],
+                    "OperationB": "Union",
+                    "SourcesB": PTVList[index],
+                    "MarginTypeB": "Expand",
+                    "ExpB": [0, 0, 0, 0, 0, 0],
+                    "OperationResult": "Intersection",
+                    "MarginTypeR": "Expand",
+                    "ExpR": [0, 0, 0, 0, 0, 0],
+                    "StructType": "Ptv"}
             MakeBooleanStructure(
                 patient=patient,
                 case=case,
