@@ -436,11 +436,11 @@ def main():
 
     # Build the name list for the targets
     PTVPrefix = "PTV"
-    PTVEvalPrefix = "PTVEval"
     OTVPrefix = "OTV"
     PTVList = []
     PTVEvalList = []
     OTVList = []
+    PTVEZList=[]
     high_med_low_targets = False
     numbered_targets = True
     for index, Target in enumerate(input_source_list):
@@ -448,33 +448,30 @@ def main():
             NumMids = len(input_source_list) - 2
             if index == 0:
                 PTVName = PTVPrefix + "_High"
-                PTVEvalName = PTVEvalPrefix + "_High"
+                PTVEvalName = PTVPrefix+"_Eval_High"
+                PTVEZName = PTVPrefix+"_EZ_High"
                 OTVName = OTVPrefix + "_High"
             elif index == len(input_source_list) - 1:
                 PTVName = PTVPrefix + "_Low"
-                PTVEvalName = PTVEvalPrefix + "_Low"
+                PTVEvalName = PTVPrefix + "_Eval_Low"
+                PTVEZName = PTVPrefix + "_EZ_Low"
                 OTVName = OTVPrefix + "_Low"
             else:
                 MidTargetNumber = index - 1
                 PTVName = PTVPrefix+ "_Mid" + str(MidTargetNumber)
-                PTVEvalName = PTVEvalPrefix + "Mid" + str(MidTargetNumber)
+                PTVEvalName = PTVPrefix + "_Eval_Mid" + str(MidTargetNumber)
+                PTVEZName = PTVPrefix + "_EZ_Mid" + str(MidTargetNumber)
                 OTVName = OTVPrefix + "_Mid" + str(MidTargetNumber)
         elif numbered_targets:
             PTVName = PTVPrefix + str(index + 1)+'_'+source_doses[index]
-            PTVEvalName = PTVEvalPrefix + str(index + 1)+'_'+source_doses[index]
+            PTVEvalName = PTVPrefix + str(index + 1)+'_Eval_'+source_doses[index]
+            PTVEZName = PTVPrefix + str(index + 1)+'_EZ_'+source_doses[index]
             OTVName = OTVPrefix + str(index + 1)+'_'+source_doses[index]
         PTVList.append(PTVName)
         PTVEvalList.append(PTVEvalName)
+        PTVEZList.append(PTVEZName)
         OTVList.append(OTVName)
 
-    for (i, item) in enumerate(input_source_list):
-        print "i = {}, and Item = {}".format(i, item)
-    for (i, item) in enumerate(PTVList):
-        print "i = {}, and Item = {}".format(i, item)
-    for (i, item) in enumerate(PTVEvalList):
-        print "i = {}, and Item = {}".format(i, item)
-    for (i, item) in enumerate(OTVList):
-        print "i = {}, and Item = {}".format(i, item)
     TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
     # Contraction in cm to be used in the definition of the skin contour
     SkinContraction = 0.5
@@ -701,7 +698,7 @@ def main():
             print "Creating exclusion zone target {}: {}".format(str(index + 1), ptv_ez_name)
             # Generate the PTV_EZ
             PTVEZ_defs = {
-                "StructureName": ptv_ez_name,
+                "StructureName": PTVEZList[index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
@@ -732,7 +729,7 @@ def main():
             print "Creating evaluation target {}: {}".format(str(index + 1), ptv_eval_name)
             # Set the Sources Structure for Evals
             PTVEval_defs = {
-                "StructureName": ptv_eval_name,
+                "StructureName": PTVEvalList[index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
@@ -754,7 +751,6 @@ def main():
 
     # Set the Sources Structure for Evals
     if GenerateOTVs:
-        print EvalSources
         if case.PatientModel.StructureSets[examination.Name].RoiGeometries['UnderDose_Exp'].HasContours():
             OTVSubtract = ["UnderDose_Exp"]
         else:
@@ -772,7 +768,7 @@ def main():
                 "OperationB": "Union",
                 "SourcesB": OTVSubtract,
                 "MarginTypeB": "Expand",
-                "ExpB": [OTVStandoff, OTVStandoff, OTVStandoff, OTVStandoff, OTVStandoff, OTVStandoff],
+                "ExpB": [otv_standoff, otv_standoff, otv_standoff, otv_standoff, otv_standoff, otv_standoff],
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
