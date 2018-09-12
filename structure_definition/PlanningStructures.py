@@ -612,7 +612,7 @@ def main():
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
         for index, Target in enumerate(input_source_list):
-            print "Creating {} target: {}".format(index, [Target])
+            print "Creating {} target: {}".format(index, PTVList[index])
             ptv_sources.append(Target)
             if index == 0:
                 PTV_defs = {
@@ -701,7 +701,7 @@ def main():
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
-                "SourcesB": 'UnderDose',
+                "SourcesB": ['UnderDose'],
                 "MarginTypeB": "Expand",
                 "ExpB": [0, 0, 0, 0, 0, 0],
                 "OperationResult": "Intersection",
