@@ -543,7 +543,7 @@ def main():
             "VisualizeStructure": False,
             "StructColor": " 255, 0, 255",
             "OperationA": "Union",
-            "SourcesA": UnderStruct,
+            "SourcesA": underdose_structures,
             "MarginTypeA": "Expand",
             "ExpA": [
                 underdose_standoff,
