@@ -612,7 +612,7 @@ def main():
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
         for index, Target in enumerate(input_source_list):
-            print "Creating {} target: {}".format(index, PTVList[index])
+            print "Creating main target {}: {}".format(index, PTVList[index])
             ptv_sources.append(Target)
             if index == 0:
                 PTV_defs = {
@@ -689,10 +689,11 @@ def main():
     if GenerateUnderDose:
         # Loop over the PTV_EZs
         for index, Target in enumerate(PTVList):
-            print "Creating target {}: {}".format(str(index + 1), [Target])
+            ptv_ez_name = 'PTV'+str(index+1)+'_EZ'
+            print "Creating exclusion zone target {}: {}".format(str(index + 1), ptv_ez_name)
             # Generate the PTV_EZ
             PTVEZ_defs = {
-                "StructureName": 'PTV'+str(index+1)+'_EZ',
+                "StructureName": ptv_ez_name,
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
@@ -719,9 +720,11 @@ def main():
     EvalSubtract = ['Skin', 'InnerAir', 'UnderDose']
     if GeneratePTVEvals:
         for index, Target in enumerate(PTVList):
+            ptv_eval_name = 'PTV'+str(index+1)+'_Eval_'+source_doses[index]
+            print "Creating evaluation target {}: {}".format(str(index + 1), ptv_eval_name)
             # Set the Sources Structure for Evals
             PTVEval_defs = {
-                "StructureName": 'PTV'+str(index+1)+'_Eval'+source_doses[index],
+                "StructureName": ptv_eval_name,
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
