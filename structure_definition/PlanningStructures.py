@@ -195,26 +195,26 @@ def main():
             AllOars.append(r.Name)
     # Using the Standard InputDialog
     # We want several calls.  The first will determine the target doses and
-    # 1. Do you want Underdose, Uniform Dose, Target-specific rings
+    # 1. Do you want Underdose, Uniform Dose, target-specific rings
     # Based on those responses:
     # Approve underdose selections
     # Approve uniform dose selections
     InitialDialog = UserInterface.InputDialog(
         inputs={
-            'PTV1': 'Select 1st Target Source',
-            'PTV1Dose': 'Enter 1st Target Dose in cGy',
-            'PTV2': 'Select 2nd Target Source',
-            'PTV2Dose': 'Enter 2nd Target Dose in cGy',
-            'PTV3': 'Select 3rd Target Source',
-            'PTV3Dose': 'Enter 3rd Target Dose in cGy',
-            'PTV4': 'Select 4th Target Source',
-            'PTV4Dose': 'Enter 4th Target Dose in cGy',
-            'PTV5': 'Select 5th Target Source',
-            'PTV5Dose': 'Enter 5th Target Dose in cGy',
+            'PTV1': 'Select 1st target Source',
+            'PTV1Dose': 'Enter 1st target Dose in cGy',
+            'PTV2': 'Select 2nd target Source',
+            'PTV2Dose': 'Enter 2nd target Dose in cGy',
+            'PTV3': 'Select 3rd target Source',
+            'PTV3Dose': 'Enter 3rd target Dose in cGy',
+            'PTV4': 'Select 4th target Source',
+            'PTV4Dose': 'Enter 4th target Dose in cGy',
+            'PTV5': 'Select 5th target Source',
+            'PTV5Dose': 'Enter 5th target Dose in cGy',
             'UnderDose': 'Priority 1 goals present: Use Underdosing',
             'UniformDose': 'Targets overlap sensitive structures: Use UniformDoses',
         },
-        text='Target selection',
+        text='target selection',
         title='Initial Screen',
         datatype={'PTV1': 'combo',
                   'PTV2': 'combo',
@@ -270,25 +270,25 @@ def main():
 
     # User selected that Uniformdose is required
     if 'yes' in InitialDialog.values['UniformDose']:
-        GenerateUniformDose = True
+        generate_uniformdose = True
     else:
-        GenerateUniformDose = False
+        generate_uniformdose = False
 
     # User selected that Underdose is required
 
     if 'yes' in InitialDialog.values['UnderDose']:
-        GenerateUnderDose = True
+        generate_underdose = True
     else:
-        GenerateUnderDose = False
+        generate_underdose = False
 
     # Rephrase the next statement with logging
     print 'Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list))
     print 'Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses))
-    print 'User selected {} for UnderDose'.format(GenerateUnderDose)
-    print 'User selected {} for UniformDose'.format(GenerateUniformDose)
+    print 'User selected {} for UnderDose'.format(generate_underdose)
+    print 'User selected {} for UniformDose'.format(generate_uniformdose)
 
     # Underdose dialog call
-    if GenerateUnderDose:
+    if generate_underdose:
         under_dose_dialog = UserInterface.InputDialog(
             inputs={
                 'input1_underdose': 'Select UnderDose Structures',
@@ -328,7 +328,7 @@ def main():
     # for structs in uniform_structures: print structs
 
     # UniformDose dialog call
-    if GenerateUniformDose:
+    if generate_uniformdose:
         uniformdose_dialog = UserInterface.InputDialog(
             inputs={
                 'Uniform1': 'Select UniformDose Structures',
@@ -412,7 +412,7 @@ def main():
 
     print "User Selected GenerateOTVs: {}".format(GenerateOTVs)
     print "User Selected Preserve Skin Dose: {}".format(GenerateTargetSkin)
-    print "User Selected Target Rings: {}".format(GenerateTargetRings)
+    print "User Selected target Rings: {}".format(GenerateTargetRings)
     # Stand - Off Values - Gaps between structures
     # cm gap between higher dose targets (used for OTV volumes)
     otv_standoff = float(options_dialog.values['input2_otv_standoff'])
@@ -440,16 +440,16 @@ def main():
     PTVList = []
     PTVEvalList = []
     OTVList = []
-    PTVEZList=[]
+    PTVEZList = []
     high_med_low_targets = False
     numbered_targets = True
-    for index, Target in enumerate(input_source_list):
+    for index, target in enumerate(input_source_list):
         if high_med_low_targets:
             NumMids = len(input_source_list) - 2
             if index == 0:
                 PTVName = PTVPrefix + "_High"
-                PTVEvalName = PTVPrefix+"_Eval_High"
-                PTVEZName = PTVPrefix+"_EZ_High"
+                PTVEvalName = PTVPrefix + "_Eval_High"
+                PTVEZName = PTVPrefix + "_EZ_High"
                 OTVName = OTVPrefix + "_High"
             elif index == len(input_source_list) - 1:
                 PTVName = PTVPrefix + "_Low"
@@ -458,15 +458,15 @@ def main():
                 OTVName = OTVPrefix + "_Low"
             else:
                 MidTargetNumber = index - 1
-                PTVName = PTVPrefix+ "_Mid" + str(MidTargetNumber)
+                PTVName = PTVPrefix + "_Mid" + str(MidTargetNumber)
                 PTVEvalName = PTVPrefix + "_Eval_Mid" + str(MidTargetNumber)
                 PTVEZName = PTVPrefix + "_EZ_Mid" + str(MidTargetNumber)
                 OTVName = OTVPrefix + "_Mid" + str(MidTargetNumber)
         elif numbered_targets:
-            PTVName = PTVPrefix + str(index + 1)+'_'+source_doses[index]
-            PTVEvalName = PTVPrefix + str(index + 1)+'_Eval_'+source_doses[index]
-            PTVEZName = PTVPrefix + str(index + 1)+'_EZ_'+source_doses[index]
-            OTVName = OTVPrefix + str(index + 1)+'_'+source_doses[index]
+            PTVName = PTVPrefix + str(index + 1) + '_' + source_doses[index]
+            PTVEvalName = PTVPrefix + str(index + 1) + '_Eval_' + source_doses[index]
+            PTVEZName = PTVPrefix + str(index + 1) + '_EZ_' + source_doses[index]
+            OTVName = OTVPrefix + str(index + 1) + '_' + source_doses[index]
         PTVList.append(PTVName)
         PTVEvalList.append(PTVEvalName)
         PTVEZList.append(PTVEZName)
@@ -494,9 +494,6 @@ def main():
                                              MaxVolume=200000)
         retval_ExternalClean.SetAsExternal()
 
-
-
-
     if GenerateSkin:
         Skin_defs = {
             "StructureName": "Skin",
@@ -518,10 +515,8 @@ def main():
             "StructType": "Undefined"}
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **Skin_defs)
 
-
-
     # Generate the UnderDose structure and the UnderDose_Exp structure
-    if GenerateUnderDose:
+    if generate_underdose:
         print "Creating UnderDose ROI using Sources: {}".format(underdose_structures)
         # Generate the UnderDose structure
         underdose_defs = {
@@ -569,9 +564,9 @@ def main():
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **UnderDoseExp_defs)
 
     # Generate the UniformDose structure
-    if GenerateUniformDose:
+    if generate_uniformdose:
         print "Creating UniformDose ROI using Sources: {}".format(uniformdose_structures)
-        if GenerateUnderDose:
+        if generate_underdose:
             print "UnderDose structures required, excluding overlap from UniformDose"
             uniformdose_defs = {
                 "StructureName": "UniformDose",
@@ -616,17 +611,17 @@ def main():
         ptv_sources = ['ExternalClean']
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
-        for index, Target in enumerate(input_source_list):
+        for index, target in enumerate(input_source_list):
             print "Creating main target {}: {}".format(index, PTVList[index])
-            ptv_sources.append(Target)
+            ptv_sources.append(target)
             if index == 0:
-                PTV_defs = {
+                ptv_definitions = {
                     "StructureName": PTVList[index],
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
                     "StructColor": TargetColors[index],
                     "OperationA": "Union",
-                    "SourcesA": [Target],
+                    "SourcesA": [target],
                     "MarginTypeA": "Expand",
                     "ExpA": [0, 0, 0, 0, 0, 0],
                     "OperationB": "Union",
@@ -638,13 +633,13 @@ def main():
                     "ExpR": [0, 0, 0, 0, 0, 0],
                     "StructType": "Ptv"}
             else:
-                PTV_defs = {
+                ptv_definitions = {
                     "StructureName": PTVList[index],
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
                     "StructColor": TargetColors[index],
                     "OperationA": "Union",
-                    "SourcesA": [Target],
+                    "SourcesA": [target],
                     "MarginTypeA": "Expand",
                     "ExpA": [0, 0, 0, 0, 0, 0],
                     "OperationB": "Union",
@@ -655,7 +650,7 @@ def main():
                     "MarginTypeR": "Expand",
                     "ExpR": [0, 0, 0, 0, 0, 0],
                     "StructType": "Ptv"}
-            MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTV_defs)
+            MakeBooleanStructure(patient=patient, case=case, examination=examination, **ptv_definitions)
             subtract_targets.append(PTVList[index])
 
     # Make the InnerAir structure
@@ -669,7 +664,7 @@ def main():
         retval_AIR.GrayLevelThreshold(Examination=examination, LowThreshold=-1024, HighThreshold=InnerAirHU, PetUnit="",
                                       CbctUnit=None, BoundingBox=None)
 
-        InnerAir_defs = {
+        inner_air_defs = {
             "StructureName": "InnerAir",
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
@@ -686,15 +681,15 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0, 0, 0, 0, 0, 0],
             "StructType": "Undefined"}
-        MakeBooleanStructure(patient=patient, case=case, examination=examination, **InnerAir_defs)
+        MakeBooleanStructure(patient=patient, case=case, examination=examination, **inner_air_defs)
         InAir = case.PatientModel.RegionsOfInterest['InnerAir']
         InAir.VolumeThreshold(InputRoi=InAir, Examination=examination, MinVolume=0.1, MaxVolume=500)
 
     # Make the PTVEZ objects now
-    if GenerateUnderDose:
+    if generate_underdose:
         # Loop over the PTV_EZs
-        for index, Target in enumerate(PTVList):
-            ptv_ez_name = 'PTV'+str(index+1)+'_EZ'
+        for index, target in enumerate(PTVList):
+            ptv_ez_name = 'PTV' + str(index + 1) + '_EZ'
             print "Creating exclusion zone target {}: {}".format(str(index + 1), ptv_ez_name)
             # Generate the PTV_EZ
             PTVEZ_defs = {
@@ -703,7 +698,7 @@ def main():
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Union",
-                "SourcesA": [Target],
+                "SourcesA": [target],
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
@@ -720,12 +715,11 @@ def main():
                 examination=examination,
                 **PTVEZ_defs)
 
-
     # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
     EvalSubtract = ['Skin', 'InnerAir', 'UnderDose']
     if GeneratePTVEvals:
-        for index, Target in enumerate(PTVList):
-            ptv_eval_name = 'PTV'+str(index+1)+'_Eval_'+source_doses[index]
+        for index, target in enumerate(PTVList):
+            ptv_eval_name = 'PTV' + str(index + 1) + '_Eval_' + source_doses[index]
             print "Creating evaluation target {}: {}".format(str(index + 1), ptv_eval_name)
             # Set the Sources Structure for Evals
             PTVEval_defs = {
@@ -734,7 +728,7 @@ def main():
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Union",
-                "SourcesA": [Target],
+                "SourcesA": [target],
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
@@ -747,44 +741,44 @@ def main():
                 "StructType": "Ptv"}
             MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTVEval_defs)
             # Append the current target to the list of targets to subtract in the next iteration
-            EvalSubtract.append(Target)
+            EvalSubtract.append(target)
 
     # Set the Sources Structure for Evals
     if GenerateOTVs:
         if case.PatientModel.StructureSets[examination.Name].RoiGeometries['UnderDose_Exp'].HasContours():
-            OTVSubtract = ["UnderDose_Exp"]
+            otv_subtract = ["UnderDose_Exp"]
         else:
-            OTVSubtract = []
-        for index, Target in enumerate(PTVEvalList):
-            expPTV_defs = {
+            otv_subtract = []
+        for index, target in enumerate(PTVEvalList):
+            exp_ptv_definitions = {
                 "StructureName": "exp" + PTVList[index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": "192, 192, 192",
                 "OperationA": "Intersection",
-                "SourcesA": [Target],
+                "SourcesA": [target],
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
-                "SourcesB": OTVSubtract,
+                "SourcesB": otv_subtract,
                 "MarginTypeB": "Expand",
                 "ExpB": [otv_standoff, otv_standoff, otv_standoff, otv_standoff, otv_standoff, otv_standoff],
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
                 "StructType": "Undefined"}
-            MakeBooleanStructure(patient=patient, case=case, examination=examination, **expPTV_defs)
+            MakeBooleanStructure(patient=patient, case=case, examination=examination, **exp_ptv_definitions)
             OTV_defs = {
                 "StructureName": OTVList[index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Intersection",
-                "SourcesA": [Target],
+                "SourcesA": [target],
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
-                "SourcesB": OTVSubtract,
+                "SourcesB": otv_subtract,
                 "MarginTypeB": "Expand",
                 "ExpB": [0, 0, 0, 0, 0, 0],
                 "OperationResult": "Subtraction",
@@ -792,7 +786,7 @@ def main():
                 "ExpR": [0, 0, 0, 0, 0, 0],
                 "StructType": "Ptv"}
             MakeBooleanStructure(patient=patient, case=case, examination=examination, **OTV_defs)
-            OTVSubtract.append(expPTV_defs.get("StructureName"))
+            otv_subtract.append(exp_ptv_definitions.get("StructureName"))
 
     # RingHD
     if GenerateRingHD:
