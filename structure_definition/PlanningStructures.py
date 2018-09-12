@@ -460,9 +460,9 @@ def main():
                 PTVEvalName = PTVEvalPrefix + "Mid" + str(MidTargetNumber)
                 OTVName = OTVPrefix + "_Mid" + str(MidTargetNumber)
         elif numbered_targets:
-            PTVName = PTVPrefix + str(index + 1)+source_doses[index]
-            PTVEvalName = PTVEvalPrefix + str(index + 1)+source_doses[index]
-            OTVName = OTVPrefix + str(index + 1)+source_doses[index]
+            PTVName = PTVPrefix + str(index + 1)+'_'+source_doses[index]
+            PTVEvalName = PTVEvalPrefix + str(index + 1)+'_'+source_doses[index]
+            OTVName = OTVPrefix + str(index + 1)+'_'+source_doses[index]
         PTVList.append(PTVName)
         PTVEvalList.append(PTVEvalName)
         OTVList.append(OTVName)
