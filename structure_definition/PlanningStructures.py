@@ -324,8 +324,6 @@ def main():
     # Replace with a logging debug call
     # for structs in uniform_structures: print structs
 
-
-
     if GenerateUniformDose:
         uniformdose_dialog = UserInterface.InputDialog(
             inputs={
@@ -421,10 +419,6 @@ def main():
     # Find all the structures in the current case
     # SkinContraction = StructureDialog.values['B_SkinContraction']
 
-
-
-
-
     # List of PTVs to be used
     GeneratePTVs = True
     GeneratePTVEvals = True
@@ -479,8 +473,9 @@ def main():
     InnerAirHU = -900
 
     if GeneratePTVs:
+        subtract_targets = []
         for index, Target in enumerate(SourceList):
-            print "Creating {} target: {}".format(index,[Target])
+            print "Creating {} target: {}".format(index, [Target])
             PTV_defs = {
                 "StructureName": PTVList[index],
                 "ExcludeFromExport": True,
@@ -491,15 +486,15 @@ def main():
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
-                "SourcesB": [],
+                "SourcesB": subtract_targets,
                 "MarginTypeB": "Expand",
                 "ExpB": [0, 0, 0, 0, 0, 0],
-                "OperationResult": "None",
+                "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
                 "StructType": "Ptv"}
             MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTV_defs)
-
+            subtract_targets.append(PTVList[index])
 
     if GenerateUniformDose:
         print "Creating UniformDose ROI using Sources: {}".format(uniformdose_structures)
@@ -596,7 +591,7 @@ def main():
             EvalName = PTVEvalList[index]
             EvalSources.append(Target)
             PTVEval_defs = {
-                "StructureName": EvalName,
+                "StructureName": 'PTVEval'+str(index+1),
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
@@ -639,15 +634,15 @@ def main():
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **underdose_defs)
         # Loop over the PTV_EZs
         for index, Target in enumerate(SourceList):
-            logging.debug('Creating target {}: {}'.format(str(index+1),[Target]))
+            logging.debug('Creating target {}: {}'.format(str(index + 1), [Target]))
             # Generate the PTV_EZ
             PTVEZ_defs = {
-                "StructureName": 'PTV_EZ_'+str(index+1),
+                "StructureName": 'PTV' + str(index + 1) + '_EZ',
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": " 255, 0, 255",
                 "OperationA": "Union",
-                "SourcesA": UnderStruct,
+                "SourcesA": underdose_structures,
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
@@ -658,7 +653,11 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
                 "StructType": "Ptv"}
-            MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTVEZ_defs)
+            MakeBooleanStructure(
+                patient=patient,
+                case=case,
+                examination=examination,
+                **PTVEZ_defs)
         # Underdose Expansion now needed
         UnderDoseExp_defs = {
             "StructureName": "UnderDose_Exp",
@@ -668,8 +667,14 @@ def main():
             "OperationA": "Union",
             "SourcesA": UnderStruct,
             "MarginTypeA": "Expand",
-            "ExpA": [UnderDoseStandoff, UnderDoseStandoff, UnderDoseStandoff, UnderDoseStandoff, UnderDoseStandoff,
-                     UnderDoseStandoff],
+            "ExpA": [
+                underdose_standoff,
+                underdose_standoff,
+                underdose_standoff,
+                underdose_standoff,
+                underdose_standoff,
+                underdose_standoff
+            ],
             "OperationB": "Union",
             "SourcesB": [],
             "MarginTypeB": "Expand",
@@ -827,6 +832,7 @@ def main():
             "OperationResult": "Subtraction",
             "StructType": "Undefined"}
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **Normal_2cm_defs)
+
 
 if __name__ == '__main__':
     main()
