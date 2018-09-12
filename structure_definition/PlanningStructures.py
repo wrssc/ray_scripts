@@ -463,10 +463,18 @@ def main():
             PTVName = PTVPrefix + str(index + 1)+'_'+source_doses[index]
             PTVEvalName = PTVEvalPrefix + str(index + 1)+'_'+source_doses[index]
             OTVName = OTVPrefix + str(index + 1)+'_'+source_doses[index]
-        PTVList.extend(PTVName)
-        PTVEvalList.extend(PTVEvalName)
-        OTVList.extend(OTVName)
+        PTVList.append(PTVName)
+        PTVEvalList.append(PTVEvalName)
+        OTVList.append(OTVName)
 
+    for (i, item) in enumerate(input_source_list):
+        print "i = {}, and Item = {}".format(i, item)
+    for (i, item) in enumerate(PTVList):
+        print "i = {}, and Item = {}".format(i, item)
+    for (i, item) in enumerate(PTVEvalList):
+        print "i = {}, and Item = {}".format(i, item)
+    for (i, item) in enumerate(OTVList):
+        print "i = {}, and Item = {}".format(i, item)
     TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
     # Contraction in cm to be used in the definition of the skin contour
     SkinContraction = 0.5
