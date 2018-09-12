@@ -327,6 +327,7 @@ def main():
     # Replace with a logging debug call
     # for structs in uniform_structures: print structs
 
+    # UniformDose dialog call
     if GenerateUniformDose:
         uniformdose_dialog = UserInterface.InputDialog(
             inputs={
@@ -433,36 +434,35 @@ def main():
     GenerateTargetRings = True
     GenerateTargetSkin = True
 
-    PTVPrefix = "PTV_"
-    PTVEvalPrefix = "PTV_Eval_"
-    OTVPrefix = "OTV_"
+    # Build the name list for the targets
+    PTVPrefix = "PTV"
+    PTVEvalPrefix = "PTVEval"
+    OTVPrefix = "OTV"
     PTVList = []
     PTVEvalList = []
     OTVList = []
-
     high_med_low_targets = False
     numbered_targets = True
-
     for index, Target in enumerate(input_source_list):
         if high_med_low_targets:
             NumMids = len(input_source_list) - 2
             if index == 0:
-                PTVName = PTVPrefix + "High"
-                PTVEvalName = PTVEvalPrefix + "High"
-                OTVName = OTVPrefix + "High"
+                PTVName = PTVPrefix + "_High"
+                PTVEvalName = PTVEvalPrefix + "_High"
+                OTVName = OTVPrefix + "_High"
             elif index == len(input_source_list) - 1:
-                PTVName = PTVPrefix + "Low"
-                PTVEvalName = PTVEvalPrefix + "Low"
-                OTVName = OTVPrefix + "Low"
+                PTVName = PTVPrefix + "_Low"
+                PTVEvalName = PTVEvalPrefix + "_Low"
+                OTVName = OTVPrefix + "_Low"
             else:
                 MidTargetNumber = index - 1
-                PTVName = PTVPrefix + "Mid" + str(MidTargetNumber)
+                PTVName = PTVPrefix+ "_Mid" + str(MidTargetNumber)
                 PTVEvalName = PTVEvalPrefix + "Mid" + str(MidTargetNumber)
-                OTVName = OTVPrefix + "Mid" + str(MidTargetNumber)
+                OTVName = OTVPrefix + "_Mid" + str(MidTargetNumber)
         elif numbered_targets:
-            PTVName = PTVPrefix + str(index + 1)
-            PTVEvalName = PTVEvalPrefix + str(index + 1)
-            OTVName = OTVPrefix + str(index + 1)
+            PTVName = PTVPrefix + str(index + 1)+source_doses[index]
+            PTVEvalName = PTVEvalPrefix + str(index + 1)+source_doses[index]
+            OTVName = OTVPrefix + str(index + 1)+source_doses[index]
         PTVList.append(PTVName)
         PTVEvalList.append(PTVEvalName)
         OTVList.append(OTVName)
@@ -489,73 +489,6 @@ def main():
                                              MaxVolume=200000)
         retval_ExternalClean.SetAsExternal()
 
-    if GeneratePTVs:
-        # Limit each target to the ExternalClean surface
-        ptv_sources = ['ExternalClean']
-        # Initially, there are no targets to use in the subtraction
-        subtract_targets = []
-        for index, Target in enumerate(input_source_list):
-            print "Creating {} target: {}".format(index, [Target])
-            ptv_sources.append(Target)
-            if index == 0:
-                PTV_defs = {
-                    "StructureName": PTVList[index],
-                    "ExcludeFromExport": True,
-                    "VisualizeStructure": False,
-                    "StructColor": TargetColors[index],
-                    "OperationA": "Union",
-                    "SourcesA": [Target],
-                    "MarginTypeA": "Expand",
-                    "ExpA": [0, 0, 0, 0, 0, 0],
-                    "OperationB": "Union",
-                    "SourcesB": [],
-                    "MarginTypeB": "Expand",
-                    "ExpB": [0, 0, 0, 0, 0, 0],
-                    "OperationResult": "None",
-                    "MarginTypeR": "Expand",
-                    "ExpR": [0, 0, 0, 0, 0, 0],
-                    "StructType": "Ptv"}
-            else:
-                PTV_defs = {
-                    "StructureName": PTVList[index],
-                    "ExcludeFromExport": True,
-                    "VisualizeStructure": False,
-                    "StructColor": TargetColors[index],
-                    "OperationA": "Union",
-                    "SourcesA": [Target],
-                    "MarginTypeA": "Expand",
-                    "ExpA": [0, 0, 0, 0, 0, 0],
-                    "OperationB": "Union",
-                    "SourcesB": subtract_targets,
-                    "MarginTypeB": "Expand",
-                    "ExpB": [0, 0, 0, 0, 0, 0],
-                    "OperationResult": "Subtraction",
-                    "MarginTypeR": "Expand",
-                    "ExpR": [0, 0, 0, 0, 0, 0],
-                    "StructType": "Ptv"}
-            MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTV_defs)
-            subtract_targets.append(PTVList[index])
-
-    if GenerateUniformDose:
-        print "Creating UniformDose ROI using Sources: {}".format(uniformdose_structures)
-        uniformdose_defs = {
-            "StructureName": "UniformDose",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " Blue",
-            "OperationA": "Union",
-            "SourcesA": uniformdose_structures,
-            "MarginTypeA": "Expand",
-            "ExpA": [0, 0, 0, 0, 0, 0],
-            "OperationB": "Union",
-            "SourcesB": [],
-            "MarginTypeB": "Expand",
-            "ExpB": [0, 0, 0, 0, 0, 0],
-            "OperationResult": "None",
-            "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
-            "StructType": "Undefined"}
-        MakeBooleanStructure(patient=patient, case=case, examination=examination, **uniformdose_defs)
 
 
 
@@ -611,35 +544,7 @@ def main():
         InAir = case.PatientModel.RegionsOfInterest['InnerAir']
         InAir.VolumeThreshold(InputRoi=InAir, Examination=examination, MinVolume=0.1, MaxVolume=500)
 
-    # Set the Sources Structure for Evals
-    EvalSubtract = ["Skin", "InnerAir"]
-    if GeneratePTVEvals:
-        for index, Target in enumerate(PTVList):
-            EvalSources = ["ExternalClean"]
-            EvalName = PTVEvalList[index]
-            EvalSources.append(Target)
-            PTVEval_defs = {
-                "StructureName": 'PTVEval'+str(index+1),
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": TargetColors[index],
-                "OperationA": "Intersection",
-                "SourcesA": EvalSources,
-                "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
-                "OperationB": "Union",
-                "SourcesB": EvalSubtract,
-                "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
-                "OperationResult": "Subtraction",
-                "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
-                "StructType": "Ptv"}
-            MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTVEval_defs)
-            # Append the current target to the list of targets to subtract in the next iteration
-            EvalSubtract.append(Target)
-        EvalSources.remove("ExternalClean")
-    # Exclusion Zone
+    # Generate the UnderDose structure and the UnderDose_Exp structure
     if GenerateUnderDose:
         print "Creating UnderDose ROI using Sources: {}".format(underdose_structures)
         # Generate the UnderDose structure
@@ -661,54 +566,6 @@ def main():
             "ExpR": [0, 0, 0, 0, 0, 0],
             "StructType": "Undefined"}
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **underdose_defs)
-        # Loop over the PTV_EZs
-        for index, Target in enumerate(input_source_list):
-            logging.debug('Creating target {}: {}'.format(str(index + 1), [Target]))
-            # Generate the PTV_EZ
-            # RS is not ok with having an empty structure list for B
-            # when the operation is not None
-            if index == 0:
-                PTVEZ_defs = {
-                    "StructureName": PTVList[index],
-                    "ExcludeFromExport": True,
-                    "VisualizeStructure": False,
-                    "StructColor": TargetColors[index],
-                    "OperationA": "Union",
-                    "SourcesA": [Target],
-                    "MarginTypeA": "Expand",
-                    "ExpA": [0, 0, 0, 0, 0, 0],
-                    "OperationB": "Union",
-                    "SourcesB": [],
-                    "MarginTypeB": "Expand",
-                    "ExpB": [0, 0, 0, 0, 0, 0],
-                    "OperationResult": "None",
-                    "MarginTypeR": "Expand",
-                    "ExpR": [0, 0, 0, 0, 0, 0],
-                    "StructType": "Ptv"}
-            else:
-                PTVEZ_defs = {
-                    "StructureName": 'PTV' + str(index + 1) + '_EZ',
-                    "ExcludeFromExport": True,
-                    "VisualizeStructure": False,
-                    "StructColor": " 255, 0, 255",
-                    "OperationA": "Union",
-                    "SourcesA": underdose_structures,
-                    "MarginTypeA": "Expand",
-                    "ExpA": [0, 0, 0, 0, 0, 0],
-                    "OperationB": "Union",
-                    "SourcesB": PTVList[index],
-                    "MarginTypeB": "Expand",
-                    "ExpB": [0, 0, 0, 0, 0, 0],
-                    "OperationResult": "Intersection",
-                    "MarginTypeR": "Expand",
-                    "ExpR": [0, 0, 0, 0, 0, 0],
-                    "StructType": "Ptv"}
-            MakeBooleanStructure(
-                patient=patient,
-                case=case,
-                examination=examination,
-                **PTVEZ_defs)
-        # Underdose Expansion now needed
         UnderDoseExp_defs = {
             "StructureName": "UnderDose_Exp",
             "ExcludeFromExport": True,
@@ -734,6 +591,155 @@ def main():
             "ExpR": [0, 0, 0, 0, 0, 0],
             "StructType": "Undefined"}
         MakeBooleanStructure(patient=patient, case=case, examination=examination, **UnderDoseExp_defs)
+
+    # Generate the UniformDose structure
+    if GenerateUniformDose:
+        print "Creating UniformDose ROI using Sources: {}".format(uniformdose_structures)
+        if GenerateUnderDose:
+            print "UnderDose structures required, excluding overlap from UniformDose"
+            uniformdose_defs = {
+                "StructureName": "UniformDose",
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                "StructColor": " Blue",
+                "OperationA": "Union",
+                "SourcesA": uniformdose_structures,
+                "MarginTypeA": "Expand",
+                "ExpA": [0, 0, 0, 0, 0, 0],
+                "OperationB": "Union",
+                "SourcesB": underdose_structures,
+                "MarginTypeB": "Expand",
+                "ExpB": [0, 0, 0, 0, 0, 0],
+                "OperationResult": "Subtraction",
+                "MarginTypeR": "Expand",
+                "ExpR": [0, 0, 0, 0, 0, 0],
+                "StructType": "Undefined"}
+        else:
+            uniformdose_defs = {
+                "StructureName": "UniformDose",
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                "StructColor": " Blue",
+                "OperationA": "Union",
+                "SourcesA": uniformdose_structures,
+                "MarginTypeA": "Expand",
+                "ExpA": [0, 0, 0, 0, 0, 0],
+                "OperationB": "Union",
+                "SourcesB": [],
+                "MarginTypeB": "Expand",
+                "ExpB": [0, 0, 0, 0, 0, 0],
+                "OperationResult": "None",
+                "MarginTypeR": "Expand",
+                "ExpR": [0, 0, 0, 0, 0, 0],
+                "StructType": "Undefined"}
+        MakeBooleanStructure(patient=patient, case=case, examination=examination, **uniformdose_defs)
+
+
+
+    if GeneratePTVs:
+        # Limit each target to the ExternalClean surface
+        ptv_sources = ['ExternalClean']
+        # Initially, there are no targets to use in the subtraction
+        subtract_targets = []
+        for index, Target in enumerate(input_source_list):
+            print "Creating {} target: {}".format(index, [Target])
+            ptv_sources.append(Target)
+            if index == 0:
+                PTV_defs = {
+                    "StructureName": PTVList[index],
+                    "ExcludeFromExport": True,
+                    "VisualizeStructure": False,
+                    "StructColor": TargetColors[index],
+                    "OperationA": "Union",
+                    "SourcesA": [Target],
+                    "MarginTypeA": "Expand",
+                    "ExpA": [0, 0, 0, 0, 0, 0],
+                    "OperationB": "Union",
+                    "SourcesB": [],
+                    "MarginTypeB": "Expand",
+                    "ExpB": [0, 0, 0, 0, 0, 0],
+                    "OperationResult": "None",
+                    "MarginTypeR": "Expand",
+                    "ExpR": [0, 0, 0, 0, 0, 0],
+                    "StructType": "Ptv"}
+            else:
+                PTV_defs = {
+                    "StructureName": PTVList[index],
+                    "ExcludeFromExport": True,
+                    "VisualizeStructure": False,
+                    "StructColor": TargetColors[index],
+                    "OperationA": "Union",
+                    "SourcesA": [Target],
+                    "MarginTypeA": "Expand",
+                    "ExpA": [0, 0, 0, 0, 0, 0],
+                    "OperationB": "Union",
+                    "SourcesB": subtract_targets,
+                    "MarginTypeB": "Expand",
+                    "ExpB": [0, 0, 0, 0, 0, 0],
+                    "OperationResult": "Subtraction",
+                    "MarginTypeR": "Expand",
+                    "ExpR": [0, 0, 0, 0, 0, 0],
+                    "StructType": "Ptv"}
+            MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTV_defs)
+            subtract_targets.append(PTVList[index])
+
+
+    # Make the PTVEZ objects now
+    if GenerateUnderDose:
+        # Loop over the PTV_EZs
+        for index, Target in enumerate(PTVList):
+            logging.debug('Creating target {}: {}'.format(str(index + 1), [Target]))
+            # Generate the PTV_EZ
+            PTVEZ_defs = {
+                "StructureName": 'PTV'+str(index+1)+'_EZ',
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                "StructColor": TargetColors[index],
+                "OperationA": "Union",
+                "SourcesA": [Target],
+                "MarginTypeA": "Expand",
+                "ExpA": [0, 0, 0, 0, 0, 0],
+                "OperationB": "Union",
+                "SourcesB": 'UnderDose',
+                "MarginTypeB": "Expand",
+                "ExpB": [0, 0, 0, 0, 0, 0],
+                "OperationResult": "Intersection",
+                "MarginTypeR": "Expand",
+                "ExpR": [0, 0, 0, 0, 0, 0],
+                "StructType": "Ptv"}
+            MakeBooleanStructure(
+                patient=patient,
+                case=case,
+                examination=examination,
+                **PTVEZ_defs)
+
+
+    # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
+    EvalSubtract = ['Skin', 'InnerAir', 'UnderDose']
+    if GeneratePTVEvals:
+        for index, Target in enumerate(PTVList):
+            # Set the Sources Structure for Evals
+            PTVEval_defs = {
+                "StructureName": PTVEvalName[index],
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                "StructColor": TargetColors[index],
+                "OperationA": "Union",
+                "SourcesA": [Target],
+                "MarginTypeA": "Expand",
+                "ExpA": [0, 0, 0, 0, 0, 0],
+                "OperationB": "Union",
+                "SourcesB": EvalSubtract,
+                "MarginTypeB": "Expand",
+                "ExpB": [0, 0, 0, 0, 0, 0],
+                "OperationResult": "Subtraction",
+                "MarginTypeR": "Expand",
+                "ExpR": [0, 0, 0, 0, 0, 0],
+                "StructType": "Ptv"}
+            MakeBooleanStructure(patient=patient, case=case, examination=examination, **PTVEval_defs)
+            # Append the current target to the list of targets to subtract in the next iteration
+            EvalSubtract.append(Target)
+
     # Set the Sources Structure for Evals
     if GenerateOTVs:
         print EvalSources
