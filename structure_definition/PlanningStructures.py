@@ -721,7 +721,7 @@ def main():
         for index, Target in enumerate(PTVList):
             # Set the Sources Structure for Evals
             PTVEval_defs = {
-                "StructureName": PTVEvalName[index],
+                "StructureName": 'PTV'+str(index+1)+'_Eval'+source_doses[index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
