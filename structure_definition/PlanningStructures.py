@@ -689,7 +689,7 @@ def main():
     if GenerateUnderDose:
         # Loop over the PTV_EZs
         for index, Target in enumerate(PTVList):
-            logging.debug('Creating target {}: {}'.format(str(index + 1), [Target]))
+            print "Creating target {}: {}".format(str(index + 1), [Target])
             # Generate the PTV_EZ
             PTVEZ_defs = {
                 "StructureName": 'PTV'+str(index+1)+'_EZ',
@@ -701,7 +701,7 @@ def main():
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
-                "SourcesB": ['UnderDose'],
+                "SourcesB": ["UnderDose"],
                 "MarginTypeB": "Expand",
                 "ExpB": [0, 0, 0, 0, 0, 0],
                 "OperationResult": "Intersection",
