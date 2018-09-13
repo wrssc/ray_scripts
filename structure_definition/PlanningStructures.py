@@ -749,9 +749,9 @@ def main():
             otv_subtract = ["UnderDose_Exp"]
         else:
             otv_subtract = []
-        for index, target in enumerate(PTVEvalList):
+        for index, target in enumerate(PTVList):
             exp_ptv_definitions = {
-                "StructureName": "exp" + PTVList[index],
+                "StructureName": "z_derived_exp" + PTVList[index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": "192, 192, 192",
@@ -762,7 +762,7 @@ def main():
                 "OperationB": "Union",
                 "SourcesB": otv_subtract,
                 "MarginTypeB": "Expand",
-                "ExpB": [otv_standoff, otv_standoff, otv_standoff, otv_standoff, otv_standoff, otv_standoff],
+                "ExpB": [[float(otv_standoff)]*6],
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
@@ -798,7 +798,7 @@ def main():
             "StructColor": " 255, 0, 255",
             "SourcesA": PTVList,
             "MarginTypeA": "Expand",
-            "ExpA": [thickness_hd_ring*6],
+            "ExpA": [[float(thickness_hd_ring)]*6],
             "OperationA": "Union",
             "SourcesB": ["ExternalClean"],
             "MarginTypeB": "Expand",
@@ -821,7 +821,7 @@ def main():
             "OperationA": "Union",
             "SourcesB": PTVList,
             "MarginTypeB": "Expand",
-            "ExpB": [RingStandoff, RingStandoff, RingStandoff, RingStandoff, RingStandoff, RingStandoff],
+            "ExpB": [[float(ring_standoff)]*6],
             "OperationB": "Union",
             "MarginTypeR": "Expand",
             "ExpR": [0, 0, 0, 0, 0, 0],
