@@ -764,7 +764,7 @@ def main():
                 "OperationB": "Union",
                 "SourcesB": otv_subtract,
                 "MarginTypeB": "Expand",
-                "ExpB": [otv_standoff]*6,
+                "ExpB": [otv_standoff, otv_standoff, otv_standoff,otv_standoff,otv_standoff,otv_standoff],
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
