@@ -33,6 +33,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import connect
 import logging
 import UserInterface
+import time
 
 
 def MakeBooleanStructure(patient, case, examination, **kwargs):
@@ -102,6 +103,16 @@ def main():
     except:
         logging.warning("Aww crap, No patient")
 
+    status = UserInterface.ScriptStatus(steps=['Step A', 'Step B', 'Step C'],
+                                        docstring=__doc__, help=__help__)
+
+    status.next_step(text='Please wait while step A is running')
+    time.sleep(2)
+    status.next_step(text='Step B is now running')
+    time.sleep(2)
+    status.next_step(text='Step C is now running')
+    time.sleep(2)
+    status.finish(text='The script executed successfully')
     # Underdosed Strucutures
     # Replace with a user prompt that suggests
     UnderStruct = ["Esophagus", "OpticNerve_L", "OpticNerve_R", "SpinalCord", "BrainStem"]
