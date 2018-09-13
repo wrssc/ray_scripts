@@ -764,8 +764,7 @@ def main():
     if GeneratePTVEvals:
         EvalSubtract = ['Skin', 'InnerAir', 'UnderDose']
         for index, target in enumerate(PTVList):
-            ptv_eval_name = 'PTV' + str(index + 1) + '_Eval_' + source_doses[index]
-            print "Creating evaluation target {}: {}".format(str(index + 1), ptv_eval_name)
+            logging.debug("Creating evaluation target {}: {}".format(str(index + 1), PTVEvalList[index]))
             # Set the Sources Structure for Evals
             PTVEval_defs = {
                 "StructureName": PTVEvalList[index],
