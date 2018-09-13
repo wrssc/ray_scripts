@@ -214,7 +214,6 @@ def main():
             'UnderDose': 'Priority 1 goals present: Use Underdosing',
             'UniformDose': 'Targets overlap sensitive structures: Use UniformDoses',
         },
-        text='target selection',
         title='Target Selection',
         datatype={'PTV1': 'combo',
                   'PTV2': 'combo',
@@ -290,17 +289,16 @@ def main():
     # Underdose dialog call
     if generate_underdose:
         under_dose_dialog = UserInterface.InputDialog(
+            title='UnderDose',
             inputs={
                 'input1_underdose': 'Select UnderDose Structures',
                 'input2_underdose': 'Select UnderDose OAR',
                 'input3_underdose': 'Select UnderDose OAR',
-                'input4_under_standoff': 'UnderDose Standoff: x cm gap between targets and UnderDose volume'
-            },
+                'input4_under_standoff': 'UnderDose Standoff: x cm gap between targets and UnderDose volume'},
             datatype={
                 'input1_underdose': 'check',
                 'input2_underdose': 'combo',
-                'input3_underdose': 'combo',
-            },
+                'input3_underdose': 'combo'},
             initial={'input4_under_standoff': '0.4'},
             options={
                 'input1_underdose': UnderMatches,
@@ -330,18 +328,15 @@ def main():
     # UniformDose dialog call
     if generate_uniformdose:
         uniformdose_dialog = UserInterface.InputDialog(
-            title={
-                "UniformDose Selection"},
+            title='UniformDose Selection',
             inputs={
                 'Uniform1': 'Select UniformDose Structures',
                 'Uniform2': 'Select UniformDose OAR',
-                'Uniform3': 'Select UniformDose OAR',
-            },
+                'Uniform3': 'Select UniformDose OAR'},
             datatype={
                 'Uniform1': 'check',
                 'Uniform2': 'combo',
-                'Uniform3': 'combo',
-            },
+                'Uniform3': 'combo'},
             initial={},
             options={
                 'Uniform1': UniformMatches,
@@ -365,8 +360,7 @@ def main():
         print "Uniform Dose list selected: {}".format(uniformdose_structures)
 
     options_dialog = UserInterface.InputDialog(
-        title={
-            "Options"},
+        title='Options',
         inputs={
             'input1_otvs': 'Create optimized target volumes',
             'input2_otv_standoff': 'OTV Standoff: x cm gap between higher dose targets',
