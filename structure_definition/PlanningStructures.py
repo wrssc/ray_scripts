@@ -408,7 +408,7 @@ def main():
             'input6_thick_ld_ring': 'Thickness of the Low Dose (LD) ring',},
         datatype={
             'input3_skintarget': 'check',
-            'input5_targetrings': 'check'},
+            'input4_targetrings': 'check'},
         initial={'input1_otv_standoff': '0.3',
                  'input2_ring_standoff': '0.2',
                  'input5_thick_hd_ring': '2',
