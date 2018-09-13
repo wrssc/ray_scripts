@@ -442,14 +442,14 @@ def main():
 
     # Stand - Off Values - Gaps between structures
     # cm gap between higher dose targets (used for OTV volumes)
-    otv_standoff = float(options_dialog.values['input2_otv_standoff'])
+    otv_standoff = float(options_dialog.values['input1_otv_standoff'])
 
     # ring_standoff: cm Expansion between targets and rings
-    ring_standoff = float(options_dialog.values['input3_ring_standoff'])
+    ring_standoff = float(options_dialog.values['input2_ring_standoff'])
 
     # Ring thicknesses
-    thickness_hd_ring = float(options_dialog.values['input6_thick_hd_ring'])
-    thickness_ld_ring = float(options_dialog.values['input7_thick_ld_ring'])
+    thickness_hd_ring = float(options_dialog.values['input5_thick_hd_ring'])
+    thickness_ld_ring = float(options_dialog.values['input6_thick_ld_ring'])
 
     status.next_step(text='Support structures used for removing air, skin, and overlap being generated')
 
