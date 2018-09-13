@@ -215,7 +215,7 @@ def main():
             'UniformDose': 'Targets overlap sensitive structures: Use UniformDoses',
         },
         text='target selection',
-        title='Initial Screen',
+        title='Target Selection',
         datatype={'PTV1': 'combo',
                   'PTV2': 'combo',
                   'PTV3': 'combo',
@@ -330,6 +330,8 @@ def main():
     # UniformDose dialog call
     if generate_uniformdose:
         uniformdose_dialog = UserInterface.InputDialog(
+            title={
+                "UniformDose Selection"},
             inputs={
                 'Uniform1': 'Select UniformDose Structures',
                 'Uniform2': 'Select UniformDose OAR',
@@ -363,6 +365,8 @@ def main():
         print "Uniform Dose list selected: {}".format(uniformdose_structures)
 
     options_dialog = UserInterface.InputDialog(
+        title={
+            "Options"},
         inputs={
             'input1_otvs': 'Create optimized target volumes',
             'input2_otv_standoff': 'OTV Standoff: x cm gap between higher dose targets',
@@ -370,13 +374,11 @@ def main():
             'input4_skintarget': 'Preserve skin dose using skin-specific targets',
             'input5_targetrings': 'Make target specific rings',
             'input6_thick_hd_ring': 'Thickness of the High Dose (HD) ring',
-            'input7_thick_ld_ring': 'Thickness of the Low Dose (LD) ring',
-        },
+            'input7_thick_ld_ring': 'Thickness of the Low Dose (LD) ring',},
         datatype={
             'input1_otvs': 'check',
             'input4_skintarget': 'check',
-            'input5_targetrings': 'check',
-        },
+            'input5_targetrings': 'check'},
         initial={'input2_otv_standoff': '0.3',
                  'input3_ring_standoff': '0.2',
                  'input6_thick_hd_ring': '2',
@@ -762,7 +764,7 @@ def main():
                 "OperationB": "Union",
                 "SourcesB": otv_subtract,
                 "MarginTypeB": "Expand",
-                "ExpB": [[float(otv_standoff)]*6],
+                "ExpB": [otv_standoff]*6,
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
@@ -798,7 +800,7 @@ def main():
             "StructColor": " 255, 0, 255",
             "SourcesA": PTVList,
             "MarginTypeA": "Expand",
-            "ExpA": [[float(thickness_hd_ring)]*6],
+            "ExpA": [thickness_hd_ring]*6,
             "OperationA": "Union",
             "SourcesB": ["ExternalClean"],
             "MarginTypeB": "Expand",
@@ -821,7 +823,7 @@ def main():
             "OperationA": "Union",
             "SourcesB": PTVList,
             "MarginTypeB": "Expand",
-            "ExpB": [[float(ring_standoff)]*6],
+            "ExpB": [ring_standoff]*6,
             "OperationB": "Union",
             "MarginTypeR": "Expand",
             "ExpR": [0, 0, 0, 0, 0, 0],
@@ -840,7 +842,7 @@ def main():
             "StructColor": " 255, 0, 255",
             "SourcesA": PTVList,
             "MarginTypeA": "Expand",
-            "ExpA": [ThickLDRing, ThickLDRing, ThickLDRing, ThickLDRing, ThickLDRing, ThickLDRing],
+            "ExpA": [thickness_ld_ring]*6,
             "OperationA": "Union",
             "SourcesB": ["ExternalClean"],
             "MarginTypeB": "Expand",
