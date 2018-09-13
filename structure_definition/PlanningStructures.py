@@ -1,8 +1,17 @@
 """ Generate Planning Structures
 
-     Using the Standard InputDialog
-     We have several calls
-     The first will determine the target doses and whether we are uniform or underdosing
+    This script is designed to help you make planning structures.  Prior to starting you should determine:
+
+    All structures to be treated, and their doses
+    All structures with priority 1 goals (they are going to be selected for UnderDose)
+    All structures where hot-spots are undesirable but underdosing is not desired.  They will be placed in
+    the UniformDose ROI.
+
+
+    Note:
+    Using the Standard InputDialog
+    We have several calls
+    The first will determine the target doses and whether we are uniform or underdosing
          Based on those responses:
          Select and Approve underdose selections
          Select and Approve uniform dose selections
@@ -10,7 +19,6 @@
         -Target-specific rings
         -Specify desired standoffs in the rings closest to the target
     Raystation script to make structures used for planning.
-    Note:
 
     Inputs:
 
@@ -457,7 +465,7 @@ def main():
         # Build the name list for the targets
         PTVPrefix = "PTV"
         OTVPrefix = "OTV"
-        sotvu_prefix = "OTV"
+        sotvu_prefix = "sOTVu"
         PTVList = []
         PTVEvalList = []
         OTVList = []
