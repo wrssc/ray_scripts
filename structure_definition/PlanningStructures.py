@@ -814,7 +814,7 @@ def main():
     # Build a region called z_derived_not_exp_underdose that does not include the underdose expansion
     if generate_otvs:
         otv_intersect = []
-        otv_subtract = []
+        otv_subtract = ['Skin', 'InnerAir', 'UnderDose_Exp']
         # If the UnderDose structure has contours, then we must create a ~underdose_exp structure
         if case.PatientModel.StructureSets[examination.Name].RoiGeometries['UnderDose_Exp'].HasContours():
             not_exp_underdose_definitions = {
@@ -849,7 +849,7 @@ def main():
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Intersection",
-                "SourcesA": [PTVEvalList[index]] + otv_intersect,
+                "SourcesA": [PTVList[index]] + otv_intersect,
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
