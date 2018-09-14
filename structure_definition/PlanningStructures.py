@@ -849,7 +849,7 @@ def main():
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Intersection",
-                "SourcesA": [PTVEvalList[index],otv_intersect],
+                "SourcesA": PTVEvalList[index]+otv_intersect,
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
