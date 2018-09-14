@@ -838,8 +838,8 @@ def main():
                                    case=case,
                                    examination=examination,
                                    **not_exp_underdose_definitions)
-            newly_generated_rois.append(not_exp_underdose_definitions.get("StructureName"))
-            otv_intersect.append(not_exp_underdose_definitions.get("StructureName"))
+            newly_generated_rois.append("z_derived_not_exp_underdose")
+            otv_intersect.append("z_derived_not_exp_underdose")
 
         for index, target in enumerate(PTVList):
             OTV_defs = {
