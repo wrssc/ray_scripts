@@ -443,6 +443,7 @@ def main():
     try:
         if 'Use target-specific rings' in options_dialog.values['input5_targetrings']:
             GenerateTargetRings = True
+            GenerateRingHD = False
         else:
             GenerateTargetRings = False
     except KeyError:
@@ -887,7 +888,7 @@ def main():
         newly_generated_rois.append(z_derived_maxhd_defs.get("StructureName"))
 
         z_derived_targets_plus_standoff_hd_defs = {
-            "StructureName": "z_derived_maxhd",
+            "StructureName": "z_derived_targets_plus_standoff_hd_defs",
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": " 255, 0, 255",
