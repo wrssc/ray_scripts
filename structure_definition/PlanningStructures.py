@@ -933,14 +933,14 @@ def main():
                 "OperationA": "Union",
                 "SourcesA": [target],
                 "MarginTypeA": "Expand",
-                "ExpA": [thickness_ld_ring]*6,
+                "ExpA": [thickness_hd_ring] * 6,
                 "OperationB": "Union",
                 "SourcesB": ring_avoid_subtract,
                 "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
+                "ExpB": [0] * 6,
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "StructType": "Avoidance"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **target_ring_defs)
             newly_generated_rois.append(target_ring_defs.get("StructureName"))
