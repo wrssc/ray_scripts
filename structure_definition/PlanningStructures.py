@@ -868,26 +868,52 @@ def main():
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": " 255, 0, 255",
+            "SourcesA": ["ExternalClean"],
+            "MarginTypeA": "Expand",
+            "ExpA": [thickness_hd_ring] * 6,
+            "OperationA": "Union",
+            "SourcesB": PTVList,
+            "MarginTypeB": "Expand",
+            "ExpB": [ring_standoff+thickness_hd_ring]*6,
+            "OperationB": "Union",
+            "MarginTypeR": "Expand",
+            "ExpR": [0, 0, 0, 0, 0, 0],
+            "OperationResult": "Subtraction",
+            "StructType": "Undefined"}
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **z_derived_maxhd_defs)
+        newly_generated_rois.append(z_derived_maxhd_defs.get("StructureName"))
+
+        z_derived_targets_plus_standoff_hd_defs = {
+            "StructureName": "z_derived_maxhd",
+            "ExcludeFromExport": True,
+            "VisualizeStructure": False,
+            "StructColor": " 255, 0, 255",
             "SourcesA": PTVList,
             "MarginTypeA": "Expand",
             "ExpA": [thickness_hd_ring] * 6,
             "OperationA": "Union",
-            "SourcesB": ["ExternalClean"],
+            "SourcesB": [],
             "MarginTypeB": "Expand",
             "ExpB": [0, 0, 0, 0, 0, 0],
             "OperationB": "Union",
             "MarginTypeR": "Expand",
             "ExpR": [0, 0, 0, 0, 0, 0],
-            "OperationResult": "Intersection",
+            "OperationResult": "None",
             "StructType": "Undefined"}
-        make_boolean_structure(patient=patient, case=case, examination=examination, **z_derived_maxhd_defs)
-        newly_generated_rois.append(z_derived_maxhd_defs.get("StructureName"))
-
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **z_derived_targets_plus_standoff_hd_defs)
+        newly_generated_rois.append(z_derived_targets_plus_standoff_hd_defs.get("StructureName"))
         # Now generate a ring for each target
         # Each iteration will add the higher dose targets and rings to the subtract list for subsequent rings
-        ring_avoid_subtract = PTVList
+        ring_avoid_subtract = [z_derived_maxhd_defs.get("StructureName"),
+                               z_derived_targets_plus_standoff_hd_defs.get("StructureName")]
         for index, target in enumerate(PTVList):
-            ring_name = "ring" + str(index) +"_" + source_doses[index]
+            ring_name = "ring" + str(index) + "_" + source_doses[index]
             target_ring_defs = {
                 "StructureName": ring_name,
                 "ExcludeFromExport": True,
