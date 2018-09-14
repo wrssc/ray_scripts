@@ -841,9 +841,9 @@ def main():
             newly_generated_rois.append(not_otv_definitions.get("StructureName"))
             otv_intersect.append(not_otv_definitions.get("StructureName"))
 
-
+        # otv_subtract will store the expanded higher dose targets
+        otv_subtract = []
         for index, target in enumerate(PTVList):
-            otv_subtract = []
             OTV_defs = {
                 "StructureName": OTVList[index],
                 "ExcludeFromExport": True,
