@@ -865,7 +865,7 @@ def main():
             else:
                 OTV_defs['SourcesB'] = otv_subtract
                 OTV_defs['OperationResult'] = "Subtraction"
-                OTV_defs['ExpB'] = [otv_standoff] * 6,
+                OTV_defs['ExpB'] = [otv_standoff] * 6
 
             make_boolean_structure(patient=patient,
                                    case=case,
