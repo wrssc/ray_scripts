@@ -905,6 +905,7 @@ def main():
         newly_generated_rois.append(z_derived_maxhd_defs.get("StructureName"))
 
         # This structure will be all targets plus the standoff: b
+        print "this is the ring_standoff: {}".format(ring_standoff)
         z_derived_targets_plus_standoff_hd_defs = {
             "StructureName": "z_derived_targets_plus_standoff_hd_defs",
             "ExcludeFromExport": True,
