@@ -117,12 +117,12 @@ def main():
     # The following list allows different elements of the code to be toggled
     # No guarantee can be made that things will work if elements are turned off
     # all dependencies are not really resolved
-    GeneratePTVs = True
-    GeneratePTVEvals = True
-    GenerateOTVs = True
+    generate_ptvs = True
+    generate_ptv_evals = True
+    generate_otvs = True
     GenerateSkin = True
-    GenerateInnerAir = True
-    GenerateRingHD = True
+    generate_inner_air = True
+    generate_ring_hd = True
     GenerateRingLD = True
     GenerateNormal_2cm = True
 
@@ -433,24 +433,24 @@ def main():
     # Determine if targets using the skin are in place
     try:
         if 'Preserve Skin Dose' in options_dialog.values['input3_skintarget']:
-            GenerateTargetSkin = True
+            generate_target_skin = True
         else:
-            GenerateTargetSkin = False
+            generate_target_skin = False
     except KeyError:
-        GenerateTargetSkin = False
+        generate_target_skin = False
 
     # User wants target specific rings or no
     try:
         if 'Use target-specific rings' in options_dialog.values['input4_targetrings']:
-            GenerateTargetRings = True
-            GenerateRingHD = False
+            generate_target_rings = True
+            generate_ring_hd = False
         else:
-            GenerateTargetRings = False
+            generate_target_rings = False
     except KeyError:
-        GenerateTargetRings = False
+        generate_target_rings = False
 
-    logging.debug("User Selected Preserve Skin Dose: {}".format(GenerateTargetSkin))
-    print "User Selected target Rings: {}".format(GenerateTargetRings)
+    print "User Selected Preserve Skin Dose: {}".format(generate_target_skin)
+    print "User Selected target Rings: {}".format(generate_target_rings)
 
     # DATA PARSING FOR THE OPTIONS MENU
     # Stand - Off Values - Gaps between structures
@@ -466,7 +466,7 @@ def main():
 
     status.next_step(text='Support structures used for removing air, skin, and overlap being generated')
 
-    if GeneratePTVs:
+    if generate_ptvs:
         # Build the name list for the targets
         PTVPrefix = "PTV"
         OTVPrefix = "OTV"
@@ -639,7 +639,7 @@ def main():
 
     status.next_step(text='Targets being generated')
     # Make the primary targets, PTV1... these are limited by external and overlapping targets
-    if GeneratePTVs:
+    if generate_ptvs:
         # Limit each target to the ExternalClean surface
         ptv_sources = ['ExternalClean']
         # Initially, there are no targets to use in the subtraction
@@ -688,7 +688,7 @@ def main():
             subtract_targets.append(PTVList[index])
 
     # Make the InnerAir structure
-    if GenerateInnerAir:
+    if generate_inner_air:
         # Automated build of the Air contour
         try:
             retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
@@ -783,7 +783,7 @@ def main():
             newly_generated_rois.append(sotvu_defs.get("StructureName"))
 
     # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
-    if GeneratePTVEvals:
+    if generate_ptv_evals:
         EvalSubtract = ['Skin', 'InnerAir', 'UnderDose']
         for index, target in enumerate(PTVList):
             logging.debug("Creating evaluation target {}: {}".format(str(index + 1), PTVEvalList[index]))
@@ -810,57 +810,66 @@ def main():
             # Append the current target to the list of targets to subtract in the next iteration
             EvalSubtract.append(target)
 
-    # Set the Sources Structure for Evals
-    if GenerateOTVs:
+    # Generate the OTV's
+    # Build a region called z_derived_not_exp_underdose that does not include the underdose expansion
+    if generate_otvs:
+        otv_intersect = []
+        otv_subtract = []
+        # If the UnderDose structure has contours, then we must create a ~underdose_exp structure
         if case.PatientModel.StructureSets[examination.Name].RoiGeometries['UnderDose_Exp'].HasContours():
-            otv_subtract = ["UnderDose_Exp"]
-        else:
-            otv_subtract = []
-        for index, target in enumerate(PTVList):
-            exp_ptv_definitions = {
-                "StructureName": "z_derived_exp" + PTVList[index],
+            not_exp_underdose_definitions = {
+                "StructureName": "z_derived_not_exp_underdose",
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": "192, 192, 192",
                 "OperationA": "Intersection",
-                "SourcesA": [target],
+                "SourcesA": "ExternalClean",
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
-                "SourcesB": otv_subtract,
+                "SourcesB": "UnderDose_Exp",
                 "MarginTypeB": "Expand",
-                "ExpB": [otv_standoff]*6,
+                "ExpB": [0] * 6,
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
                 "StructType": "Undefined"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **exp_ptv_definitions)
-            newly_generated_rois.append(exp_ptv_definitions.get("StructureName"))
+            make_boolean_structure(patient=patient,
+                                   case=case,
+                                   examination=examination,
+                                   **not_exp_underdose_definitions)
+            newly_generated_rois.append(not_exp_underdose_definitions.get("StructureName"))
+            otv_intersect.append(not_exp_underdose_definitions.get("StructureName"))
+
+        for index, target in enumerate(PTVList):
             OTV_defs = {
                 "StructureName": OTVList[index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Intersection",
-                "SourcesA": [target],
+                "SourcesA": otv_subtract.append[target],
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
                 "SourcesB": otv_subtract,
                 "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
+                "ExpB": [otv_standoff] * 6,
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
                 "StructType": "Ptv"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **OTV_defs)
+            make_boolean_structure(patient = patient,
+                                   case = case,
+                                   examination = examination,
+                                   **OTV_defs)
             newly_generated_rois.append(OTV_defs.get("StructureName"))
-            otv_subtract.append(exp_ptv_definitions.get("StructureName"))
+            otv_subtract.append(PTVList[index])
 
     # Target creation complete moving on to rings
     status.next_step(text='Rings being generated')
 
-    if GenerateTargetRings:
+    if generate_target_rings:
         logging.debug('Target specific rings being constructed')
         # First make an ExternalClean-limited expansion volume
         # This will be the outer boundary for any expansion
@@ -914,7 +923,7 @@ def main():
         ring_avoid_subtract = [z_derived_maxhd_defs.get("StructureName"),
                                z_derived_targets_plus_standoff_hd_defs.get("StructureName")]
         for index, target in enumerate(PTVList):
-            ring_name = "ring" + str(index) + "_" + source_doses[index]
+            ring_name = "ring" + str(index+1) + "_" + source_doses[index]
             target_ring_defs = {
                 "StructureName": ring_name,
                 "ExcludeFromExport": True,
@@ -931,7 +940,7 @@ def main():
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
-                "StructType": "Ptv"}
+                "StructType": "Avoidance"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **target_ring_defs)
             newly_generated_rois.append(target_ring_defs.get("StructureName"))
             # Append the current target to the list of targets to subtract in the next iteration
@@ -982,7 +991,7 @@ def main():
             newly_generated_rois.append(RingLD_defs.get("StructureName"))
     else:
         # RingHD
-        if GenerateRingHD:
+        if generate_ring_hd:
             # First make an ExternalClean-limited expansion volume
             z_derived_maxhd_defs = {
                 "StructureName": "z_derived_maxhd",
