@@ -859,9 +859,9 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0, 0, 0, 0, 0, 0],
                 "StructType": "Ptv"}
-            make_boolean_structure(patient = patient,
-                                   case = case,
-                                   examination = examination,
+            make_boolean_structure(patient=patient,
+                                   case=case,
+                                   examination=examination,
                                    **OTV_defs)
             newly_generated_rois.append(OTV_defs.get("StructureName"))
             otv_subtract.append(PTVList[index])
