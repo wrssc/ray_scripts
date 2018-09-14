@@ -855,16 +855,17 @@ def main():
                 "ExpA": [0] * 6,
                 "OperationB": "Union",
                 "MarginTypeB": "Expand",
-                "ExpB": [otv_standoff] * 6,
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "StructType": "Ptv"}
             if index == 0:
-                OTV_defs['SourcesB:'] = []
+                OTV_defs['SourcesB'] = []
                 OTV_defs['OperationResult'] = "None"
+                OTV_defs['ExpB'] = [0] * 6
             else:
-                OTV_defs['SourcesB:'] = otv_subtract
+                OTV_defs['SourcesB'] = otv_subtract
                 OTV_defs['OperationResult'] = "Subtraction"
+                OTV_defs['ExpB'] = [otv_standoff] * 6,
 
             make_boolean_structure(patient=patient,
                                    case=case,
