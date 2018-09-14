@@ -880,7 +880,7 @@ def main():
     if generate_target_rings:
         logging.debug('Target specific rings being constructed')
         # First make an ExternalClean-limited expansion volume
-        # This will be the outer boundary for any expansion
+        # This will be the outer boundary for any expansion: a
         z_derived_maxhd_defs = {
             "StructureName": "z_derived_maxhd",
             "ExcludeFromExport": True,
@@ -895,7 +895,7 @@ def main():
             "ExpB": [ring_standoff+thickness_hd_ring]*6,
             "OperationB": "Union",
             "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
+            "ExpR": [0] * 6,
             "OperationResult": "Subtraction",
             "StructType": "Undefined"}
         make_boolean_structure(patient=patient,
@@ -904,6 +904,7 @@ def main():
                                **z_derived_maxhd_defs)
         newly_generated_rois.append(z_derived_maxhd_defs.get("StructureName"))
 
+        # This structure will be all targets plus the standoff: b
         z_derived_targets_plus_standoff_hd_defs = {
             "StructureName": "z_derived_targets_plus_standoff_hd_defs",
             "ExcludeFromExport": True,
@@ -911,7 +912,7 @@ def main():
             "StructColor": " 255, 0, 255",
             "SourcesA": PTVList,
             "MarginTypeA": "Expand",
-            "ExpA": [thickness_hd_ring] * 6,
+            "ExpA": [ring_standoff] * 6,
             "OperationA": "Union",
             "SourcesB": [],
             "MarginTypeB": "Expand",
@@ -928,6 +929,8 @@ def main():
         newly_generated_rois.append(z_derived_targets_plus_standoff_hd_defs.get("StructureName"))
         # Now generate a ring for each target
         # Each iteration will add the higher dose targets and rings to the subtract list for subsequent rings
+        # ring(i) = [PTV(i) + thickness] - [a + b + PTV(i-1)]
+        # where ring_avoid_subtract = [a + b + PTV(i-1)]
         ring_avoid_subtract = [z_derived_maxhd_defs.get("StructureName"),
                                z_derived_targets_plus_standoff_hd_defs.get("StructureName")]
         for index, target in enumerate(PTVList):
