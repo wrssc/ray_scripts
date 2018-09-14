@@ -817,8 +817,8 @@ def main():
         otv_subtract = ['Skin', 'InnerAir', 'UnderDose_Exp']
         # If the UnderDose structure has contours, then we must create a ~underdose_exp structure
         if case.PatientModel.StructureSets[examination.Name].RoiGeometries['UnderDose_Exp'].HasContours():
-            not_exp_underdose_definitions = {
-                "StructureName": "z_derived_not_exp_underdose",
+            not_otv_definitions = {
+                "StructureName": "z_derived_not_otv",
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": "192, 192, 192",
@@ -827,7 +827,7 @@ def main():
                 "MarginTypeA": "Expand",
                 "ExpA": [0] * 6,
                 "OperationB": "Union",
-                "SourcesB": ["UnderDose_Exp"],
+                "SourcesB": otv_subtract,
                 "MarginTypeB": "Expand",
                 "ExpB": [0] * 6,
                 "OperationResult": "Subtraction",
@@ -837,12 +837,13 @@ def main():
             make_boolean_structure(patient=patient,
                                    case=case,
                                    examination=examination,
-                                   **not_exp_underdose_definitions)
-            newly_generated_rois.append(not_exp_underdose_definitions.get("StructureName"))
-            otv_intersect.append(not_exp_underdose_definitions.get("StructureName"))
+                                   **not_otv_definitions)
+            newly_generated_rois.append(not_otv_definitions.get("StructureName"))
+            otv_intersect.append(not_otv_definitions.get("StructureName"))
 
 
         for index, target in enumerate(PTVList):
+            otv_subtract = []
             OTV_defs = {
                 "StructureName": OTVList[index],
                 "ExcludeFromExport": True,
@@ -851,21 +852,26 @@ def main():
                 "OperationA": "Intersection",
                 "SourcesA": [PTVList[index]] + otv_intersect,
                 "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
+                "ExpA": [0] * 6,
                 "OperationB": "Union",
-                "SourcesB": otv_subtract,
                 "MarginTypeB": "Expand",
                 "ExpB": [otv_standoff] * 6,
-                "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "StructType": "Ptv"}
+            if index == 0:
+                OTV_defs['SourcesB:'] = []
+                OTV_defs['OperationResult'] = "None"
+            else:
+                OTV_defs['SourcesB:'] = otv_subtract
+                OTV_defs['OperationResult'] = "Subtraction"
+
             make_boolean_structure(patient=patient,
                                    case=case,
                                    examination=examination,
                                    **OTV_defs)
-            newly_generated_rois.append(OTV_defs.get("StructureName"))
             otv_subtract.append(PTVList[index])
+            newly_generated_rois.append(OTV_defs.get("StructureName"))
 
     # Target creation complete moving on to rings
     status.next_step(text='Rings being generated')
