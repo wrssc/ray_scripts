@@ -432,7 +432,7 @@ def main():
 
     # Determine if targets using the skin are in place
     try:
-        if 'Preserve Skin Dose' in options_dialog.values['input4_skintarget']:
+        if 'Preserve Skin Dose' in options_dialog.values['input3_skintarget']:
             GenerateTargetSkin = True
         else:
             GenerateTargetSkin = False
@@ -441,7 +441,7 @@ def main():
 
     # User wants target specific rings or no
     try:
-        if 'Use target-specific rings' in options_dialog.values['input5_targetrings']:
+        if 'Use target-specific rings' in options_dialog.values['input4_targetrings']:
             GenerateTargetRings = True
             GenerateRingHD = False
         else:
