@@ -450,7 +450,7 @@ def main():
         GenerateTargetRings = False
 
     logging.debug("User Selected Preserve Skin Dose: {}".format(GenerateTargetSkin))
-    logging.debug("User Selected target Rings: {}".format(GenerateTargetRings))
+    print "User Selected target Rings: {}".format(GenerateTargetRings)
 
     # DATA PARSING FOR THE OPTIONS MENU
     # Stand - Off Values - Gaps between structures
