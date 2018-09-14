@@ -838,8 +838,9 @@ def main():
                                    case=case,
                                    examination=examination,
                                    **not_exp_underdose_definitions)
-            newly_generated_rois.append("z_derived_not_exp_underdose")
-            otv_intersect.append("z_derived_not_exp_underdose")
+            newly_generated_rois.append(not_exp_underdose_definitions.get("StructureName"))
+            otv_intersect.append(not_exp_underdose_definitions.get("StructureName"))
+
 
         for index, target in enumerate(PTVList):
             OTV_defs = {
@@ -848,7 +849,7 @@ def main():
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Intersection",
-                "SourcesA": otv_subtract.append[target],
+                "SourcesA": [PTVEvalList[index],otv_intersect],
                 "MarginTypeA": "Expand",
                 "ExpA": [0, 0, 0, 0, 0, 0],
                 "OperationB": "Union",
