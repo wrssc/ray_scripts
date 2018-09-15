@@ -911,7 +911,7 @@ def main():
             "StructColor": " 255, 0, 255",
             "SourcesA": ["ExternalClean"],
             "MarginTypeA": "Expand",
-            "ExpA": [0] * 6,
+            "ExpA": [thickness_hd_ring] * 6,
             "OperationA": "Union",
             "SourcesB": PTVList,
             "MarginTypeB": "Expand",
