@@ -735,6 +735,7 @@ def main():
                                examination=examination,
                                **inner_air_defs)
         InAir = case.PatientModel.RegionsOfInterest['InnerAir']
+        # If the InnerAir structure has contours clean them
         if case.PatientModel.StructureSets[examination.Name].\
             RoiGeometries['InnerAir'].HasContours():
             InAir.VolumeThreshold(InputRoi=InAir,
@@ -910,7 +911,7 @@ def main():
             "StructColor": " 255, 0, 255",
             "SourcesA": ["ExternalClean"],
             "MarginTypeA": "Expand",
-            "ExpA": [thickness_hd_ring] * 6,
+            "ExpA": [0] * 6,
             "OperationA": "Union",
             "SourcesB": PTVList,
             "MarginTypeB": "Expand",
