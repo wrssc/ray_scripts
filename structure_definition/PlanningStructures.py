@@ -416,7 +416,7 @@ def main():
             'input3_skintarget': 'Preserve skin dose using skin-specific targets',
             'input4_targetrings': 'Make target-specific High Dose (HD) rings',
             'input5_thick_hd_ring': 'Thickness of the High Dose (HD) ring',
-            'input6_thick_ld_ring': 'Thickness of the Low Dose (LD) ring',},
+            'input6_thick_ld_ring': 'Thickness of the Low Dose (LD) ring', },
         datatype={
             'input3_skintarget': 'check',
             'input4_targetrings': 'check'},
@@ -540,14 +540,14 @@ def main():
             "OperationA": "Union",
             "SourcesA": ["ExternalClean"],
             "MarginTypeA": "Expand",
-            "ExpA": [0, 0, 0, 0, 0, 0],
+            "ExpA": [0] * 6,
             "OperationB": "Union",
             "SourcesB": ["ExternalClean"],
             "MarginTypeB": "Contract",
-            "ExpB": [skin_contraction]*6,
+            "ExpB": [skin_contraction] * 6,
             "OperationResult": "Subtraction",
             "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
+            "ExpR": [0] * 6,
             "StructType": "Undefined"}
         make_boolean_structure(patient=patient, case=case, examination=examination, **Skin_defs)
         newly_generated_rois.append('Skin')
@@ -563,14 +563,14 @@ def main():
             "OperationA": "Union",
             "SourcesA": underdose_structures,
             "MarginTypeA": "Expand",
-            "ExpA": [0, 0, 0, 0, 0, 0],
+            "ExpA": [0] * 6,
             "OperationB": "Union",
             "SourcesB": [],
             "MarginTypeB": "Expand",
-            "ExpB": [0, 0, 0, 0, 0, 0],
+            "ExpB": [0] * 6,
             "OperationResult": "None",
             "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
+            "ExpR": [0] * 6,
             "StructType": "Undefined"}
         make_boolean_structure(patient=patient, case=case, examination=examination, **underdose_defs)
         newly_generated_rois.append('UnderDose')
@@ -582,14 +582,14 @@ def main():
             "OperationA": "Union",
             "SourcesA": underdose_structures,
             "MarginTypeA": "Expand",
-            "ExpA": [underdose_standoff]*6,
+            "ExpA": [underdose_standoff] * 6,
             "OperationB": "Union",
             "SourcesB": [],
             "MarginTypeB": "Expand",
-            "ExpB": [0, 0, 0, 0, 0, 0],
+            "ExpB": [0] * 6,
             "OperationResult": "None",
             "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
+            "ExpR": [0] * 6,
             "StructType": "Undefined"}
         make_boolean_structure(patient=patient, case=case, examination=examination, **UnderDoseExp_defs)
         newly_generated_rois.append('UnderDose_Exp')
@@ -607,14 +607,14 @@ def main():
                 "OperationA": "Union",
                 "SourcesA": uniformdose_structures,
                 "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
+                "ExpA": [0] * 6,
                 "OperationB": "Union",
                 "SourcesB": underdose_structures,
                 "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
+                "ExpB": [0] * 6,
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "StructType": "Undefined"}
         else:
             uniformdose_defs = {
@@ -625,14 +625,14 @@ def main():
                 "OperationA": "Union",
                 "SourcesA": uniformdose_structures,
                 "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
+                "ExpA": [0] * 6,
                 "OperationB": "Union",
                 "SourcesB": [],
                 "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
+                "ExpB": [0] * 6,
                 "OperationResult": "None",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "StructType": "Undefined"}
         make_boolean_structure(patient=patient, case=case, examination=examination, **uniformdose_defs)
         newly_generated_rois.append('UniformDose')
@@ -656,14 +656,14 @@ def main():
                     "OperationA": "Union",
                     "SourcesA": [target],
                     "MarginTypeA": "Expand",
-                    "ExpA": [0, 0, 0, 0, 0, 0],
+                    "ExpA": [0] * 6,
                     "OperationB": "Union",
                     "SourcesB": [],
                     "MarginTypeB": "Expand",
-                    "ExpB": [0, 0, 0, 0, 0, 0],
+                    "ExpB": [0] * 6,
                     "OperationResult": "None",
                     "MarginTypeR": "Expand",
-                    "ExpR": [0, 0, 0, 0, 0, 0],
+                    "ExpR": [0] * 6,
                     "StructType": "Ptv"}
             else:
                 ptv_definitions = {
@@ -674,14 +674,14 @@ def main():
                     "OperationA": "Union",
                     "SourcesA": [target],
                     "MarginTypeA": "Expand",
-                    "ExpA": [0, 0, 0, 0, 0, 0],
+                    "ExpA": [0] * 6,
                     "OperationB": "Union",
                     "SourcesB": subtract_targets,
                     "MarginTypeB": "Expand",
-                    "ExpB": [0, 0, 0, 0, 0, 0],
+                    "ExpB": [0] * 6,
                     "OperationResult": "Subtraction",
                     "MarginTypeR": "Expand",
-                    "ExpR": [0, 0, 0, 0, 0, 0],
+                    "ExpR": [0] * 6,
                     "StructType": "Ptv"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
             newly_generated_rois.append(ptv_definitions.get("StructureName"))
@@ -707,14 +707,14 @@ def main():
             "OperationA": "Intersection",
             "SourcesA": ["ExternalClean", "Air"],
             "MarginTypeA": "Expand",
-            "ExpA": [0, 0, 0, 0, 0, 0],
+            "ExpA": [0] * 6,
             "OperationB": "Union",
             "SourcesB": PTVList,
             "MarginTypeB": "Expand",
             "ExpB": [1, 1, 1, 1, 1, 1],
             "OperationResult": "Intersection",
             "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
+            "ExpR": [0] * 6,
             "StructType": "Undefined"}
         make_boolean_structure(patient=patient, case=case, examination=examination, **inner_air_defs)
         InAir = case.PatientModel.RegionsOfInterest['InnerAir']
@@ -736,14 +736,14 @@ def main():
                 "OperationA": "Union",
                 "SourcesA": [target],
                 "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
+                "ExpA": [0] * 6,
                 "OperationB": "Union",
                 "SourcesB": ["UnderDose"],
                 "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
+                "ExpB": [0] * 6,
                 "OperationResult": "Intersection",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "StructType": "Ptv"}
             make_boolean_structure(
                 patient=patient,
@@ -766,14 +766,14 @@ def main():
                 "OperationA": "Union",
                 "SourcesA": [target],
                 "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
+                "ExpA": [0] * 6,
                 "OperationB": "Union",
                 "SourcesB": ["UniformDose"],
                 "MarginTypeB": "Expand",
-                "ExpB": [uniformdose_standoff]*6,
+                "ExpB": [uniformdose_standoff] * 6,
                 "OperationResult": "Intersection",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "StructType": "Ptv"}
             make_boolean_structure(
                 patient=patient,
@@ -796,14 +796,14 @@ def main():
                 "OperationA": "Union",
                 "SourcesA": [target],
                 "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
+                "ExpA": [0] * 6,
                 "OperationB": "Union",
                 "SourcesB": EvalSubtract,
                 "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
+                "ExpB": [0] * 6,
                 "OperationResult": "Subtraction",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "StructType": "Ptv"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **PTVEval_defs)
             newly_generated_rois.append(PTVEval_defs.get("StructureName"))
@@ -892,7 +892,7 @@ def main():
             "OperationA": "Union",
             "SourcesB": PTVList,
             "MarginTypeB": "Expand",
-            "ExpB": [ring_standoff+thickness_hd_ring]*6,
+            "ExpB": [ring_standoff + thickness_hd_ring] * 6,
             "OperationB": "Union",
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
@@ -905,7 +905,6 @@ def main():
         newly_generated_rois.append(z_derived_maxhd_defs.get("StructureName"))
 
         # This structure will be all targets plus the standoff: b
-        print "this is the ring_standoff: {}".format(ring_standoff)
         z_derived_targets_plus_standoff_hd_defs = {
             "StructureName": "z_derived_targets_plus_standoff_hd_defs",
             "ExcludeFromExport": True,
@@ -917,10 +916,10 @@ def main():
             "OperationA": "Union",
             "SourcesB": [],
             "MarginTypeB": "Expand",
-            "ExpB": [0, 0, 0, 0, 0, 0],
+            "ExpB": [0] * 6,
             "OperationB": "Union",
             "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
+            "ExpR": [0] * 6,
             "OperationResult": "None",
             "StructType": "Undefined"}
         make_boolean_structure(patient=patient,
@@ -935,7 +934,7 @@ def main():
         ring_avoid_subtract = [z_derived_maxhd_defs.get("StructureName"),
                                z_derived_targets_plus_standoff_hd_defs.get("StructureName")]
         for index, target in enumerate(PTVList):
-            ring_name = "ring" + str(index+1) + "_" + source_doses[index]
+            ring_name = "ring" + str(index + 1) + "_" + source_doses[index]
             target_ring_defs = {
                 "StructureName": ring_name,
                 "ExcludeFromExport": True,
@@ -956,7 +955,7 @@ def main():
             make_boolean_structure(patient=patient, case=case, examination=examination, **target_ring_defs)
             newly_generated_rois.append(target_ring_defs.get("StructureName"))
             # Append the current target to the list of targets to subtract in the next iteration
-            ring_avoid_subtract.append(target)
+            ring_avoid_subtract.append(target_ring_defs.get("StructureName"))
 
         # RingLD
         if GenerateRingLD:
@@ -973,10 +972,10 @@ def main():
                 "OperationA": "Union",
                 "SourcesB": ["ExternalClean"],
                 "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
+                "ExpB": [0] * 6,
                 "OperationB": "Union",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "OperationResult": "Intersection",
                 "StructType": "Undefined"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **z_derived_maxld_defs)
@@ -989,14 +988,14 @@ def main():
                 "StructColor": " 255, 0, 255",
                 "SourcesA": ["z_derived_maxld"],
                 "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
+                "ExpA": [0] * 6,
                 "OperationA": "Union",
                 "SourcesB": PTVList,
                 "MarginTypeB": "Expand",
                 "ExpB": [ring_standoff] * 6,
                 "OperationB": "Union",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "OperationResult": "Subtraction",
                 "StructType": "Undefined"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **RingLD_defs)
@@ -1012,14 +1011,14 @@ def main():
                 "StructColor": " 255, 0, 255",
                 "SourcesA": PTVList,
                 "MarginTypeA": "Expand",
-                "ExpA": [thickness_hd_ring]*6,
+                "ExpA": [thickness_hd_ring] * 6,
                 "OperationA": "Union",
                 "SourcesB": ["ExternalClean"],
                 "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
+                "ExpB": [0] * 6,
                 "OperationB": "Union",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "OperationResult": "Intersection",
                 "StructType": "Undefined"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **z_derived_maxhd_defs)
@@ -1032,20 +1031,18 @@ def main():
                 "StructColor": " 255, 0, 255",
                 "SourcesA": ["z_derived_maxhd"],
                 "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
+                "ExpA": [0] * 6,
                 "OperationA": "Union",
                 "SourcesB": PTVList,
                 "MarginTypeB": "Expand",
-                "ExpB": [ring_standoff]*6,
+                "ExpB": [ring_standoff] * 6,
                 "OperationB": "Union",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "OperationResult": "Subtraction",
                 "StructType": "Undefined"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **RingHD_defs)
             newly_generated_rois.append(RingHD_defs.get("StructureName"))
-
-
 
         # RingLD
         if GenerateRingLD:
@@ -1058,14 +1055,14 @@ def main():
                 "StructColor": " 255, 0, 255",
                 "SourcesA": PTVList,
                 "MarginTypeA": "Expand",
-                "ExpA": [thickness_ld_ring]*6,
+                "ExpA": [thickness_ld_ring] * 6,
                 "OperationA": "Union",
                 "SourcesB": ["ExternalClean"],
                 "MarginTypeB": "Expand",
-                "ExpB": [0, 0, 0, 0, 0, 0],
+                "ExpB": [0] * 6,
                 "OperationB": "Union",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "OperationResult": "Intersection",
                 "StructType": "Undefined"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **z_derived_maxld_defs)
@@ -1078,14 +1075,14 @@ def main():
                 "StructColor": " 255, 0, 255",
                 "SourcesA": ["z_derived_maxld"],
                 "MarginTypeA": "Expand",
-                "ExpA": [0, 0, 0, 0, 0, 0],
+                "ExpA": [0] * 6,
                 "OperationA": "Union",
                 "SourcesB": PTVList,
                 "MarginTypeB": "Expand",
-                "ExpB": [ring_standoff]*6,
+                "ExpB": [ring_standoff] * 6,
                 "OperationB": "Union",
                 "MarginTypeR": "Expand",
-                "ExpR": [0, 0, 0, 0, 0, 0],
+                "ExpR": [0] * 6,
                 "OperationResult": "Subtraction",
                 "StructType": "Undefined"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **RingLD_defs)
@@ -1100,20 +1097,20 @@ def main():
             "StructColor": " 255, 0, 255",
             "SourcesA": ["ExternalClean"],
             "MarginTypeA": "Expand",
-            "ExpA": [0, 0, 0, 0, 0, 0],
+            "ExpA": [0] * 6,
             "OperationA": "Union",
             "SourcesB": PTVList,
             "MarginTypeB": "Expand",
-            "ExpB": [2, 2, 2, 2, 2, 2],
+            "ExpB": [2] * 6,
             "OperationB": "Union",
             "MarginTypeR": "Expand",
-            "ExpR": [0, 0, 0, 0, 0, 0],
+            "ExpR": [0] * 6,
             "OperationResult": "Subtraction",
             "StructType": "Undefined"}
         make_boolean_structure(patient=patient, case=case, examination=examination, **Normal_2cm_defs)
         newly_generated_rois.append(Normal_2cm_defs.get("StructureName"))
 
-    #if dialogresponse == {}:
+    # if dialogresponse == {}:
     #    status.finish('Script cancelled, inputs were not supplied')
     #    sys.exit('Script cancelled')
     status.finish(text='The script executed successfully')
