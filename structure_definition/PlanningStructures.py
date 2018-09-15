@@ -549,7 +549,10 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
             "StructType": "Undefined"}
-        make_boolean_structure(patient=patient, case=case, examination=examination, **Skin_defs)
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **Skin_defs)
         newly_generated_rois.append('Skin')
     # Generate the UnderDose structure and the UnderDose_Exp structure
     if generate_underdose:
@@ -572,7 +575,10 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
             "StructType": "Undefined"}
-        make_boolean_structure(patient=patient, case=case, examination=examination, **underdose_defs)
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **underdose_defs)
         newly_generated_rois.append('UnderDose')
         UnderDoseExp_defs = {
             "StructureName": "UnderDose_Exp",
@@ -693,11 +699,19 @@ def main():
         try:
             retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
         except:
-            retval_AIR = case.PatientModel.CreateRoi(Name="Air", Color="Green", Type="Undefined", TissueName=None,
-                                                     RbeCellTypeName=None, RoiMaterial=None)
+            retval_AIR = case.PatientModel.CreateRoi(Name="Air",
+                                                     Color="Green",
+                                                     Type="Undefined",
+                                                     TissueName=None,
+                                                     RbeCellTypeName=None,
+                                                     RoiMaterial=None)
             newly_generated_rois.append('Air')
-        retval_AIR.GrayLevelThreshold(Examination=examination, LowThreshold=-1024, HighThreshold=InnerAirHU, PetUnit="",
-                                      CbctUnit=None, BoundingBox=None)
+        retval_AIR.GrayLevelThreshold(Examination=examination,
+                                      LowThreshold=-1024,
+                                      HighThreshold=InnerAirHU,
+                                      PetUnit="",
+                                      CbctUnit=None,
+                                      BoundingBox=None)
 
         inner_air_defs = {
             "StructureName": "InnerAir",
@@ -711,14 +725,22 @@ def main():
             "OperationB": "Union",
             "SourcesB": PTVList,
             "MarginTypeB": "Expand",
-            "ExpB": [1, 1, 1, 1, 1, 1],
+            "ExpB": [1] * 6,
             "OperationResult": "Intersection",
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
             "StructType": "Undefined"}
-        make_boolean_structure(patient=patient, case=case, examination=examination, **inner_air_defs)
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **inner_air_defs)
         InAir = case.PatientModel.RegionsOfInterest['InnerAir']
-        InAir.VolumeThreshold(InputRoi=InAir, Examination=examination, MinVolume=0.1, MaxVolume=500)
+        if case.PatientModel.StructureSets[examination.Name].\
+            RoiGeometries['InnerAir'].HasContours():
+            InAir.VolumeThreshold(InputRoi=InAir,
+                                  Examination=examination,
+                                  MinVolume=0.1,
+                                  MaxVolume=500)
         newly_generated_rois.append('InnerAir')
 
     # Make the PTVEZ objects now
