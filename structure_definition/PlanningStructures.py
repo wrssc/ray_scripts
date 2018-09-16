@@ -128,11 +128,12 @@ def main():
     generate_ptvs = True
     generate_ptv_evals = True
     generate_otvs = True
-    GenerateSkin = True
+    generate_skin = True
     generate_inner_air = True
+    generate_field_of_view = True
     generate_ring_hd = True
-    GenerateRingLD = True
-    GenerateNormal_2cm = True
+    generate_ring_ld = True
+    generate_normal_2cm = True
 
     # Contraction in cm to be used in the definition of the skin contour
     skin_contraction = 0.5
@@ -539,7 +540,7 @@ def main():
         retval_ExternalClean.SetAsExternal()
         newly_generated_rois.append('External_Clean')
 
-    if GenerateSkin:
+    if generate_skin:
         Skin_defs = {
             "StructureName": "Skin",
             "ExcludeFromExport": True,
@@ -1058,7 +1059,7 @@ def main():
             # Append RingHD to the structure list for removal from RingLD
             ring_avoid_subtract.append(RingHD_defs.get("StructureName"))
     # RingLD
-    if GenerateRingLD:
+    if generate_ring_ld:
         RingLD_defs = {
             "StructureName": "RingLD",
             "ExcludeFromExport": True,
@@ -1085,7 +1086,7 @@ def main():
         newly_generated_rois.append(RingLD_defs.get("StructureName"))
 
     # Normal_2cm
-    if GenerateNormal_2cm:
+    if generate_normal_2cm:
         Normal_2cm_defs = {
             "StructureName": "Normal_2cm",
             "ExcludeFromExport": True,
