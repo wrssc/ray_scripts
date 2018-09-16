@@ -816,8 +816,8 @@ def main():
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
-                "OperationA": "Union",
-                "SourcesA": [target],
+                "OperationA": "Intersection",
+                "SourcesA": [target,"ExternalClean"],
                 "MarginTypeA": "Expand",
                 "ExpA": [0] * 6,
                 "OperationB": "Union",
@@ -828,7 +828,10 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "StructType": "Ptv"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **PTVEval_defs)
+            make_boolean_structure(patient=patient,
+                                   case=case,
+                                   examination=examination,
+                                   **PTVEval_defs)
             newly_generated_rois.append(PTVEval_defs.get("StructureName"))
             # Append the current target to the list of targets to subtract in the next iteration
             EvalSubtract.append(target)
@@ -900,62 +903,68 @@ def main():
     # Target creation complete moving on to rings
     status.next_step(text='Rings being generated')
 
+    # RINGS
+
+    # First make an ExternalClean-limited expansion volume
+    # This will be the outer boundary for any expansion: a
+    z_derived_exp_ext_defs = {
+        "StructureName": "z_derived_exp_ext",
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": " 255, 0, 255",
+        "SourcesA": ["ExternalClean"],
+        "MarginTypeA": "Expand",
+        "ExpA": [ring_standoff +
+                 thickness_hd_ring +
+                 thickness_ld_ring] * 6,
+        "OperationA": "Union",
+        "SourcesB": ["ExternalClean"],
+        "MarginTypeB": "Expand",
+        "ExpB": [0] * 6,
+        "OperationB": "Union",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "OperationResult": "Subtraction",
+        "StructType": "Undefined"}
+    make_boolean_structure(patient=patient,
+                           case=case,
+                           examination=examination,
+                           **z_derived_exp_ext_defs)
+    newly_generated_rois.append(z_derived_exp_ext_defs.get("StructureName"))
+
+    # This structure will be all targets plus the standoff: b
+    z_derived_targets_plus_standoff_ring_defs = {
+        "StructureName": "z_derived_targets_plus_standoff_ring_defs",
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": " 255, 0, 255",
+        "SourcesA": PTVList,
+        "MarginTypeA": "Expand",
+        "ExpA": [ring_standoff] * 6,
+        "OperationA": "Union",
+        "SourcesB": [],
+        "MarginTypeB": "Expand",
+        "ExpB": [0] * 6,
+        "OperationB": "Union",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "OperationResult": "None",
+        "StructType": "Undefined"}
+    make_boolean_structure(patient=patient,
+                           case=case,
+                           examination=examination,
+                           **z_derived_targets_plus_standoff_ring_defs)
+    newly_generated_rois.append(
+        z_derived_targets_plus_standoff_ring_defs.get("StructureName"))
+    # Now generate a ring for each target
+    # Each iteration will add the higher dose targets and rings to the subtract list for subsequent rings
+    # ring(i) = [PTV(i) + thickness] - [a + b + PTV(i-1)]
+    # where ring_avoid_subtract = [a + b + PTV(i-1)]
+    ring_avoid_subtract = [z_derived_exp_ext_defs.get("StructureName"),
+                           z_derived_targets_plus_standoff_ring_defs.get("StructureName")]
+
     if generate_target_rings:
         logging.debug('Target specific rings being constructed')
-        # First make an ExternalClean-limited expansion volume
-        # This will be the outer boundary for any expansion: a
-        z_derived_maxhd_defs = {
-            "StructureName": "z_derived_maxhd",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " 255, 0, 255",
-            "SourcesA": ["ExternalClean"],
-            "MarginTypeA": "Expand",
-            "ExpA": [thickness_hd_ring] * 6,
-            "OperationA": "Union",
-            "SourcesB": PTVList,
-            "MarginTypeB": "Expand",
-            "ExpB": [ring_standoff + thickness_hd_ring] * 6,
-            "OperationB": "Union",
-            "MarginTypeR": "Expand",
-            "ExpR": [0] * 6,
-            "OperationResult": "Subtraction",
-            "StructType": "Undefined"}
-        make_boolean_structure(patient=patient,
-                               case=case,
-                               examination=examination,
-                               **z_derived_maxhd_defs)
-        newly_generated_rois.append(z_derived_maxhd_defs.get("StructureName"))
-
-        # This structure will be all targets plus the standoff: b
-        z_derived_targets_plus_standoff_hd_defs = {
-            "StructureName": "z_derived_targets_plus_standoff_hd_defs",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " 255, 0, 255",
-            "SourcesA": PTVList,
-            "MarginTypeA": "Expand",
-            "ExpA": [ring_standoff] * 6,
-            "OperationA": "Union",
-            "SourcesB": [],
-            "MarginTypeB": "Expand",
-            "ExpB": [0] * 6,
-            "OperationB": "Union",
-            "MarginTypeR": "Expand",
-            "ExpR": [0] * 6,
-            "OperationResult": "None",
-            "StructType": "Undefined"}
-        make_boolean_structure(patient=patient,
-                               case=case,
-                               examination=examination,
-                               **z_derived_targets_plus_standoff_hd_defs)
-        newly_generated_rois.append(z_derived_targets_plus_standoff_hd_defs.get("StructureName"))
-        # Now generate a ring for each target
-        # Each iteration will add the higher dose targets and rings to the subtract list for subsequent rings
-        # ring(i) = [PTV(i) + thickness] - [a + b + PTV(i-1)]
-        # where ring_avoid_subtract = [a + b + PTV(i-1)]
-        ring_avoid_subtract = [z_derived_maxhd_defs.get("StructureName"),
-                               z_derived_targets_plus_standoff_hd_defs.get("StructureName")]
         for index, target in enumerate(PTVList):
             ring_name = "ring" + str(index + 1) + "_" + source_doses[index]
             target_ring_defs = {
@@ -966,7 +975,8 @@ def main():
                 "OperationA": "Union",
                 "SourcesA": [target],
                 "MarginTypeA": "Expand",
-                "ExpA": [thickness_hd_ring] * 6,
+                "ExpA": [thickness_hd_ring +
+                         ring_standoff] * 6,
                 "OperationB": "Union",
                 "SourcesB": ring_avoid_subtract,
                 "MarginTypeB": "Expand",
@@ -975,90 +985,30 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "StructType": "Avoidance"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **target_ring_defs)
+            make_boolean_structure(patient=patient,
+                                   case=case,
+                                   examination=examination,
+                                   **target_ring_defs)
             newly_generated_rois.append(target_ring_defs.get("StructureName"))
             # Append the current target to the list of targets to subtract in the next iteration
             ring_avoid_subtract.append(target_ring_defs.get("StructureName"))
 
-        # RingLD
-        if GenerateRingLD:
-            # First make an ExternalClean-limited expansion volume
-            # Would a sequential expansion be faster?
-            z_derived_maxld_defs = {
-                "StructureName": "z_derived_maxld",
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": " 255, 0, 255",
-                "SourcesA": PTVList,
-                "MarginTypeA": "Expand",
-                "ExpA": [thickness_ld_ring] * 6,
-                "OperationA": "Union",
-                "SourcesB": ["ExternalClean"],
-                "MarginTypeB": "Expand",
-                "ExpB": [0] * 6,
-                "OperationB": "Union",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "OperationResult": "Intersection",
-                "StructType": "Undefined"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **z_derived_maxld_defs)
-            newly_generated_rois.append(z_derived_maxld_defs.get("StructureName"))
-
-            RingLD_defs = {
-                "StructureName": "RingLD",
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": " 255, 0, 255",
-                "SourcesA": ["z_derived_maxld"],
-                "MarginTypeA": "Expand",
-                "ExpA": [0] * 6,
-                "OperationA": "Union",
-                "SourcesB": PTVList,
-                "MarginTypeB": "Expand",
-                "ExpB": [ring_standoff] * 6,
-                "OperationB": "Union",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "OperationResult": "Subtraction",
-                "StructType": "Undefined"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **RingLD_defs)
-            newly_generated_rois.append(RingLD_defs.get("StructureName"))
     else:
         # RingHD
         if generate_ring_hd:
-            # First make an ExternalClean-limited expansion volume
-            z_derived_maxhd_defs = {
-                "StructureName": "z_derived_maxhd",
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": " 255, 0, 255",
-                "SourcesA": PTVList,
-                "MarginTypeA": "Expand",
-                "ExpA": [thickness_hd_ring] * 6,
-                "OperationA": "Union",
-                "SourcesB": ["ExternalClean"],
-                "MarginTypeB": "Expand",
-                "ExpB": [0] * 6,
-                "OperationB": "Union",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "OperationResult": "Intersection",
-                "StructType": "Undefined"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **z_derived_maxhd_defs)
-            newly_generated_rois.append(z_derived_maxhd_defs.get("StructureName"))
-
             RingHD_defs = {
                 "StructureName": "Ring_HD",
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": " 255, 0, 255",
-                "SourcesA": ["z_derived_maxhd"],
+                "SourcesA": PTVList,
                 "MarginTypeA": "Expand",
-                "ExpA": [0] * 6,
+                "ExpA": [ring_standoff +
+                         thickness_hd_ring] * 6,
                 "OperationA": "Union",
-                "SourcesB": PTVList,
+                "SourcesB": ring_avoid_subtract,
                 "MarginTypeB": "Expand",
-                "ExpB": [ring_standoff] * 6,
+                "ExpB": [0] * 6,
                 "OperationB": "Union",
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
@@ -1066,50 +1016,34 @@ def main():
                 "StructType": "Undefined"}
             make_boolean_structure(patient=patient, case=case, examination=examination, **RingHD_defs)
             newly_generated_rois.append(RingHD_defs.get("StructureName"))
-
-        # RingLD
-        if GenerateRingLD:
-            # First make an ExternalClean-limited expansion volume
-            # Would a sequential expansion be faster?
-            z_derived_maxld_defs = {
-                "StructureName": "z_derived_maxld",
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": " 255, 0, 255",
-                "SourcesA": PTVList,
-                "MarginTypeA": "Expand",
-                "ExpA": [thickness_ld_ring] * 6,
-                "OperationA": "Union",
-                "SourcesB": ["ExternalClean"],
-                "MarginTypeB": "Expand",
-                "ExpB": [0] * 6,
-                "OperationB": "Union",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "OperationResult": "Intersection",
-                "StructType": "Undefined"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **z_derived_maxld_defs)
-            newly_generated_rois.append(z_derived_maxld_defs.get("StructureName"))
-
-            RingLD_defs = {
-                "StructureName": "RingLD",
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": " 255, 0, 255",
-                "SourcesA": ["z_derived_maxld"],
-                "MarginTypeA": "Expand",
-                "ExpA": [0] * 6,
-                "OperationA": "Union",
-                "SourcesB": PTVList,
-                "MarginTypeB": "Expand",
-                "ExpB": [ring_standoff] * 6,
-                "OperationB": "Union",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "OperationResult": "Subtraction",
-                "StructType": "Undefined"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **RingLD_defs)
-            newly_generated_rois.append(RingLD_defs.get("StructureName"))
+            # Append RingHD to the structure list for removal from RingLD
+            ring_avoid_subtract.append(RingHD_defs.get("StructureName"))
+    # RingLD
+    if GenerateRingLD:
+        RingLD_defs = {
+            "StructureName": "RingLD",
+            "ExcludeFromExport": True,
+            "VisualizeStructure": False,
+            "StructColor": " 255, 0, 255",
+            "SourcesA": PTVList,
+            "MarginTypeA": "Expand",
+            "ExpA": [ring_standoff +
+                     thickness_hd_ring +
+                     thickness_ld_ring] * 6,
+            "OperationA": "Union",
+            "SourcesB": ring_avoid_subtract,
+            "MarginTypeB": "Expand",
+            "ExpB": [0] * 6,
+            "OperationB": "Union",
+            "MarginTypeR": "Expand",
+            "ExpR": [0] * 6,
+            "OperationResult": "Subtraction",
+            "StructType": "Undefined"}
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **RingLD_defs)
+        newly_generated_rois.append(RingLD_defs.get("StructureName"))
 
     # Normal_2cm
     if GenerateNormal_2cm:
