@@ -111,6 +111,8 @@ def make_boolean_structure(patient, case, examination, **kwargs):
     case.PatientModel.RegionsOfInterest[StructureName].ExcludeFromExport = ExcludeFromExport
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
         Examination=examination, Algorithm="Auto")
+    patient.SetRoiVisibility(RoiName=StructureName,
+                             IsVisible=VisualizeStructure)
 
 
 def main():
@@ -907,16 +909,25 @@ def main():
 
     # First make an ExternalClean-limited expansion volume
     # This will be the outer boundary for any expansion: a
+    case.PatientModel.CreateRoi(Name="FieldofView",
+                                Color="255, 0, 255",
+                                Type="FieldOfView",
+                                TissueName=None,
+                                RbeCellTypeName=None,
+                                RoiMaterial=None)
+    case.PatientModel.StructureSets[examination.Name].SimplifyContours(
+        RoiNames=["z_derived_large_field"],
+        ReduceMaxNumberOfPointsInContours=True
+    )
+    newly_generated_rois.append("FieldofView")
     z_derived_exp_ext_defs = {
         "StructureName": "z_derived_exp_ext",
         "ExcludeFromExport": True,
         "VisualizeStructure": False,
         "StructColor": " 255, 0, 255",
-        "SourcesA": ["ExternalClean"],
+        "SourcesA": ["FieldofView"],
         "MarginTypeA": "Expand",
-        "ExpA": [ring_standoff +
-                 thickness_hd_ring +
-                 thickness_ld_ring] * 6,
+        "ExpA": [3] * 6,
         "OperationA": "Union",
         "SourcesB": ["ExternalClean"],
         "MarginTypeB": "Expand",
