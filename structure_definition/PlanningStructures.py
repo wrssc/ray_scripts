@@ -761,26 +761,27 @@ def main():
         # Make the InnerAir structure
     if generate_field_of_view:
         # Automated build of the Air contour
+        fov_name = 'Field-of-View'
         try:
-            patient.SetRoiVisibility(RoiName='Field-of-View',
+            patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
         except:
-            case.PatientModel.CreateRoi(Name="Field-of-View",
+            case.PatientModel.CreateRoi(Name=fov_name,
                                         Color="192, 192, 192",
                                         Type="FieldOfView",
                                         TissueName=None,
                                         RbeCellTypeName=None,
                                         RoiMaterial=None)
-            case.PatientModel.RegionsOfInterest['Field-of:w-View'].CreateFieldOfViewROI(
+            case.PatientModel.RegionsOfInterest[fov_name].CreateFieldOfViewROI(
                 ExaminationName=examination.Name)
             case.PatientModel.StructureSets[examination.Name].SimplifyContours(
-                RoiNames=["Field-of-View"],
+                RoiNames=[fov_name],
                 MaxNumberOfPoints=20,
                 ReduceMaxNumberOfPointsInContours=True
             )
-            patient.SetRoiVisibility(RoiName='Field-of-View',
+            patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
-            newly_generated_rois.append("Field-of-View")
+            newly_generated_rois.append(fov_name)
 
     # Make the PTVEZ objects now
     if generate_underdose:
