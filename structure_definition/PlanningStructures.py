@@ -952,7 +952,7 @@ def main():
         "ExcludeFromExport": True,
         "VisualizeStructure": False,
         "StructColor": " 192, 192, 192",
-        "SourcesA": ["Field-of-View"],
+        "SourcesA": [fov_name],
         "MarginTypeA": "Expand",
         "ExpA": [8] * 6,
         "OperationA": "Union",
