@@ -1,6 +1,6 @@
 """ Modified input GUI Widget for the Planning Structure Script
 
-    The InputDialog() class constructor displays a form with input fields for the
+    The PSInputDialog() class constructor displays a form with input fields for the
     user to provide data to scripts. Multiple form inputs can be requested; the
     results are returned as a list. Optional input arguments also allow for custom
     input types (checkboxes, combo boxes), initial values, and required inputs. The
@@ -10,7 +10,7 @@
     The following example illustrates this class:
 
     import UserInterface
-    dialog = UserInterface.InputDialog(inputs={'a': 'Enter a value: ',
+    dialog = UserInterface.PSInputDialog(inputs={'a': 'Enter a value: ',
                                                'b': 'Select checkboxes:',
                                                'c': 'Select combobox option:'},
                                        datatype={'b': 'check', 'c': 'combo'},
@@ -40,7 +40,8 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
 import clr
-
+import os
+import logging
 
 class PSInputDialog:
 
@@ -52,6 +53,8 @@ class PSInputDialog:
         clr.AddReference('System.Windows.Forms')
         clr.AddReference('System.Drawing')
         import System
+
+        # Initialize internal variables
 
         # Initialize optional args
         if initial is None:
@@ -75,31 +78,68 @@ class PSInputDialog:
         if initial is None:
             initial = {}
 
-        # Initialize form (if provided, use existing)
-        if form is None:
-            self.form = System.Windows.Forms.Form()
-            self.form.AutoSize = True
-            self.form.MaximumSize = System.Drawing.Size(300,
-                                                        System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
-            self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
-            self.form.Padding = System.Windows.Forms.Padding(0)
-            self.form.Text = title
-            self.form.AutoScroll = True
-            self.form.BackColor = System.Drawing.Color.White
-            self.form.TopMost = True
 
-        else:
-            self.form = form
+
+        # Initialize form
+        self.form = System.Windows.Forms.Form()
+        self.form.AutoSize = True
+        self.form.MaximumSize = System.Drawing.Size(900,
+                                                    System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+        self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+        self.form.Padding = System.Windows.Forms.Padding(0)
+        self.form.Text = title
+        self.form.AutoScroll = True
+        self.form.BackColor = System.Drawing.Color.White
+        self.form.TopMost = True
 
         # Add table layout
         self.table = System.Windows.Forms.TableLayoutPanel()
         self.table.ColumnCount = 1
-        self.table.RowCount = 1
-        self.table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-        self.table.Padding = System.Windows.Forms.Padding(0, 0, 0, 10)
+        self.table.RowCount = 2
+        self.table.Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
         self.table.BackColor = System.Drawing.Color.White
         self.table.AutoSize = True
         self.form.Controls.Add(self.table)
+
+        # Add columns
+        self.columns = System.Windows.Forms.TableLayoutPanel()
+        self.columns.ColumnCount = 2
+        self.columns.RowCount = 1
+        self.columns.Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
+        self.columns.BackColor = System.Drawing.Color.White
+        self.columns.AutoSize = True
+        self.table.Controls.Add(self.columns)
+
+        # Add left panel
+        self.left = System.Windows.Forms.TableLayoutPanel()
+        self.left.ColumnCount = 1
+        self.left.RowCount = 1
+        self.left.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
+        self.left.Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
+        self.left.BackColor = System.Drawing.Color.White
+        self.left.AutoSize = True
+        self.columns.Controls.Add(self.left)
+
+        # Add right panel
+        self.right = System.Windows.Forms.TableLayoutPanel()
+        self.right.ColumnCount = 1
+        self.right.RowCount = 1
+        self.right.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
+        self.right.Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
+        self.right.BackColor = System.Drawing.Color.White
+        self.right.AutoSize = True
+        self.columns.Controls.Add(self.right)
+
+        # Add right panel placeholders
+        self.prescription_label = System.Windows.Forms.Label()
+        self.prescription_label.Text = 'Prescription Details'
+        self.prescription_label.AutoSize = True
+        self.prescription_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+        self.prescription_label.Font = System.Drawing.Font(self.prescription_label.Font,
+                                                           self.prescription_label.Font.Style |
+                                                           System.Drawing.FontStyle.Bold)
+        self.prescription_label.Visible = False
+        self.right.Controls.Add(self.prescription_label)
 
         # Add intro text
         if text != '':
@@ -166,7 +206,8 @@ class PSInputDialog:
                     if i in initial and o in initial[i]:
                         self.inputs[i][o].Checked = True
 
-                    self.table.Controls.Add(self.inputs[i][o])
+                    self.left.Controls.Add(self.inputs[i][o])
+                   # self.table.Controls.Add(self.inputs[i][o])
 
             # Combobox/dropdown menu
             elif self.datatype[i] == 'combo':
