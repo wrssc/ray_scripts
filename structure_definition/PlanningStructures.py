@@ -748,6 +748,27 @@ def main():
                                   MaxVolume=500)
         newly_generated_rois.append('InnerAir')
 
+        # Make the InnerAir structure
+    if generate_field_of_view:
+        # Automated build of the Air contour
+        try:
+            retval_fov = case.PatientModel.RegionsOfInterest["Field-of-View"]
+        except:
+            case.PatientModel.CreateRoi(Name="Field-of-View",
+                                        Color="255, 0, 255",
+                                        Type="FieldOfView",
+                                        TissueName=None,
+                                        RbeCellTypeName=None,
+                                        RoiMaterial=None)
+            case.PatientModel.RegionsOfInterest['Field-of-View'].CreateFieldOfViewROI(
+                ExaminationName=examination.Name)
+            case.PatientModel.StructureSets[examination.Name].SimplifyContours(
+                RoiNames=["Field-of-View"],
+                MaxNumberOfPoints=20,
+                ReduceMaxNumberOfPointsInContours=True
+            )
+            newly_generated_rois.append("Field-of-View")
+
     # Make the PTVEZ objects now
     if generate_underdose:
         # Loop over the PTV_EZs
@@ -911,20 +932,7 @@ def main():
 
     # First make an ExternalClean-limited expansion volume
     # This will be the outer boundary for any expansion: a
-    case.PatientModel.CreateRoi(Name="Field-of-View",
-                                Color="255, 0, 255",
-                                Type="FieldOfView",
-                                TissueName=None,
-                                RbeCellTypeName=None,
-                                RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Field-of-View'].CreateFieldOfViewROI(
-        ExaminationName=examination.Name)
-    case.PatientModel.StructureSets[examination.Name].SimplifyContours(
-        RoiNames=["Field-of-View"],
-        MaxNumberOfPoints=20,
-        ReduceMaxNumberOfPointsInContours=True
-    )
-    newly_generated_rois.append("Field-of-View")
+
     z_derived_exp_ext_defs = {
         "StructureName": "z_derived_exp_ext",
         "ExcludeFromExport": True,
