@@ -708,6 +708,8 @@ def main():
                                                      RbeCellTypeName=None,
                                                      RoiMaterial=None)
             newly_generated_rois.append('Air')
+        patient.SetRoiVisibility(RoiName='Air', IsVisible =False)
+
         retval_AIR.GrayLevelThreshold(Examination=examination,
                                       LowThreshold=-1024,
                                       HighThreshold=InnerAirHU,
@@ -738,8 +740,8 @@ def main():
                                **inner_air_defs)
         InAir = case.PatientModel.RegionsOfInterest['InnerAir']
         # If the InnerAir structure has contours clean them
-        if case.PatientModel.StructureSets[examination.Name].\
-            RoiGeometries['InnerAir'].HasContours():
+        if case.PatientModel.StructureSets[examination.Name]. \
+                RoiGeometries['InnerAir'].HasContours():
             InAir.VolumeThreshold(InputRoi=InAir,
                                   Examination=examination,
                                   MinVolume=0.1,
@@ -819,7 +821,7 @@ def main():
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Intersection",
-                "SourcesA": [target,"ExternalClean"],
+                "SourcesA": [target, "ExternalClean"],
                 "MarginTypeA": "Expand",
                 "ExpA": [0] * 6,
                 "OperationB": "Union",
@@ -909,23 +911,25 @@ def main():
 
     # First make an ExternalClean-limited expansion volume
     # This will be the outer boundary for any expansion: a
-    case.PatientModel.CreateRoi(Name="FieldofView",
+    case.PatientModel.CreateRoi(Name="Field-of-View",
                                 Color="255, 0, 255",
                                 Type="FieldOfView",
                                 TissueName=None,
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
+    case.PatientModel.RegionsOfInterest['Field-of-View'].CreateFieldOfViewROI(
+        ExaminationName=examination.Name)
     case.PatientModel.StructureSets[examination.Name].SimplifyContours(
-        RoiNames=["z_derived_large_field"],
+        RoiNames=["Field-of-View"],
         ReduceMaxNumberOfPointsInContours=True
     )
-    newly_generated_rois.append("FieldofView")
+    newly_generated_rois.append("Field-of-View")
     z_derived_exp_ext_defs = {
         "StructureName": "z_derived_exp_ext",
         "ExcludeFromExport": True,
         "VisualizeStructure": False,
         "StructColor": " 255, 0, 255",
-        "SourcesA": ["FieldofView"],
+        "SourcesA": ["Field-of-View"],
         "MarginTypeA": "Expand",
         "ExpA": [3] * 6,
         "OperationA": "Union",
