@@ -921,6 +921,7 @@ def main():
         ExaminationName=examination.Name)
     case.PatientModel.StructureSets[examination.Name].SimplifyContours(
         RoiNames=["Field-of-View"],
+        MaxNumberOfPoints=20,
         ReduceMaxNumberOfPointsInContours=True
     )
     newly_generated_rois.append("Field-of-View")
