@@ -71,6 +71,11 @@ def make_boolean_structure(patient, case, examination, **kwargs):
     ExpR = kwargs.get("ExpR")
     OperationResult = kwargs.get("OperationResult")
     StructType = kwargs.get("StructType")
+    if 'VisualizationType' in kwargs:
+        VisualizationType = kwargs.get("VisualizationType")
+    else:
+        VisualizationType = 'contour'
+
     try:
         case.PatientModel.RegionsOfInterest[StructureName]
         logging.warning("Structure " + StructureName + " exists.  This will be overwritten in this examination")
@@ -113,7 +118,8 @@ def make_boolean_structure(patient, case, examination, **kwargs):
         Examination=examination, Algorithm="Auto")
     patient.SetRoiVisibility(RoiName=StructureName,
                              IsVisible=VisualizeStructure)
-
+    patient.Set2DvisualizationForRoi(RoiName=StructureName,
+                                     Mode=VisualizationType)
 
 def main():
     # The following list allows different elements of the code to be toggled
@@ -556,6 +562,7 @@ def main():
                                examination=examination,
                                **Skin_defs)
         newly_generated_rois.append('Skin')
+
     # Generate the UnderDose structure and the UnderDose_Exp structure
     if generate_underdose:
         print "Creating UnderDose ROI using Sources: {}".format(underdose_structures)
@@ -586,7 +593,7 @@ def main():
             "StructureName": "UnderDose_Exp",
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
-            "StructColor": " 255, 0, 255",
+            "StructColor": " 192, 192, 192",
             "OperationA": "Union",
             "SourcesA": underdose_structures,
             "MarginTypeA": "Expand",
@@ -660,6 +667,7 @@ def main():
                     "StructureName": PTVList[index],
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
+                    'VisualizationType': 'Filled',
                     "StructColor": TargetColors[index],
                     "OperationA": "Union",
                     "SourcesA": [target],
@@ -678,6 +686,7 @@ def main():
                     "StructureName": PTVList[index],
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
+                    'VisualizationType': 'Filled',
                     "StructColor": TargetColors[index],
                     "OperationA": "Union",
                     "SourcesA": [target],
@@ -752,21 +761,24 @@ def main():
     if generate_field_of_view:
         # Automated build of the Air contour
         try:
-            retval_fov = case.PatientModel.RegionsOfInterest["Field-of-View"]
+            patient.SetRoiVisibility(RoiName='Field-of-View',
+                                     IsVisible=False)
         except:
             case.PatientModel.CreateRoi(Name="Field-of-View",
-                                        Color="255, 0, 255",
+                                        Color="192, 192, 192",
                                         Type="FieldOfView",
                                         TissueName=None,
                                         RbeCellTypeName=None,
                                         RoiMaterial=None)
-            case.PatientModel.RegionsOfInterest['Field-of-View'].CreateFieldOfViewROI(
+            case.PatientModel.RegionsOfInterest['Field-of:w-View'].CreateFieldOfViewROI(
                 ExaminationName=examination.Name)
             case.PatientModel.StructureSets[examination.Name].SimplifyContours(
                 RoiNames=["Field-of-View"],
                 MaxNumberOfPoints=20,
                 ReduceMaxNumberOfPointsInContours=True
             )
+            patient.SetRoiVisibility(RoiName='Field-of-View',
+                                     IsVisible=False)
             newly_generated_rois.append("Field-of-View")
 
     # Make the PTVEZ objects now
@@ -937,10 +949,10 @@ def main():
         "StructureName": "z_derived_exp_ext",
         "ExcludeFromExport": True,
         "VisualizeStructure": False,
-        "StructColor": " 255, 0, 255",
+        "StructColor": " 192, 192, 192",
         "SourcesA": ["Field-of-View"],
         "MarginTypeA": "Expand",
-        "ExpA": [3] * 6,
+        "ExpA": [8] * 6,
         "OperationA": "Union",
         "SourcesB": ["ExternalClean"],
         "MarginTypeB": "Expand",
@@ -961,7 +973,7 @@ def main():
         "StructureName": "z_derived_targets_plus_standoff_ring_defs",
         "ExcludeFromExport": True,
         "VisualizeStructure": False,
-        "StructColor": " 255, 0, 255",
+        "StructColor": " 192, 192, 192",
         "SourcesA": PTVList,
         "MarginTypeA": "Expand",
         "ExpA": [ring_standoff] * 6,
@@ -1037,8 +1049,11 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "OperationResult": "Subtraction",
-                "StructType": "Undefined"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **RingHD_defs)
+                "StructType": "Avoidance"}
+            make_boolean_structure(patient=patient,
+                                   case=case,
+                                   examination=examination,
+                                   **RingHD_defs)
             newly_generated_rois.append(RingHD_defs.get("StructureName"))
             # Append RingHD to the structure list for removal from RingLD
             ring_avoid_subtract.append(RingHD_defs.get("StructureName"))
@@ -1062,7 +1077,7 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
             "OperationResult": "Subtraction",
-            "StructType": "Undefined"}
+            "StructType": "Avoidance"}
         make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
@@ -1087,8 +1102,11 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
             "OperationResult": "Subtraction",
-            "StructType": "Undefined"}
-        make_boolean_structure(patient=patient, case=case, examination=examination, **Normal_2cm_defs)
+            "StructType": "Avoidance"}
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **Normal_2cm_defs)
         newly_generated_rois.append(Normal_2cm_defs.get("StructureName"))
 
     # if dialogresponse == {}:
