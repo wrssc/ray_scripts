@@ -71,6 +71,8 @@ def OptimizePlan(patient, case, plan, beamset, **OptP):
     DoseDim3 = OptP.get('DoseDim3' , 0.3)
     DoseDim4 = OptP.get('DoseDim4' , 0.2)
     Maximum_Iteration = OptP.get('NIterations' , 12)
+    gantry_spacing = OptP.get('gantry_spacing', 2)
+
     print 'InitialMaximumIteration TEST = '+str(InitialMaximumIteration)
     print 'InitialIntermediateIteration ='+str(InitialIntermediateIteration)
     print 'SecondMaximumIteration ='+str(SecondMaximumIteration)
@@ -125,11 +127,15 @@ def OptimizePlan(patient, case, plan, beamset, **OptP):
 
     # Try to Set the Gantry Spacing to 2 degrees
     # How many beams are there in this beamset
-
-    while beamsinrange:
-      try:
-          plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].\
-              BeamSettings[i].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
+    # Set the control point spacing
+    treatment_setup_settings = plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0]
+    # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
+    for beams in treatment_setup_settings.BeamSettings:
+        beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
+    # while beamsinrange:
+    #  try:
+    #      plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].\
+    #          BeamSettings[i].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
     ## Uncomment to automatically set jaw limits
     ##      plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].\
     ##          BeamSettings[i].EditBeamOptimizationSettings(
@@ -139,12 +145,12 @@ def OptimizePlan(patient, case, plan, beamset, **OptP):
     ##                          TopJaw = Y2limit,
     ##                          BottomJaw = Y1limit,
     ##                          OptimizationTypes=['SegmentOpt','SegmentMU'])
-      
-          i += 1
-          num_beams = i
-     
-      except:
-          beamsinrange = False
+    #
+    #      i += 1
+    #      num_beams = i
+    #
+    #  except:
+    #      beamsinrange = False
 
     # Reset
     plan.PlanOptimizations[OptIndex].ResetOptimization()
