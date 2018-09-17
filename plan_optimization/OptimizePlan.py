@@ -55,7 +55,6 @@ __credits__ = ['']
 # Added logging
 
 # Fix the import all from connect.
-from connect import *
 import sys
 
 def OptimizePlan(patient, case, plan, beamset, **OptP):
@@ -196,38 +195,40 @@ def OptimizePlan(patient, case, plan, beamset, **OptP):
     plan.PlanOptimizations[OptIndex].RunReduceOARDoseOptimization
 
 def main():
+    import connect
+    import UserInterface
 
     try:
-         Patient = get_current("Patient")
+         Patient = connect.get_current("Patient")
     except SystemError:
          raise IOError("No Patient loaded. Load patient case and plan.")
 
     try:
-         case = get_current("Case")
+         case = connect.get_current("Case")
     except SystemError:
          raise IOError("No Case loaded. Load patient case and plan.")
 
     try:
-         plan = get_current("Plan")
+         plan = connect.get_current("Plan")
     except SystemError:
          raise IOError("No plan loaded. Load patient and plan.")
 
     try: 
-         beamset = get_current("BeamSet")
+         beamset = connect.get_current("BeamSet")
     except SystemError:
          raise IOError("No beamset loaded")
-#    OptParams = {
-#    'InitialMaxIt' : 500,
-#    'InitialIntIt' : 100,
-#    'SecondMaxIt' : 300,
-#    'SecondIntIt' : 150,
-#    'DoseDim1' : 0.45,
-#    'DoseDim2' : 0.35,
-#    'DoseDim3' : 0.35,
-#    'DoseDim4' : 0.22,
-#    'NIterations' : 3}
-#    OptimizePlan(Patient, case, plan, beamset, **OptParams)
-    OptimizePlan(Patient, case, plan, beamset)
+    OptParams = {
+    'InitialMaxIt' : 500,
+    'InitialIntIt' : 100,
+    'SecondMaxIt' : 300,
+    'SecondIntIt' : 150,
+    'DoseDim1' : 0.45,
+    'DoseDim2' : 0.35,
+    'DoseDim3' : 0.35,
+    'DoseDim4' : 0.22,
+    'NIterations' : 3}
+    OptimizePlan(Patient, case, plan, beamset, **OptParams)
+#    OptimizePlan(Patient, case, plan, beamset)
 
 
 if __name__=='__main__':
