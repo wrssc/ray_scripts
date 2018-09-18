@@ -278,7 +278,6 @@ def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
     print "Running Reduce OAR Optimization"
     plan.PlanOptimizations[OptIndex].RunReduceOARDoseOptimization
 
-
 def main():
     import connect
     import UserInterface
