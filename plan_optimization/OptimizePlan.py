@@ -113,22 +113,25 @@ def OptimizePlan(patient, case, plan, beamset, **OptP):
          except SystemError:
               IndexNotFound = True
               OptIndex += 1
+    # Found our index.  We will use a shorthand for the remainder of the code
+    plan_optimization = plan.PlanOptimizations[OptIndex].OptimizationParameters
+
 
     #Turn on important parameters
-    plan.PlanOptimizations[OptIndex].OptimizationParameters.DoseCalculation.ComputeFinalDose = True
+    plan_optimization.DoseCalculation.ComputeFinalDose = True
 
     # Turn off autoscale
     plan.PlanOptimizations[OptIndex].AutoScaleToPrescription = False
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
-    plan.PlanOptimizations[OptIndex].OptimizationParameters.Algorithm.MaxNumberOfIterations = InitialMaximumIteration
-    plan.PlanOptimizations[OptIndex].OptimizationParameters.DoseCalculation.IterationsInPreparationsPhase = InitialIntermediateIteration
+    plan_optimization.Algorithm.MaxNumberOfIterations = InitialMaximumIteration
+    DoseCalculation.IterationsInPreparationsPhase = InitialIntermediateIteration
 
     # Try to Set the Gantry Spacing to 2 degrees
     # How many beams are there in this beamset
     # Set the control point spacing
-    treatment_setup_settings = plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0]
+    treatment_setup_settings = plan_optimization.TreatmentSetupSettings[0]
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     for beams in treatment_setup_settings.BeamSettings:
         beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
@@ -165,31 +168,47 @@ def OptimizePlan(patient, case, plan, beamset, **OptP):
             # Change Dose Grid size
             DoseDim = DoseDim1
             with CompositeAction('Set default grid'):
-              retval_0 = plan.SetDefaultDoseGrid(VoxelSize={ 'x': DoseDim, 'y': DoseDim, 'z': DoseDim })
+              retval_0 = plan.SetDefaultDoseGrid(
+                  VoxelSize={
+                      'x': DoseDim,
+                      'y': DoseDim,
+                      'z': DoseDim})
               plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
          # CompositeAction ends 
            # Set the Maximum iterations and segmentation iterattion to a lower number for the initial run
-            plan.PlanOptimizations[OptIndex].OptimizationParameters.Algorithm.MaxNumberOfIterations = SecondMaximumIteration
-            plan.PlanOptimizations[OptIndex].OptimizationParameters.DoseCalculation.IterationsInPreparationsPhase = SecondIntermediateIteration
+            plan_optimization.Algorithm.MaxNumberOfIterations = SecondMaximumIteration
+            plan_optimization.DoseCalculation.IterationsInPreparationsPhase = SecondIntermediateIteration
          elif Optimization_Iteration == 2:
          # Change Dose Grid size
             DoseDim = DoseDim2
             with CompositeAction('Set default grid'):
-              retval_0 = plan.SetDefaultDoseGrid(VoxelSize={ 'x': DoseDim, 'y': DoseDim, 'z': DoseDim })
+              retval_0 = plan.SetDefaultDoseGrid(
+                  VoxelSize={
+                      'x': DoseDim,
+                      'y': DoseDim,
+                      'z': DoseDim})
               plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
          # CompositeAction ends 
          elif Optimization_Iteration == 4:
          # Change Dose Grid size
             DoseDim = DoseDim3
             with CompositeAction('Set default grid'):
-              retval_0 = plan.SetDefaultDoseGrid(VoxelSize={ 'x': DoseDim, 'y': DoseDim, 'z': DoseDim })
+              retval_0 = plan.SetDefaultDoseGrid(
+                  VoxelSize={
+                      'x': DoseDim,
+                      'y': DoseDim,
+                      'z': DoseDim })
               plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
          # CompositeAction ends 
          elif Optimization_Iteration == 8:
          # Change Dose Grid size
             DoseDim = DoseDim4
             with CompositeAction('Set default grid'):
-              retval_0 = plan.SetDefaultDoseGrid(VoxelSize={ 'x': DoseDim, 'y': DoseDim, 'z': DoseDim })
+              retval_0 = plan.SetDefaultDoseGrid(
+                  VoxelSize={
+                      'x': DoseDim,
+                      'y': DoseDim,
+                      'z': DoseDim })
               plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
          # CompositeAction ends 
          print("Optimization Number: " + str(Optimization_Iteration))
