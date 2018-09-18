@@ -243,7 +243,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     if fluence_only:
         for beams in treatment_setup_settings.BeamSettings:
-            if beams.ArcConverionPropertiedPerBeam.FinalArcGantrySpacing != 3:
+            if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing != 3:
                 beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=3)
         # Fluence only is the quick and dirty way of dialing in all necessary elements for the calc
         print 'User selected Fluence optimization Only'
@@ -254,7 +254,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     else:
         for beams in treatment_setup_settings.BeamSettings:
-            if beams.ArcConverionPropertiedPerBeam.FinalArcGantrySpacing > 2:
+            if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
                 beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
 
         while Optimization_Iteration != maximum_iteration:
