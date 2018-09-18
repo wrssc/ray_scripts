@@ -313,7 +313,7 @@ def main():
                  'input2_cold_interm_iteration': '10',
                  'input3_ws_max_iteration': '35',
                  'input4_ws_interm_iteration': '5',
-                 'input7_niterations': '4'},
+                 'input7_n_iterations': '4'},
         options={
             'input5_vary_dose_grid': ['Variable Dose Grid'],
             'input6_svd_only': ['SVD calc']},
