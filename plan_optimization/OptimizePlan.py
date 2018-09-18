@@ -1,6 +1,6 @@
-""" Optimize Plan
+""" Automated Plan Optimization
     
-    Automatically optimizize the current case, examination, plan, beamset using
+    Automatically optimize the current case, examination, plan, beamset using
     input optimization parameters
     
     Scope: Requires RayStation "Case" and "Examination" to be loaded.  They are 
