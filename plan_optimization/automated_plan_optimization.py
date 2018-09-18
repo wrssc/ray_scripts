@@ -154,18 +154,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     print 'dose_dim4=' + str(dose_dim4)
     print 'maximum_iteration=', str(maximum_iteration)
 
-    # Making the variable status script, arguably move to main()
-    status_steps = ['Initializing optimization']
-    for i in range(maximum_iteration):
-        ith_step = 'Executing Iteration:' + str(i + 1)
-        status_steps.append([ith_step])
-    status_steps.append(['Reduce OAR Dose'])
 
-    # Change the status steps to indicate each iteration
-    status = UserInterface.ScriptStatus(
-        steps=status_steps,
-        docstring=__doc__,
-        help=__help__)
 
     status.next_step(text='Setting optimization parameters, gantry spacing')
     logging.debug('Set some variables like Niterations, Nits={}'.format(maximum_iteration))
@@ -356,6 +345,20 @@ def main():
         'DoseDim4': 0.22,
         'svd_only': svd_only,
         'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
+
+    # Making the variable status script, arguably move to main()
+    status_steps = ['Initializing optimization']
+    for i in range(int(optimization_dialog.values['input7_n_iterations'])):
+        ith_step = 'Executing Iteration:' + str(i + 1)
+        status_steps.append([ith_step])
+    status_steps.append(['Reduce OAR Dose'])
+
+    # Change the status steps to indicate each iteration
+    status = UserInterface.ScriptStatus(
+        steps=status_steps,
+        docstring=__doc__,
+        help=__help__)
+
     optimize_plan(Patient, case, plan, beamset, **OptParams)
 
 
