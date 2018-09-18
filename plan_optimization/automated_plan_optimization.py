@@ -342,7 +342,7 @@ def main():
 
     # SVD to DAO calc for cold start (first optimization)
     try:
-        if 'SVD calc' in optimization_dialog.values['input6_fluence_only']:
+        if 'Fluence calc' in optimization_dialog.values['input6_fluence_only']:
             fluence_only = True
         else:
             fluence_only = False
