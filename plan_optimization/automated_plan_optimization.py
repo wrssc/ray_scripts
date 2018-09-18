@@ -218,8 +218,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     # Set the control point spacing
     treatment_setup_settings = plan_optimization.TreatmentSetupSettings[0]
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
-    for beams in treatment_setup_settings.BeamSettings:
-        beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
     # while beamsinrange:
     #  try:
     #      plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].\
@@ -241,9 +239,12 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     #      beamsinrange = False
 
     # Reset
-    ## plan.PlanOptimizations[OptIndex].ResetOptimization()
+    plan.PlanOptimizations[OptIndex].ResetOptimization()
 
     if fluence_only:
+        for beams in treatment_setup_settings.BeamSettings:
+            if beams.ArcConverionPropertiedPerBeam.FinalArcGantrySpacing != 3:
+                beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=3)
         # Fluence only is the quick and dirty way of dialing in all necessary elements for the calc
         print 'User selected Fluence optimization Only'
         plan_optimization.DoseCalculation.ComputeFinalDose = False
@@ -252,6 +253,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         plan.PlanOptimizations[OptIndex].RunOptimization()
 
     else:
+        for beams in treatment_setup_settings.BeamSettings:
+            if beams.ArcConverionPropertiedPerBeam.FinalArcGantrySpacing > 2:
+                beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
+
         while Optimization_Iteration != maximum_iteration:
             print 'Current iteration = {} of {}'.format(Optimization_Iteration, maximum_iteration)
 #            status.next_step(text='Iterating....')
