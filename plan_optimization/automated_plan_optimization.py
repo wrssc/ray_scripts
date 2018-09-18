@@ -54,9 +54,10 @@ __credits__ = ['']
 # 11/29/17 Turn off auto-scale prior to optimization -ugh
 # Added logging
 
-import UserInterface
 import logging
 import connect
+import time
+import UserInterface
 
 
 def make_variable_grid_list(n_iterations, variable_dose_grid):
@@ -160,7 +161,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     status_steps.append(['Reduce OAR Dose'])
 
     # Change the status steps to indicate each iteration
-    status = UserInterface.ScriptStatus(steps=status_steps, docstring=__doc__, help=__help__)
+    status = UserInterface.ScriptStatus(
+        steps=status_steps,
+        docstring=__doc__,
+        help=__help__)
 
     status.next_step(text='Setting optimization parameters, gantry spacing')
     logging.debug('Set some variables like Niterations, Nits={}'.format(maximum_iteration))
