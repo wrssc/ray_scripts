@@ -53,8 +53,7 @@ __credits__ = ['']
 #          as this was required with jaw-tracking on but is no longer needed
 # 11/29/17 Turn off auto-scale prior to optimization -ugh
 # Added logging
-# Fix the import all from connect.
-import sys
+
 import UserInterface
 import logging
 import connect
@@ -293,7 +292,7 @@ def main():
     except SystemError:
         raise IOError("No beamset loaded")
 
-    # OPTIONS DIALOG
+    # OPTIMIZATION DIALOG
     #  Users will select use of:
     #
     # Maximum number of iterations for the first optimization
@@ -316,7 +315,7 @@ def main():
                  'input7_niterations': '4'},
         options={
             'input5_vary_dose_grid': ['Variable Dose Grid'],
-            'input6_svd_only': ['svd calc']},
+            'input6_svd_only': ['svd_calc']},
         required=[])
     print optimization_dialog.show()
 
@@ -332,14 +331,12 @@ def main():
 
     # SVD to DAO calc for cold start (first optimization)
     try:
-        if 'svd calc' in optimization_dialog.values['input6_svd_only']:
+        if 'svd_calc' in optimization_dialog.values['input6_svd_only']:
             svd_only = True
         else:
             svd_only = False
     except KeyError:
         svd_only = False
-
-
 
     OptParams = {
         'InitialMaxIt': int(optimization_dialog.values['input1_cold_max_iteration']),
