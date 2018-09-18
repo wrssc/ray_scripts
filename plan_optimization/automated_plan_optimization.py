@@ -60,7 +60,6 @@ import time
 import UserInterface
 
 
-
 def make_variable_grid_list(n_iterations, variable_dose_grid):
     # Function will determine, based on the input arguments, which iterations will result in a
     # dose grid change. The index of the list is the iteration, and the value is the grid_size
@@ -115,7 +114,6 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
 
 
 def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
-
     # Parameters used for iteration number
     initial_maximum_iteration = optimization_inputs.get('InitialMaxIt', 60)
     initial_intermediate_iteration = optimization_inputs.get('InitialIntIt', 10)
@@ -156,19 +154,19 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     print 'Fluence only: {}'.format(fluence_only)
 
     # Making the variable status script, arguably move to main()
-#    status_steps = ['Initializing optimization']
-#    for i in range(maximum_iteration):
-#        ith_step = 'Executing Iteration:' + str(i + 1)
-#        status_steps.append([ith_step])
-#    status_steps.append(['Reduce OAR Dose'])
+    #    status_steps = ['Initializing optimization']
+    #    for i in range(maximum_iteration):
+    #        ith_step = 'Executing Iteration:' + str(i + 1)
+    #        status_steps.append([ith_step])
+    #    status_steps.append(['Reduce OAR Dose'])
 
     # Change the status steps to indicate each iteration
-#    status = UserInterface.ScriptStatus(
-#        steps=status_steps,
-#        docstring=__doc__,
-#        help=__help__)
+    #    status = UserInterface.ScriptStatus(
+    #        steps=status_steps,
+    #        docstring=__doc__,
+    #        help=__help__)
 
-#    status.next_step(text='Setting optimization parameters, gantry spacing')
+    #    status.next_step(text='Setting optimization parameters, gantry spacing')
     logging.debug('Set some variables like Niterations, Nits={}'.format(maximum_iteration))
     # Maximum Jaw Sizes
     X1limit = -15
@@ -259,19 +257,18 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
         while Optimization_Iteration != maximum_iteration:
             print 'Current iteration = {} of {}'.format(Optimization_Iteration, maximum_iteration)
-#            status.next_step(text='Iterating....')
+            #            status.next_step(text='Iterating....')
 
             print 'current value of change_dose_grid is {}'.format(change_dose_grid)
             # If the change_dose_grid list has a non-zero element change the dose grid
             if change_dose_grid[Optimization_Iteration] != 0:
                 DoseDim = change_dose_grid[Optimization_Iteration]
-                with CompositeAction('Set default grid'):
-                    retval_0 = plan.SetDefaultDoseGrid(
-                        VoxelSize={
-                            'x': DoseDim,
-                            'y': DoseDim,
-                            'z': DoseDim})
-                    plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+                plan.SetDefaultDoseGrid(
+                    VoxelSize={
+                        'x': DoseDim,
+                        'y': DoseDim,
+                        'z': DoseDim})
+                plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
 
             plan.PlanOptimizations[OptIndex].RunOptimization()
             Optimization_Iteration += 1
@@ -286,7 +283,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
 
 def main():
-
     try:
         Patient = connect.get_current("Patient")
     except SystemError:
@@ -366,8 +362,6 @@ def main():
         'DoseDim4': 0.22,
         'fluence_only': fluence_only,
         'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
-
-
 
     optimize_plan(Patient, case, plan, beamset, **OptParams)
 
