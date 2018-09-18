@@ -32,7 +32,7 @@
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2018-Apr-10'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
@@ -53,11 +53,11 @@ __credits__ = ['']
 #          as this was required with jaw-tracking on but is no longer needed
 # 11/29/17 Turn off auto-scale prior to optimization -ugh
 # Added logging
-
 # Fix the import all from connect.
 import sys
 import UserInterface
 import logging
+import connect
 
 def make_variable_grid_list(n_iterations, variable_dose_grid):
     # Function will determine, based on the input arguments, which iterations will result in a
@@ -111,7 +111,7 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
                 change_grid.append(0)
     return change_grid
 
-def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
+def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     # Parameters used for iteration number
     initial_maximum_iteration = optimization_inputs.get('InitialMaxIt', 60)
@@ -272,7 +272,6 @@ def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
     plan.PlanOptimizations[OptIndex].RunReduceOARDoseOptimization
 
 def main():
-    print "I am in the main module, its ok, you are not crazy"
 
     try:
         Patient = connect.get_current("Patient")
@@ -352,7 +351,7 @@ def main():
         'DoseDim4': 0.22,
         'svd_only': svd_only
         'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
-    OptimizePlan(Patient, case, plan, beamset, **OptParams)
+    optimize_plan(Patient, case, plan, beamset, **OptParams)
 
 if __name__ == '__main__':
     main()
