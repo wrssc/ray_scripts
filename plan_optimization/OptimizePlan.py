@@ -57,33 +57,118 @@ __credits__ = ['']
 # Fix the import all from connect.
 import sys
 
-def OptimizePlan(patient, case, plan, beamset, **OptP):
+
+def make_variable_grid_list(n_iterations, variable_dose_grid):
+    # Function will determine, based on the input arguments, which iterations will result in a
+    # dose grid change. The index of the list is the iteration, and the value is the grid_size
+    # Usage:
+    #
+    #  variable_dose_grid = {
+    #         'delta_grid': [0.4,
+    #                        0.3,
+    #                        0.25,
+    #                        0.2],
+    #         'grid_adjustment_iteration': [0,
+    #                                       int(n_its / 2),
+    #                                       int(3 * n_its / 4),
+    #                                       int(n_its - 1)]}
+    #
+    # for index, grid_size in enumerate(change_grid):
+    #     if grid_size != 0:
+    #         print "Iteration:{}, change grid to {}".format(index+1,grid_size)
+    #     else:
+    #         print "Iteration:{}, No change to grid".format(index+1)
+    #
+
+    # Get rid of the hard-coding of these dict elements at some point
+    change_grid = []
+    if n_iterations == 1:
+        change_grid = [variable_dose_grid['delta_grid'][3]]
+    elif n_iterations == 2:
+        change_grid = [variable_dose_grid['delta_grid'][0],
+                       variable_dose_grid['delta_grid'][3]]
+    elif n_iterations == 3:
+        change_grid = [variable_dose_grid['delta_grid'][0],
+                       variable_dose_grid['delta_grid'][2],
+                       variable_dose_grid['delta_grid'][3]]
+    elif n_iterations == 4:
+        change_grid = [variable_dose_grid['delta_grid'][0],
+                       variable_dose_grid['delta_grid'][1],
+                       variable_dose_grid['delta_grid'][2],
+                       variable_dose_grid['delta_grid'][3]]
+    else:
+        for iteration in range(0, n_iterations - 1):
+            if iteration == variable_dose_grid['grid_adjustment_iteration'][0]:
+                change_grid.append(variable_dose_grid['delta_grid'][0])
+            elif iteration == variable_dose_grid['grid_adjustment_iteration'][1]:
+                change_grid.append(variable_dose_grid['delta_grid'][1])
+            elif iteration == variable_dose_grid['grid_adjustment_iteration'][2]:
+                change_grid.append(variable_dose_grid['delta_grid'][2])
+            elif iteration == variable_dose_grid['grid_adjustment_iteration'][3]:
+                change_grid.append(variable_dose_grid['delta_grid'][3])
+            else:
+                change_grid.append(0)
+    return change_grid
+
+def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
     import logging
+    import UserInterface
+
+
     #Parameters used for iteration number
-    InitialMaximumIteration =  OptP.get('InitialMaxIt', 60)
-    InitialIntermediateIteration = OptP.get('InitialIntIt', 10)
-    SecondMaximumIteration = OptP.get('SecondMaxIt', 30)
-    SecondIntermediateIteration = OptP.get('SecondIntIt', 15)
-    
+    initial_maximum_iteration =  optimization_inputs.get('InitialMaxIt', 60)
+    initial_intermediate_iteration = optimization_inputs.get('InitialIntIt', 10)
+    second_maximum_iteration = optimization_inputs.get('SecondMaxIt', 30)
+    second_intermediate_iteration = optimization_inputs.get('SecondIntIt', 15)
+
+    vary_grid = optimization_inputs.get('vary_grid', False)
     # Grid Sizes
-    DoseDim1 = OptP.get('DoseDim1' , 0.5)
-    DoseDim2 = OptP.get('DoseDim2' , 0.4)
-    DoseDim3 = OptP.get('DoseDim3' , 0.3)
-    DoseDim4 = OptP.get('DoseDim4' , 0.2)
-    Maximum_Iteration = OptP.get('NIterations' , 12)
-    gantry_spacing = OptP.get('gantry_spacing', 2)
+    dose_dim1 = optimization_inputs.get('dose_dim1', 0.5)
+    dose_dim2 = optimization_inputs.get('dose_dim2', 0.4)
+    dose_dim3 = optimization_inputs.get('dose_dim3', 0.3)
+    dose_dim4 = optimization_inputs.get('dose_dim4', 0.2)
+    maximum_iteration = optimization_inputs.get('NIterations', 12)
+    svd_only = optimization_inputs.get('svd_only', False)
+    gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
 
-    print 'InitialMaximumIteration TEST = '+str(InitialMaximumIteration)
-    print 'InitialIntermediateIteration ='+str(InitialIntermediateIteration)
-    print 'SecondMaximumIteration ='+str(SecondMaximumIteration)
-    print 'SecondIntermediateIteration = '+str(SecondIntermediateIteration)
-    print 'DoseDim1 ='+str(DoseDim1)
-    print 'DoseDim2='+str(DoseDim2)
-    print 'DoseDim3='+str(DoseDim3)
-    print 'DoseDim4='+str(DoseDim4)
-    print 'Maximum_Iteration=',str(Maximum_Iteration)
+    if vary_grid:
+        variable_dose_grid = {
+            'delta_grid': [dose_dim1,
+                           dose_dim2,
+                           dose_dim3,
+                           dose_dim4],
+            'grid_adjustment_iteration': [0,
+                                          int(maximum_iteration / 2),
+                                          int(3 * maximum_iteration / 4),
+                                          int(maximum_iteration - 1)]}
+        change_dose_grid = make_variable_grid_list(maximum_iteration, variable_dose_grid)
 
-    logging.debug('Set some variables like Niterations, Nits={}'.format(Maximum_Iteration))
+
+    print 'initial_maximum_iteration TEST = '+str(initial_maximum_iteration)
+    print 'initial_intermediate_iteration ='+str(initial_intermediate_iteration)
+    print 'second_maximum_iteration ='+str(second_maximum_iteration)
+    print 'second_intermediate_iteration = '+str(second_intermediate_iteration)
+    print 'dose_dim1 ='+str(dose_dim1)
+    print 'dose_dim2='+str(dose_dim2)
+    print 'dose_dim3='+str(dose_dim3)
+    print 'dose_dim4='+str(dose_dim4)
+    print 'maximum_iteration=',str(maximum_iteration)
+
+    # Making the variable status script, arguably move to main()
+    status_steps = ['Initializing optimization']
+    for i in range(maximum_iteration)
+        ith_step = 'Executing Iteration:' + str(i+1)
+        status_steps.append([ith_step])
+    status_steps.append(['Reduce OAR Dose'])
+
+    # Change the status steps to indicate each iteration
+    status = UserInterface.ScriptStatus(
+        steps=status_steps,
+        docstring=__doc__,
+        help=__help__)
+
+    status.next_step(text='Setting optimization parameters, gantry spacing')
+    logging.debug('Set some variables like Niterations, Nits={}'.format(maximum_iteration))
     # Maximum Jaw Sizes
     X1limit = -15
     X2limit = 15
@@ -125,8 +210,8 @@ def OptimizePlan(patient, case, plan, beamset, **OptP):
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
-    plan_optimization.Algorithm.MaxNumberOfIterations = InitialMaximumIteration
-    DoseCalculation.IterationsInPreparationsPhase = InitialIntermediateIteration
+    plan_optimization.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
+    plan_optimization.DoseCalculation.IterationsInPreparationsPhase = initial_intermediate_iteration
 
     # Try to Set the Gantry Spacing to 2 degrees
     # How many beams are there in this beamset
@@ -159,65 +244,40 @@ def OptimizePlan(patient, case, plan, beamset, **OptP):
     plan.PlanOptimizations[OptIndex].ResetOptimization()
 
 
-    while Optimization_Iteration != Maximum_Iteration:
-         UpdateMessage = 'Current iteration = '+str(Optimization_Iteration)+' of '+ str(Maximum_Iteration)
-         print UpdateMessage
-         # MessageBox.Show(UpdateMessage)
-         if Optimization_Iteration == 0:
+    if svd_only:
+        # SVD only is the quick and dirty way of dialing in all necessary elements for the calc
+        plan_optimization.Algorithm.MaxNumberOfIterations = 999
+        plan_optimization.DoseCalculation.IterationsInPreparationsPhase = 999
+        plan.PlanOptimizations[OptIndex].RunOptimization()
 
-            # Change Dose Grid size
-            DoseDim = DoseDim1
-            with CompositeAction('Set default grid'):
-              retval_0 = plan.SetDefaultDoseGrid(
-                  VoxelSize={
-                      'x': DoseDim,
-                      'y': DoseDim,
-                      'z': DoseDim})
-              plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-         # CompositeAction ends 
-           # Set the Maximum iterations and segmentation iterattion to a lower number for the initial run
-            plan_optimization.Algorithm.MaxNumberOfIterations = SecondMaximumIteration
-            plan_optimization.DoseCalculation.IterationsInPreparationsPhase = SecondIntermediateIteration
-         elif Optimization_Iteration == 2:
-         # Change Dose Grid size
-            DoseDim = DoseDim2
-            with CompositeAction('Set default grid'):
-              retval_0 = plan.SetDefaultDoseGrid(
-                  VoxelSize={
-                      'x': DoseDim,
-                      'y': DoseDim,
-                      'z': DoseDim})
-              plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-         # CompositeAction ends 
-         elif Optimization_Iteration == 4:
-         # Change Dose Grid size
-            DoseDim = DoseDim3
-            with CompositeAction('Set default grid'):
-              retval_0 = plan.SetDefaultDoseGrid(
-                  VoxelSize={
-                      'x': DoseDim,
-                      'y': DoseDim,
-                      'z': DoseDim })
-              plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-         # CompositeAction ends 
-         elif Optimization_Iteration == 8:
-         # Change Dose Grid size
-            DoseDim = DoseDim4
-            with CompositeAction('Set default grid'):
-              retval_0 = plan.SetDefaultDoseGrid(
-                  VoxelSize={
-                      'x': DoseDim,
-                      'y': DoseDim,
-                      'z': DoseDim })
-              plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-         # CompositeAction ends 
-         print("Optimization Number: " + str(Optimization_Iteration))
-         plan.PlanOptimizations[OptIndex].RunOptimization()
-         Optimization_Iteration += 1
+    else:
+        while Optimization_Iteration != maximum_iteration:
+             print 'Current iteration = {} of {}'.format(Optimization_Iteration,maximum_iteration)
+             status.next_step(text='Iterating....')
+
+             # If the change_dose_grid list has a non-zero element change the dose grid
+             if change_dose_grid[Optimization_Iteration] != 0:
+                 DoseDim = change_dose_grid[Optimization_Iteration]
+                 with CompositeAction('Set default grid'):
+                     retval_0 = plan.SetDefaultDoseGrid(
+                         VoxelSize={
+                             'x': DoseDim,
+                             'y': DoseDim,
+                             'z': DoseDim})
+                     plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+
+             plan.PlanOptimizations[OptIndex].RunOptimization()
+             Optimization_Iteration += 1
+             print "Optimization Number: {} completed".format(Optimization_Iteration)
+             # Set the Maximum iterations and segmentation iteration to a lower number for the initial run
+             plan_optimization.Algorithm.MaxNumberOfIterations = second_maximum_iteration
+             plan_optimization.DoseCalculation.IterationsInPreparationsPhase = second_intermediate_iteration
+
 
     #Finish with a Reduce OAR Dose Optimization
-    print("Running Reduce OAR Optimization" )
+    print "Running Reduce OAR Optimization"
     plan.PlanOptimizations[OptIndex].RunReduceOARDoseOptimization
+
 
 def main():
     import connect
@@ -242,16 +302,65 @@ def main():
          beamset = connect.get_current("BeamSet")
     except SystemError:
          raise IOError("No beamset loaded")
+
+    # OPTIONS DIALOG
+    #  Users will select use of:
+    #
+    # Maximum number of iterations for the first optimization
+    optimization_dialog = UserInterface.InputDialog(
+        title='Optimization Inputs',
+        inputs={
+            'input1_cold_max_iteration': 'Maximum number of iterations for initial optimization',
+            'input2_cold_interm_iteration': 'Intermediate iteration for svd to aperture conversion',
+            'input3_ws_max_iteration': 'Maximum iteration used in warm starts ',
+            'input4_ws_interm_iteration': 'Intermediate iteration used in warm starts',
+            'input5_vary_dose_grid': 'Start with large grid, and decrease gradually',
+            'input6_svd_only': 'svd calculation only, for dialing in parameters',
+            'input7_niterations': 'Number of Iterations'},
+        datatype={
+            'input5_vary_dose_grid': 'check'},
+        initial={'input1_cold_max_iteration': '50',
+                 'input2_cold_interm_iteration': '10',
+                 'input3_ws_max_iteration': '35',
+                 'input4_ws_interm_iteration': '5',
+                 'input7_niterations': '4'},
+        options={
+            'input5_vary_dose_grid': ['Variable Dose Grid'],
+            'input6_svd_only': ['svd calc']},
+        required=[])
+    print optimization_dialog.show()
+
+    # DATA PARSING FOR THE OPTIMIZATION MENU
+    # Determine if variable dose grid is selected
+    try:
+        if 'Variable Dose Grid' in optimization_dialog.values['input5_vary_dose_grid']:
+            vary_dose_grid = True
+        else:
+            vary_dose_grid = False
+    except KeyError:
+        vary_dose_grid = False
+
+    # SVD to DAO calc for cold start (first optimization)
+    try:
+        if 'svd calc' in optimization_dialog.values['input6_svd_only']:
+            svd_only = True
+        else:
+            svd_only = False
+    except KeyError:
+        svd_only = False
+
     OptParams = {
-    'InitialMaxIt' : 500,
-    'InitialIntIt' : 100,
-    'SecondMaxIt' : 300,
-    'SecondIntIt' : 150,
+    'InitialMaxIt' : int(optimization_dialog.values['input_cold_max_iteration']),
+    'InitialIntIt' : int(optimization_dialog.values['input2_cold_interm_iteration']),
+    'SecondMaxIt' : int(optimization_dialog.values['input3_ws_max_iteration']),
+    'SecondIntIt' : int(optimization_dialog.values['input4_ws_interm_iteration']),
+    'vary_grid': vary_dose_grid,
     'DoseDim1' : 0.45,
     'DoseDim2' : 0.35,
     'DoseDim3' : 0.35,
     'DoseDim4' : 0.22,
-    'NIterations' : 3}
+    'svd_only': svd_only
+    'NIterations' : int(optimization_dialog.values['input7_n_iterations'])}
     OptimizePlan(Patient, case, plan, beamset, **OptParams)
 #    OptimizePlan(Patient, case, plan, beamset)
 
