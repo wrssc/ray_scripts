@@ -59,6 +59,7 @@ import UserInterface
 import logging
 import connect
 
+
 def make_variable_grid_list(n_iterations, variable_dose_grid):
     # Function will determine, based on the input arguments, which iterations will result in a
     # dose grid change. The index of the list is the iteration, and the value is the grid_size
@@ -110,6 +111,7 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
             else:
                 change_grid.append(0)
     return change_grid
+
 
 def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
@@ -268,6 +270,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     print "Running Reduce OAR Optimization"
     plan.PlanOptimizations[OptIndex].RunReduceOARDoseOptimization
 
+
 def main():
 
     try:
@@ -336,8 +339,10 @@ def main():
     except KeyError:
         svd_only = False
 
+
+
     OptParams = {
-        'InitialMaxIt': int(optimization_dialog.values['input_cold_max_iteration']),
+        'InitialMaxIt': int(optimization_dialog.values['input1_cold_max_iteration']),
         'InitialIntIt': int(optimization_dialog.values['input2_cold_interm_iteration']),
         'SecondMaxIt': int(optimization_dialog.values['input3_ws_max_iteration']),
         'SecondIntIt': int(optimization_dialog.values['input4_ws_interm_iteration']),
@@ -349,6 +354,7 @@ def main():
         'svd_only': svd_only,
         'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
     optimize_plan(Patient, case, plan, beamset, **OptParams)
+
 
 if __name__ == '__main__':
     main()
