@@ -129,7 +129,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     dose_dim3 = optimization_inputs.get('dose_dim3', 0.3)
     dose_dim4 = optimization_inputs.get('dose_dim4', 0.2)
     maximum_iteration = optimization_inputs.get('NIterations', 12)
-    svd_only = optimization_inputs.get('svd_only', False)
+    fluence_only = optimization_inputs.get('fluence_only', False)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
 
     if vary_grid:
@@ -242,8 +242,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     # Reset
     plan.PlanOptimizations[OptIndex].ResetOptimization()
 
-    if svd_only:
-        # SVD only is the quick and dirty way of dialing in all necessary elements for the calc
+    if fluence_only:
+        # Fluence only is the quick and dirty way of dialing in all necessary elements for the calc
+        print 'User selected Fluence optimization Only'
+        plan_optimization.DoseCalculation.ComputeFinalDose = False
         plan_optimization.Algorithm.MaxNumberOfIterations = 999
         plan_optimization.DoseCalculation.IterationsInPreparationsPhase = 999
         plan.PlanOptimizations[OptIndex].RunOptimization()
@@ -253,6 +255,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             print 'Current iteration = {} of {}'.format(Optimization_Iteration, maximum_iteration)
             status.next_step(text='Iterating....')
 
+            print 'current value of change_dose_grid is {}'.format(change_dose_grid)
             # If the change_dose_grid list has a non-zero element change the dose grid
             if change_dose_grid[Optimization_Iteration] != 0:
                 DoseDim = change_dose_grid[Optimization_Iteration]
@@ -310,11 +313,11 @@ def main():
             'input3_ws_max_iteration': 'Maximum iteration used in warm starts ',
             'input4_ws_interm_iteration': 'Intermediate iteration used in warm starts',
             'input5_vary_dose_grid': 'Start with large grid, and decrease gradually',
-            'input6_svd_only': 'svd calculation only, for dialing in parameters',
+            'input6_fluence_only': 'Fluence calculation only, for dialing in parameters',
             'input7_n_iterations': 'Number of Iterations'},
         datatype={
             'input5_vary_dose_grid': 'check',
-            'input6_svd_only': 'check'},
+            'input6_fluence_only': 'check'},
         initial={'input1_cold_max_iteration': '50',
                  'input2_cold_interm_iteration': '10',
                  'input3_ws_max_iteration': '35',
@@ -322,7 +325,7 @@ def main():
                  'input7_n_iterations': '4'},
         options={
             'input5_vary_dose_grid': ['Variable Dose Grid'],
-            'input6_svd_only': ['SVD calc']},
+            'input6_fluence_only': ['Fluence calc']},
         required=[])
     print optimization_dialog.show()
 
@@ -338,12 +341,12 @@ def main():
 
     # SVD to DAO calc for cold start (first optimization)
     try:
-        if 'SVD calc' in optimization_dialog.values['input6_svd_only']:
-            svd_only = True
+        if 'SVD calc' in optimization_dialog.values['input6_fluence_only']:
+            fluence_only = True
         else:
-            svd_only = False
+            fluence_only = False
     except KeyError:
-        svd_only = False
+        fluence_only = False
 
     OptParams = {
         'InitialMaxIt': int(optimization_dialog.values['input1_cold_max_iteration']),
@@ -355,7 +358,7 @@ def main():
         'DoseDim2': 0.35,
         'DoseDim3': 0.35,
         'DoseDim4': 0.22,
-        'svd_only': svd_only,
+        'fluence_only': fluence_only,
         'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
 
 
