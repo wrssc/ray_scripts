@@ -305,7 +305,7 @@ def main():
             'input4_ws_interm_iteration': 'Intermediate iteration used in warm starts',
             'input5_vary_dose_grid': 'Start with large grid, and decrease gradually',
             'input6_svd_only': 'svd calculation only, for dialing in parameters',
-            'input7_niterations': 'Number of Iterations'},
+            'input7_n_iterations': 'Number of Iterations'},
         datatype={
             'input5_vary_dose_grid': 'check',
             'input6_svd_only': 'check'},
