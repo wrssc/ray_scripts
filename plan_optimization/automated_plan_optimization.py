@@ -346,7 +346,7 @@ def main():
         'DoseDim2': 0.35,
         'DoseDim3': 0.35,
         'DoseDim4': 0.22,
-        'svd_only': svd_only
+        'svd_only': svd_only,
         'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
     optimize_plan(Patient, case, plan, beamset, **OptParams)
 
