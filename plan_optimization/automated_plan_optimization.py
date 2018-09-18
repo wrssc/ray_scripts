@@ -242,11 +242,11 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     plan.PlanOptimizations[OptIndex].ResetOptimization()
 
     if fluence_only:
+        print 'User selected Fluence optimization Only'
         for beams in treatment_setup_settings.BeamSettings:
             if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing != 3:
                 beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=3)
         # Fluence only is the quick and dirty way of dialing in all necessary elements for the calc
-        print 'User selected Fluence optimization Only'
         plan_optimization.DoseCalculation.ComputeFinalDose = False
         plan_optimization.Algorithm.MaxNumberOfIterations = 999
         plan_optimization.DoseCalculation.IterationsInPreparationsPhase = 999
