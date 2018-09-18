@@ -208,6 +208,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
+    plan_optimization.Algorithm.OptimalityTolerance = 1e-12
     plan_optimization.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
     plan_optimization.DoseCalculation.IterationsInPreparationsPhase = initial_intermediate_iteration
 
@@ -299,8 +300,8 @@ def main():
 
     # OPTIMIZATION DIALOG
     #  Users will select use of:
-    #
-    # Maximum number of iterations for the first optimization
+    # input6: Fluence only - no aperature conversion
+    # input7: Maximum number of iterations for the first optimization
     optimization_dialog = UserInterface.InputDialog(
         title='Optimization Inputs',
         inputs={
