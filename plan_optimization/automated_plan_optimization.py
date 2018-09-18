@@ -156,7 +156,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     # Making the variable status script, arguably move to main()
     status_steps = ['Initializing optimization']
-    for i in range(int(optimization_dialog.values['input7_n_iterations'])):
+    for i in range(maximum_iteration):
         ith_step = 'Executing Iteration:' + str(i + 1)
         status_steps.append([ith_step])
     status_steps.append(['Reduce OAR Dose'])
