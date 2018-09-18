@@ -307,7 +307,8 @@ def main():
             'input6_svd_only': 'svd calculation only, for dialing in parameters',
             'input7_niterations': 'Number of Iterations'},
         datatype={
-            'input5_vary_dose_grid': 'check'},
+            'input5_vary_dose_grid': 'check',
+            'input6_svd_only': 'check'},
         initial={'input1_cold_max_iteration': '50',
                  'input2_cold_interm_iteration': '10',
                  'input3_ws_max_iteration': '35',
@@ -315,7 +316,7 @@ def main():
                  'input7_niterations': '4'},
         options={
             'input5_vary_dose_grid': ['Variable Dose Grid'],
-            'input6_svd_only': ['svd_calc']},
+            'input6_svd_only': ['SVD calc']},
         required=[])
     print optimization_dialog.show()
 
@@ -331,7 +332,7 @@ def main():
 
     # SVD to DAO calc for cold start (first optimization)
     try:
-        if 'svd_calc' in optimization_dialog.values['input6_svd_only']:
+        if 'SVD calc' in optimization_dialog.values['input6_svd_only']:
             svd_only = True
         else:
             svd_only = False
