@@ -159,10 +159,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     status_steps.append(['Reduce OAR Dose'])
 
     # Change the status steps to indicate each iteration
-    status = UserInterface.ScriptStatus(
-        steps=status_steps,
-        docstring=__doc__,
-        help=__help__)
+    status = UserInterface.ScriptStatus(steps=status_steps, docstring=__doc__, help=__help__)
 
     status.next_step(text='Setting optimization parameters, gantry spacing')
     logging.debug('Set some variables like Niterations, Nits={}'.format(maximum_iteration))
