@@ -254,7 +254,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     else:
         while Optimization_Iteration != maximum_iteration:
             print 'Current iteration = {} of {}'.format(Optimization_Iteration, maximum_iteration)
-            status.next_step(text='Iterating....')
+#            status.next_step(text='Iterating....')
 
             print 'current value of change_dose_grid is {}'.format(change_dose_grid)
             # If the change_dose_grid list has a non-zero element change the dose grid
