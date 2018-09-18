@@ -144,7 +144,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                           int(maximum_iteration - 1)]}
         change_dose_grid = make_variable_grid_list(maximum_iteration, variable_dose_grid)
 
-    print 'initial_maximum_iteration TEST = ' + str(initial_maximum_iteration)
+    print 'initial_maximum_iteration = ' + str(initial_maximum_iteration)
     print 'initial_intermediate_iteration =' + str(initial_intermediate_iteration)
     print 'second_maximum_iteration =' + str(second_maximum_iteration)
     print 'second_intermediate_iteration = ' + str(second_intermediate_iteration)
@@ -152,7 +152,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     print 'dose_dim2=' + str(dose_dim2)
     print 'dose_dim3=' + str(dose_dim3)
     print 'dose_dim4=' + str(dose_dim4)
-    print 'maximum_iteration=', str(maximum_iteration)
+    print 'maximum_iteration={}'.format(maximum_iteration)
+    print 'Fluence only: {}'.format(fluence_only)
 
     # Making the variable status script, arguably move to main()
     status_steps = ['Initializing optimization']
