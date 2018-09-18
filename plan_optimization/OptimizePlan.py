@@ -39,7 +39,7 @@ __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
 __raystation__ = '7.0.0'
 __maintainer__ = 'One maintainer'
-__email__ =  'rabayliss@wisc.edu'
+__email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
@@ -56,7 +56,8 @@ __credits__ = ['']
 
 # Fix the import all from connect.
 import sys
-
+import UserInterface
+import logging
 
 def make_variable_grid_list(n_iterations, variable_dose_grid):
     # Function will determine, based on the input arguments, which iterations will result in a
@@ -111,12 +112,9 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
     return change_grid
 
 def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
-    import logging
-    import UserInterface
 
-
-    #Parameters used for iteration number
-    initial_maximum_iteration =  optimization_inputs.get('InitialMaxIt', 60)
+    # Parameters used for iteration number
+    initial_maximum_iteration = optimization_inputs.get('InitialMaxIt', 60)
     initial_intermediate_iteration = optimization_inputs.get('InitialIntIt', 10)
     second_maximum_iteration = optimization_inputs.get('SecondMaxIt', 30)
     second_intermediate_iteration = optimization_inputs.get('SecondIntIt', 15)
@@ -143,21 +141,20 @@ def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
                                           int(maximum_iteration - 1)]}
         change_dose_grid = make_variable_grid_list(maximum_iteration, variable_dose_grid)
 
-
-    print 'initial_maximum_iteration TEST = '+str(initial_maximum_iteration)
-    print 'initial_intermediate_iteration ='+str(initial_intermediate_iteration)
-    print 'second_maximum_iteration ='+str(second_maximum_iteration)
-    print 'second_intermediate_iteration = '+str(second_intermediate_iteration)
-    print 'dose_dim1 ='+str(dose_dim1)
-    print 'dose_dim2='+str(dose_dim2)
-    print 'dose_dim3='+str(dose_dim3)
-    print 'dose_dim4='+str(dose_dim4)
-    print 'maximum_iteration=',str(maximum_iteration)
+    print 'initial_maximum_iteration TEST = ' + str(initial_maximum_iteration)
+    print 'initial_intermediate_iteration =' + str(initial_intermediate_iteration)
+    print 'second_maximum_iteration =' + str(second_maximum_iteration)
+    print 'second_intermediate_iteration = ' + str(second_intermediate_iteration)
+    print 'dose_dim1 =' + str(dose_dim1)
+    print 'dose_dim2=' + str(dose_dim2)
+    print 'dose_dim3=' + str(dose_dim3)
+    print 'dose_dim4=' + str(dose_dim4)
+    print 'maximum_iteration=', str(maximum_iteration)
 
     # Making the variable status script, arguably move to main()
     status_steps = ['Initializing optimization']
     for i in range(maximum_iteration)
-        ith_step = 'Executing Iteration:' + str(i+1)
+        ith_step = 'Executing Iteration:' + str(i + 1)
         status_steps.append([ith_step])
     status_steps.append(['Reduce OAR Dose'])
 
@@ -178,11 +175,10 @@ def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
     # Variable definitions
     i = 0
     beamsinrange = True
-    num_beams = 0 
-    OptIndex = 0 
+    num_beams = 0
+    OptIndex = 0
     Optimization_Iteration = 0
 
-    
     # Find current Beamset Number and determine plan optimization
     BeamSetName = beamset.DicomPlanLabel
     OptIndex = 0
@@ -192,17 +188,16 @@ def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
     # this while loop looks for the PlanOptimizations index needed below by searching for a key 
     # that matches the BeamSet DicomPlanLabel
     while IndexNotFound:
-         try:
-              OptName = plan.PlanOptimizations[OptIndex].OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
-              IndexNotFound = False
-         except SystemError:
-              IndexNotFound = True
-              OptIndex += 1
+        try:
+            OptName = plan.PlanOptimizations[OptIndex].OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
+            IndexNotFound = False
+        except SystemError:
+            IndexNotFound = True
+            OptIndex += 1
     # Found our index.  We will use a shorthand for the remainder of the code
     plan_optimization = plan.PlanOptimizations[OptIndex].OptimizationParameters
 
-
-    #Turn on important parameters
+    # Turn on important parameters
     plan_optimization.DoseCalculation.ComputeFinalDose = True
 
     # Turn off autoscale
@@ -243,7 +238,6 @@ def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
     # Reset
     plan.PlanOptimizations[OptIndex].ResetOptimization()
 
-
     if svd_only:
         # SVD only is the quick and dirty way of dialing in all necessary elements for the calc
         plan_optimization.Algorithm.MaxNumberOfIterations = 999
@@ -252,55 +246,53 @@ def OptimizePlan(patient, case, plan, beamset, **optimization_inputs):
 
     else:
         while Optimization_Iteration != maximum_iteration:
-             print 'Current iteration = {} of {}'.format(Optimization_Iteration,maximum_iteration)
-             status.next_step(text='Iterating....')
+            print 'Current iteration = {} of {}'.format(Optimization_Iteration, maximum_iteration)
+            status.next_step(text='Iterating....')
 
-             # If the change_dose_grid list has a non-zero element change the dose grid
-             if change_dose_grid[Optimization_Iteration] != 0:
-                 DoseDim = change_dose_grid[Optimization_Iteration]
-                 with CompositeAction('Set default grid'):
-                     retval_0 = plan.SetDefaultDoseGrid(
-                         VoxelSize={
-                             'x': DoseDim,
-                             'y': DoseDim,
-                             'z': DoseDim})
-                     plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+            # If the change_dose_grid list has a non-zero element change the dose grid
+            if change_dose_grid[Optimization_Iteration] != 0:
+                DoseDim = change_dose_grid[Optimization_Iteration]
+                with CompositeAction('Set default grid'):
+                    retval_0 = plan.SetDefaultDoseGrid(
+                        VoxelSize={
+                            'x': DoseDim,
+                            'y': DoseDim,
+                            'z': DoseDim})
+                    plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
 
-             plan.PlanOptimizations[OptIndex].RunOptimization()
-             Optimization_Iteration += 1
-             print "Optimization Number: {} completed".format(Optimization_Iteration)
-             # Set the Maximum iterations and segmentation iteration to a lower number for the initial run
-             plan_optimization.Algorithm.MaxNumberOfIterations = second_maximum_iteration
-             plan_optimization.DoseCalculation.IterationsInPreparationsPhase = second_intermediate_iteration
+            plan.PlanOptimizations[OptIndex].RunOptimization()
+            Optimization_Iteration += 1
+            print "Optimization Number: {} completed".format(Optimization_Iteration)
+            # Set the Maximum iterations and segmentation iteration to a lower number for the initial run
+            plan_optimization.Algorithm.MaxNumberOfIterations = second_maximum_iteration
+            plan_optimization.DoseCalculation.IterationsInPreparationsPhase = second_intermediate_iteration
 
-
-    #Finish with a Reduce OAR Dose Optimization
+    # Finish with a Reduce OAR Dose Optimization
     print "Running Reduce OAR Optimization"
     plan.PlanOptimizations[OptIndex].RunReduceOARDoseOptimization
 
 def main():
-    import connect
-    import UserInterface
+    print "I am in the main module, its ok, you are not crazy"
 
     try:
-         Patient = connect.get_current("Patient")
+        Patient = connect.get_current("Patient")
     except SystemError:
-         raise IOError("No Patient loaded. Load patient case and plan.")
+        raise IOError("No Patient loaded. Load patient case and plan.")
 
     try:
-         case = connect.get_current("Case")
+        case = connect.get_current("Case")
     except SystemError:
-         raise IOError("No Case loaded. Load patient case and plan.")
+        raise IOError("No Case loaded. Load patient case and plan.")
 
     try:
-         plan = connect.get_current("Plan")
+        plan = connect.get_current("Plan")
     except SystemError:
-         raise IOError("No plan loaded. Load patient and plan.")
+        raise IOError("No plan loaded. Load patient and plan.")
 
-    try: 
-         beamset = connect.get_current("BeamSet")
+    try:
+        beamset = connect.get_current("BeamSet")
     except SystemError:
-         raise IOError("No beamset loaded")
+        raise IOError("No beamset loaded")
 
     # OPTIONS DIALOG
     #  Users will select use of:
@@ -349,40 +341,18 @@ def main():
         svd_only = False
 
     OptParams = {
-    'InitialMaxIt' : int(optimization_dialog.values['input_cold_max_iteration']),
-    'InitialIntIt' : int(optimization_dialog.values['input2_cold_interm_iteration']),
-    'SecondMaxIt' : int(optimization_dialog.values['input3_ws_max_iteration']),
-    'SecondIntIt' : int(optimization_dialog.values['input4_ws_interm_iteration']),
-    'vary_grid': vary_dose_grid,
-    'DoseDim1' : 0.45,
-    'DoseDim2' : 0.35,
-    'DoseDim3' : 0.35,
-    'DoseDim4' : 0.22,
-    'svd_only': svd_only
-    'NIterations' : int(optimization_dialog.values['input7_n_iterations'])}
+        'InitialMaxIt': int(optimization_dialog.values['input_cold_max_iteration']),
+        'InitialIntIt': int(optimization_dialog.values['input2_cold_interm_iteration']),
+        'SecondMaxIt': int(optimization_dialog.values['input3_ws_max_iteration']),
+        'SecondIntIt': int(optimization_dialog.values['input4_ws_interm_iteration']),
+        'vary_grid': vary_dose_grid,
+        'DoseDim1': 0.45,
+        'DoseDim2': 0.35,
+        'DoseDim3': 0.35,
+        'DoseDim4': 0.22,
+        'svd_only': svd_only
+        'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
     OptimizePlan(Patient, case, plan, beamset, **OptParams)
-#    OptimizePlan(Patient, case, plan, beamset)
 
-
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
