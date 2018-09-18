@@ -241,7 +241,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     #      beamsinrange = False
 
     # Reset
-    plan.PlanOptimizations[OptIndex].ResetOptimization()
+    ## plan.PlanOptimizations[OptIndex].ResetOptimization()
 
     if fluence_only:
         # Fluence only is the quick and dirty way of dialing in all necessary elements for the calc
