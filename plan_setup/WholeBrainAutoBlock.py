@@ -48,9 +48,13 @@ import connect
 
 
 def main():
-    patient = connect.get_current("Patient")
-    case = connect.get_current("Case")
-    examination = connect.get_current("Examination")
+
+    try:
+        patient = connect.get_current('Patient')
+        case = connect.get_current("Case")
+        examination = connect.get_current("Examination")
+    except:
+        logging.warning("Aww crap, No patient")
 
     # Capture the current list of ROI's to avoid saving over them in the future
     rois = case.PatientModel.StructureSets[examination.Name].RoiGeometries
@@ -59,7 +63,7 @@ def main():
     pois = case.PatientModel.PointsOfInterest
 
     try:
-        retval_SimFiducials = pois['SimFiducials']
+        retval_SimFiducials = pois._SimFiducials
         logging.warning("POI SimFiducials Exists")
     else:
         case.PatientModel.CreatePoi(Examination=examination,
