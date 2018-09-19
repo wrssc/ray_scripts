@@ -58,8 +58,9 @@ def main():
     # Capture the current list of POI's to avoid a crash
     pois = case.PatientModel.PointsOfInterest
 
-    if 'SimFiducials' in pois:
-        print 'Sim fiducial point found'
+    try:
+        retval_SimFiducials = pois['SimFiducials']
+        logging.warning("POI SimFiducials Exists")
     else:
         case.PatientModel.CreatePoi(Examination=examination,
                                     Point={'x': 0,
