@@ -305,36 +305,44 @@ def main():
 
     # OPTIMIZATION DIALOG
     #  Users will select use of:
-    # input6: Fluence only - no aperature conversion
+    # input6: Fluence only - no aperture conversion
     # input7: Maximum number of iterations for the first optimization
     optimization_dialog = UserInterface.InputDialog(
         title='Optimization Inputs',
         inputs={
-            'input1_cold_max_iteration': 'Maximum number of iterations for initial optimization',
-            'input2_cold_interm_iteration': 'Intermediate iteration for svd to aperture conversion',
-            'input3_ws_max_iteration': 'Maximum iteration used in warm starts ',
-            'input4_ws_interm_iteration': 'Intermediate iteration used in warm starts',
-            'input5_vary_dose_grid': 'Start with large grid, and decrease gradually',
-            'input6_fluence_only': 'Fluence calculation only, for dialing in parameters',
-            'input7_n_iterations': 'Number of Iterations'},
+            'input1_fluence_only': 'Fluence calculation only, for dialing in parameters',
+            'input2_cold_max_iteration': 'Maximum number of iterations for initial optimization',
+            'input3_cold_interm_iteration': 'Intermediate iteration for svd to aperture conversion',
+            'input4_ws_max_iteration': 'Maximum iteration used in warm starts ',
+            'input5_ws_interm_iteration': 'Intermediate iteration used in warm starts',
+            'input6_vary_dose_grid': 'Start with large grid, and decrease gradually',
+            'input7_n_iterations': 'Number of Iterations',
+            'input8_segment_weight': 'Segment weight calculation',
+            'input9_reduce_oar': 'Reduce OAR Dose'},
         datatype={
-            'input5_vary_dose_grid': 'check',
-            'input6_fluence_only': 'check'},
-        initial={'input1_cold_max_iteration': '50',
-                 'input2_cold_interm_iteration': '10',
-                 'input3_ws_max_iteration': '35',
-                 'input4_ws_interm_iteration': '5',
-                 'input7_n_iterations': '4'},
+            'input6_vary_dose_grid': 'check',
+            'input1_fluence_only': 'check',
+            'input8_segment_weight': 'check',
+            'input9_reduce_oar': 'check'},
+        initial={'input2_cold_max_iteration': '50',
+                 'input3_cold_interm_iteration': '10',
+                 'input4_ws_max_iteration': '35',
+                 'input5_ws_interm_iteration': '5',
+                 'input7_n_iterations': '4',
+                 'input8_segment_weight':['Perform Segment Weighted optimization'],
+                 'input9_reduce_oar': ['Perform reduce OAR dose before completion']},
         options={
-            'input5_vary_dose_grid': ['Variable Dose Grid'],
-            'input6_fluence_only': ['Fluence calc']},
+            'input1_fluence_only': ['Fluence calc'],
+            'input6_vary_dose_grid': ['Variable Dose Grid']
+            'input8_segment_weight': ['Perform Segment Weighted optimization'],
+            'input9_reduce_oar': ['Perform reduce OAR dose before completion']},
         required=[])
     print optimization_dialog.show()
 
     # DATA PARSING FOR THE OPTIMIZATION MENU
     # Determine if variable dose grid is selected
     try:
-        if 'Variable Dose Grid' in optimization_dialog.values['input5_vary_dose_grid']:
+        if 'Variable Dose Grid' in optimization_dialog.values['input6_vary_dose_grid']:
             vary_dose_grid = True
         else:
             vary_dose_grid = False
@@ -343,18 +351,20 @@ def main():
 
     # SVD to DAO calc for cold start (first optimization)
     try:
-        if 'Fluence calc' in optimization_dialog.values['input6_fluence_only']:
+        if 'Fluence calc' in optimization_dialog.values['input1_fluence_only']:
             fluence_only = True
         else:
             fluence_only = False
     except KeyError:
         fluence_only = False
 
+    try:
+        if 'Perform Segment Weighted optimization' in optimization_dialog.values['input8_segment_weight']
     OptParams = {
-        'InitialMaxIt': int(optimization_dialog.values['input1_cold_max_iteration']),
-        'InitialIntIt': int(optimization_dialog.values['input2_cold_interm_iteration']),
-        'SecondMaxIt': int(optimization_dialog.values['input3_ws_max_iteration']),
-        'SecondIntIt': int(optimization_dialog.values['input4_ws_interm_iteration']),
+        'InitialMaxIt': int(optimization_dialog.values['input2_cold_max_iteration']),
+        'InitialIntIt': int(optimization_dialog.values['input3_cold_interm_iteration']),
+        'SecondMaxIt': int(optimization_dialog.values['input4_ws_max_iteration']),
+        'SecondIntIt': int(optimization_dialog.values['input5_ws_interm_iteration']),
         'vary_grid': vary_dose_grid,
         'DoseDim1': 0.45,
         'DoseDim2': 0.35,
