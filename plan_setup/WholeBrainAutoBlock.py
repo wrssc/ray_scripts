@@ -1,6 +1,6 @@
-#   RayStation version: 6.1.1.2
+""" Whole Brain AutoBlock
 
-""" Creates the structures required for the auto-whole brain block.
+    Creates the structures required for the auto-whole brain block.
     
     This python script will generate a PTV_WB_xxxx that attempts to capture the whole brain
     contour to the C1 interface.  In the first iteration, this will simply generate the 
@@ -39,174 +39,221 @@ __reviewer__ = ''
 __reviewed__ = ''
 __raystation__ = '7.0.0'
 __maintainer__ = 'One maintainer'
-__email__ =  'rabayliss@wisc.edu'
+__email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = []
 
+import connect
 
-from connect import *
 
 def main():
-  patient = get_current("Patient")
-  case = get_current("Case")
-  examination = get_current("Examination")
+    patient = connect.get_current("Patient")
+    case = connect.get_current("Case")
+    examination = connect.get_current("Examination")
 
-  # Capture the current list of ROI's to avoid saving over them in the future
-  rois = case.PatientModel.StructureSets[examination.Name].RoiGeometries
+    # Capture the current list of ROI's to avoid saving over them in the future
+    rois = case.PatientModel.StructureSets[examination.Name].RoiGeometries
 
-  # Capture the current list of POI's to avoid a crash
-  pois = case.PatientModel.PointsOfInterest
+    # Capture the current list of POI's to avoid a crash
+    pois = case.PatientModel.PointsOfInterest
 
-  try:
-     poi = pois._SimFiducials
-  except:
-     retval_0 = case.PatientModel.CreatePoi(Examination=examination, Point={ 'x': 0, 'y': 0, 'z': 0 },Volume=0 ,Name="SimFiducials", Color ="Green", Type="LocalizationPoint")
+    if 'SimFiducials' in pois:
+        print 'Sim fiducial point found'
+    else:
+        case.PatientModel.CreatePoi(Examination=examination,
+                                    Point={'x': 0,
+                                           'y': 0,
+                                           'z': 0},
+                                    Volume=0,
+                                    Name="SimFiducials",
+                                    Color="Green",
+                                    Type="LocalizationPoint")
 
-  case.PatientModel.MBSAutoInitializer(MbsRois=[{ 'CaseType': "HeadNeck", 'ModelName': "Brain", 'RoiName': "PTV_WB_xxxx", 'RoiColor': "255, 255, 0" }], CreateNewRois=True, Examination=examination, UseAtlasBasedInitialization=True)
+    case.PatientModel.MBSAutoInitializer(
+        MbsRois=[{'CaseType': "HeadNeck", 'ModelName': "Brain", 'RoiName': "PTV_WB_xxxx", 'RoiColor': "255, 255, 0"}],
+        CreateNewRois=True, Examination=examination, UseAtlasBasedInitialization=True)
 
-  case.PatientModel.AdaptMbsMeshes(Examination=examination, RoiNames=["PTV_WB_xxxx"], CustomStatistics=None, CustomSettings=None)
+    case.PatientModel.AdaptMbsMeshes(Examination=examination, RoiNames=["PTV_WB_xxxx"], CustomStatistics=None,
+                                     CustomSettings=None)
 
-  case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].AdaptMbsMesh(Examination=examination, CustomStatistics=None, CustomSettings=[{ 'ShapeWeight': 0.5, 'TargetWeight': 1, 'MaxIterations': 200, 'OnlyRigidAdaptation': False, 'ConvergenceCheck': False }])
+    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].AdaptMbsMesh(Examination=examination, CustomStatistics=None,
+                                                                    CustomSettings=[
+                                                                        {'ShapeWeight': 0.5, 'TargetWeight': 1,
+                                                                         'MaxIterations': 200,
+                                                                         'OnlyRigidAdaptation': False,
+                                                                         'ConvergenceCheck': False}])
 
-  with CompositeAction('Apply ROI changes (PTV_WB_xxxx)'):
+    with CompositeAction('Apply ROI changes (PTV_WB_xxxx)'):
 
-    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Type = "Ptv"
+        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Type = "Ptv"
 
-    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].OrganData.OrganType = "Target"
+        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].OrganData.OrganType = "Target"
 
-    # CompositeAction ends
+        # CompositeAction ends
 
-  await_user_input('Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
+    await_user_input('Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
 
+    case.PatientModel.MBSAutoInitializer(
+        MbsRois=[{'CaseType': "HeadNeck", 'ModelName': "Brain", 'RoiName': "Brain", 'RoiColor': "255, 255, 0"},
+                 {'CaseType': "HeadNeck", 'ModelName': "Eye (Left)", 'RoiName': "Globe_L", 'RoiColor': "255, 128, 0"},
+                 {'CaseType': "HeadNeck", 'ModelName': "Eye (Right)", 'RoiName': "Globe_R", 'RoiColor': "255, 128, 0"}],
+        CreateNewRois=True, Examination=examination, UseAtlasBasedInitialization=True)
 
-  case.PatientModel.MBSAutoInitializer(MbsRois=[{ 'CaseType': "HeadNeck", 'ModelName': "Brain", 'RoiName': "Brain", 'RoiColor': "255, 255, 0" }, { 'CaseType': "HeadNeck", 'ModelName': "Eye (Left)", 'RoiName': "Globe_L", 'RoiColor': "255, 128, 0" }, { 'CaseType': "HeadNeck", 'ModelName': "Eye (Right)", 'RoiName': "Globe_R", 'RoiColor': "255, 128, 0" }], CreateNewRois=True, Examination=examination, UseAtlasBasedInitialization=True)
-
-  case.PatientModel.AdaptMbsMeshes(Examination=examination, RoiNames=["Brain", "Globe_L", "Globe_R"], CustomStatistics=None, CustomSettings=None)
-
-
-
-
-  try:
-    a = rois._Lens_L
-  except:
-    retval_0 = case.PatientModel.CreateRoi(Name="Lens_L", Color="Purple", Type="Organ", TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
-    await_user_input('Draw the LEFT Lens then continue playing the script')
-
-  try:
-    a = rois._Lens_R
-  except:
-    retval_0 = case.PatientModel.CreateRoi(Name="Lens_R", Color="Purple", Type="Organ", TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
-    await_user_input('Draw the RIGHT Lens then continue playing the script')
-
-  with CompositeAction('Create external (External)'):
-
-    retval_0 = case.PatientModel.CreateRoi(Name="External", Color="Blue", Type="External", TissueName="", RbeCellTypeName=None, RoiMaterial=None)
-
-    retval_0.CreateExternalGeometry(Examination=examination, ThresholdLevel=-250)
-
-    # CompositeAction ends
-
-
-
-  with CompositeAction('Expand (Lens_L)'):
-    try:
-      a = rois._Lens_L_PRV05
-    except:
-      retval_0 = case.PatientModel.CreateRoi(Name="Lens_L_PRV05", Color="255, 128, 0", Type="Organ", TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
-
-    case.PatientModel.RegionsOfInterest['Lens_L_PRV05'].ExcludeFromExport = True
-    retval_0.SetMarginExpression(SourceRoiName="Lens_L", MarginSettings={ 'Type': "Expand", 'Superior': 0.5, 'Inferior': 0.5, 'Anterior': 0.5, 'Posterior': 0.5, 'Right': 0.5, 'Left': 0.5 })
-
-    retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
-
-    # CompositeAction ends
-
-
-  with CompositeAction('Expand (Lens_R)'):
-    try:
-      a = rois._Lens_R_PRV05
-    except:
-      retval_0 = case.PatientModel.CreateRoi(Name="Lens_R_PRV05", Color="255, 128, 0", Type="Organ", TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
-
-    case.PatientModel.RegionsOfInterest['Lens_R_PRV05'].ExcludeFromExport = True
-
-    retval_0.SetMarginExpression(SourceRoiName="Lens_R", MarginSettings={ 'Type': "Expand", 'Superior': 0.5, 'Inferior': 0.5, 'Anterior': 0.5, 'Posterior': 0.5, 'Right': 0.5, 'Left': 0.5 })
-
-    retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
-
-    # CompositeAction ends
-
-
-
-  with CompositeAction('ROI Algebra (Avoid)'):
+    case.PatientModel.AdaptMbsMeshes(Examination=examination, RoiNames=["Brain", "Globe_L", "Globe_R"],
+                                     CustomStatistics=None, CustomSettings=None)
 
     try:
-      a = rois._Avoid
+        a = rois._Lens_L
     except:
-      retval_0 = case.PatientModel.CreateRoi(Name="Avoid", Color="255, 128, 128", Type="Organ", TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
+        retval_0 = case.PatientModel.CreateRoi(Name="Lens_L", Color="Purple", Type="Organ", TissueName=None,
+                                               RbeCellTypeName=None, RoiMaterial=None)
+        await_user_input('Draw the LEFT Lens then continue playing the script')
 
-    case.PatientModel.RegionsOfInterest['Avoid'].ExcludeFromExport = True
+    try:
+        a = rois._Lens_R
+    except:
+        retval_0 = case.PatientModel.CreateRoi(Name="Lens_R", Color="Purple", Type="Organ", TissueName=None,
+                                               RbeCellTypeName=None, RoiMaterial=None)
+        await_user_input('Draw the RIGHT Lens then continue playing the script')
 
-    retval_0.SetAlgebraExpression(ExpressionA={ 'Operation': "Union", 'SourceRoiNames': ["Lens_L_PRV05", "Lens_R_PRV05"], 'MarginSettings': { 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 } }, ExpressionB={ 'Operation': "Union", 'SourceRoiNames': [], 'MarginSettings': { 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 } }, ResultOperation="None", ResultMarginSettings={ 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 })
+    with CompositeAction('Create external (External)'):
 
-    retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
+        retval_0 = case.PatientModel.CreateRoi(Name="External", Color="Blue", Type="External", TissueName="",
+                                               RbeCellTypeName=None, RoiMaterial=None)
 
-    # CompositeAction ends
+        retval_0.CreateExternalGeometry(Examination=examination, ThresholdLevel=-250)
 
-  with CompositeAction('Expand (PTV_WB_xxxx)'):
+        # CompositeAction ends
 
-    retval_0 = case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Ptv", TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['BTV_Brain'].ExcludeFromExport = True
+    with CompositeAction('Expand (Lens_L)'):
+        try:
+            a = rois._Lens_L_PRV05
+        except:
+            retval_0 = case.PatientModel.CreateRoi(Name="Lens_L_PRV05", Color="255, 128, 0", Type="Organ",
+                                                   TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
 
-    retval_0.SetMarginExpression(SourceRoiName="PTV_WB_xxxx", MarginSettings={ 'Type': "Expand", 'Superior': 1, 'Inferior': 0.5, 'Anterior': 0.8, 'Posterior': 2, 'Right': 1, 'Left': 1 })
+        case.PatientModel.RegionsOfInterest['Lens_L_PRV05'].ExcludeFromExport = True
+        retval_0.SetMarginExpression(SourceRoiName="Lens_L",
+                                     MarginSettings={'Type': "Expand", 'Superior': 0.5, 'Inferior': 0.5,
+                                                     'Anterior': 0.5, 'Posterior': 0.5, 'Right': 0.5, 'Left': 0.5})
 
-    retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
+        retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
 
-    # CompositeAction ends
+        # CompositeAction ends
 
+    with CompositeAction('Expand (Lens_R)'):
+        try:
+            a = rois._Lens_R_PRV05
+        except:
+            retval_0 = case.PatientModel.CreateRoi(Name="Lens_R_PRV05", Color="255, 128, 0", Type="Organ",
+                                                   TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
 
-  with CompositeAction('Expand (PTV_WB_xxxx)'):
+        case.PatientModel.RegionsOfInterest['Lens_R_PRV05'].ExcludeFromExport = True
 
-    retval_0 = case.PatientModel.CreateRoi(Name="Avoid_Face", Color="255, 128, 128", Type="Organ", TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Avoid_Face'].ExcludeFromExport = True
+        retval_0.SetMarginExpression(SourceRoiName="Lens_R",
+                                     MarginSettings={'Type': "Expand", 'Superior': 0.5, 'Inferior': 0.5,
+                                                     'Anterior': 0.5, 'Posterior': 0.5, 'Right': 0.5, 'Left': 0.5})
 
-    retval_0.SetMarginExpression(SourceRoiName="PTV_WB_xxxx", MarginSettings={ 'Type': "Expand", 'Superior': 0, 'Inferior': 10, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 })
+        retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
 
-    retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
+        # CompositeAction ends
 
-    # CompositeAction ends
+    with CompositeAction('ROI Algebra (Avoid)'):
 
+        try:
+            a = rois._Avoid
+        except:
+            retval_0 = case.PatientModel.CreateRoi(Name="Avoid", Color="255, 128, 128", Type="Organ", TissueName=None,
+                                                   RbeCellTypeName=None, RoiMaterial=None)
 
-  with CompositeAction('ROI Algebra (BTV_Flash_20)'):
+        case.PatientModel.RegionsOfInterest['Avoid'].ExcludeFromExport = True
 
-    retval_0 = case.PatientModel.CreateRoi(Name="BTV_Flash_20", Color="128, 0, 64", Type="Ptv", TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
+        retval_0.SetAlgebraExpression(
+            ExpressionA={'Operation': "Union", 'SourceRoiNames': ["Lens_L_PRV05", "Lens_R_PRV05"],
+                         'MarginSettings': {'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0,
+                                            'Posterior': 0, 'Right': 0, 'Left': 0}},
+            ExpressionB={'Operation': "Union", 'SourceRoiNames': [],
+                         'MarginSettings': {'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0,
+                                            'Posterior': 0, 'Right': 0, 'Left': 0}}, ResultOperation="None",
+            ResultMarginSettings={'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0,
+                                  'Right': 0, 'Left': 0})
 
-    case.PatientModel.RegionsOfInterest['BTV_Flash_20'].ExcludeFromExport = True
+        retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
 
-    retval_0.SetAlgebraExpression(ExpressionA={ 'Operation': "Union", 'SourceRoiNames': ["PTV_WB_xxxx"], 'MarginSettings': { 'Type': "Expand", 'Superior': 2, 'Inferior': 0, 'Anterior': 2, 'Posterior': 2, 'Right': 0, 'Left': 0 } }, ExpressionB={ 'Operation': "Union", 'SourceRoiNames': ["Avoid_Face"], 'MarginSettings': { 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 } }, ResultOperation="Subtraction", ResultMarginSettings={ 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 })
+        # CompositeAction ends
 
-    retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
+    with CompositeAction('Expand (PTV_WB_xxxx)'):
 
-    # CompositeAction ends
+        retval_0 = case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Ptv", TissueName=None,
+                                               RbeCellTypeName=None, RoiMaterial=None)
+        case.PatientModel.RegionsOfInterest['BTV_Brain'].ExcludeFromExport = True
 
+        retval_0.SetMarginExpression(SourceRoiName="PTV_WB_xxxx",
+                                     MarginSettings={'Type': "Expand", 'Superior': 1, 'Inferior': 0.5, 'Anterior': 0.8,
+                                                     'Posterior': 2, 'Right': 1, 'Left': 1})
 
-  with CompositeAction('ROI Algebra (BTV)'):
+        retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
 
-    retval_0 = case.PatientModel.CreateRoi(Name="BTV", Color="Yellow", Type="Ptv", TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
+        # CompositeAction ends
 
-    case.PatientModel.RegionsOfInterest['BTV'].ExcludeFromExport = True
+    with CompositeAction('Expand (PTV_WB_xxxx)'):
 
-    retval_0.SetAlgebraExpression(ExpressionA={ 'Operation': "Union", 'SourceRoiNames': ["BTV_Brain", "BTV_Flash_20"], 'MarginSettings': { 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 } }, ExpressionB={ 'Operation': "Intersection", 'SourceRoiNames': [], 'MarginSettings': { 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 } }, ResultOperation="None", ResultMarginSettings={ 'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0 })
+        retval_0 = case.PatientModel.CreateRoi(Name="Avoid_Face", Color="255, 128, 128", Type="Organ", TissueName=None,
+                                               RbeCellTypeName=None, RoiMaterial=None)
+        case.PatientModel.RegionsOfInterest['Avoid_Face'].ExcludeFromExport = True
 
-    retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
+        retval_0.SetMarginExpression(SourceRoiName="PTV_WB_xxxx",
+                                     MarginSettings={'Type': "Expand", 'Superior': 0, 'Inferior': 10, 'Anterior': 0,
+                                                     'Posterior': 0, 'Right': 0, 'Left': 0})
 
-    # CompositeAction ends
+        retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
+
+        # CompositeAction ends
+
+    with CompositeAction('ROI Algebra (BTV_Flash_20)'):
+
+        retval_0 = case.PatientModel.CreateRoi(Name="BTV_Flash_20", Color="128, 0, 64", Type="Ptv", TissueName=None,
+                                               RbeCellTypeName=None, RoiMaterial=None)
+
+        case.PatientModel.RegionsOfInterest['BTV_Flash_20'].ExcludeFromExport = True
+
+        retval_0.SetAlgebraExpression(ExpressionA={'Operation': "Union", 'SourceRoiNames': ["PTV_WB_xxxx"],
+                                                   'MarginSettings': {'Type': "Expand", 'Superior': 2, 'Inferior': 0,
+                                                                      'Anterior': 2, 'Posterior': 2, 'Right': 0,
+                                                                      'Left': 0}},
+                                      ExpressionB={'Operation': "Union", 'SourceRoiNames': ["Avoid_Face"],
+                                                   'MarginSettings': {'Type': "Expand", 'Superior': 0, 'Inferior': 0,
+                                                                      'Anterior': 0, 'Posterior': 0, 'Right': 0,
+                                                                      'Left': 0}}, ResultOperation="Subtraction",
+                                      ResultMarginSettings={'Type': "Expand", 'Superior': 0, 'Inferior': 0,
+                                                            'Anterior': 0, 'Posterior': 0, 'Right': 0, 'Left': 0})
+
+        retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
+
+        # CompositeAction ends
+
+    with CompositeAction('ROI Algebra (BTV)'):
+
+        retval_0 = case.PatientModel.CreateRoi(Name="BTV", Color="Yellow", Type="Ptv", TissueName=None,
+                                               RbeCellTypeName=None, RoiMaterial=None)
+
+        case.PatientModel.RegionsOfInterest['BTV'].ExcludeFromExport = True
+
+        retval_0.SetAlgebraExpression(
+            ExpressionA={'Operation': "Union", 'SourceRoiNames': ["BTV_Brain", "BTV_Flash_20"],
+                         'MarginSettings': {'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0,
+                                            'Posterior': 0, 'Right': 0, 'Left': 0}},
+            ExpressionB={'Operation': "Intersection", 'SourceRoiNames': [],
+                         'MarginSettings': {'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0,
+                                            'Posterior': 0, 'Right': 0, 'Left': 0}}, ResultOperation="None",
+            ResultMarginSettings={'Type': "Expand", 'Superior': 0, 'Inferior': 0, 'Anterior': 0, 'Posterior': 0,
+                                  'Right': 0, 'Left': 0})
+
+        retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
+
+        # CompositeAction ends
+
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
