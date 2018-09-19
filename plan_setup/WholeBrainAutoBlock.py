@@ -65,7 +65,7 @@ def main():
     try:
         retval_SimFiducials = pois._SimFiducials
         logging.warning("POI SimFiducials Exists")
-    else:
+    except:
         case.PatientModel.CreatePoi(Examination=examination,
                                     Point={'x': 0,
                                            'y': 0,
