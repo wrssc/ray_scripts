@@ -541,6 +541,8 @@ def main():
         plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
                                            'y': 0.2,
                                            'z': 0.2})
+        # Set the BTV type above to allow dose grid to cover
+        case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
         try:
             isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                 RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
@@ -582,7 +584,6 @@ def main():
         beamset.TreatAndProtect()
 #        beamset.TreatAndProtect(ShowProgress)
 
-        case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
         total_dose_string = str(int(total_dose))
         case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB' + total_dose_string.zfill(4)
 
