@@ -579,7 +579,8 @@ def main():
             beam.SetTreatOrProtectRoi(RoiName='BTV')
             beam.SetTreatOrProtectRoi(RoiName='Avoid')
 
-        beamset.TreatAndProtect(ShowProgress)
+        beamset.TreatAndProtect()
+#        beamset.TreatAndProtect(ShowProgress)
 
         case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
         total_dose_string = str(int(total_dose))
