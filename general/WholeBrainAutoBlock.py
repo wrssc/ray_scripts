@@ -14,7 +14,10 @@
     Validation Notes: 
     
     Version Notes: 1.0.0 Original
-    1.0.1 Hot Fix to apparent error in version 7
+    1.0.1 Hot Fix to apparent error in version 7 (related to connect being used instead of a
+            full import)
+            Added functionality for making a plan, which TC is testing.
+            Added automatic loading of couch along with a prompt to ask the user to move it.
   
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -67,30 +70,42 @@ def check_structure_exists(case, structure_name, roi_list, option):
 
 
 def main():
-    try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current("Case")
-        examination = connect.get_current("Examination")
-    except:
-        logging.warning("Aww crap, No patient")
-
-    machine_names = ['TrueBeamSTx', 'TrueBeam']
-    # Capture the current list of ROI's to avoid saving over them in the future
-    rois = case.PatientModel.StructureSets[examination.Name].RoiGeometries
-
-    # Capture the current list of POI's to avoid a crash
-    pois = case.PatientModel.PointsOfInterest
-
+    # Script will run through the following steps.  We have a logical inconsistency here with making a plan
+    # this is likely an optional step
     status = UserInterface.ScriptStatus(
         steps=['SimFiducials point declaration',
                'Making the target',
                'Verify PTV_WB_xxxx coverage',
                'User Inputs Plan Information',
                'Regions at Risk Generation/Validation',
+               'Support Structure Loading',
                'Target (BTV) Generation',
-               'Plan Generation'],
+               'Plan Generation (Optional)'],
         docstring=__doc__,
         help=__help__)
+
+    # UW Inputs
+    # If machines names change they need to be modified here:
+    user_inputs_machine_names = ['TrueBeamSTx', 'TrueBeam']
+    # The s-frame object currently belongs to an examination on rando named: "CT 1"
+    # if that changes the s-frame load will fail
+    user_inputs_support_structures_examination = 'CT 1'
+    user_inputs_support_structure_template = 'UW Support Structures'
+    user_inputs_source_roi_names = ['S-frame']
+    try:
+        patient = connect.get_current('Patient')
+        case = connect.get_current("Case")
+        examination = connect.get_current("Examination")
+    except:
+        UserInterface.WarningBox('This script requires a patient, case, and exam to be loaded')
+        sys.exit('This script requires a patient, case, and exam to be loaded')
+
+    # Capture the current list of ROI's to avoid saving over them in the future
+    rois = case.PatientModel.StructureSets[examination.Name].RoiGeometries
+
+    # Capture the current list of POI's to avoid a crash
+    pois = case.PatientModel.PointsOfInterest
+
 
     # Look for the sim point, if not create a point
     sim_point_found = any(poi.Name == 'SimFiducials' for poi in pois)
@@ -167,7 +182,7 @@ def main():
                 'input1_plan_name': 'Brai_3DC_R0A0',
             },
             options={'input0_make_plan': ['Make Plan'],
-                     'input4_choose_machine': machine_names,
+                     'input4_choose_machine': user_inputs_machine_names,
                      },
             required=['input2_number_fractions',
                       'input3_dose',
@@ -344,6 +359,27 @@ def main():
     case.PatientModel.RegionsOfInterest['Avoid'].UpdateDerivedGeometry(
         Examination=examination,
         Algorithm="Auto")
+
+    # Load the S-frame into the current scan based on the structure template input above.
+    try:
+        case.PatientModel.CreateStructuresFromTemplate(
+            SourceTemplateName=user_inputs_support_structure_template,
+            SourceExaminationName=user_inputs_support_structures_examination,
+            SourceRoiNames=user_inputs_source_roi_names,
+            SourcePoiNames=[],
+            AssociateStructuresByName=True,
+            TargetExamination=examination,
+            InitializationOption='AlignImageCenters'
+        )
+        status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
+        connect.await_user_input('Ensure the s-frame is positioned correctly on the scan')
+    except: SystemError
+        logging.warning('Support structure failed to load')
+        status.next_step(text='S-frame failed to load. Load manually and continue script.')
+        connect.await_user_input(
+            'S-frame failed to load. Ensure it is loaded and placed correctly then continue script')
+
+
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
         logging.debug('BTV_Brain not found, generating from expansion')
