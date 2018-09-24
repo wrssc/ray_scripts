@@ -509,7 +509,7 @@ def main():
 
         plan = case.TreatmentPlans[plan_name]
         plan.SetCurrent()
-        plan.GetCurrent()
+        plan.get_current()
 
         plan.AddNewBeamSet(
             Name=plan_name,

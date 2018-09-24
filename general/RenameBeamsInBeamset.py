@@ -17,6 +17,7 @@
              load to read the same as other IO-Faults
     01.00.03 RAB Modified for new naming convention on plans and to add support for the
              field descriptions to be used for billing.
+    01.00.04 RAB Modified to include isocenter renaming.
 
     Known Issues:
 
@@ -40,7 +41,7 @@ __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2018-09-05'
 
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
