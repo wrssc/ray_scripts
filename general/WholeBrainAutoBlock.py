@@ -86,12 +86,12 @@ def main():
 
     # UW Inputs
     # If machines names change they need to be modified here:
-    user_inputs_machine_names = ['TrueBeamSTx', 'TrueBeam']
+    institution_inputs_machine_name = ['TrueBeamSTx', 'TrueBeam']
     # The s-frame object currently belongs to an examination on rando named: "CT 1"
     # if that changes the s-frame load will fail
-    user_inputs_support_structures_examination = 'CT 1'
-    user_inputs_support_structure_template = 'UW Support Structures'
-    user_inputs_source_roi_names = ['S-frame']
+    institution_inputs_support_structures_examination = "CT 1"
+    institution_inputs_support_structure_template = "UW Support Structures"
+    institution_inputs_source_roi_names = ['S-frame']
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current("Case")
@@ -181,7 +181,7 @@ def main():
                 'input1_plan_name': 'Brai_3DC_R0A0',
             },
             options={'input0_make_plan': ['Make Plan'],
-                     'input4_choose_machine': user_inputs_machine_names,
+                     'input4_choose_machine': institution_inputs_machine_name,
                      },
             required=['input2_number_fractions',
                       'input3_dose',
@@ -362,9 +362,9 @@ def main():
     # Load the S-frame into the current scan based on the structure template input above.
     try:
         case.PatientModel.CreateStructuresFromTemplate(
-            SourceTemplateName=user_inputs_support_structure_template,
-            SourceExaminationName=user_inputs_support_structures_examination,
-            SourceRoiNames=user_inputs_source_roi_names,
+            SourceTemplateName=institution_inputs_support_structure_template,
+            SourceExaminationName=institution_inputs_support_structures_examination,
+            SourceRoiNames=institution_inputs_source_roi_names,
             SourcePoiNames=[],
             AssociateStructuresByName=True,
             TargetExamination=examination,
@@ -372,7 +372,7 @@ def main():
         )
         status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
         connect.await_user_input('Ensure the s-frame is positioned correctly on the scan')
-    except SystemError:
+    except Exception:
         logging.warning('Support structure failed to load')
         status.next_step(text='S-frame failed to load. Load manually and continue script.')
         connect.await_user_input(
