@@ -544,7 +544,7 @@ def main():
                                            'z': 0.2})
         # Set the BTV type above to allow dose grid to cover
         case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
-        case.PatientModel.RegionsOfInterest['BTV'].OrganType = 'Target'
+        case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
         try:
             isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                 RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
