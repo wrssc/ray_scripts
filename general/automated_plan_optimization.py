@@ -358,7 +358,6 @@ def main():
     except KeyError:
         fluence_only = False
 
-
         #    try:
         #        if 'Perform Segment Weighted optimization' in optimization_dialog.values['input8_segment_weight']:
         OptParams = {
@@ -374,8 +373,12 @@ def main():
             'fluence_only': fluence_only,
             'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
 
+    optimize_plan(patient=Patient,
+                  case=case,
+                  plan=plan,
+                  beamset=beamset,
+                  **OptParams)
 
-optimize_plan(Patient, case, plan, beamset, **OptParams)
 
 if __name__ == '__main__':
     main()
