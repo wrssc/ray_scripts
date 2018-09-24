@@ -333,7 +333,7 @@ def main():
                  'input9_reduce_oar': ['Perform reduce OAR dose before completion']},
         options={
             'input1_fluence_only': ['Fluence calc'],
-            'input6_vary_dose_grid': ['Variable Dose Grid']
+            'input6_vary_dose_grid': ['Variable Dose Grid'],
             'input8_segment_weight': ['Perform Segment Weighted optimization'],
             'input9_reduce_oar': ['Perform reduce OAR dose before completion']},
         required=[])
