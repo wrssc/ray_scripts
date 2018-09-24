@@ -359,24 +359,23 @@ def main():
         fluence_only = False
 
 
-#    try:
-#        if 'Perform Segment Weighted optimization' in optimization_dialog.values['input8_segment_weight']:
-#            OptParams = {
-#                'InitialMaxIt': int(optimization_dialog.values['input2_cold_max_iteration']),
-#                'InitialIntIt': int(optimization_dialog.values['input3_cold_interm_iteration']),
-#                'SecondMaxIt': int(optimization_dialog.values['input4_ws_max_iteration']),
-#                'SecondIntIt': int(optimization_dialog.values['input5_ws_interm_iteration']),
-#                'vary_grid': vary_dose_grid,
-#                'DoseDim1': 0.45,
-#                'DoseDim2': 0.35,
-#                'DoseDim3': 0.35,
-#                'DoseDim4': 0.22,
-#                'fluence_only': fluence_only,
-#                'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
+        #    try:
+        #        if 'Perform Segment Weighted optimization' in optimization_dialog.values['input8_segment_weight']:
+        OptParams = {
+            'InitialMaxIt': int(optimization_dialog.values['input2_cold_max_iteration']),
+            'InitialIntIt': int(optimization_dialog.values['input3_cold_interm_iteration']),
+            'SecondMaxIt': int(optimization_dialog.values['input4_ws_max_iteration']),
+            'SecondIntIt': int(optimization_dialog.values['input5_ws_interm_iteration']),
+            'vary_grid': vary_dose_grid,
+            'DoseDim1': 0.45,
+            'DoseDim2': 0.35,
+            'DoseDim3': 0.35,
+            'DoseDim4': 0.22,
+            'fluence_only': fluence_only,
+            'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
 
 
-    optimize_plan(Patient, case, plan, beamset, **OptParams)
-
+optimize_plan(Patient, case, plan, beamset, **OptParams)
 
 if __name__ == '__main__':
     main()
