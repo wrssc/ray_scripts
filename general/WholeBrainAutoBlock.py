@@ -106,7 +106,6 @@ def main():
     # Capture the current list of POI's to avoid a crash
     pois = case.PatientModel.PointsOfInterest
 
-
     # Look for the sim point, if not create a point
     sim_point_found = any(poi.Name == 'SimFiducials' for poi in pois)
     if sim_point_found:
@@ -379,8 +378,6 @@ def main():
         connect.await_user_input(
             'S-frame failed to load. Ensure it is loaded and placed correctly then continue script')
 
-
-
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
         logging.debug('BTV_Brain not found, generating from expansion')
 
@@ -593,12 +590,12 @@ def main():
         isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
         isocenter_parameters['Name'] = "iso_" + plan_name
         isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
-        logging.debug('Isocenter chosen based on center of PTV_WB_xxxx.'+
-        'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
-            ptv_wb_xxxx_center['x'],
-            ptv_wb_xxxx_center['y'],
-            ptv_wb_xxxx_center['z'],
-            isocenter_parameters['Name']))
+        logging.debug('Isocenter chosen based on center of PTV_WB_xxxx.' +
+                      'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
+                          ptv_wb_xxxx_center['x'],
+                          ptv_wb_xxxx_center['y'],
+                          ptv_wb_xxxx_center['z'],
+                          isocenter_parameters['Name']))
 
         beamset.CreatePhotonBeam(Energy=6,
                                  IsocenterData=isocenter_parameters,
@@ -620,7 +617,7 @@ def main():
             beam.SetTreatOrProtectRoi(RoiName='Avoid')
 
         beamset.TreatAndProtect()
-#        beamset.TreatAndProtect(ShowProgress)
+        #        beamset.TreatAndProtect(ShowProgress)
 
         total_dose_string = str(int(total_dose))
         case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
