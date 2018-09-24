@@ -373,7 +373,7 @@ def main():
         )
         status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
         connect.await_user_input('Ensure the s-frame is positioned correctly on the scan')
-    except: SystemError
+    except SystemError:
         logging.warning('Support structure failed to load')
         status.next_step(text='S-frame failed to load. Load manually and continue script.')
         connect.await_user_input(
