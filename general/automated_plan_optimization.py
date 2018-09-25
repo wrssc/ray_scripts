@@ -112,6 +112,27 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
                 change_grid.append(0)
     return change_grid
 
+def reduce_oar_dose(plan_optimization):
+    targets = []
+    oars = []
+    print "Running Reduce OAR Optimization"
+    # Construct the currently used targets and regions at risk
+    for objective in plan_optimization.Objective.ConstituentFunctions:
+        if objective.OfDoseGridRoi.OfRoiGeometry.OfRoi.OrganData.OrganType == 'Target':
+            targets.append(objective.OfDoseGridRoi.OfRoiGeometry.OfRoi.Name)
+        else:
+            oars.append(objective.OfDoseGridRoi.OfRoiGeometry.OfRoi.Name)
+    for objs in targets:
+        print "targets found {}".format(objs)
+    for objs in oars:
+        print "oars found {}".format(objs)
+    plan_optimization.RunReduceOARDoseOptimization(
+        UseVoxelBasedMimickingForTargets=False,
+        UseVoxelBasedMimickingForOrgansAtRisk=False,
+        OrgansAtRiskToImprove=oars,
+        TargetsToMaintain=targets,
+        OrgansAtRiskToMaintain=oars
+    )
 
 def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     # Parameters used for iteration number
@@ -122,12 +143,16 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     vary_grid = optimization_inputs.get('vary_grid', False)
     # Grid Sizes
-    dose_dim1 = optimization_inputs.get('dose_dim1', 0.5)
-    dose_dim2 = optimization_inputs.get('dose_dim2', 0.4)
-    dose_dim3 = optimization_inputs.get('dose_dim3', 0.3)
-    dose_dim4 = optimization_inputs.get('dose_dim4', 0.2)
+    if vary_grid:
+        dose_dim1 = optimization_inputs.get('dose_dim1', 0.5)
+        dose_dim2 = optimization_inputs.get('dose_dim2', 0.4)
+        dose_dim3 = optimization_inputs.get('dose_dim3', 0.3)
+        dose_dim4 = optimization_inputs.get('dose_dim4', 0.2)
+
     maximum_iteration = optimization_inputs.get('NIterations', 12)
     fluence_only = optimization_inputs.get('fluence_only', False)
+    reset_beams = optimization_inputs.get('reset_beams', True)
+    reduce_oar = optimization_inputs.get('reduce_oar', True)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
 
     if vary_grid:
@@ -141,17 +166,19 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                           int(3 * maximum_iteration / 4),
                                           int(maximum_iteration - 1)]}
         change_dose_grid = make_variable_grid_list(maximum_iteration, variable_dose_grid)
+        print 'dose_dim1 =' + str(dose_dim1)
+        print 'dose_dim2=' + str(dose_dim2)
+        print 'dose_dim3=' + str(dose_dim3)
+        print 'dose_dim4=' + str(dose_dim4)
 
     print 'initial_maximum_iteration = ' + str(initial_maximum_iteration)
     print 'initial_intermediate_iteration =' + str(initial_intermediate_iteration)
     print 'second_maximum_iteration =' + str(second_maximum_iteration)
     print 'second_intermediate_iteration = ' + str(second_intermediate_iteration)
-    print 'dose_dim1 =' + str(dose_dim1)
-    print 'dose_dim2=' + str(dose_dim2)
-    print 'dose_dim3=' + str(dose_dim3)
-    print 'dose_dim4=' + str(dose_dim4)
     print 'maximum_iteration={}'.format(maximum_iteration)
     print 'Fluence only: {}'.format(fluence_only)
+    print 'Reset Beams: {}'.format(reset_beams)
+    print 'Reduce OARs: {}'.format(reduce_oar)
 
     # Making the variable status script, arguably move to main()
     #    status_steps = ['Initializing optimization']
@@ -197,24 +224,25 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             IndexNotFound = True
             OptIndex += 1
     # Found our index.  We will use a shorthand for the remainder of the code
-    plan_optimization = plan.PlanOptimizations[OptIndex].OptimizationParameters
+    plan_optimization = plan.PlanOptimizations[OptIndex]
+    plan_optimization_parameters = plan.PlanOptimizations[OptIndex].OptimizationParameters
 
     # Turn on important parameters
-    plan_optimization.DoseCalculation.ComputeFinalDose = True
+    plan_optimization_parameters.DoseCalculation.ComputeFinalDose = True
 
     # Turn off autoscale
     plan.PlanOptimizations[OptIndex].AutoScaleToPrescription = False
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
-    plan_optimization.Algorithm.OptimalityTolerance = 1e-12
-    plan_optimization.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
-    plan_optimization.DoseCalculation.IterationsInPreparationsPhase = initial_intermediate_iteration
+    plan_optimization_parameters.Algorithm.OptimalityTolerance = 1e-12
+    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
+    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = initial_intermediate_iteration
 
     # Try to Set the Gantry Spacing to 2 degrees
     # How many beams are there in this beamset
     # Set the control point spacing
-    treatment_setup_settings = plan_optimization.TreatmentSetupSettings[0]
+    treatment_setup_settings = plan_optimization_parameters.TreatmentSetupSettings[0]
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # while beamsinrange:
     #  try:
@@ -237,7 +265,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     #      beamsinrange = False
 
     # Reset
-    plan.PlanOptimizations[OptIndex].ResetOptimization()
+    if reset_beams:
+        plan.PlanOptimizations[OptIndex].ResetOptimization()
 
     if fluence_only:
         print 'User selected Fluence optimization Only'
@@ -245,41 +274,44 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing != 3:
                 beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=3)
         # Fluence only is the quick and dirty way of dialing in all necessary elements for the calc
-        plan_optimization.DoseCalculation.ComputeFinalDose = False
-        plan_optimization.Algorithm.MaxNumberOfIterations = 999
-        plan_optimization.DoseCalculation.IterationsInPreparationsPhase = 999
+        plan_optimization_parameters.DoseCalculation.ComputeFinalDose = False
+        plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 999
+        plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 999
         plan.PlanOptimizations[OptIndex].RunOptimization()
 
     else:
         for beams in treatment_setup_settings.BeamSettings:
-            if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
+            if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing == 2:
+                beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=4)
 
         while Optimization_Iteration != maximum_iteration:
             print 'Current iteration = {} of {}'.format(Optimization_Iteration, maximum_iteration)
             #            status.next_step(text='Iterating....')
 
-            print 'current value of change_dose_grid is {}'.format(change_dose_grid)
+
             # If the change_dose_grid list has a non-zero element change the dose grid
-            if change_dose_grid[Optimization_Iteration] != 0:
-                DoseDim = change_dose_grid[Optimization_Iteration]
-                plan.SetDefaultDoseGrid(
-                    VoxelSize={
-                        'x': DoseDim,
-                        'y': DoseDim,
-                        'z': DoseDim})
-                plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+            if vary_grid:
+                if change_dose_grid[Optimization_Iteration] != 0:
+                    print 'current value of change_dose_grid is {}'.format(change_dose_grid)
+                    DoseDim = change_dose_grid[Optimization_Iteration]
+                    plan.SetDefaultDoseGrid(
+                        VoxelSize={
+                            'x': DoseDim,
+                            'y': DoseDim,
+                            'z': DoseDim})
+                    plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
 
             plan.PlanOptimizations[OptIndex].RunOptimization()
             Optimization_Iteration += 1
             print "Optimization Number: {} completed".format(Optimization_Iteration)
             # Set the Maximum iterations and segmentation iteration to a lower number for the initial run
-            plan_optimization.Algorithm.MaxNumberOfIterations = second_maximum_iteration
-            plan_optimization.DoseCalculation.IterationsInPreparationsPhase = second_intermediate_iteration
+            plan_optimization_parameters.Algorithm.MaxNumberOfIterations = second_maximum_iteration
+            plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = second_intermediate_iteration
 
-    # Finish with a Reduce OAR Dose Optimization
-    print "Running Reduce OAR Optimization"
-    plan.PlanOptimizations[OptIndex].RunReduceOARDoseOptimization
+        # Finish with a Reduce OAR Dose Optimization
+        if reduce_oar:
+            reduce_oar_dose(plan_optimization=plan_optimization)
+
 
 
 def main():
@@ -310,7 +342,9 @@ def main():
     optimization_dialog = UserInterface.InputDialog(
         title='Optimization Inputs',
         inputs={
-            'input1_fluence_only': 'Fluence calculation only, for dialing in parameters',
+            'input1_fluence_only': 'Fluence calculation only, for dialing in parameters '+
+            'all other values in this window will be ignored',
+            'input1b_cold_start' : 'Reset beams (cold start)',
             'input2_cold_max_iteration': 'Maximum number of iterations for initial optimization',
             'input3_cold_interm_iteration': 'Intermediate iteration for svd to aperture conversion',
             'input4_ws_max_iteration': 'Maximum iteration used in warm starts ',
@@ -322,6 +356,7 @@ def main():
         datatype={
             'input6_vary_dose_grid': 'check',
             'input1_fluence_only': 'check',
+            'input1b_cold_start': 'check',
             'input8_segment_weight': 'check',
             'input9_reduce_oar': 'check'},
         initial={'input2_cold_max_iteration': '50',
@@ -333,6 +368,7 @@ def main():
                  'input9_reduce_oar': ['Perform reduce OAR dose before completion']},
         options={
             'input1_fluence_only': ['Fluence calc'],
+            'input1b_cold_start': ['Reset Beams'],
             'input6_vary_dose_grid': ['Variable Dose Grid'],
             'input8_segment_weight': ['Perform Segment Weighted optimization'],
             'input9_reduce_oar': ['Perform reduce OAR dose before completion']},
@@ -358,26 +394,46 @@ def main():
     except KeyError:
         fluence_only = False
 
+    # Despite a calculated beam, reset and start over
+    try:
+        if 'Reset Beams' in optimization_dialog.values['input1b_cold_start']:
+            reset_beams = True
+        else:
+            reset_beams = False
+    except KeyError:
+        reset_beams = False
+
+    # Despite a calculated beam, reset and start over
+    try:
+        if 'Perform reduce OAR dose before completion' in optimization_dialog.values['input9_reduce_oar']:
+            reduce_oar  = True
+        else:
+            reduce_oar = False
+    except KeyError:
+        reduce_oar = False
+
         #    try:
         #        if 'Perform Segment Weighted optimization' in optimization_dialog.values['input8_segment_weight']:
-        OptParams = {
-            'InitialMaxIt': int(optimization_dialog.values['input2_cold_max_iteration']),
-            'InitialIntIt': int(optimization_dialog.values['input3_cold_interm_iteration']),
-            'SecondMaxIt': int(optimization_dialog.values['input4_ws_max_iteration']),
-            'SecondIntIt': int(optimization_dialog.values['input5_ws_interm_iteration']),
-            'vary_grid': vary_dose_grid,
-            'DoseDim1': 0.45,
-            'DoseDim2': 0.35,
-            'DoseDim3': 0.35,
-            'DoseDim4': 0.22,
-            'fluence_only': fluence_only,
-            'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
+    optimization_inputs = {
+        'InitialMaxIt': int(optimization_dialog.values['input2_cold_max_iteration']),
+        'InitialIntIt': int(optimization_dialog.values['input3_cold_interm_iteration']),
+        'SecondMaxIt': int(optimization_dialog.values['input4_ws_max_iteration']),
+        'SecondIntIt': int(optimization_dialog.values['input5_ws_interm_iteration']),
+        'vary_grid': vary_dose_grid,
+        'DoseDim1': 0.45,
+        'DoseDim2': 0.35,
+        'DoseDim3': 0.35,
+        'DoseDim4': 0.22,
+        'fluence_only': fluence_only,
+        'reset_beams': reset_beams,
+        'reduce_oar': reduce_oar,
+        'NIterations': int(optimization_dialog.values['input7_n_iterations'])}
 
     optimize_plan(patient=Patient,
                   case=case,
                   plan=plan,
                   beamset=beamset,
-                  **OptParams)
+                  **optimization_inputs)
 
 
 if __name__ == '__main__':
