@@ -181,17 +181,27 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     print 'Reduce OARs: {}'.format(reduce_oar)
 
     # Making the variable status script, arguably move to main()
-    #    status_steps = ['Initializing optimization']
-    #    for i in range(maximum_iteration):
-    #        ith_step = 'Executing Iteration:' + str(i + 1)
-    #        status_steps.append([ith_step])
-    #    status_steps.append(['Reduce OAR Dose'])
+    status_steps = ['Initializing optimization']
+    # Update message for changing the dose grids. grid index will be used to update user
+    if vary_grid:
+        grid_update_number = 0
+    if reset_beams:
+        status_steps.append('Reset Beams')
+    for i in range(maximum_iteration):
+        if vary_grid:
+            if change_dose_grid(i) != 0:
+                grid_update_number += 1
+                status_steps.append('Changing dose grid to:{}'.format(change_dose_grid))
+        ith_step = 'Executing Iteration:' + str(i + 1)
+        status_steps.append([ith_step])
+    if reduce_oar:
+        status_steps.append(['Reduce OAR Dose'])
 
     # Change the status steps to indicate each iteration
-    #    status = UserInterface.ScriptStatus(
-    #        steps=status_steps,
-    #        docstring=__doc__,
-    #        help=__help__)
+        status = UserInterface.ScriptStatus(
+            steps=status_steps,
+            docstring=__doc__,
+            help=__help__)
 
     #    status.next_step(text='Setting optimization parameters, gantry spacing')
     logging.debug('Set some variables like Niterations, Nits={}'.format(maximum_iteration))
