@@ -242,7 +242,7 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
         logging.info("Time: Optimization (seconds): {}".format(
             time_total.total_seconds()))
         # Update screen message
-        on_screen_message += "Total time of the optimization was: {} seconds\n".format(
+        on_screen_message += "Total time of the optimization was: {} s\n".format(
             time_total.total_seconds())
     except KeyError:
         logging.debug("No total time available")
@@ -258,7 +258,7 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                 time_iteration_total = time_iteration_total + time_iteration_delta
                 logging.info("Time: Fluence-based optimization iteration {} (seconds): {}".format(
                     iteration, time_iteration_delta.total_seconds()))
-                on_screen_message += "Iteration {}: Time Required {} seconds\n".format(
+                on_screen_message += "Iteration {}: Time Required {} s\n".format(
                     iteration+1, time_iteration_delta.total_seconds())
         except KeyError:
             logging.debug("No fluence time list available")
@@ -274,11 +274,11 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                     time_iteration_total = time_iteration_total + time_iteration_delta
                     logging.info("Time: Aperture-based optimization iteration {} (seconds): {}".format(
                         iteration, time_iteration_delta.total_seconds()))
-                    on_screen_message += "Iteration {}: Time Required {} seconds\n".format(
+                    on_screen_message += "Iteration {}: Time Required {} s\n".format(
                         iteration+1, time_iteration_delta.total_seconds())
                 logging.info("Time: Total Aperture-based optimization (seconds): {}".format(
                     time_iteration_total.total_seconds()))
-                on_screen_message += "Total time spent in aperture-based optimization was: {} seconds\n".format(
+                on_screen_message += "Total time spent in aperture-based optimization was: {} s\n".format(
                     time_iteration_total.total_seconds())
             except KeyError:
                 logging.debug("No Aperture-based iteration list available")
@@ -295,7 +295,7 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                         grid_change, time_dose_grid_delta.total_seconds()))
                 logging.info("Time: Dose Grid changes (seconds): {}".format(
                     time_dose_grid.total_seconds()))
-                on_screen_message += "Total time of the dose grid changes was: {} seconds\n".format(
+                on_screen_message += "Total time of the dose grid changes was: {} s\n".format(
                     time_dose_grid.total_seconds())
             except KeyError:
                 logging.debug("Dose grid time changes not available")
@@ -307,7 +307,7 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                 time_segment_weight = time_segment_weight_final - time_segment_weight_initial
                 logging.info("Time: Segment Weight optimization (seconds): {}".format(
                     time_segment_weight.total_seconds()))
-                on_screen_message += "Total time of segment weight only was: {} seconds\n".format(
+                on_screen_message += "Total time of segment weight only was: {} s\n".format(
                     time_segment_weight.total_seconds())
             except KeyError:
                 logging.debug("No segment weight time available")
@@ -319,7 +319,7 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                 time_reduceoar = time_reduceoar_final - time_reduceoar_initial
                 logging.info("Time: ReduceOarDose (seconds): {}".format(
                     time_reduceoar.total_seconds()))
-                on_screen_message += "Total Time of Reduce OAR dose operation was: {} seconds\n".format(
+                on_screen_message += "Total Time of Reduce OAR dose operation was: {} s\n".format(
                     time_reduceoar.total_seconds())
             except KeyError:
                 logging.debug("No reduce OAR Dose time available")
@@ -657,6 +657,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         **report_inputs)
 
     status.next_step('Optimization summary')
+    frequency = 2500  # Set Frequency To 2500 Hertz
+    duration = 1000  # Set Duration To 1000 ms == 1 second
+    winsound.Beep(frequency, duration)
     status.finish(on_screen_message)
 
 
