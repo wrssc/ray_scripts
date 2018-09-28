@@ -92,7 +92,6 @@ import connect
 import UserInterface
 import datetime
 import sys
-import winsound
 
 
 def make_variable_grid_list(n_iterations, variable_dose_grid):
@@ -657,9 +656,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         **report_inputs)
 
     status.next_step('Optimization summary')
-    frequency = 2500  # Set Frequency To 2500 Hertz
-    duration = 1000  # Set Duration To 1000 ms == 1 second
-    winsound.Beep(frequency, duration)
     status.finish(on_screen_message)
 
 
