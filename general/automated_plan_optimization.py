@@ -92,6 +92,7 @@ import connect
 import UserInterface
 import datetime
 import sys
+import winsound
 
 
 def make_variable_grid_list(n_iterations, variable_dose_grid):
