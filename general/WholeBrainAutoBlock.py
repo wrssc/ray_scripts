@@ -114,7 +114,7 @@ def main():
         'External',
         'S-frame',
         'Avoid',
-        'AvoidFace',
+        'Avoid_Face',
         'Lens_R_PRV05',
         'Lens_L_PRV05',
         'BTV_Brain',
@@ -377,8 +377,8 @@ def main():
     # Load the S-frame into the current scan based on the structure template input above.
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
-        if not check_structure_exists(case=case, roi_list=rois, option='Check', structure_name='S-frame'):
-            logging.info('S-frame not found, bugging user')
+        if check_structure_exists(case=case, roi_list=rois, option='Check', structure_name='S-frame'):
+            logging.info('S-frame found, bugging user')
         else:
             support_template = patient_db.LoadTemplatePatientModel(
                 templateName=institution_inputs_support_structure_template,
