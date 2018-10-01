@@ -1,4 +1,4 @@
-""" Whole Brain AutoBlock
+""" Automated Plan - Whole Brain
 
     Creates the structures required for the auto-whole brain block.
     
@@ -18,6 +18,8 @@
             full import)
             Added functionality for making a plan, which TC is testing.
             Added automatic loading of couch along with a prompt to ask the user to move it.
+    1.0.2 Added features after Dose reviewed the automatic generation of the plans.
+          eliminated median dose prescription.  added 8.0 compliant language on the s-frame
   
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +37,7 @@
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '01-Feb-2018'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
@@ -65,7 +67,7 @@ def check_structure_exists(case, structure_name, roi_list, option):
                 'Contour {} Exists - Verify its accuracy and continue script'.format(structure_name))
         return True
     else:
-        logging.debug('Structure {} not found, and will be created'.format(structure_name))
+        logging.info('Structure {} not found, and will be created'.format(structure_name))
         return False
 
 
@@ -96,6 +98,7 @@ def main():
         patient = connect.get_current('Patient')
         case = connect.get_current("Case")
         examination = connect.get_current("Examination")
+        patient_db = connect.get_current('PatientDB')
     except:
         UserInterface.WarningBox('This script requires a patient, case, and exam to be loaded')
         sys.exit('This script requires a patient, case, and exam to be loaded')
@@ -106,6 +109,20 @@ def main():
     # Capture the current list of POI's to avoid a crash
     pois = case.PatientModel.PointsOfInterest
 
+    visible_structures = ['PTV_WB_xxxx', 'Lens_L', 'Lens_R']
+    invisible_stuctures = [
+        'Globe_L',
+        'Globe_R',
+        'External',
+        'S-frame',
+        'Avoid',
+        'Avoid_Face',
+        'Lens_R_PRV05',
+        'Lens_L_PRV05',
+        'BTV_Brain',
+        'BTV_Flash_20',
+        'BTV',
+        'Brain']
     # Look for the sim point, if not create a point
     sim_point_found = any(poi.Name == 'SimFiducials' for poi in pois)
     if sim_point_found:
@@ -268,7 +285,7 @@ def main():
             ThresholdLevel=-250)
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_L_PRV05'):
-        logging.debug('Lens_L_PRV05 not found, generating from expansion')
+        logging.info('Lens_L_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
         Name="Lens_L_PRV05",
@@ -292,7 +309,7 @@ def main():
 
     # The Lens_R prv will always be "remade"
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_R_PRV05'):
-        logging.debug('Lens_R_PRV05 not found, generating from expansion')
+        logging.info('Lens_R_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
         Name="Lens_R_PRV05",
@@ -316,7 +333,7 @@ def main():
         Algorithm="Auto")
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid'):
-        logging.debug('Avoid not found, generating from expansion')
+        logging.info('Avoid not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid",
                                 Color="255, 128, 128",
@@ -360,26 +377,36 @@ def main():
         Algorithm="Auto")
 
     # Load the S-frame into the current scan based on the structure template input above.
+    # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
-        case.PatientModel.CreateStructuresFromTemplate(
-            SourceTemplateName=institution_inputs_support_structure_template,
-            SourceExaminationName=institution_inputs_support_structures_examination,
-            SourceRoiNames=institution_inputs_source_roi_names,
-            SourcePoiNames=[],
-            AssociateStructuresByName=True,
-            TargetExamination=examination,
-            InitializationOption='AlignImageCenters'
-        )
+        if check_structure_exists(case=case, roi_list=rois, option='Check', structure_name='S-frame'):
+            logging.info('S-frame found, bugging user')
+        else:
+            support_template = patient_db.LoadTemplatePatientModel(
+                templateName=institution_inputs_support_structure_template,
+                lockMode='Read')
+
+            case.PatientModel.CreateStructuresFromTemplate(
+                SourceTemplate=support_template,
+                SourceExaminationName=institution_inputs_support_structures_examination,
+                SourceRoiNames=institution_inputs_source_roi_names,
+                SourcePoiNames=[],
+                AssociateStructuresByName=True,
+                TargetExamination=examination,
+                InitializationOption='AlignImageCenters'
+            )
         status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
         connect.await_user_input('Ensure the s-frame is positioned correctly on the scan')
     except Exception:
-        logging.warning('Support structure failed to load')
-        status.next_step(text='S-frame failed to load. Load manually and continue script.')
+        logging.warning('Support structure failed to load and was not found')
+        status.next_step(text='S-frame failed to load and was not found. ' +
+                              'Load manually and continue script.')
         connect.await_user_input(
-            'S-frame failed to load. Ensure it is loaded and placed correctly then continue script')
+            'S-frame failed to load and was not found. ' +
+            'Ensure it is loaded and placed correctly then continue script')
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
-        logging.debug('BTV_Brain not found, generating from expansion')
+        logging.info('BTV_Brain not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Ptv", TissueName=None,
                                 RbeCellTypeName=None, RoiMaterial=None)
@@ -402,7 +429,7 @@ def main():
     # This contour extends down 10 cm from the brain itself.  Once this is subtracted
     # from the brain - this will leave only the face
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid_Face'):
-        logging.debug('Avoid_Face not found, generating from expansion')
+        logging.info('Avoid_Face not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid_Face",
                                 Color="255, 128, 128",
@@ -427,7 +454,7 @@ def main():
     # BTV_Flash_20: a 2 cm expansion for flash except in the directions the MD's wish to have no flash
     # Per MD's flashed dimensions are superior, anterior, and posterior
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Flash_20'):
-        logging.debug('BTV_Flash_20 not found, generating from expansion')
+        logging.info('BTV_Flash_20 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="BTV_Flash_20",
                                 Color="128, 0, 64",
@@ -472,7 +499,7 @@ def main():
     # BTV: the block target volume.  It consists of the BTV_Brain, BTV_Flash_20 with no additional structures
     # We are going to make the BTV as a fixture if we are making a plan so that we can autoset the dose grid
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV'):
-        logging.debug('BTV not found, generating from expansion')
+        logging.info('BTV not found, generating from expansion')
 
     if make_plan:
         btv_temporary_type = "Fixation"
@@ -564,11 +591,10 @@ def main():
 
         beamset = plan.BeamSets[plan_name]
         patient.Save()
-        beamset.SetCurrent()
 
         beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-                                         DoseVolume=0,
-                                         PrescriptionType='MedianDose',
+                                         DoseVolume=80,
+                                         PrescriptionType='DoseAtVolume',
                                          DoseValue=total_dose,
                                          RelativePrescriptionLevel=1,
                                          AutoScaleDose=True)
@@ -582,7 +608,7 @@ def main():
             isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                 RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
         except Exception:
-            logging.debug('Aborting, could not locate center of PTV_WB_xxxx')
+            logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
             sys.exit
         ptv_wb_xxxx_center = {'x': isocenter_position.x,
                               'y': isocenter_position.y,
@@ -590,7 +616,7 @@ def main():
         isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
         isocenter_parameters['Name'] = "iso_" + plan_name
         isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
-        logging.debug('Isocenter chosen based on center of PTV_WB_xxxx.' +
+        logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
                       'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
                           ptv_wb_xxxx_center['x'],
                           ptv_wb_xxxx_center['y'],
@@ -620,6 +646,39 @@ def main():
         #        beamset.TreatAndProtect(ShowProgress)
 
         total_dose_string = str(int(total_dose))
+
+        patient.Save()
+        patient_id = patient.PatientID
+        case_name = case.CaseName
+        plan_name = plan.Name
+        beamset_name = beamset.DicomPlanLabel
+        info = patient_db.QueryPatientInfo(
+            Filter={'PatientID': patient_id},
+            UseIndexService=False)
+        try:
+            patient = patient_db.LoadPatient(PatientInfo=info[0])
+            case = patient.Cases[case_name]
+            case.SetCurrent()
+            plan = case.TreatmentPlans[plan_name]
+            plan.SetCurrent()
+            beamset = plan.BeamSets[beamset_name]
+            beamset.SetCurrent()
+        except:
+            logging.warning('Patient reload failed there may be something else wrong with this plan')
+            UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
+
+        for structure in visible_structures:
+            try:
+                patient.SetRoiVisibility(RoiName=structure,
+                                         IsVisible=True)
+            except:
+                logging.debug("Structure: {} was not found".format(structure))
+        for structure in invisible_stuctures:
+            try:
+                patient.SetRoiVisibility(RoiName=structure,
+                                         IsVisible=False)
+            except:
+                logging.debug("Structure: {} was not found".format(structure))
         case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
 
 
