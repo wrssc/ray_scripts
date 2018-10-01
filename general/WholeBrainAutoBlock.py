@@ -627,10 +627,24 @@ def main():
         total_dose_string = str(int(total_dose))
         case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
         patient.Save()
-        case.SetCurrent()
-        plan.SetCurrent()
-        beamset.SetCurrent()
-
+        patient_id = patient.PatientID
+        case_name = case.CaseName
+        plan_name = plan.Name
+        beamset_name = beamset.DicomPlanLabel
+        info = patient_db.QueryPatientInfo(
+            Filter={'PatientID':patient_id},
+            UseIndexService=False)
+        try:
+            patient = patient_db.LoadPatient(PatientInfo=info[0])
+            case = patient.Cases[case_name]
+            case.SetCurrent()
+            plan = case.TreatmentPlans[plan_name]
+            plan.SetCurrent()
+            beamset = plan.BeamSets[beamset_name]
+            beamset.SetCurrent()
+        except:
+            logging.debug('reload failed')
+            UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
 
 
 if __name__ == '__main__':
