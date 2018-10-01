@@ -570,10 +570,9 @@ def main():
 
         beamset = plan.BeamSets[plan_name]
         patient.Save()
-        beamset.SetCurrent()
 
         beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-                                         DoseVolume=95,
+                                         DoseVolume=80,
                                          PrescriptionType='DoseAtVolume',
                                          DoseValue=total_dose,
                                          RelativePrescriptionLevel=1,
@@ -627,6 +626,7 @@ def main():
 
         total_dose_string = str(int(total_dose))
         case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+        beamset.SetCurrent()
 
 
 if __name__ == '__main__':
