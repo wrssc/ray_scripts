@@ -640,11 +640,18 @@ def main():
 
         total_dose_string = str(int(total_dose))
         for structure in visible_structures:
-            patient.SetRoiVisibility(RoiName=structure,
-                                     IsVisible=True)
+            try:
+                patient.SetRoiVisibility(RoiName=structure,
+                                         IsVisible=True)
+            except:
+                logging.debug("Structure: {} was not found".format(structure))
         for structure in invisible_stuctures:
-            patient.SetRoiVisibility(RoiName=structure,
-                                     IsVisible=False)
+            try:
+                patient.SetRoiVisibility(RoiName=structure,
+                                         IsVisible=False)
+            except:
+                logging.debug("Structure: {} was not found".format(structure))
+
         case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
         patient.Save()
         patient_id = patient.PatientID
@@ -652,7 +659,7 @@ def main():
         plan_name = plan.Name
         beamset_name = beamset.DicomPlanLabel
         info = patient_db.QueryPatientInfo(
-            Filter={'PatientID':patient_id},
+            Filter={'PatientID': patient_id},
             UseIndexService=False)
         try:
             patient = patient_db.LoadPatient(PatientInfo=info[0])
