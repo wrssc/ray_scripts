@@ -1,4 +1,4 @@
-""" Whole Brain AutoBlock
+""" Automated Plan - Whole Brain
 
     Creates the structures required for the auto-whole brain block.
     
@@ -18,6 +18,8 @@
             full import)
             Added functionality for making a plan, which TC is testing.
             Added automatic loading of couch along with a prompt to ask the user to move it.
+    1.0.2 Added features after Dose reviewed the automatic generation of the plans.
+          eliminated median dose prescription.  added 8.0 compliant language on the s-frame
   
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -35,7 +37,7 @@
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '01-Feb-2018'
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
