@@ -361,8 +361,12 @@ def main():
 
     # Load the S-frame into the current scan based on the structure template input above.
     try:
+        support_template = patient_db.LoadTemplatePatientModel(
+            templateName=institution_inputs_support_structure_template,
+            lockMode='Read')
+
         case.PatientModel.CreateStructuresFromTemplate(
-            SourceTemplateName=institution_inputs_support_structure_template,
+            SourceTemplate=support_template,
             SourceExaminationName=institution_inputs_support_structures_examination,
             SourceRoiNames=institution_inputs_source_roi_names,
             SourcePoiNames=[],
@@ -567,8 +571,8 @@ def main():
         beamset.SetCurrent()
 
         beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-                                         DoseVolume=0,
-                                         PrescriptionType='MedianDose',
+                                         DoseVolume=95,
+                                         PrescriptionType='DoseAtVolume',
                                          DoseValue=total_dose,
                                          RelativePrescriptionLevel=1,
                                          AutoScaleDose=True)
