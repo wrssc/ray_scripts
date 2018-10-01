@@ -96,6 +96,7 @@ def main():
         patient = connect.get_current('Patient')
         case = connect.get_current("Case")
         examination = connect.get_current("Examination")
+        patient_db = connect.get_current('PatientDB')
     except:
         UserInterface.WarningBox('This script requires a patient, case, and exam to be loaded')
         sys.exit('This script requires a patient, case, and exam to be loaded')
@@ -360,6 +361,7 @@ def main():
         Algorithm="Auto")
 
     # Load the S-frame into the current scan based on the structure template input above.
+    # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
         support_template = patient_db.LoadTemplatePatientModel(
             templateName=institution_inputs_support_structure_template,
