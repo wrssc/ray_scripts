@@ -626,7 +626,8 @@ def main():
 
         total_dose_string = str(int(total_dose))
         case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
-        ##beamset.SetCurrent()
+        plan.SetCurrent()
+        beamset.SetCurrent()
 
 
 if __name__ == '__main__':
