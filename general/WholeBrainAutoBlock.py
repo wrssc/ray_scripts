@@ -569,7 +569,7 @@ def main():
             RespiratorySignalSource="Disabled")
 
         beamset = plan.BeamSets[plan_name]
-        ##patient.Save()
+        patient.Save()
 
         beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
                                          DoseVolume=80,
