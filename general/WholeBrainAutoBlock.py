@@ -65,7 +65,7 @@ def check_structure_exists(case, structure_name, roi_list, option):
                 'Contour {} Exists - Verify its accuracy and continue script'.format(structure_name))
         return True
     else:
-        logging.debug('Structure {} not found, and will be created'.format(structure_name))
+        logging.info('Structure {} not found, and will be created'.format(structure_name))
         return False
 
 
@@ -112,7 +112,7 @@ def main():
         'Globe_L',
         'Globe_R',
         'External',
-        'Couch',
+        'S-frame',
         'Avoid',
         'AvoidFace',
         'Lens_R_PRV05',
@@ -283,7 +283,7 @@ def main():
             ThresholdLevel=-250)
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_L_PRV05'):
-        logging.debug('Lens_L_PRV05 not found, generating from expansion')
+        logging.info('Lens_L_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
         Name="Lens_L_PRV05",
@@ -307,7 +307,7 @@ def main():
 
     # The Lens_R prv will always be "remade"
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_R_PRV05'):
-        logging.debug('Lens_R_PRV05 not found, generating from expansion')
+        logging.info('Lens_R_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
         Name="Lens_R_PRV05",
@@ -331,7 +331,7 @@ def main():
         Algorithm="Auto")
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid'):
-        logging.debug('Avoid not found, generating from expansion')
+        logging.info('Avoid not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid",
                                 Color="255, 128, 128",
@@ -377,29 +377,34 @@ def main():
     # Load the S-frame into the current scan based on the structure template input above.
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
-        support_template = patient_db.LoadTemplatePatientModel(
-            templateName=institution_inputs_support_structure_template,
-            lockMode='Read')
+        if not check_structure_exists(case=case, roi_list=rois, option='Check', structure_name='S-frame'):
+            logging.info('S-frame not found, bugging user')
+        else:
+            support_template = patient_db.LoadTemplatePatientModel(
+                templateName=institution_inputs_support_structure_template,
+                lockMode='Read')
 
-        case.PatientModel.CreateStructuresFromTemplate(
-            SourceTemplate=support_template,
-            SourceExaminationName=institution_inputs_support_structures_examination,
-            SourceRoiNames=institution_inputs_source_roi_names,
-            SourcePoiNames=[],
-            AssociateStructuresByName=True,
-            TargetExamination=examination,
-            InitializationOption='AlignImageCenters'
-        )
+            case.PatientModel.CreateStructuresFromTemplate(
+                SourceTemplate=support_template,
+                SourceExaminationName=institution_inputs_support_structures_examination,
+                SourceRoiNames=institution_inputs_source_roi_names,
+                SourcePoiNames=[],
+                AssociateStructuresByName=True,
+                TargetExamination=examination,
+                InitializationOption='AlignImageCenters'
+            )
         status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
         connect.await_user_input('Ensure the s-frame is positioned correctly on the scan')
     except Exception:
-        logging.warning('Support structure failed to load')
-        status.next_step(text='S-frame failed to load. Load manually and continue script.')
+        logging.warning('Support structure failed to load and was not found')
+        status.next_step(text='S-frame failed to load and was not found. ' +
+                              'Load manually and continue script.')
         connect.await_user_input(
-            'S-frame failed to load. Ensure it is loaded and placed correctly then continue script')
+            'S-frame failed to load and was not found. ' +
+            'Ensure it is loaded and placed correctly then continue script')
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
-        logging.debug('BTV_Brain not found, generating from expansion')
+        logging.info('BTV_Brain not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Ptv", TissueName=None,
                                 RbeCellTypeName=None, RoiMaterial=None)
@@ -422,7 +427,7 @@ def main():
     # This contour extends down 10 cm from the brain itself.  Once this is subtracted
     # from the brain - this will leave only the face
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid_Face'):
-        logging.debug('Avoid_Face not found, generating from expansion')
+        logging.info('Avoid_Face not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid_Face",
                                 Color="255, 128, 128",
@@ -447,7 +452,7 @@ def main():
     # BTV_Flash_20: a 2 cm expansion for flash except in the directions the MD's wish to have no flash
     # Per MD's flashed dimensions are superior, anterior, and posterior
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Flash_20'):
-        logging.debug('BTV_Flash_20 not found, generating from expansion')
+        logging.info('BTV_Flash_20 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="BTV_Flash_20",
                                 Color="128, 0, 64",
@@ -492,7 +497,7 @@ def main():
     # BTV: the block target volume.  It consists of the BTV_Brain, BTV_Flash_20 with no additional structures
     # We are going to make the BTV as a fixture if we are making a plan so that we can autoset the dose grid
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV'):
-        logging.debug('BTV not found, generating from expansion')
+        logging.info('BTV not found, generating from expansion')
 
     if make_plan:
         btv_temporary_type = "Fixation"
@@ -601,7 +606,7 @@ def main():
             isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                 RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
         except Exception:
-            logging.debug('Aborting, could not locate center of PTV_WB_xxxx')
+            logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
             sys.exit
         ptv_wb_xxxx_center = {'x': isocenter_position.x,
                               'y': isocenter_position.y,
@@ -609,7 +614,7 @@ def main():
         isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
         isocenter_parameters['Name'] = "iso_" + plan_name
         isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
-        logging.debug('Isocenter chosen based on center of PTV_WB_xxxx.' +
+        logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
                       'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
                           ptv_wb_xxxx_center['x'],
                           ptv_wb_xxxx_center['y'],
@@ -639,20 +644,7 @@ def main():
         #        beamset.TreatAndProtect(ShowProgress)
 
         total_dose_string = str(int(total_dose))
-        for structure in visible_structures:
-            try:
-                patient.SetRoiVisibility(RoiName=structure,
-                                         IsVisible=True)
-            except:
-                logging.debug("Structure: {} was not found".format(structure))
-        for structure in invisible_stuctures:
-            try:
-                patient.SetRoiVisibility(RoiName=structure,
-                                         IsVisible=False)
-            except:
-                logging.debug("Structure: {} was not found".format(structure))
 
-        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
         patient.Save()
         patient_id = patient.PatientID
         case_name = case.CaseName
@@ -670,8 +662,22 @@ def main():
             beamset = plan.BeamSets[beamset_name]
             beamset.SetCurrent()
         except:
-            logging.debug('reload failed')
+            logging.warning('Patient reload failed there may be something else wrong with this plan')
             UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
+
+        for structure in visible_structures:
+            try:
+                patient.SetRoiVisibility(RoiName=structure,
+                                         IsVisible=True)
+            except:
+                logging.debug("Structure: {} was not found".format(structure))
+        for structure in invisible_stuctures:
+            try:
+                patient.SetRoiVisibility(RoiName=structure,
+                                         IsVisible=False)
+            except:
+                logging.debug("Structure: {} was not found".format(structure))
+        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
 
 
 if __name__ == '__main__':
