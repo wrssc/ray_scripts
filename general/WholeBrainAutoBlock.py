@@ -107,6 +107,20 @@ def main():
     # Capture the current list of POI's to avoid a crash
     pois = case.PatientModel.PointsOfInterest
 
+    visible_structures = ['PTV_WB_xxxx', 'Lens_L', 'Lens_R']
+    invisible_stuctures = [
+        'Globe_L',
+        'Globe_R',
+        'External',
+        'Couch',
+        'Avoid',
+        'AvoidFace',
+        'Lens_R_PRV05',
+        'Lens_L_PRV05',
+        'BTV_Brain',
+        'BTV_Flash_20',
+        'BTV',
+        'Brain']
     # Look for the sim point, if not create a point
     sim_point_found = any(poi.Name == 'SimFiducials' for poi in pois)
     if sim_point_found:
@@ -625,6 +639,12 @@ def main():
         #        beamset.TreatAndProtect(ShowProgress)
 
         total_dose_string = str(int(total_dose))
+        for structure in visible_structures:
+            patient.SetRoiVisibility(RoiName=structure,
+                                     IsVisible=True)
+        for structure in invisible_stuctures:
+            patient.SetRoiVisibility(RoiName=structure,
+                                     IsVisible=False)
         case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
         patient.Save()
         patient_id = patient.PatientID
