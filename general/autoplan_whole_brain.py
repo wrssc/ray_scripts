@@ -396,7 +396,6 @@ def main():
                 InitializationOption='AlignImageCenters'
             )
         status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
-        connect.await_user_input('Ensure the s-frame is positioned correctly on the scan')
     except Exception:
         logging.warning('Support structure failed to load and was not found')
         status.next_step(text='S-frame failed to load and was not found. ' +
