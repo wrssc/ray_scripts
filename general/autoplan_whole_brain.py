@@ -578,7 +578,7 @@ def main():
             TreatmentTechnique="Conformal",
             PatientPosition="HeadFirstSupine",
             NumberOfFractions=number_of_fractions,
-            CreateSetupBeams=True,
+            CreateSetupBeams=False,
             UseLocalizationPointAsSetupIsocenter=False,
             Comment="",
             RbeModelReference=None,
