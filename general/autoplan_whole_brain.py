@@ -646,25 +646,25 @@ def main():
 
         total_dose_string = str(int(total_dose))
 
-        patient.Save()
-        patient_id = patient.PatientID
-        case_name = case.CaseName
-        plan_name = plan.Name
-        beamset_name = beamset.DicomPlanLabel
-        info = patient_db.QueryPatientInfo(
-            Filter={'PatientID': patient_id},
-            UseIndexService=False)
-        try:
-            patient = patient_db.LoadPatient(PatientInfo=info[0])
-            case = patient.Cases[case_name]
-            case.SetCurrent()
-            plan = case.TreatmentPlans[plan_name]
-            plan.SetCurrent()
-            beamset = plan.BeamSets[beamset_name]
-            beamset.SetCurrent()
-        except:
-            logging.warning('Patient reload failed there may be something else wrong with this plan')
-            UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
+        ## patient.Save()
+       ##  patient_id = patient.PatientID
+       ##  case_name = case.CaseName
+      ##   plan_name = plan.Name
+      ##   beamset_name = beamset.DicomPlanLabel
+     ##    info = patient_db.QueryPatientInfo(
+     ##        Filter={'PatientID': patient_id},
+     ##        UseIndexService=False)
+     ##    try:
+     ##        patient = patient_db.LoadPatient(PatientInfo=info[0])
+      ##       case = patient.Cases[case_name]
+     ##        case.SetCurrent()
+     ##        plan = case.TreatmentPlans[plan_name]
+     ##        plan.SetCurrent()
+     ##        beamset = plan.BeamSets[beamset_name]
+     ##        beamset.SetCurrent()
+    ##     except:
+    ##         logging.warning('Patient reload failed there may be something else wrong with this plan')
+     ##        UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
 
         for structure in visible_structures:
             try:
