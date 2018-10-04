@@ -561,6 +561,21 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
+    # Change visibility of structures
+    for s in visible_structures:
+        try:
+            patient.SetRoiVisibility(RoiName=s,
+                                     IsVisible=True)
+        except:
+            logging.debug("Structure: {} was not found".format(s))
+
+    for s in invisible_stuctures:
+        try:
+            patient.SetRoiVisibility(RoiName=s,
+                                     IsVisible=False)
+        except:
+            logging.debug("Structure: {} was not found".format(s))
+
     if make_plan:
         plan_names = [plan_name,'backup_r1a0']
         # RS 8: plan_names = [plan_name]
@@ -669,23 +684,17 @@ def main():
                 ComputeDoses=True,
                 DoseAlgorithm="CCDose",
                 ForceRecompute=False)
+            try:
+                ui = connect.get_current('ui')
+                ui.TitleBar.MenuItem['PlanEvaluation'].Click()
+            except:
+                logging.debug("Could not click on the plan evaluation MenuItem")
+
+    # Rename PTV per convention
     total_dose_string = str(int(total_dose))
     case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
 
-    # Change visibility of structures
-    for s in visible_structures:
-        try:
-            patient.SetRoiVisibility(RoiName=s,
-                                     IsVisible=True)
-        except:
-            logging.debug("Structure: {} was not found".format(s))
 
-    for s in invisible_stuctures:
-        try:
-            patient.SetRoiVisibility(RoiName=s,
-                                     IsVisible=False)
-        except:
-            logging.debug("Structure: {} was not found".format(s))
 
 
 if __name__ == '__main__':
