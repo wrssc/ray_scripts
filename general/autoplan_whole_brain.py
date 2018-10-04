@@ -410,6 +410,8 @@ def main():
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
         logging.info('BTV_Brain not found, generating from expansion')
 
+    status.next_step(text='Building planning structures')
+
     case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Ptv", TissueName=None,
                                 RbeCellTypeName=None, RoiMaterial=None)
     case.PatientModel.RegionsOfInterest['BTV_Brain'].ExcludeFromExport = True
@@ -600,12 +602,12 @@ def main():
                                              DoseValue=total_dose,
                                              RelativePrescriptionLevel=1,
                                              AutoScaleDose=True)
-            plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
-                                               'y': 0.2,
-                                               'z': 0.2})
             # Set the BTV type above to allow dose grid to cover
             case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
             case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
+            plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
+                                               'y': 0.2,
+                                               'z': 0.2})
             try:
                 isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                     RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
@@ -644,8 +646,7 @@ def main():
                 beam.SetTreatOrProtectRoi(RoiName='BTV')
                 beam.SetTreatOrProtectRoi(RoiName='Avoid')
 
-            beamset.TreatAndProtect()
-            #        beamset.TreatAndProtect(ShowProgress)
+            beamset.TreatAndProtect(ShowProgress=True)
 
     total_dose_string = str(int(total_dose))
     case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
