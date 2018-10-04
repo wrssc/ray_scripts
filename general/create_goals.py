@@ -22,6 +22,7 @@ import connect
 import Goals
 import UserInterface
 
+
 def main():
     protocol_folder = r'../protocols/UW_Approved'
     file_name = 'SampleGoal.xml'
@@ -41,5 +42,6 @@ def main():
         print 'Adding goal ' + Goals.print_goal(g, 'xml')
         Goals.add_goal(g, connect.get_current('Plan'))
 
-if __name__= '__main__':
+
+if __name__ == '__main__':
     main()
