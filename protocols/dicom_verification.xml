@@ -1,0 +1,44 @@
+<protocol>
+    <name>DICOM Export Test</name>
+    <plan>
+        <plan_name>HFS_DICOM_Export</plan_name>
+        <plan_comment>Head First Supine Dicom Export Verification"</plan_comment>
+        <plan_examination_name>HFS</plan_examination_name>
+        <beam_set>
+            <beam_set_name>HFS_MeV_3DC_TB</beam_set_name>
+            <examination_name>HFS</examination_name>
+            <machine_name>TrueBeam</machine_name>
+            <modality>Photons</modality>
+            <treatment_technique>Conformal</treatment_technique>
+            <patient_position>HeadFirstSupine</patient_position>
+            <number_of_fractions>5</number_of_fractions>
+            <beam_set_comment>3D Validation plan for DICOM Export - TrueBeam</beam_set_comment>
+            <beam_set_roi_dose_prescription>
+                <roi_name>PTV1</roi_name>
+                <dose_volume>95</dose_volume>
+                <prescription_type>DoseAtVolume</prescription_type>
+                <dose_value>2500</dose_value>
+                <relative_prescription_level>1</relative_prescription_level>
+                <autoscale_dose>True</autoscale_dose>
+            </beam_set_roi_dose_prescription>
+        </beam_set>
+        <beam_set>
+            <beam_set_name>HFS_MV_VMA_TB</beam_set_name>
+            <examination_name>HFS</examination_name>
+            <machine_name>TrueBeam</machine_name>
+            <modality>Photons</modality>
+            <treatment_technique>VMAT</treatment_technique>
+            <patient_position>HeadFirstSupine</patient_position>
+            <number_of_fractions>5</number_of_fractions>
+            <beam_set_comment>VMAT Validation plan for DICOM Export - TrueBeam</beam_set_comment>
+            <beam_set_roi_dose_prescription>
+                <roi_name>PTV1</roi_name>
+                <dose_volume>95</dose_volume>
+                <prescription_type>DoseAtVolume</prescription_type>
+                <dose_value>2500</dose_value>
+                <relative_prescription_level>1</relative_prescription_level>
+                <autoscale_dose>True</autoscale_dose>
+            </beam_set_roi_dose_prescription>
+        </beam_set>
+    </plan>
+</protocol>
