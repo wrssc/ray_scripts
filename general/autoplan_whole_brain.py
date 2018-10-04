@@ -179,44 +179,146 @@ def main():
     status.next_step(text="Complete plan information - check the TPO for doses " +
                           "and ARIA for the treatment machine")
     # This dialog grabs the relevant parameters to generate the whole brain plan
-    make_plan = True
+    input_dialog = UserInterface.InputDialog(
+        inputs={
+            'input0_make_plan': 'Create the RayStation Plan',
+            'input1_plan_name': 'Enter the Plan Name, typically Brai_3DC_R0A0',
+            'input2_number_fractions': 'Enter the number of fractions',
+            'input3_dose': 'Enter total dose in cGy',
+            'input4_choose_machine': 'Choose Treatment Machine'
+        },
+        title='Whole Brain Plan Input',
+        datatype={'input0_make_plan': 'check',
+                  'input4_choose_machine': 'combo'
+                  },
+        initial={
+            'input0_make_plan': ['Make Plan'],
+            'input1_plan_name': 'Brai_3DC_R0A0',
+        },
+        options={'input0_make_plan': ['Make Plan'],
+                 'input4_choose_machine': institution_inputs_machine_name,
+                 },
+        required=['input2_number_fractions',
+                  'input3_dose',
+                  'input4_choose_machine'])
+
+    # Launch the dialog
+    print input_dialog.show()
+
+    # Parse the outputs
+    # User selected that they want a plan-stub made
+    if 'Make Plan' in input_dialog.values['input0_make_plan']:
+        make_plan = True
+    else:
+        make_plan = False
+    plan_name = input_dialog.values['input1_plan_name']
+    number_of_fractions = float(input_dialog.values['input2_number_fractions'])
+    total_dose = float(input_dialog.values['input3_dose'])
+    plan_machine = input_dialog.values['input4_choose_machine']
+
     if make_plan:
-        input_dialog = UserInterface.InputDialog(
-            inputs={
-                'input0_make_plan': 'Create the RayStation Plan',
-                'input1_plan_name': 'Enter the Plan Name, typically Brai_3DC_R0A0',
-                'input2_number_fractions': 'Enter the number of fractions',
-                'input3_dose': 'Enter total dose in cGy',
-                'input4_choose_machine': 'Choose Treatment Machine'
-            },
-            title='Whole Brain Plan Input',
-            datatype={'input0_make_plan': 'check',
-                      'input4_choose_machine': 'combo'
-                      },
-            initial={
-                'input0_make_plan': ['Make Plan'],
-                'input1_plan_name': 'Brai_3DC_R0A0',
-            },
-            options={'input0_make_plan': ['Make Plan'],
-                     'input4_choose_machine': institution_inputs_machine_name,
-                     },
-            required=['input2_number_fractions',
-                      'input3_dose',
-                      'input4_choose_machine'])
+        patient.Save()
 
-        # Launch the dialog
-        print input_dialog.show()
+        try:
+            case.AddNewPlan(
+                PlanName=plan_name,
+                PlannedBy="",
+                Comment="",
+                ExaminationName=examination.Name,
+                AllowDuplicateNames=False)
 
-        # Parse the outputs
-        # User selected that they want a plan-stub made
-        if 'Make Plan' in input_dialog.values['input0_make_plan']:
-            make_plan = True
-        else:
-            make_plan = False
-        plan_name = input_dialog.values['input1_plan_name']
-        number_of_fractions = float(input_dialog.values['input2_number_fractions'])
-        total_dose = float(input_dialog.values['input3_dose'])
-        plan_machine = input_dialog.values['input4_choose_machine']
+        except Exception:
+            plan_name = plan_name + str(random.randint(1, 999))
+            case.AddNewPlan(
+                PlanName=plan_name,
+                PlannedBy="",
+                Comment="",
+                ExaminationName=examination.Name,
+                AllowDuplicateNames=False)
+        patient.Save()
+
+        plan = case.TreatmentPlans[plan_name]
+        plan.SetCurrent()
+        connect.get_current('Plan')
+
+        plan.AddNewBeamSet(
+            Name=plan_name,
+            ExaminationName=examination.Name,
+            MachineName=plan_machine,
+            Modality="Photons",
+            TreatmentTechnique="Conformal",
+            PatientPosition="HeadFirstSupine",
+            NumberOfFractions=number_of_fractions,
+            CreateSetupBeams=False,
+            UseLocalizationPointAsSetupIsocenter=False,
+            Comment="",
+            RbeModelReference=None,
+            EnableDynamicTrackingForVero=False,
+            NewDoseSpecificationPointNames=[],
+            NewDoseSpecificationPoints=[],
+            RespiratoryMotionCompensationTechnique="Disabled",
+            RespiratorySignalSource="Disabled")
+
+        beamset = plan.BeamSets[plan_name]
+        patient.Save()
+
+        beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
+                                         DoseVolume=80,
+                                         PrescriptionType='DoseAtVolume',
+                                         DoseValue=total_dose,
+                                         RelativePrescriptionLevel=1,
+                                         AutoScaleDose=True)
+        plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
+                                           'y': 0.2,
+                                           'z': 0.2})
+        # Set the BTV type above to allow dose grid to cover
+        case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
+        case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
+        try:
+            isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
+                RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
+        except Exception:
+            logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
+            sys.exit
+        ptv_wb_xxxx_center = {'x': isocenter_position.x,
+                              'y': isocenter_position.y,
+                              'z': isocenter_position.z}
+        isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
+        isocenter_parameters['Name'] = "iso_" + plan_name
+        isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
+        logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
+                     'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
+                         ptv_wb_xxxx_center['x'],
+                         ptv_wb_xxxx_center['y'],
+                         ptv_wb_xxxx_center['z'],
+                         isocenter_parameters['Name']))
+
+        beamset.CreatePhotonBeam(Energy=6,
+                                 IsocenterData=isocenter_parameters,
+                                 Name='1_Brai_g270c355',
+                                 Description='1 3DC: MLC Static Field',
+                                 GantryAngle=270.0,
+                                 CouchAngle=355,
+                                 CollimatorAngle=0)
+
+        beamset.CreatePhotonBeam(Energy=6,
+                                 IsocenterData=isocenter_parameters,
+                                 Name='2_Brai_g090c005',
+                                 Description='2 3DC: MLC Static Field',
+                                 GantryAngle=90,
+                                 CouchAngle=5,
+                                 CollimatorAngle=0)
+        for beam in beamset.Beams:
+            beam.SetTreatOrProtectRoi(RoiName='BTV')
+            beam.SetTreatOrProtectRoi(RoiName='Avoid')
+
+        beamset.TreatAndProtect()
+        #        beamset.TreatAndProtect(ShowProgress)
+
+        total_dose_string = str(int(total_dose))
+        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+
+        ## patient.Save()
 
     status.next_step(text="Regions at risk will be created including Globes, Lenses, and Brain.")
     brain_exists = check_structure_exists(case=case,
@@ -545,108 +647,7 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
-    if make_plan:
-        patient.Save()
 
-        try:
-            case.AddNewPlan(
-                PlanName=plan_name,
-                PlannedBy="",
-                Comment="",
-                ExaminationName=examination.Name,
-                AllowDuplicateNames=False)
-
-        except Exception:
-            plan_name = plan_name + str(random.randint(1, 999))
-            case.AddNewPlan(
-                PlanName=plan_name,
-                PlannedBy="",
-                Comment="",
-                ExaminationName=examination.Name,
-                AllowDuplicateNames=False)
-        patient.Save()
-
-        plan = case.TreatmentPlans[plan_name]
-        plan.SetCurrent()
-        connect.get_current('Plan')
-
-        plan.AddNewBeamSet(
-            Name=plan_name,
-            ExaminationName=examination.Name,
-            MachineName=plan_machine,
-            Modality="Photons",
-            TreatmentTechnique="Conformal",
-            PatientPosition="HeadFirstSupine",
-            NumberOfFractions=number_of_fractions,
-            CreateSetupBeams=False,
-            UseLocalizationPointAsSetupIsocenter=False,
-            Comment="",
-            RbeModelReference=None,
-            EnableDynamicTrackingForVero=False,
-            NewDoseSpecificationPointNames=[],
-            NewDoseSpecificationPoints=[],
-            RespiratoryMotionCompensationTechnique="Disabled",
-            RespiratorySignalSource="Disabled")
-
-        beamset = plan.BeamSets[plan_name]
-        patient.Save()
-
-        beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-                                         DoseVolume=80,
-                                         PrescriptionType='DoseAtVolume',
-                                         DoseValue=total_dose,
-                                         RelativePrescriptionLevel=1,
-                                         AutoScaleDose=True)
-        plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
-                                           'y': 0.2,
-                                           'z': 0.2})
-        # Set the BTV type above to allow dose grid to cover
-        case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
-        case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
-        try:
-            isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
-                RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
-        except Exception:
-            logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
-            sys.exit
-        ptv_wb_xxxx_center = {'x': isocenter_position.x,
-                              'y': isocenter_position.y,
-                              'z': isocenter_position.z}
-        isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
-        isocenter_parameters['Name'] = "iso_" + plan_name
-        isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
-        logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
-                      'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
-                          ptv_wb_xxxx_center['x'],
-                          ptv_wb_xxxx_center['y'],
-                          ptv_wb_xxxx_center['z'],
-                          isocenter_parameters['Name']))
-
-        beamset.CreatePhotonBeam(Energy=6,
-                                 IsocenterData=isocenter_parameters,
-                                 Name='1_Brai_g270c355',
-                                 Description='1 3DC: MLC Static Field',
-                                 GantryAngle=270.0,
-                                 CouchAngle=355,
-                                 CollimatorAngle=0)
-
-        beamset.CreatePhotonBeam(Energy=6,
-                                 IsocenterData=isocenter_parameters,
-                                 Name='2_Brai_g090c005',
-                                 Description='2 3DC: MLC Static Field',
-                                 GantryAngle=90,
-                                 CouchAngle=5,
-                                 CollimatorAngle=0)
-        for beam in beamset.Beams:
-            beam.SetTreatOrProtectRoi(RoiName='BTV')
-            beam.SetTreatOrProtectRoi(RoiName='Avoid')
-
-        beamset.TreatAndProtect()
-        #        beamset.TreatAndProtect(ShowProgress)
-
-        total_dose_string = str(int(total_dose))
-
-        ## patient.Save()
        ##  patient_id = patient.PatientID
        ##  case_name = case.CaseName
       ##   plan_name = plan.Name
@@ -666,19 +667,18 @@ def main():
     ##         logging.warning('Patient reload failed there may be something else wrong with this plan')
      ##        UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
 
-        for structure in visible_structures:
-            try:
-                patient.SetRoiVisibility(RoiName=structure,
-                                         IsVisible=True)
-            except:
-                logging.debug("Structure: {} was not found".format(structure))
-        for structure in invisible_stuctures:
-            try:
-                patient.SetRoiVisibility(RoiName=structure,
-                                         IsVisible=False)
-            except:
-                logging.debug("Structure: {} was not found".format(structure))
-        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+    for structure in visible_structures:
+        try:
+            patient.SetRoiVisibility(RoiName=structure,
+                                     IsVisible=True)
+        except:
+            logging.debug("Structure: {} was not found".format(structure))
+    for structure in invisible_stuctures:
+        try:
+            patient.SetRoiVisibility(RoiName=structure,
+                                     IsVisible=False)
+        except:
+            logging.debug("Structure: {} was not found".format(structure))
 
 
 if __name__ == '__main__':
