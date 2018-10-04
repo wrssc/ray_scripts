@@ -315,8 +315,6 @@ def main():
         beamset.TreatAndProtect()
         #        beamset.TreatAndProtect(ShowProgress)
 
-        total_dose_string = str(int(total_dose))
-        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
 
         ## patient.Save()
 
@@ -667,6 +665,8 @@ def main():
     ##         logging.warning('Patient reload failed there may be something else wrong with this plan')
      ##        UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
 
+    total_dose_string = str(int(total_dose))
+    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
     for structure in visible_structures:
         try:
             patient.SetRoiVisibility(RoiName=structure,
