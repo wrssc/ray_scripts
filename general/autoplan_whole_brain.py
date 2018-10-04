@@ -551,7 +551,7 @@ def main():
         Algorithm="Auto")
 
     if make_plan:
-        plan_names = [plan_name,'Brai_3DC_mdrevised']
+        plan_names = [plan_name,'backup_r1a0']
         patient.Save()
         for p in plan_names:
             try:
@@ -647,7 +647,9 @@ def main():
                 beam.SetTreatOrProtectRoi(RoiName='Avoid')
 
             beamset.TreatAndProtect(ShowProgress=True)
-
+            plan_name_regex = '^'+plan_names[0]+'$'
+            plan_information = case.QueryPlanInfo(Filter={'Name': plan_name_regex})
+            case.LoadPlan(PlanInfo=plan_information[0])
     total_dose_string = str(int(total_dose))
     case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
        ##  patient_id = patient.PatientID
