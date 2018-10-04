@@ -675,20 +675,21 @@ def main():
                 beam.SetTreatOrProtectRoi(RoiName='Avoid')
 
             beamset.TreatAndProtect(ShowProgress=True)
-            # RS 8 delete next three lines
-            plan_name_regex = '^'+plan_names[0]+'$'
-            plan_information = case.QueryPlanInfo(Filter={'Name': plan_name_regex})
-            case.LoadPlan(PlanInfo=plan_information[0])
             # Compute the dose
             beamset.ComputeDose(
                 ComputeBeamDoses=True,
                 DoseAlgorithm="CCDose",
                 ForceRecompute=False)
-            try:
-                ui = connect.get_current('ui')
-                ui.TitleBar.MenuItem['PlanEvaluation'].Click()
-            except:
-                logging.debug("Could not click on the plan evaluation MenuItem")
+
+        # RS 8 delete next three lines
+        plan_name_regex = '^'+plan_names[0]+'$'
+        plan_information = case.QueryPlanInfo(Filter={'Name': plan_name_regex})
+        case.LoadPlan(PlanInfo=plan_information[0])
+        try:
+            ui = connect.get_current('ui')
+            ui.TitleBar.MenuItem['PlanEvaluation'].Click()
+        except:
+            logging.debug("Could not click on the plan evaluation MenuItem")
 
     # Rename PTV per convention
     total_dose_string = str(int(total_dose))
