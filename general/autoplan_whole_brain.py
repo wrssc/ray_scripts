@@ -10,6 +10,9 @@
     How To Use: After insertion of S-frame this script is run to generate the blocking 
                 structures for a whole brain plan
 
+    TODO: Add a better module for creating the brain
+    TODO: Get rid of the second plan - it is only for correcting the GUI and can be dumped in
+            RS8
 
     Validation Notes: 
     
@@ -20,6 +23,8 @@
             Added automatic loading of couch along with a prompt to ask the user to move it.
     1.0.2 Added features after Dose reviewed the automatic generation of the plans.
           eliminated median dose prescription.  added 8.0 compliant language on the s-frame
+    1.0.3 Added a secondary plan feature to correct the RS7 GUI bug that does not update the
+            gui if the first plan is created with a script.
   
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -141,6 +146,7 @@ def main():
         status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
         connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
 
+    # Generate the target based on an MBS brain contour
     status.next_step(text="The PTV_WB_xxxx target is being generated")
     if not check_structure_exists(case=case, structure_name='PTV_WB_xxxx', roi_list=rois, option='Check'):
         case.PatientModel.MBSAutoInitializer(
@@ -176,6 +182,7 @@ def main():
 
     connect.await_user_input('Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
 
+    # Get some user data
     status.next_step(text="Complete plan information - check the TPO for doses " +
                           "and ARIA for the treatment machine")
     # This dialog grabs the relevant parameters to generate the whole brain plan
@@ -221,6 +228,7 @@ def main():
 
         ## patient.Save()
 
+    # MBS generate the globes. Manually draw lenses
     status.next_step(text="Regions at risk will be created including Globes, Lenses, and Brain.")
     brain_exists = check_structure_exists(case=case,
                                           structure_name='Brain',
@@ -379,6 +387,8 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
+    #S - frame loading
+    status.next_step(text="Roi contouring complete, loading patient immobilization.")
     # Load the S-frame into the current scan based on the structure template input above.
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
@@ -407,6 +417,7 @@ def main():
             'S-frame failed to load and was not found. ' +
             'Ensure it is loaded and placed correctly then continue script')
 
+    # Creating planning structures for treatment and protect
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
         logging.info('BTV_Brain not found, generating from expansion')
 
@@ -552,7 +563,9 @@ def main():
 
     if make_plan:
         plan_names = [plan_name,'backup_r1a0']
+        # RS 8: plan_names = [plan_name]
         patient.Save()
+        # RS 8: eliminate for loop
         for p in plan_names:
             try:
                 case.AddNewPlan(
@@ -647,42 +660,32 @@ def main():
                 beam.SetTreatOrProtectRoi(RoiName='Avoid')
 
             beamset.TreatAndProtect(ShowProgress=True)
+            # RS 8 delete next three lines
             plan_name_regex = '^'+plan_names[0]+'$'
             plan_information = case.QueryPlanInfo(Filter={'Name': plan_name_regex})
             case.LoadPlan(PlanInfo=plan_information[0])
+            # Compute the dose
+            beamset.ComputeDose(
+                ComputeDoses=True,
+                DoseAlgorithm="CCDose",
+                ForceRecompute=False)
     total_dose_string = str(int(total_dose))
     case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
-       ##  patient_id = patient.PatientID
-       ##  case_name = case.CaseName
-      ##   plan_name = plan.Name
-      ##   beamset_name = beamset.DicomPlanLabel
-     ##    info = patient_db.QueryPatientInfo(
-     ##        Filter={'PatientID': patient_id},
-     ##        UseIndexService=False)
-     ##    try:
-     ##        patient = patient_db.LoadPatient(PatientInfo=info[0])
-      ##       case = patient.Cases[case_name]
-     ##        case.SetCurrent()
-     ##        plan = case.TreatmentPlans[plan_name]
-     ##        plan.SetCurrent()
-     ##        beamset = plan.BeamSets[beamset_name]
-     ##        beamset.SetCurrent()
-    ##     except:
-    ##         logging.warning('Patient reload failed there may be something else wrong with this plan')
-     ##        UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
 
-    for structure in visible_structures:
+    # Change visibility of structures
+    for s in visible_structures:
         try:
-            patient.SetRoiVisibility(RoiName=structure,
+            patient.SetRoiVisibility(RoiName=s,
                                      IsVisible=True)
         except:
-            logging.debug("Structure: {} was not found".format(structure))
-    for structure in invisible_stuctures:
+            logging.debug("Structure: {} was not found".format(s))
+
+    for s in invisible_stuctures:
         try:
-            patient.SetRoiVisibility(RoiName=structure,
+            patient.SetRoiVisibility(RoiName=s,
                                      IsVisible=False)
         except:
-            logging.debug("Structure: {} was not found".format(structure))
+            logging.debug("Structure: {} was not found".format(s))
 
 
 if __name__ == '__main__':
