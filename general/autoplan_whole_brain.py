@@ -216,104 +216,7 @@ def main():
     total_dose = float(input_dialog.values['input3_dose'])
     plan_machine = input_dialog.values['input4_choose_machine']
 
-    if make_plan:
-        patient.Save()
 
-        try:
-            case.AddNewPlan(
-                PlanName=plan_name,
-                PlannedBy="",
-                Comment="",
-                ExaminationName=examination.Name,
-                AllowDuplicateNames=False)
-
-        except Exception:
-            plan_name = plan_name + str(random.randint(1, 999))
-            case.AddNewPlan(
-                PlanName=plan_name,
-                PlannedBy="",
-                Comment="",
-                ExaminationName=examination.Name,
-                AllowDuplicateNames=False)
-        patient.Save()
-
-        plan = case.TreatmentPlans[plan_name]
-        plan.SetCurrent()
-        connect.get_current('Plan')
-
-        plan.AddNewBeamSet(
-            Name=plan_name,
-            ExaminationName=examination.Name,
-            MachineName=plan_machine,
-            Modality="Photons",
-            TreatmentTechnique="Conformal",
-            PatientPosition="HeadFirstSupine",
-            NumberOfFractions=number_of_fractions,
-            CreateSetupBeams=False,
-            UseLocalizationPointAsSetupIsocenter=False,
-            Comment="",
-            RbeModelReference=None,
-            EnableDynamicTrackingForVero=False,
-            NewDoseSpecificationPointNames=[],
-            NewDoseSpecificationPoints=[],
-            RespiratoryMotionCompensationTechnique="Disabled",
-            RespiratorySignalSource="Disabled")
-
-        beamset = plan.BeamSets[plan_name]
-        patient.Save()
-
-        beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-                                         DoseVolume=80,
-                                         PrescriptionType='DoseAtVolume',
-                                         DoseValue=total_dose,
-                                         RelativePrescriptionLevel=1,
-                                         AutoScaleDose=True)
-        plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
-                                           'y': 0.2,
-                                           'z': 0.2})
-        # Set the BTV type above to allow dose grid to cover
-        case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
-        case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
-        try:
-            isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
-                RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
-        except Exception:
-            logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
-            sys.exit
-        ptv_wb_xxxx_center = {'x': isocenter_position.x,
-                              'y': isocenter_position.y,
-                              'z': isocenter_position.z}
-        isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
-        isocenter_parameters['Name'] = "iso_" + plan_name
-        isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
-        logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
-                     'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
-                         ptv_wb_xxxx_center['x'],
-                         ptv_wb_xxxx_center['y'],
-                         ptv_wb_xxxx_center['z'],
-                         isocenter_parameters['Name']))
-
-        beamset.CreatePhotonBeam(Energy=6,
-                                 IsocenterData=isocenter_parameters,
-                                 Name='1_Brai_g270c355',
-                                 Description='1 3DC: MLC Static Field',
-                                 GantryAngle=270.0,
-                                 CouchAngle=355,
-                                 CollimatorAngle=0)
-
-        beamset.CreatePhotonBeam(Energy=6,
-                                 IsocenterData=isocenter_parameters,
-                                 Name='2_Brai_g090c005',
-                                 Description='2 3DC: MLC Static Field',
-                                 GantryAngle=90,
-                                 CouchAngle=5,
-                                 CollimatorAngle=0)
-        for beam in beamset.Beams:
-            beam.SetTreatOrProtectRoi(RoiName='BTV')
-            beam.SetTreatOrProtectRoi(RoiName='Avoid')
-
-        beamset.TreatAndProtect()
-        #        beamset.TreatAndProtect(ShowProgress)
 
 
         ## patient.Save()
@@ -645,7 +548,107 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
+    if make_plan:
+        patient.Save()
 
+        try:
+            case.AddNewPlan(
+                PlanName=plan_name,
+                PlannedBy="",
+                Comment="",
+                ExaminationName=examination.Name,
+                AllowDuplicateNames=False)
+
+        except Exception:
+            plan_name = plan_name + str(random.randint(1, 999))
+            case.AddNewPlan(
+                PlanName=plan_name,
+                PlannedBy="",
+                Comment="",
+                ExaminationName=examination.Name,
+                AllowDuplicateNames=False)
+        patient.Save()
+
+        plan = case.TreatmentPlans[plan_name]
+        plan.SetCurrent()
+        connect.get_current('Plan')
+
+        plan.AddNewBeamSet(
+            Name=plan_name,
+            ExaminationName=examination.Name,
+            MachineName=plan_machine,
+            Modality="Photons",
+            TreatmentTechnique="Conformal",
+            PatientPosition="HeadFirstSupine",
+            NumberOfFractions=number_of_fractions,
+            CreateSetupBeams=False,
+            UseLocalizationPointAsSetupIsocenter=False,
+            Comment="",
+            RbeModelReference=None,
+            EnableDynamicTrackingForVero=False,
+            NewDoseSpecificationPointNames=[],
+            NewDoseSpecificationPoints=[],
+            RespiratoryMotionCompensationTechnique="Disabled",
+            RespiratorySignalSource="Disabled")
+
+        beamset = plan.BeamSets[plan_name]
+        patient.Save()
+
+        beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
+                                         DoseVolume=80,
+                                         PrescriptionType='DoseAtVolume',
+                                         DoseValue=total_dose,
+                                         RelativePrescriptionLevel=1,
+                                         AutoScaleDose=True)
+        plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
+                                           'y': 0.2,
+                                           'z': 0.2})
+        # Set the BTV type above to allow dose grid to cover
+        case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
+        case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
+        try:
+            isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
+                RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
+        except Exception:
+            logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
+            sys.exit
+        ptv_wb_xxxx_center = {'x': isocenter_position.x,
+                              'y': isocenter_position.y,
+                              'z': isocenter_position.z}
+        isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
+        isocenter_parameters['Name'] = "iso_" + plan_name
+        isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
+        logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
+                     'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
+                         ptv_wb_xxxx_center['x'],
+                         ptv_wb_xxxx_center['y'],
+                         ptv_wb_xxxx_center['z'],
+                         isocenter_parameters['Name']))
+
+        beamset.CreatePhotonBeam(Energy=6,
+                                 IsocenterData=isocenter_parameters,
+                                 Name='1_Brai_g270c355',
+                                 Description='1 3DC: MLC Static Field',
+                                 GantryAngle=270.0,
+                                 CouchAngle=355,
+                                 CollimatorAngle=0)
+
+        beamset.CreatePhotonBeam(Energy=6,
+                                 IsocenterData=isocenter_parameters,
+                                 Name='2_Brai_g090c005',
+                                 Description='2 3DC: MLC Static Field',
+                                 GantryAngle=90,
+                                 CouchAngle=5,
+                                 CollimatorAngle=0)
+        for beam in beamset.Beams:
+            beam.SetTreatOrProtectRoi(RoiName='BTV')
+            beam.SetTreatOrProtectRoi(RoiName='Avoid')
+
+        beamset.TreatAndProtect()
+        #        beamset.TreatAndProtect(ShowProgress)
+
+    total_dose_string = str(int(total_dose))
+    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
        ##  patient_id = patient.PatientID
        ##  case_name = case.CaseName
       ##   plan_name = plan.Name
@@ -665,8 +668,6 @@ def main():
     ##         logging.warning('Patient reload failed there may be something else wrong with this plan')
      ##        UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
 
-    total_dose_string = str(int(total_dose))
-    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
     for structure in visible_structures:
         try:
             patient.SetRoiVisibility(RoiName=structure,
