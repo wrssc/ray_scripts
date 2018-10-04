@@ -681,7 +681,7 @@ def main():
             case.LoadPlan(PlanInfo=plan_information[0])
             # Compute the dose
             beamset.ComputeDose(
-                ComputeDoses=True,
+                ComputeBeamDoses=True,
                 DoseAlgorithm="CCDose",
                 ForceRecompute=False)
             try:
