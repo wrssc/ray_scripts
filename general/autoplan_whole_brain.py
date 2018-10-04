@@ -577,6 +577,12 @@ def main():
             logging.debug("Structure: {} was not found".format(s))
 
     if make_plan:
+        try:
+            ui = connect.get_current('ui')
+            ui.TitleBar.MenuItem['Plan Design'].Button_Plan_Design.Click()
+        except:
+            logging.debug("Could not click on the plan Design MenuItem")
+
         plan_names = [plan_name,'backup_r1a0']
         # RS 8: plan_names = [plan_name]
         patient.Save()
@@ -687,7 +693,7 @@ def main():
         case.LoadPlan(PlanInfo=plan_information[0])
         try:
             ui = connect.get_current('ui')
-            ui.TitleBar.MenuItem['PlanEvaluation'].Click()
+            ui.TitleBar.MenuItem['Plan Evaluation'].Button_Plan_Evaluation.Click()
         except:
             logging.debug("Could not click on the plan evaluation MenuItem")
 
