@@ -10,6 +10,9 @@
     How To Use: After insertion of S-frame this script is run to generate the blocking 
                 structures for a whole brain plan
 
+    TODO: Add a better module for creating the brain
+    TODO: Get rid of the second plan - it is only for correcting the GUI and can be dumped in
+            RS8
 
     Validation Notes: 
     
@@ -20,6 +23,8 @@
             Added automatic loading of couch along with a prompt to ask the user to move it.
     1.0.2 Added features after Dose reviewed the automatic generation of the plans.
           eliminated median dose prescription.  added 8.0 compliant language on the s-frame
+    1.0.3 Added a secondary plan feature to correct the RS7 GUI bug that does not update the
+            gui if the first plan is created with a script.
   
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -141,6 +146,7 @@ def main():
         status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
         connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
 
+    # Generate the target based on an MBS brain contour
     status.next_step(text="The PTV_WB_xxxx target is being generated")
     if not check_structure_exists(case=case, structure_name='PTV_WB_xxxx', roi_list=rois, option='Check'):
         case.PatientModel.MBSAutoInitializer(
@@ -176,48 +182,53 @@ def main():
 
     connect.await_user_input('Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
 
+    # Get some user data
     status.next_step(text="Complete plan information - check the TPO for doses " +
                           "and ARIA for the treatment machine")
     # This dialog grabs the relevant parameters to generate the whole brain plan
-    make_plan = True
-    if make_plan:
-        input_dialog = UserInterface.InputDialog(
-            inputs={
-                'input0_make_plan': 'Create the RayStation Plan',
-                'input1_plan_name': 'Enter the Plan Name, typically Brai_3DC_R0A0',
-                'input2_number_fractions': 'Enter the number of fractions',
-                'input3_dose': 'Enter total dose in cGy',
-                'input4_choose_machine': 'Choose Treatment Machine'
-            },
-            title='Whole Brain Plan Input',
-            datatype={'input0_make_plan': 'check',
-                      'input4_choose_machine': 'combo'
-                      },
-            initial={
-                'input0_make_plan': ['Make Plan'],
-                'input1_plan_name': 'Brai_3DC_R0A0',
-            },
-            options={'input0_make_plan': ['Make Plan'],
-                     'input4_choose_machine': institution_inputs_machine_name,
-                     },
-            required=['input2_number_fractions',
-                      'input3_dose',
-                      'input4_choose_machine'])
+    input_dialog = UserInterface.InputDialog(
+        inputs={
+            'input0_make_plan': 'Create the RayStation Plan',
+            'input1_plan_name': 'Enter the Plan Name, typically Brai_3DC_R0A0',
+            'input2_number_fractions': 'Enter the number of fractions',
+            'input3_dose': 'Enter total dose in cGy',
+            'input4_choose_machine': 'Choose Treatment Machine'
+        },
+        title='Whole Brain Plan Input',
+        datatype={'input0_make_plan': 'check',
+                  'input4_choose_machine': 'combo'
+                  },
+        initial={
+            'input0_make_plan': ['Make Plan'],
+            'input1_plan_name': 'Brai_3DC_R0A0',
+        },
+        options={'input0_make_plan': ['Make Plan'],
+                 'input4_choose_machine': institution_inputs_machine_name,
+                 },
+        required=['input2_number_fractions',
+                  'input3_dose',
+                  'input4_choose_machine'])
 
-        # Launch the dialog
-        print input_dialog.show()
+    # Launch the dialog
+    print input_dialog.show()
 
-        # Parse the outputs
-        # User selected that they want a plan-stub made
-        if 'Make Plan' in input_dialog.values['input0_make_plan']:
-            make_plan = True
-        else:
-            make_plan = False
-        plan_name = input_dialog.values['input1_plan_name']
-        number_of_fractions = float(input_dialog.values['input2_number_fractions'])
-        total_dose = float(input_dialog.values['input3_dose'])
-        plan_machine = input_dialog.values['input4_choose_machine']
+    # Parse the outputs
+    # User selected that they want a plan-stub made
+    if 'Make Plan' in input_dialog.values['input0_make_plan']:
+        make_plan = True
+    else:
+        make_plan = False
+    plan_name = input_dialog.values['input1_plan_name']
+    number_of_fractions = float(input_dialog.values['input2_number_fractions'])
+    total_dose = float(input_dialog.values['input3_dose'])
+    plan_machine = input_dialog.values['input4_choose_machine']
 
+
+
+
+        ## patient.Save()
+
+    # MBS generate the globes. Manually draw lenses
     status.next_step(text="Regions at risk will be created including Globes, Lenses, and Brain.")
     brain_exists = check_structure_exists(case=case,
                                           structure_name='Brain',
@@ -376,6 +387,8 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
+    #S - frame loading
+    status.next_step(text="Roi contouring complete, loading patient immobilization.")
     # Load the S-frame into the current scan based on the structure template input above.
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
@@ -396,7 +409,6 @@ def main():
                 InitializationOption='AlignImageCenters'
             )
         status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
-        connect.await_user_input('Ensure the s-frame is positioned correctly on the scan')
     except Exception:
         logging.warning('Support structure failed to load and was not found')
         status.next_step(text='S-frame failed to load and was not found. ' +
@@ -405,8 +417,11 @@ def main():
             'S-frame failed to load and was not found. ' +
             'Ensure it is loaded and placed correctly then continue script')
 
+    # Creating planning structures for treatment and protect
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
         logging.info('BTV_Brain not found, generating from expansion')
+
+    status.next_step(text='Building planning structures')
 
     case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Ptv", TissueName=None,
                                 RbeCellTypeName=None, RoiMaterial=None)
@@ -546,140 +561,147 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
-    if make_plan:
-        patient.Save()
-
+    # Change visibility of structures
+    for s in visible_structures:
         try:
-            case.AddNewPlan(
-                PlanName=plan_name,
-                PlannedBy="",
-                Comment="",
-                ExaminationName=examination.Name,
-                AllowDuplicateNames=False)
-
-        except Exception:
-            plan_name = plan_name + str(random.randint(1, 999))
-            case.AddNewPlan(
-                PlanName=plan_name,
-                PlannedBy="",
-                Comment="",
-                ExaminationName=examination.Name,
-                AllowDuplicateNames=False)
-        patient.Save()
-
-        plan = case.TreatmentPlans[plan_name]
-        plan.SetCurrent()
-        connect.get_current('Plan')
-
-        plan.AddNewBeamSet(
-            Name=plan_name,
-            ExaminationName=examination.Name,
-            MachineName=plan_machine,
-            Modality="Photons",
-            TreatmentTechnique="Conformal",
-            PatientPosition="HeadFirstSupine",
-            NumberOfFractions=number_of_fractions,
-            CreateSetupBeams=True,
-            UseLocalizationPointAsSetupIsocenter=False,
-            Comment="",
-            RbeModelReference=None,
-            EnableDynamicTrackingForVero=False,
-            NewDoseSpecificationPointNames=[],
-            NewDoseSpecificationPoints=[],
-            RespiratoryMotionCompensationTechnique="Disabled",
-            RespiratorySignalSource="Disabled")
-
-        beamset = plan.BeamSets[plan_name]
-        patient.Save()
-
-        beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-                                         DoseVolume=80,
-                                         PrescriptionType='DoseAtVolume',
-                                         DoseValue=total_dose,
-                                         RelativePrescriptionLevel=1,
-                                         AutoScaleDose=True)
-        plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
-                                           'y': 0.2,
-                                           'z': 0.2})
-        # Set the BTV type above to allow dose grid to cover
-        case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
-        case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
-        try:
-            isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
-                RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
-        except Exception:
-            logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
-            sys.exit
-        ptv_wb_xxxx_center = {'x': isocenter_position.x,
-                              'y': isocenter_position.y,
-                              'z': isocenter_position.z}
-        isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
-        isocenter_parameters['Name'] = "iso_" + plan_name
-        isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
-        logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
-                      'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
-                          ptv_wb_xxxx_center['x'],
-                          ptv_wb_xxxx_center['y'],
-                          ptv_wb_xxxx_center['z'],
-                          isocenter_parameters['Name']))
-
-        beamset.CreatePhotonBeam(Energy=6,
-                                 IsocenterData=isocenter_parameters,
-                                 Name='1_Brai_g270c355',
-                                 Description='1 3DC: MLC Static Field',
-                                 GantryAngle=270.0,
-                                 CouchAngle=355,
-                                 CollimatorAngle=0)
-
-        beamset.CreatePhotonBeam(Energy=6,
-                                 IsocenterData=isocenter_parameters,
-                                 Name='2_Brai_g090c005',
-                                 Description='2 3DC: MLC Static Field',
-                                 GantryAngle=90,
-                                 CouchAngle=5,
-                                 CollimatorAngle=0)
-        for beam in beamset.Beams:
-            beam.SetTreatOrProtectRoi(RoiName='BTV')
-            beam.SetTreatOrProtectRoi(RoiName='Avoid')
-
-        beamset.TreatAndProtect()
-        #        beamset.TreatAndProtect(ShowProgress)
-
-        total_dose_string = str(int(total_dose))
-
-        patient.Save()
-        patient_id = patient.PatientID
-        case_name = case.CaseName
-        plan_name = plan.Name
-        beamset_name = beamset.DicomPlanLabel
-        info = patient_db.QueryPatientInfo(
-            Filter={'PatientID': patient_id},
-            UseIndexService=False)
-        try:
-            patient = patient_db.LoadPatient(PatientInfo=info[0])
-            case = patient.Cases[case_name]
-            case.SetCurrent()
-            plan = case.TreatmentPlans[plan_name]
-            plan.SetCurrent()
-            beamset = plan.BeamSets[beamset_name]
-            beamset.SetCurrent()
+            patient.SetRoiVisibility(RoiName=s,
+                                     IsVisible=True)
         except:
-            logging.warning('Patient reload failed there may be something else wrong with this plan')
-            UserInterface.WarningBox('Patient Reload failed, reload patient and review created plan')
+            logging.debug("Structure: {} was not found".format(s))
 
-        for structure in visible_structures:
+    for s in invisible_stuctures:
+        try:
+            patient.SetRoiVisibility(RoiName=s,
+                                     IsVisible=False)
+        except:
+            logging.debug("Structure: {} was not found".format(s))
+
+    if make_plan:
+        try:
+            ui = connect.get_current('ui')
+            ui.TitleBar.MenuItem['Plan Design'].Button_Plan_Design.Click()
+        except:
+            logging.debug("Could not click on the plan Design MenuItem")
+
+        plan_names = [plan_name,'backup_r1a0']
+        # RS 8: plan_names = [plan_name]
+        patient.Save()
+        # RS 8: eliminate for loop
+        for p in plan_names:
             try:
-                patient.SetRoiVisibility(RoiName=structure,
-                                         IsVisible=True)
-            except:
-                logging.debug("Structure: {} was not found".format(structure))
-        for structure in invisible_stuctures:
+                case.AddNewPlan(
+                    PlanName=p,
+                    PlannedBy="",
+                    Comment="",
+                    ExaminationName=examination.Name,
+                    AllowDuplicateNames=False)
+            except Exception:
+                plan_name = p + str(random.randint(1, 999))
+                case.AddNewPlan(
+                    PlanName=p,
+                    PlannedBy="",
+                    Comment="",
+                    ExaminationName=examination.Name,
+                    AllowDuplicateNames=False)
+            patient.Save()
+
+            plan = case.TreatmentPlans[p]
+            plan.SetCurrent()
+            connect.get_current('Plan')
+
+            plan.AddNewBeamSet(
+                Name=p,
+                ExaminationName=examination.Name,
+                MachineName=plan_machine,
+                Modality="Photons",
+                TreatmentTechnique="Conformal",
+                PatientPosition="HeadFirstSupine",
+                NumberOfFractions=number_of_fractions,
+                CreateSetupBeams=False,
+                UseLocalizationPointAsSetupIsocenter=False,
+                Comment="",
+                RbeModelReference=None,
+                EnableDynamicTrackingForVero=False,
+                NewDoseSpecificationPointNames=[],
+                NewDoseSpecificationPoints=[],
+                RespiratoryMotionCompensationTechnique="Disabled",
+                RespiratorySignalSource="Disabled")
+
+            beamset = plan.BeamSets[p]
+            patient.Save()
+
+            beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
+                                             DoseVolume=80,
+                                             PrescriptionType='DoseAtVolume',
+                                             DoseValue=total_dose,
+                                             RelativePrescriptionLevel=1,
+                                             AutoScaleDose=True)
+            # Set the BTV type above to allow dose grid to cover
+            case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
+            case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
+            plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
+                                               'y': 0.2,
+                                               'z': 0.2})
             try:
-                patient.SetRoiVisibility(RoiName=structure,
-                                         IsVisible=False)
-            except:
-                logging.debug("Structure: {} was not found".format(structure))
-        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+                isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
+                    RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
+            except Exception:
+                logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
+                sys.exit
+            ptv_wb_xxxx_center = {'x': isocenter_position.x,
+                                  'y': isocenter_position.y,
+                                  'z': isocenter_position.z}
+            isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
+            isocenter_parameters['Name'] = "iso_" + plan_name
+            isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
+            logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
+                         'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
+                             ptv_wb_xxxx_center['x'],
+                             ptv_wb_xxxx_center['y'],
+                             ptv_wb_xxxx_center['z'],
+                             isocenter_parameters['Name']))
+
+            beamset.CreatePhotonBeam(Energy=6,
+                                     IsocenterData=isocenter_parameters,
+                                     Name='1_Brai_g270c355',
+                                     Description='1 3DC: MLC Static Field',
+                                     GantryAngle=270.0,
+                                     CouchAngle=355,
+                                     CollimatorAngle=0)
+
+            beamset.CreatePhotonBeam(Energy=6,
+                                     IsocenterData=isocenter_parameters,
+                                     Name='2_Brai_g090c005',
+                                     Description='2 3DC: MLC Static Field',
+                                     GantryAngle=90,
+                                     CouchAngle=5,
+                                     CollimatorAngle=0)
+            for beam in beamset.Beams:
+                beam.SetTreatOrProtectRoi(RoiName='BTV')
+                beam.SetTreatOrProtectRoi(RoiName='Avoid')
+
+            beamset.TreatAndProtect(ShowProgress=True)
+            # Compute the dose
+            beamset.ComputeDose(
+                ComputeBeamDoses=True,
+                DoseAlgorithm="CCDose",
+                ForceRecompute=False)
+
+        # RS 8 delete next three lines
+        plan_name_regex = '^'+plan_names[0]+'$'
+        plan_information = case.QueryPlanInfo(Filter={'Name': plan_name_regex})
+        case.LoadPlan(PlanInfo=plan_information[0])
+        try:
+            ui = connect.get_current('ui')
+            ui.TitleBar.MenuItem['Plan Evaluation'].Button_Plan_Evaluation.Click()
+        except:
+            logging.debug("Could not click on the plan evaluation MenuItem")
+
+    # Rename PTV per convention
+    total_dose_string = str(int(total_dose))
+    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+
+
 
 
 if __name__ == '__main__':
