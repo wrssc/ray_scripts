@@ -37,7 +37,7 @@ def main():
         UserInterface.WarningBox('This script requires a patient to be loaded')
         sys.exit('This script requires a patient to be loaded')
 
-    tree = xml.etree.ElementTree.parse(os.path.join(folder, file_name))
+    tree = xml.etree.ElementTree.parse(os.path.join(protocol_folder, file_name))
     for g in tree.findall('//goals/roi'):
         print 'Adding goal ' + Goals.print_goal(g, 'xml')
         Goals.add_goal(g, connect.get_current('Plan'))

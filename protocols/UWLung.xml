@@ -58,13 +58,6 @@
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
-            <type>Min</type>
-            <volume units="cc">1</volume>
-            <dose units="%" roi="PTV">90</dose>
-            <priority>2</priority>
-        </roi>
-        <roi>
             <name>SpinalCord</name>
             <type>Max</type>
             <volume units="cc">0.1</volume>
