@@ -673,51 +673,51 @@ def main():
         ptv_sources = ['ExternalClean']
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
-        for index, target in enumerate(input_source_list):
-            ptv_sources.append(target)
-        if index == 0:
-            ptv_definitions = {
-                "StructureName": PTVList[index],
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                'VisualizationType': 'Filled',
-                "StructColor": TargetColors[index],
-                "OperationA": "Union",
-                "SourcesA": [target],
-                "MarginTypeA": "Expand",
-                "ExpA": [0] * 6,
-                "OperationB": "Union",
-                "SourcesB": [],
-                "MarginTypeB": "Expand",
-                "ExpB": [0] * 6,
-                "OperationResult": "None",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "StructType": "Ptv"}
-        else:
-            ptv_definitions = {
-                "StructureName": PTVList[index],
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                'VisualizationType': 'Filled',
-                "StructColor": TargetColors[index],
-                "OperationA": "Union",
-                "SourcesA": [target],
-                "MarginTypeA": "Expand",
-                "ExpA": [0] * 6,
-                "OperationB": "Union",
-                "SourcesB": subtract_targets,
-                "MarginTypeB": "Expand",
-                "ExpB": [0] * 6,
-                "OperationResult": "Subtraction",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "StructType": "Ptv"}
-        logging.debug("planning_structures.py: Creating main target {}: {}"
-                      .format(index, PTVList[index]))
-        make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
-        newly_generated_rois.append(ptv_definitions.get("StructureName"))
-        subtract_targets.append(PTVList[index])
+        for i, t in enumerate(input_source_list):
+            ptv_sources.append(t)
+            if i == 0:
+                ptv_definitions = {
+                    "StructureName": PTVList[i],
+                    "ExcludeFromExport": True,
+                    "VisualizeStructure": False,
+                    'VisualizationType': 'Filled',
+                    "StructColor": TargetColors[i],
+                    "OperationA": "Union",
+                    "SourcesA": [t],
+                    "MarginTypeA": "Expand",
+                    "ExpA": [0] * 6,
+                    "OperationB": "Union",
+                    "SourcesB": [],
+                    "MarginTypeB": "Expand",
+                    "ExpB": [0] * 6,
+                    "OperationResult": "None",
+                    "MarginTypeR": "Expand",
+                    "ExpR": [0] * 6,
+                    "StructType": "Ptv"}
+            else:
+                ptv_definitions = {
+                    "StructureName": PTVList[i],
+                    "ExcludeFromExport": True,
+                    "VisualizeStructure": False,
+                    'VisualizationType': 'Filled',
+                    "StructColor": TargetColors[i],
+                    "OperationA": "Union",
+                    "SourcesA": [t],
+                    "MarginTypeA": "Expand",
+                    "ExpA": [0] * 6,
+                    "OperationB": "Union",
+                    "SourcesB": subtract_targets,
+                    "MarginTypeB": "Expand",
+                    "ExpB": [0] * 6,
+                    "OperationResult": "Subtraction",
+                    "MarginTypeR": "Expand",
+                    "ExpR": [0] * 6,
+                    "StructType": "Ptv"}
+            logging.debug("planning_structures.py: Creating main target {}: {}"
+                          .format(i, PTVList[i]))
+            make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
+            newly_generated_rois.append(ptv_definitions.get("StructureName"))
+            subtract_targets.append(PTVList[i])
 
     # Make the InnerAir structure
     if generate_inner_air:
