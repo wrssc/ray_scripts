@@ -82,7 +82,8 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 
     try:
         case.PatientModel.RegionsOfInterest[StructureName]
-        logging.warning("Structure " + StructureName + " exists.  This will be overwritten in this examination")
+        logging.warning("make_boolean_structure: Structure " + StructureName +
+                        " exists.  This will be overwritten in this examination")
     except:
         case.PatientModel.CreateRoi(Name=StructureName,
                                     Color=StructColor,
@@ -152,7 +153,7 @@ def main():
         case = connect.get_current("Case")
         examination = connect.get_current("Examination")
     except:
-        logging.warning("Aww crap, No patient")
+        logging.warning("planning_structures.py: patient, case and examination must be loaded")
 
     status = UserInterface.ScriptStatus(
         steps=['User Input',
@@ -341,10 +342,10 @@ def main():
         generate_underdose = False
 
     # Rephrase the next statement with logging
-    logging.debug('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
-    logging.debug('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
-    logging.debug('User selected {} for UnderDose'.format(generate_underdose))
-    logging.debug('User selected {} for UniformDose'.format(generate_uniformdose))
+    logging.debug('planning_structures.py: Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
+    logging.debug('planning_structures.py: Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
+    logging.debug('planning_structures.py: User selected {} for UnderDose'.format(generate_underdose))
+    logging.debug('planning_structures.py: User selected {} for UniformDose'.format(generate_uniformdose))
 
     # Underdose dialog call
     if generate_underdose:
