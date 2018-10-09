@@ -37,7 +37,7 @@
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from pickle import FALSE
+#from pickle import FALSE
 
 # from typing import List, Any
 
@@ -895,30 +895,30 @@ def main():
             otv_subtract = ['Skin', 'InnerAir']
         logging.debug("planningstructures: otvs will not include {}".format(otv_subtract))
         # If the UnderDose structure has contours, then we must create a ~underdose_exp structure
-        if case.PatientModel.StructureSets[examination.Name].RoiGeometries['UnderDose_Exp'].HasContours():
-            not_otv_definitions = {
-                "StructureName": "z_derived_not_otv",
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": "192, 192, 192",
-                "OperationA": "Union",
-                "SourcesA": ["ExternalClean"],
-                "MarginTypeA": "Expand",
-                "ExpA": [0] * 6,
-                "OperationB": "Union",
-                "SourcesB": otv_subtract,
-                "MarginTypeB": "Expand",
-                "ExpB": [0] * 6,
-                "OperationResult": "Subtraction",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "StructType": "Undefined"}
-            make_boolean_structure(patient=patient,
-                                   case=case,
-                                   examination=examination,
-                                   **not_otv_definitions)
-            newly_generated_rois.append(not_otv_definitions.get("StructureName"))
-            otv_intersect.append(not_otv_definitions.get("StructureName"))
+        #if case.PatientModel.StructureSets[examination.Name].RoiGeometries['UnderDose_Exp'].HasContours():
+        not_otv_definitions = {
+            "StructureName": "z_derived_not_otv",
+            "ExcludeFromExport": True,
+            "VisualizeStructure": False,
+            "StructColor": "192, 192, 192",
+            "OperationA": "Union",
+            "SourcesA": ["ExternalClean"],
+            "MarginTypeA": "Expand",
+            "ExpA": [0] * 6,
+            "OperationB": "Union",
+            "SourcesB": otv_subtract,
+            "MarginTypeB": "Expand",
+            "ExpB": [0] * 6,
+            "OperationResult": "Subtraction",
+            "MarginTypeR": "Expand",
+            "ExpR": [0] * 6,
+            "StructType": "Undefined"}
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **not_otv_definitions)
+        newly_generated_rois.append(not_otv_definitions.get("StructureName"))
+        otv_intersect.append(not_otv_definitions.get("StructureName"))
 
         # otv_subtract will store the expanded higher dose targets
         otv_subtract = []
