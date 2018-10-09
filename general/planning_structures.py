@@ -41,7 +41,7 @@
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
 """
-#from pickle import FALSE
+from pickle import FALSE
 
 # from typing import List, Any
 
@@ -380,7 +380,8 @@ def main():
         except KeyError:
             pass
         underdose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
-        logging.debug("Underdose list selected: {}".format(underdose_structures))
+        logging.debug("planning_structures.py: Underdose list selected: {}"
+                      .format(underdose_structures))
 
     # Replace with a logging debug call
     # for structs in uniform_structures: print structs
@@ -419,7 +420,8 @@ def main():
         except KeyError:
             pass
         uniformdose_standoff = float(uniformdose_dialog.values['input4_uniform_standoff'])
-        logging.debug("Uniform Dose list selected: {}".format(uniformdose_structures))
+        logging.debug("planning_structures.py: Uniform Dose list selected: {}"
+                      .format(uniformdose_structures))
 
     # OPTIONS DIALOG
     #  Users will select use of:
@@ -465,8 +467,10 @@ def main():
     except KeyError:
         generate_target_rings = False
 
-    logging.debug("User Selected Preserve Skin Dose: {}".format(generate_target_skin))
-    logging.debug("User Selected target Rings: {}".format(generate_target_rings))
+    logging.debug("planning_structures.py: User Selected Preserve Skin Dose: {}"
+                  .format(generate_target_skin))
+    logging.debug("planning_structures.py: User Selected target Rings: {}"
+                  .format(generate_target_rings))
 
     # DATA PARSING FOR THE OPTIONS MENU
     # Stand - Off Values - Gaps between structures
@@ -528,7 +532,7 @@ def main():
             OTVList.append(OTVName)
             sotvu_list.append(sotvu_name)
         else:
-            logging.debug("Generate PTV's off - a nonsupported operation")
+            logging.debug("planning_structures.py: Generate PTV's off - a nonsupported operation")
 
     TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
 
@@ -573,7 +577,8 @@ def main():
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
     if generate_underdose:
-        logging.debug("Creating UnderDose ROI using Sources: {}".format(underdose_structures))
+        logging.debug("planning_structures.py: Creating UnderDose ROI using Sources: {}"
+                      .format(underdose_structures))
         # Generate the UnderDose structure
         underdose_defs = {
             "StructureName": "UnderDose",
@@ -619,9 +624,10 @@ def main():
 
     # Generate the UniformDose structure
     if generate_uniformdose:
-        logging.debug("Creating UniformDose ROI using Sources: {}".format(uniformdose_structures))
+        logging.debug("planning_structures.py: Creating UniformDose ROI using Sources: {}"
+                      .format(uniformdose_structures))
         if generate_underdose:
-            logging.debug("planningstructures: UnderDose structures required, excluding overlap from UniformDose")
+            logging.debug("planning_structures.py: UnderDose structures required, excluding overlap from UniformDose")
             uniformdose_defs = {
                 "StructureName": "UniformDose",
                 "ExcludeFromExport": True,
@@ -668,7 +674,6 @@ def main():
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
         for index, target in enumerate(input_source_list):
-            logging.debug("Creating main target {}: {}".format(index, PTVList[index]))
             ptv_sources.append(target)
         if index == 0:
             ptv_definitions = {
@@ -708,6 +713,8 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "StructType": "Ptv"}
+        logging.debug("planning_structures.py: Creating main target {}: {}"
+                      .format(index, PTVList[index]))
         make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
         newly_generated_rois.append(ptv_definitions.get("StructureName"))
         subtract_targets.append(PTVList[index])
@@ -764,7 +771,7 @@ def main():
                                   MinVolume=0.1,
                                   MaxVolume=500)
         newly_generated_rois.append('InnerAir')
-        logging.debug("Built Air and InnerAir structures.")
+        logging.debug("planning_structures.py: Built Air and InnerAir structures.")
 
         # Make the InnerAir structure
     if generate_field_of_view:
@@ -796,7 +803,8 @@ def main():
         # Loop over the PTV_EZs
         for index, target in enumerate(PTVList):
             ptv_ez_name = 'PTV' + str(index + 1) + '_EZ'
-            logging.debug("Creating exclusion zone target {}: {}".format(str(index + 1), ptv_ez_name))
+            logging.debug("planning_structures.py: Creating exclusion zone target {}: {}"
+                          .format(str(index + 1), ptv_ez_name))
             # Generate the PTV_EZ
             PTVEZ_defs = {
                 "StructureName": PTVEZList[index],
@@ -822,20 +830,19 @@ def main():
                 **PTVEZ_defs)
             newly_generated_rois.append(PTVEZ_defs.get("StructureName"))
 
-
-
     # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
     if generate_ptv_evals:
         if generate_underdose:
             eval_subtract = ['Skin', 'InnerAir', 'UnderDose']
-            logging.debug("planning_structures.py: Removing the following from eval structures".format(
-               eval_subtract))
+            logging.debug("planning_structures.py: Removing the following from eval structures"
+                          .format(eval_subtract))
         else:
             eval_subtract = ['Skin', 'InnerAir']
-            logging.debug("planning_structures.py: Removing the following from eval structures".format(
-                eval_subtract))
+            logging.debug("planning_structures.py: Removing the following from eval structures"
+                          .format(eval_subtract))
         for index, target in enumerate(PTVList):
-            logging.debug("Creating evaluation target {}: {}".format(str(index + 1), PTVEvalList[index]))
+            logging.debug("planning_structures.py: Creating evaluation target {}: {}"
+                          .format(str(index + 1), PTVEvalList[index]))
             # Set the Sources Structure for Evals
             PTVEval_defs = {
                 "StructureName": PTVEvalList[index],
@@ -870,7 +877,8 @@ def main():
             otv_subtract = ['Skin', 'InnerAir', 'UnderDose_Exp']
         else:
             otv_subtract = ['Skin', 'InnerAir']
-        logging.debug("planningstructures: otvs will not include {}".format(otv_subtract))
+        logging.debug("planning_structures.py: otvs will not include {}"
+                      .format(otv_subtract))
 
         not_otv_definitions = {
             "StructureName": "z_derived_not_otv",
@@ -933,7 +941,8 @@ def main():
         if generate_uniformdose:
             # Loop over the sOTVu's
             for index, target in enumerate(PTVList):
-                logging.debug("Creating uniform zone target {}: {}".format(str(index + 1), sotvu_name))
+                logging.debug("planning_structures.py: Creating uniform zone target {}: {}"
+                              .format(str(index + 1), sotvu_name))
                 # Generate the sOTVu
                 sotvu_defs = {
                     "StructureName": sotvu_list[index],
