@@ -708,7 +708,6 @@ def main():
         newly_generated_rois.append(ptv_definitions.get("StructureName"))
         subtract_targets.append(PTVList[index])
 
-
     # Make the InnerAir structure
     if generate_inner_air:
         # Automated build of the Air contour
@@ -850,7 +849,14 @@ def main():
 
     # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
     if generate_ptv_evals:
-        EvalSubtract = ['Skin', 'InnerAir', 'UnderDose']
+        if generate_underdose:
+            EvalSubtract = ['Skin', 'InnerAir', 'UnderDose']
+            logging.debug("planning_structures.py: Removing the following from eval structures".format(
+               EvalSubtract))
+        else:
+            EvalSubtract = ['Skin', 'InnerAir']
+            logging.debug("planning_structures.py: Removing the following from eval structures".format(
+                EvalSubtract))
         for index, target in enumerate(PTVList):
             logging.debug("Creating evaluation target {}: {}".format(str(index + 1), PTVEvalList[index]))
             # Set the Sources Structure for Evals
@@ -1123,6 +1129,7 @@ def main():
     #    status.finish('Script cancelled, inputs were not supplied')
     #    sys.exit('Script cancelled')
     status.finish(text='The script executed successfully')
+
 
 if __name__ == '__main__':
     main()
