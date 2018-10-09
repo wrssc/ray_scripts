@@ -13,6 +13,7 @@
     TODO: Add a better module for creating the brain
     TODO: Get rid of the second plan - it is only for correcting the GUI and can be dumped in
             RS8
+    TODO: Add timing measurements to the planning process
 
     Validation Notes: 
     

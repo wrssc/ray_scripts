@@ -7,6 +7,8 @@
     the UniformDose ROI.
 
 
+    Raystation script to make structures used for planning.
+
     Note:
     Using the Standard InputDialog
     We have several calls
@@ -17,13 +19,15 @@
     The second non-optional call prompts the user to use:
         -Target-specific rings
         -Specify desired standoffs in the rings closest to the target
-    Raystation script to make structures used for planning.
 
     Inputs:
         None, though eventually the common uniform and underdose should be dumped into xml files
         and stored in protocols
 
     Usage:
+
+    Version History:
+    1.0.1: Hot fix to repair inconsistency when underdose is not used but uniform dose is.
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -37,13 +41,13 @@
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
 """
-from pickle import FALSE
+#from pickle import FALSE
 
 # from typing import List, Any
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -120,6 +124,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                              IsVisible=VisualizeStructure)
     patient.Set2DvisualizationForRoi(RoiName=StructureName,
                                      Mode=VisualizationType)
+
 
 def main():
     # The following list allows different elements of the code to be toggled
@@ -210,8 +215,10 @@ def main():
         'Cochlea_L_PRV05',
         'Cochlea_R_PRV05',
         'ConstrMuscle',
+        'Esophagus',
         'Esophagus_PRV05',
         'Duodenum_PRV05',
+        'Heart',
         'Mandible',
         'LargeBowel',
         'Larynx',
@@ -412,7 +419,7 @@ def main():
         except KeyError:
             pass
         uniformdose_standoff = float(uniformdose_dialog.values['input4_uniform_standoff'])
-        print "Uniform Dose list selected: {}".format(uniformdose_structures)
+        logging.debug("Uniform Dose list selected: {}".format(uniformdose_structures))
 
     # OPTIONS DIALOG
     #  Users will select use of:
@@ -458,8 +465,8 @@ def main():
     except KeyError:
         generate_target_rings = False
 
-    print "User Selected Preserve Skin Dose: {}".format(generate_target_skin)
-    print "User Selected target Rings: {}".format(generate_target_rings)
+    logging.debug("User Selected Preserve Skin Dose: {}".format(generate_target_skin))
+    logging.debug("User Selected target Rings: {}".format(generate_target_rings))
 
     # DATA PARSING FOR THE OPTIONS MENU
     # Stand - Off Values - Gaps between structures
@@ -566,7 +573,7 @@ def main():
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
     if generate_underdose:
-        print "Creating UnderDose ROI using Sources: {}".format(underdose_structures)
+        logging.debug("Creating UnderDose ROI using Sources: {}".format(underdose_structures))
         # Generate the UnderDose structure
         underdose_defs = {
             "StructureName": "UnderDose",
@@ -612,9 +619,9 @@ def main():
 
     # Generate the UniformDose structure
     if generate_uniformdose:
-        print "Creating UniformDose ROI using Sources: {}".format(uniformdose_structures)
+        logging.debug("Creating UniformDose ROI using Sources: {}".format(uniformdose_structures))
         if generate_underdose:
-            print "UnderDose structures required, excluding overlap from UniformDose"
+            logging.debug("planningstructures: UnderDose structures required, excluding overlap from UniformDose")
             uniformdose_defs = {
                 "StructureName": "UniformDose",
                 "ExcludeFromExport": True,
@@ -661,49 +668,49 @@ def main():
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
         for index, target in enumerate(input_source_list):
-            print "Creating main target {}: {}".format(index, PTVList[index])
+            logging.debug("Creating main target {}: {}".format(index, PTVList[index]))
             ptv_sources.append(target)
-            if index == 0:
-                ptv_definitions = {
-                    "StructureName": PTVList[index],
-                    "ExcludeFromExport": True,
-                    "VisualizeStructure": False,
-                    'VisualizationType': 'Filled',
-                    "StructColor": TargetColors[index],
-                    "OperationA": "Union",
-                    "SourcesA": [target],
-                    "MarginTypeA": "Expand",
-                    "ExpA": [0] * 6,
-                    "OperationB": "Union",
-                    "SourcesB": [],
-                    "MarginTypeB": "Expand",
-                    "ExpB": [0] * 6,
-                    "OperationResult": "None",
-                    "MarginTypeR": "Expand",
-                    "ExpR": [0] * 6,
-                    "StructType": "Ptv"}
-            else:
-                ptv_definitions = {
-                    "StructureName": PTVList[index],
-                    "ExcludeFromExport": True,
-                    "VisualizeStructure": False,
-                    'VisualizationType': 'Filled',
-                    "StructColor": TargetColors[index],
-                    "OperationA": "Union",
-                    "SourcesA": [target],
-                    "MarginTypeA": "Expand",
-                    "ExpA": [0] * 6,
-                    "OperationB": "Union",
-                    "SourcesB": subtract_targets,
-                    "MarginTypeB": "Expand",
-                    "ExpB": [0] * 6,
-                    "OperationResult": "Subtraction",
-                    "MarginTypeR": "Expand",
-                    "ExpR": [0] * 6,
-                    "StructType": "Ptv"}
-            make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
-            newly_generated_rois.append(ptv_definitions.get("StructureName"))
-            subtract_targets.append(PTVList[index])
+        if index == 0:
+            ptv_definitions = {
+                "StructureName": PTVList[index],
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                'VisualizationType': 'Filled',
+                "StructColor": TargetColors[index],
+                "OperationA": "Union",
+                "SourcesA": [target],
+                "MarginTypeA": "Expand",
+                "ExpA": [0] * 6,
+                "OperationB": "Union",
+                "SourcesB": [],
+                "MarginTypeB": "Expand",
+                "ExpB": [0] * 6,
+                "OperationResult": "None",
+                "MarginTypeR": "Expand",
+                "ExpR": [0] * 6,
+                "StructType": "Ptv"}
+        else:
+            ptv_definitions = {
+                "StructureName": PTVList[index],
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                'VisualizationType': 'Filled',
+                "StructColor": TargetColors[index],
+                "OperationA": "Union",
+                "SourcesA": [target],
+                "MarginTypeA": "Expand",
+                "ExpA": [0] * 6,
+                "OperationB": "Union",
+                "SourcesB": subtract_targets,
+                "MarginTypeB": "Expand",
+                "ExpB": [0] * 6,
+                "OperationResult": "Subtraction",
+                "MarginTypeR": "Expand",
+                "ExpR": [0] * 6,
+                "StructType": "Ptv"}
+        make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
+        newly_generated_rois.append(ptv_definitions.get("StructureName"))
+        subtract_targets.append(PTVList[index])
 
     # Make the InnerAir structure
     if generate_inner_air:
@@ -718,7 +725,7 @@ def main():
                                                      RbeCellTypeName=None,
                                                      RoiMaterial=None)
             newly_generated_rois.append('Air')
-        patient.SetRoiVisibility(RoiName='Air', IsVisible =False)
+        patient.SetRoiVisibility(RoiName='Air', IsVisible=False)
 
         retval_AIR.GrayLevelThreshold(Examination=examination,
                                       LowThreshold=-1024,
@@ -788,7 +795,7 @@ def main():
         # Loop over the PTV_EZs
         for index, target in enumerate(PTVList):
             ptv_ez_name = 'PTV' + str(index + 1) + '_EZ'
-            print "Creating exclusion zone target {}: {}".format(str(index + 1), ptv_ez_name)
+            logging.debug("Creating exclusion zone target {}: {}".format(str(index + 1), ptv_ez_name))
             # Generate the PTV_EZ
             PTVEZ_defs = {
                 "StructureName": PTVEZList[index],
@@ -818,7 +825,7 @@ def main():
     if generate_uniformdose:
         # Loop over the sOTVu's
         for index, target in enumerate(PTVList):
-            print "Creating uniform zone target {}: {}".format(str(index + 1), sotvu_name)
+            logging.debug("Creating uniform zone target {}: {}".format(str(index + 1), sotvu_name))
             # Generate the sOTVu
             sotvu_defs = {
                 "StructureName": sotvu_list[index],
@@ -846,7 +853,14 @@ def main():
 
     # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
     if generate_ptv_evals:
-        EvalSubtract = ['Skin', 'InnerAir', 'UnderDose']
+        if generate_underdose:
+            eval_subtract = ['Skin', 'InnerAir', 'UnderDose']
+            logging.debug("planning_structures.py: Removing the following from eval structures".format(
+               eval_subtract))
+        else:
+            eval_subtract = ['Skin', 'InnerAir']
+            logging.debug("planning_structures.py: Removing the following from eval structures".format(
+                eval_subtract))
         for index, target in enumerate(PTVList):
             logging.debug("Creating evaluation target {}: {}".format(str(index + 1), PTVEvalList[index]))
             # Set the Sources Structure for Evals
@@ -860,7 +874,7 @@ def main():
                 "MarginTypeA": "Expand",
                 "ExpA": [0] * 6,
                 "OperationB": "Union",
-                "SourcesB": EvalSubtract,
+                "SourcesB": eval_subtract,
                 "MarginTypeB": "Expand",
                 "ExpB": [0] * 6,
                 "OperationResult": "Subtraction",
@@ -873,38 +887,41 @@ def main():
                                    **PTVEval_defs)
             newly_generated_rois.append(PTVEval_defs.get("StructureName"))
             # Append the current target to the list of targets to subtract in the next iteration
-            EvalSubtract.append(target)
+            eval_subtract.append(target)
 
     # Generate the OTV's
     # Build a region called z_derived_not_exp_underdose that does not include the underdose expansion
     if generate_otvs:
         otv_intersect = []
-        otv_subtract = ['Skin', 'InnerAir', 'UnderDose_Exp']
-        # If the UnderDose structure has contours, then we must create a ~underdose_exp structure
-        if case.PatientModel.StructureSets[examination.Name].RoiGeometries['UnderDose_Exp'].HasContours():
-            not_otv_definitions = {
-                "StructureName": "z_derived_not_otv",
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": "192, 192, 192",
-                "OperationA": "Union",
-                "SourcesA": ["ExternalClean"],
-                "MarginTypeA": "Expand",
-                "ExpA": [0] * 6,
-                "OperationB": "Union",
-                "SourcesB": otv_subtract,
-                "MarginTypeB": "Expand",
-                "ExpB": [0] * 6,
-                "OperationResult": "Subtraction",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "StructType": "Undefined"}
-            make_boolean_structure(patient=patient,
-                                   case=case,
-                                   examination=examination,
-                                   **not_otv_definitions)
-            newly_generated_rois.append(not_otv_definitions.get("StructureName"))
-            otv_intersect.append(not_otv_definitions.get("StructureName"))
+        if generate_underdose:
+            otv_subtract = ['Skin', 'InnerAir', 'UnderDose_Exp']
+        else:
+            otv_subtract = ['Skin', 'InnerAir']
+        logging.debug("planningstructures: otvs will not include {}".format(otv_subtract))
+
+        not_otv_definitions = {
+            "StructureName": "z_derived_not_otv",
+            "ExcludeFromExport": True,
+            "VisualizeStructure": False,
+            "StructColor": "192, 192, 192",
+            "OperationA": "Union",
+            "SourcesA": ["ExternalClean"],
+            "MarginTypeA": "Expand",
+            "ExpA": [0] * 6,
+            "OperationB": "Union",
+            "SourcesB": otv_subtract,
+            "MarginTypeB": "Expand",
+            "ExpB": [0] * 6,
+            "OperationResult": "Subtraction",
+            "MarginTypeR": "Expand",
+            "ExpR": [0] * 6,
+            "StructType": "Undefined"}
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **not_otv_definitions)
+        newly_generated_rois.append(not_otv_definitions.get("StructureName"))
+        otv_intersect.append(not_otv_definitions.get("StructureName"))
 
         # otv_subtract will store the expanded higher dose targets
         otv_subtract = []
@@ -1032,9 +1049,9 @@ def main():
             ring_avoid_subtract.append(target_ring_defs.get("StructureName"))
 
     else:
-        # RingHD
+        # Ring_HD
         if generate_ring_hd:
-            RingHD_defs = {
+            ring_hd_defs = {
                 "StructureName": "Ring_HD",
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
@@ -1055,14 +1072,14 @@ def main():
             make_boolean_structure(patient=patient,
                                    case=case,
                                    examination=examination,
-                                   **RingHD_defs)
-            newly_generated_rois.append(RingHD_defs.get("StructureName"))
-            # Append RingHD to the structure list for removal from RingLD
-            ring_avoid_subtract.append(RingHD_defs.get("StructureName"))
-    # RingLD
+                                   **ring_hd_defs)
+            newly_generated_rois.append(ring_hd_defs.get("StructureName"))
+            # Append RingHD to the structure list for removal from Ring_LD
+            ring_avoid_subtract.append(ring_hd_defs.get("StructureName"))
+    # Ring_LD
     if generate_ring_ld:
-        RingLD_defs = {
-            "StructureName": "RingLD",
+        ring_ld_defs = {
+            "StructureName": "Ring_LD",
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": " 255, 0, 255",
@@ -1083,8 +1100,8 @@ def main():
         make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
-                               **RingLD_defs)
-        newly_generated_rois.append(RingLD_defs.get("StructureName"))
+                               **ring_ld_defs)
+        newly_generated_rois.append(ring_ld_defs.get("StructureName"))
 
     # Normal_2cm
     if generate_normal_2cm:

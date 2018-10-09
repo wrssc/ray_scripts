@@ -25,7 +25,8 @@
         <imaging>Daily CBCT</imaging>
         <imaging>Weekly kV</imaging>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
+        </technique>
     </prescription>
     <order>
         <name>Pelvis</name>
@@ -70,21 +71,35 @@
     </order>
     <goals>
         <roi>
-            <name>BowelBag</name>
-            <type dir="lt">VX</type>
+            <name>PerotinealCavity</name>
+            <type>Max</type>
             <volume units="cc">1</volume>
             <dose units="Gy">52</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>PTV</name>
-            <type dir="ge">VX</type>
+            <name>PerotinealCavity</name>
+            <type dir="lt">VX</type>
+            <volume units="%">30</volume>
+            <dose units="Gy">40</dose>
+            <priority>5</priority>
+        </roi>
+        <roi>
+            <name>BowelBag</name>
+            <type dir="lt">VX</type>
+            <volume units="%">20</volume>
+            <dose units="Gy">40</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>PTVp</name>
+            <type>Mean</type>
             <volume units="%">50</volume>
             <dose units="%" roi="PTV">100</dose>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
+            <name>PTVp</name>
             <type dir="lt">VX</type>
             <volume units="cc">0.1</volume>
             <dose units="%" roi="PTV">105</dose>
@@ -104,20 +119,7 @@
             <dose units="Gy">40</dose>
             <priority>3</priority>
         </roi>
-         <roi>
-            <name>BowelBag</name>
-            <type dir="lt">VX</type>
-            <volume units="%">20</volume>
-            <dose units="Gy">40</dose>
-            <priority>4</priority>
-        </roi>
-        <roi>
-            <name>BowelBag</name>
-            <type dir="lt">VX</type>
-            <volume units="%">30</volume>
-            <dose units="Gy">40</dose>
-            <priority>3</priority>
-        </roi>
+
         <roi>
             <name>Femur_L</name>
             <type dir="lt">VX</type>
