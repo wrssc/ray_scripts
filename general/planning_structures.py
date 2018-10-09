@@ -764,6 +764,7 @@ def main():
                                   MinVolume=0.1,
                                   MaxVolume=500)
         newly_generated_rois.append('InnerAir')
+        logging.debug("Built Air and InnerAir structures.")
 
         # Make the InnerAir structure
     if generate_field_of_view:
