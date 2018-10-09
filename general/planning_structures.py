@@ -7,6 +7,8 @@
     the UniformDose ROI.
 
 
+    Raystation script to make structures used for planning.
+
     Note:
     Using the Standard InputDialog
     We have several calls
@@ -17,13 +19,15 @@
     The second non-optional call prompts the user to use:
         -Target-specific rings
         -Specify desired standoffs in the rings closest to the target
-    Raystation script to make structures used for planning.
 
     Inputs:
         None, though eventually the common uniform and underdose should be dumped into xml files
         and stored in protocols
 
     Usage:
+
+    Version History:
+    1.0.1: Hot fix to repair inconsistency when underdose is not used but uniform dose is.
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -43,7 +47,7 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -850,13 +854,13 @@ def main():
     # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
     if generate_ptv_evals:
         if generate_underdose:
-            EvalSubtract = ['Skin', 'InnerAir', 'UnderDose']
+            eval_subtract = ['Skin', 'InnerAir', 'UnderDose']
             logging.debug("planning_structures.py: Removing the following from eval structures".format(
-               EvalSubtract))
+               eval_subtract))
         else:
-            EvalSubtract = ['Skin', 'InnerAir']
+            eval_subtract = ['Skin', 'InnerAir']
             logging.debug("planning_structures.py: Removing the following from eval structures".format(
-                EvalSubtract))
+                eval_subtract))
         for index, target in enumerate(PTVList):
             logging.debug("Creating evaluation target {}: {}".format(str(index + 1), PTVEvalList[index]))
             # Set the Sources Structure for Evals
@@ -870,7 +874,7 @@ def main():
                 "MarginTypeA": "Expand",
                 "ExpA": [0] * 6,
                 "OperationB": "Union",
-                "SourcesB": EvalSubtract,
+                "SourcesB": eval_subtract,
                 "MarginTypeB": "Expand",
                 "ExpB": [0] * 6,
                 "OperationResult": "Subtraction",
@@ -883,7 +887,7 @@ def main():
                                    **PTVEval_defs)
             newly_generated_rois.append(PTVEval_defs.get("StructureName"))
             # Append the current target to the list of targets to subtract in the next iteration
-            EvalSubtract.append(target)
+            eval_subtract.append(target)
 
     # Generate the OTV's
     # Build a region called z_derived_not_exp_underdose that does not include the underdose expansion
@@ -894,8 +898,7 @@ def main():
         else:
             otv_subtract = ['Skin', 'InnerAir']
         logging.debug("planningstructures: otvs will not include {}".format(otv_subtract))
-        # If the UnderDose structure has contours, then we must create a ~underdose_exp structure
-        #if case.PatientModel.StructureSets[examination.Name].RoiGeometries['UnderDose_Exp'].HasContours():
+
         not_otv_definitions = {
             "StructureName": "z_derived_not_otv",
             "ExcludeFromExport": True,
@@ -1046,9 +1049,9 @@ def main():
             ring_avoid_subtract.append(target_ring_defs.get("StructureName"))
 
     else:
-        # RingHD
+        # Ring_HD
         if generate_ring_hd:
-            RingHD_defs = {
+            ring_hd_defs = {
                 "StructureName": "Ring_HD",
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
@@ -1069,14 +1072,14 @@ def main():
             make_boolean_structure(patient=patient,
                                    case=case,
                                    examination=examination,
-                                   **RingHD_defs)
-            newly_generated_rois.append(RingHD_defs.get("StructureName"))
-            # Append RingHD to the structure list for removal from RingLD
-            ring_avoid_subtract.append(RingHD_defs.get("StructureName"))
-    # RingLD
+                                   **ring_hd_defs)
+            newly_generated_rois.append(ring_hd_defs.get("StructureName"))
+            # Append RingHD to the structure list for removal from Ring_LD
+            ring_avoid_subtract.append(ring_hd_defs.get("StructureName"))
+    # Ring_LD
     if generate_ring_ld:
-        RingLD_defs = {
-            "StructureName": "RingLD",
+        ring_ld_defs = {
+            "StructureName": "Ring_LD",
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": " 255, 0, 255",
@@ -1097,8 +1100,8 @@ def main():
         make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
-                               **RingLD_defs)
-        newly_generated_rois.append(RingLD_defs.get("StructureName"))
+                               **ring_ld_defs)
+        newly_generated_rois.append(ring_ld_defs.get("StructureName"))
 
     # Normal_2cm
     if generate_normal_2cm:
