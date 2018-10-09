@@ -821,35 +821,7 @@ def main():
                 **PTVEZ_defs)
             newly_generated_rois.append(PTVEZ_defs.get("StructureName"))
 
-    # make the sOTVu structures now
-    if generate_uniformdose:
-        # Loop over the sOTVu's
-        for index, target in enumerate(PTVList):
-            logging.debug("Creating uniform zone target {}: {}".format(str(index + 1), sotvu_name))
-            # Generate the sOTVu
-            sotvu_defs = {
-                "StructureName": sotvu_list[index],
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": TargetColors[index],
-                "OperationA": "Union",
-                "SourcesA": [target],
-                "MarginTypeA": "Expand",
-                "ExpA": [0] * 6,
-                "OperationB": "Union",
-                "SourcesB": ["UniformDose"],
-                "MarginTypeB": "Expand",
-                "ExpB": [uniformdose_standoff] * 6,
-                "OperationResult": "Intersection",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "StructType": "Ptv"}
-            make_boolean_structure(
-                patient=patient,
-                case=case,
-                examination=examination,
-                **sotvu_defs)
-            newly_generated_rois.append(sotvu_defs.get("StructureName"))
+
 
     # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
     if generate_ptv_evals:
@@ -932,7 +904,7 @@ def main():
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Intersection",
-                "SourcesA": [PTVList[index]] + otv_intersect,
+                "SourcesA": [target] + otv_intersect,
                 "MarginTypeA": "Expand",
                 "ExpA": [0] * 6,
                 "OperationB": "Union",
@@ -955,6 +927,36 @@ def main():
                                    **OTV_defs)
             otv_subtract.append(PTVList[index])
             newly_generated_rois.append(OTV_defs.get("StructureName"))
+
+            # make the sOTVu structures now
+        if generate_uniformdose:
+            # Loop over the sOTVu's
+            for index, target in enumerate(PTVList):
+                logging.debug("Creating uniform zone target {}: {}".format(str(index + 1), sotvu_name))
+                # Generate the sOTVu
+                sotvu_defs = {
+                    "StructureName": sotvu_list[index],
+                    "ExcludeFromExport": True,
+                    "VisualizeStructure": False,
+                    "StructColor": TargetColors[index],
+                    "OperationA": "Union",
+                    "SourcesA": [target] + otv_intersect,
+                    "MarginTypeA": "Expand",
+                    "ExpA": [0] * 6,
+                    "OperationB": "Union",
+                    "SourcesB": ["UniformDose"],
+                    "MarginTypeB": "Expand",
+                    "ExpB": [uniformdose_standoff] * 6,
+                    "OperationResult": "Intersection",
+                    "MarginTypeR": "Expand",
+                    "ExpR": [0] * 6,
+                    "StructType": "Ptv"}
+                make_boolean_structure(
+                    patient=patient,
+                    case=case,
+                    examination=examination,
+                    **sotvu_defs)
+                newly_generated_rois.append(sotvu_defs.get("StructureName"))
 
     # Target creation complete moving on to rings
     status.next_step(text='Rings being generated')
