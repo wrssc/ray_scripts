@@ -41,9 +41,10 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
-from connect import *
+import connect
 import sys
 import logging
+import xml.etree.Elementtree
 
 
 def CreatePrvs(case, examination, check_all, **kwargs):
@@ -69,7 +70,13 @@ def CreatePrvs(case, examination, check_all, **kwargs):
     }
 
     if check_all:
+        protocol_folder = r'../protocols/UW_Approved'
+        file_name = 'UW_prvs_and_logical.xml'
 
+        tree = xml.etree.ElementTree.parse(os.path.join(protocol_folder, file_name))
+        for s in tree.findall('//planning_structures/derived_roi'):
+            print 'Adding derived struct'
+            print s
     else:
         for key in kwargs:
             # dict key is the source name from the function call
