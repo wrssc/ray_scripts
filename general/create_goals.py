@@ -20,6 +20,7 @@ import datetime
 import xml.etree.ElementTree
 import connect
 import UserInterface
+import WriteTpo
 import Goals
 
 
@@ -38,6 +39,8 @@ def main():
     except Exception:
         UserInterface.WarningBox('This script requires a patient and plan to be loaded')
         sys.exit('This script requires a patient and plan to be loaded')
+
+    a = tpo.load_protocols(os.path.join(os.path.dirname(__file__), protocol_folder))
 
     ptv_md_dose = 60
     ptv_name = 'PTV_MD'
