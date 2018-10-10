@@ -1,0 +1,15 @@
+<planning_structures>
+   <derived_roi>
+    <name>BrachialPlexus_L_PRV05</name>
+    <type mar="0.3">Exp</type>
+    <color>"255, 0, 255"</color>
+    <organ_type>Avoidance</organ_type>
+    </derived_roi>
+    <derived_roi>
+        <name>BrachialPlexus_R_PRV05</name>
+        <type mar="0.3">Exp</type>
+        <color>"255, 0, 255"</color>
+        <organ_type>Avoidance</organ_type>
+    </derived_roi>
+</planning_structures>
+
