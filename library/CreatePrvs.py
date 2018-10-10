@@ -36,7 +36,7 @@ __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
 __raystation__ = '6.0.0'
 __maintainer__ = 'One maintainer'
-__email__ =  'rabayliss@wisc.edu'
+__email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
@@ -45,57 +45,64 @@ from connect import *
 import sys
 import logging
 
-def CreatePrvs(case, examination, **kwargs):
-    Colors = { 
-        "BrainStem"		:	"127, 255, 212",
-        "BrachialPlexus_R"	:	"255,   0, 255",
-        "BrachialPlexus_L"	:	"255,   0, 255",
-	"BronchialTree_R"	:	"162, 205,  90",
-	"BronchialTree_L"	:	"162, 205,  90",
-        "CaudaEquina"		:	"  0, 100,   0",
-        "Chiasm"		:	"34,  139,  34",
-        "Cochlea_R"		:	"173, 216, 230",
-        "Cochlea_L"		:	"173, 216, 230",
-	"Duodenum"		:	"  0, 100,   0",
-        "Esophagus"		:	" 70,  30, 180",
-	"Kidney_R"		:	"138,  43, 226",
-	"Kidney_L"		:	"138,  43, 226",
-        "Lens_R"		:	"205, 133,   0",
-        "Lens_L"		:	"205, 133,   0",
-        "OpticNerve_R"		:	"250, 128, 114",
-        "OpticNerve_L"		:	"250, 128, 114",
-        "SpinalCord"		:	"  0, 100,   0"
-             }
-       
-        
-    for key in kwargs:
-        # dict key is the source name from the function call
-        SourceName = str(key)
-        # Expansion (in cm) is the value from the input dict
-        Exp = kwargs[key]
-        # Make a string out of the Exp (noting we are looking for "0.3" 
-        StrExp = str(Exp)
-        # Format the PRV name, note that I have assumed a mm number here
-        # for example, Exp = 0.3 -> '03'
-        PRVName = SourceName+'_PRV'+StrExp.replace('.','')
-        # If one isn't found, I am not sure what this error message will do below in the colors list
-        Color = Colors.get(SourceName, "Error no matching structure found in the Color list for PRVs")
-        # All PRV's hardcoded as type avoidance
-        Type = "Avoidance"
-        # Define a uniform expansion dictionary for the SetMarginExpression function
-        ExpDict = {'Type': "Expand", 'Superior': Exp, 'Inferior': Exp, 'Anterior': Exp, 'Posterior': Exp, 'Right': Exp, 'Left': Exp }
-        try: 
-            if case.PatientModel.RegionsOfInterest[SourceName]:
-                # Look to see if this structure exists.  If so delete it and update to derived
-                try:
-                    case.PatientModel.RegionsOfInterest[PRVName]
-                    retval_0 = case.PatientModel.RegionsOfInterest[PRVName].DeleteRoi()
-                    retval_0 = case.PatientModel.CreateRoi(Name=PRVName, Color=Color, Type=Type, TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
-                except:
-                    retval_0 = case.PatientModel.CreateRoi(Name=PRVName, Color=Color, Type=Type, TissueName=None, RbeCellTypeName=None, RoiMaterial=None)
-                # Expand the PRV from the source and update the geometry
-                retval_0.SetMarginExpression(SourceRoiName=SourceName, MarginSettings=ExpDict)
-                retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
-        except:
-            logging.warning("No PRV Generated for Structure: "+SourceName+".  It was not found in the Regions of Interest list.")
 
+def CreatePrvs(case, examination, check_all, **kwargs):
+    Colors = {
+        "BrainStem": "127, 255, 212",
+        "BrachialPlexus_R": "255,   0, 255",
+        "BrachialPlexus_L": "255,   0, 255",
+        "BronchialTree_R": "162, 205,  90",
+        "BronchialTree_L": "162, 205,  90",
+        "CaudaEquina": "  0, 100,   0",
+        "Chiasm": "34,  139,  34",
+        "Cochlea_R": "173, 216, 230",
+        "Cochlea_L": "173, 216, 230",
+        "Duodenum": "  0, 100,   0",
+        "Esophagus": " 70,  30, 180",
+        "Kidney_R": "138,  43, 226",
+        "Kidney_L": "138,  43, 226",
+        "Lens_R": "205, 133,   0",
+        "Lens_L": "205, 133,   0",
+        "OpticNerve_R": "250, 128, 114",
+        "OpticNerve_L": "250, 128, 114",
+        "SpinalCord": "  0, 100,   0"
+    }
+
+    if check_all:
+
+    else:
+        for key in kwargs:
+            # dict key is the source name from the function call
+            SourceName = str(key)
+            # Expansion (in cm) is the value from the input dict
+            Exp = kwargs[key]
+            # Make a string out of the Exp (noting we are looking for "0.3"
+            StrExp = str(Exp)
+            # Format the PRV name, note that I have assumed a mm number here
+            # for example, Exp = 0.3 -> '03'
+            PRVName = SourceName + '_PRV' + StrExp.replace('.', '')
+            # If one isn't found, I am not sure what this error message will do below in the colors list
+            Color = Colors.get(SourceName, "Error no matching structure found in the Color list for PRVs")
+            # All PRV's hardcoded as type avoidance
+            Type = "Avoidance"
+            # Define a uniform expansion dictionary for the SetMarginExpression function
+            ExpDict = {'Type': "Expand", 'Superior': Exp, 'Inferior': Exp, 'Anterior': Exp, 'Posterior': Exp, 'Right': Exp,
+                       'Left': Exp}
+            try:
+                if case.PatientModel.RegionsOfInterest[SourceName]:
+                    # Look to see if this structure exists.  If so delete it and update to derived
+                    try:
+                        case.PatientModel.RegionsOfInterest[PRVName]
+                        retval_0 = case.PatientModel.RegionsOfInterest[PRVName].DeleteRoi()
+                        retval_0 = case.PatientModel.CreateRoi(Name=PRVName, Color=Color, Type=Type, TissueName=None,
+                                                               RbeCellTypeName=None, RoiMaterial=None)
+                    except:
+                        retval_0 = case.PatientModel.CreateRoi(Name=PRVName, Color=Color, Type=Type, TissueName=None,
+                                                               RbeCellTypeName=None, RoiMaterial=None)
+                    # Expand the PRV from the source and update the geometry
+                    retval_0.SetMarginExpression(SourceRoiName=SourceName, MarginSettings=ExpDict)
+                    retval_0.UpdateDerivedGeometry(Examination=examination, Algorithm="Auto")
+            except:
+                logging.warning(
+                    "No PRV Generated for Structure: " + SourceName +
+                    ".  It was not found in the Regions of Interest list.")
