@@ -24,7 +24,7 @@ import Goals
 
 
 def main():
-    protocol_folder = r'../protocols/UW'
+    protocol_folder = r'../../protocols/UW'
     file_name = 'UWLung_StandardFractionation.xml'
     # Get current patient, case, and exam
     try:
