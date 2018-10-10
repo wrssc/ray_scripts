@@ -70,7 +70,7 @@ def CreatePrvs(case, examination, check_all, **kwargs):
     }
 
     if check_all:
-        protocol_folder = r'../protocols/UW_Approved'
+        protocol_folder = r'../../protocols/UW_Approved'
         file_name = 'UW_prvs_and_logical.xml'
 
         tree = xml.etree.ElementTree.parse(os.path.join(protocol_folder, file_name))
