@@ -24,7 +24,8 @@ import Goals
 
 
 def main():
-    protocol_folder = r'../../protocols/UW'
+    protocol_folder = r'../protocols'
+    institution_folder = 'UW'
     file_name = 'UWLung_StandardFractionation.xml'
     # Get current patient, case, and exam
     try:
@@ -43,7 +44,8 @@ def main():
 
 
     #file_name_with_path = os.path.join(protocol_folder,file_name)
-    tree = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), protocol_folder, file_name))
+    tree = xml.etree.ElementTree.parse(os.path.join(
+        os.path.dirname(__file__), protocol_folder, institution_folder, file_name))
     root = tree.getroot()
 
     for g in root.findall('./goals/roi'):
