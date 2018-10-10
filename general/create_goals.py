@@ -25,7 +25,8 @@ import pprint
 
 
 def main():
-    protocol_folder = r'../protocols/UW'
+    protocols_folder = r'protocols'
+    uw_folder = r'UW'
     file_name = 'UWLung_StandardFractionation.xml'
     # Get current patient, case, and exam
     try:
@@ -42,7 +43,7 @@ def main():
     ptv_md_dose = 60
     ptv_name = 'PTV_MD'
 
-    file_name_with_path = os.path.join(protocol_folder, file_name)
+    file_name_with_path = os.path.join(protocol_folder, uw_folder, file_name)
     tree = xml.etree.ElementTree.parse(file_name_with_path)
     root = tree.getroot()
 
