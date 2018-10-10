@@ -24,9 +24,9 @@ import Goals
 
 
 def main():
-    protocol_folder = '..\protocols'
-    institution_folder = 'UW'
-    file_name = 'UWLung_StandardFractionation.xml'
+    protocol_folder = r'..\protocols'
+    institution_folder = r'UW'
+    file_name = r'UWLung_StandardFractionation.xml'
     # Get current patient, case, and exam
     try:
         patient = connect.get_current('Patient')
