@@ -25,7 +25,7 @@ import pprint
 
 
 def main():
-    protocols_folder = r'protocols'
+    protocol_folder = r'protocols'
     uw_folder = r'UW'
     file_name = 'UWLung_StandardFractionation.xml'
     # Get current patient, case, and exam
