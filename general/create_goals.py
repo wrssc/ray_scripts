@@ -65,8 +65,6 @@ def main():
 
     # Launch the dialog
     print input_dialog.show()
-    number_targets = input_dialog.values['input0']
-    input_protocol = input_dialog.values['input1']
 
     # To load the xml from file directly, without use of the TPO load:
     # path_file = path_file = os.path.join(os.path.dirname(__file__),
