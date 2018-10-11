@@ -65,16 +65,15 @@ def main():
     # Launch the dialog
     print input_dialog.show()
     number_targets = input_dialog.values['input0']
-    input_protcol = input_dialog.values['input1']
+    input_protocol = input_dialog.values['input1']
 
     #path_file = path_file = os.path.join(os.path.dirname(__file__),
     #                                     protocol_folder, institution_folder, file_name)
-    # Need to load the value of this key
-    print tpo.protocols[input_dialog.values['input1']]
-    tree = tpo.protocols[input_dialog.values['input1']]
-
     #tree = xml.etree.ElementTree.parse(path_file)
-    root = tree.getroot()
+    # Need to load the value of this key
+    root = tpo.protocols[input_protocol]
+   # tree = tpo.protocols[input_protocol]
+   # root = tree.getroot()
 
     for g in root.findall('./goals/roi'):
         if g.find('name').text == ptv_name and "%" in g.find('dose').attrib['units']:
