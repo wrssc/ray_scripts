@@ -78,6 +78,7 @@ def main():
     protocol_targets = []
     for g in root.findall('./goals/roi'):
         for t in targets:
+            print t
             if t in g.find('name').text and g.find('name').text not in protocol_targets:
                protocol_targets.append(g.find('name').text)
 
