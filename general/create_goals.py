@@ -63,16 +63,15 @@ def main():
         required=['input0', 'input1'])
 
     # Launch the dialog
-    inputs = input_dialog.show()
-    for v in input_dialog.values:
-        print v
-    file_name = input_dialog.values['input1']
-    path_file = path_file = os.path.join(os.path.dirname(__file__),
-                                         protocol_folder, institution_folder, file_name)
+    print input_dialog.show()
+    number_targets = input_dialog.values['input0']
+    input_protcol = input_dialog.values['input1']
 
-    # file_name_with_path = os.path.join(protocol_folder,file_name)
+    #path_file = path_file = os.path.join(os.path.dirname(__file__),
+    #                                     protocol_folder, institution_folder, file_name)
+    tree=input_dialog.values['input1']
 
-    tree = xml.etree.ElementTree.parse(path_file)
+    #tree = xml.etree.ElementTree.parse(path_file)
     root = tree.getroot()
 
     for g in root.findall('./goals/roi'):
