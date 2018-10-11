@@ -100,7 +100,8 @@ def main():
         final_inputs[k_dose] = 'Target'+str(i)+' Dose in cGy'
         final_options[k_name] = target_matches
         final_datatype[k_name] = 'combo'
-        final_required.append(k_dose, k_name)
+        final_required.append(k_name)
+        final_required.append(k_dose)
 
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,
