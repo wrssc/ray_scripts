@@ -77,10 +77,41 @@ def main():
     root = tpo.protocols[input_dialog.values['input1']]
     protocol_targets = []
     for g in root.findall('./goals/roi'):
+        # Ugh, gotta be a more pythonic way to do this loop
         for t in targets:
-            print t
             if t in g.find('name').text and g.find('name').text not in protocol_targets:
                protocol_targets.append(g.find('name').text)
+
+    # Second dialog
+    # Find RS targets
+    target_matches = []
+    for r in case.PatientModel.RegionsOfInterest:
+        if r.Type == 'Ptv':
+            target_matches.append(r.Name)
+
+    final_inputs = {}
+    final_options = {}
+    final_datatype = {}
+    final_required = []
+
+    # Add an input for every target name and dose
+    for i in range(1, number_targets):
+        k_name = 'input' + str(2*i - 1)
+        k_dose = 'input' + str(2*i)
+        final_inputs[k_name] = 'Target'+str(i)+' name'
+        final_inputs[k_dose] = 'Target'+str(i)+' Dose in cGy'
+        final_options[k_name] = target_matches
+        final_datatype[k_name] = 'combo'
+        final_required.append(k_dose, k_name)
+
+    final_dialog = UserInterface.InputDialog(
+        inputs=final_inputs,
+        title='Input Clinical Goals',
+        datatype=final_datatype,
+        initial={},
+        options=final_options,
+        required=final_required)
+    print final_dialog
 
     print "protocol contains {} targets called: {}".format(len(protocol_targets),protocol_targets)
  #       if g.find('name').text == ptv_name and "%" in g.find('dose').attrib['units']:
