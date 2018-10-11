@@ -64,6 +64,9 @@ def main():
 
     # Launch the dialog
     inputs = input_dialog.show()
+    file_name = inputs['input1']
+    path_file = path_file = os.path.join(os.path.dirname(__file__),
+                                         protocol_folder, institution_folder, file_name)
 
     # file_name_with_path = os.path.join(protocol_folder,file_name)
 
