@@ -95,7 +95,7 @@ def main():
     final_required = []
 
     # Add an input for every target name and dose
-    for i in range(1, number_targets):
+    for i in range(1, int(input_dialog.values['input0'])):
         k_name = 'input' + str(2*i - 1)
         k_dose = 'input' + str(2*i)
         final_inputs[k_name] = 'Target'+str(i)+' name'
