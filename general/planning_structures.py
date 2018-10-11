@@ -168,6 +168,7 @@ def main():
     newly_generated_rois = []
     # Commonly underdoses structures
     # Plan structures matched in this list will be selected for checkbox elements below
+    # TODO: move this list to the xml file for a given protocol
     UnderStructureChoices = [
         'Aorta',
         'BrachialPlexus_L',
