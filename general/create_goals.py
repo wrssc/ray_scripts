@@ -77,8 +77,9 @@ def main():
     root = tpo.protocols[input_dialog.values['input1']]
     protocol_targets = []
     for g in root.findall('./goals/roi'):
-        if g.find('name').text in targets and g.find('name').text not in protocol_targets:
-            protocol_targets.append(g.find('name').text)
+        for t in targets:
+            if t in g.find('name').text and g.find('name').text not in protocol_targets:
+               protocol_targets.append(g.find('name').text)
 
     print "protocol contains {} targets called: {}".format(len(protocol_targets),protocol_targets)
  #       if g.find('name').text == ptv_name and "%" in g.find('dose').attrib['units']:
