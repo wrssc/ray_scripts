@@ -45,6 +45,7 @@ def main():
     #TODO: replace all the hardcoded options with a user interface prompt
 
     tpo = UserInterface.TpoDialog()
+    print path_protocols
     tpo.load_protocols(path_protocols)
     #tpo.load_protocols(os.path.join(os.path.dirname(__file__), r'../protocols/UW'))
     for p in tpo.protocols:
@@ -55,6 +56,7 @@ def main():
 
 
     #file_name_with_path = os.path.join(protocol_folder,file_name)
+
     tree = xml.etree.ElementTree.parse(path_file)
     root = tree.getroot()
 
