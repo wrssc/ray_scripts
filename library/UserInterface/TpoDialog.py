@@ -1340,6 +1340,7 @@ class TpoDialog:
             if f.endswith('.xml'):
                 tree = xml.etree.ElementTree.parse(os.path.join(folder, f))
                 if tree.getroot().tag == 'protocol':
+                    logging.debug("parsing xml: {}".format(f))
                     n = tree.find('name').text
                     logging.debug('Found protocol {} in {}'.format(n, f))
                     if n in self.protocols:
