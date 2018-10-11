@@ -42,20 +42,30 @@ def main():
         UserInterface.WarningBox('This script requires a patient and plan to be loaded')
         sys.exit('This script requires a patient and plan to be loaded')
 
-    #TODO: replace all the hardcoded options with a user interface prompt
+    # TODO: replace all the hardcoded options with a user interface prompt
 
     tpo = UserInterface.TpoDialog()
-    print path_protocols
     tpo.load_protocols(path_protocols)
-    #tpo.load_protocols(os.path.join(os.path.dirname(__file__), r'../protocols/UW'))
-    for p in tpo.protocols:
-        print p
 
     ptv_md_dose = 60
     ptv_name = 'PTV_MD'
 
+    # This dialog grabs the relevant parameters to generate the whole brain plan
+    input_dialog = UserInterface.InputDialog(
+        inputs={
+            'input0': 'Number of targets',
+            'input1': 'Select Protocol',
+        },
+        title='Initial Input Clinical Goals',
+        datatype={'input1': 'combo'},
+        initial={},
+        options={'input1': tpo.protocols},
+        required=['input0', 'input1'])
 
-    #file_name_with_path = os.path.join(protocol_folder,file_name)
+    # Launch the dialog
+    inputs = input_dialog.show()
+
+    # file_name_with_path = os.path.join(protocol_folder,file_name)
 
     tree = xml.etree.ElementTree.parse(path_file)
     root = tree.getroot()
@@ -70,4 +80,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
