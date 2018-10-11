@@ -60,12 +60,13 @@ def main():
         title='Initial Input Clinical Goals',
         datatype={'input1': 'combo'},
         initial={},
-        options={'input1': tpo.protocols},
+        options={'input1': list(tpo.protocols.keys())},
         required=['input0', 'input1'])
 
     # Launch the dialog
     inputs = input_dialog.show()
-    file_name = inputs['input1']
+    print input_dialog['input1']
+    file_name = input_dialog['input1']
     path_file = path_file = os.path.join(os.path.dirname(__file__),
                                          protocol_folder, institution_folder, file_name)
 
