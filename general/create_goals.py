@@ -46,6 +46,8 @@ def main():
 
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
+    for p in tpo.protocols:
+        print p
 
     ptv_md_dose = 60
     ptv_name = 'PTV_MD'
