@@ -70,6 +70,7 @@ def main():
     #path_file = path_file = os.path.join(os.path.dirname(__file__),
     #                                     protocol_folder, institution_folder, file_name)
     # Need to load the value of this key
+    print tpo.protocols[input_dialog.values['input1']]
     tree = tpo.protocols[input_dialog.values['input1']]
 
     #tree = xml.etree.ElementTree.parse(path_file)
