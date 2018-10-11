@@ -46,7 +46,6 @@ def main():
 
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
-    print tpo.protocols
 
     ptv_md_dose = 60
     ptv_name = 'PTV_MD'
@@ -65,8 +64,9 @@ def main():
 
     # Launch the dialog
     inputs = input_dialog.show()
-    print input_dialog['input1']
-    file_name = input_dialog['input1']
+    for v in input_dialog.values:
+        print v
+    file_name = input_dialog.values['input1']
     path_file = path_file = os.path.join(os.path.dirname(__file__),
                                          protocol_folder, institution_folder, file_name)
 
