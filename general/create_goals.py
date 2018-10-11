@@ -28,6 +28,8 @@ def main():
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
     file_name = 'UWLung_StandardFractionation.xml'
+    path_file = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder, file_name)
+    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
     # Get current patient, case, and exam
     try:
         patient = connect.get_current('Patient')
@@ -43,7 +45,8 @@ def main():
     #TODO: replace all the hardcoded options with a user interface prompt
 
     tpo = UserInterface.TpoDialog()
-    tpo.load_protocols(os.path.join(os.path.dirname(__file__), r'../protocols/UW'))
+    tpo.load_protocols(path_protocols)
+    #tpo.load_protocols(os.path.join(os.path.dirname(__file__), r'../protocols/UW'))
     for p in tpo.protocols:
         print p
 
@@ -52,8 +55,7 @@ def main():
 
 
     #file_name_with_path = os.path.join(protocol_folder,file_name)
-    tree = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__),
-                                                    protocol_folder, institution_folder, file_name))
+    tree = xml.etree.ElementTree.parse(path_file)
     root = tree.getroot()
 
     for g in root.findall('./goals/roi'):
