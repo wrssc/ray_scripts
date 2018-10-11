@@ -43,7 +43,7 @@ def main():
     #TODO: replace all the hardcoded options with a user interface prompt
 
     tpo = UserInterface.TpoDialog()
-    tpo.load_protocols(os.path.join(os.path.dirname(__file__), '../../protocols/UW'))
+    tpo.load_protocols(os.path.join(os.path.dirname(__file__), r'../protocols/UW'))
     for p in tpo.protocols:
         print p
 
