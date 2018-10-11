@@ -40,7 +40,12 @@ def main():
         UserInterface.WarningBox('This script requires a patient and plan to be loaded')
         sys.exit('This script requires a patient and plan to be loaded')
 
-    a = tpo.load_protocols(os.path.join(os.path.dirname(__file__), protocol_folder))
+    #TODO: replace all the hardcoded options with a user interface prompt
+
+    tpo = UserInterface.TpoDialog()
+    tpo.load_protocols(os.path.join(os.path.dirname(__file__), '../../protocols/UW'))
+    for p in tpo.protocols:
+        print p
 
     ptv_md_dose = 60
     ptv_name = 'PTV_MD'
