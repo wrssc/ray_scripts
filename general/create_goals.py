@@ -93,7 +93,8 @@ def main():
     final_required = []
 
     # Add an input for every target name and dose
-    for i in range(1, int(input_dialog.values['input0'])):
+    input_targets = int(input_dialog.values['input0'])
+    for i in range(1, input_targets)
         k_name = 'input' + str(2*i - 1)
         k_dose = 'input' + str(2*i)
         final_inputs[k_name] = 'Target'+str(i)+' name'
@@ -102,6 +103,13 @@ def main():
         final_datatype[k_name] = 'combo'
         final_required.append(k_name)
         final_required.append(k_dose)
+    # TODO: Add the matching elements here, for the number of targets found in the protocol
+    #   add an input key and a combo-box
+    #   key name should be: 'Target found with name' + protocol_targets[p] select the target
+    #   from the target list matching this target
+    #   if input_targets > protocol_targets
+    #   all other: Protocol does not have instructions for all of your targets:
+    #   the script should have a checkbox for SBRT coverage, differential dose, same as first target
 
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,
