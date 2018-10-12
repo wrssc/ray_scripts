@@ -44,7 +44,7 @@ def main():
 
     # TODO: replace all the hardcoded options with a user interface prompt
     # Without adding another attribute to the goals list, here's what we need to do
-    targets = ['PTV','ITV','GTV']
+    targets = ['PTV', 'ITV', 'GTV']
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
 
@@ -68,7 +68,7 @@ def main():
     # Store the number of targets
     input_targets = int(input_dialog.values['input0'])
     logging.info("create_goals.py: user input {} targets for protocol: {}".format(
-       input_targets, input_dialog.values['input1']
+        input_targets, input_dialog.values['input1']
     ))
     # To load the xml from file directly, without use of the TPO load:
     # path_file = path_file = os.path.join(os.path.dirname(__file__),
@@ -83,7 +83,9 @@ def main():
         # ? for g, t in ((a,b) for a in root.findall('./goals/roi') for b in targets)
         for t in targets:
             if t in g.find('name').text and g.find('name').text not in protocol_targets:
-               protocol_targets.append(g.find('name').text)
+                protocol_targets.append(g.find('name').text)
+    logging.debug("protocol contains {} targets called: {}".format(
+        len(protocol_targets), protocol_targets))
 
     # Second dialog
     # Find RS targets
@@ -99,14 +101,21 @@ def main():
 
     # Add an input for every target name and dose
     for i in range(1, input_targets):
-        k_name = 'input' + str(2*i - 1)
-        k_dose = 'input' + str(2*i)
-        final_inputs[k_name] = 'Target'+str(i)+' name'
-        final_inputs[k_dose] = 'Target'+str(i)+' Dose in cGy'
+        k_name = str(2 * i - 1)
+        k_dose = str(2 * i)
+        final_inputs[k_name] = 'Target' + str(i) + ' name'
+        final_inputs[k_dose] = 'Target' + str(i) + ' Dose in cGy'
         final_options[k_name] = target_matches
         final_datatype[k_name] = 'combo'
         final_required.append(k_name)
         final_required.append(k_dose)
+    # Grab the number of inputs so far and start new input
+    i = len(final_inputs) + 1
+    for t in protocol_targets:
+        final_inputs[str(i)] = 'Match protocol target:' + t + ' to one of these'
+        final_options[str(i)] = target_matches
+        i += 1
+    # Loop over user identified targets that have no corresponding match.
     for k, v in final_inputs.iteritems():
         logging.debug("create_goals.py: Inputs created as name, value: {} : {}".format(
             k, v))
@@ -126,14 +135,15 @@ def main():
         initial={},
         options=final_options,
         required=final_required)
-    print final_dialog
+    print final_dialog.show()
 
-    print "protocol contains {} targets called: {}".format(len(protocol_targets),protocol_targets)
- #       if g.find('name').text == ptv_name and "%" in g.find('dose').attrib['units']:
- #           g.find('dose').attrib = "Gy"
- #           g.find('dose').text = str(ptv_md_dose)
- #       logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
- #       Goals.add_goal(g, connect.get_current('Plan'))
+
+
+#       if g.find('name').text == ptv_name and "%" in g.find('dose').attrib['units']:
+#           g.find('dose').attrib = "Gy"
+#           g.find('dose').text = str(ptv_md_dose)
+#       logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
+#       Goals.add_goal(g, connect.get_current('Plan'))
 
 
 if __name__ == '__main__':
