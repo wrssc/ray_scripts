@@ -112,7 +112,8 @@ def main():
     # Grab the number of inputs so far and start new input
     i = len(final_inputs) + 1
     for t in protocol_targets:
-        final_inputs[str(i)] = 'Match protocol target:' + t + ' to one of these'
+        print t
+        final_inputs[str(i)] = 'Match protocol target:' + str(t) + ' to one of these'
         final_options[str(i)] = target_matches
         i += 1
     # Loop over user identified targets that have no corresponding match.
