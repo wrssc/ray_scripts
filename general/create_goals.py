@@ -111,11 +111,11 @@ def main():
         final_required.append(k_dose)
     # Grab the number of inputs so far and start new input
     i = len(final_inputs) + 1
-    for t in protocol_targets:
-        print t
-        final_inputs[str(i)] = 'Match protocol target:' + str(t) + ' to one of these'
-        final_options[str(i)] = target_matches
-        i += 1
+   ## for t in protocol_targets:
+   ##     print t
+   ##     final_inputs[str(i)] = 'Match protocol target:' + str(t) + ' to one of these'
+   ##     final_options[str(i)] = target_matches
+   ##     i += 1
     # Loop over user identified targets that have no corresponding match.
     for k, v in final_inputs.iteritems():
         logging.debug("create_goals.py: Inputs created as name, value: {} : {}".format(
