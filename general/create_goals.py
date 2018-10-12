@@ -113,9 +113,10 @@ def main():
     i = len(final_inputs) + 1
     for t in protocol_targets:
         print t
-        k_name = str(i)
-        final_inputs[k_name] = 'Match protocol target:' + str(t) + ' to one of these'
-        final_options[k_name] = target_matches
+        final_inputs[str()] = 'Match protocol target:' + str(t) + ' to one of these'
+        final_options[str(i)] = target_matches
+        final_datatype[str(i)] = 'combo'
+        final_required.append(str(i))
         i += 1
     # Loop over user identified targets that have no corresponding match.
     for k, v in final_inputs.iteritems():
