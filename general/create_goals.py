@@ -65,7 +65,11 @@ def main():
 
     # Launch the dialog
     print input_dialog.show()
-
+    # Store the number of targets
+    input_targets = int(input_dialog.values['input0'])
+    logging.info("create_goals.py: user input {} targets for protocol: {}".format(
+       input_targets, input_dialog.values['input1']
+    ))
     # To load the xml from file directly, without use of the TPO load:
     # path_file = path_file = os.path.join(os.path.dirname(__file__),
     #                                     protocol_folder, institution_folder, file_name)
@@ -76,6 +80,7 @@ def main():
     protocol_targets = []
     for g in root.findall('./goals/roi'):
         # Ugh, gotta be a more pythonic way to do this loop
+        # ? for g, t in ((a,b) for a in root.findall('./goals/roi') for b in targets)
         for t in targets:
             if t in g.find('name').text and g.find('name').text not in protocol_targets:
                protocol_targets.append(g.find('name').text)
@@ -93,7 +98,6 @@ def main():
     final_required = []
 
     # Add an input for every target name and dose
-    input_targets = int(input_dialog.values['input0'])
     for i in range(1, input_targets):
         k_name = 'input' + str(2*i - 1)
         k_dose = 'input' + str(2*i)
@@ -103,6 +107,9 @@ def main():
         final_datatype[k_name] = 'combo'
         final_required.append(k_name)
         final_required.append(k_dose)
+    for k, v in final_inputs.iteritems():
+        logging.debug("create_goals.py: Inputs created as name, value: {} : {}".format(
+            k, v))
     # TODO: Add the matching elements here, for the number of targets found in the protocol
     #   add an input key and a combo-box
     #   key name should be: 'Target found with name' + protocol_targets[p] select the target
@@ -110,6 +117,7 @@ def main():
     #   if input_targets > protocol_targets
     #   all other: Protocol does not have instructions for all of your targets:
     #   the script should have a checkbox for SBRT coverage, differential dose, same as first target
+
 
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,
