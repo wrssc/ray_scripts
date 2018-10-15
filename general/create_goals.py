@@ -191,7 +191,7 @@ def main():
     final_options = {}
     final_datatype = {}
     final_required = []
-    i = 0
+    i = 1
     # Generate an input list for the dialog the form should be
     # Key (<odd index>_protocol_target) : Value (Match Instructions)
     # Key (<even index>_protocol_target) : Value (Dose Instructions)
@@ -204,8 +204,8 @@ def main():
             if g_name not in protocol_targets:
                 if g_name in t:
                     protocol_targets.append(g_name)
-                    k = str(2 * i - 1)
-                    k_name = k.zfill(2) + g_name + '_name'
+                    k = str(i)
+                    k_name = k.zfill(2) + 'a_name'
                     # These dict entries are needed for user-specified target entries
                     final_inputs[k_name] = 'Match a plan target to ' + g_name
                     final_initial[k_name] = t
@@ -213,16 +213,16 @@ def main():
                     final_datatype[k_name] = 'combo'
                     final_required.append(k_name)
                     # even index, use for dose values
-                    kd = str(2 * i)
-                    k_dose = kd.zfill(2) + g_name + '_dose'
-                    final_inputs[k_dose] = 'Provide dose for protocol target' + g_name + ' Dose in cGy'
+                    kd = str(i)
+                    k_dose = kd.zfill(2) + 'b_dose'
+                    final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
                     final_required.append(k_dose)
-                    i += 2
+                    i += 1
                 # If the goal is not in the plan list, but is likely a target
                 elif g_name not in t and g_name in targets:
                     protocol_targets.append(g_name)
-                    k = str(2 * i - 1)
-                    k_name = k.zfill(2) + g_name + '_name'
+                    k = str(i)
+                    k_name = k.zfill(2) + g_name + 'a_name'
                     # odd index use for protocol_target
                     # These dict entries are needed for user-specified target entries
                     final_inputs[k_name] = 'Match a plan target to ' + g_name
@@ -230,11 +230,11 @@ def main():
                     final_datatype[k_name] = 'combo'
                     final_required.append(k_name)
                     # even index, use for dose values
-                    kd = str(2 * i)
-                    k_dose = kd.zfill(2) + g_name + '_dose'
-                    final_inputs[k_dose] = 'Provide dose for protocol target' + g_name + ' Dose in cGy'
+                    kd = str(i)
+                    k_dose = kd.zfill(2) + 'b_dose'
+                    final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
                     final_required.append(k_dose)
-                    i += 2
+                    i += 1
 
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,
