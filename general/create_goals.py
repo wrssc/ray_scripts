@@ -257,7 +257,7 @@ def main():
         i, p = k.split("_", 1)
         print "i: {} and p: {}".format(i, p)
         if 'name' in i:
-            protocol_match[p].append(v)
+            protocol_match[p] = [v]
         if 'dose' in i:
             protocol_match[p].append(float(v) / 100.)
         print "key: {}, and protocol_match[p] = {}".format(p, protocol_match[p])
