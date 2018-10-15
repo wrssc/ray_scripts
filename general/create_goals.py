@@ -255,12 +255,16 @@ def main():
     i = 1
     for k, v in final_dialog.values.iteritems():
         i, p = k.split("_", 1)
-        print "i: {} and p: {}".format(i, p)
+        #print "i: {} and p: {}".format(i, p)
         if 'name' in i:
+            # Key name will be the protocol target name
             protocol_match[p] = [v]
+            print "key: {}, and protocol_match[p] = {}".format(p, protocol_match[p])
         if 'dose' in i:
-            protocol_match[p].append(float(v) / 100.)
-        print "key: {}, and protocol_match[p] = {}".format(p, protocol_match[p])
+            # Append _dose to the key name
+            pd = p + '_dose'
+            protocol_match[pd] = (float(v) / 100.)
+            print "key: {}, and protocol_match[p] = {}".format(pd, protocol_match[pd])
     # Add goals, note that the only way secondary goals get added is if the user is willing
     # to add them in with the same goals as the protocol
     for g in root.findall('./goals/roi'):
