@@ -255,7 +255,6 @@ def main():
     i = 1
     for k, v in final_dialog.values.iteritems():
         i, p = k.split("_", 1)
-        #print "i: {} and p: {}".format(i, p)
         if 'name' in i:
             # Key name will be the protocol target name
             protocol_match[p] = v
@@ -265,6 +264,7 @@ def main():
             pd = p + '_dose'
             protocol_match[pd] = (float(v) / 100.)
             print "key: {}, and protocol_match[p] = {}".format(pd, protocol_match[pd])
+
     # Add goals, note that the only way secondary goals get added is if the user is willing
     # to add them in with the same goals as the protocol
     for g in root.findall('./goals/roi'):
@@ -272,14 +272,15 @@ def main():
         if g.find('name').text in protocol_match and "%" in g.find('dose').attrib['units']:
             name_key = g.find('name').text
             dose_key = g.find('name').text + '_dose'
-            logging.debug('Reassigned protocol name from {} to {}, for dose {}'.format(
+            logging.debug('Reassigned protocol name from {} to {}, for dose {} Gy'.format(
                 g.find('name').text, protocol_match[name_key],
                 protocol_match[dose_key]))
             g.find('name').text = protocol_match[name_key]
             g.find('dose').attrib = "Gy"
             g.find('dose').text = protocol_match[dose_key]
-            logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
-            Goals.add_goal(g, connect.get_current('Plan'))
+        # Regardless, add the goal now
+        logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
+        Goals.add_goal(g, connect.get_current('Plan'))
 
 
 if __name__ == '__main__':
