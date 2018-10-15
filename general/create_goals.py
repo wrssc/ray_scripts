@@ -205,7 +205,7 @@ def main():
                 if g_name in t:
                     protocol_targets.append(g_name)
                     k = str(i)
-                    k_name = k.zfill(2) + 'a_name'
+                    k_name = k.zfill(2) + 'name_' + g_name
                     # These dict entries are needed for user-specified target entries
                     final_inputs[k_name] = 'Match a plan target to ' + g_name
                     final_initial[k_name] = t
@@ -214,7 +214,7 @@ def main():
                     final_required.append(k_name)
                     # even index, use for dose values
                     kd = str(i)
-                    k_dose = kd.zfill(2) + 'b_dose'
+                    k_dose = kd.zfill(2) + 'dose_' + g_name
                     final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
                     final_required.append(k_dose)
                     i += 1
@@ -222,7 +222,7 @@ def main():
                 elif g_name not in t and g_name in targets:
                     protocol_targets.append(g_name)
                     k = str(i)
-                    k_name = k.zfill(2) + g_name + 'a_name'
+                    k_name = k.zfill(2) + 'name_' + g_name
                     # odd index use for protocol_target
                     # These dict entries are needed for user-specified target entries
                     final_inputs[k_name] = 'Match a plan target to ' + g_name
@@ -231,7 +231,7 @@ def main():
                     final_required.append(k_name)
                     # even index, use for dose values
                     kd = str(i)
-                    k_dose = kd.zfill(2) + 'b_dose'
+                    k_dose = kd.zfill(2) + 'dose_' + g_name
                     final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
                     final_required.append(k_dose)
                     i += 1
@@ -248,16 +248,19 @@ def main():
     # Process inputs
     target_names = []
     target_dose_values = []
-    protocol_match = []
+    # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
+    protocol_match = {}
     # Need a different loop here: want key = target name, value = dose in Gy
     # 1a, 1b?
     i = 1
     for k, v in final_dialog.values.iteritems():
-        print "key_value {} and k = {}".format(k[0],k)
-        if '_name' in k:
-            protocol_match.append(v)
-        if '_dose' in k:
-            target_dose_values.append(float(v) / 100.)
+        i, p = k.split("_",1)
+        print "key_value {} and k = {}".format(k[0:2], k)
+        if 'name_' in i:
+            protocol_match[p].append(v)
+        if 'dose_' in i:
+            protocol_match[p].append(float(v) / 100.)
+            print protocol_match[p]
     # Add goals, note that the only way secondary goals get added is if the user is willing
     # to add them in with the same goals as the protocol
     for g in root.findall('./goals/roi'):
