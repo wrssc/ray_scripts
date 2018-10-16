@@ -86,9 +86,8 @@ def main():
         g_name = g.find('name').text
         # Priorities should be even for targets and append unique elements only
         # into the protocol_targets list
-        #if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
-        if int(g.find('priority').text) % 2 == 0 and g_name not in final_inputs.values():
-            #protocol_targets.append(g_name)
+        if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
+            protocol_targets.append(g_name)
             k = str(i)
             # Python doesn't sort lists....
             k_name = k.zfill(2) + 'Aname_' + g_name
