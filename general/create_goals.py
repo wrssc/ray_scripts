@@ -88,6 +88,7 @@ def main():
         g_name = g.find('name').text
         # priority will be even if the goal is a target goal
         priority = g.find('priority').text
+        print "priority = {}".format(priority)
         for t in plan_targets:
             # Look for an existing match to the target in the protocol_target list
             if g.find('priority').text % 2 and g_name not in protocol_targets:
