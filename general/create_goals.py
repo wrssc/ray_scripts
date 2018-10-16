@@ -91,7 +91,7 @@ def main():
         print "priority = {}".format(priority)
         for t in plan_targets:
             # Look for an existing match to the target in the protocol_target list
-            if priority % 2 and g_name not in protocol_targets:
+            if priority % 2 == 0 and g_name not in protocol_targets:
                 protocol_targets.append(g_name)
                 k = str(i)
                 # Python doesn't sort lists....
