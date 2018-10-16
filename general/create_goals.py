@@ -1,15 +1,17 @@
 """ Create Clinical Goals
 
     Add clinical goals and objectives in RayStation given user supplied inputs
-    At this time, we are looking in the UW_Approved protocols directory for a
+    At this time, we are looking in the UW protocols directory for a
     list of approved protocols
 
     We may want to extend this main function to a simple function which would potentially
     take the path as an argument.
 
-
-
     Inputs::
+        None at this time
+
+    Dependencies::
+        Note that protocols are assumed to have even priorities describing targets
 
     TODO: Change the main to a callable function taking the protocol path as an input`
     TODO: Add goal loop for secondary - unspecified target goals
@@ -35,6 +37,7 @@ def main():
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
+
     # Get current patient, case, exam, and plan
     try:
         patient = connect.get_current('Patient')
@@ -47,16 +50,12 @@ def main():
         UserInterface.WarningBox('This script requires a patient and plan to be loaded')
         sys.exit('This script requires a patient and plan to be loaded')
 
-    # Replace this check with a check on the priorities
-    targets = ['PTV', 'ITV', 'GTV']
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
 
     input_dialog = UserInterface.InputDialog(
-        inputs={
-            'input1': 'Select Protocol',
-        },
-        title='Initial Input Clinical Goals',
+        inputs={'input1': 'Select Protocol'},
+        title='Protocol Selection',
         datatype={'input1': 'combo'},
         initial={},
         options={'input1': list(tpo.protocols.keys())},
@@ -65,6 +64,8 @@ def main():
     # Launch the dialog
     print input_dialog.show()
     # Link root to selected protocol ElementTree
+    logging.info("create_goals.py: protocol selected: {}".format(
+        input_dialog.values['input1']))
     root = tpo.protocols[input_dialog.values['input1']]
     # Find RS targets
     plan_targets = []
@@ -81,34 +82,27 @@ def main():
     final_datatype = {}
     final_required = []
     i = 1
-    for g, t in ((a,b) for a in root.findall('./goals/roi') for b in plan_targets):
-    #for g in root.findall('./goals/roi'):
-        # Ugh, gotta be a more pythonic way to do this loop
-        # ? for g, t in ((a,b) for a in root.findall('./goals/roi') for b in targets)
+    for g, t in ((a, b) for a in root.findall('./goals/roi') for b in plan_targets):
         g_name = g.find('name').text
-        # priority will be even if the goal is a target goal
-        priority = int(g.find('priority').text)
-    #    print "priority = {}".format(priority)
-    #    for t in plan_targets:
-            # Look for an existing match to the target in the protocol_target list
-        if priority % 2 == 0 and g_name not in protocol_targets:
-            protocol_targets.append(g_name)
+        # Priorities should be even for targets and append unique elements only
+        # into the protocol_targets list
+        #if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
+        if int(g.find('priority').text) % 2 == 0 and g_name not in final_inputs.values():
+            #protocol_targets.append(g_name)
             k = str(i)
             # Python doesn't sort lists....
             k_name = k.zfill(2) + 'Aname_' + g_name
+            k_dose = k.zfill(2) + 'Bdose_' + g_name
             final_inputs[k_name] = 'Match a plan target to ' + g_name
             final_options[k_name] = plan_targets
             final_datatype[k_name] = 'combo'
             final_required.append(k_name)
-            kd = str(i)
-            k_dose = kd.zfill(2) + 'Bdose_' + g_name
             final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
             final_required.append(k_dose)
             i += 1
             # Exact matches get an initial guess in the dropdown
             if g_name == t:
                 final_initial[k_name] = t
-            #elif g_name != t and any(g in g_name for g in targets):
 
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,

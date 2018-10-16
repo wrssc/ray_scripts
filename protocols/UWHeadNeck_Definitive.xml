@@ -1,5 +1,5 @@
 <protocol>
-    <name>UW Head and Neck</name>
+    <name>UW Head and Neck Definitive (70, 60, 54 Gy)</name>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>
@@ -24,96 +24,19 @@
                 <name>PTV1_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
+                <dose units="Gy" idl="100">70</dose>
             </roi>
             <roi>
                 <name>PTV2_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
+                <dose units="Gy" idl="100">60</dose>
             </roi>
             <roi>
                 <name>PTV3_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-    </order>
-    <order>
-        <name>One Sequential Boost</name>
-        <prefix>Nec_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV1_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV2_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-        <prescription>
-            <roi>
-                <name>PTV1_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-    </order>
-    <order>
-        <name>Two Sequential Boosts</name>
-        <prefix>Nec_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV1_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV2_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV3_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-        <prescription>
-            <roi>
-                <name>PTV1_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <roi>
-                <name>PTV2_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions></fractions>
-        </prescription>
-        <prescription>
-            <roi>
-                <name>PTV1_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100"></dose>
+                <dose units="Gy" idl="100">56</dose>
             </roi>
             <fractions></fractions>
         </prescription>

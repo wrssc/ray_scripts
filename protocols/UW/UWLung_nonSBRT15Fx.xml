@@ -14,7 +14,7 @@
     </diagnoses>
     <prescription>
         <roi>
-            <name>PTV</name>
+            <name>PTV1_Eval</name>
             <type>DX</type>
             <volume units="%">95</volume>
             <dose units="Gy" idl="100">45</dose>
@@ -51,14 +51,14 @@
             <priority>4</priority>
         </roi>
         <roi>
-            <name>PTV_MD</name>
+            <name>PTV1_Eval</name>
             <type dir="ge">DX</type>
             <volume units="%">95</volume>
             <dose units="%" roi="PTV">100</dose>
             <priority>4</priority>
         </roi>
         <roi>
-            <name>PTV_MD</name>
+            <name>PTV1_Eval</name>
             <type dir="ge">DX</type>
             <volume units="%">98</volume>
             <dose units="%" roi="PTV">90</dose>
