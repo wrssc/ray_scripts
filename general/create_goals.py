@@ -81,33 +81,33 @@ def main():
     final_datatype = {}
     final_required = []
     i = 1
-    for g, t in ((a,b) for a in root.findall('./goals/roi') for b in plan_targets):
-    #for g in root.findall('./goals/roi'):
+    #for g, t in ((a,b) for a in root.findall('./goals/roi') for b in plan_targets):
+    for g in root.findall('./goals/roi'):
         # Ugh, gotta be a more pythonic way to do this loop
         # ? for g, t in ((a,b) for a in root.findall('./goals/roi') for b in targets)
         g_name = g.find('name').text
         # priority will be even if the goal is a target goal
         priority = g.find('priority').text
-        #for t in plan_targets:
+        for t in plan_targets:
             # Look for an existing match to the target in the protocol_target list
-        if g.find('priority').text % 2 and g_name not in protocol_targets:
-            protocol_targets.append(g_name)
-            k = str(i)
-            # Python doesn't sort lists....
-            k_name = k.zfill(2) + 'Aname_' + g_name
-            final_inputs[k_name] = 'Match a plan target to ' + g_name
-            final_options[k_name] = plan_targets
-            final_datatype[k_name] = 'combo'
-            final_required.append(k_name)
-            kd = str(i)
-            k_dose = kd.zfill(2) + 'Bdose_' + g_name
-            final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
-            final_required.append(k_dose)
-            i += 1
-            # Exact matches get an initial guess in the dropdown
-            if g_name == t:
-                final_initial[k_name] = t
-            #elif g_name != t and any(g in g_name for g in targets):
+            if g.find('priority').text % 2 and g_name not in protocol_targets:
+                protocol_targets.append(g_name)
+                k = str(i)
+                # Python doesn't sort lists....
+                k_name = k.zfill(2) + 'Aname_' + g_name
+                final_inputs[k_name] = 'Match a plan target to ' + g_name
+                final_options[k_name] = plan_targets
+                final_datatype[k_name] = 'combo'
+                final_required.append(k_name)
+                kd = str(i)
+                k_dose = kd.zfill(2) + 'Bdose_' + g_name
+                final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
+                final_required.append(k_dose)
+                i += 1
+                # Exact matches get an initial guess in the dropdown
+                if g_name == t:
+                    final_initial[k_name] = t
+                #elif g_name != t and any(g in g_name for g in targets):
 
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,
