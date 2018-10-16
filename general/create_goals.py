@@ -87,11 +87,11 @@ def main():
         # ? for g, t in ((a,b) for a in root.findall('./goals/roi') for b in targets)
         g_name = g.find('name').text
         # priority will be even if the goal is a target goal
-        priority = g.find('priority').text
+        priority = int(g.find('priority').text)
         print "priority = {}".format(priority)
         for t in plan_targets:
             # Look for an existing match to the target in the protocol_target list
-            if g.find('priority').text % 2 and g_name not in protocol_targets:
+            if priority % 2 and g_name not in protocol_targets:
                 protocol_targets.append(g_name)
                 k = str(i)
                 # Python doesn't sort lists....
