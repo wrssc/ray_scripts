@@ -192,9 +192,6 @@ def main():
     final_datatype = {}
     final_required = []
     i = 1
-    # Generate an input list for the dialog the form should be
-    # Key (<odd index>_protocol_target) : Value (Match Instructions)
-    # Key (<even index>_protocol_target) : Value (Dose Instructions)
     for g in root.findall('./goals/roi'):
         # Ugh, gotta be a more pythonic way to do this loop
         # ? for g, t in ((a,b) for a in root.findall('./goals/roi') for b in targets)
@@ -202,7 +199,7 @@ def main():
         for t in plan_targets:
             # Look for an existing match to the target in the protocol_target list
             if g_name not in protocol_targets:
-                if g_name in t:
+                if g_name == t:
                     protocol_targets.append(g_name)
                     k = str(i)
                     k_name = k.zfill(2) + 'Aname_' + g_name
@@ -218,8 +215,8 @@ def main():
                     final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
                     final_required.append(k_dose)
                     i += 1
-                # If the goal is not in the plan list, but is likely a target
-                elif g_name not in t and g_name in targets:
+                # If the goal is a match in the plan list, but is likely a target
+                elif g_name != t and any(g in g_name for g in targets):
                     protocol_targets.append(g_name)
                     k = str(i)
                     k_name = k.zfill(2) + 'Aname_' + g_name
