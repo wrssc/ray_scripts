@@ -72,8 +72,10 @@ def main():
     for r in case.PatientModel.RegionsOfInterest:
         if r.Type == 'Ptv':
             plan_targets.append(r.Name)
-    # Use the following loop to find the targets in protocol matching the names above
-    # TODO: Add user threat empty PTV list.
+
+    # Add user threat: empty PTV list.
+    connect.await_user_input("The target list is empty. Please apply type PTV to the targets and continue.")
+
     protocol_targets = []
     missing_contours = []
 
@@ -84,35 +86,40 @@ def main():
     final_datatype = {}
     final_required = []
     i = 1
-    for g, t in ((a, b) for a in root.findall('./goals/roi') for b in plan_targets):
-        g_name = g.find('name').text
-        # Priorities should be even for targets and append unique elements only
-        # into the protocol_targets list
-        if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
-            protocol_targets.append(g_name)
-            k = str(i)
-            # Python doesn't sort lists....
-            k_name = k.zfill(2) + 'Aname_' + g_name
-            k_dose = k.zfill(2) + 'Bdose_' + g_name
-            final_inputs[k_name] = 'Match a plan target to ' + g_name
-            final_options[k_name] = plan_targets
-            final_datatype[k_name] = 'combo'
-            final_required.append(k_name)
-            final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
-            final_required.append(k_dose)
-            i += 1
-            # Exact matches get an initial guess in the dropdown
-            if g_name == t:
-                final_initial[k_name] = t
-        elif int(g.find('priority').text) % 2:
+    # Lovely code, but had to break this loop up
+    # for g, t in ((a, b) for a in root.findall('./goals/roi') for b in plan_targets):
+
+    # Use the following loop to find the targets in protocol matching the names above
+    for g in root.findall('./goals/roi'):
+        for t in plan_targets:
+            g_name = g.find('name').text
+            # Priorities should be even for targets and append unique elements only
+            # into the protocol_targets list
+            if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
+                protocol_targets.append(g_name)
+                k = str(i)
+                # Python doesn't sort lists....
+                k_name = k.zfill(2) + 'Aname_' + g_name
+                k_dose = k.zfill(2) + 'Bdose_' + g_name
+                final_inputs[k_name] = 'Match a plan target to ' + g_name
+                final_options[k_name] = plan_targets
+                final_datatype[k_name] = 'combo'
+                final_required.append(k_name)
+                final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
+                final_required.append(k_dose)
+                i += 1
+                # Exact matches get an initial guess in the dropdown
+                if g_name == t:
+                    final_initial[k_name] = t
         # Add a quick check if the contour exists in RS
+        if int(g.find('priority').text) % 2:
             if not any(r.Name == g_name for r in
                        case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
                 missing_contours.append(g_name)
-        if missing_contours:
-            missing_message = 'Missing structures, continue script or cancel \n'.join(missing_contours)
-            connect.await_user_input(missing_message)
-
+    # Warn the user they are missing stuff
+    if missing_contours:
+        missing_message = 'Missing structures, continue script or cancel \n'.join(missing_contours)
+        connect.await_user_input(missing_message)
 
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,
