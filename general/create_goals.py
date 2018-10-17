@@ -91,8 +91,8 @@ def main():
 
     # Use the following loop to find the targets in protocol matching the names above
     for g in root.findall('./goals/roi'):
+        g_name = g.find('name').text
         for t in plan_targets:
-            g_name = g.find('name').text
             # Priorities should be even for targets and append unique elements only
             # into the protocol_targets list
             if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
