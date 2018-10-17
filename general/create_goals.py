@@ -33,11 +33,12 @@ import UserInterface
 import Goals
 
 
-def input_protocol_doses(filename=None):
+def main():
     """
     Function will take the optional input of the protocol file name
     :return:
     """
+    filename=None
     status = UserInterface.ScriptStatus(
         steps=['Finding correct protocol',
                'Matching Structure List',
@@ -189,4 +190,4 @@ def input_protocol_doses(filename=None):
         Goals.add_goal(g, connect.get_current('Plan'))
 
 if __name__ == '__main__':
-    input_protocol_doses(filename=None)
+    main()
