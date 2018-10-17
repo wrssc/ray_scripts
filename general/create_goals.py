@@ -67,7 +67,7 @@ def main():
     tpo.load_protocols(path_protocols)
 
     status.next_step(text="Determining correct treatment protocol" +
-                          "based on treatment planning order.", num=1)
+                          "based on treatment planning order.", num=0)
 
     if filename:
         logging.info("create_goals.py: protocol selected: {}".format(
@@ -95,7 +95,7 @@ def main():
         if r.Type == 'Ptv':
             plan_targets.append(r.Name)
 
-    status.next_step(text="Matching all structures to the current list.", num=2)
+    status.next_step(text="Matching all structures to the current list.", num=1)
     # Add user threat: empty PTV list.
     if not plan_targets:
         connect.await_user_input("The target list is empty." +
@@ -145,10 +145,10 @@ def main():
     if missing_contours:
         mc_list = ',\n'.join(missing_contours)
         missing_message = 'Missing structures, continue script or cancel \n' + mc_list
-        status.next_step(text=missing_message,num=2)
+        status.next_step(text=missing_message,num=1)
         connect.await_user_input(missing_message)
 
-    status.next_step(text="Getting target doses from user.", num=3)
+    status.next_step(text="Getting target doses from user.", num=2)
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,
         title='Input Clinical Goals',
@@ -171,7 +171,7 @@ def main():
             pd = p + '_dose'
             protocol_match[pd] = (float(v) / 100.)
 
-    status.next_step(text="Adding goals.",num=4)
+    status.next_step(text="Adding goals.",num=3)
     # Take the relative dose limits and convert them to the user specified dose levels
     for g in root.findall('./goals/roi'):
         # If the key is a name key, change the ElementTree for the name
