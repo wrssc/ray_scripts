@@ -73,7 +73,9 @@ def main():
         if r.Type == 'Ptv':
             plan_targets.append(r.Name)
     # Use the following loop to find the targets in protocol matching the names above
+    # TODO: Add user threat empty PTV list.
     protocol_targets = []
+    missing_contours = []
 
     # Build second dialog
     final_inputs = {}
@@ -102,6 +104,13 @@ def main():
             # Exact matches get an initial guess in the dropdown
             if g_name == t:
                 final_initial[k_name] = t
+        elif int(g.find('priority').text) % 2:
+        # Add a quick check if the contour exists in RS
+            if not any(r.Name == g_name for r in case.RegionsOfInterest) and g_name not in missing_contours:
+                missing_contours.append(g_name)
+        if missing_contours:
+            connect.await_user_input('Missing structures, continue script or cancel \n'.join(missing_contours))
+
 
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,
