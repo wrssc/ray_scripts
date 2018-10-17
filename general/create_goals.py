@@ -33,7 +33,19 @@ import UserInterface
 import Goals
 
 
-def main():
+def input_protocol_doses(filename = None):
+    """
+    Function will take the optional input of the protocol file name
+    :return:
+    """
+    status = UserInterface.ScriptStatus(
+        steps=['Finding correct protocol',
+               'Matching Structure List',
+               'Getting target Doses',
+               'Adding Goals'],
+        docstring=__doc__,
+        help=__help__)
+
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
@@ -53,26 +65,35 @@ def main():
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
 
-    input_dialog = UserInterface.InputDialog(
-        inputs={'input1': 'Select Protocol'},
-        title='Protocol Selection',
-        datatype={'input1': 'combo'},
-        initial={},
-        options={'input1': list(tpo.protocols.keys())},
-        required=['input1'])
+    status.next_step(text="Determining correct treatment protocol based on treatment planning order.")
 
-    # Launch the dialog
-    print input_dialog.show()
-    # Link root to selected protocol ElementTree
-    logging.info("create_goals.py: protocol selected: {}".format(
-        input_dialog.values['input1']))
-    root = tpo.protocols[input_dialog.values['input1']]
+    if filename:
+        logging.info("create_goals.py: protocol selected: {}".format(
+            filename))
+        root = tpo.protocols[tpo.protocols[filename]]
+    else:
+        # Find the protocol the user wants to use.
+        input_dialog = UserInterface.InputDialog(
+            inputs={'input1': 'Select Protocol'},
+            title='Protocol Selection',
+            datatype={'input1': 'combo'},
+            initial={},
+            options={'input1': list(tpo.protocols.keys())},
+            required=['input1'])
+        # Launch the dialog
+        print input_dialog.show()
+        # Link root to selected protocol ElementTree
+        logging.info("create_goals.py: protocol selected: {}".format(
+            input_dialog.values['input1']))
+        root = tpo.protocols[input_dialog.values['input1']]
+
     # Find RS targets
     plan_targets = []
     for r in case.PatientModel.RegionsOfInterest:
         if r.Type == 'Ptv':
             plan_targets.append(r.Name)
 
+    status.next_step(text="Matching all structures to the current list.")
     # Add user threat: empty PTV list.
     if not plan_targets:
         connect.await_user_input("The target list is empty." +
@@ -124,6 +145,7 @@ def main():
         missing_message = 'Missing structures, continue script or cancel \n' + mc_list
         connect.await_user_input(missing_message)
 
+    status.next_step(text="Getting target doses from user.")
     final_dialog = UserInterface.InputDialog(
         inputs=final_inputs,
         title='Input Clinical Goals',
@@ -146,6 +168,7 @@ def main():
             pd = p + '_dose'
             protocol_match[pd] = (float(v) / 100.)
 
+    status.next_step(text="Adding goals.")
     # Take the relative dose limits and convert them to the user specified dose levels
     for g in root.findall('./goals/roi'):
         # If the key is a name key, change the ElementTree for the name
@@ -165,4 +188,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    input_protocol_doses()
