@@ -106,7 +106,8 @@ def main():
                 final_initial[k_name] = t
         elif int(g.find('priority').text) % 2:
         # Add a quick check if the contour exists in RS
-            if not any(r.Name == g_name for r in case.RegionsOfInterest) and g_name not in missing_contours:
+            if not any(r.Name == g_name for r in
+                       case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
                 missing_contours.append(g_name)
         if missing_contours:
             connect.await_user_input('Missing structures, continue script or cancel \n'.join(missing_contours))
