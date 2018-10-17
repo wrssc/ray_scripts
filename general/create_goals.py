@@ -110,7 +110,8 @@ def main():
                        case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
                 missing_contours.append(g_name)
         if missing_contours:
-            connect.await_user_input('Missing structures, continue script or cancel \n'.join(missing_contours))
+            missing_message = 'Missing structures, continue script or cancel \n'.join(missing_contours)
+            connect.await_user_input(missing_message)
 
 
     final_dialog = UserInterface.InputDialog(
