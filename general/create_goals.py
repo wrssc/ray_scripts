@@ -188,6 +188,8 @@ def input_protocol_doses(filename = None):
         logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
         Goals.add_goal(g, connect.get_current('Plan'))
 
+def main():
+    input_protocol_doses()
 
 if __name__ == '__main__':
-    input_protocol_doses()
+    main()
