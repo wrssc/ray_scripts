@@ -33,7 +33,7 @@ import UserInterface
 import Goals
 
 
-def input_protocol_doses(filename = None):
+def input_protocol_doses(filename=None):
     """
     Function will take the optional input of the protocol file name
     :return:
@@ -188,8 +188,5 @@ def input_protocol_doses(filename = None):
         logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
         Goals.add_goal(g, connect.get_current('Plan'))
 
-def main():
-    input_protocol_doses()
-
 if __name__ == '__main__':
-    main()
+    input_protocol_doses(filename=None)
