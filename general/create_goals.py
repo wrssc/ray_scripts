@@ -157,7 +157,8 @@ def main():
                 protocol_match[dose_key]))
             g.find('name').text = protocol_match[name_key]
             g.find('dose').attrib = "Gy"
-            g.find('dose').text = protocol_match[dose_key]
+            goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text)/100
+            g.find('dose').text = str(goal_dose)
         # Regardless, add the goal now
         logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
         Goals.add_goal(g, connect.get_current('Plan'))

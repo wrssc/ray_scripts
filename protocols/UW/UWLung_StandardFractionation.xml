@@ -48,7 +48,7 @@
             <type dir="ge">DX</type>
             <volume units="%">95</volume>
             <dose units="%" roi="PTV">100</dose>
-            <priority>4</priority>
+            <priority>2</priority>
         </roi>
         <roi>
             <name>PTV1_Eval</name>
