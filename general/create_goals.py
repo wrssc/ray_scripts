@@ -74,7 +74,9 @@ def main():
             plan_targets.append(r.Name)
 
     # Add user threat: empty PTV list.
-    connect.await_user_input("The target list is empty. Please apply type PTV to the targets and continue.")
+    if not plan_targets:
+        connect.await_user_input("The target list is empty." +
+                                 " Please apply type PTV to the targets and continue.")
 
     protocol_targets = []
     missing_contours = []
@@ -118,7 +120,8 @@ def main():
                 missing_contours.append(g_name)
     # Warn the user they are missing stuff
     if missing_contours:
-        missing_message = 'Missing structures, continue script or cancel \n'.join(missing_contours)
+        mc_list = ',\n'.join(missing_contours)
+        missing_message = 'Missing structures, continue script or cancel \n' + mc_list
         connect.await_user_input(missing_message)
 
     final_dialog = UserInterface.InputDialog(
