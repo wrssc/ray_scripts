@@ -547,7 +547,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         n_tss = len(plan_optimization_parameters.TreatmentSetupSettings)
         print "n_tss = {}".format(n_tss)
         for i in range(n_tss):
-            for beams in plan_optimization_parameters.TreatmentSetupSettings[i]:
+            for beams in plan_optimization_parameters.TreatmentSetupSettings[i].BeamSettings:
                 if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
                     beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
 
