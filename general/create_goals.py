@@ -178,7 +178,7 @@ def main():
         if g.find('name').text in protocol_match and "%" in g.find('dose').attrib['units']:
             name_key = g.find('name').text
             dose_key = g.find('name').text + '_dose'
-            logging.debug('Reassigned protocol name from {} to {}, for dose {} Gy'.format(
+            logging.debug('create_goals: Reassigned protocol name from {} to {}, for dose {} Gy'.format(
                 g.find('name').text, protocol_match[name_key],
                 protocol_match[dose_key]))
             g.find('name').text = protocol_match[name_key]
