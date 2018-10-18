@@ -544,7 +544,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     if fluence_only:
         logging.info('optimize_plan: User selected Fluence optimization Only')
         status.next_step('Running fluence-based optimization')
-        for i in range(len(plan_optimization_parameters.TreatmentSetupSettings)):
+        n_tss = len(plan_optimization_parameters.TreatmentSetupSettings)
+        print "n_tss = {}".format(n_tss)
+        for i in range(n_tss):
             for beams in plan_optimization_parameters.TreatmentSetupSettings[i]:
                 if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
                     beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
