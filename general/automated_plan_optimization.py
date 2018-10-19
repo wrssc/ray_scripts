@@ -167,20 +167,23 @@ def reduce_oar_dose(plan_optimization):
     # attribute
     composite_objectives = []
     for index, objective in enumerate(plan_optimization.Objective.ConstituentFunctions):
-        if hasattr(objective.OfDoseDistribution,'ForBeamSet'):
+        if hasattr(objective.OfDoseDistribution, 'ForBeamSet'):
             composite_objectives.append(index)
     # If composite objectives are found warn the user
     if composite_objectives:
         connect.await_user_input("ReduceOAR with composite optimization is not supported " +
                                  "by RaySearch at this time")
-        logging.warning("RunReduceOARDoseOptimization not executed due to the presence of" +
-                      "CompositeDose objectives")
-        logging.debug("reduce_oar_dose: composite objectives found in iterations {}".format(composite_objectives))
+        logging.warning("automated_plan_optimization.py: reduce_oar_dose: " +
+                        "RunReduceOARDoseOptimization not executed due to the presence of" +
+                        "CompositeDose objectives")
+        logging.debug("automated_plan_optimization.py: reduce_oar_dose: composite" +
+                      "objectives found in iterations {}".format(composite_objectives))
         return False
     else:
         # Construct the currently-used targets and regions at risk as lists targets and oars
         # respectively
-        logging.info("reduce_oar_dose: no composite objectives found, proceeding with ReduceOARDose")
+        logging.info("automated_plan_optimization.py: reduce_oar_dose: no composite" +
+                     "objectives found, proceeding with ReduceOARDose")
         for objective in plan_optimization.Objective.ConstituentFunctions:
             objective_organ_type = objective.OfDoseGridRoi.OfRoiGeometry.OfRoi.OrganData.OrganType
             objective_roi_name = objective.OfDoseGridRoi.OfRoiGeometry.OfRoi.Name
@@ -196,7 +199,8 @@ def reduce_oar_dose(plan_optimization):
                 # Add only unique elements to oars
                 if objective_roi_name not in oars:
                     oars.append(objective_roi_name)
-        sorted_structure_message = "Reduce OAR dose executing with targets: " + ', '.join(targets)
+        sorted_structure_message = "automated_plan_optimization.py: reduce_oar_dose: " + \
+                                   "Reduce OAR dose executing with targets: " + ', '.join(targets)
         sorted_structure_message += " and oars: " + ', '.join(oars)
         logging.info(sorted_structure_message)
 
@@ -227,11 +231,12 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
 
     :todo: add the functional values for each iteration
     """
-    logging.info("Post-optimization report:\n Desired steps were:")
+    logging.info("automated_plan_optimization.py: optimization report: Post-optimization report:\n" +
+                 " Desired steps were:")
     for step in report_inputs.get('status_steps'):
         logging.info('{}'.format(step))
 
-    logging.info("Optimization Time Information:")
+    logging.info("automated_plan_optimization.py: optimization report: Optimization Time Information:")
     on_screen_message = 'Optimization Time information \n'
     # Output the total time for the script to run
     try:
@@ -258,7 +263,7 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                 logging.info("Time: Fluence-based optimization iteration {} (seconds): {}".format(
                     iteration, time_iteration_delta.total_seconds()))
                 on_screen_message += "Iteration {}: Time Required {} s\n".format(
-                    iteration+1, time_iteration_delta.total_seconds())
+                    iteration + 1, time_iteration_delta.total_seconds())
         except KeyError:
             logging.debug("No fluence time list available")
     else:
@@ -274,7 +279,7 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                     logging.info("Time: Aperture-based optimization iteration {} (seconds): {}".format(
                         iteration, time_iteration_delta.total_seconds()))
                     on_screen_message += "Iteration {}: Time Required {} s\n".format(
-                        iteration+1, time_iteration_delta.total_seconds())
+                        iteration + 1, time_iteration_delta.total_seconds())
                 logging.info("Time: Total Aperture-based optimization (seconds): {}".format(
                     time_iteration_total.total_seconds()))
                 on_screen_message += "Total time spent in aperture-based optimization was: {} s\n".format(
@@ -326,6 +331,7 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
     on_screen_message += 'Close this screen when complete'
     return on_screen_message
 
+
 def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     """
     This function will optimize a plan
@@ -338,22 +344,22 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     """
 
     try:
-       patient.Save()
+        patient.Save()
     except SystemError:
         raise IOError("No Patient loaded. Load patient case and plan.")
 
     try:
-       case.SetCurrent()
+        case.SetCurrent()
     except SystemError:
         raise IOError("No Case loaded. Load patient case and plan.")
 
     try:
-       plan.SetCurrent()
+        plan.SetCurrent()
     except SystemError:
         raise IOError("No plan loaded. Load patient and plan.")
 
     try:
-       beamset.SetCurrent()
+        beamset.SetCurrent()
     except SystemError:
         raise IOError("No beamset loaded")
 
@@ -399,7 +405,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     report_inputs['time_total_initial'] = datetime.datetime.now()
 
     if fluence_only:
-        logging.info('Fluence only: {}'.format(fluence_only))
+        logging.info('optimize_plan: Fluence only: {}'.format(fluence_only))
     else:
         # If the dose grid is to be varied during optimization unload the grid parameters
         if vary_grid:
@@ -444,7 +450,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         help=__help__)
 
     status.next_step("Setting initialization variables")
-    logging.info('Set some variables like Niterations, Nits={}'.format(maximum_iteration))
+    logging.info('optimize_plan: Set some variables like Niterations, Nits={}'.format(maximum_iteration))
     # Maximum Jaw Sizes
     # Adjust these for StX
     X1limit = -15
@@ -475,15 +481,16 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             IndexNotFound = True
             OptIndex += 1
     if IndexNotFound:
-        logging.warning("Beamset optimization for {} could not be found.".format(beamset.DicomPlanLabel))
+        logging.warning("optimize_plan: Beamset optimization for {} could not be found.".format(beamset.DicomPlanLabel))
         sys.exit("Could not find beamset optimization")
     else:
         # Found our index.  We will use a shorthand for the remainder of the code
         plan_optimization = plan.PlanOptimizations[OptIndex]
         plan_optimization_parameters = plan.PlanOptimizations[OptIndex].OptimizationParameters
-        logging.info('Optimization found, proceding with plan.PlanOptimization[{}] for beamset {}'.format(
-            OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
-        ))
+        logging.info(
+            'optimize_plan: Optimization found, proceeding with plan.PlanOptimization[{}] for beamset {}'.format(
+                OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
+            ))
 
     # Turn on important parameters
     plan_optimization_parameters.DoseCalculation.ComputeFinalDose = True
@@ -500,8 +507,13 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     # Try to Set the Gantry Spacing to 2 degrees
     # How many beams are there in this beamset
     # Set the control point spacing
-    treatment_setup_settings = plan_optimization_parameters.TreatmentSetupSettings[0]
+    treatment_setup_settings = plan_optimization_parameters.TreatmentSetupSettings
+    if len(plan_optimization_parameters.TreatmentSetupSettings) > 1:
+        cooptimization = True
+        logging.debug('automated_plan_optimization: Plan is co-optimized with {} other plans'.format(
+            len(plan_optimization_parameters.TreatmentSetupSettings)))
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
+    # it is clear than when co-optimization occurs, we have more than one entry in here...
     # while beamsinrange:
     #  try:
     #      plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].\
@@ -531,15 +543,20 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         current_objective_function = 0
     else:
         current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
-    logging.info('Current total objective function value at iteration {} is {}'.format(
+    logging.info('optimize_plan: Current total objective function value at iteration {} is {}'.format(
         Optimization_Iteration, current_objective_function))
 
     if fluence_only:
-        logging.info('User selected Fluence optimization Only')
+        logging.info('optimize_plan: User selected Fluence optimization Only')
         status.next_step('Running fluence-based optimization')
-        for beams in treatment_setup_settings.BeamSettings:
-            if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
+        for ts in treatment_setup_settings:
+            for beams in ts.BeamSettings:
+                if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
+                    beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
+
+        # for beams in treatment_setup_settings.BeamSettings:
+        # if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
+        #    beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
         # Fluence only is the quick and dirty way of dialing in all necessary elements for the calc
         plan_optimization_parameters.DoseCalculation.ComputeFinalDose = False
         plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 500
@@ -555,18 +572,19 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             current_objective_function = 0
         else:
             current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
-        logging.info('Current total objective function value at iteration {} is {}'.format(
+        logging.info('optimize_plan: Current total objective function value at iteration {} is {}'.format(
             Optimization_Iteration, current_objective_function))
         reduce_oar_success = False
     else:
         try:
-            for beams in treatment_setup_settings.BeamSettings:
-                if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                    beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
+            for ts in treatment_setup_settings:
+                for beams in ts.BeamSettings:
+                    if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
+                        beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
         except:
             UserInterface.WarningBox('Attempt to correct final gantry spacing failed - check reset beams' +
                                      ' on next attempt at this script')
-            logging.error('Attempt to correct final gantry spacing failed')
+            logging.error('optimize_plan: Attempt to correct final gantry spacing failed')
             sys.exit('Beams must be reset to change gantry spacing to 2 degrees per control point')
 
         while Optimization_Iteration != maximum_iteration:
@@ -578,7 +596,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
             status.next_step(
                 text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
-            logging.info('Current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
+            logging.info(
+                'optimize_plan: Current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
             #            status.next_step(text='Iterating....')
 
             # If the change_dose_grid list has a non-zero element change the dose grid
@@ -587,7 +606,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     status.next_step(
                         'Variable dose grid used.  Dose grid now {} cm'.format(
                             change_dose_grid[Optimization_Iteration]))
-                    logging.info('Running current value of change_dose_grid is {}'.format(change_dose_grid))
+                    logging.info(
+                        'optimize_plan: Running current value of change_dose_grid is {}'.format(change_dose_grid))
                     DoseDim = change_dose_grid[Optimization_Iteration]
                     # Start Clock on the dose grid change
                     report_inputs.setdefault('time_dose_grid_initial', []).append(datetime.datetime.now())
@@ -599,38 +619,48 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
                     # Stop the clock for the dose grid change
                     report_inputs.setdefault('time_dose_grid_final', []).append(datetime.datetime.now())
-            #Start the clock
+            # Start the clock
             report_inputs.setdefault('time_iteration_initial', []).append(datetime.datetime.now())
             # Run the optimization
             plan.PlanOptimizations[OptIndex].RunOptimization()
-            #Stop the clock
+            # Stop the clock
             report_inputs.setdefault('time_iteration_final', []).append(datetime.datetime.now())
 
             Optimization_Iteration += 1
-            logging.info("Optimization Number: {} completed".format(Optimization_Iteration))
+            logging.info("optimize_plan: Optimization Number: {} completed".format(Optimization_Iteration))
             # Set the Maximum iterations and segmentation iteration to a lower number for the initial run
             plan_optimization_parameters.Algorithm.MaxNumberOfIterations = second_maximum_iteration
             plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = second_intermediate_iteration
             # Outputs for debug
             current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
-            logging.info('At iteration {} total objective function is {}, compared to previous {}'.format(
-                Optimization_Iteration,
-                current_objective_function,
-                previous_objective_function))
+            logging.info(
+                'optimize_plan: At iteration {} total objective function is {}, compared to previous {}'.format(
+                    Optimization_Iteration,
+                    current_objective_function,
+                    previous_objective_function))
             previous_objective_function = current_objective_function
 
         # Finish with a Reduce OAR Dose Optimization
         if segment_weight:
-            for beams in treatment_setup_settings.BeamSettings:
-                if 'SegmentOpt' in beams.OptimizationTypes:
-                    beams.EditBeamOptimizationSettings(
-                        OptimizationTypes=["SegmentMU"]
-                    )
             status.next_step('Running Segment weight only optimization')
             report_inputs['time_segment_weight_initial'] = datetime.datetime.now()
-            plan.PlanOptimizations[OptIndex].RunOptimization()
-            logging.info('Current total objective function value at iteration {} is {}'.format(
-                Optimization_Iteration, plan_optimization.Objective.FunctionValue.FunctionValue))
+            # Uncomment when segment-weight based co-optimization is supported
+            if cooptimization:
+                logging.warning("Co-optimized segment weight-based optimization is" +
+                                " not supported by RaySearch at this time.")
+                connect.await_user_input("Segment-weight optimization with composite optimization is not supported " +
+                                         "by RaySearch at this time")
+
+            else:
+                for ts in treatment_setup_settings:
+                    for beams in ts.BeamSettings:
+                        if 'SegmentOpt' in beams.OptimizationTypes:
+                            beams.EditBeamOptimizationSettings(
+                                OptimizationTypes=["SegmentMU"]
+                            )
+                plan.PlanOptimizations[OptIndex].RunOptimization()
+                logging.info('optimize_plan: Current total objective function value at iteration {} is {}'.format(
+                    Optimization_Iteration, plan_optimization.Objective.FunctionValue.FunctionValue))
             report_inputs['time_segment_weight_final'] = datetime.datetime.now()
 
         # Finish with a Reduce OAR Dose Optimization
@@ -641,10 +671,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             reduce_oar_success = reduce_oar_dose(plan_optimization=plan_optimization)
             report_inputs['time_reduceoar_final'] = datetime.datetime.now()
             if reduce_oar_success:
-                logging.info('ReduceOAR successfully completed')
+                logging.info('optimize_plan: ReduceOAR successfully completed')
             else:
-                logging.warning('ReduceOAR failed')
-            logging.info('Current total objective function value at iteration {} is {}'.format(
+                logging.warning('optimize_plan: ReduceOAR failed')
+            logging.info('optimize_plan: Current total objective function value at iteration {} is {}'.format(
                 Optimization_Iteration, plan_optimization.Objective.FunctionValue))
 
     report_inputs['time_total_final'] = datetime.datetime.now()
@@ -688,7 +718,7 @@ def main():
         title='Optimization Inputs',
         inputs={
             'input01_fluence_only': 'Fluence calculation only, for dialing in parameters ' +
-                                   'all other values in this window will be ignored',
+                                    'all other values in this window will be ignored',
             'input02_cold_start': 'Reset beams (cold start)',
             'input03_cold_max_iteration': 'Maximum number of iterations for initial optimization',
             'input04_cold_interm_iteration': 'Intermediate iteration for svd to aperture conversion',

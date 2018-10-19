@@ -67,13 +67,15 @@ def check_structure_exists(case, structure_name, roi_list, option):
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if option == 'Delete':
             case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-            logging.warning(structure_name + 'found - deleting and creating')
+            logging.warning("autoplan_whole_brain.py: check_structure_exists: " +
+                            structure_name + 'found - deleting and creating')
         elif option == 'Check':
             connect.await_user_input(
                 'Contour {} Exists - Verify its accuracy and continue script'.format(structure_name))
         return True
     else:
-        logging.info('Structure {} not found, and will be created'.format(structure_name))
+        logging.info('autoplan_whole_brain.py: check_structure_exists: '
+                     'Structure {} not found, and will be created'.format(structure_name))
         return False
 
 
@@ -132,7 +134,7 @@ def main():
     # Look for the sim point, if not create a point
     sim_point_found = any(poi.Name == 'SimFiducials' for poi in pois)
     if sim_point_found:
-        logging.warning("POI SimFiducials Exists")
+        logging.warning("autoplan_whole_brain.py: POI SimFiducials Exists")
         status.next_step(text="SimFiducials Point found, ensure that it is placed properly")
         connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
     else:
@@ -297,7 +299,7 @@ def main():
             ThresholdLevel=-250)
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_L_PRV05'):
-        logging.info('Lens_L_PRV05 not found, generating from expansion')
+        logging.info('autoplan_whole_brain.py: Lens_L_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
         Name="Lens_L_PRV05",
@@ -321,7 +323,7 @@ def main():
 
     # The Lens_R prv will always be "remade"
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_R_PRV05'):
-        logging.info('Lens_R_PRV05 not found, generating from expansion')
+        logging.info('autoplan_whole_brain.py: Lens_R_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
         Name="Lens_R_PRV05",
@@ -345,7 +347,7 @@ def main():
         Algorithm="Auto")
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid'):
-        logging.info('Avoid not found, generating from expansion')
+        logging.info('autoplan_whole_brain.py: Avoid not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid",
                                 Color="255, 128, 128",
@@ -394,7 +396,7 @@ def main():
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
         if check_structure_exists(case=case, roi_list=rois, option='Check', structure_name='S-frame'):
-            logging.info('S-frame found, bugging user')
+            logging.info('autoplan_whole_brain.py: S-frame found, bugging user')
         else:
             support_template = patient_db.LoadTemplatePatientModel(
                 templateName=institution_inputs_support_structure_template,
@@ -411,7 +413,7 @@ def main():
             )
         status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
     except Exception:
-        logging.warning('Support structure failed to load and was not found')
+        logging.warning('autoplan_whole_brain.py: Support structure failed to load and was not found')
         status.next_step(text='S-frame failed to load and was not found. ' +
                               'Load manually and continue script.')
         connect.await_user_input(
@@ -420,7 +422,7 @@ def main():
 
     # Creating planning structures for treatment and protect
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
-        logging.info('BTV_Brain not found, generating from expansion')
+        logging.info('autoplan_whole_brain.py: BTV_Brain not found, generating from expansion')
 
     status.next_step(text='Building planning structures')
 
@@ -445,7 +447,7 @@ def main():
     # This contour extends down 10 cm from the brain itself.  Once this is subtracted
     # from the brain - this will leave only the face
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid_Face'):
-        logging.info('Avoid_Face not found, generating from expansion')
+        logging.info('autoplan_whole_brain.py: Avoid_Face not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid_Face",
                                 Color="255, 128, 128",
@@ -470,7 +472,7 @@ def main():
     # BTV_Flash_20: a 2 cm expansion for flash except in the directions the MD's wish to have no flash
     # Per MD's flashed dimensions are superior, anterior, and posterior
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Flash_20'):
-        logging.info('BTV_Flash_20 not found, generating from expansion')
+        logging.info('autoplan_whole_brain.py: BTV_Flash_20 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="BTV_Flash_20",
                                 Color="128, 0, 64",
@@ -515,7 +517,7 @@ def main():
     # BTV: the block target volume.  It consists of the BTV_Brain, BTV_Flash_20 with no additional structures
     # We are going to make the BTV as a fixture if we are making a plan so that we can autoset the dose grid
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV'):
-        logging.info('BTV not found, generating from expansion')
+        logging.info('autoplan_whole_brain.py: BTV not found, generating from expansion')
 
     if make_plan:
         btv_temporary_type = "Fixation"
@@ -568,21 +570,21 @@ def main():
             patient.SetRoiVisibility(RoiName=s,
                                      IsVisible=True)
         except:
-            logging.debug("Structure: {} was not found".format(s))
+            logging.debug("autoplan_whole_brain.py: Structure: {} was not found".format(s))
 
     for s in invisible_stuctures:
         try:
             patient.SetRoiVisibility(RoiName=s,
                                      IsVisible=False)
         except:
-            logging.debug("Structure: {} was not found".format(s))
+            logging.debug("autoplan_whole_brain.py: Structure: {} was not found".format(s))
 
     if make_plan:
         try:
             ui = connect.get_current('ui')
             ui.TitleBar.MenuItem['Plan Design'].Button_Plan_Design.Click()
         except:
-            logging.debug("Could not click on the plan Design MenuItem")
+            logging.debug("autoplan_whole_brain.py: Could not click on the plan Design MenuItem")
 
         plan_names = [plan_name,'backup_r1a0']
         # RS 8: plan_names = [plan_name]
@@ -647,7 +649,7 @@ def main():
                 isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                     RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
             except Exception:
-                logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
+                logging.warning('autoplan_whole_brain.py: Aborting, could not locate center of PTV_WB_xxxx')
                 sys.exit
             ptv_wb_xxxx_center = {'x': isocenter_position.x,
                                   'y': isocenter_position.y,
@@ -655,7 +657,7 @@ def main():
             isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
             isocenter_parameters['Name'] = "iso_" + plan_name
             isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
-            logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
+            logging.info('autoplan_whole_brain.py: Isocenter chosen based on center of PTV_WB_xxxx.' +
                          'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
                              ptv_wb_xxxx_center['x'],
                              ptv_wb_xxxx_center['y'],
@@ -696,7 +698,7 @@ def main():
             ui = connect.get_current('ui')
             ui.TitleBar.MenuItem['Plan Evaluation'].Button_Plan_Evaluation.Click()
         except:
-            logging.debug("Could not click on the plan evaluation MenuItem")
+            logging.debug("autoplan_whole_brain.py: Could not click on the plan evaluation MenuItem")
 
     # Rename PTV per convention
     total_dose_string = str(int(total_dose))
