@@ -507,10 +507,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     # Try to Set the Gantry Spacing to 2 degrees
     # How many beams are there in this beamset
     # Set the control point spacing
-    treatment_setup_settings = plan_optimization_parameters.TreatmentSetupSettings[0]
-    treatment_setup_settings2 = plan_optimization_parameters.TreatmentSetupSettings
-    n_tss = len(plan_optimization_parameters.TreatmentSetupSettings)
-    if n_tss > 1:
+    treatment_setup_settings = plan_optimization_parameters.TreatmentSetupSettings
+    if len(plan_optimization_parameters.TreatmentSetupSettings) > 1:
+        cooptimization = True
         logging.debug('automated_plan_optimization: Plan is co-optimized with {} other plans'.format(n_tss))
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # it is clear than when co-optimization occurs, we have more than one entry in here...
@@ -549,7 +548,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     if fluence_only:
         logging.info('optimize_plan: User selected Fluence optimization Only')
         status.next_step('Running fluence-based optimization')
-        for ts in treatment_setup_settings2:
+        for ts in treatment_setup_settings:
             for beams in ts.BeamSettings:
                 if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
                     beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
@@ -577,7 +576,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         reduce_oar_success = False
     else:
         try:
-            for ts in treatment_setup_settings2:
+            for ts in treatment_setup_settings:
                 for beams in ts.BeamSettings:
                     if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
                         beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
@@ -642,12 +641,20 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
         # Finish with a Reduce OAR Dose Optimization
         if segment_weight:
-            for ts in treatment_setup_settings2:
-                for beams in ts.BeamSettings:
-                    if 'SegmentOpt' in beams.OptimizationTypes:
-                        beams.EditBeamOptimizationSettings(
-                            OptimizationTypes=["SegmentMU"]
-                        )
+            # Uncomment when segment-weight based co-optimization is supported
+            if cooptimization:
+                logging.warning("Co-optimized segment weight-based optimization is" +
+                                " not supported by RaySearch at this time.")
+                connect.await_user_input("Segment-weight optimization with composite optimization is not supported " +
+                                         "by RaySearch at this time")
+
+            else:
+                for ts in treatment_setup_settings:
+                    for beams in ts.BeamSettings:
+                        if 'SegmentOpt' in beams.OptimizationTypes:
+                            beams.EditBeamOptimizationSettings(
+                                OptimizationTypes=["SegmentMU"]
+                            )
             status.next_step('Running Segment weight only optimization')
             report_inputs['time_segment_weight_initial'] = datetime.datetime.now()
             plan.PlanOptimizations[OptIndex].RunOptimization()
