@@ -510,7 +510,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     treatment_setup_settings = plan_optimization_parameters.TreatmentSetupSettings
     if len(plan_optimization_parameters.TreatmentSetupSettings) > 1:
         cooptimization = True
-        logging.debug('automated_plan_optimization: Plan is co-optimized with {} other plans'.format(n_tss))
+        logging.debug('automated_plan_optimization: Plan is co-optimized with {} other plans'.format(
+            len(plan_optimization_parameters.TreatmentSetupSettings)))
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # it is clear than when co-optimization occurs, we have more than one entry in here...
     # while beamsinrange:
