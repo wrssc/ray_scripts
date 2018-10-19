@@ -642,6 +642,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
         # Finish with a Reduce OAR Dose Optimization
         if segment_weight:
+            status.next_step('Running Segment weight only optimization')
+            report_inputs['time_segment_weight_initial'] = datetime.datetime.now()
             # Uncomment when segment-weight based co-optimization is supported
             if cooptimization:
                 logging.warning("Co-optimized segment weight-based optimization is" +
@@ -656,11 +658,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                             beams.EditBeamOptimizationSettings(
                                 OptimizationTypes=["SegmentMU"]
                             )
-            status.next_step('Running Segment weight only optimization')
-            report_inputs['time_segment_weight_initial'] = datetime.datetime.now()
-            plan.PlanOptimizations[OptIndex].RunOptimization()
-            logging.info('optimize_plan: Current total objective function value at iteration {} is {}'.format(
-                Optimization_Iteration, plan_optimization.Objective.FunctionValue.FunctionValue))
+                plan.PlanOptimizations[OptIndex].RunOptimization()
+                logging.info('optimize_plan: Current total objective function value at iteration {} is {}'.format(
+                    Optimization_Iteration, plan_optimization.Objective.FunctionValue.FunctionValue))
             report_inputs['time_segment_weight_final'] = datetime.datetime.now()
 
         # Finish with a Reduce OAR Dose Optimization
