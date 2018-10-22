@@ -199,7 +199,7 @@ def main():
             pd = p + '_dose'
             protocol_match[pd] = (float(v) / 100.)
 
-    status.next_step(text="Adding goals.",num=3)
+    status.next_step(text="Adding goals.", num=3)
     # Take the relative dose limits and convert them to the user specified dose levels
     for g in protocol.findall('./goals/roi'):
         # If the key is a name key, change the ElementTree for the name
