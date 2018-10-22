@@ -87,23 +87,29 @@ def main():
         # Link root to selected protocol ElementTree
         logging.info("create_goals.py: protocol selected: {}".format(
             input_dialog.values['input1']))
-        if len(tpo.order_list) > 1:
+        order_list = []
+        protocol = tpo.protocols[input_dialog.values['input1']]
+        for o in protocol.findall('order/name'):
+            order_list.append(o.text)
+
+
+        if len(order_list) > 1:
             # Find the protocol the user wants to use.
             input_dialog = UserInterface.InputDialog(
                 inputs={'input1': 'Select Order'},
                 title='Order Selection',
                 datatype={'input1': 'combo'},
                 initial={},
-                options={'input1': tpo.order_list},
+                options={'input1': order_list},
                 required=['input1'])
             # Launch the dialog
             print input_dialog.show()
             # Link root to selected protocol ElementTree
             logging.info("create_goals.py: order selected: {}".format(
                 input_dialog.values['input1']))
-            root = tpo.order[input_dialog.values['input1']]
+            order = tpo.order[input_dialog.values['input1']]
         else:
-            root = tpo.protocols[input_dialog.values['input1']]
+            order = None
 
 
     # Find RS targets
@@ -132,7 +138,7 @@ def main():
     # for g, t in ((a, b) for a in root.findall('./goals/roi') for b in plan_targets):
 
     # Use the following loop to find the targets in protocol matching the names above
-    for g in root.findall('./goals/roi'):
+    for g in protocol.findall('./goals/roi'):
         g_name = g.find('name').text
         for t in plan_targets:
             # Priorities should be even for targets and append unique elements only
@@ -190,7 +196,7 @@ def main():
 
     status.next_step(text="Adding goals.",num=3)
     # Take the relative dose limits and convert them to the user specified dose levels
-    for g in root.findall('./goals/roi'):
+    for g in protocol.findall('./goals/roi'):
         # If the key is a name key, change the ElementTree for the name
         if g.find('name').text in protocol_match and "%" in g.find('dose').attrib['units']:
             name_key = g.find('name').text
