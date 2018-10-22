@@ -87,7 +87,24 @@ def main():
         # Link root to selected protocol ElementTree
         logging.info("create_goals.py: protocol selected: {}".format(
             input_dialog.values['input1']))
-        root = tpo.protocols[input_dialog.values['input1']]
+        if len(tpo.order_list) > 1:
+            # Find the protocol the user wants to use.
+            input_dialog = UserInterface.InputDialog(
+                inputs={'input1': 'Select Order'},
+                title='Order Selection',
+                datatype={'input1': 'combo'},
+                initial={},
+                options={'input1': tpo.order_list},
+                required=['input1'])
+            # Launch the dialog
+            print input_dialog.show()
+            # Link root to selected protocol ElementTree
+            logging.info("create_goals.py: order selected: {}".format(
+                input_dialog.values['input1']))
+            root = tpo.order[input_dialog.values['input1']]
+        else:
+            root = tpo.protocols[input_dialog.values['input1']]
+
 
     # Find RS targets
     plan_targets = []
