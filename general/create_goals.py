@@ -110,7 +110,8 @@ def main():
             for o in protocol.findall('order'):
                 if o.find('name').text == input_dialog.values['input1']:
                     order = o
-                    logging.debug('Matching protocol ElementTag found for {}'.format(self.order.SelectedItem))
+                    logging.debug('Matching protocol ElementTag found for {}'.format(
+                        input_dialog.values['input1']))
                     break
         else:
             order = None
