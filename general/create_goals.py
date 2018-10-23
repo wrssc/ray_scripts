@@ -197,14 +197,15 @@ def main():
     # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
     protocol_match = {}
     for k, v in final_dialog.values.iteritems():
-        i, p = k.split("_", 1)
-        if 'name' in i:
-            # Key name will be the protocol target name
-            protocol_match[p] = v
-        if 'dose' in i:
-            # Append _dose to the key name
-            pd = p + '_dose'
-            protocol_match[pd] = (float(v) / 100.)
+        if v:
+            i, p = k.split("_", 1)
+            if 'name' in i:
+                # Key name will be the protocol target name
+                protocol_match[p] = v
+            if 'dose' in i:
+                # Append _dose to the key name
+                pd = p + '_dose'
+                protocol_match[pd] = (float(v) / 100.)
 
     status.next_step(text="Adding goals.", num=3)
     # Take the relative dose limits and convert them to the user specified dose levels
