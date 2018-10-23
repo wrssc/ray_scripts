@@ -94,6 +94,7 @@ def main():
 
 
         if len(order_list) > 1:
+            use_orders = True
             # Find the protocol the user wants to use.
             input_dialog = UserInterface.InputDialog(
                 inputs={'input1': 'Select Order'},
@@ -142,8 +143,14 @@ def main():
     # Lovely code, but had to break this loop up
     # for g, t in ((a, b) for a in root.findall('./goals/roi') for b in plan_targets):
 
+    # Where the targets at?
+    if use_orders:
+        target_goal_level = order
+    else:
+        target_goal_level = protocol
+
     # Use the following loop to find the targets in protocol matching the names above
-    for g in protocol.findall('./goals/roi'):
+    for g in target_goal_level.findall('./goals/roi'):
         g_name = g.find('name').text
         for t in plan_targets:
             # Priorities should be even for targets and append unique elements only
@@ -217,21 +224,22 @@ def main():
         logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
         Goals.add_goal(g, connect.get_current('Plan'))
     # Take the relative dose limits and convert them to the user specified dose levels
-    for g in order.findall('./goals/roi'):
-        # If the key is a name key, change the ElementTree for the name
-        if g.find('name').text in protocol_match and "%" in g.find('dose').attrib['units']:
-            name_key = g.find('name').text
-            dose_key = g.find('name').text + '_dose'
-            logging.debug('create_goals: Reassigned protocol name from {} to {}, for dose {} Gy'.format(
-                g.find('name').text, protocol_match[name_key],
-                protocol_match[dose_key]))
-            g.find('name').text = protocol_match[name_key]
-            g.find('dose').attrib = "Gy"
-            goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text)/100
-            g.find('dose').text = str(goal_dose)
-        # Regardless, add the goal now
-        logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
-        Goals.add_goal(g, connect.get_current('Plan'))
+    if use_orders:
+        for g in order.findall('./goals/roi'):
+            # If the key is a name key, change the ElementTree for the name
+            if g.find('name').text in protocol_match and "%" in g.find('dose').attrib['units']:
+                name_key = g.find('name').text
+                dose_key = g.find('name').text + '_dose'
+                logging.debug('create_goals: Reassigned protocol name from {} to {}, for dose {} Gy'.format(
+                    g.find('name').text, protocol_match[name_key],
+                    protocol_match[dose_key]))
+                g.find('name').text = protocol_match[name_key]
+                g.find('dose').attrib = "Gy"
+                goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text)/100
+                g.find('dose').text = str(goal_dose)
+            # Regardless, add the goal now
+            logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
+            Goals.add_goal(g, connect.get_current('Plan'))
 
 if __name__ == '__main__':
     main()
