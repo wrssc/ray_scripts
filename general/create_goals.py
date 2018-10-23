@@ -190,7 +190,7 @@ def main():
         datatype=final_datatype,
         initial=final_initial,
         options=final_options,
-        required=final_required)
+        required=[])
     print final_dialog.show()
 
     # Process inputs
