@@ -197,7 +197,7 @@ def main():
     # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
     protocol_match = {}
     for k, v in final_dialog.values.iteritems():
-        if v:
+        if len(v)>0:
             i, p = k.split("_", 1)
             if 'name' in i:
                 # Key name will be the protocol target name
