@@ -147,33 +147,38 @@ def main():
     else:
         target_goal_level = protocol
 
+    if use_orders:
+        goal_locations = (protocol.findall('./goals/roi'), order.findall('./goals/roi'))
+    else:
+        goal_locations = (protocol.findall('./goals/roi'))
     # Use the following loop to find the targets in protocol matching the names above
-    for g in target_goal_level.findall('./goals/roi'):
-        g_name = g.find('name').text
-        for t in plan_targets:
-            # Priorities should be even for targets and append unique elements only
-            # into the protocol_targets list
-            if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
-                protocol_targets.append(g_name)
-                k = str(i)
-                # Python doesn't sort lists....
-                k_name = k.zfill(2) + 'Aname_' + g_name
-                k_dose = k.zfill(2) + 'Bdose_' + g_name
-                final_inputs[k_name] = 'Match a plan target to ' + g_name
-                final_options[k_name] = plan_targets
-                final_datatype[k_name] = 'combo'
-                final_required.append(k_name)
-                final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
-                final_required.append(k_dose)
-                i += 1
-                # Exact matches get an initial guess in the dropdown
-                if g_name == t:
-                    final_initial[k_name] = t
-        # Add a quick check if the contour exists in RS
-        if int(g.find('priority').text) % 2:
-            if not any(r.Name == g_name for r in
-                       case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
-                missing_contours.append(g_name)
+    for s in goal_locations:
+        for g in s:
+            g_name = g.find('name').text
+            for t in plan_targets:
+                # Priorities should be even for targets and append unique elements only
+                # into the protocol_targets list
+                if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
+                    protocol_targets.append(g_name)
+                    k = str(i)
+                    # Python doesn't sort lists....
+                    k_name = k.zfill(2) + 'Aname_' + g_name
+                    k_dose = k.zfill(2) + 'Bdose_' + g_name
+                    final_inputs[k_name] = 'Match a plan target to ' + g_name
+                    final_options[k_name] = plan_targets
+                    final_datatype[k_name] = 'combo'
+                    final_required.append(k_name)
+                    final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
+                    final_required.append(k_dose)
+                    i += 1
+                    # Exact matches get an initial guess in the dropdown
+                    if g_name == t:
+                        final_initial[k_name] = t
+            # Add a quick check if the contour exists in RS
+            if int(g.find('priority').text) % 2:
+                if not any(r.Name == g_name for r in
+                           case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
+                    missing_contours.append(g_name)
     # Warn the user they are missing stuff
     if missing_contours:
         mc_list = ',\n'.join(missing_contours)
@@ -211,32 +216,28 @@ def main():
                     nominal_dose = protocol_match[pd]
 
     status.next_step(text="Adding goals.", num=3)
-    if use_orders:
-        goal_locations = (protocol.findall('./goals/roi'), order.findall('./goals/roi'))
-    else:
-        goal_locations = (protocol.findall('./goals/roi'))
     # Take the relative dose limits and convert them to the user specified dose levels
-   # for g in protocol.findall('./goals/roi'):
-   #     # If the key is a name key, change the ElementTree for the name
-   #     if "%" in g.find('dose').attrib['units']:
-   #         if g.find('name').text in protocol_match and "%" in g.find('dose').attrib['units']:
-   #             name_key = g.find('name').text
-   #             dose_key = g.find('name').text + '_dose'
-   #             logging.debug('create_goals: Reassigned protocol name from {} to {}, for dose {} Gy'.format(
-   #                 g.find('name').text, protocol_match[name_key],
-   #                 protocol_match[dose_key]))
-   #             g.find('name').text = protocol_match[name_key]
-   #             g.find('dose').attrib = "Gy"
-   #             goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
-   #             g.find('dose').text = str(goal_dose)
-   #     # Regardless, add the goal now
-   #     logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
-   #     Goals.add_goal(g, connect.get_current('Plan'))
-   # # Take the relative dose limits and convert them to the user specified dose levels
-   # if use_orders:
+    # for g in protocol.findall('./goals/roi'):
+    #     # If the key is a name key, change the ElementTree for the name
+    #     if "%" in g.find('dose').attrib['units']:
+    #         if g.find('name').text in protocol_match and "%" in g.find('dose').attrib['units']:
+    #             name_key = g.find('name').text
+    #             dose_key = g.find('name').text + '_dose'
+    #             logging.debug('create_goals: Reassigned protocol name from {} to {}, for dose {} Gy'.format(
+    #                 g.find('name').text, protocol_match[name_key],
+    #                 protocol_match[dose_key]))
+    #             g.find('name').text = protocol_match[name_key]
+    #             g.find('dose').attrib = "Gy"
+    #             goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
+    #             g.find('dose').text = str(goal_dose)
+    #     # Regardless, add the goal now
+    #     logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
+    #     Goals.add_goal(g, connect.get_current('Plan'))
+    # # Take the relative dose limits and convert them to the user specified dose levels
+    # if use_orders:
     for seq in goal_locations:
         for g in seq:
-        # If the key is a name key, change the ElementTree for the name
+            # If the key is a name key, change the ElementTree for the name
             if "%" in g.find('dose').attrib['units']:
                 # See if g is goal on a matched target
                 if g.find('name').text in protocol_match:

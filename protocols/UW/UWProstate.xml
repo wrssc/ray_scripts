@@ -299,7 +299,7 @@
         <roi>
             <name>Urethra</name>
             <type>Max</type>
-            <dose units="%" roi="PTV">105</dose>
+            <dose units="%" roi="PTVp">105</dose>
             <volume units="cc">0.2</volume>
             <priority>3</priority>
         </roi>
