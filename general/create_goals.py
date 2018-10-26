@@ -214,7 +214,7 @@ def main():
     if use_orders:
         goal_locations = (protocol.findall('./goals/roi'), order.findall('./goals/roi'))
     else:
-        goal_locations = (protocol.findall('./goals/roi'), [])
+        goal_locations = (protocol.findall('./goals/roi'))
     # Take the relative dose limits and convert them to the user specified dose levels
    # for g in protocol.findall('./goals/roi'):
    #     # If the key is a name key, change the ElementTree for the name
@@ -254,6 +254,11 @@ def main():
                     dose_key = g.find('dose').attrib['roi'] + '_dose'
                     logging.debug('create_goals: Reassigned ROI: {} for the target: {} with dose {} Gy'.format(
                         g.find('name').text, protocol_match[name_key], protocol_match[dose_key]))
+                else:
+                    logging.error('create_goals.py: Could not find referenced roi in the matched targets.' +
+                                  'likely an issue in the xml for this protocol has a bad reference' +
+                                  'failed on ROI {}'.format(g.find('name').text))
+                    sys.exit('The xml for this protocol has a bad reference for roi: {}'.format(g.find('name').text))
                 g.find('dose').attrib = "Gy"
                 goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
                 g.find('dose').text = str(goal_dose)
