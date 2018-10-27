@@ -14,7 +14,7 @@
     </diagnoses>
     <prescription>
         <roi>
-            <name>PTV1_Eval</name>
+            <name>PTVp1_Eval</name>
             <type>DX</type>
             <volume units="%">95</volume>
             <dose units="Gy" idl="100">60</dose>
@@ -44,24 +44,24 @@
     </order>
     <goals>
         <roi>
-            <name>PTV1_Eval</name>
+            <name>PTVp1_Eval</name>
             <type dir="ge">DX</type>
             <volume units="%">95</volume>
-            <dose units="%" roi="PTV">100</dose>
+            <dose units="%" roi="PTVp">100</dose>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV1_Eval</name>
+            <name>PTVp1_Eval</name>
             <type>Max</type>
             <volume units="%">2</volume>
-            <dose units="%" roi="PTV">110</dose>
+            <dose units="%" roi="PTVp">110</dose>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV1_Eval</name>
+            <name>PTVp1_Eval</name>
             <type dir="ge">DX</type>
             <volume units="%">98</volume>
-            <dose units="%" roi="PTV">90</dose>
+            <dose units="%" roi="PTVp">90</dose>
             <priority>2</priority>
         </roi>
         <roi>
@@ -116,7 +116,7 @@
             <name>Esophagus</name>
             <type>Max</type>
             <volume units="cc">0.1</volume>
-            <dose units="%" roi="PTV">105</dose>
+            <dose units="%" roi="PTVp">105</dose>
             <priority>1</priority>
         </roi>
         <roi>
@@ -136,7 +136,7 @@
             <name>Esophagus</name>
             <type>Max</type>
             <volume units="cc">0.1</volume>
-            <dose units="%" roi="PTV">100</dose>
+            <dose units="%" roi="PTVp">100</dose>
             <priority>3</priority>
         </roi>
         <roi>
@@ -150,7 +150,7 @@
             <name>Esophagus_PRV05</name>
             <type>Max</type>
             <volume units="cc">0.1</volume>
-            <dose units="%" roi="PTV">110</dose>
+            <dose units="%" roi="PTVp">110</dose>
             <priority>1</priority>
         </roi>
         <roi>
