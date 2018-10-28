@@ -304,7 +304,7 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Skin</name>
+            <name>Skin_PRV05</name>
             <type dir="lt">VX</type>
             <volume units="cc">1</volume>
             <dose units="Gy">30</dose>

@@ -264,7 +264,6 @@ def main():
                 goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
                 g.find('dose').text = str(goal_dose)
             # Regardless, add the goal now
-            logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
             Goals.add_goal(g, connect.get_current('Plan'))
 
 
