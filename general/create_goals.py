@@ -257,10 +257,10 @@ def main():
                         g.find('name').text, protocol_match[name_key], protocol_match[dose_key]))
                 else:
                     logging.warning('create_goals.py: Could not find referenced roi in the matched targets.' +
-                                  'User did not match an existing roi to the protocol. ' +
-                                  'failed on ROI {}'.format(g.find('name').text))
+                                    'User did not match an existing roi to the protocol. ' +
+                                    'failed on ROI {}'.format(g.find('name').text))
                     pass
-                    #sys.exit('The xml for this protocol has a bad reference for roi: {}'.format(g.find('name').text))
+                    # sys.exit('The xml for this protocol has a bad reference for roi: {}'.format(g.find('name').text))
                 g.find('dose').attrib = "Gy"
                 goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
                 g.find('dose').text = str(goal_dose)
