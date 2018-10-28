@@ -155,7 +155,6 @@ def main():
     for s in goal_locations:
         for g in s:
             g_name = g.find('name').text
-            for t in plan_targets:
                 # Priorities should be even for targets and append unique elements only
                 # into the protocol_targets list
                 if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
@@ -172,8 +171,9 @@ def main():
                     final_required.append(k_dose)
                     i += 1
                     # Exact matches get an initial guess in the dropdown
-                    if g_name == t:
-                        final_initial[k_name] = t
+                    for t in plan_targets:
+                        if g_name == t:
+                            final_initial[k_name] = t
             # Add a quick check if the contour exists in RS
             if int(g.find('priority').text) % 2:
                 if not any(r.Name == g_name for r in
