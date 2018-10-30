@@ -1302,14 +1302,14 @@
             </roi>
             <roi>
                 <name>PTV_p</name>
-                <type dir="ge">Vx</type>
+                <type dir="ge">VX</type>
                 <volume units="%">50</volume>
                 <dose units="%" roi="PTV_p">99</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p</name>
-                <type dir="le">Vx</type>
+                <type dir="le">VX</type>
                 <volume units="%">50</volume>
                 <dose units="%" roi="PTV_p">101</dose>
                 <priority>4</priority>
@@ -1379,7 +1379,7 @@
             </roi>
             <roi>
                 <name>BladderNeck</name>
-                <type dir="lt">Dmax</type>
+                <type dir="lt">Max</type>
                 <dose units="Gy">61</dose>
                 <volume units="cc">0.03</volume>
                 <priority>3</priority>
