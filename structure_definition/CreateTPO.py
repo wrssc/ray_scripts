@@ -41,6 +41,7 @@ import Goals
 
 # Define the protocol XML directory
 protocol_folder = r'../protocols'
+institution_folder = r'UW'
 
 # Define the priority at or below which goals are not displayed
 priority = 4
@@ -77,7 +78,7 @@ def main():
                           'with information about the plan. Once completed, click Continue.')
 
     tpo = UserInterface.TpoDialog(patient=patient, title='TPO Dialog', match=0.6, rx=3, priority=priority)
-    tpo.load_protocols(os.path.join(os.path.dirname(__file__), protocol_folder))
+    tpo.load_protocols(os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder))
     response = tpo.show(case=case, exam=exam)
     if response == {}:
         status.finish('Script cancelled, inputs were not supplied')
