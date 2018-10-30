@@ -1295,7 +1295,7 @@
             </roi>
             <roi>
                 <name>PTV_p</name>
-                <type dir="le">Max</type>
+                <type dir="le">VX</type>
                 <volume units="%">1</volume>
                 <dose units="%" roi="PTV_p">105</dose>
                 <priority>4</priority>
@@ -1456,7 +1456,7 @@
                 <name>Femur_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">30</dose>
-                <volume units="%">51</volume>
+                <volume units="%">5</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1470,7 +1470,7 @@
                 <name>Femur_R</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">30</dose>
-                <volume units="%">51</volume>
+                <volume units="%">5</volume>
                 <priority>3</priority>
             </roi>
             <roi>
