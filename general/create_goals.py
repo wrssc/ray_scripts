@@ -119,7 +119,7 @@ def main():
     # Find RS targets
     plan_targets = []
     for r in case.PatientModel.RegionsOfInterest:
-        if r.Type == 'Ptv':
+        if r.OrganData.OrganType == 'Target':
             plan_targets.append(r.Name)
 
     status.next_step(text="Matching all structures to the current list.", num=1)
@@ -217,24 +217,6 @@ def main():
 
     status.next_step(text="Adding goals.", num=3)
     # Take the relative dose limits and convert them to the user specified dose levels
-    # for g in protocol.findall('./goals/roi'):
-    #     # If the key is a name key, change the ElementTree for the name
-    #     if "%" in g.find('dose').attrib['units']:
-    #         if g.find('name').text in protocol_match and "%" in g.find('dose').attrib['units']:
-    #             name_key = g.find('name').text
-    #             dose_key = g.find('name').text + '_dose'
-    #             logging.debug('create_goals: Reassigned protocol name from {} to {}, for dose {} Gy'.format(
-    #                 g.find('name').text, protocol_match[name_key],
-    #                 protocol_match[dose_key]))
-    #             g.find('name').text = protocol_match[name_key]
-    #             g.find('dose').attrib = "Gy"
-    #             goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
-    #             g.find('dose').text = str(goal_dose)
-    #     # Regardless, add the goal now
-    #     logging.debug('create_goals.py: Adding goal ' + Goals.print_goal(g, 'xml'))
-    #     Goals.add_goal(g, connect.get_current('Plan'))
-    # # Take the relative dose limits and convert them to the user specified dose levels
-    # if use_orders:
     for seq in goal_locations:
         for g in seq:
             # If the key is a name key, change the ElementTree for the name
