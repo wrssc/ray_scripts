@@ -55,6 +55,8 @@
             - [ ] Add error catching for jaws being too large to autoset them for X1=-10 and X2=10
             - [ ] Add logging for voxel size
             - [ ] Add logging for functional decreases with each step - list of items
+    2.0.1 Bug fix, if co-optimization is not used, the segment weight optimization fails. Put in logic
+          to declare the variable cooptimization=False for non-cooptimized beamsets
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -512,6 +514,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         cooptimization = True
         logging.debug('automated_plan_optimization: Plan is co-optimized with {} other plans'.format(
             len(plan_optimization_parameters.TreatmentSetupSettings)))
+    else:
+        cooptimization = False
+        logging.debug('automated_plan_optimization: Plan is not co-optimized.')
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # it is clear than when co-optimization occurs, we have more than one entry in here...
     # while beamsinrange:

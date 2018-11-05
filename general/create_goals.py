@@ -7,6 +7,10 @@
     We may want to extend this main function to a simple function which would potentially
     take the path as an argument.
 
+    Script will ask user for a protocol and potentially an order.  It will then find the
+    doses that are to be used. If protocol defined doses exist and matches are found to
+    target names it will load those first.
+
     Inputs::
         None at this time
 
@@ -69,6 +73,7 @@ def main():
     status.next_step(text="Determining correct treatment protocol" +
                           "based on treatment planning order.", num=0)
 
+    # Eventually we may want to conver
     if filename:
         logging.info("create_goals.py: protocol selected: {}".format(
             filename))

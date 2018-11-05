@@ -22,13 +22,13 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <dose units="Gy" idl="100">70</dose>
                 <volume units="%">95</volume>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type>DX</type>
                 <dose units="Gy" idl="100">74.2</dose>
                 <volume units="%">95</volume>
@@ -36,59 +36,59 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVp">90</dose>
+                <dose units="%" roi="PTV_p">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="le">Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
+                <dose units="%" roi="PTV_p">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="le">VX</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
+                <dose units="%" roi="PTV_p">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVsib">100</dose>
+                <dose units="%" roi="PTV_sib">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVsib">90</dose>
+                <dose units="%" roi="PTV_sib">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type dir="le">Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVsib">107</dose>
+                <dose units="%" roi="PTV_sib">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type dir="le">VX</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVsib">107</dose>
+                <dose units="%" roi="PTV_sib">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -129,28 +129,28 @@
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">Max</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">VX</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra_PRV02</name>
                 <type dir="lt">Max</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra_PRV02</name>
                 <type dir="lt">VX</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
@@ -221,19 +221,19 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">70.0</dose>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">50.4</dose>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">74.2</dose>
@@ -241,101 +241,101 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVp">90</dose>
+                <dose units="%" roi="PTV_p">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="le">Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
+                <dose units="%" roi="PTV_p">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="le">VX</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
+                <dose units="%" roi="PTV_p">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVsib">100</dose>
+                <dose units="%" roi="PTV_sib">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVsib">90</dose>
+                <dose units="%" roi="PTV_sib">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type dir="le">Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVsib">107</dose>
+                <dose units="%" roi="PTV_sib">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVsib</name>
+                <name>PTV_sib</name>
                 <type dir="le">VX</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVsib">107</dose>
+                <dose units="%" roi="PTV_sib">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn1">100</dose>
+                <dose units="%" roi="PTV_n1">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVn1">90</dose>
+                <dose units="%" roi="PTV_n1">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type dir="le">VX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn2</name>
+                <name>PTV_n2</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn2">100</dose>
+                <dose units="%" roi="PTV_n2">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn2</name>
+                <name>PTV_n2</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVn2">90</dose>
+                <dose units="%" roi="PTV_n2">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn2</name>
+                <name>PTV_n2</name>
                 <type dir="le">VX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -362,28 +362,28 @@
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">Max</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">VX</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra_PRV02</name>
                 <type dir="lt">Max</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra_PRV02</name>
                 <type dir="lt">VX</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
@@ -454,7 +454,7 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">62.5</dose>
@@ -462,31 +462,31 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVp">90</dose>
+                <dose units="%" roi="PTV_p">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="le">VX</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
+                <dose units="%" roi="PTV_p">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="le">Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
+                <dose units="%" roi="PTV_p">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -527,28 +527,28 @@
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">Max</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">VX</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra_PRV02</name>
                 <type dir="lt">Max</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra_PRV02</name>
                 <type dir="lt">VX</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
@@ -619,7 +619,7 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">62.5</dose>
@@ -627,73 +627,73 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVp">90</dose>
+                <dose units="%" roi="PTV_p">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="le">Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
+                <dose units="%" roi="PTV_p">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="le">VX</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
+                <dose units="%" roi="PTV_p">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn1">100</dose>
+                <dose units="%" roi="PTV_n1">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVn1">90</dose>
+                <dose units="%" roi="PTV_n1">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type dir="le">VX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn2</name>
+                <name>PTV_n2</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn2">100</dose>
+                <dose units="%" roi="PTV_n2">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn2</name>
+                <name>PTV_n2</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVn2">90</dose>
+                <dose units="%" roi="PTV_n2">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn2</name>
+                <name>PTV_n2</name>
                 <type dir="le">VX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -720,28 +720,28 @@
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">Max</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra</name>
                 <type dir="lt">VX</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra_PRV02</name>
                 <type dir="lt">Max</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra_PRV02</name>
                 <type dir="lt">VX</type>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
@@ -808,13 +808,13 @@
         <prefix>Pros_</prefix>
         <prescription>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">46.0</dose>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">46.0</dose>
@@ -822,52 +822,52 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVp">90</dose>
+                <dose units="%" roi="PTV_p">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
-                <priority>3</priority>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVp</name>
+                <name>PTV_p</name>
                 <type dir="le">VX</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">107</dose>
+                <dose units="%" roi="PTV_p">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn1">100</dose>
+                <dose units="%" roi="PTV_n1">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVn1">90</dose>
+                <dose units="%" roi="PTV_n1">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn1</name>
+                <name>PTV_n1</name>
                 <type dir="le">VX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
