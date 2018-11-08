@@ -497,7 +497,7 @@
             <roi>
                 <name>BrainStem_PRV03</name>
                 <type>VX</type>
-                <volume units="%">2%</volume>
+                <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
             </roi>
