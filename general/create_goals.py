@@ -225,32 +225,35 @@ def main():
     for seq in goal_locations:
         for g in seq:
             # If the key is a name key, change the ElementTree for the name
-            if "%" in g.find('dose').attrib['units']:
-                # See if g is goal on a matched target
-                if g.find('name').text in protocol_match:
-                    name_key = g.find('name').text
-                    dose_key = g.find('name').text + '_dose'
-                    # Change the roi name the goal uses to the matched value
-                    g.find('name').text = protocol_match[name_key]
-                    logging.debug('create_goals: Reassigned protocol name from {} to {}, for dose {} Gy'.format(
-                        g.find('name').text, protocol_match[name_key],
-                        protocol_match[dose_key]))
-                # If g pertains to an roi that is using target goals, find the name of the target ROI in the
-                # dose attributes
-                elif g.find('dose').attrib['roi'] in protocol_match:
-                    name_key = g.find('dose').attrib['roi']
-                    dose_key = g.find('dose').attrib['roi'] + '_dose'
-                    logging.debug('create_goals: Reassigned ROI: {} for the target: {} with dose {} Gy'.format(
-                        g.find('name').text, protocol_match[name_key], protocol_match[dose_key]))
-                else:
-                    logging.warning('create_goals.py: Could not find referenced roi in the matched targets.' +
-                                    'User did not match an existing roi to the protocol. ' +
-                                    'failed on ROI {}'.format(g.find('name').text))
-                    pass
-                    # sys.exit('The xml for this protocol has a bad reference for roi: {}'.format(g.find('name').text))
-                g.find('dose').attrib = "Gy"
-                goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
-                g.find('dose').text = str(goal_dose)
+            try:
+                if "%" in g.find('dose').attrib['units']:
+                    # See if g is goal on a matched target
+                    if g.find('name').text in protocol_match:
+                        name_key = g.find('name').text
+                        dose_key = g.find('name').text + '_dose'
+                        # Change the roi name the goal uses to the matched value
+                        g.find('name').text = protocol_match[name_key]
+                        logging.debug('create_goals: Reassigned protocol name from {} to {}, for dose {} Gy'.format(
+                            g.find('name').text, protocol_match[name_key],
+                            protocol_match[dose_key]))
+                    # If g pertains to an roi that is using target goals, find the name of the target ROI in the
+                    # dose attributes
+                    elif g.find('dose').attrib['roi'] in protocol_match:
+                        name_key = g.find('dose').attrib['roi']
+                        dose_key = g.find('dose').attrib['roi'] + '_dose'
+                        logging.debug('create_goals: Reassigned ROI: {} for the target: {} with dose {} Gy'.format(
+                            g.find('name').text, protocol_match[name_key], protocol_match[dose_key]))
+                    else:
+                        logging.warning('create_goals.py: Could not find referenced roi in the matched targets.' +
+                                        'User did not match an existing roi to the protocol. ' +
+                                        'failed on ROI {}'.format(g.find('name').text))
+                        pass
+                        # sys.exit('The xml for this protocol has a bad reference for roi: {}'.format(g.find('name').text))
+                    g.find('dose').attrib = "Gy"
+                    goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
+                    g.find('dose').text = str(goal_dose)
+            except AttributeError:
+                logging.debug('create_goals.py: Goal loaded which does not have dose attribute.')
             # Regardless, add the goal now
             Goals.add_goal(g, connect.get_current('Plan'))
 
