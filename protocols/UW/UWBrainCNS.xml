@@ -132,7 +132,7 @@
             </roi>
             <roi>
                 <name>BrainStem</name>
-                <type dir="lt">Dmax</type>
+                <type dir="lt">Max</type>
                 <volume units="cc">0.01</volume>
                 <dose units="Gy">60</dose>
                 <priority>3</priority>
