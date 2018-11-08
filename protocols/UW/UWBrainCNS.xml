@@ -82,14 +82,14 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Brain-PTV_p</name>
+                <name>Brain-PTV</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="%" roi="PTV_p">105</dose>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Brain-PTV_p</name>
+                <name>Brain-PTV</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="%" roi="PTV_p">100</dose>
