@@ -1,0 +1,1519 @@
+<protocol>
+    <name>UW Prostate</name>
+    <ct>
+        <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
+        <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
+        <protocol institution="UWHC">XRT_PELVIS</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+        <icd version="10">C61</icd>
+    </diagnoses>
+    <order>
+        <name>Prostate Only 7000cGy 28Fx</name>
+        <prefix>Pros_</prefix>
+        <prescription>
+            <fractions>28</fractions>
+            <frequency>Daily</frequency>
+            <imaging>Daily CBCT</imaging>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <dose units="Gy" idl="100">70</dose>
+                <volume units="%">95</volume>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type>DX</type>
+                <dose units="Gy" idl="100">74.2</dose>
+                <volume units="%">95</volume>
+            </roi>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_sib">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_sib">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="le">Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_sib">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_sib">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">35</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">35</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">15</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type dir="lt">Max</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type dir="lt">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra_PRV02</name>
+                <type dir="lt">Max</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra_PRV02</name>
+                <type dir="lt">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>Prostate + Nodes 7000cGy 28Fx</name>
+        <prefix>ProN _</prefix>
+        <prescription>
+            <fractions>28</fractions>
+            <frequency>Daily</frequency>
+            <imaging>Daily CBCT</imaging>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">70.0</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">50.4</dose>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">74.2</dose>
+            </roi>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_sib">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_sib">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="le">Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_sib">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_sib">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">15</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type dir="lt">Max</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type dir="lt">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra_PRV02</name>
+                <type dir="lt">Max</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra_PRV02</name>
+                <type dir="lt">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>Prostate Fossa Only 6250cGy 25Fx</name>
+        <prefix>PFos_</prefix>
+        <prescription>
+            <fractions>25</fractions>
+            <frequency>Daily</frequency>
+            <imaging>Daily CBCT</imaging>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">62.5</dose>
+            </roi>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">40</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">35</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">35</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">15</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type dir="lt">Max</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type dir="lt">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra_PRV02</name>
+                <type dir="lt">Max</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra_PRV02</name>
+                <type dir="lt">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>Prostate Fossa + Nodes 6250cGy 25Fx</name>
+        <prefix>PFoN _</prefix>
+        <prescription>
+            <fractions>25</fractions>
+            <frequency>Daily</frequency>
+            <imaging>Daily CBCT</imaging>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">62.5</dose>
+            </roi>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">15</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type dir="lt">Max</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type dir="lt">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra_PRV02</name>
+                <type dir="lt">Max</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra_PRV02</name>
+                <type dir="lt">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>Prostate with Nodes + HDR 4600cGy 23Fx</name>
+        <prefix>Pros_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">46.0</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">46.0</dose>
+            </roi>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">15</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">35</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>RTOG0924 Prostate with Nodes + Sequential Boost</name>
+        <prefix>ProN_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_pri</name>
+                <type>DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy" idl="100">45.0</dose>
+            </roi>
+            <fractions>25</fractions>
+        </prescription>
+        <prescription>
+            <roi>
+                <name>PTV_bst</name>
+                <type>DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy" idl="100">79.2</dose>
+            </roi>
+            <fractions>19</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_bst</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_bst">98</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_bst</name>
+                <type dir="le">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_bst">102</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_bst</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_bst">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_bst</name>
+                <type dir="ge">Vx</type>
+                <volume units="%">99.97</volume>
+                <dose units="%" roi="PTV_bst">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_bst</name>
+                <type dir="ge">VX</type>
+                <volume units="%">99.97</volume>
+                <dose units="%" roi="PTV_bst">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_bst</name>
+                <type dir="le">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_bst">110</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_bst</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_bst">107</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_bst</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="%" roi="PTV_bst">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_pri</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_pri">98</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_pri</name>
+                <type dir="le">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_pri">102</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_pri</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_pri">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_pri</name>
+                <type dir="ge">VX</type>
+                <volume units="%">99.97</volume>
+                <dose units="%" roi="PTV_pri">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_pri</name>
+                <type dir="ge">VX</type>
+                <volume units="%">99.97</volume>
+                <dose units="%" roi="PTV_pri">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_pri</name>
+                <type dir="le">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_pri">110</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_pri</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.03</volume>
+                <dose units="%" roi="PTV_pri">107</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_pri</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="%" roi="PTV_pri">107</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">80</dose>
+                <volume units="%">20</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">80</dose>
+                <volume units="%">15</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">75</dose>
+                <volume units="%">30</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">75</dose>
+                <volume units="%">25</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">70</dose>
+                <volume units="%">40</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">70</dose>
+                <volume units="%">35</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">65</dose>
+                <volume units="%">55</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">65</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">75</dose>
+                <volume units="%">20</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">75</dose>
+                <volume units="%">15</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">70</dose>
+                <volume units="%">30</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">70</dose>
+                <volume units="%">25</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">65</dose>
+                <volume units="%">40</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">65</dose>
+                <volume units="%">35</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">55</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">80</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">52.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="cc">0.1</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Femur_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">50</dose>
+                <volume units="cc">0.1</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Femur_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">50</dose>
+                <volume units="cc">0.1</volume>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>PROFIT/CHHIP 6000cGy 20Fx </name>
+        <prefix>Pros_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy" idl="100">60.0</dose>
+            </roi>
+            <fractions>20</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">95</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p">105</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">99</volume>
+                <dose units="%" roi="PTV_p">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <volume units="%">1</volume>
+                <dose units="%" roi="PTV_p">105</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">50</volume>
+                <dose units="%" roi="PTV_p">99</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="%" roi="PTV_p">101</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>CTV</name>
+                <type dir="le">VX</type>
+                <volume units="%">99</volume>
+                <dose units="%" roi="CTV">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>CTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">97</volume>
+                <dose units="%" roi="CTV">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>CTV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="CTV">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">30</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">50</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BladderNeck</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">61</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">57</dose>
+                <volume units="%">15</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">50</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">60</dose>
+                <volume units="%">1</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">57</dose>
+                <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">35</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum_RAV15</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum_RAVresidual</name>
+                <type dir="lt">Max</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">25</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">35</dose>
+                <volume units="%">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Femur_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">5</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">35</dose>
+                <volume units="%">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Femur_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="%">5</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">61</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Urethra_PRV02</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">61</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <goals>
+        <roi>
+            <name>PeritonealCavity</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">40</dose>
+            <volume units="cc">175</volume>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Skin_PRV05</name>
+            <type dir="lt">Max</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">0.1</volume>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Skin_PRV05</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">0.1</volume>
+            <priority>3</priority>
+        </roi>
+        <goalset>
+            <name>QUANTEC</name>
+            <priority>5</priority>
+        </goalset>
+    </goals>
+</protocol>

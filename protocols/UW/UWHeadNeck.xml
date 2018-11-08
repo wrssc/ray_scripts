@@ -17,42 +17,3230 @@
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
+        <name>Left HN Definitive [7000, 6000, 5400cGy] 33Fx</name>
+        <prefix>NecL_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">70</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">56</dose>
+            </roi>
+            <fractions>33</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="%">2</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <volume units="%">2</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">34</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PharnyxConst</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lips</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Mandible</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">66</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nape</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>7</priority>
+            </goalset>
+        </goals>
+    </order>
+    <order>
+        <name>Right HN Definitive [7000, 6000, 5400cGy] 33Fx</name>
+        <prefix>NecR_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">70</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">56</dose>
+            </roi>
+            <fractions>33</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="%">2</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <volume units="%">2</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">34</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PharnyxConst</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lips</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Mandible</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">66</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nape</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>7</priority>
+            </goalset>
+        </goals>
+    </order>
+    <order>
+        <name>Bilat HN Definitive [7000, 6000, 5400cGy] 33Fx</name>
+        <prefix>NecB_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">70</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">56</dose>
+            </roi>
+            <fractions>33</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="%">2</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <volume units="%">2</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">34</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PharnyxConst</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lips</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Mandible</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">66</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nape</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>7</priority>
+            </goalset>
+        </goals>
+    </order>
+    <order>
+        <name>Right HN Adjuvant [6300, 6000, 5400cGy] 30Fx</name>
+        <prefix>NecR_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">63</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">54</dose>
+            </roi>
+            <fractions>33</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="%">2</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <volume units="%">2</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">34</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PharnyxConst</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lips</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Mandible</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">66</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nape</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>7</priority>
+            </goalset>
+        </goals>
+    </order>
+    <order>
+        <name>Left HN Adjuvant [6300, 6000, 5400cGy] 30Fx</name>
+        <prefix>NecL_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">63</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">54</dose>
+            </roi>
+            <fractions>33</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="%">2</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <volume units="%">2</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">34</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PharnyxConst</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lips</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Mandible</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">66</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nape</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>7</priority>
+            </goalset>
+        </goals>
+    </order>
+    <order>
+        <name>BiLat HN Adjuvant [6300, 6000, 5400cGy] 30Fx</name>
+        <prefix>NecB_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">63</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">54</dose>
+            </roi>
+            <fractions>33</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="%">2</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <volume units="%">2</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">34</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PharnyxConst</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lips</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Mandible</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">66</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nape</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>7</priority>
+            </goalset>
+        </goals>
+    </order>
+    <order>
         <name>Simultaneous Boost</name>
         <prefix>Nec_</prefix>
         <prescription>
             <roi>
-                <name>PTV1_Eval</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV2_Eval</name>
+                <name>PTV_n1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV3_Eval</name>
+                <name>PTV_n2</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
         </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="%">2</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <volume units="%">2</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">34</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PharnyxConst</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lips</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Mandible</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">66</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nape</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>7</priority>
+            </goalset>
+        </goals>
     </order>
     <order>
         <name>One Sequential Boost</name>
         <prefix>Nec_</prefix>
         <prescription>
             <roi>
-                <name>PTV1_Eval</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV2_Eval</name>
+                <name>PTV_n1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -61,32 +3249,466 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV1_Eval</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
         </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="%">2</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <volume units="%">2</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">34</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PharnyxConst</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lips</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Mandible</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">66</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nape</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>7</priority>
+            </goalset>
+        </goals>
     </order>
     <order>
         <name>Two Sequential Boosts</name>
         <prefix>Nec_</prefix>
         <prescription>
             <roi>
-                <name>PTV1_Eval</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV2_Eval</name>
+                <name>PTV_n1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV3_Eval</name>
+                <name>PTV_n2</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -95,13 +3717,13 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV1_Eval</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>PTV2_Eval</name>
+                <name>PTV_n1</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -110,446 +3732,447 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV1_Eval</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
         </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">110</dose>
+                <volume units="%">2</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <volume units="%">2</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n1">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n1">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">90</dose>
+                <volume units="%">98</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">115</dose>
+                <volume units="%">5</volume>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="ge">VX</type>
+                <dose units="%" roi="PTV_n2">100</dose>
+                <volume units="%">95</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n2">110</dose>
+                <volume units="%">5</volume>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>AnteriorGlobe_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">54</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">34</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrainStem_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chiasm_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PharnyxConst</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Globe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_L_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>LacrimalGland_R_PRV05</name>
+                <type dir="lt">Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">2</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lips</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Mandible</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">66</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nape</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_L_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNerve_R_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">60</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OralCavity</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">26</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>PosteriorGlobe_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">45</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">50</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_L</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Submandibular_R</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">39</dose>
+                <priority>3</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>7</priority>
+            </goalset>
+        </goals>
     </order>
-    <goals>
-        <roi>
-            <name>PTV1_Eval</name>
-            <type dir="ge">VX</type>
-            <dose units="%" roi="PTV1_Eval">90</dose>
-            <volume units="%">98</volume>
-            <priority>2</priority>
-        </roi>
-        <roi>
-            <name>PTV1_Eval</name>
-            <type dir="le">VX</type>
-            <dose units="%" roi="PTV1_Eval">110</dose>
-            <volume units="%">2</volume>
-            <priority>4</priority>
-        </roi>
-        <roi>
-            <name>PTV1_Eval</name>
-            <type dir="ge">VX</type>
-            <dose units="%" roi="PTV1_Eval">100</dose>
-            <volume units="%">95</volume>
-            <priority>4</priority>
-        </roi>
-        <roi>
-            <name>PTV1_Eval</name>
-            <type dir="le">VX</type>
-            <dose units="%" roi="PTV2_Eval">105</dose>
-            <volume units="%">2</volume>
-            <priority>4</priority>
-        </roi>
-        <roi>
-            <name>PTV2_Eval</name>
-            <type dir="ge">VX</type>
-            <dose units="%" roi="PTV2_Eval">90</dose>
-            <volume units="%">98</volume>
-            <priority>2</priority>
-        </roi>
-        <roi>
-            <name>PTV2_Eval</name>
-            <type dir="le">VX</type>
-            <dose units="%" roi="PTV2_Eval">115</dose>
-            <volume units="%">5</volume>
-            <priority>2</priority>
-        </roi>
-        <roi>
-            <name>PTV2_Eval</name>
-            <type dir="ge">VX</type>
-            <dose units="%" roi="PTV2_Eval">100</dose>
-            <volume units="%">95</volume>
-            <priority>4</priority>
-        </roi>
-        <roi>
-            <name>PTV2_Eval</name>
-            <type dir="le">VX</type>
-            <dose units="%" roi="PTV2_Eval">110</dose>
-            <volume units="%">5</volume>
-            <priority>4</priority>
-        </roi>
-           <roi>
-            <name>PTV3_Eval</name>
-            <type dir="ge">VX</type>
-            <dose units="%" roi="PTV3_Eval">90</dose>
-            <volume units="%">98</volume>
-            <priority>2</priority>
-        </roi>
-        <roi>
-            <name>PTV3_Eval</name>
-            <type dir="le">VX</type>
-            <dose units="%" roi="PTV3_Eval">115</dose>
-            <volume units="%">5</volume>
-            <priority>2</priority>
-        </roi>
-        <roi>
-            <name>PTV3_Eval</name>
-            <type dir="ge">VX</type>
-            <dose units="%" roi="PTV3_Eval">100</dose>
-            <volume units="%">95</volume>
-            <priority>4</priority>
-        </roi>
-        <roi>
-            <name>PTV3_Eval</name>
-            <type dir="le">VX</type>
-            <dose units="%" roi="PTV3_Eval">110</dose>
-            <volume units="%">5</volume>
-            <priority>4</priority>
-        </roi>
-        <roi>
-            <name>AnteriorGlobe_L</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">30</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>AnteriorGlobe_L</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">20</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>AnteriorGlobe_R</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">30</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>AnteriorGlobe_R</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">20</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Brain</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Brain_PRV03</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">54</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>BrainStem</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">52</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>BrainStem</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">34</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>BrainStem_PRV03</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">52</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Chiasm</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Chiasm_PRV03</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_L</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_L</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">35</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_L_PRV03</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_R</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_R</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">35</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Cochlea_R_PRV03</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>PharnyxConst</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Esophagus</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">30</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Globe_L</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">3</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Globe_R</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">3</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>LacrimalGland_L</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">30</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>LacrimalGland_L</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">20</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>LacrimalGland_L_PRV05</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">30</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>LacrimalGland_R</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">30</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>LacrimalGland_R</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">20</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>LacrimalGland_R_PRV05</name>
-            <type dir="lt">Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">30</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Larynx</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">30</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Lens_L</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">2</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Lens_L_PRV05</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">2</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Lens_R</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">2</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Lens_R_PRV05</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">2</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Lips</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">20</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Mandible</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">66</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Nape</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">22</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_L</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">5</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_L_PRV03</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">5</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_R</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">5</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OpticNerve_R_PRV03</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">5</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OralCavity</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">60</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>OralCavity</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">30</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Parotid_L</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">26</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Parotid_R</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">26</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>PosteriorGlobe_L</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">50</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>PosteriorGlobe_L</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>PosteriorGlobe_R</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">50</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>PosteriorGlobe_R</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">45</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>SpinalCord</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">45</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>SpinalCord_PRV05</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">50</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Submandibular_L</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">39</dose>
-            <priority>3</priority>
-        </roi>
-        <roi>
-            <name>Submandibular_R</name>
-            <type dir="lt">Mean</type>
-            <dose units="Gy">39</dose>
-            <priority>3</priority>
-        </roi>
-        <goalset>
-            <name>QUANTEC</name>
-            <priority>7</priority>
-        </goalset>
-    </goals>
+
 </protocol>
