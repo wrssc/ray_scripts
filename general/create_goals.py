@@ -186,6 +186,8 @@ def main():
                         input_dialog.values['input1']))
                     break
         else:
+            order = order_list[0]
+            logging.debug('create_goals.py: order selected {} '.format(order))
             use_orders = False
 
     # Find RS targets
