@@ -186,7 +186,7 @@ def main():
                         input_dialog.values['input1']))
                     break
         else:
-            order = None
+            use_order = None
 
     # Find RS targets
     plan_targets = []
