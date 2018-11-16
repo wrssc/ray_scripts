@@ -68,6 +68,7 @@ def rtog_sbrt_dgi(beamset, target, flag):
         logging.warning("rtog_sbrt_dgi: Unknown flag used in call. Returning zero")
         return 0.0
 
+        # Need a contingency for no dose grid....
         # try:
         fd = beamset.FractionDose
         roi = fd.GetDoseGridRoi(RoiName=target)
@@ -86,7 +87,7 @@ def rtog_sbrt_dgi(beamset, target, flag):
         if i == 0:
             logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
             return dev_dgi[i]
-        elif i == len(v):
+        elif i == len(prot_vol):
             logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
             return dev_dgi[i]
         # Interpolate on i and i - 1
