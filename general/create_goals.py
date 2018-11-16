@@ -19,11 +19,14 @@
 
     TODO: Change the main to a callable function taking the protocol path as an input`
     TODO: Add goal loop for secondary - unspecified target goals
+    :versions
+    1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
+    1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
 
 """
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -36,6 +39,56 @@ import connect
 import UserInterface
 import Goals
 
+
+def rtog_sbrt_dgi(beamset, target, flag):
+    """
+    Function will return the RTOG lung 50% DGI for an input target structure name
+
+    :inputs
+        beamset: Name of current beamset
+        target: name of current ROI
+        flag: Flag to indicate the minor deviation criteria
+    :return
+        the value of the interpolated RTOG criteria is returned
+    """
+    prot_vol = [1.8, 3.8, 7.4, 13.2, 22, 34, 50, 70, 95, 126, 163]
+    if flag == 'minor_dgi':
+        index = [0.17, 0.18, 0.20, 0.21, 0.22, 0.23, 0.25, 0.29, 0.30, 0.32, 0.34]
+    elif flag == 'major_dgi':
+        index = [0.13, 0.15, 0.17, 0.17, 0.18, 0.19, 0.20, 0.21, 0.23, 0.25, 0.27]
+    elif flag == 'major_2cm':
+        index = [57.0, 57.0, 58.0, 58.0, 63.0, 68.0, 77.0, 86.0, 89.0, 91.0, 94.0]
+    elif flag == 'minor_2cm':
+        index = [50.0, 50.0, 50.0, 50.0, 54.0, 58.0, 62.0, 66.0, 70.0, 73.0, 77.0]
+    else:
+        logging.warning("rtog_sbrt_dgi.py: Unknown flag used in call. Returning zero")
+        return 0.0
+
+    try:
+        fd = beamset.FractionDose
+        roi = fd.GetDoseGridRoi(RoiName=target)
+        vol = roi.RoiVolumeDistribution.TotalVolume
+        v = prot_vol[0]
+        i = 0
+        # Find first volume exceeding target volume
+        while v <= vol:
+            i += 1
+            v = prot_vol[i]
+        # Exceptions for target volumes exceeding or smaller than the minimum volume
+        if i == 0:
+            logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
+            return dev_dgi[i]
+        elif i == len(v):
+            logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
+            return dev_dgi[i]
+        # Interpolate on i and i - 1
+        else:
+            interp = ((index[i] - index[i - 1]) / (prot_vol[i] - prot_vol[i - 1])) * (
+                    vol / (prot_vol[i] - prot_vol[i - 1])) + index[i - 1]
+            return interp
+    except AttributeError:
+        logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
+                        ' {} is not contoured on this examination'.g.find('name').text)
 
 def main():
     """
@@ -57,15 +110,29 @@ def main():
 
     # Get current patient, case, exam, and plan
     try:
-        patient = connect.get_current('Patient')
-        case = connect.get_current('Case')
-        exam = connect.get_current('Examination')
-        plan = connect.get_current('Plan')
-        patient.Save()
+        patient = connect.get_current("Patient")
+    except SystemError:
+        raise IOError("No Patient loaded. Load patient case and plan.")
 
-    except Exception:
-        UserInterface.WarningBox('This script requires a patient and plan to be loaded')
-        sys.exit('This script requires a patient and plan to be loaded')
+    try:
+        case = connect.get_current("Case")
+    except SystemError:
+        raise IOError("No Case loaded. Load patient case and plan.")
+
+    try:
+        exam = connect.get_current("Examination")
+    except SystemError:
+        raise IOError("No examination loaded. Load patient ct and plan.")
+
+    try:
+        plan = connect.get_current("Plan")
+    except SystemError:
+        raise IOError("No plan loaded. Load patient and plan.")
+
+    try:
+        beamset = connect.get_current("BeamSet")
+    except SystemError:
+        raise IOError("No beamset loaded. Load patient plan and beamset")
 
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
@@ -248,10 +315,33 @@ def main():
                                         'User did not match an existing roi to the protocol. ' +
                                         'failed on ROI {}'.format(g.find('name').text))
                         pass
-                        # sys.exit('The xml for this protocol has a bad reference for roi: {}'.format(g.find('name').text))
+                    # sys.exit('The xml for this protocol has a bad reference for roi: {}'.format(g.find('name').text))
                     g.find('dose').attrib = "Gy"
                     goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
                     g.find('dose').text = str(goal_dose)
+                #  Handle knowledge-based constraints
+                if 'know' in g.find('type').attrib:
+                    # Get the total volume of the goal's target from the dose-grid representation
+                    # Move this to a "knowledge-based" function in the utilities library
+                    if g.find('type').attrib == 'rtog_sbrt_dgi_minor':
+                        k = 'minor_dgi'
+                    elif g.find('type').attrib == 'rtog_sbrt_dgi_major':
+                        k = 'major_dgi'
+                    elif g.find('type').attrib == 'rtog_sbrt_norm2_major':
+                        k = 'major_2cm'
+                    elif g.find('type').attrib == 'rtog_sbrt_norm2_minor':
+                        k = 'minor_2cm'
+                    else:
+                        logging.warning('create_goals.py: Unsupported knowledge-based goal')
+                        # Check on loop break here to get out of if only
+                        break
+
+                    k_index = rtog_sbrt_dgi(beamset=beamset,
+                                            target=g.find('name').text,
+                                            flag=k)
+                    g.find('index').text = str(k_index)
+
+
             except AttributeError:
                 logging.debug('create_goals.py: Goal loaded which does not have dose attribute.')
             # Regardless, add the goal now
