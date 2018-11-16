@@ -54,14 +54,18 @@ def rtog_sbrt_dgi(beamset, target, flag):
     prot_vol = [1.8, 3.8, 7.4, 13.2, 22, 34, 50, 70, 95, 126, 163]
     if flag == 'minor_dgi':
         index = [0.17, 0.18, 0.20, 0.21, 0.22, 0.23, 0.25, 0.29, 0.30, 0.32, 0.34]
+        logging.debug('rtog_sbrt_dgi: Minor DGI selected.')
     elif flag == 'major_dgi':
         index = [0.13, 0.15, 0.17, 0.17, 0.18, 0.19, 0.20, 0.21, 0.23, 0.25, 0.27]
+        logging.debug('rtog_sbrt_dgi: Major DGI selected.')
     elif flag == 'major_2cm':
         index = [57.0, 57.0, 58.0, 58.0, 63.0, 68.0, 77.0, 86.0, 89.0, 91.0, 94.0]
+        logging.debug('rtog_sbrt_dgi: Major Normal_2cm selected.')
     elif flag == 'minor_2cm':
         index = [50.0, 50.0, 50.0, 50.0, 54.0, 58.0, 62.0, 66.0, 70.0, 73.0, 77.0]
+        logging.debug('rtog_sbrt_dgi: Minor Normal_2cm selected.')
     else:
-        logging.warning("rtog_sbrt_dgi.py: Unknown flag used in call. Returning zero")
+        logging.warning("rtog_sbrt_dgi: Unknown flag used in call. Returning zero")
         return 0.0
 
     try:
