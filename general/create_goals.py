@@ -334,6 +334,9 @@ def main():
                     g.find('dose').text = str(goal_dose)
                 #  Handle knowledge-based constraints
                 if 'know' in g.find('type').attrib:
+                    logging.debug('knowledge-based goal found {}'.format(
+                        g.find('type').attrib['know']
+                    ))
                     # Get the total volume of the goal's target from the dose-grid representation
                     # Move this to a "knowledge-based" function in the utilities library
                     if g.find('type').attrib['know'] == 'rtog_sbr_dgi_minor':
