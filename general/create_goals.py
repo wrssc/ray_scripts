@@ -85,6 +85,9 @@ def rtog_sbrt_dgi(beamset, target, flag):
         else:
             interp = index[i - 1] + (vol - prot_vol[i - 1]) * (
                     (index[i] - index[i - 1]) / (prot_vol[i] - prot_vol[i - 1]))
+            logging.debug('rtog_sbrt_dgi.py: Target: {} volume is {}, using index {}'.format(
+                target, vol, interp
+            ))
             return interp
     except AttributeError:
         logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
@@ -341,6 +344,9 @@ def main():
                     k_index = rtog_sbrt_dgi(beamset=beamset,
                                             target=g.find('name').text,
                                             flag=k)
+                    logging.debug('Index changed for ROI {} to {}'.format(
+                        g.find('name').text, k_index
+                    ))
                     g.find('index').text = str(k_index)
 
             except AttributeError:
