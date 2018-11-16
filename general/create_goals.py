@@ -68,39 +68,39 @@ def rtog_sbrt_dgi(beamset, target, flag):
         logging.warning("rtog_sbrt_dgi: Unknown flag used in call. Returning zero")
         return 0.0
 
-        # Need a contingency for no dose grid....
-        # try:
-        fd = beamset.FractionDose
-        roi = fd.GetDoseGridRoi(RoiName=target)
-        vol = roi.RoiVolumeDistribution.TotalVolume
-        logging.debug('rtog_sbrt_dgi:  Volume for {} is {}'.format(
-            target, vol
+    # Need a contingency for no dose grid....
+    # try:
+    fd = beamset.FractionDose
+    roi = fd.GetDoseGridRoi(RoiName=target)
+    vol = roi.RoiVolumeDistribution.TotalVolume
+    logging.debug('rtog_sbrt_dgi:  Volume for {} is {}'.format(
+        target, vol
+    ))
+    v = prot_vol[0]
+    i = 0
+    # Find first volume exceeding target volume
+    while v <= vol:
+        i += 1
+        v = prot_vol[i]
+    logging.debug('rtog_sbrt_dgi: Table searched lower bound on volume ' +
+                  'interpolating volumes: ({}, {}) and index: ({}, {})'.format(
+                      index[i - 1], index[i], prot_vol[i - 1], prot_vol[i]
+                  ))
+    # Exceptions for target volumes exceeding or smaller than the minimum volume
+    if i == 0:
+        logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
+        return dev_dgi[i]
+    elif i == len(prot_vol):
+        logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
+        return dev_dgi[i]
+    # Interpolate on i and i - 1
+    else:
+        interp = index[i - 1] + (vol - prot_vol[i - 1]) * (
+                (index[i] - index[i - 1]) / (prot_vol[i] - prot_vol[i - 1]))
+        logging.debug('rtog_sbrt_dgi.py: Target: {} volume is {}, using index {}'.format(
+            target, vol, interp
         ))
-        v = prot_vol[0]
-        i = 0
-        # Find first volume exceeding target volume
-        while v <= vol:
-            i += 1
-            v = prot_vol[i]
-        logging.debug('rtog_sbrt_dgi: Table searched lower bound on volume ' +
-                      'interpolating volumes: ({}, {}) and index: ({}, {})'.format(
-                          index[i - 1], index[i], prot_vol[i - 1], prot_vol[i]
-                      ))
-        # Exceptions for target volumes exceeding or smaller than the minimum volume
-        if i == 0:
-            logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
-            return dev_dgi[i]
-        elif i == len(prot_vol):
-            logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
-            return dev_dgi[i]
-        # Interpolate on i and i - 1
-        else:
-            interp = index[i - 1] + (vol - prot_vol[i - 1]) * (
-                    (index[i] - index[i - 1]) / (prot_vol[i] - prot_vol[i - 1]))
-            logging.debug('rtog_sbrt_dgi.py: Target: {} volume is {}, using index {}'.format(
-                target, vol, interp
-            ))
-            return interp
+        return interp
     # except AttributeError:
     #    logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
     #                    ' {} is not contoured on this examination'.g.find('name').text)
