@@ -74,6 +74,10 @@ def rtog_sbrt_dgi(beamset, target, flag):
         while v <= vol:
             i += 1
             v = prot_vol[i]
+        logging.debug('rtog_sbrt_dgi: Table searched lower bound on volume ' +
+                      'interpolating volumes: ({}, {}) and index: ({}, {})'.format(
+                          index[i-1], index[i], prot_vol[i-1], prot_vol[i]
+                      ))
         # Exceptions for target volumes exceeding or smaller than the minimum volume
         if i == 0:
             logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
