@@ -164,14 +164,14 @@ def main():
         for o in protocol.findall('order/name'):
             order_list.append(o.text)
 
-        if len(order_list) > 1:
+        if len(order_list) >= 1:
             use_orders = True
             # Find the protocol the user wants to use.
             input_dialog = UserInterface.InputDialog(
                 inputs={'input1': 'Select Order'},
                 title='Order Selection',
                 datatype={'input1': 'combo'},
-                initial={},
+                initial={'input1': order_list[0]},
                 options={'input1': order_list},
                 required=['input1'])
             # Launch the dialog
@@ -186,8 +186,7 @@ def main():
                         input_dialog.values['input1']))
                     break
         else:
-            order = order_list[0]
-            logging.debug('create_goals.py: order selected {} '.format(order))
+            logging.debug('create_goals.py: No orders in protocol')
             use_orders = False
 
     # Find RS targets
