@@ -73,7 +73,11 @@ def rtog_sbrt_dgi(beamset, target, flag):
     fd = beamset.FractionDose
     roi = fd.GetDoseGridRoi(RoiName=target)
     vol = roi.RoiVolumeDistribution.TotalVolume
-    logging.debug('rtog_sbrt_dgi:  Volume for {} is {}'.format(
+    logging.debug('Type of roi {}'.format(type(roi)))
+    if vol == 0:
+        logging.warning('rtog_sbrt_dgi: Volume is 0.0 for {}'.format(target))
+
+    logging.debug('rtog_sbrt_dgi: Volume for {} is {}'.format(
         target, vol
     ))
     v = prot_vol[0]
