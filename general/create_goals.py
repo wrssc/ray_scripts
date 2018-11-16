@@ -83,8 +83,8 @@ def rtog_sbrt_dgi(beamset, target, flag):
             return dev_dgi[i]
         # Interpolate on i and i - 1
         else:
-            interp = ((index[i] - index[i - 1]) / (prot_vol[i] - prot_vol[i - 1])) * (
-                    vol / (prot_vol[i] - prot_vol[i - 1])) + index[i - 1]
+            interp = index[i-1] + (vol - prot_vol[i-1]) * (
+                    (index[i] - index[i - 1]) / (prot_vol[i] - prot_vol[i - 1]))
             return interp
     except AttributeError:
         logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
