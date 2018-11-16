@@ -323,13 +323,13 @@ def main():
                 if 'know' in g.find('type').attrib:
                     # Get the total volume of the goal's target from the dose-grid representation
                     # Move this to a "knowledge-based" function in the utilities library
-                    if g.find('type').attrib == 'rtog_sbrt_dgi_minor':
+                    if g.find('type').attrib['know'] == 'rtog_sbrt_dgi_minor':
                         k = 'minor_dgi'
-                    elif g.find('type').attrib == 'rtog_sbrt_dgi_major':
+                    elif g.find('type').attrib['know'] == 'rtog_sbrt_dgi_major':
                         k = 'major_dgi'
-                    elif g.find('type').attrib == 'rtog_sbrt_norm2_major':
+                    elif g.find('type').attrib['know'] == 'rtog_sbrt_norm2_major':
                         k = 'major_2cm'
-                    elif g.find('type').attrib == 'rtog_sbrt_norm2_minor':
+                    elif g.find('type').attrib['know'] == 'rtog_sbrt_norm2_minor':
                         k = 'minor_2cm'
                     else:
                         logging.warning('create_goals.py: Unsupported knowledge-based goal')
