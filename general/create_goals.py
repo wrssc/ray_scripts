@@ -68,7 +68,7 @@ def rtog_sbrt_dgi(beamset, target, flag):
         logging.warning("rtog_sbrt_dgi: Unknown flag used in call. Returning zero")
         return 0.0
 
-    try:
+        # try:
         fd = beamset.FractionDose
         roi = fd.GetDoseGridRoi(RoiName=target)
         vol = roi.RoiVolumeDistribution.TotalVolume
@@ -80,7 +80,7 @@ def rtog_sbrt_dgi(beamset, target, flag):
             v = prot_vol[i]
         logging.debug('rtog_sbrt_dgi: Table searched lower bound on volume ' +
                       'interpolating volumes: ({}, {}) and index: ({}, {})'.format(
-                          index[i-1], index[i], prot_vol[i-1], prot_vol[i]
+                          index[i - 1], index[i], prot_vol[i - 1], prot_vol[i]
                       ))
         # Exceptions for target volumes exceeding or smaller than the minimum volume
         if i == 0:
@@ -97,9 +97,9 @@ def rtog_sbrt_dgi(beamset, target, flag):
                 target, vol, interp
             ))
             return interp
-    except AttributeError:
-        logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
-                        ' {} is not contoured on this examination'.g.find('name').text)
+    # except AttributeError:
+    #    logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
+    #                    ' {} is not contoured on this examination'.g.find('name').text)
 
 
 def main():
