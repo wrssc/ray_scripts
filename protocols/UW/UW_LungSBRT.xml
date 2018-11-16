@@ -1,9 +1,9 @@
 <protocol>
-    <name>UW Liver SBRT</name>
+    <name>UW Lung SBRT</name>
     <ct>
-        <protocol institution="UWHC">XRT_LIVER_WITH_BOLUSTRACKING</protocol>
-        <protocol institution="UWHC">XRT_ABDOMEN_RESPGATING</protocol>
-        <protocol institution="UWHC">XRT_4D_SBRT_ABDOMEN</protocol>
+        <protocol institution="UWHC">XRT_CHEST</protocol>
+        <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>
+        <protocol institution="UWHC">XRT_4D_CHEST</protocol>
     </ct>
     <institutions>
         <institution>UWHC</institution>
@@ -358,8 +358,6 @@
             <fractions>15</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="VMAT" code="3DC" machine="TrueBeam">3DCRT</technique>
         </prescription>
         <goals>
             <roi>
