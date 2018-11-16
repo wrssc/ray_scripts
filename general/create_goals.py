@@ -83,12 +83,13 @@ def rtog_sbrt_dgi(beamset, target, flag):
             return dev_dgi[i]
         # Interpolate on i and i - 1
         else:
-            interp = index[i-1] + (vol - prot_vol[i-1]) * (
+            interp = index[i - 1] + (vol - prot_vol[i - 1]) * (
                     (index[i] - index[i - 1]) / (prot_vol[i] - prot_vol[i - 1]))
             return interp
     except AttributeError:
         logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
                         ' {} is not contoured on this examination'.g.find('name').text)
+
 
 def main():
     """
@@ -142,7 +143,7 @@ def main():
 
     # Eventually we may want to conver
     if filename:
-        logging.info("create_goals.py: protocol selected: {}".format(
+        logging.info("Protocol selected: {}".format(
             filename))
         root = tpo.protocols[tpo.protocols[filename]]
     else:
@@ -157,7 +158,7 @@ def main():
         # Launch the dialog
         print input_dialog.show()
         # Link root to selected protocol ElementTree
-        logging.info("create_goals.py: protocol selected: {}".format(
+        logging.info("Protocol selected: {}".format(
             input_dialog.values['input1']))
         order_list = []
         protocol = tpo.protocols[input_dialog.values['input1']]
@@ -177,7 +178,7 @@ def main():
             # Launch the dialog
             print input_dialog.show()
             # Link root to selected protocol ElementTree
-            logging.info("create_goals.py: order selected: {}".format(
+            logging.info("Order selected: {}".format(
                 input_dialog.values['input1']))
             for o in protocol.findall('order'):
                 if o.find('name').text == input_dialog.values['input1']:
@@ -186,7 +187,7 @@ def main():
                         input_dialog.values['input1']))
                     break
         else:
-            logging.debug('create_goals.py: No orders in protocol')
+            logging.debug('No orders in protocol')
             use_orders = False
 
     # Find RS targets
@@ -301,7 +302,7 @@ def main():
                         dose_key = g.find('name').text + '_dose'
                         # Change the roi name the goal uses to the matched value
                         g.find('name').text = protocol_match[name_key]
-                        logging.debug('create_goals: Reassigned protocol name from {} to {}, for dose {} Gy'.format(
+                        logging.debug('Reassigned protocol name from {} to {}, for dose {} Gy'.format(
                             g.find('name').text, protocol_match[name_key],
                             protocol_match[dose_key]))
                     # If g pertains to an roi that is using target goals, find the name of the target ROI in the
@@ -309,10 +310,10 @@ def main():
                     elif g.find('dose').attrib['roi'] in protocol_match:
                         name_key = g.find('dose').attrib['roi']
                         dose_key = g.find('dose').attrib['roi'] + '_dose'
-                        logging.debug('create_goals: Reassigned ROI: {} for the target: {} with dose {} Gy'.format(
+                        logging.debug('Reassigned ROI: {} for the target: {} with dose {} Gy'.format(
                             g.find('name').text, protocol_match[name_key], protocol_match[dose_key]))
                     else:
-                        logging.warning('create_goals.py: Could not find referenced roi in the matched targets.' +
+                        logging.warning('Could not find referenced roi in the matched targets.' +
                                         'User did not match an existing roi to the protocol. ' +
                                         'failed on ROI {}'.format(g.find('name').text))
                         pass
@@ -333,7 +334,7 @@ def main():
                     elif g.find('type').attrib['know'] == 'rtog_sbr_norm2_minor':
                         k = 'minor_2cm'
                     else:
-                        logging.warning('create_goals.py: Unsupported knowledge-based goal')
+                        logging.warning('Unsupported knowledge-based goal')
                         # Check on loop break here to get out of if only
                         break
 
@@ -342,9 +343,8 @@ def main():
                                             flag=k)
                     g.find('index').text = str(k_index)
 
-
             except AttributeError:
-                logging.debug('create_goals.py: Goal loaded which does not have dose attribute.')
+                logging.debug('Goal loaded which does not have dose attribute.')
             # Regardless, add the goal now
             Goals.add_goal(g, connect.get_current('Plan'))
 
