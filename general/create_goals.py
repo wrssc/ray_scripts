@@ -364,16 +364,16 @@ else:
                     # Move this to a "knowledge-based" function in the utilities library
                     if g.find('type').attrib['know'] == 'rtog_sbr_dgi_minor':
                         k = 'minor_dgi'
-                        target = g.find('dose').attrib['roi']
+                        target = str(g.find('dose').attrib['roi'])
                     elif g.find('type').attrib['know'] == 'rtog_sbr_dgi_major':
                         k = 'major_dgi'
-                        target = g.find('dose').attrib['roi']
+                        target = str(g.find('dose').attrib['roi'])
                     elif g.find('type').attrib['know'] == 'rtog_sbr_norm2_major':
                         k = 'major_2cm'
-                        target = g.find('dose').attrib['roi']
+                        target = str(g.find('dose').attrib['roi'])
                     elif g.find('type').attrib['know'] == 'rtog_sbr_norm2_minor':
                         k = 'minor_2cm'
-                        target = g.find('dose').attrib['roi']
+                        target = str(g.find('dose').attrib['roi'])
                     else:
                         logging.warning('Unsupported knowledge-based goal')
                         # Check on loop break here to get out of if only
