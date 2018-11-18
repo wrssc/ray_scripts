@@ -92,9 +92,7 @@ def rtog_sbrt_dgi(case, examination, target, flag):
         ))
     v = prot_vol[0]
     i = 0
-    # Find first volume exceeding target volume
-
-
+    # Find first volume exceeding target volume or find the end of the list
     while v <= vol and i <= len(prot_vol):
         i += 1
         v = prot_vol[i]
@@ -111,7 +109,7 @@ def rtog_sbrt_dgi(case, examination, target, flag):
     else:
         interp = index[i - 1] + (vol - prot_vol[i - 1]) * (
                 (index[i] - index[i - 1]) / (prot_vol[i] - prot_vol[i - 1]))
-        logging.debug('rtog_sbrt_dgi: {} volume is {}, index = {}. '.format(
+        logging.info('rtog_sbrt_dgi: {} volume is {}, index = {}. '.format(
             target, vol, interp))
         logging.debug('Table searched lower bound on volume ' +
                       'interpolating volumes: ({}, {}) and index: ({}, {})'.format(
