@@ -94,10 +94,10 @@ def rtog_sbrt_dgi(beamset, target, flag):
     # Exceptions for target volumes exceeding or smaller than the minimum volume
     if i == 0:
         logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
-        return dev_dgi[i]
+        return index[i]
     elif i == len(prot_vol):
         logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
-        return dev_dgi[i]
+        return index[i]
     # Interpolate on i and i - 1
     else:
         interp = index[i - 1] + (vol - prot_vol[i - 1]) * (
