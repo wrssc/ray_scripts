@@ -150,10 +150,10 @@ def knowledge_based_goal(xml_goal, case, exam):
 
     print xml_goal.find('dose').attrib['roi']
     if k in [
-        'rtog_sbr_dgi_minor',
-        'rtog_sbr_dgi_major',
-        'rtog_sbr_norm2_major',
-        'rtog_sbr_norm2_minor'
+        'major_dgi',
+        'minor_dgi',
+        'major_2cm',
+        'minor_2cm'
     ]:
         target = xml_goal.find('dose').attrib['roi']
         k_index = rtog_sbrt_dgi(case=case,
