@@ -40,7 +40,7 @@ import UserInterface
 import Goals
 
 
-def rtog_sbrt_dgi(beamset, target, flag):
+def rtog_sbrt_dgi(case, examination, target, flag):
     """
     Function will return the RTOG lung 50% DGI for an input target structure name
 
@@ -69,18 +69,27 @@ def rtog_sbrt_dgi(beamset, target, flag):
         return 0.0
 
     # Need a contingency for no dose grid....
-    # try:
-    fd = beamset.FractionDose
-    roi = fd.GetDoseGridRoi(RoiName=target)
-    vol = roi.RoiVolumeDistribution.TotalVolume
-    logging.debug('Type of roi {}'.format(type(roi)))
+    try:
+        t = case.PatientModel.StructureSets[examination.Name]. \
+            RoiGeometries[target]
+        if t.HasContours():
+            vol = t.GetRoiVolume()
+        else:
+            logging.warning('rtog_sbrt_dgi: {} has no contours, index undefined'.format(target))
+    except:
+        logging.warning('rtog_sbrt_dgi: Error getting volume for {}'.format(target))
+
+    #fd = beamset.FractionDose
+    #roi = fd.GetDoseGridRoi(RoiName=target)
+    #vol = roi.RoiVolumeDistribution.TotalVolume
+    #logging.debug('Type of roi {}'.format(type(roi)))
     if abs(vol) <= 1e-9:
         # Attempt to redefine dose grid
         logging.warning('rtog_sbrt_dgi: Volume is 0.0 for {}'.format(target))
-
-    logging.debug('rtog_sbrt_dgi: Volume for {} is {}'.format(
-        target, vol
-    ))
+    else:
+        logging.debug('rtog_sbrt_dgi: Volume for {} is {}'.format(
+            target, vol
+        ))
     v = prot_vol[0]
     i = 0
     # Find first volume exceeding target volume
@@ -361,7 +370,8 @@ def main():
                         # Check on loop break here to get out of if only
                         break
 
-                    k_index = rtog_sbrt_dgi(beamset=beamset,
+                    k_index = rtog_sbrt_dgi(case=case,
+                                            examination=exam,
                                             target=g.find('name').text,
                                             flag=k)
                     logging.debug('Index changed for ROI {} to {}'.format(
