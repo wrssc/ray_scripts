@@ -378,7 +378,6 @@ else:
                         logging.warning('Unsupported knowledge-based goal')
                         # Check on loop break here to get out of if only
                         break
-
                     k_index = rtog_sbrt_dgi(case=case,
                                             examination=exam,
                                             target=target,
