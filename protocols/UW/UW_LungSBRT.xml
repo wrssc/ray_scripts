@@ -208,14 +208,14 @@
                 <name>Normal_2cm</name>
                 <type dir="ge" know="rtog_sbr_norm2_major">CI</type>
                 <index>0.0</index>
-                <dose units="%" roi="Normal_2cm">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Normal_2cm</name>
                 <type dir="ge" know="rtog_sbr_norm2_minor">CI</type>
                 <index>0.0</index>
-                <dose units="%" roi="Normal_2cm">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
             </roi>
             <roi>

@@ -95,7 +95,7 @@ def rtog_sbrt_dgi(case, examination, target, flag):
     # Find first volume exceeding target volume
 
 
-    while v <= vol:
+    while v <= vol and i <= len(prot_vol):
         i += 1
         v = prot_vol[i]
     # Exceptions for target volumes exceeding or smaller than the minimum volume
