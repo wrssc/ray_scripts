@@ -375,8 +375,7 @@ else:
                         # Check on loop break here to get out of if only
                         break
                     logging.debug('target error: found target{}'.format(
-                        g.find('dose').attrib['roi']))
-                    target = g.find('dose').attrib['roi']
+                        type(g.find('dose').attrib['roi'])))
                     k_index = rtog_sbrt_dgi(case=case,
                                             examination=exam,
                                             target=target,
