@@ -352,7 +352,7 @@ else:
                                         'failed on ROI {}'.format(g.find('name').text))
                         pass
                     # sys.exit('The xml for this protocol has a bad reference for roi: {}'.format(g.find('name').text))
-                    g.find('dose').attrib = "Gy"
+                    g.find('dose').attrib['units'] = "Gy"
                     goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
                     g.find('dose').text = str(goal_dose)
                 #  Handle knowledge-based constraints
@@ -374,8 +374,9 @@ else:
                         logging.warning('Unsupported knowledge-based goal')
                         # Check on loop break here to get out of if only
                         break
-                    logging.debug('target error: found target{}'.format(
-                        type(g.find('dose').attrib['roi'])))
+                    print
+                    print g.find('dose').attrib['roi']
+                    target = g.find('dose').attrib['roi']
                     k_index = rtog_sbrt_dgi(case=case,
                                             examination=exam,
                                             target=target,
