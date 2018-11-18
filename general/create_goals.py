@@ -79,10 +79,10 @@ def rtog_sbrt_dgi(case, examination, target, flag):
     except:
         logging.warning('rtog_sbrt_dgi: Error getting volume for {}'.format(target))
 
-    #fd = beamset.FractionDose
-    #roi = fd.GetDoseGridRoi(RoiName=target)
-    #vol = roi.RoiVolumeDistribution.TotalVolume
-    #logging.debug('Type of roi {}'.format(type(roi)))
+    # fd = beamset.FractionDose
+    # roi = fd.GetDoseGridRoi(RoiName=target)
+    # vol = roi.RoiVolumeDistribution.TotalVolume
+    # logging.debug('Type of roi {}'.format(type(roi)))
     if abs(vol) <= 1e-9:
         # Attempt to redefine dose grid
         logging.warning('rtog_sbrt_dgi: Volume is 0.0 for {}'.format(target))
@@ -93,131 +93,138 @@ def rtog_sbrt_dgi(case, examination, target, flag):
     v = prot_vol[0]
     i = 0
     # Find first volume exceeding target volume
+
+
     while v <= vol:
         i += 1
         v = prot_vol[i]
-    logging.debug('rtog_sbrt_dgi: Table searched lower bound on volume ' +
-                  'interpolating volumes: ({}, {}) and index: ({}, {})'.format(
-                      index[i - 1], index[i], prot_vol[i - 1], prot_vol[i]
-                  ))
     # Exceptions for target volumes exceeding or smaller than the minimum volume
     if i == 0:
-        logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
+        logging.warning('rtog_sbrt_dgi.py: Target volume < RTOG volume limits' +
+                        '  returning lowest available index{}'.index[i])
         return index[i]
     elif i == len(prot_vol):
-        logging.warning('rtog_sbrt_dgi.py: Target volume is smaller than RTOG limits')
+        logging.warning('rtog_sbrt_dgi.py: Target volume > RTOG volume limits' +
+                        ' returning highest available index{}'.index[i])
         return index[i]
     # Interpolate on i and i - 1
     else:
         interp = index[i - 1] + (vol - prot_vol[i - 1]) * (
                 (index[i] - index[i - 1]) / (prot_vol[i] - prot_vol[i - 1]))
-        logging.debug('rtog_sbrt_dgi.py: Target: {} volume is {}, using index {}'.format(
-            target, vol, interp
-        ))
+        logging.debug('rtog_sbrt_dgi: {} volume is {}, index = {}. '.format(
+            target, vol, interp))
+        logging.debug('Table searched lower bound on volume ' +
+                      'interpolating volumes: ({}, {}) and index: ({}, {})'.format(
+                          prot_vol[i - 1], prot_vol[i], index[i - 1], index[i]
+                      ))
         return interp
-    # except AttributeError:
-    #    logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
-    #                    ' {} is not contoured on this examination'.g.find('name').text)
+
+
+# except AttributeError:
+#    logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
+#                    ' {} is not contoured on this examination'.g.find('name').text)
 
 
 def main():
+
+
     """
     Function will take the optional input of the protocol file name
     :return:
     """
-    filename = None
-    status = UserInterface.ScriptStatus(
-        steps=['Finding correct protocol',
-               'Matching Structure List',
-               'Getting target Doses',
-               'Adding Goals'],
-        docstring=__doc__,
-        help=__help__)
+filename = None
+status = UserInterface.ScriptStatus(
+    steps=['Finding correct protocol',
+           'Matching Structure List',
+           'Getting target Doses',
+           'Adding Goals'],
+    docstring=__doc__,
+    help=__help__)
 
-    protocol_folder = r'../protocols'
-    institution_folder = r'UW'
-    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
+protocol_folder = r'../protocols'
+institution_folder = r'UW'
+path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
 
-    # Get current patient, case, exam, and plan
-    try:
-        patient = connect.get_current("Patient")
-    except SystemError:
-        raise IOError("No Patient loaded. Load patient case and plan.")
+# Get current patient, case, exam, and plan
+try:
+    patient = connect.get_current("Patient")
+except SystemError:
+    raise IOError("No Patient loaded. Load patient case and plan.")
 
-    try:
-        case = connect.get_current("Case")
-    except SystemError:
-        raise IOError("No Case loaded. Load patient case and plan.")
+try:
+    case = connect.get_current("Case")
+except SystemError:
+    raise IOError("No Case loaded. Load patient case and plan.")
 
-    try:
-        exam = connect.get_current("Examination")
-    except SystemError:
-        raise IOError("No examination loaded. Load patient ct and plan.")
+try:
+    exam = connect.get_current("Examination")
+except SystemError:
+    raise IOError("No examination loaded. Load patient ct and plan.")
 
-    try:
-        plan = connect.get_current("Plan")
-    except SystemError:
-        raise IOError("No plan loaded. Load patient and plan.")
+try:
+    plan = connect.get_current("Plan")
+except SystemError:
+    raise IOError("No plan loaded. Load patient and plan.")
 
-    try:
-        beamset = connect.get_current("BeamSet")
-    except SystemError:
-        raise IOError("No beamset loaded. Load patient plan and beamset")
+try:
+    beamset = connect.get_current("BeamSet")
+except SystemError:
+    raise IOError("No beamset loaded. Load patient plan and beamset")
 
-    tpo = UserInterface.TpoDialog()
-    tpo.load_protocols(path_protocols)
+tpo = UserInterface.TpoDialog()
+tpo.load_protocols(path_protocols)
 
-    status.next_step(text="Determining correct treatment protocol" +
-                          "based on treatment planning order.", num=0)
+status.next_step(text="Determining correct treatment protocol" +
+                      "based on treatment planning order.", num=0)
 
-    # Eventually we may want to conver
-    if filename:
-        logging.info("Protocol selected: {}".format(
-            filename))
-        root = tpo.protocols[tpo.protocols[filename]]
-    else:
+# Eventually we may want to conver
+if filename:
+    logging.info("Protocol selected: {}".format(
+        filename))
+    root = tpo.protocols[tpo.protocols[filename]]
+else:
+    # Find the protocol the user wants to use.
+    input_dialog = UserInterface.InputDialog(
+        inputs={'input1': 'Select Protocol'},
+        title='Protocol Selection',
+        datatype={'input1': 'combo'},
+        initial={},
+        options={'input1': list(tpo.protocols.keys())},
+        required=['input1'])
+    # Launch the dialog
+    print input_dialog.show()
+    # Link root to selected protocol ElementTree
+    logging.info("Protocol selected: {}".format(
+        input_dialog.values['input1']))
+    order_list = []
+    protocol = tpo.protocols[input_dialog.values['input1']]
+    for o in protocol.findall('order/name'):
+        order_list.append(o.text)
+
+    if len(order_list) >= 1:
+        use_orders = True
         # Find the protocol the user wants to use.
         input_dialog = UserInterface.InputDialog(
-            inputs={'input1': 'Select Protocol'},
-            title='Protocol Selection',
+            inputs={'input1': 'Select Order'},
+            title='Order Selection',
             datatype={'input1': 'combo'},
-            initial={},
-            options={'input1': list(tpo.protocols.keys())},
+            initial={'input1': order_list[0]},
+            options={'input1': order_list},
             required=['input1'])
         # Launch the dialog
         print input_dialog.show()
         # Link root to selected protocol ElementTree
-        logging.info("Protocol selected: {}".format(
+        logging.info("Order selected: {}".format(
             input_dialog.values['input1']))
-        order_list = []
-        protocol = tpo.protocols[input_dialog.values['input1']]
-        for o in protocol.findall('order/name'):
-            order_list.append(o.text)
-
-        if len(order_list) >= 1:
-            use_orders = True
-            # Find the protocol the user wants to use.
-            input_dialog = UserInterface.InputDialog(
-                inputs={'input1': 'Select Order'},
-                title='Order Selection',
-                datatype={'input1': 'combo'},
-                initial={'input1': order_list[0]},
-                options={'input1': order_list},
-                required=['input1'])
-            # Launch the dialog
-            print input_dialog.show()
-            # Link root to selected protocol ElementTree
-            logging.info("Order selected: {}".format(
-                input_dialog.values['input1']))
-            for o in protocol.findall('order'):
-                if o.find('name').text == input_dialog.values['input1']:
-                    order = o
-                    logging.debug('Matching protocol ElementTag found for {}'.format(
-                        input_dialog.values['input1']))
-                    break
-        else:
-            logging.debug('No orders in protocol')
-            use_orders = False
+        for o in protocol.findall('order'):
+            if o.find('name').text == input_dialog.values['input1']:
+                order = o
+                logging.debug('Matching protocol ElementTag found for {}'.format(
+                    input_dialog.values['input1']))
+                break
+    else:
+        logging.debug('No orders in protocol')
+        use_orders = False
 
     # Find RS targets
     plan_targets = []
@@ -383,7 +390,6 @@ def main():
                 logging.debug('Goal loaded which does not have dose attribute.')
             # Regardless, add the goal now
             Goals.add_goal(g, connect.get_current('Plan'))
-
 
 if __name__ == '__main__':
     main()
