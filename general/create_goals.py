@@ -74,7 +74,8 @@ def rtog_sbrt_dgi(beamset, target, flag):
     roi = fd.GetDoseGridRoi(RoiName=target)
     vol = roi.RoiVolumeDistribution.TotalVolume
     logging.debug('Type of roi {}'.format(type(roi)))
-    if vol == 0:
+    if abs(vol) <= 1e-9:
+        # Attempt to redefine dose grid
         logging.warning('rtog_sbrt_dgi: Volume is 0.0 for {}'.format(target))
 
     logging.debug('rtog_sbrt_dgi: Volume for {} is {}'.format(
