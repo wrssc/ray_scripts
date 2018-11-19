@@ -82,6 +82,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     except:
         logging.warning('rtog_sbrt_dgi: Error getting volume for {}, volume => 0.0'.format(target))
 
+    # Compute density from the actual dose grid representation
     # fd = beamset.FractionDose
     # roi = fd.GetDoseGridRoi(RoiName=target)
     # vol = roi.RoiVolumeDistribution.TotalVolume
@@ -117,11 +118,6 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
                           prot_vol[i - 1], prot_vol[i], index[i - 1], index[i]
                       ))
         return interp
-
-
-# except AttributeError:
-#    logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
-#                    ' {} is not contoured on this examination'.g.find('name').text)
 
 
 def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None):
