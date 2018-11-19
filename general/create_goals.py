@@ -190,7 +190,7 @@ def main():
 
     try:
         plan = connect.get_current("Plan")
-    except SystemError:
+    except InvalidDataException:
         raise IOError("No plan loaded. Load patient and plan.")
 
     tpo = UserInterface.TpoDialog()
