@@ -40,7 +40,7 @@ import UserInterface
 import Goals
 
 
-def rtog_sbrt_dgi(case, examination, target, flag):
+def rtog_sbrt_dgi(case, examination, target, flag, dose=None):
     """
     Function will return the RTOG lung 50% DGI for an input target structure name
 
@@ -49,26 +49,26 @@ def rtog_sbrt_dgi(case, examination, target, flag):
         target: name of current ROI
         flag: Flag to indicate the minor deviation criteria
     :return
-        the value of the interpolated RTOG criteria is returned
+        the value of the interpolated RTOG criteria is returned, index, or dose in Gy
     """
     prot_vol = [1.8, 3.8, 7.4, 13.2, 22, 34, 50, 70, 95, 126, 163]
-    if flag == 'minor_dgi':
+    if flag == 'rtog_sbr_dgi_minor':
         index = [0.17, 0.18, 0.20, 0.21, 0.22, 0.23, 0.25, 0.29, 0.30, 0.32, 0.34]
         logging.debug('rtog_sbrt_dgi: Minor DGI selected.')
-    elif flag == 'major_dgi':
+    elif flag == 'rtog_sbr_dgi_major':
         index = [0.13, 0.15, 0.17, 0.17, 0.18, 0.19, 0.20, 0.21, 0.23, 0.25, 0.27]
         logging.debug('rtog_sbrt_dgi: Major DGI selected.')
-    elif flag == 'major_2cm':
-        index = [57.0, 57.0, 58.0, 58.0, 63.0, 68.0, 77.0, 86.0, 89.0, 91.0, 94.0]
+    elif flag == 'rtog_sbr_norm2_major':
+        unscaled_index = [0.57, 0.57, 0.58, 0.58, 0.63, 0.68, 0.77, 0.86, 0.89, 0.91, 0.94]
+        index = [i * dose for i in unscaled_index]
         logging.debug('rtog_sbrt_dgi: Major Normal_2cm selected.')
-    elif flag == 'minor_2cm':
-        index = [50.0, 50.0, 50.0, 50.0, 54.0, 58.0, 62.0, 66.0, 70.0, 73.0, 77.0]
+    elif flag == 'rtog_sbr_norm2_minor':
+        index = [0.50, 0.50, 0.50, 0.50, 0.54, 0.58, 0.62, 0.66, 0.70, 0.73, 0.77]
         logging.debug('rtog_sbrt_dgi: Minor Normal_2cm selected.')
     else:
         logging.warning("rtog_sbrt_dgi: Unknown flag used in call. Returning zero")
         return 0.0
 
-    # Need a contingency for no dose grid....
     try:
         t = case.PatientModel.StructureSets[examination.Name]. \
             RoiGeometries[target]
@@ -122,48 +122,37 @@ def rtog_sbrt_dgi(case, examination, target, flag):
 #    logging.warning('rtog_sbrt_dgi.py: Goal could not be loaded correctly since roi:' +
 #                    ' {} is not contoured on this examination'.g.find('name').text)
 
-def knowledge_based_goal(xml_goal, case, exam):
+
+def knowledge_based_goal(structure_name, goal_type, case, exam):
     """
     knowledge_based_goals will handle the knowledge based goals by goal type
     at this time the
-    :param xml_goal: goal from the Elementree configuration
+    :param structure_name: structure to which goal should be applied
+    :param goal_type: string flag for which the
     :param case: RS case object
     :param exam: RS examination object
-    :return: None currently
+    :return: know_analysis - dictionary containing the index to be changed
     """
-    # gotta send g, case, exam
-    logging.debug('knowledge-based goal found {}'.format(
-        xml_goal.find('type').attrib['know']
-    ))
-    # Get the total volume of the goal's target from the dose-grid representation
-    # Move this to a "knowledge-based" function in the utilities library
-    if xml_goal.find('type').attrib['know'] == 'rtog_sbr_dgi_minor':
-        k = 'minor_dgi'
-    elif xml_goal.find('type').attrib['know'] == 'rtog_sbr_dgi_major':
-        k = 'major_dgi'
-    elif xml_goal.find('type').attrib['know'] == 'rtog_sbr_norm2_major':
-        k = 'major_2cm'
-    elif xml_goal.find('type').attrib['know'] == 'rtog_sbr_norm2_minor':
-        k = 'minor_2cm'
+    know_analysis = {}
+    if goal_type in [
+        'rtog_sbr_dgi_minor',
+        'rtog_sbr_dgi_major']:
+        know_analysis['index'] = rtog_sbrt_dgi(case=case,
+                                               examination=exam,
+                                               target=structure_name,
+                                               flag=goal_type)
+    elif goal_type in [
+        'rtog_sbr_norm2_major',
+        'rtog_sbr_norm2_minor']:
+        know_analysis['dose'] = rtog_sbrt_dgi(case=case,
+                                              examination=exam,
+                                              target=structure_name,
+                                              flag=goal_type)
     else:
-        logging.warning('Unsupported knowledge-based goal')
+        know_analysis['error'] = True
+        logging.warning('knowledge_based_goal: Unsupported knowledge-based goal')
 
-    print xml_goal.find('dose').attrib['roi']
-    if k in [
-        'major_dgi',
-        'minor_dgi',
-        'major_2cm',
-        'minor_2cm'
-    ]:
-        target = xml_goal.find('dose').attrib['roi']
-        k_index = rtog_sbrt_dgi(case=case,
-                                examination=exam,
-                                target=target,
-                                flag=k)
-        logging.debug('Index changed for ROI {} to {}'.format(
-            xml_goal.find('name').text, k_index
-        ))
-        xml_goal.find('index').text = str(k_index)
+    return know_analysis
 
 
 def main():
@@ -205,6 +194,7 @@ def main():
     except SystemError:
         raise IOError("No plan loaded. Load patient and plan.")
 
+    # We may not need a beamset, depending on how volumes are handled
     try:
         beamset = connect.get_current("BeamSet")
     except SystemError:
@@ -370,37 +360,72 @@ def main():
             for g in seq:
                 # If the key is a name key, change the ElementTree for the name
                 try:
+                    # 1. Figure out if we need to change the goal ROI name
+                    p_n = g.find('name').text
+                    p_d = g.find('dose').text
+                    p_t = g.find('type').text
+                    # Change the name for the roi goal if the user has matched it to a target
+                    if p_n in protocol_match:
+                        # Change the roi name the goal uses to the matched value
+                        g.find('name').text = protocol_match[p_n]
+                        logging.debug('Reassigned protocol target name:{} to {}'.format(
+                            p_n, g.find('name').text))
+                    else:
+                        logging.debug('Protocol ROI: {}'.format(p_n) +
+                                      ' was not matched to a target supplied by the user. ' +
+                                      'expected if the ROI type is not a target')
+                    # If the goal is relative change the name of the dose attribution
+                    # Change the dose to the user-specified level
                     if "%" in g.find('dose').attrib['units']:
-                        # See if g is goal on a matched target
-                        if g.find('name').text in protocol_match:
-                            name_key = g.find('name').text
-                            dose_key = g.find('name').text + '_dose'
-                            # Change the roi name the goal uses to the matched value
-                            g.find('name').text = protocol_match[name_key]
-                            logging.debug('Reassigned protocol name from {} to {}, for dose {} Gy'.format(
-                                g.find('name').text, protocol_match[name_key],
-                                protocol_match[dose_key]))
-                        # If g pertains to an roi that is using target goals, find the name of the target ROI in the
-                        # dose attributes
-                        elif g.find('dose').attrib['roi'] in protocol_match:
-                            name_key = g.find('dose').attrib['roi']
-                            dose_key = g.find('dose').attrib['roi'] + '_dose'
-                            logging.debug('Reassigned ROI: {} for the target: {} with dose {} Gy'.format(
-                                g.find('name').text, protocol_match[name_key], protocol_match[dose_key]))
+                        # Define the unmatched and unmodified protocol name and dose
+                        p_r = g.find('dose').attrib['roi']
+                        # See if the goal is on a matched target and change the % dose of the attributed ROI
+                        # to match the user input target and dose level for that named structure
+                        logging.debug('ROI: {} has a relative goal of type: {} has a relative dose level: {}'.format(
+                           p_n, p_t, p_d))
+                        # 2. Correct the relative dose to the user-specified dose levels for this structure
+                        if p_r in protocol_match:
+                            d_key = p_r + '_dose'
+                            # Change the dose attribute to absolute
+                            # TODO:: This may not be such a hot idea.
+                            g.find('dose').attrib['units'] = "Gy"
+                            g.find('dose').attrib['roi'] = protocol_match[p_r]
+                            goal_dose = float(protocol_match[d_key]) * float(p_d) / 100
+                            g.find('dose').text = str(goal_dose)
+                            logging.debug('Reassigned protocol dose attribute name:' +
+                                          '{} to {}, for dose:{} \% to {} Gy'.format(
+                                           p_r, g.find('dose').attrib['roi'], p_d, g.find('dose').text))
                         else:
-                            logging.warning('Could not find referenced roi in the matched targets.' +
-                                            'User did not match an existing roi to the protocol. ' +
-                                            'failed on ROI {}'.format(g.find('name').text))
+                            logging.warning('Unsuccessful match between relative dose goal for ROI: ' +
+                                            '{}. '.format(p_r) +
+                                            'The user did not match an existing roi to one required for this goal')
                             pass
-                        # sys.exit('The xml for this protocol has a bad reference for roi: {}'.format(g.find('name').text))
-                        g.find('dose').attrib['units'] = "Gy"
-                        goal_dose = float(protocol_match[dose_key]) * float(g.find('dose').text) / 100
-                        g.find('dose').text = str(goal_dose)
-                    #  Handle knowledge-based constraints
+
+                    #  Knowledge-based goals:
+                    # 1. Call the knowledge_based_goal for the correct structure
+                    # 2. Use the returned dictionary to modify the ElementTree
                     if 'know' in g.find('type').attrib:
-                        knowledge_based_goal(xml_goal=g,
-                                             case=case,
-                                             exam=exam)
+                        know_goal = knowledge_based_goal(
+                            structure_name=g.find('dose').attrib['roi'],
+                            goal_type=g.find('type').attrib['know'],
+                            case=case,
+                            exam=exam)
+                        # use a dictionary for storing the return values
+                        try:
+                            g.find('index').text = str(know_goal['index'])
+                            logging.debug('Index changed for ROI {} to {}'.format(
+                                g.find('name').text, g.find('index').text))
+                        except KeyError:
+                            logging.debug('knowledge goals for {} had no index information'.format(
+                                g.find('name').text))
+                        try:
+                            g.find('dose').text = str(know_goal['dose'])
+                            logging.debug('Dose changed for ROI {} to {}'.format(
+                                g.find('name').text, g.find('dose').text))
+                        except KeyError:
+                            logging.debug('knowledge goals for {} had no index information'.format(
+                                g.find('name').text))
+
                         # gotta send g, case, exam
                         # logging.debug('knowledge-based goal found {}'.format(
                         #     g.find('type').attrib['know']
@@ -435,6 +460,7 @@ def main():
                     logging.debug('Goal loaded which does not have dose attribute.')
                 # Regardless, add the goal now
                 Goals.add_goal(g, connect.get_current('Plan'))
+
 
 if __name__ == '__main__':
     main()
