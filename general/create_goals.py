@@ -370,10 +370,11 @@ def main():
                         g.find('name').text = protocol_match[p_n]
                         logging.debug('Reassigned protocol target name:{} to {}'.format(
                             p_n, g.find('name').text))
-                    else:
-                        logging.debug('Protocol ROI: {}'.format(p_n) +
-                                      ' was not matched to a target supplied by the user. ' +
-                                      'expected if the ROI type is not a target')
+                    # :TODO: Exception catching in here for an unresolved reference
+                    # else:
+                    #    logging.debug('Protocol ROI: {}'.format(p_n) +
+                    #                  ' was not matched to a target supplied by the user. ' +
+                    #                 'expected if the ROI type is not a target')
                     # If the goal is relative change the name of the dose attribution
                     # Change the dose to the user-specified level
                     if "%" in g.find('dose').attrib['units']:
@@ -383,7 +384,7 @@ def main():
                         # to match the user input target and dose level for that named structure
                         logging.debug('ROI: {} has a relative goal of type: {} has a relative dose level: {}'.format(
                            p_n, p_t, p_d))
-                        # 2. Correct the relative dose to the user-specified dose levels for this structure
+                        # Correct the relative dose to the user-specified dose levels for this structure
                         if p_r in protocol_match:
                             d_key = p_r + '_dose'
                             # Change the dose attribute to absolute
@@ -406,7 +407,7 @@ def main():
                     # 2. Use the returned dictionary to modify the ElementTree
                     if 'know' in g.find('type').attrib:
                         know_goal = knowledge_based_goal(
-                            structure_name=g.find('dose').attrib['roi'],
+                            structure_name=p_r,
                             goal_type=g.find('type').attrib['know'],
                             case=case,
                             exam=exam)
