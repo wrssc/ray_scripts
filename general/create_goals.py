@@ -370,6 +370,7 @@ def main():
                 rois.append(r.Name)
 
             m_c = []
+            found = False
             for m in missing_contours:
                 # We don't want in, we need an exact match - for length too
                 for r in rois:
@@ -377,12 +378,15 @@ def main():
                     if r == m:
                         found = True
                         break
-                    if not found:
-                        if m not in m_c:
-                            m_c.append(m)
-            mc_list = ',\n'.join(m_c)
-            missing_message = 'Missing structures remain \n' + mc_list
-            logging.warning(missing_message)
+                if not found:
+                    if m not in m_c:
+                         m_c.append(m)
+            if not m_c:
+                logging.debug('All structures in protocol accounted for')
+            else:
+                mc_list = ',\n'.join(m_c)
+                missing_message = 'Missing structures remain \n' + mc_list
+                logging.warning(missing_message)
 
         status.next_step(text="Getting target doses from user.", num=2)
         target_dialog = UserInterface.InputDialog(
@@ -471,7 +475,7 @@ def main():
                         # If there is no relative dose attribute the correct structure is the
                         # the structure itself
                         p_r = g.find('name').text
-                    if g.find('volume'):
+                    if g.find('volume') is not None:
                         vol = g.find('volume').text
                     else:
                         vol = None
