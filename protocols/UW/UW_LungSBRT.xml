@@ -15,7 +15,8 @@
     <prescription>
         <frequency>2-3 times per week</frequency>
         <imaging>Daily CBCT</imaging>
-        <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
+        <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
+        <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
     </prescription>
     <order>
         <name>SBRT Left Lung 5000cGy 5Fx</name>

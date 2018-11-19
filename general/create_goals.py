@@ -42,14 +42,15 @@ import Goals
 
 def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     """
-    Function will return the RTOG lung 50% DGI for an input target structure name
+    implementation of the RTOG limits for DGI and PITV modified to allow the
+    use of the conformity index
 
-    :inputs
-        beamset: Name of current beamset
-        target: name of current ROI
-        flag: Flag to indicate the minor deviation criteria
-    :return
-        the value of the interpolated RTOG criteria is returned, index, or dose in Gy
+    :param case: name of current case
+    :param examination: current examination object
+    :param target: roi to be used for evaluation of knowledge-based goal
+    :param flag: type of goal to be used
+    :param isodose: optional for inputing a relative dose value
+    :return: a float that is the desired index or dose
     """
     prot_vol = [1.8, 3.8, 7.4, 13.2, 22, 34, 50, 70, 95, 126, 163]
     if flag == 'rtog_sbr_dgi_minor':
@@ -70,6 +71,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
         logging.warning("rtog_sbrt_dgi: Unknown flag used in call. Returning zero")
         return 0.0
 
+    vol = 0.0
     try:
         t = case.PatientModel.StructureSets[examination.Name]. \
             RoiGeometries[target]
@@ -78,19 +80,17 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
         else:
             logging.warning('rtog_sbrt_dgi: {} has no contours, index undefined'.format(target))
     except:
-        logging.warning('rtog_sbrt_dgi: Error getting volume for {}'.format(target))
+        logging.warning('rtog_sbrt_dgi: Error getting volume for {}, volume => 0.0'.format(target))
 
     # fd = beamset.FractionDose
     # roi = fd.GetDoseGridRoi(RoiName=target)
     # vol = roi.RoiVolumeDistribution.TotalVolume
     # logging.debug('Type of roi {}'.format(type(roi)))
     if abs(vol) <= 1e-9:
-        # Attempt to redefine dose grid
         logging.warning('rtog_sbrt_dgi: Volume is 0.0 for {}'.format(target))
     else:
         logging.debug('rtog_sbrt_dgi: Volume for {} is {}'.format(
-            target, vol
-        ))
+            target, vol))
     v = prot_vol[0]
     i = 0
     # Find first volume exceeding target volume or find the end of the list
@@ -136,16 +136,12 @@ def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None):
     :return: know_analysis - dictionary containing the index to be changed
     """
     know_analysis = {}
-    if goal_type in [
-        'rtog_sbr_dgi_minor',
-        'rtog_sbr_dgi_major']:
+    if goal_type in ['rtog_sbr_dgi_minor', 'rtog_sbr_dgi_major']:
         know_analysis['index'] = rtog_sbrt_dgi(case=case,
                                                examination=exam,
                                                target=structure_name,
                                                flag=goal_type)
-    elif goal_type in [
-        'rtog_sbr_norm2_major',
-        'rtog_sbr_norm2_minor']:
+    elif goal_type in ['rtog_sbr_norm2_major', 'rtog_sbr_norm2_minor']:
         know_analysis['dose'] = rtog_sbrt_dgi(case=case,
                                               examination=exam,
                                               target=structure_name,
@@ -197,19 +193,15 @@ def main():
     except SystemError:
         raise IOError("No plan loaded. Load patient and plan.")
 
-    # We may not need a beamset, depending on how volumes are handled
-    try:
-        beamset = connect.get_current("BeamSet")
-    except SystemError:
-        raise IOError("No beamset loaded. Load patient plan and beamset")
-
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
 
     status.next_step(text="Determining correct treatment protocol" +
                           "based on treatment planning order.", num=0)
 
-    # Eventually we may want to conver
+    # Eventually we may want to convert to accepting a call from a filename
+    # Alternatively, this could all be set up as a function call
+    # TODO: Set up a means of bypassing the dialogs
     if filename:
         logging.info("Protocol selected: {}".format(
             filename))
@@ -217,19 +209,19 @@ def main():
     else:
         # Find the protocol the user wants to use.
         input_dialog = UserInterface.InputDialog(
-            inputs={'input1': 'Select Protocol'},
+            inputs={'i': 'Select Protocol'},
             title='Protocol Selection',
-            datatype={'input1': 'combo'},
+            datatype={'i': 'combo'},
             initial={},
-            options={'input1': list(tpo.protocols.keys())},
-            required=['input1'])
+            options={'i': list(tpo.protocols.keys())},
+            required=['i'])
         # Launch the dialog
         print input_dialog.show()
         # Link root to selected protocol ElementTree
         logging.info("Protocol selected: {}".format(
-            input_dialog.values['input1']))
+            input_dialog.values['i']))
         order_list = []
-        protocol = tpo.protocols[input_dialog.values['input1']]
+        protocol = tpo.protocols[input_dialog.values['i']]
         for o in protocol.findall('order/name'):
             order_list.append(o.text)
 
@@ -237,22 +229,24 @@ def main():
             use_orders = True
             # Find the protocol the user wants to use.
             input_dialog = UserInterface.InputDialog(
-                inputs={'input1': 'Select Order'},
+                inputs={'i': 'Select Order'},
                 title='Order Selection',
-                datatype={'input1': 'combo'},
-                initial={'input1': order_list[0]},
-                options={'input1': order_list},
-                required=['input1'])
+                datatype={'i': 'combo'},
+                initial={'i': order_list[0]},
+                options={'i': order_list},
+                required=['i'])
             # Launch the dialog
             print input_dialog.show()
             # Link root to selected protocol ElementTree
             logging.info("Order selected: {}".format(
-                input_dialog.values['input1']))
+                input_dialog.values['i']))
+            # I believe this loop can be eliminated with we can use a different function
+            # to match protocol.find('order') with input_dialog.values['i']
             for o in protocol.findall('order'):
-                if o.find('name').text == input_dialog.values['input1']:
+                if o.find('name').text == input_dialog.values['i']:
                     order = o
                     logging.debug('Matching protocol ElementTag found for {}'.format(
-                        input_dialog.values['input1']))
+                        input_dialog.values['i']))
                     break
         else:
             logging.debug('No orders in protocol')
@@ -263,31 +257,31 @@ def main():
         for r in case.PatientModel.RegionsOfInterest:
             if r.OrganData.OrganType == 'Target':
                 plan_targets.append(r.Name)
-
-        status.next_step(text="Matching all structures to the current list.", num=1)
         # Add user threat: empty PTV list.
         if not plan_targets:
             connect.await_user_input("The target list is empty." +
                                      " Please apply type PTV to the targets and continue.")
+            for r in case.PatientModel.RegionsOfInterest:
+                if r.OrganData.OrganType == 'Target':
+                    plan_targets.append(r.Name)
+        if not plan_targets:
+            status.finish('Script cancelled, inputs were not supplied')
+            sys.exit('Script cancelled')
+
+        status.next_step(text="Matching all structures to the current list.", num=1)
 
         protocol_targets = []
         missing_contours = []
 
         # Build second dialog
-        final_inputs = {}
-        final_initial = {}
-        final_options = {}
-        final_datatype = {}
-        final_required = []
+        target_inputs = {}
+        target_initial = {}
+        target_options = {}
+        target_datatype = {}
+        target_required = []
         i = 1
         # Lovely code, but had to break this loop up
         # for g, t in ((a, b) for a in root.findall('./goals/roi') for b in plan_targets):
-
-        # Where the targets at?
-        if use_orders:
-            target_goal_level = order
-        else:
-            target_goal_level = protocol
 
         if use_orders:
             goal_locations = (protocol.findall('./goals/roi'), order.findall('./goals/roi'))
@@ -305,45 +299,74 @@ def main():
                     # Python doesn't sort lists....
                     k_name = k.zfill(2) + 'Aname_' + g_name
                     k_dose = k.zfill(2) + 'Bdose_' + g_name
-                    final_inputs[k_name] = 'Match a plan target to ' + g_name
-                    final_options[k_name] = plan_targets
-                    final_datatype[k_name] = 'combo'
-                    final_required.append(k_name)
-                    final_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
-                    final_required.append(k_dose)
+                    target_inputs[k_name] = 'Match a plan target to ' + g_name
+                    target_options[k_name] = plan_targets
+                    target_datatype[k_name] = 'combo'
+                    target_required.append(k_name)
+                    target_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
+                    target_required.append(k_dose)
                     i += 1
                     # Exact matches get an initial guess in the dropdown
                     for t in plan_targets:
                         if g_name == t:
-                            final_initial[k_name] = t
+                            target_initial[k_name] = t
+
+        # Warn the user they are missing organs at risk specified in the order
+        rois = []
+        for r in case.PatientModel.RegionsOfInterest:
+            # Maybe extend, can't remember
+            rois.append(r.Name)
+        for s in goal_locations:
+            for g in s:
+                g_name = g.find('name').text
                 # Add a quick check if the contour exists in RS
+                # This step is slow, we may want to gather all rois into a list and look for it
                 if int(g.find('priority').text) % 2:
-                    if not any(r.Name == g_name for r in
-                               case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
+                    if not any(r == g_name for r in rois) and g_name not in missing_contours:
+                        #       case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
                         missing_contours.append(g_name)
-        # Warn the user they are missing stuff
+
         if missing_contours:
             mc_list = ',\n'.join(missing_contours)
             missing_message = 'Missing structures, continue script or cancel \n' + mc_list
             status.next_step(text=missing_message, num=1)
             connect.await_user_input(missing_message)
+            # Add a line here to check again for missing contours and write out the list
+            for r in case.PatientModel.RegionsOfInterest:
+                # Maybe extend, can't remember
+                rois.append(r.Name)
+
+            m_c = []
+            for m in missing_contours:
+                # We don't want in, we need an exact match - for length too
+                for r in rois:
+                    found = False
+                    if r == m:
+                        found = True
+                        break
+                    if not found:
+                        if m not in m_c:
+                            m_c.append(m)
+            mc_list = ',\n'.join(m_c)
+            missing_message = 'Missing structures remain \n' + mc_list
+            logging.warning(missing_message)
+
 
         status.next_step(text="Getting target doses from user.", num=2)
-        final_dialog = UserInterface.InputDialog(
-            inputs=final_inputs,
-            title='Input Clinical Goals',
-            datatype=final_datatype,
-            initial=final_initial,
-            options=final_options,
+        target_dialog = UserInterface.InputDialog(
+            inputs=target_inputs,
+            title='Input Target Dose Levels',
+            datatype=target_datatype,
+            initial=target_initial,
+            options=target_options,
             required=[])
-        print final_dialog.show()
+        print target_dialog.show()
 
         # Process inputs
         # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
         protocol_match = {}
-        nominal_name = ''
         nominal_dose = 0
-        for k, v in final_dialog.values.iteritems():
+        for k, v in target_dialog.values.iteritems():
             if len(v) > 0:
                 i, p = k.split("_", 1)
                 if 'name' in i:
@@ -353,116 +376,88 @@ def main():
                     # Append _dose to the key name
                     pd = p + '_dose'
                     protocol_match[pd] = (float(v) / 100.)
+                    # Not sure if this loop is still needed
                     if nominal_dose == 0:
                         # Set a nominal dose to the first matched pair
                         nominal_dose = protocol_match[pd]
 
         status.next_step(text="Adding goals.", num=3)
-        # Take the relative dose limits and convert them to the user specified dose levels
+        # Iterate over goals in orders and protocols
         for seq in goal_locations:
             for g in seq:
-                # If the key is a name key, change the ElementTree for the name
-                try:
-                    # 1. Figure out if we need to change the goal ROI name
-                    p_n = g.find('name').text
-                    p_d = g.find('dose').text
-                    p_t = g.find('type').text
-                    # Change the name for the roi goal if the user has matched it to a target
-                    if p_n in protocol_match:
-                        # Change the roi name the goal uses to the matched value
-                        g.find('name').text = protocol_match[p_n]
-                        logging.debug('Reassigned protocol target name:{} to {}'.format(
-                            p_n, g.find('name').text))
-                    # :TODO: Exception catching in here for an unresolved reference
-                    # else:
-                    #    logging.debug('Protocol ROI: {}'.format(p_n) +
-                    #                  ' was not matched to a target supplied by the user. ' +
-                    #                 'expected if the ROI type is not a target')
-                    # If the goal is relative change the name of the dose attribution
-                    # Change the dose to the user-specified level
-                    if "%" in g.find('dose').attrib['units']:
-                        # Define the unmatched and unmodified protocol name and dose
-                        p_r = g.find('dose').attrib['roi']
-                        # See if the goal is on a matched target and change the % dose of the attributed ROI
-                        # to match the user input target and dose level for that named structure
-                        logging.debug('ROI: {} has a relative goal of type: {} with a relative dose level: {}%'.format(
-                           p_n, p_t, p_d))
-                        # Correct the relative dose to the user-specified dose levels for this structure
-                        if p_r in protocol_match:
-                            d_key = p_r + '_dose'
-                            # Change the dose attribute to absolute
-                            # TODO:: This may not be such a hot idea.
-                            g.find('dose').attrib['units'] = "Gy"
-                            g.find('dose').attrib['roi'] = protocol_match[p_r]
-                            goal_dose = float(protocol_match[d_key]) * float(p_d) / 100
-                            g.find('dose').text = str(goal_dose)
-                            logging.debug('Reassigned protocol dose attribute name:' +
-                                          '{} to {}, for dose:{}% to {} Gy'.format(
-                                           p_r, g.find('dose').attrib['roi'], p_d, g.find('dose').text))
-                        else:
-                            logging.warning('Unsuccessful match between relative dose goal for ROI: ' +
-                                            '{}. '.format(p_r) +
-                                            'The user did not match an existing roi to one required for this goal')
-                            pass
+                # try:
+                # 1. Figure out if we need to change the goal ROI name
+                p_n = g.find('name').text
+                p_d = g.find('dose').text
+                p_t = g.find('type').text
+                # Change the name for the roi goal if the user has matched it to a target
+                if p_n in protocol_match:
+                    # Change the roi name the goal uses to the matched value
+                    g.find('name').text = protocol_match[p_n]
+                    logging.debug('Reassigned protocol target name:{} to {}'.format(
+                        p_n, g.find('name').text))
+                # :TODO: Exception catching in here for an unresolved reference
+                # else:
+                #    logging.debug('Protocol ROI: {}'.format(p_n) +
+                #                  ' was not matched to a target supplied by the user. ' +
+                #                 'expected if the ROI type is not a target')
+                # If the goal is relative change the name of the dose attribution
+                # Change the dose to the user-specified level
+                if "%" in g.find('dose').attrib['units']:
+                    # Define the unmatched and unmodified protocol name and dose
+                    p_r = g.find('dose').attrib['roi']
+                    # See if the goal is on a matched target and change the % dose of the attributed ROI
+                    # to match the user input target and dose level for that named structure
+                    logging.debug('ROI: {} has a relative goal of type: {} with a relative dose level: {}%'.format(
+                        p_n, p_t, p_d))
+                    # Correct the relative dose to the user-specified dose levels for this structure
+                    if p_r in protocol_match:
+                        d_key = p_r + '_dose'
+                        # Change the dose attribute to absolute
+                        # TODO:: This may not be such a hot idea.
+                        g.find('dose').attrib['units'] = "Gy"
+                        g.find('dose').attrib['roi'] = protocol_match[p_r]
+                        goal_dose = float(protocol_match[d_key]) * float(p_d) / 100
+                        g.find('dose').text = str(goal_dose)
+                        logging.debug('Reassigned protocol dose attribute name:' +
+                                      '{} to {}, for dose:{}% to {} Gy'.format(
+                                          p_r, g.find('dose').attrib['roi'], p_d, g.find('dose').text))
+                    else:
+                        logging.warning('Unsuccessful match between relative dose goal for ROI: ' +
+                                        '{}. '.format(p_r) +
+                                        'The user did not match an existing roi to one required for this goal')
+                        pass
 
-                    #  Knowledge-based goals:
-                    # 1. Call the knowledge_based_goal for the correct structure
-                    # 2. Use the returned dictionary to modify the ElementTree
-                    if 'know' in g.find('type').attrib:
-                        know_goal = knowledge_based_goal(
-                            structure_name=p_r,
-                            goal_type=g.find('type').attrib['know'],
-                            case=case,
-                            exam=exam,
-                            isodose=g.find('dose').text)
-                        # use a dictionary for storing the return values
-                        try:
-                            g.find('index').text = str(know_goal['index'])
-                            logging.debug('Index changed for ROI {} to {}'.format(
-                                g.find('name').text, g.find('index').text))
-                        except KeyError:
-                            logging.debug('knowledge goals for {} had no index information'.format(
-                                g.find('name').text))
-                        try:
-                            g.find('dose').text = str(know_goal['dose'])
-                            logging.debug('Dose changed for ROI {} to {}'.format(
-                                g.find('name').text, g.find('dose').text))
-                        except KeyError:
-                            logging.debug('knowledge goals for {} had no index information'.format(
-                                g.find('name').text))
+                #  Knowledge-based goals:
+                #  Call the knowledge_based_goal for the correct structure
+                #  Use the returned dictionary to modify the ElementTree
+                if 'know' in g.find('type').attrib:
+                    # TODO: Consider a new type for know-goals in the xml
+                    p_r = g.find('dose').attrib['roi']
+                    know_goal = knowledge_based_goal(
+                        structure_name=p_r,
+                        goal_type=g.find('type').attrib['know'],
+                        case=case,
+                        exam=exam,
+                        isodose=g.find('dose').text)
+                    # use a dictionary for storing the return values
+                    try:
+                        g.find('index').text = str(know_goal['index'])
+                        logging.debug('Index changed for ROI {} to {}'.format(
+                            g.find('name').text, g.find('index').text))
+                    except KeyError:
+                        logging.debug('knowledge goals for {} had no index information'.format(
+                            g.find('name').text))
+                    try:
+                        g.find('dose').text = str(know_goal['dose'])
+                        logging.debug('Dose changed for ROI {} to {}'.format(
+                            g.find('name').text, g.find('dose').text))
+                    except KeyError:
+                        logging.debug('knowledge goals for {} had no dose information'.format(
+                            g.find('name').text))
 
-                        # gotta send g, case, exam
-                        # logging.debug('knowledge-based goal found {}'.format(
-                        #     g.find('type').attrib['know']
-                        # ))
-                        # # Get the total volume of the goal's target from the dose-grid representation
-                        # # Move this to a "knowledge-based" function in the utilities library
-                        # if g.find('type').attrib['know'] == 'rtog_sbr_dgi_minor':
-                        #     k = 'minor_dgi'
-                        # elif g.find('type').attrib['know'] == 'rtog_sbr_dgi_major':
-                        #     k = 'major_dgi'
-                        # elif g.find('type').attrib['know'] == 'rtog_sbr_norm2_major':
-                        #     k = 'major_2cm'
-                        # elif g.find('type').attrib['know'] == 'rtog_sbr_norm2_minor':
-                        #     k = 'minor_2cm'
-                        # else:
-                        #     logging.warning('Unsupported knowledge-based goal')
-                        #     # Check on loop break here to get out of if only
-                        #     break
-                        # print
-                        # print g.find('dose').attrib['roi']
-                        # target = g.find('dose').attrib['roi']
-                        # k_index = rtog_sbrt_dgi(case=case,
-                        #                         examination=exam,
-                        #                         target=target,
-                        #                         flag=k)
-                        # logging.debug('Index changed for ROI {} to {}'.format(
-                        #     g.find('name').text, k_index
-                        # ))
-                        # g.find('index').text = str(k_index)
-
-                except AttributeError:
-                    logging.debug('Goal loaded which does not have dose attribute.')
+                # except AttributeError:
+                #    logging.debug('Goal loaded which does not have dose attribute.')
                 # Regardless, add the goal now
                 Goals.add_goal(g, connect.get_current('Plan'))
 
