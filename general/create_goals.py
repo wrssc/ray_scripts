@@ -173,6 +173,7 @@ def main():
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
 
     # Get current patient, case, exam, and plan
+    # note that the interpreter handles a missing plan as a NameError
     try:
         patient = connect.get_current("Patient")
     except SystemError:
