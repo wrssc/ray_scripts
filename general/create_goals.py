@@ -465,7 +465,12 @@ def main():
                 #  Use the returned dictionary to modify the ElementTree
                 if 'know' in g.find('type').attrib:
                     # TODO: Consider a new type for know-goals in the xml
-                    p_r = g.find('dose').attrib['roi']
+                    try:
+                        p_r = g.find('dose').attrib['roi']
+                    except KeyError:
+                        # If there is no relative dose attribute the correct structure is the
+                        # the structure itself
+                        p_r = g.find('name').text
                     if g.find('volume'):
                         vol = g.find('volume').text
                     else:
