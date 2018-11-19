@@ -40,7 +40,7 @@ import UserInterface
 import Goals
 
 
-def rtog_sbrt_dgi(case, examination, target, flag, dose=None):
+def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     """
     Function will return the RTOG lung 50% DGI for an input target structure name
 
@@ -60,10 +60,11 @@ def rtog_sbrt_dgi(case, examination, target, flag, dose=None):
         logging.debug('rtog_sbrt_dgi: Major DGI selected.')
     elif flag == 'rtog_sbr_norm2_major':
         unscaled_index = [0.57, 0.57, 0.58, 0.58, 0.63, 0.68, 0.77, 0.86, 0.89, 0.91, 0.94]
-        index = [i * dose for i in unscaled_index]
+        index = [i * float(isodose) for i in unscaled_index]
         logging.debug('rtog_sbrt_dgi: Major Normal_2cm selected.')
     elif flag == 'rtog_sbr_norm2_minor':
-        index = [0.50, 0.50, 0.50, 0.50, 0.54, 0.58, 0.62, 0.66, 0.70, 0.73, 0.77]
+        unscaled_index = [0.50, 0.50, 0.50, 0.50, 0.54, 0.58, 0.62, 0.66, 0.70, 0.73, 0.77]
+        index = [i * float(isodose) for i in unscaled_index]
         logging.debug('rtog_sbrt_dgi: Minor Normal_2cm selected.')
     else:
         logging.warning("rtog_sbrt_dgi: Unknown flag used in call. Returning zero")
@@ -123,7 +124,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, dose=None):
 #                    ' {} is not contoured on this examination'.g.find('name').text)
 
 
-def knowledge_based_goal(structure_name, goal_type, case, exam):
+def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None):
     """
     knowledge_based_goals will handle the knowledge based goals by goal type
     at this time the
@@ -131,6 +132,7 @@ def knowledge_based_goal(structure_name, goal_type, case, exam):
     :param goal_type: string flag for which the
     :param case: RS case object
     :param exam: RS examination object
+    :param isodose: target dose level
     :return: know_analysis - dictionary containing the index to be changed
     """
     know_analysis = {}
@@ -147,7 +149,8 @@ def knowledge_based_goal(structure_name, goal_type, case, exam):
         know_analysis['dose'] = rtog_sbrt_dgi(case=case,
                                               examination=exam,
                                               target=structure_name,
-                                              flag=goal_type)
+                                              flag=goal_type,
+                                              dose=isodose)
     else:
         know_analysis['error'] = True
         logging.warning('knowledge_based_goal: Unsupported knowledge-based goal')
@@ -382,7 +385,7 @@ def main():
                         p_r = g.find('dose').attrib['roi']
                         # See if the goal is on a matched target and change the % dose of the attributed ROI
                         # to match the user input target and dose level for that named structure
-                        logging.debug('ROI: {} has a relative goal of type: {} has a relative dose level: {}'.format(
+                        logging.debug('ROI: {} has a relative goal of type: {} with a relative dose level: {}%'.format(
                            p_n, p_t, p_d))
                         # Correct the relative dose to the user-specified dose levels for this structure
                         if p_r in protocol_match:
@@ -394,7 +397,7 @@ def main():
                             goal_dose = float(protocol_match[d_key]) * float(p_d) / 100
                             g.find('dose').text = str(goal_dose)
                             logging.debug('Reassigned protocol dose attribute name:' +
-                                          '{} to {}, for dose:{} \% to {} Gy'.format(
+                                          '{} to {}, for dose:{}% to {} Gy'.format(
                                            p_r, g.find('dose').attrib['roi'], p_d, g.find('dose').text))
                         else:
                             logging.warning('Unsuccessful match between relative dose goal for ROI: ' +
@@ -410,7 +413,8 @@ def main():
                             structure_name=p_r,
                             goal_type=g.find('type').attrib['know'],
                             case=case,
-                            exam=exam)
+                            exam=exam,
+                            isodose=g.find('dose').text)
                         # use a dictionary for storing the return values
                         try:
                             g.find('index').text = str(know_goal['index'])
