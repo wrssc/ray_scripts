@@ -173,7 +173,7 @@ def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None, re
                                               target=structure_name,
                                               flag=goal_type,
                                               isodose=isodose)
-    elif goal_type in ['residual_volume']:
+    elif goal_type in ['resid_vol']:
         know_analysis['volume'] = residual_volume(structure_name=structure_name,
                                                   goal_volume=res_vol,
                                                   case=case,
