@@ -172,6 +172,13 @@
             </roi>
             <roi>
                 <name>Lung_Total</name>
+                <type dir="le" know="resid_volume">VX</type>
+                <volume units="cc">1000</volume>
+                <dose units="Gy">13</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_Total</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1000</volume>
                 <dose units="Gy">13</dose>

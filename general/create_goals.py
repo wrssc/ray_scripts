@@ -120,7 +120,36 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
         return interp
 
 
-def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None):
+def residual_volume(structure_name, goal_volume, case, exam):
+    """
+
+    :param structure_name: structure to evaluate the volume
+    :param goal_volume: desired residual volume
+    :param case: current case
+    :param exam: current exam
+    :return: the residual volume as a percentage of the total or zero if volume is undefined
+    """
+    vol = 0.0
+    try:
+        t = case.PatientModel.StructureSets[exam.Name]. \
+            RoiGeometries[structure_name]
+        if t.HasContours():
+            vol = t.GetRoiVolume()
+        else:
+            logging.warning('residual_volume: {} has no contours, index undefined'.format(structure_name))
+    except:
+        logging.warning('residual_volume: Error getting volume for {}, volume => 0.0'.format(structure_name))
+
+    if abs(vol) <= 1e-9:
+        logging.warning('residual_volume: Volume is 0.0 for {}'.format(structure_name))
+        return 0
+    else:
+        logging.debug('residual_volume: Volume for {} is {}'.format(
+            structure_name, vol))
+        residual_percentage = 100 * (vol - float(goal_volume)) / vol
+        return residual_percentage
+
+def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None, res_vol=None):
     """
     knowledge_based_goals will handle the knowledge based goals by goal type
     at this time the
@@ -129,7 +158,8 @@ def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None):
     :param case: RS case object
     :param exam: RS examination object
     :param isodose: target dose level
-    :return: know_analysis - dictionary containing the index to be changed
+    :param res_vol: target residual volume
+    :return: know_analysis - dictionary containing the elements that need to be changed
     """
     know_analysis = {}
     if goal_type in ['rtog_sbr_dgi_minor', 'rtog_sbr_dgi_major']:
@@ -143,6 +173,12 @@ def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None):
                                               target=structure_name,
                                               flag=goal_type,
                                               isodose=isodose)
+    elif goal_type in ['residual_volume']:
+        know_analysis['volume'] = residual_volume(structure_name=structure_name,
+                                                  goal_volume=res_vol,
+                                                  case=case,
+                                                  exam=exam)
+        know_analysis['units'] = '%'
     else:
         know_analysis['error'] = True
         logging.warning('knowledge_based_goal: Unsupported knowledge-based goal')
@@ -348,7 +384,6 @@ def main():
             missing_message = 'Missing structures remain \n' + mc_list
             logging.warning(missing_message)
 
-
         status.next_step(text="Getting target doses from user.", num=2)
         target_dialog = UserInterface.InputDialog(
             inputs=target_inputs,
@@ -431,12 +466,17 @@ def main():
                 if 'know' in g.find('type').attrib:
                     # TODO: Consider a new type for know-goals in the xml
                     p_r = g.find('dose').attrib['roi']
+                    if g.find('volume'):
+                        vol = g.find('volume').text
+                    else:
+                        vol = None
                     know_goal = knowledge_based_goal(
                         structure_name=p_r,
                         goal_type=g.find('type').attrib['know'],
                         case=case,
                         exam=exam,
-                        isodose=g.find('dose').text)
+                        isodose=g.find('dose').text,
+                        res_vol=vol)
                     # use a dictionary for storing the return values
                     try:
                         g.find('index').text = str(know_goal['index'])
@@ -451,6 +491,14 @@ def main():
                             g.find('name').text, g.find('dose').text))
                     except KeyError:
                         logging.debug('knowledge goals for {} had no dose information'.format(
+                            g.find('name').text))
+                    try:
+                        g.find('volume').text = str(know_goal['volume'])
+                        g.find('volume').attrib['units'] = str(know_goal['units'])
+                        logging.debug('Index changed for ROI {} to {}'.format(
+                            g.find('name').text, g.find('volume').text))
+                    except KeyError:
+                        logging.debug('knowledge goals for {} had no volume information'.format(
                             g.find('name').text))
 
                 # except AttributeError:
