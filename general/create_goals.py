@@ -173,7 +173,7 @@ def main():
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
 
     # Get current patient, case, exam, and plan
-    # note that the interpreter handles a missing plan as a NameError
+    # note that the interpreter handles a missing plan as an Exception
     try:
         patient = connect.get_current("Patient")
     except SystemError:
@@ -191,7 +191,7 @@ def main():
 
     try:
         plan = connect.get_current("Plan")
-    except NameError:
+    except Exception:
         raise IOError("No plan loaded. Load patient and plan.")
 
     tpo = UserInterface.TpoDialog()
