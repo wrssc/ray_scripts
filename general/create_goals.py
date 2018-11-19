@@ -61,11 +61,11 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     elif flag == 'rtog_sbr_norm2_major':
         unscaled_index = [0.57, 0.57, 0.58, 0.58, 0.63, 0.68, 0.77, 0.86, 0.89, 0.91, 0.94]
         index = [i * float(isodose) for i in unscaled_index]
-        logging.debug('rtog_sbrt_dgi: Major Normal_2cm selected.')
+        logging.debug('rtog_sbrt_dgi: Major Normal_2cm selected. Index scaled by dose {}'.float(isodose))
     elif flag == 'rtog_sbr_norm2_minor':
         unscaled_index = [0.50, 0.50, 0.50, 0.50, 0.54, 0.58, 0.62, 0.66, 0.70, 0.73, 0.77]
         index = [i * float(isodose) for i in unscaled_index]
-        logging.debug('rtog_sbrt_dgi: Minor Normal_2cm selected.')
+        logging.debug('rtog_sbrt_dgi: Minor Normal_2cm selected. Index scaled by dose {}'.float(isodose))
     else:
         logging.warning("rtog_sbrt_dgi: Unknown flag used in call. Returning zero")
         return 0.0
