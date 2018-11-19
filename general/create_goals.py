@@ -150,7 +150,7 @@ def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None):
                                               examination=exam,
                                               target=structure_name,
                                               flag=goal_type,
-                                              dose=isodose)
+                                              isodose=isodose)
     else:
         know_analysis['error'] = True
         logging.warning('knowledge_based_goal: Unsupported knowledge-based goal')
