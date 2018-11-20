@@ -18,7 +18,7 @@
     01.00.03 RAB Modified for new naming convention on plans and to add support for the
              field descriptions to be used for billing.
     01.00.04 RAB Modified to include isocenter renaming.
-    01.00.05 RAB Modified to automatically add the 4th set-up field
+    01.00.05 RAB Modified to automatically add the 4th set-up field and clean up creation
 
     Known Issues:
 
