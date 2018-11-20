@@ -18,6 +18,7 @@
     01.00.03 RAB Modified for new naming convention on plans and to add support for the
              field descriptions to be used for billing.
     01.00.04 RAB Modified to include isocenter renaming.
+    01.00.05 RAB Modified to automatically add the 4th set-up field
 
     Known Issues:
 
@@ -109,6 +110,7 @@ def main():
     #
     # Oddly enough, Electrons are DeliveryTechnique = 'SMLC'
     if technique not in supportedRStechniques:
+        logging.warning('Technique: {} unsupported in renaming script'.format(technique))
         raise IOError("Technique unsupported, manually name beams according to clinical convention.")
 
     # While loop variable definitions
@@ -174,48 +176,34 @@ def main():
                 b.Description = beam_description
                 beam_index += 1
             except Exception:
-                UserInterface.WarningBox('Error occured in setting names of beams')
+                logging.warning('Error occurred in setting names of beams')
+                UserInterface.WarningBox('Error occurred in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
-        connect.await_user_input(
-            'Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
-        #
+
         # Set-Up Fields
         try:
-            #
-            # AP set-up field
-            beamset.PatientSetup.SetupBeams[0].Name = "SetUp AP"
-            beamset.PatientSetup.SetupBeams[0].Description = "SetUp AP"
-            beamset.PatientSetup.SetupBeams[0].GantryAngle = "0.0"
-            beamset.PatientSetup.SetupBeams[0].Segments[0].DoseRate = "5"
+            # HFS Setup
+            # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
+            set_up = {0: ['SetUp AP', 'SetUp AP', 0, '5'],
+                      1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
+                      2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
+                      3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+                      }
+            # Extract the angles
+            angles = []
+            for k, v in set_up.iteritems():
+                angles.append(v[1])
+            beamset.UpdateSetupBeams(ResetSetupBeams=True,
+                                     SetupBeamsGantryAngles=angles)
 
-            #
-            # Rt Lateral set-up field
-            beamset.PatientSetup.SetupBeams[1].Name = "SetUp RtLat"
-            beamset.PatientSetup.SetupBeams[1].Description = "SetUp RtLat"
-            beamset.PatientSetup.SetupBeams[1].GantryAngle = "270.0"
-            beamset.PatientSetup.SetupBeams[1].Segments[0].DoseRate = "5"
+            for i, b in enumerate(beamset.PatientSetup.SetupBeams):
+                b.Name = set_up[i][0]
+                b.Description = set_up[i][0]
+                b.GantryAngle = str(set_up[i][1])
+                b.Segments[0].DoseRate = set_up[i][2]
 
-            #
-            # Lt Lateral set-up field
-            beamset.PatientSetup.SetupBeams[2].Name = "SetUp LtLat"
-            beamset.PatientSetup.SetupBeams[2].Description = "SetUp LtLat"
-            beamset.PatientSetup.SetupBeams[2].GantryAngle = "90.0"
-            beamset.PatientSetup.SetupBeams[2].Segments[0].DoseRate = "5"
-            #
-            # Cone-Beam CT set-up field
-            try:
-                beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
-                beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
-            except:
-                connect.await_user_input(
-                    'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
-                beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
-                beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
         except:
+            logging.warning('Set-Up Beam creation failed')
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
 
             # Address the Head-first prone position
@@ -274,51 +262,35 @@ def main():
                 b.Description = beam_description
                 beam_index += 1
             except Exception:
-                UserInterface.WarningBox('Error occured in setting names of beams')
+                UserInterface.WarningBox('Error occurred in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
-        connect.await_user_input(
-            'Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
         #
         # Set-Up fields
         try:
-            #
-            # PA set-up field
-            beamset.PatientSetup.SetupBeams[0].Name = "SetUp PA"
-            beamset.PatientSetup.SetupBeams[0].Description = "SetUp PA"
-            beamset.PatientSetup.SetupBeams[0].GantryAngle = "0.0"
-            beamset.PatientSetup.SetupBeams[0].Segments[0].DoseRate = "5"
+            # HFP Setup
+            # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
+            set_up = {0: ['SetUp PA', 'SetUp PA', 0, '5'],
+                      1: ['SetUp RtLat', 'SetUp RtLat', 90.0, '5'],
+                      2: ['SetUp LtLat', 'SetUp LtLat', 270.0, '5'],
+                      3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+                      }
+            # Extract the angles
+            angles = []
+            for k, v in set_up.iteritems():
+                angles.append(v[1])
+            beamset.UpdateSetupBeams(ResetSetupBeams=True,
+                                     SetupBeamsGantryAngles=angles)
 
-            #
-            # Rt Lateral set-up field
-            beamset.PatientSetup.SetupBeams[1].Name = "SetUp RtLat"
-            beamset.PatientSetup.SetupBeams[1].Description = "SetUp RtLat"
-            beamset.PatientSetup.SetupBeams[1].GantryAngle = "90.0"
-            beamset.PatientSetup.SetupBeams[1].Segments[0].DoseRate = "5"
-
-            #
-            # Lt Lateral set-up field
-            beamset.PatientSetup.SetupBeams[2].Name = "SetUp LtLat"
-            beamset.PatientSetup.SetupBeams[2].Description = "SetUp LtLat"
-            beamset.PatientSetup.SetupBeams[2].GantryAngle = "270.0"
-            beamset.PatientSetup.SetupBeams[2].Segments[0].DoseRate = "5"
-
-            #
-            # Cone-Beam CT set-up field
-            try:
-                beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
-                beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
-            except:
-                connect.await_user_input(
-                    'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
-                beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
-                beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
+            for i, b in enumerate(beamset.PatientSetup.SetupBeams):
+                b.Name = set_up[i][0]
+                b.Description = set_up[i][0]
+                b.GantryAngle = str(set_up[i][1])
+                b.Segments[0].DoseRate = set_up[i][2]
         except:
+            logging.warning('Set-Up Beam creation failed')
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
             # Address the Feet-first supine position
+
     elif patient_position == 'FeetFirstSupine':
         for b in beamset.Beams:
             try:
@@ -376,44 +348,30 @@ def main():
             except Exception:
                 UserInterface.WarningBox('Error occured in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
-        connect.await_user_input(
-            'Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
-        #
-        # Set-Up Fields
+
+        # Set-Up fields
         try:
-            # AP set-up field
-            beamset.PatientSetup.SetupBeams[0].Name = "SetUp AP"
-            beamset.PatientSetup.SetupBeams[0].Description = "SetUp AP"
-            beamset.PatientSetup.SetupBeams[0].GantryAngle = "0.0"
-            beamset.PatientSetup.SetupBeams[0].Segments[0].DoseRate = "5"
+            # FFS Setup
+            # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
+            set_up = {0: ['SetUp AP', 'SetUp AP', 0, '5'],
+                      1: ['SetUp RtLat', 'SetUp RtLat', 90.0, '5'],
+                      2: ['SetUp LtLat', 'SetUp LtLat', 270.0, '5'],
+                      3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+                      }
+            # Extract the angles
+            angles = []
+            for k, v in set_up.iteritems():
+                angles.append(v[1])
+            beamset.UpdateSetupBeams(ResetSetupBeams=True,
+                                     SetupBeamsGantryAngles=angles)
 
-            # Rt Lateral set-up field
-            beamset.PatientSetup.SetupBeams[1].Name = "SetUp RtLat"
-            beamset.PatientSetup.SetupBeams[1].Description = "SetUp RtLat"
-            beamset.PatientSetup.SetupBeams[1].GantryAngle = "90.0"
-            beamset.PatientSetup.SetupBeams[1].Segments[0].DoseRate = "5"
-
-            # Lt Lateral set-up field
-            beamset.PatientSetup.SetupBeams[2].Name = "SetUp LtLat"
-            beamset.PatientSetup.SetupBeams[2].Description = "SetUp LtLat"
-            beamset.PatientSetup.SetupBeams[2].GantryAngle = "270.0"
-            beamset.PatientSetup.SetupBeams[2].Segments[0].DoseRate = "5"
-
-            #
-            # Cone-Beam CT set-up field
-            try:
-                beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
-                beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
-            except:
-                connect.await_user_input(
-                    'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
-                beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
-                beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
+            for i, b in enumerate(beamset.PatientSetup.SetupBeams):
+                b.Name = set_up[i][0]
+                b.Description = set_up[i][0]
+                b.GantryAngle = str(set_up[i][1])
+                b.Segments[0].DoseRate = set_up[i][2]
         except:
+            logging.warning('Set-Up Beam creation failed')
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
 
             # Address the Feet-first prone position
@@ -474,41 +432,29 @@ def main():
             except Exception:
                 UserInterface.WarningBox('Error occured in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
-        connect.await_user_input(
-            'Please go to Plan Design>Plan Setup and use Copy Setup to ensure there are 4 Setup beams')
+        # Set-Up fields
         try:
-            # PA set-up field
-            beamset.PatientSetup.SetupBeams[0].Name = "SetUp PA"
-            beamset.PatientSetup.SetupBeams[0].Description = "SetUp PA"
-            beamset.PatientSetup.SetupBeams[0].GantryAngle = "0.0"
-            beamset.PatientSetup.SetupBeams[0].Segments[0].DoseRate = "5"
+            # FFP Setup
+            # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
+            set_up = {0: ['SetUp PA', 'SetUp PA', 0, '5'],
+                      1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
+                      2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
+                      3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+                      }
+            # Extract the angles
+            angles = []
+            for k, v in set_up.iteritems():
+                angles.append(v[1])
+            beamset.UpdateSetupBeams(ResetSetupBeams=True,
+                                     SetupBeamsGantryAngles=angles)
 
-            # Rt Lateral set-up field
-            beamset.PatientSetup.SetupBeams[1].Name = "SetUp RtLat"
-            beamset.PatientSetup.SetupBeams[1].Description = "SetUp RtLat"
-            beamset.PatientSetup.SetupBeams[1].GantryAngle = "270.0"
-            beamset.PatientSetup.SetupBeams[1].Segments[0].DoseRate = "5"
-
-            # Lt Lateral set-up field
-            beamset.PatientSetup.SetupBeams[2].Name = "SetUp LtLat"
-            beamset.PatientSetup.SetupBeams[2].Description = "SetUp LtLat"
-            beamset.PatientSetup.SetupBeams[2].GantryAngle = "90.0"
-            beamset.PatientSetup.SetupBeams[2].Segments[0].DoseRate = "5"
-            #
-            # Cone-Beam CT set-up field
-            try:
-                beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
-                beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
-            except:
-                connect.await_user_input(
-                    'Pretty Please go to Plan Design>Plan Setup and copy any Setup Beam then continue script')
-                beamset.PatientSetup.SetupBeams[3].Name = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].Description = "SetUp CBCT"
-                beamset.PatientSetup.SetupBeams[3].GantryAngle = "0.0"
-                beamset.PatientSetup.SetupBeams[3].Segments[0].DoseRate = "5"
+            for i, b in enumerate(beamset.PatientSetup.SetupBeams):
+                b.Name = set_up[i][0]
+                b.Description = set_up[i][0]
+                b.GantryAngle = str(set_up[i][1])
+                b.Segments[0].DoseRate = set_up[i][2]
         except:
+            logging.warning('Set-Up Beam creation failed')
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
     else:
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")

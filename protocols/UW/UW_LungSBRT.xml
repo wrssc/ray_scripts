@@ -89,7 +89,7 @@
             <roi>
                 <name>BrachialPlexus_L</name>
                 <type>Max</type>
-                <volume units="cc">0.03</volume>
+                <volume units="cc">0.1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
@@ -131,7 +131,7 @@
             <roi>
                 <name>Esophagus</name>
                 <type>Max</type>
-                <volume units="cc">0.03</volume>
+                <volume units="cc">0.1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
@@ -147,6 +147,20 @@
                 <type>Max</type>
                 <volume units="%">2</volume>
                 <dose units="Gy">32</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>GreatVes</name>
+                <type>Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="Gy">52</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>GreatVes</name>
+                <type>VX</type>
+                <volume units="cc">10</volume>
+                <dose units="Gy">47</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -171,42 +185,35 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
-                <type dir="le" know="resid_vol">VX</type>
-                <volume units="cc">1000</volume>
-                <dose units="Gy">13</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_Total</name>
-                <type dir="le">VX</type>
-                <volume units="cc">1000</volume>
-                <dose units="Gy">13</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1500</volume>
-                <dose units="Gy">12</dose>
+                <dose units="Gy">12.5</dose>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
+                <type dir="le">VX</type>
+                <volume units="cc">1000</volume>
+                <dose units="Gy">13.5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="%">37</volume>
                 <dose units="Gy">18</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1500</volume>
                 <dose units="Gy">15.5</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1000</volume>
                 <dose units="Gy">16.3</dose>
