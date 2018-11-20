@@ -192,9 +192,11 @@ def main():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[1])
+
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
 
+        # Set the set-up parameter specifics
         for i, b in enumerate(beamset.PatientSetup.SetupBeams):
             b.Name = set_up[i][0]
             b.Description = set_up[i][0]
