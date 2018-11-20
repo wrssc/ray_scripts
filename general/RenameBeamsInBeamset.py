@@ -180,31 +180,29 @@ def main():
                 UserInterface.WarningBox('Error occurred in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
 
-        # Set-Up Fields
-        try:
-            # HFS Setup
-            # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
-            set_up = {0: ['SetUp AP', 'SetUp AP', 0, '5'],
-                      1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
-                      2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
-                      3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
-                      }
-            # Extract the angles
-            angles = []
-            for k, v in set_up.iteritems():
-                angles.append(v[1])
-            beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                     SetupBeamsGantryAngles=angles)
+    # Set-Up Fields
+        # HFS Setup
+        # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
+        set_up = {0: ['SetUp AP', 'SetUp AP', 0, '5'],
+                  1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
+                  2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
+                  3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+                  }
+        # Extract the angles
+        angles = []
+        for k, v in set_up.iteritems():
+            angles.append(v[1])
+        beamset.UpdateSetupBeams(ResetSetupBeams=True,
+                                 SetupBeamsGantryAngles=angles)
 
-            for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-                b.Name = set_up[i][0]
-                b.Description = set_up[i][0]
-                b.GantryAngle = str(set_up[i][1])
-                b.Segments[0].DoseRate = set_up[i][2]
+        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
+            b.Name = set_up[i][0]
+            b.Description = set_up[i][0]
+            b.GantryAngle = str(set_up[i][1])
+            b.Segments[0].DoseRate = set_up[i][2]
 
-        except:
-            logging.warning('Set-Up Beam creation failed')
-            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
+#            logging.warning('Set-Up Beam creation failed')
+#            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
 
             # Address the Head-first prone position
     elif patient_position == 'HeadFirstProne':
