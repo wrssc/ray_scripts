@@ -191,7 +191,7 @@ def main():
         # Extract the angles
         angles = []
         for k, v in set_up.iteritems():
-            angles.append(v[1])
+            angles.append(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -199,9 +199,9 @@ def main():
         # Set the set-up parameter specifics
         for i, b in enumerate(beamset.PatientSetup.SetupBeams):
             b.Name = set_up[i][0]
-            b.Description = set_up[i][0]
-            b.GantryAngle = str(set_up[i][1])
-            b.Segments[0].DoseRate = set_up[i][2]
+            b.Description = set_up[i][1]
+            b.GantryAngle = str(set_up[i][2])
+            b.Segments[0].DoseRate = set_up[i][3]
 
 #            logging.warning('Set-Up Beam creation failed')
 #            raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
@@ -277,15 +277,15 @@ def main():
             # Extract the angles
             angles = []
             for k, v in set_up.iteritems():
-                angles.append(v[1])
+                angles.append(v[2])
             beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                      SetupBeamsGantryAngles=angles)
 
             for i, b in enumerate(beamset.PatientSetup.SetupBeams):
                 b.Name = set_up[i][0]
-                b.Description = set_up[i][0]
-                b.GantryAngle = str(set_up[i][1])
-                b.Segments[0].DoseRate = set_up[i][2]
+                b.Description = set_up[i][1]
+                b.GantryAngle = str(set_up[i][2])
+                b.Segments[0].DoseRate = set_up[i][3]
         except:
             logging.warning('Set-Up Beam creation failed')
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
@@ -361,15 +361,15 @@ def main():
             # Extract the angles
             angles = []
             for k, v in set_up.iteritems():
-                angles.append(v[1])
+                angles.append(v[2])
             beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                      SetupBeamsGantryAngles=angles)
 
             for i, b in enumerate(beamset.PatientSetup.SetupBeams):
                 b.Name = set_up[i][0]
-                b.Description = set_up[i][0]
-                b.GantryAngle = str(set_up[i][1])
-                b.Segments[0].DoseRate = set_up[i][2]
+                b.Description = set_up[i][1]
+                b.GantryAngle = str(set_up[i][2])
+                b.Segments[0].DoseRate = set_up[i][3]
         except:
             logging.warning('Set-Up Beam creation failed')
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
@@ -444,15 +444,15 @@ def main():
             # Extract the angles
             angles = []
             for k, v in set_up.iteritems():
-                angles.append(v[1])
+                angles.append(v[2])
             beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                      SetupBeamsGantryAngles=angles)
 
             for i, b in enumerate(beamset.PatientSetup.SetupBeams):
                 b.Name = set_up[i][0]
-                b.Description = set_up[i][0]
-                b.GantryAngle = str(set_up[i][1])
-                b.Segments[0].DoseRate = set_up[i][2]
+                b.Description = set_up[i][1]
+                b.GantryAngle = str(set_up[i][2])
+                b.Segments[0].DoseRate = set_up[i][3]
         except:
             logging.warning('Set-Up Beam creation failed')
             raise IOError('Please select Create Set Up Beams in Edit Plan and Rerun script')
