@@ -183,7 +183,7 @@ def main():
     # Set-Up Fields
         # HFS Setup
         # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
-        set_up = {0: ['SetUp AP', 'SetUp AP', 0, '5'],
+        set_up = {0: ['SetUp AP', 'SetUp AP', 0.0, '5'],
                   1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
                   2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
@@ -192,6 +192,7 @@ def main():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
+            print "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
