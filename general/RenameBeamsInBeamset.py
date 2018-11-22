@@ -81,17 +81,6 @@ def main():
         'SMLC',
         'DynamicArc']
 
-    dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
-                                               'Technique': 'Select Treatment Technique (Billing)'},
-                                       datatype={'Technique': 'combo'},
-                                       initial={'Technique': 'Select'},
-                                       options={'Technique': available_techniques},
-                                       required=['Site', 'Technique'])
-    # Show the dialog
-    print dialog.show()
-
-    site_name = dialog.values['Site']
-    input_technique = dialog.values['Technique']
 
     try:
         patient = connect.get_current('Patient')
@@ -104,6 +93,20 @@ def main():
         UserInterface.WarningBox('This script requires a Beam Set to be loaded')
         sys.exit('This script requires a Beam Set to be loaded')
 
+    initial_sitename = beamset.DicomPlanLabel[:4]
+    # Prompt the user for Site Name and Billing technique
+    dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
+                                               'Technique': 'Select Treatment Technique (Billing)'},
+                                       datatype={'Technique': 'combo'},
+                                       initial={'Technique': 'Select',
+                                                'Site': initial_sitename},
+                                       options={'Technique': available_techniques},
+                                       required=['Site', 'Technique'])
+    # Show the dialog
+    print dialog.show()
+
+    site_name = dialog.values['Site']
+    input_technique = dialog.values['Technique']
     #
     # Electrons, 3D, and VMAT Arcs are all that are supported.  Reject plans that aren't
     technique = beamset.DeliveryTechnique
@@ -284,8 +287,8 @@ def main():
             b.Description = set_up[i][1]
             b.GantryAngle = str(set_up[i][2])
             b.Segments[0].DoseRate = set_up[i][3]
-            # Address the Feet-first supine position
 
+    # FFS
     elif patient_position == 'FeetFirstSupine':
         standard_beam_name = 'Naming Error'
         for b in beamset.Beams:
@@ -424,7 +427,7 @@ def main():
             except Exception:
                 UserInterface.WarningBox('Error occurred in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
-        # Set-Up fields
+        # FFP: Set-Up fields
         # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
         set_up = {0: ['SetUp PA', 'SetUp PA', 0, '5'],
                   1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
