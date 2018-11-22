@@ -119,6 +119,8 @@ def main():
     # While loop variable definitions
     beam_index = 0
     patient_position = beamset.PatientPosition
+    # Turn on set-up fields
+    beamset.PatientSetup.UseSetupBeams = True
     logging.debug('Renaming and adding set up fields to Beam Set with name {}, patient position {}, technique {}'.
                   format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
     #
