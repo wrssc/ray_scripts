@@ -123,6 +123,10 @@ def main():
     beamset.PatientSetup.UseSetupBeams = True
     logging.debug('Renaming and adding set up fields to Beam Set with name {}, patient position {}, technique {}'.
                   format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
+    # Rename isocenters
+    for b in beamset.Beams:
+        iso_n = int(b.Isocenter.IsocenterNumber)
+        b.Isocenter.Annotation.Name = 'Iso_' + beamset.DicomPlanLabel + '_' + str(iso_n + 1)
     #
     # HFS
     if patient_position == 'HeadFirstSupine':
@@ -687,7 +691,7 @@ def main():
                 sys.exit('Error occurred in setting names of beams')
 
         # Set-Up Fields
-        # HFLDR Setup
+        # FFLDL Setup
         # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
         set_up = {0: ['SetUp RtLat', 'SetUp RtLat', 0.0, '5'],
                   1: ['SetUp AP', 'SetUp AP', 270.0, '5'],
