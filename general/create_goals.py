@@ -101,7 +101,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     # Exceptions for target volumes exceeding or smaller than the minimum volume
     if i == 0:
         logging.warning('rtog_sbrt_dgi.py: Target volume < RTOG volume limits' +
-                        '  returning lowest available index{}'.index[i])
+                        '  returning lowest available index{}'.format(index[i]))
         return index[i]
     elif i == len(prot_vol):
         logging.warning('rtog_sbrt_dgi.py: Target volume > RTOG volume limits' +

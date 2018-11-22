@@ -171,6 +171,20 @@
                 <priority>3</priority>
             </roi>
             <roi>
+                <name>Chestwall</name>
+                <type>Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="Gy">44</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Chestwall</name>
+                <type>Max</type>
+                <volume units="cc">30</volume>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
