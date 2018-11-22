@@ -122,7 +122,7 @@ def main():
     logging.debug('Renaming and adding set up fields to Beam Set with name {}, patient position {}, technique {}'.
                   format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
     #
-    # HFS Beam Naming
+    # HFS
     if patient_position == 'HeadFirstSupine':
         standard_beam_name = 'Naming Error'
         for b in beamset.Beams:
@@ -207,8 +207,92 @@ def main():
             b.Description = set_up[i][1]
             b.GantryAngle = str(set_up[i][2])
             b.Segments[0].DoseRate = set_up[i][3]
+    # HFLDR
+    if patient_position == 'HeadFirstDecubitusRight':
+        standard_beam_name = 'Naming Error'
+        for b in beamset.Beams:
+            try:
+                gantry_angle = int(b.GantryAngle)
+                couch_angle = int(b.CouchAngle)
+                gantry_angle_string = str(int(gantry_angle))
+                couch_angle_string = str(int(couch_angle))
+                #
+                # Determine if the type is an Arc or SMLC
+                # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
+                if technique == 'DynamicArc':
+                    arc_direction = b.ArcRotationDirection
+                    if arc_direction == 'Clockwise':
+                        arc_direction_string = 'CW'
+                    else:
+                        arc_direction_string = 'CCW'
 
-    # Address the Head-first prone position
+                    # Based on convention for billing, e.g. "1 CCW VMAT -- IMRT"
+                    # set the beam_description
+                    beam_description = (str(beam_index + 1) + ' ' + arc_direction_string +
+                                        ' ' + input_technique)
+                    if couch_angle == 0:
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
+                    else:
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
+                                              + '_c' + couch_angle_string.zfill(3))
+                else:
+                    # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
+                    # set the beam_description
+                    beam_description = str(beam_index + 1) + ' ' + input_technique
+                    if couch_angle != 0:
+                        standard_beam_name = (str(beam_index + 1) + '_' + site_name
+                                              + '_g' + gantry_angle_string.zfill(3)
+                                              + 'c' + couch_angle_string.zfill(3))
+                    elif gantry_angle == 180:
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
+                    elif 180 < gantry_angle < 270:
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
+                    elif gantry_angle == 270:
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
+                    elif 270 < gantry_angle < 360:
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
+                    elif gantry_angle == 0:
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
+                    elif 0 < gantry_angle < 90:
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
+                    elif gantry_angle == 90:
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
+                    elif 90 < gantry_angle < 180:
+                        standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
+
+                # Set the beamset names and description according to the convention above
+                b.Name = standard_beam_name
+                b.Description = beam_description
+                beam_index += 1
+            except Exception:
+                logging.warning('Error occurred in setting names of beams')
+                UserInterface.WarningBox('Error occurred in setting names of beams')
+                sys.exit('Error occurred in setting names of beams')
+
+    # Set-Up Fields
+        # HFLDR Setup
+        # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
+        set_up = {0: ['SetUp AP', 'SetUp LtLAT', 0.0, '5'],
+                  1: ['SetUp RtLat', 'SetUp AP', 270.0, '5'],
+                  2: ['SetUp LtLat', 'SetUp PA', 90.0, '5'],
+                  3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+                  }
+        # Extract the angles
+        angles = []
+        for k, v in set_up.iteritems():
+            angles.append(v[2])
+            print "v2={}".format(v[2])
+
+        beamset.UpdateSetupBeams(ResetSetupBeams=True,
+                                 SetupBeamsGantryAngles=angles)
+
+        # Set the set-up parameter specifics
+        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
+            b.Name = set_up[i][0]
+            b.Description = set_up[i][1]
+            b.GantryAngle = str(set_up[i][2])
+            b.Segments[0].DoseRate = set_up[i][3]
+    # HFP
     elif patient_position == 'HeadFirstProne':
         standard_beam_name = 'Naming Error'
         for b in beamset.Beams:
@@ -287,7 +371,6 @@ def main():
             b.Description = set_up[i][1]
             b.GantryAngle = str(set_up[i][2])
             b.Segments[0].DoseRate = set_up[i][3]
-
     # FFS
     elif patient_position == 'FeetFirstSupine':
         standard_beam_name = 'Naming Error'
@@ -369,6 +452,7 @@ def main():
             b.Segments[0].DoseRate = set_up[i][3]
 
             # Address the Feet-first prone position
+    # FFP
     elif patient_position == 'FeetFirstProne':
         for b in beamset.Beams:
             standard_beam_name = 'Naming Error'
