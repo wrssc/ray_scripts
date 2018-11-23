@@ -179,7 +179,7 @@
             </roi>
             <roi>
                 <name>Chestwall</name>
-                <type>Max</type>
+                <type>VX</type>
                 <volume units="cc">30</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>

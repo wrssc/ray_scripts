@@ -105,7 +105,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
         return index[i]
     elif i == len(prot_vol):
         logging.warning('rtog_sbrt_dgi.py: Target volume > RTOG volume limits' +
-                        ' returning highest available index{}'.index[i])
+                        ' returning highest available index{}'.format(index[i]))
         return index[i]
     # Interpolate on i and i - 1
     else:
@@ -122,7 +122,8 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
 
 def residual_volume(structure_name, goal_volume, case, exam):
     """
-
+    Used for finding the remaining volume in terms of the total.  Use for limits
+    that must preserve a certain number of cc exposed below a limit
     :param structure_name: structure to evaluate the volume
     :param goal_volume: desired residual volume
     :param case: current case
@@ -149,7 +150,23 @@ def residual_volume(structure_name, goal_volume, case, exam):
         residual_percentage = 100 * (vol - float(goal_volume)) / vol
         return residual_percentage
 
-def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None, res_vol=None):
+def conditional_overlap(structure_name,goal_volume,case, exam, comp_structure, isodose):
+    """Evaluate the overlap between structure_name and comp_structure
+    then modify goal volume and dose.
+    If overlap return a dmax limit on a percentage of the comp_structure prescription dose
+    If no overlap return an absolute dose limit on an absolute volume
+    :param structure_name:
+    :param goal_volume:
+    :param case:
+    :param exam:
+    :param comp_structure:
+    """
+
+
+def knowledge_based_goal(structure_name, goal_type, case, exam,
+                         isodose=None,
+                         res_vol=None,
+                         comp_structure=None):
     """
     knowledge_based_goals will handle the knowledge based goals by goal type
     at this time the
@@ -159,6 +176,7 @@ def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None, re
     :param exam: RS examination object
     :param isodose: target dose level
     :param res_vol: target residual volume
+    :param comp_structure: a comparison structure for conditional evaluation
     :return: know_analysis - dictionary containing the elements that need to be changed
     """
     know_analysis = {}
@@ -179,6 +197,13 @@ def knowledge_based_goal(structure_name, goal_type, case, exam, isodose=None, re
                                                   case=case,
                                                   exam=exam)
         know_analysis['units'] = '%'
+    elif goal_type in ['overlap']:
+        know_analysis = conditional_overlap(structure_name=structure_name,
+                                            goal_volume=res_volume,
+                                            case=case,
+                                            exam=exam,
+                                            comp_structure=comp_structure,
+                                            isodose=isodose)
     else:
         know_analysis['error'] = True
         logging.warning('knowledge_based_goal: Unsupported knowledge-based goal')

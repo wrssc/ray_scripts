@@ -75,6 +75,7 @@ def main():
         'Static PRDR MLC -- 3D',
         'SnS MLC -- IMRT',
         'SnS PRDR MLC -- IMRT',
+        'Conformal Arc -- 2D',
         'Conformal Arc -- 3D',
         'VMAT Arc -- IMRT']
     supported_rs_techniques = [
