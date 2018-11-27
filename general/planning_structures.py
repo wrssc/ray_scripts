@@ -127,6 +127,55 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                                      Mode=VisualizationType)
 
 
+def make_wall(wall,
+              sources,
+              delta,
+              patient,
+              case,
+              examination,
+              inner=True):
+    """
+
+    :param wall: Name of wall contour
+    :param sources: List of source structures
+    :param delta: contraction
+    :param patient: current patient
+    :param case: current case
+    :param inner: logical create an inner wall (true) or ring
+    :param examination: current exam
+    :return:
+    """
+
+    if inner:
+        a = [0] * 6
+        b = [delta] * 6
+    else:
+        a = [delta] * 6
+        b = [0] * 6
+
+    wall_defs = {
+        "StructureName": wall,
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": " Blue",
+        "OperationA": "Union",
+        "SourcesA": sources,
+        "MarginTypeA": "Expand",
+        "ExpA": a,
+        "OperationB": "Union",
+        "SourcesB": sources,
+        "MarginTypeB": "Contract",
+        "ExpB": b,
+        "OperationResult": "Subtraction",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Undefined"}
+    make_boolean_structure(patient=patient,
+                           case=case,
+                           examination=examination,
+                           **wall_defs)
+
+
 def main():
     # The following list allows different elements of the code to be toggled
     # No guarantee can be made that things will work if elements are turned off
@@ -554,27 +603,35 @@ def main():
         newly_generated_rois.append('External_Clean')
 
     if generate_skin:
-        Skin_defs = {
-            "StructureName": "Skin",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " Blue",
-            "OperationA": "Union",
-            "SourcesA": ["ExternalClean"],
-            "MarginTypeA": "Expand",
-            "ExpA": [0] * 6,
-            "OperationB": "Union",
-            "SourcesB": ["ExternalClean"],
-            "MarginTypeB": "Contract",
-            "ExpB": [skin_contraction] * 6,
-            "OperationResult": "Subtraction",
-            "MarginTypeR": "Expand",
-            "ExpR": [0] * 6,
-            "StructType": "Undefined"}
-        make_boolean_structure(patient=patient,
-                               case=case,
-                               examination=examination,
-                               **Skin_defs)
+        make_wall(
+            wall="Skin",
+            sources=["ExternalClean"],
+            delta=skin_contraction,
+            patient=patient,
+            case=case,
+            examination=examination,
+            inner=True)
+        # Skin_defs = {
+        #    "StructureName": "Skin",
+        #    "ExcludeFromExport": True,
+        #    "VisualizeStructure": False,
+        #     "StructColor": " Blue",
+        #     "OperationA": "Union",
+        #     "SourcesA": ["ExternalClean"],
+        #     "MarginTypeA": "Expand",
+        #     "ExpA": [0] * 6,
+        #     "OperationB": "Union",
+        #     "SourcesB": ["ExternalClean"],
+        #     "MarginTypeB": "Contract",
+        #     "ExpB": [skin_contraction] * 6,
+        #     "OperationResult": "Subtraction",
+        #     "MarginTypeR": "Expand",
+        #     "ExpR": [0] * 6,
+        #     "StructType": "Undefined"}
+        # make_boolean_structure(patient=patient,
+        #                        case=case,
+        #                        examination=examination,
+        #                        **Skin_defs)
         newly_generated_rois.append('Skin')
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
