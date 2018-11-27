@@ -28,6 +28,7 @@
 
     Version History:
     1.0.1: Hot fix to repair inconsistency when underdose is not used but uniform dose is.
+    1.0.2: Adding "inner air" as an optional feature
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -322,6 +323,7 @@ def main():
             'PTV5Dose': 'Enter 5th target Dose in cGy',
             'UnderDose': 'Priority 1 goals present: Use Underdosing',
             'UniformDose': 'Targets overlap sensitive structures: Use UniformDoses',
+            'z_InnerAir': 'Use InnerAir to avoid high-fluence due to cavities'
         },
         title='Target Selection',
         datatype={'PTV1': 'combo',
@@ -331,6 +333,7 @@ def main():
                   'PTV5': 'combo',
                   'UniformDose': 'check',
                   'UnderDose': 'check',
+                  'z_InnerAir': 'check'
                   },
         initial={
             'PTV1Dose': '0',
@@ -345,7 +348,8 @@ def main():
                  'PTV4': TargetMatches,
                  'PTV5': TargetMatches,
                  'UniformDose': ['yes'],
-                 'UnderDose': ['yes']
+                 'UnderDose': ['yes'],
+                 'z_InnerAir': ['yes']
                  },
         required=['PTV1'])
 
@@ -385,17 +389,23 @@ def main():
         generate_uniformdose = False
 
     # User selected that Underdose is required
-
     if 'yes' in initial_dialog.values['UnderDose']:
         generate_underdose = True
     else:
         generate_underdose = False
+
+    # User selected that InnerAir is required
+    if 'yes' in initial_dialog.values['z_InnerAir']:
+        generate_inner_air = True
+    else:
+        generate_inner_air = False
 
     # Rephrase the next statement with logging
     logging.debug('planning_structures.py: Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
     logging.debug('planning_structures.py: Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
     logging.debug('planning_structures.py: User selected {} for UnderDose'.format(generate_underdose))
     logging.debug('planning_structures.py: User selected {} for UniformDose'.format(generate_uniformdose))
+    logging.debug('planning_structures.py: User selected {} for InnerAir'.format(generate_inner_air))
 
     # Underdose dialog call
     if generate_underdose:
@@ -611,27 +621,6 @@ def main():
             case=case,
             examination=examination,
             inner=True)
-        # Skin_defs = {
-        #    "StructureName": "Skin",
-        #    "ExcludeFromExport": True,
-        #    "VisualizeStructure": False,
-        #     "StructColor": " Blue",
-        #     "OperationA": "Union",
-        #     "SourcesA": ["ExternalClean"],
-        #     "MarginTypeA": "Expand",
-        #     "ExpA": [0] * 6,
-        #     "OperationB": "Union",
-        #     "SourcesB": ["ExternalClean"],
-        #     "MarginTypeB": "Contract",
-        #     "ExpB": [skin_contraction] * 6,
-        #     "OperationResult": "Subtraction",
-        #     "MarginTypeR": "Expand",
-        #     "ExpR": [0] * 6,
-        #     "StructType": "Undefined"}
-        # make_boolean_structure(patient=patient,
-        #                        case=case,
-        #                        examination=examination,
-        #                        **Skin_defs)
         newly_generated_rois.append('Skin')
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
@@ -831,6 +820,14 @@ def main():
                                   MaxVolume=500)
         newly_generated_rois.append('InnerAir')
         logging.debug("planning_structures.py: Built Air and InnerAir structures.")
+    else:
+        case.PatientModel.CreateRoi(Name='InnerAir',
+                                    Color="SaddleBrown",
+                                    Type="Undefined",
+                                    TissueName=None,
+                                    RbeCellTypeName=None,
+                                    RoiMaterial=None)
+        logging.warning("Inner Air structure was not used in target generation.`")
 
         # Make the InnerAir structure
     if generate_field_of_view:
