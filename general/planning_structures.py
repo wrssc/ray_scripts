@@ -897,7 +897,7 @@ def main():
                                     RoiMaterial=None)
         logging.warning("Inner Air structure was not used in target generation.`")
 
-        # Make the InnerAir structure
+    # Generate a rough field of view contour.  It should really be put in with the dependent structures
     if generate_field_of_view:
         # Automated build of the Air contour
         fov_name = 'Field-of-View'
