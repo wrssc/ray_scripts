@@ -177,13 +177,15 @@ def make_wall(wall,
                            **wall_defs)
 
 
-def make_inner_air(PTVlist, external, patient, case, examination):
+def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-900):
     """
 
     :param PTVlist: list of target structures to search near for air pockets
+    :param external: string name of external to use in the definition
     :param patient: current patient
     :param case: current case
     :param examination: current examination
+    :param inner_air_HU: optional parameter to define upper threshold of air volumes
     :return: new_structs: a list of newly created structures
     """
     new_structs = []
@@ -202,7 +204,7 @@ def make_inner_air(PTVlist, external, patient, case, examination):
 
     retval_AIR.GrayLevelThreshold(Examination=examination,
                                   LowThreshold=-1024,
-                                  HighThreshold=InnerAirHU,
+                                  HighThreshold=inner_air_HU,
                                   PetUnit="",
                                   CbctUnit=None,
                                   BoundingBox=None)
@@ -218,7 +220,7 @@ def make_inner_air(PTVlist, external, patient, case, examination):
         "MarginTypeA": "Expand",
         "ExpA": [0] * 6,
         "OperationB": "Union",
-        "SourcesB": PTVList,
+        "SourcesB": PTVlist,
         "MarginTypeB": "Expand",
         "ExpB": [1] * 6,
         "OperationResult": "Intersection",
@@ -835,7 +837,12 @@ def main():
 
     # Make the InnerAir structure
     if generate_inner_air:
-        air_list = make_inner_air(PTVList, 'ExternalClean', patient, case, examination)
+        air_list = make_inner_air(PTVlist=PTVList,
+                                  external='ExternalClean',
+                                  patient=patient,
+                                  case=case,
+                                  examination=examination,
+                                  inner_air_HU=InnerAirHU)
         newly_generated_rois.append(air_list)
         # # Automated build of the Air contour
         # try:
