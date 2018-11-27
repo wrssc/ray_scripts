@@ -177,6 +177,72 @@ def make_wall(wall,
                            **wall_defs)
 
 
+def make_inner_air(PTVlist, external, patient, case, examination):
+    """
+
+    :param PTVlist: list of target structures to search near for air pockets
+    :param patient: current patient
+    :param case: current case
+    :param examination: current examination
+    :return: new_structs: a list of newly created structures
+    """
+    new_structs = []
+    # Automated build of the Air contour
+    try:
+        retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
+    except:
+        retval_AIR = case.PatientModel.CreateRoi(Name="Air",
+                                                 Color="Green",
+                                                 Type="Undefined",
+                                                 TissueName=None,
+                                                 RbeCellTypeName=None,
+                                                 RoiMaterial=None)
+        new_structs.append("Air")
+    patient.SetRoiVisibility(RoiName='Air', IsVisible=False)
+
+    retval_AIR.GrayLevelThreshold(Examination=examination,
+                                  LowThreshold=-1024,
+                                  HighThreshold=InnerAirHU,
+                                  PetUnit="",
+                                  CbctUnit=None,
+                                  BoundingBox=None)
+
+    inner_air_sources = ["Air", external]
+    inner_air_defs = {
+        "StructureName": "InnerAir",
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": " SaddleBrown",
+        "OperationA": "Intersection",
+        "SourcesA": inner_air_sources,
+        "MarginTypeA": "Expand",
+        "ExpA": [0] * 6,
+        "OperationB": "Union",
+        "SourcesB": PTVList,
+        "MarginTypeB": "Expand",
+        "ExpB": [1] * 6,
+        "OperationResult": "Intersection",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Undefined"}
+    make_boolean_structure(patient=patient,
+                           case=case,
+                           examination=examination,
+                           **inner_air_defs)
+    inner_air = case.PatientModel.RegionsOfInterest['InnerAir']
+    # If the InnerAir structure has contours clean them
+    if case.PatientModel.StructureSets[examination.Name]. \
+            RoiGeometries['InnerAir'].HasContours():
+        inner_air.VolumeThreshold(InputRoi=inner_air,
+                                  Examination=examination,
+                                  MinVolume=0.1,
+                                  MaxVolume=500)
+    else:
+        logging.debug("make_inner_air: No air contours were found near the targets")
+
+    return new_structs
+
+
 def main():
     # The following list allows different elements of the code to be toggled
     # No guarantee can be made that things will work if elements are turned off
@@ -769,57 +835,58 @@ def main():
 
     # Make the InnerAir structure
     if generate_inner_air:
-        # Automated build of the Air contour
-        try:
-            retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
-        except:
-            retval_AIR = case.PatientModel.CreateRoi(Name="Air",
-                                                     Color="Green",
-                                                     Type="Undefined",
-                                                     TissueName=None,
-                                                     RbeCellTypeName=None,
-                                                     RoiMaterial=None)
-            newly_generated_rois.append('Air')
-        patient.SetRoiVisibility(RoiName='Air', IsVisible=False)
-
-        retval_AIR.GrayLevelThreshold(Examination=examination,
-                                      LowThreshold=-1024,
-                                      HighThreshold=InnerAirHU,
-                                      PetUnit="",
-                                      CbctUnit=None,
-                                      BoundingBox=None)
-
-        inner_air_defs = {
-            "StructureName": "InnerAir",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " SaddleBrown",
-            "OperationA": "Intersection",
-            "SourcesA": ["ExternalClean", "Air"],
-            "MarginTypeA": "Expand",
-            "ExpA": [0] * 6,
-            "OperationB": "Union",
-            "SourcesB": PTVList,
-            "MarginTypeB": "Expand",
-            "ExpB": [1] * 6,
-            "OperationResult": "Intersection",
-            "MarginTypeR": "Expand",
-            "ExpR": [0] * 6,
-            "StructType": "Undefined"}
-        make_boolean_structure(patient=patient,
-                               case=case,
-                               examination=examination,
-                               **inner_air_defs)
-        InAir = case.PatientModel.RegionsOfInterest['InnerAir']
-        # If the InnerAir structure has contours clean them
-        if case.PatientModel.StructureSets[examination.Name]. \
-                RoiGeometries['InnerAir'].HasContours():
-            InAir.VolumeThreshold(InputRoi=InAir,
-                                  Examination=examination,
-                                  MinVolume=0.1,
-                                  MaxVolume=500)
-        newly_generated_rois.append('InnerAir')
-        logging.debug("planning_structures.py: Built Air and InnerAir structures.")
+        air_list = make_inner_air(PTVlist, external, patient, case, examination)
+        # # Automated build of the Air contour
+        # try:
+        #     retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
+        # except:
+        #     retval_AIR = case.PatientModel.CreateRoi(Name="Air",
+        #                                              Color="Green",
+        #                                              Type="Undefined",
+        #                                              TissueName=None,
+        #                                              RbeCellTypeName=None,
+        #                                              RoiMaterial=None)
+        # newly_generated_rois.append(air_list)
+        # patient.SetRoiVisibility(RoiName='Air', IsVisible=False)
+        #
+        # retval_AIR.GrayLevelThreshold(Examination=examination,
+        #                               LowThreshold=-1024,
+        #                               HighThreshold=InnerAirHU,
+        #                               PetUnit="",
+        #                               CbctUnit=None,
+        #                               BoundingBox=None)
+        #
+        # inner_air_defs = {
+        #     "StructureName": "InnerAir",
+        #     "ExcludeFromExport": True,
+        #     "VisualizeStructure": False,
+        #     "StructColor": " SaddleBrown",
+        #     "OperationA": "Intersection",
+        #     "SourcesA": ["ExternalClean", "Air"],
+        #     "MarginTypeA": "Expand",
+        #     "ExpA": [0] * 6,
+        #     "OperationB": "Union",
+        #     "SourcesB": PTVList,
+        #     "MarginTypeB": "Expand",
+        #     "ExpB": [1] * 6,
+        #     "OperationResult": "Intersection",
+        #     "MarginTypeR": "Expand",
+        #     "ExpR": [0] * 6,
+        #     "StructType": "Undefined"}
+        # make_boolean_structure(patient=patient,
+        #                        case=case,
+        #                        examination=examination,
+        #                        **inner_air_defs)
+        # InAir = case.PatientModel.RegionsOfInterest['InnerAir']
+        # # If the InnerAir structure has contours clean them
+        # if case.PatientModel.StructureSets[examination.Name]. \
+        #         RoiGeometries['InnerAir'].HasContours():
+        #     InAir.VolumeThreshold(InputRoi=InAir,
+        #                           Examination=examination,
+        #                           MinVolume=0.1,
+        #                           MaxVolume=500)
+        #newly_generated_rois.append('InnerAir')
+        #logging.debug("planning_structures.py: Built Air and InnerAir structures.")
     else:
         case.PatientModel.CreateRoi(Name='InnerAir',
                                     Color="SaddleBrown",
