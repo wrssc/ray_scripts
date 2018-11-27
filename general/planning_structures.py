@@ -835,7 +835,8 @@ def main():
 
     # Make the InnerAir structure
     if generate_inner_air:
-        air_list = make_inner_air(PTVlist, external, patient, case, examination)
+        air_list = make_inner_air(PTVList, external, patient, case, examination)
+        newly_generated_rois.append(air_list)
         # # Automated build of the Air contour
         # try:
         #     retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
