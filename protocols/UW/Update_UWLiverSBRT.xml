@@ -108,7 +108,7 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Skin_05</name>
+            <name>Skin</name>
             <type>Max</type>
             <dose units="Gy">40</dose>
             <priority>3</priority>
