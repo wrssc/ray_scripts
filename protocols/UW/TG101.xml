@@ -1,0 +1,1405 @@
+<goalsets>
+    <set>
+        <name>TG-101</name>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>DX</type>
+            <dose units="Gy">8</dose>
+            <volume units="cc">0.2</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>Max</type>
+            <dose units="Gy">10</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>DX</type>
+            <dose units="Gy">15.3</dose>
+            <volume units="cc">0.2</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>Max</type>
+            <dose units="Gy">17.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">0.2</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>Max</type>
+            <dose units="Gy">25</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>DX</type>
+            <dose units="Gy">8</dose>
+            <volume units="cc">0.2</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>Max</type>
+            <dose units="Gy">10</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>DX</type>
+            <dose units="Gy">15.3</dose>
+            <volume units="cc">0.2</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>Max</type>
+            <dose units="Gy">17.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">0.2</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>Max</type>
+            <dose units="Gy">25</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>DX</type>
+            <dose units="Gy">8</dose>
+            <volume units="cc">0.2</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>Max</type>
+            <dose units="Gy">10</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>DX</type>
+            <dose units="Gy">15.3</dose>
+            <volume units="cc">0.2</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>Max</type>
+            <dose units="Gy">17.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">0.2</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>Max</type>
+            <dose units="Gy">25</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>Cochlea_L</name>
+            <type>Max</type>
+            <dose units="Gy">9</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher hearing loss</description>
+        </roi>
+         <roi>
+            <name>Cochlea_L</name>
+            <type>Max</type>
+            <dose units="Gy">17.1</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher hearing loss</description>
+        </roi>
+        <roi>
+            <name>Cochlea_L</name>
+            <type>Max</type>
+            <dose units="Gy">25</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher hearing loss</description>
+        </roi>
+        <roi>
+            <name>Cochlea_R</name>
+            <type>Max</type>
+            <dose units="Gy">9</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher hearing loss</description>
+        </roi>
+         <roi>
+            <name>Cochlea_R</name>
+            <type>Max</type>
+            <dose units="Gy">17.1</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher hearing loss</description>
+        </roi>
+        <roi>
+            <name>Cochlea_R</name>
+            <type>Max</type>
+            <dose units="Gy">25</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher hearing loss</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type>DX</type>
+            <dose units="Gy">10</dose>
+            <volume units="cc">0.5</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher cranial neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type>Max</type>
+            <dose units="Gy">15</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher cranial neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type>DX</type>
+            <dose units="Gy">18</dose>
+            <volume units="cc">0.5</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher cranial neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type>Max</type>
+            <dose units="Gy">23.1</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher cranial neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">0.5</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher cranial neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type>Max</type>
+            <dose units="Gy">31</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher cranial neuropathy</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>DX</type>
+            <dose units="Gy">10</dose>
+            <volume units="cc">0.35</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>DX</type>
+            <dose units="Gy">7</dose>
+            <volume units="cc">1.2</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">14</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>DX</type>
+            <dose units="Gy">10</dose>
+            <volume units="%">10</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>DX</type>
+            <dose units="Gy">18</dose>
+            <volume units="cc">0.35</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>DX</type>
+            <dose units="Gy">12.3</dose>
+            <volume units="cc">1.2</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">21.9</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>DX</type>
+            <dose units="Gy">18</dose>
+            <volume units="%">10</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">0.35</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>DX</type>
+            <dose units="Gy">14.5</dose>
+            <volume units="cc">1.2</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="%">10</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>Medulla</name>
+            <type>DX</type>
+            <dose units="Gy">10</dose>
+            <volume units="cc">0.35</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>Medulla</name>
+            <type>DX</type>
+            <dose units="Gy">7</dose>
+            <volume units="cc">1.2</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>Medulla</name>
+            <type>Max</type>
+            <dose units="Gy">14</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>Medulla</name>
+            <type>DX</type>
+            <dose units="Gy">18</dose>
+            <volume units="cc">0.35</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>Medulla</name>
+            <type>DX</type>
+            <dose units="Gy">12.3</dose>
+            <volume units="cc">1.2</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>Medulla</name>
+            <type>Max</type>
+            <dose units="Gy">21.9</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>Medulla</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">0.35</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>Medulla</name>
+            <type>DX</type>
+            <dose units="Gy">14.5</dose>
+            <volume units="cc">1.2</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>Medulla</name>
+            <type>Max</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher myelitis</description>
+        </roi>
+        <roi>
+            <name>CaudaEquina</name>
+            <type>DX</type>
+            <dose units="Gy">14</dose>
+            <volume units="cc">5</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>CaudaEquina</name>
+            <type>Max</type>
+            <dose units="Gy">16</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>CaudaEquina</name>
+            <type>DX</type>
+            <dose units="Gy">21.9</dose>
+            <volume units="cc">5</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>CaudaEquina</name>
+            <type>Max</type>
+            <dose units="Gy">24</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>CaudaEquina</name>
+            <type>DX</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">5</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>CaudaEquina</name>
+            <type>Max</type>
+            <dose units="Gy">32</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuritis</description>
+        </roi>
+        <roi>
+            <name>SacralPlexus</name>
+            <type>DX</type>
+            <dose units="Gy">14.4</dose>
+            <volume units="cc">5</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>SacralPlexus</name>
+            <type>Max</type>
+            <dose units="Gy">16</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>SacralPlexus</name>
+            <type>DX</type>
+            <dose units="Gy">22.5</dose>
+            <volume units="cc">5</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>SacralPlexus</name>
+            <type>Max</type>
+            <dose units="Gy">24</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>SacralPlexus</name>
+            <type>DX</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">5</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>SacralPlexus</name>
+            <type>Max</type>
+            <dose units="Gy">32</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type>DX</type>
+            <dose units="Gy">11.9</dose>
+            <volume units="cc">5</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type>Max</type>
+            <dose units="Gy">15.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type>DX</type>
+            <dose units="Gy">17.7</dose>
+            <volume units="cc">5</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type>Max</type>
+            <dose units="Gy">25.2</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type>DX</type>
+            <dose units="Gy">19.5</dose>
+            <volume units="cc">5</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type>Max</type>
+            <dose units="Gy">35</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_L</name>
+            <type>DX</type>
+            <dose units="Gy">14</dose>
+            <volume units="cc">3</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_L</name>
+            <type>Max</type>
+            <dose units="Gy">17.5</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_L</name>
+            <type>DX</type>
+            <dose units="Gy">20.4</dose>
+            <volume units="cc">3</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_L</name>
+            <type>Max</type>
+            <dose units="Gy">24</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_L</name>
+            <type>DX</type>
+            <dose units="Gy">27</dose>
+            <volume units="cc">3</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_L</name>
+            <type>Max</type>
+            <dose units="Gy">30.5</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_R</name>
+            <type>DX</type>
+            <dose units="Gy">14</dose>
+            <volume units="cc">3</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_R</name>
+            <type>Max</type>
+            <dose units="Gy">17.5</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_R</name>
+            <type>DX</type>
+            <dose units="Gy">20.4</dose>
+            <volume units="cc">3</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_R</name>
+            <type>Max</type>
+            <dose units="Gy">24</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_R</name>
+            <type>DX</type>
+            <dose units="Gy">27</dose>
+            <volume units="cc">3</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>BrachialPlexus_R</name>
+            <type>Max</type>
+            <dose units="Gy">30.5</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher neuropathy</description>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type>DX</type>
+            <dose units="Gy">16</dose>
+            <volume units="cc">15</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher pericarditis</description>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type>Max</type>
+            <dose units="Gy">22</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher pericarditis</description>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type>DX</type>
+            <dose units="Gy">24</dose>
+            <volume units="cc">15</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher pericarditis</description>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type>Max</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher pericarditis</description>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type>DX</type>
+            <dose units="Gy">32</dose>
+            <volume units="cc">15</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher pericarditis</description>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type>Max</type>
+            <dose units="Gy">38</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher pericarditis</description>
+        </roi>
+        <roi>
+            <name>GreatVessels</name>
+            <type>DX</type>
+            <dose units="Gy">31</dose>
+            <volume units="cc">10</volume>
+            <fractions>1</fractions>
+            <description>Aneurysm</description>
+        </roi>
+        <roi>
+            <name>GreatVessels</name>
+            <type>Max</type>
+            <dose units="Gy">37</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Aneurysm</description>
+        </roi>
+        <roi>
+            <name>GreatVessels</name>
+            <type>DX</type>
+            <dose units="Gy">39</dose>
+            <volume units="cc">10</volume>
+            <fractions>3</fractions>
+            <description>Aneurysm</description>
+        </roi>
+        <roi>
+            <name>GreatVessels</name>
+            <type>Max</type>
+            <dose units="Gy">45</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Aneurysm</description>
+        </roi>
+        <roi>
+            <name>GreatVessels</name>
+            <type>DX</type>
+            <dose units="Gy">47</dose>
+            <volume units="cc">10</volume>
+            <fractions>5</fractions>
+            <description>Aneurysm</description>
+        </roi>
+        <roi>
+            <name>GreatVessels</name>
+            <type>Max</type>
+            <dose units="Gy">53</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Aneurysm</description>
+        </roi>
+        <roi>
+            <name>Trachea</name>
+            <type>DX</type>
+            <dose units="Gy">10.5</dose>
+            <volume units="cc">4</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Trachea</name>
+            <type>Max</type>
+            <dose units="Gy">20.2</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Trachea</name>
+            <type>DX</type>
+            <dose units="Gy">15</dose>
+            <volume units="cc">4</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Trachea</name>
+            <type>Max</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Trachea</name>
+            <type>DX</type>
+            <dose units="Gy">16.5</dose>
+            <volume units="cc">4</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Trachea</name>
+            <type>Max</type>
+            <dose units="Gy">40</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>ProxBronchialTree</name>
+            <type>DX</type>
+            <dose units="Gy">10.5</dose>
+            <volume units="cc">4</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>ProxBronchialTree</name>
+            <type>Max</type>
+            <dose units="Gy">20.2</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>ProxBronchialTree</name>
+            <type>DX</type>
+            <dose units="Gy">15</dose>
+            <volume units="cc">4</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>ProxBronchialTree</name>
+            <type>Max</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>ProxBronchialTree</name>
+            <type>DX</type>
+            <dose units="Gy">16.5</dose>
+            <volume units="cc">4</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>ProxBronchialTree</name>
+            <type>Max</type>
+            <dose units="Gy">40</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher stenosis/ﬁstula</description>
+        </roi>
+        <roi>
+            <name>Rib</name>
+            <type>DX</type>
+            <dose units="Gy">22</dose>
+            <volume units="cc">1</volume>
+            <fractions>1</fractions>
+            <description>Pain or fracture</description>
+        </roi>
+        <roi>
+            <name>Rib</name>
+            <type>Max</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Pain or fracture</description>
+        </roi>
+        <roi>
+            <name>Rib</name>
+            <type>DX</type>
+            <dose units="Gy">28.8</dose>
+            <volume units="cc">1</volume>
+            <fractions>3</fractions>
+            <description>Pain or fracture</description>
+        </roi>
+         <roi>
+            <name>Rib</name>
+            <type>DX</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">30</volume>
+            <fractions>3</fractions>
+            <description>Pain or fracture</description>
+        </roi>
+        <roi>
+            <name>Rib</name>
+            <type>Max</type>
+            <dose units="Gy">36.9</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Pain or fracture</description>
+        </roi>
+        <roi>
+            <name>Rib</name>
+            <type>DX</type>
+            <dose units="Gy">35</dose>
+            <volume units="cc">1</volume>
+            <fractions>5</fractions>
+            <description>Pain or fracture</description>
+        </roi>
+        <roi>
+            <name>Rib</name>
+            <type>Max</type>
+            <dose units="Gy">43</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Pain or fracture</description>
+        </roi>
+        <roi>
+            <name>Skin</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">10</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Skin</name>
+            <type>Max</type>
+            <dose units="Gy">26</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Skin</name>
+            <type>DX</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">10</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Skin</name>
+            <type>Max</type>
+            <dose units="Gy">33</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Skin</name>
+            <type>DX</type>
+            <dose units="Gy">36.5</dose>
+            <volume units="cc">10</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Skin</name>
+            <type>Max</type>
+            <dose units="Gy">39.5</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Stomach</name>
+            <type>DX</type>
+            <dose units="Gy">11.2</dose>
+            <volume units="cc">10</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher ulceration/fistula</description>
+        </roi>
+        <roi>
+            <name>Stomach</name>
+            <type>Max</type>
+            <dose units="Gy">12.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher ulceration/fistula</description>
+        </roi>
+        <roi>
+            <name>Stomach</name>
+            <type>DX</type>
+            <dose units="Gy">16.5</dose>
+            <volume units="cc">10</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher ulceration/fistula</description>
+        </roi>
+        <roi>
+            <name>Stomach</name>
+            <type>Max</type>
+            <dose units="Gy">22.2</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher ulceration/fistula</description>
+        </roi>
+        <roi>
+            <name>Stomach</name>
+            <type>DX</type>
+            <dose units="Gy">18</dose>
+            <volume units="cc">10</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher ulceration/fistula</description>
+        </roi>
+        <roi>
+            <name>Stomach</name>
+            <type>Max</type>
+            <dose units="Gy">32</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher ulceration/fistula</description>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>DX</type>
+            <dose units="Gy">11.2</dose>
+            <volume units="cc">5</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>DX</type>
+            <dose units="Gy">9</dose>
+            <volume units="cc">10</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>Max</type>
+            <dose units="Gy">14.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>DX</type>
+            <dose units="Gy">16.5</dose>
+            <volume units="cc">5</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>DX</type>
+            <dose units="Gy">11.4</dose>
+            <volume units="cc">10</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>Max</type>
+            <dose units="Gy">22.2</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>DX</type>
+            <dose units="Gy">18</dose>
+            <volume units="cc">5</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>DX</type>
+            <dose units="Gy">12.5</dose>
+            <volume units="cc">10</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Duodenum</name>
+            <type>Max</type>
+            <dose units="Gy">32</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher ulceration</description>
+        </roi>
+        <roi>
+            <name>Jejunum</name>
+            <type>DX</type>
+            <dose units="Gy">11.9</dose>
+            <volume units="cc">5</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher enteritis/obstruction</description>
+        </roi>
+        <roi>
+            <name>Jejunum</name>
+            <type>Max</type>
+            <dose units="Gy">15.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher enteritis/obstruction</description>
+        </roi>
+        <roi>
+            <name>Jejunum</name>
+            <type>DX</type>
+            <dose units="Gy">17.7</dose>
+            <volume units="cc">5</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher enteritis/obstruction</description>
+        </roi>
+        <roi>
+            <name>Jejunum</name>
+            <type>Max</type>
+            <dose units="Gy">25.2</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher enteritis/obstruction</description>
+        </roi>
+        <roi>
+            <name>Jejunum</name>
+            <type>DX</type>
+            <dose units="Gy">19.5</dose>
+            <volume units="cc">5</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher enteritis/obstruction</description>
+        </roi>
+        <roi>
+            <name>Jejunum</name>
+            <type>Max</type>
+            <dose units="Gy">35</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher enteritis/obstruction</description>
+        </roi>
+        <roi>
+            <name>Colon</name>
+            <type>DX</type>
+            <dose units="Gy">14.3</dose>
+            <volume units="cc">20</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher colitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Colon</name>
+            <type>Max</type>
+            <dose units="Gy">18.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher colitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Colon</name>
+            <type>DX</type>
+            <dose units="Gy">24</dose>
+            <volume units="cc">20</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher colitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Colon</name>
+            <type>Max</type>
+            <dose units="Gy">28.2</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher colitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Colon</name>
+            <type>DX</type>
+            <dose units="Gy">25</dose>
+            <volume units="cc">20</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher colitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Colon</name>
+            <type>Max</type>
+            <dose units="Gy">38</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher colitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type>DX</type>
+            <dose units="Gy">14.3</dose>
+            <volume units="cc">20</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher proctitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type>Max</type>
+            <dose units="Gy">18.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher proctitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type>DX</type>
+            <dose units="Gy">24</dose>
+            <volume units="cc">20</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher proctitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type>Max</type>
+            <dose units="Gy">28.2</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher proctitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type>DX</type>
+            <dose units="Gy">25</dose>
+            <volume units="cc">20</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher proctitis/fistula</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type>Max</type>
+            <dose units="Gy">38</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher proctitis/fistula</description>
+        </roi>
+        <roi>
+            <name>BladderWall</name>
+            <type>DX</type>
+            <dose units="Gy">11.4</dose>
+            <volume units="cc">15</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher cystitis/fistula</description>
+        </roi>
+        <roi>
+            <name>BladderWall</name>
+            <type>Max</type>
+            <dose units="Gy">18.4</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Grade 3 or higher cystitis/fistula</description>
+        </roi>
+        <roi>
+            <name>BladderWall</name>
+            <type>DX</type>
+            <dose units="Gy">16.8</dose>
+            <volume units="cc">15</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher cystitis/fistula</description>
+        </roi>
+        <roi>
+            <name>BladderWall</name>
+            <type>Max</type>
+            <dose units="Gy">28.2</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Grade 3 or higher cystitis/fistula</description>
+        </roi>
+        <roi>
+            <name>BladderWall</name>
+            <type>DX</type>
+            <dose units="Gy">18.3</dose>
+            <volume units="cc">15</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher cystitis/fistula</description>
+        </roi>
+        <roi>
+            <name>BladderWall</name>
+            <type>Max</type>
+            <dose units="Gy">38</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Grade 3 or higher cystitis/fistula</description>
+        </roi>
+        <roi>
+            <name>PenileBulb</name>
+            <type>DX</type>
+            <dose units="Gy">14</dose>
+            <volume units="cc">3</volume>
+            <fractions>1</fractions>
+            <description>Impotence</description>
+        </roi>
+        <roi>
+            <name>PenileBulb</name>
+            <type>Max</type>
+            <dose units="Gy">34</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Impotence</description>
+        </roi>
+        <roi>
+            <name>PenileBulb</name>
+            <type>DX</type>
+            <dose units="Gy">21.9</dose>
+            <volume units="cc">3</volume>
+            <fractions>3</fractions>
+            <description>Impotence</description>
+        </roi>
+        <roi>
+            <name>PenileBulb</name>
+            <type>Max</type>
+            <dose units="Gy">42</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>3</fractions>
+            <description>Impotence</description>
+        </roi>
+        <roi>
+            <name>PenileBulb</name>
+            <type>DX</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">3</volume>
+            <fractions>5</fractions>
+            <description>Impotence</description>
+        </roi>
+        <roi>
+            <name>PenileBulb</name>
+            <type>Max</type>
+            <dose units="Gy">50</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>5</fractions>
+            <description>Impotence</description>
+        </roi>
+        <roi>
+            <name>Femur_L</name>
+            <type>DX</type>
+            <dose units="Gy">14</dose>
+            <volume units="cc">10</volume>
+            <fractions>1</fractions>
+            <description>Necrosis</description>
+        </roi>
+        <roi>
+            <name>Femur_L</name>
+            <type>DX</type>
+            <dose units="Gy">21.9</dose>
+            <volume units="cc">10</volume>
+            <fractions>3</fractions>
+            <description>Necrosis</description>
+        </roi>
+        <roi>
+            <name>Femur_L</name>
+            <type>DX</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">10</volume>
+            <fractions>5</fractions>
+            <description>Necrosis</description>
+        </roi>
+        <roi>
+            <name>Femur_R</name>
+            <type>DX</type>
+            <dose units="Gy">14</dose>
+            <volume units="cc">10</volume>
+            <fractions>1</fractions>
+            <description>Necrosis</description>
+        </roi>
+        <roi>
+            <name>Femur_R</name>
+            <type>DX</type>
+            <dose units="Gy">21.9</dose>
+            <volume units="cc">10</volume>
+            <fractions>3</fractions>
+            <description>Necrosis</description>
+        </roi>
+        <roi>
+            <name>Femur_R</name>
+            <type>DX</type>
+            <dose units="Gy">30</dose>
+            <volume units="cc">10</volume>
+            <fractions>5</fractions>
+            <description>Necrosis</description>
+        </roi>
+        <roi>
+            <name>Kidney_L</name>
+            <type>DX</type>
+            <dose units="Gy">10.6</dose>
+            <volume units="cc">66.7</volume>
+            <fractions>1</fractions>
+            <description>Malignant hypertension</description>
+        </roi>
+        <roi>
+            <name>Kidney_L</name>
+            <type>Max</type>
+            <dose units="Gy">18.6</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Malignant hypertension</description>
+        </roi>
+        <roi>
+            <name>Kidney_L</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">66.7</volume>
+            <fractions>5</fractions>
+            <description>Malignant hypertension</description>
+        </roi>
+        <roi>
+            <name>Kidney_R</name>
+            <type>DX</type>
+            <dose units="Gy">10.6</dose>
+            <volume units="cc">66.7</volume>
+            <fractions>1</fractions>
+            <description>Malignant hypertension</description>
+        </roi>
+        <roi>
+            <name>Kidney_R</name>
+            <type>Max</type>
+            <dose units="Gy">18.6</dose>
+            <volume units="cc">0.035</volume>
+            <fractions>1</fractions>
+            <description>Malignant hypertension</description>
+        </roi>
+        <roi>
+            <name>Kidney_R</name>
+            <type>DX</type>
+            <dose units="Gy">23</dose>
+            <volume units="cc">66.7</volume>
+            <fractions>5</fractions>
+            <description>Malignant hypertension</description>
+        </roi>
+    </set>
+</goalsets>

@@ -28,6 +28,7 @@
 
     Version History:
     1.0.1: Hot fix to repair inconsistency when underdose is not used but uniform dose is.
+    1.0.2: Adding "inner air" as an optional feature
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -125,6 +126,130 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                              IsVisible=VisualizeStructure)
     patient.Set2DvisualizationForRoi(RoiName=StructureName,
                                      Mode=VisualizationType)
+
+
+def make_wall(wall,
+              sources,
+              delta,
+              patient,
+              case,
+              examination,
+              inner=True):
+    """
+
+    :param wall: Name of wall contour
+    :param sources: List of source structures
+    :param delta: contraction
+    :param patient: current patient
+    :param case: current case
+    :param inner: logical create an inner wall (true) or ring
+    :param examination: current exam
+    :return:
+    """
+
+    if inner:
+        a = [0] * 6
+        b = [delta] * 6
+    else:
+        a = [delta] * 6
+        b = [0] * 6
+
+    wall_defs = {
+        "StructureName": wall,
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": " Blue",
+        "OperationA": "Union",
+        "SourcesA": sources,
+        "MarginTypeA": "Expand",
+        "ExpA": a,
+        "OperationB": "Union",
+        "SourcesB": sources,
+        "MarginTypeB": "Contract",
+        "ExpB": b,
+        "OperationResult": "Subtraction",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Undefined"}
+    make_boolean_structure(patient=patient,
+                           case=case,
+                           examination=examination,
+                           **wall_defs)
+
+
+def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-900):
+    """
+
+    :param PTVlist: list of target structures to search near for air pockets
+    :param external: string name of external to use in the definition
+    :param patient: current patient
+    :param case: current case
+    :param examination: current examination
+    :param inner_air_HU: optional parameter to define upper threshold of air volumes
+    :return: new_structs: a list of newly created structures
+    """
+    new_structs = []
+    # Automated build of the Air contour
+    try:
+        retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
+    except:
+        retval_AIR = case.PatientModel.CreateRoi(Name="Air",
+                                                 Color="Green",
+                                                 Type="Undefined",
+                                                 TissueName=None,
+                                                 RbeCellTypeName=None,
+                                                 RoiMaterial=None)
+        new_structs.append("Air")
+    patient.SetRoiVisibility(RoiName='Air', IsVisible=False)
+
+    retval_AIR.GrayLevelThreshold(Examination=examination,
+                                  LowThreshold=-1024,
+                                  HighThreshold=inner_air_HU,
+                                  PetUnit="",
+                                  CbctUnit=None,
+                                  BoundingBox=None)
+
+    inner_air_sources = ["Air", external]
+    inner_air_defs = {
+        "StructureName": "InnerAir",
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": " SaddleBrown",
+        "OperationA": "Intersection",
+        "SourcesA": inner_air_sources,
+        "MarginTypeA": "Expand",
+        "ExpA": [0] * 6,
+        "OperationB": "Union",
+        "SourcesB": PTVlist,
+        "MarginTypeB": "Expand",
+        "ExpB": [1] * 6,
+        "OperationResult": "Intersection",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Undefined"}
+    make_boolean_structure(patient=patient,
+                           case=case,
+                           examination=examination,
+                           **inner_air_defs)
+    # Define the inner_air structure at the Patient Model level
+    inner_air_pm = case.PatientModel.RegionsOfInterest['InnerAir']
+    # Define the inner_air structure at the examination level
+    inner_air_ex = case.PatientModel.StructureSets[examination.Name]. \
+        RoiGeometries['InnerAir']
+
+    # If the InnerAir structure has contours clean them
+    if inner_air_ex.HasContours():
+        inner_air_pm.VolumeThreshold(InputRoi=inner_air_pm,
+                                  Examination=examination,
+                                  MinVolume=0.1,
+                                  MaxVolume=500)
+        # Check for emptied contours
+        if not inner_air_ex.HasContours():
+            logging.debug("make_inner_air: VolumeThresholding has eliminated InnerAir contours")
+    else:
+        logging.debug("make_inner_air: No air contours were found near the targets")
+
+    return new_structs
 
 
 def main():
@@ -273,6 +398,7 @@ def main():
             'PTV5Dose': 'Enter 5th target Dose in cGy',
             'UnderDose': 'Priority 1 goals present: Use Underdosing',
             'UniformDose': 'Targets overlap sensitive structures: Use UniformDoses',
+            'z_InnerAir': 'Use InnerAir to avoid high-fluence due to cavities'
         },
         title='Target Selection',
         datatype={'PTV1': 'combo',
@@ -282,6 +408,7 @@ def main():
                   'PTV5': 'combo',
                   'UniformDose': 'check',
                   'UnderDose': 'check',
+                  'z_InnerAir': 'check'
                   },
         initial={
             'PTV1Dose': '0',
@@ -296,7 +423,8 @@ def main():
                  'PTV4': TargetMatches,
                  'PTV5': TargetMatches,
                  'UniformDose': ['yes'],
-                 'UnderDose': ['yes']
+                 'UnderDose': ['yes'],
+                 'z_InnerAir': ['yes']
                  },
         required=['PTV1'])
 
@@ -336,17 +464,23 @@ def main():
         generate_uniformdose = False
 
     # User selected that Underdose is required
-
     if 'yes' in initial_dialog.values['UnderDose']:
         generate_underdose = True
     else:
         generate_underdose = False
+
+    # User selected that InnerAir is required
+    if 'yes' in initial_dialog.values['z_InnerAir']:
+        generate_inner_air = True
+    else:
+        generate_inner_air = False
 
     # Rephrase the next statement with logging
     logging.debug('planning_structures.py: Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
     logging.debug('planning_structures.py: Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
     logging.debug('planning_structures.py: User selected {} for UnderDose'.format(generate_underdose))
     logging.debug('planning_structures.py: User selected {} for UniformDose'.format(generate_uniformdose))
+    logging.debug('planning_structures.py: User selected {} for InnerAir'.format(generate_inner_air))
 
     # Underdose dialog call
     if generate_underdose:
@@ -554,27 +688,14 @@ def main():
         newly_generated_rois.append('External_Clean')
 
     if generate_skin:
-        Skin_defs = {
-            "StructureName": "Skin",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " Blue",
-            "OperationA": "Union",
-            "SourcesA": ["ExternalClean"],
-            "MarginTypeA": "Expand",
-            "ExpA": [0] * 6,
-            "OperationB": "Union",
-            "SourcesB": ["ExternalClean"],
-            "MarginTypeB": "Contract",
-            "ExpB": [skin_contraction] * 6,
-            "OperationResult": "Subtraction",
-            "MarginTypeR": "Expand",
-            "ExpR": [0] * 6,
-            "StructType": "Undefined"}
-        make_boolean_structure(patient=patient,
-                               case=case,
-                               examination=examination,
-                               **Skin_defs)
+        make_wall(
+            wall="Skin",
+            sources=["ExternalClean"],
+            delta=skin_contraction,
+            patient=patient,
+            case=case,
+            examination=examination,
+            inner=True)
         newly_generated_rois.append('Skin')
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
@@ -723,59 +844,23 @@ def main():
 
     # Make the InnerAir structure
     if generate_inner_air:
-        # Automated build of the Air contour
-        try:
-            retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
-        except:
-            retval_AIR = case.PatientModel.CreateRoi(Name="Air",
-                                                     Color="Green",
-                                                     Type="Undefined",
-                                                     TissueName=None,
-                                                     RbeCellTypeName=None,
-                                                     RoiMaterial=None)
-            newly_generated_rois.append('Air')
-        patient.SetRoiVisibility(RoiName='Air', IsVisible=False)
-
-        retval_AIR.GrayLevelThreshold(Examination=examination,
-                                      LowThreshold=-1024,
-                                      HighThreshold=InnerAirHU,
-                                      PetUnit="",
-                                      CbctUnit=None,
-                                      BoundingBox=None)
-
-        inner_air_defs = {
-            "StructureName": "InnerAir",
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": " SaddleBrown",
-            "OperationA": "Intersection",
-            "SourcesA": ["ExternalClean", "Air"],
-            "MarginTypeA": "Expand",
-            "ExpA": [0] * 6,
-            "OperationB": "Union",
-            "SourcesB": PTVList,
-            "MarginTypeB": "Expand",
-            "ExpB": [1] * 6,
-            "OperationResult": "Intersection",
-            "MarginTypeR": "Expand",
-            "ExpR": [0] * 6,
-            "StructType": "Undefined"}
-        make_boolean_structure(patient=patient,
-                               case=case,
-                               examination=examination,
-                               **inner_air_defs)
-        InAir = case.PatientModel.RegionsOfInterest['InnerAir']
-        # If the InnerAir structure has contours clean them
-        if case.PatientModel.StructureSets[examination.Name]. \
-                RoiGeometries['InnerAir'].HasContours():
-            InAir.VolumeThreshold(InputRoi=InAir,
-                                  Examination=examination,
-                                  MinVolume=0.1,
-                                  MaxVolume=500)
-        newly_generated_rois.append('InnerAir')
+        air_list = make_inner_air(PTVlist=PTVList,
+                                  external='ExternalClean',
+                                  patient=patient,
+                                  case=case,
+                                  examination=examination,
+                                  inner_air_HU=InnerAirHU)
+        newly_generated_rois.append(air_list)
         logging.debug("planning_structures.py: Built Air and InnerAir structures.")
+    else:
+        case.PatientModel.CreateRoi(Name='InnerAir',
+                                    Color="SaddleBrown",
+                                    Type="Undefined",
+                                    TissueName=None,
+                                    RbeCellTypeName=None,
+                                    RoiMaterial=None)
 
-        # Make the InnerAir structure
+    # Generate a rough field of view contour.  It should really be put in with the dependent structures
     if generate_field_of_view:
         # Automated build of the Air contour
         fov_name = 'Field-of-View'

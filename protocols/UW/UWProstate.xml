@@ -1498,14 +1498,14 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Skin_PRV05</name>
+            <name>Skin</name>
             <type dir="lt">Max</type>
             <dose units="Gy">30</dose>
             <volume units="cc">0.1</volume>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Skin_PRV05</name>
+            <name>Skin</name>
             <type dir="lt">VX</type>
             <dose units="Gy">30</dose>
             <volume units="cc">0.1</volume>
