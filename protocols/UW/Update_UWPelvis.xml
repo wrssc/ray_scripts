@@ -110,14 +110,14 @@
             <type dir="lt">VX</type>
             <volume units="%">60</volume>
             <dose units="Gy">40</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Rectum</name>
             <type dir="lt">VX</type>
             <volume units="%">80</volume>
             <dose units="Gy">40</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
 
         <roi>
@@ -125,159 +125,159 @@
             <type dir="lt">VX</type>
             <volume units="%">20</volume>
             <dose units="Gy">30</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Femur_L</name>
             <type dir="lt">VX</type>
             <volume units="%">25</volume>
             <dose units="Gy">30</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>Femur_R</name>
             <type dir="lt">VX</type>
             <volume units="%">20</volume>
             <dose units="Gy">30</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Femur_R</name>
             <type dir="lt">VX</type>
             <volume units="%">25</volume>
             <dose units="Gy">30</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>PelvicBones</name>
             <type dir="lt">VX</type>
             <volume units="%">80</volume>
             <dose units="Gy">10</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>PelvicBones</name>
             <type dir="lt">VX</type>
             <volume units="%">70</volume>
             <dose units="Gy">20</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>PelvicBones</name>
             <type dir="lt">VX</type>
             <volume units="%">90</volume>
             <dose units="Gy">10</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>PelvicBones</name>
             <type dir="lt">VX</type>
             <volume units="%">75</volume>
             <dose units="Gy">20</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>Bladder</name>
             <type dir="lt">VX</type>
             <volume units="%">30</volume>
             <dose units="Gy">45</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Bladder</name>
             <type dir="lt">VX</type>
             <volume units="%">10</volume>
             <dose units="Gy">50</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Bladder</name>
             <type dir="lt">VX</type>
             <volume units="%">40</volume>
             <dose units="Gy">45</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>SpinalCord</name>
             <type>Max</type>
             <volume units="cc">0.01</volume>
             <dose units="Gy">45</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>SpinalCord</name>
             <type>Max</type>
             <volume units="cc">0.01</volume>
             <dose units="Gy">50</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>CaudaEquina</name>
             <type>Max</type>
             <volume units="cc">0.01</volume>
             <dose units="Gy">45</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>CaudaEquina</name>
             <type>Max</type>
             <volume units="cc">0.01</volume>
             <dose units="Gy">50</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>Kidney_L</name>
             <type dir="lt">VX</type>
             <volume units="%">50</volume>
             <dose units="Gy">12</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Kidney_L</name>
             <type dir="lt">VX</type>
             <volume units="%">30</volume>
             <dose units="Gy">20</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Kidney_L</name>
             <type dir="lt">Mean</type>
             <dose units="Gy">15</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>Kidney_L</name>
             <type dir="lt">VX</type>
             <volume units="%">55</volume>
             <dose units="Gy">12</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>Kidney_R</name>
             <type dir="lt">VX</type>
             <volume units="%">50</volume>
             <dose units="Gy">12</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Kidney_R</name>
             <type dir="lt">VX</type>
             <volume units="%">30</volume>
             <dose units="Gy">20</dose>
-            <priority>4</priority>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Kidney_R</name>
             <type dir="lt">Mean</type>
             <dose units="Gy">15</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <roi>
             <name>Kidney_R</name>
             <type dir="lt">VX</type>
             <volume units="%">55</volume>
             <dose units="Gy">12</dose>
-            <priority>3</priority>
+            <priority>1</priority>
         </roi>
         <goalset>
             <name>QUANTEC</name>
