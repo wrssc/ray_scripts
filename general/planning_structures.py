@@ -417,7 +417,7 @@ def main():
     t_o = {}
     t_d = {}
     t_r = []
-    for i in range(1, n):
+    for i in range(1, n+1):
         j = str(i)
         k_name = j.zfill(2) + '_Aname'
         k_dose = j.zfill(2) + '_Bdose'
