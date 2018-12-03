@@ -383,7 +383,7 @@ def main():
                   '5': 'check',
                   '6': 'check'},
         initial={'1': '0'},
-        options={'2': ['Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
+        options={'2': ['Single Target/Dose', 'Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
                  '3': ['yes'],
                  '4': ['yes'],
                  '5': ['yes'],
@@ -422,11 +422,11 @@ def main():
         k_name = j.zfill(2) + '_Aname'
         k_dose = j.zfill(2) + '_Bdose'
         t_name = 'PTV' + str(i)
-        t_i[k_name] = 'Match an existing plan target to' + t_name + ':'
+        t_i[k_name] = 'Match an existing plan target to ' + t_name + ':'
         t_o[k_name] = TargetMatches
         t_d[k_name] = 'combo'
         t_r.append(k_name)
-        t_i[k_dose] = 'Provide dose for plan target' + t_name + ' in cGy:'
+        t_i[k_dose] = 'Provide dose for plan target ' + t_name + ' in cGy:'
         t_r.append(k_dose)
 
 
@@ -463,7 +463,7 @@ def main():
         inputs=t_i,
         title='Input Target Dose Levels',
         datatype=t_d,
-        initial=t_i,
+        initial={},
         options=t_o,
         required=t_r
     )
@@ -527,6 +527,7 @@ def main():
     input_source_list = []
     source_doses = []
     for k, v in initial_dialog.values.iteritems():
+        logging.debug("initial_dialog: key = {}, and value = {}", k ,v)
         if len(v) > 0:
             i, p = k.split("_",1)
             if 'name' in i:
