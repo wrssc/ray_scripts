@@ -418,7 +418,7 @@ def main():
     t_o = {}
     t_d = {}
     t_r = []
-    for i in range(1, n+1):
+    for i in range(1, n + 1):
         j = str(i)
         k_name = j.zfill(2) + '_Aname'
         k_dose = j.zfill(2) + '_Bdose'
@@ -429,7 +429,6 @@ def main():
         t_r.append(k_name)
         t_i[k_dose] = 'Provide dose for plan target ' + t_name + ' in cGy:'
         t_r.append(k_dose)
-
 
     # User selected that Underdose is required
     if 'yes' in dialog1.values['3']:
@@ -455,10 +454,10 @@ def main():
     else:
         sbrt = False
 
-    logging.debug('planning_structures.py: User selected {} for UnderDose'.format(generate_underdose))
-    logging.debug('planning_structures.py: User selected {} for UniformDose'.format(generate_uniformdose))
-    logging.debug('planning_structures.py: User selected {} for InnerAir'.format(generate_inner_air))
-    logging.debug('planning_structures.py: User selected {} for SBRT'.format(sbrt))
+    logging.debug(' User selected {} for UnderDose'.format(generate_underdose))
+    logging.debug(' User selected {} for UniformDose'.format(generate_uniformdose))
+    logging.debug(' User selected {} for InnerAir'.format(generate_inner_air))
+    logging.debug(' User selected {} for SBRT'.format(sbrt))
 
     initial_dialog = UserInterface.InputDialog(
         inputs=t_i,
@@ -532,7 +531,7 @@ def main():
         logging.debug("initial_dialog: Unpacking the entered initial data")
         logging.debug("initial_dialog: key = {}, and value = {}".format(k, v))
         if len(v) > 0:
-            i, p = k.split("_",1)
+            i, p = k.split("_", 1)
             if 'name' in k:
                 input_source_list.append(v)
             if 'dose' in k:
@@ -558,9 +557,8 @@ def main():
     #     input_source_list.append(initial_dialog.values['PTV5'])
     #     source_doses.append(initial_dialog.values['PTV5Dose'])
 
-    # Rephrase the next statement with logging
-    logging.debug('planning_structures.py: Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
-    logging.debug('planning_structures.py: Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
+    logging.debug(' Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
+    logging.debug(' Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
 
     # Underdose dialog call
     if generate_underdose:
@@ -598,9 +596,6 @@ def main():
         underdose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
         logging.debug("planning_structures.py: Underdose list selected: {}"
                       .format(underdose_structures))
-
-    # Replace with a logging debug call
-    # for structs in uniform_structures: print structs
 
     # UniformDose dialog call
     if generate_uniformdose:
@@ -933,12 +928,26 @@ def main():
         newly_generated_rois.append(air_list)
         logging.debug("planning_structures.py: Built Air and InnerAir structures.")
     else:
-        case.PatientModel.CreateRoi(Name='InnerAir',
-                                    Color="SaddleBrown",
-                                    Type="Undefined",
-                                    TissueName=None,
-                                    RbeCellTypeName=None,
-                                    RoiMaterial=None)
+        try:
+            # If InnerAir is found, it's geometry should be blanked out.
+            StructureName = "InnerAir"
+            retval_innerair = case.PatientModel.RegionsOfInterest[StructureName]
+            logging.warning("Structure " + StructureName + " exists. Geometry will be redefined")
+            case.PatientModel.StructureSets[examination.Name]. \
+                RoiGeometries['InnerAir'].DeleteGeometry()
+            case.PatientModel.CreateRoi(Name='InnerAir',
+                                        Color="SaddleBrown",
+                                        Type="Undefined",
+                                        TissueName=None,
+                                        RbeCellTypeName=None,
+                                        RoiMaterial=None)
+        except:
+            case.PatientModel.CreateRoi(Name='InnerAir',
+                                        Color="SaddleBrown",
+                                        Type="Undefined",
+                                        TissueName=None,
+                                        RbeCellTypeName=None,
+                                        RoiMaterial=None)
 
     # Generate a rough field of view contour.  It should really be put in with the dependent structures
     if generate_field_of_view:
