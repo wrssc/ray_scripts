@@ -369,27 +369,27 @@ def main():
     # Prompt the user for the number of targets, uniform dose needed, sbrt flag, underdose needed
     dialog1 = UserInterface.InputDialog(
         inputs={
-            'i_1': 'Enter Number of Targets',
-            'i_2': 'Select Plan Intent',
-            'i_3': 'Priority 1 goals present: Use Underdosing',
-            'i_4': 'Targets overlap sensitive structures: Use UniformDoses',
-            'i_5': 'Use InnerAir to avoid high-fluence due to cavities',
-            'i_6': 'SBRT'
+            '1': 'Enter Number of Targets',
+            '2': 'Select Plan Intent',
+            '3': 'Priority 1 goals present: Use Underdosing',
+            '4': 'Targets overlap sensitive structures: Use UniformDoses',
+            '5': 'Use InnerAir to avoid high-fluence due to cavities',
+            '6': 'SBRT'
         },
         title='Planning Structures and Goal Selection',
-        datatype={'i_2': 'combo',
-                  'i_3': 'check',
-                  'i_4': 'check',
-                  'i_5': 'check',
-                  'i_6': 'check'},
-        initial={'i_1': '0'},
-        options={'i_2': ['Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
-                 'i_3': ['yes'],
-                 'i_4': ['yes'],
-                 'i_5': ['yes'],
-                 'i_6': ['yes']
+        datatype={'2': 'combo',
+                  '3': 'check',
+                  '4': 'check',
+                  '5': 'check',
+                  '6': 'check'},
+        initial={'1': '0'},
+        options={'2': ['Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
+                 '3': ['yes'],
+                 '4': ['yes'],
+                 '5': ['yes'],
+                 '6': ['yes']
                  },
-        required=['i_1', 'i_2']
+        required=['1', '2']
 
     )
     print dialog1.show()
@@ -412,7 +412,7 @@ def main():
             AllOars.append(r.Name)
 
     # Parse number of targets
-    n = int(dialog1.values['i_1'])
+    n = int(dialog1.values['1'])
     t_i = {}
     t_o = {}
     t_d = {}
@@ -431,25 +431,25 @@ def main():
 
 
     # User selected that Underdose is required
-    if 'yes' in dialog1.values['i_3']:
+    if 'yes' in dialog1.values['3']:
         generate_underdose = True
     else:
         generate_underdose = False
 
     # User selected that Uniformdose is required
-    if 'yes' in dialog1.values['i_4']:
+    if 'yes' in dialog1.values['4']:
         generate_uniformdose = True
     else:
         generate_uniformdose = False
 
     # User selected that InnerAir is required
-    if 'yes' in dialog1.values['i_5']:
+    if 'yes' in dialog1.values['5']:
         generate_inner_air = True
     else:
         generate_inner_air = False
 
     # User selected that InnerAir is required
-    if 'yes' in dialog1.values['i_6']:
+    if 'yes' in dialog1.values['6']:
         sbrt = True
     else:
         sbrt = False
