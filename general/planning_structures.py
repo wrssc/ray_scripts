@@ -533,9 +533,9 @@ def main():
         logging.debug("initial_dialog: key = {}, and value = {}".format(k, v))
         if len(v) > 0:
             i, p = k.split("_",1)
-            if 'name' in i:
+            if 'name' in k:
                 input_source_list.append(v)
-            if 'dose' in i:
+            if 'dose' in k:
                 source_doses.append(v)
 
     # if 'PTV1' in initial_dialog.values:
