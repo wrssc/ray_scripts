@@ -382,7 +382,7 @@ def main():
                   'i_4': 'check',
                   'i_5': 'check',
                   'i_6': 'check'},
-        initial={'i_1': 0},
+        initial={'i_1': '0'},
         options={'i_2': ['Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
                  'i_3': ['yes'],
                  'i_4': ['yes'],
