@@ -527,6 +527,7 @@ def main():
     input_source_list = []
     source_doses = []
     for k, v in initial_dialog.values.iteritems():
+        logging.debug("initial_dialog: Unpacking the entered initial data")
         logging.debug("initial_dialog: key = {}, and value = {}", k ,v)
         if len(v) > 0:
             i, p = k.split("_",1)
