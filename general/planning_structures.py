@@ -389,7 +389,7 @@ def main():
                  'i_5': ['yes'],
                  'i_6': ['yes']
                  },
-        required=['1', '2']
+        required=['i_1', 'i_2']
 
     )
     print dialog1.show()
