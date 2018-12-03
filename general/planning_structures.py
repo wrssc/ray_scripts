@@ -457,7 +457,7 @@ def main():
     logging.debug('planning_structures.py: User selected {} for UnderDose'.format(generate_underdose))
     logging.debug('planning_structures.py: User selected {} for UniformDose'.format(generate_uniformdose))
     logging.debug('planning_structures.py: User selected {} for InnerAir'.format(generate_inner_air))
-    logging.debug('planning_structures.py: User selected {} for SBRT'.format(generate_inner_air))
+    logging.debug('planning_structures.py: User selected {} for SBRT'.format(sbrt))
 
     initial_dialog = UserInterface.InputDialog(
         inputs=t_i,
