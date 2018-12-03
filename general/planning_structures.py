@@ -419,8 +419,8 @@ def main():
     t_r = []
     for i in range(1, n):
         j = str(i)
-        k_name = j.zfill(2) + 'Aname'
-        k_dose = j.zfill(2) + 'Bdose'
+        k_name = j.zfill(2) + '_Aname'
+        k_dose = j.zfill(2) + '_Bdose'
         t_name = 'PTV' + str(i)
         t_i[k_name] = 'Match an existing plan target to' + t_name + ':'
         t_o[k_name] = TargetMatches
