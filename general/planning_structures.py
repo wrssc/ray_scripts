@@ -561,7 +561,6 @@ def main():
     # Rephrase the next statement with logging
     logging.debug('planning_structures.py: Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
     logging.debug('planning_structures.py: Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
-    sys.exit()
 
     # Underdose dialog call
     if generate_underdose:
