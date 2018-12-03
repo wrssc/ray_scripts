@@ -150,7 +150,8 @@ def residual_volume(structure_name, goal_volume, case, exam):
         residual_percentage = 100 * (vol - float(goal_volume)) / vol
         return residual_percentage
 
-def conditional_overlap(structure_name,goal_volume,case, exam, comp_structure, isodose):
+
+def conditional_overlap(structure_name, goal_volume, case, exam, comp_structure, isodose):
     """Evaluate the overlap between structure_name and comp_structure
     then modify goal volume and dose.
     If overlap return a dmax limit on a percentage of the comp_structure prescription dose
@@ -405,7 +406,7 @@ def main():
                         break
                 if not found:
                     if m not in m_c:
-                         m_c.append(m)
+                        m_c.append(m)
             if not m_c:
                 logging.debug('All structures in protocol accounted for')
             else:
