@@ -389,7 +389,7 @@ def main():
                  '5': ['yes'],
                  '6': ['yes']
                  },
-        required={['1', '2']}
+        required=['1', '2']
 
     )
     print dialog1.show()
@@ -427,6 +427,7 @@ def main():
         t_d[k_name] = 'combo'
         t_r.append(k_name)
         t_i[k_dose] = 'Provide dose for plan target' + t_name + ' in cGy:'
+        t_r.append(k_dose)
 
 
     # User selected that Underdose is required
