@@ -57,6 +57,7 @@ import connect
 import logging
 import UserInterface
 import time
+import sys
 
 
 def make_boolean_structure(patient, case, examination, **kwargs):
@@ -526,15 +527,17 @@ def main():
     # Process inputs
     input_source_list = []
     source_doses = []
+    logging.debug("returned dialog values = {}".format(initial_dialog.values))
     for k, v in initial_dialog.values.iteritems():
         logging.debug("initial_dialog: Unpacking the entered initial data")
-        logging.debug("initial_dialog: key = {}, and value = {}", k, v)
+        logging.debug("initial_dialog: key = {}, and value = {}".format(k, v))
         if len(v) > 0:
             i, p = k.split("_",1)
             if 'name' in i:
                 input_source_list.append(v)
             if 'dose' in i:
                 source_doses.append(v)
+    sys.exit()
 
     # if 'PTV1' in initial_dialog.values:
     #     input_source_list.append(initial_dialog.values['PTV1'])
