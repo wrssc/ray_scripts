@@ -150,7 +150,7 @@ def main():
     site = input_dialog.values['input2_site']
     motion = input_dialog.values['input3_MMT']
     plan_machine = input_dialog.values['input4_choose_machine']
-    target = input_dialog.value['input5_target']
+    target = input_dialog.values['input5_target']
 
     logging.info('User selected plan name: {}'.format(plan_name))
     logging.info('User selected site name: {}'.format(site))
@@ -179,6 +179,7 @@ def main():
                 ExaminationName=examination.Name,
                 AllowDuplicateNames=False)
         except Exception:
+            # Exception to deal with existing plan
             plan_name = p + str(random.randint(1, 999))
             case.AddNewPlan(
                 PlanName=p,
