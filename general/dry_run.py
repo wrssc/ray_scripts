@@ -245,6 +245,7 @@ def main():
                                  CouchAngle=0,
                                  CollimatorAngle=0)
         for beam in beamset.Beams:
+            beam.BeamMU = 1
             beam.CreateRectangularField(
                 Width=0.05,
                 Height=0.05,
@@ -254,4 +255,3 @@ def main():
                 JawMargins={'x': 1, 'y': 1},
                 DeleteWedge=False,
                 PreventExtraLeafPairFromOpening=True)
-            )
