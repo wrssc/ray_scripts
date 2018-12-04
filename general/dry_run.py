@@ -230,9 +230,28 @@ def main():
         isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=target_center)
         isocenter_parameters['Name'] = "iso_" + plan_name
         isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
-        logging.info('Isocenter chosen based on center of {}'.format(target) +
+        logging.info('Isocenter chosen based on center of {}. '.format(target) +
                      'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
                          target_center['x'],
                          target_center['y'],
                          target_center['z'],
                          isocenter_parameters['Name']))
+
+        beamset.CreatePhotonBeam(Energy=6,
+                                 IsocenterData=isocenter_parameters,
+                                 Name='1_' + site + '_RLat',
+                                 Description='1 3DC: MLC Static Field',
+                                 GantryAngle=270.0,
+                                 CouchAngle=0,
+                                 CollimatorAngle=0)
+        for beam in beamset.Beams:
+            beam.CreateRectangularField(
+                Width=0.05,
+                Height=0.05,
+                CenterCoordinate={'x': -0.025, 'y': 0.005},
+                MoveMLC=True, MoveAllMLCLeaves=False,
+                MoveJaw=True,
+                JawMargins={'x': 1, 'y': 1},
+                DeleteWedge=False,
+                PreventExtraLeafPairFromOpening=True)
+            )
