@@ -239,11 +239,28 @@ def main():
 
         beamset.CreatePhotonBeam(Energy=6,
                                  IsocenterData=isocenter_parameters,
-                                 Name='1_' + site + '_RLat',
-                                 Description='1 3DC: MLC Static Field',
+                                 Name='1_AP_DryRun',
+                                 Description='1 QA',
+                                 GantryAngle=0.0,
+                                 CouchAngle=0,
+                                 CollimatorAngle=0)
+
+        beamset.CreatePhotonBeam(Energy=6,
+                                 IsocenterData=isocenter_parameters,
+                                 Name='2_RLAT_DryRun',
+                                 Description='2 QA',
                                  GantryAngle=270.0,
                                  CouchAngle=0,
                                  CollimatorAngle=0)
+
+        beamset.CreatePhotonBeam(Energy=6,
+                                 IsocenterData=isocenter_parameters,
+                                 Name='3_LLat_DryRun',
+                                 Description='3 QA',
+                                 GantryAngle=90.0,
+                                 CouchAngle=0,
+                                 CollimatorAngle=0)
+        
         for beam in beamset.Beams:
             beam.BeamMU = 1
             beam.CreateRectangularField(
