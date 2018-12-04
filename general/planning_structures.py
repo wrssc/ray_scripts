@@ -470,55 +470,6 @@ def main():
     )
     print initial_dialog.show()
 
-    # This dialog will determine whether the user wants underdose or uniform dose structures
-    # This dialog also matches desired targets and specifies doses
-    # initial_dialog = UserInterface.InputDialog(
-    #     inputs={
-    #         'PTV1': 'Select 1st target Source',
-    #         'PTV1Dose': 'Enter 1st target Dose in cGy',
-    #         'PTV2': 'Select 2nd target Source',
-    #         'PTV2Dose': 'Enter 2nd target Dose in cGy',
-    #         'PTV3': 'Select 3rd target Source',
-    #         'PTV3Dose': 'Enter 3rd target Dose in cGy',
-    #         'PTV4': 'Select 4th target Source',
-    #         'PTV4Dose': 'Enter 4th target Dose in cGy',
-    #         'PTV5': 'Select 5th target Source',
-    #         'PTV5Dose': 'Enter 5th target Dose in cGy',
-    #         'UnderDose': 'Priority 1 goals present: Use Underdosing',
-    #         'UniformDose': 'Targets overlap sensitive structures: Use UniformDoses',
-    #         'z_InnerAir': 'Use InnerAir to avoid high-fluence due to cavities'
-    #     },
-    #     title='Target Selection',
-    #     datatype={'PTV1': 'combo',
-    #               'PTV2': 'combo',
-    #               'PTV3': 'combo',
-    #               'PTV4': 'combo',
-    #               'PTV5': 'combo',
-    #               'UniformDose': 'check',
-    #               'UnderDose': 'check',
-    #               'z_InnerAir': 'check'
-    #               },
-    #     initial={
-    #         'PTV1Dose': '0',
-    #         'PTV2Dose': '0',
-    #         'PTV3Dose': '0',
-    #         'PTV4Dose': '0',
-    #         'PTV5Dose': '0',
-    #     },
-    #     options={'PTV1': TargetMatches,
-    #              'PTV2': TargetMatches,
-    #              'PTV3': TargetMatches,
-    #              'PTV4': TargetMatches,
-    #              'PTV5': TargetMatches,
-    #              'UniformDose': ['yes'],
-    #              'UnderDose': ['yes'],
-    #              'z_InnerAir': ['yes']
-    #              },
-    #     required=['PTV1'])
-
-    # Launch the dialog
-    # print initial_dialog.show()
-
     # Parse the output from initial_dialog
     # We are going to take a user input input_source_list and convert them into PTV's used for planning
     # input_source_list consists of the user-specified targets to be massaged into PTV1, PTV2, .... below
@@ -535,26 +486,6 @@ def main():
                 source_doses.append(v)
         else:
             logging.warning('No dialog elements returned. Script unsuccessful')
-
-    # if 'PTV1' in initial_dialog.values:
-    #     input_source_list.append(initial_dialog.values['PTV1'])
-    #     source_doses.append(initial_dialog.values['PTV1Dose'])
-    #
-    # if 'PTV2' in initial_dialog.values:
-    #     input_source_list.append(initial_dialog.values['PTV2'])
-    #     source_doses.append(initial_dialog.values['PTV2Dose'])
-    #
-    # if 'PTV3' in initial_dialog.values:
-    #     input_source_list.append(initial_dialog.values['PTV3'])
-    #     source_doses.append(initial_dialog.values['PTV3Dose'])
-    #
-    # if 'PTV4' in initial_dialog.values:
-    #     input_source_list.append(initial_dialog.values['PTV4'])
-    #     source_doses.append(initial_dialog.values['PTV4Dose'])
-    #
-    # if 'PTV5' in initial_dialog.values:
-    #     input_source_list.append(initial_dialog.values['PTV5'])
-    #     source_doses.append(initial_dialog.values['PTV5Dose'])
 
     logging.debug('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
     logging.debug('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
