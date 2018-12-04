@@ -375,21 +375,21 @@ def main():
             '3': 'Priority 1 goals present: Use Underdosing',
             '4': 'Targets overlap sensitive structures: Use UniformDoses',
             '5': 'Use InnerAir to avoid high-fluence due to cavities',
-            '6': 'SBRT'
+            # '6': 'SBRT'
         },
         title='Planning Structures and Goal Selection',
         datatype={# Not yet '2': 'combo',
                   '3': 'check',
                   '4': 'check',
                   '5': 'check',
-                  '6': 'check'},
+                 }, #'6': 'check'},
         initial={'1': '0'},
         options={
                  # Not yet,  Not yet.  '2': ['Single Target/Dose', 'Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
                  '3': ['yes'],
                  '4': ['yes'],
                  '5': ['yes'],
-                 '6': ['yes']
+                 # '6': ['yes']
                  },
         required=['1'] #, Not Yet'2']
 
