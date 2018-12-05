@@ -167,6 +167,7 @@ def main():
         logging.debug("Could not click on the plan Design MenuItem")
 
     plan_names = [plan_name, 'backup_delete']
+    used_plan_names = []
     # RS 8: plan_names = [plan_name]
     patient.Save()
     # RS 8: eliminate for loop
@@ -178,6 +179,7 @@ def main():
                 Comment="",
                 ExaminationName=examination.Name,
                 AllowDuplicateNames=False)
+            used_plan_names.append(p)
         except Exception:
             # Exception to deal with existing plan
             plan_name = p + str(random.randint(1, 999))
@@ -187,6 +189,7 @@ def main():
                 Comment="",
                 ExaminationName=examination.Name,
                 AllowDuplicateNames=False)
+            used_plan_names.append(p)
         patient.Save()
 
         plan = case.TreatmentPlans[p]
@@ -291,3 +294,9 @@ def main():
                     JawMargins={'x': 1, 'y': 1},
                     DeleteWedge=False,
                     PreventExtraLeafPairFromOpening=True)
+    p = patient.QueryPlanInfo(PlanInfo={'Name': used_plan_names[0]})
+    plan = db.LoadPlan(PlanInfo=p[0])
+    plan.SetCurrent()
+
+if __name__ == '__main__':
+    main()
