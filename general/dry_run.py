@@ -280,6 +280,7 @@ def main():
     logging.debug("returned {}".format(p))
     # They seem to have moved this out of db
     plan = case.LoadPlan(PlanInfo=p)
+    # Extraneous commit
     plan.SetCurrent()
 
 
