@@ -277,6 +277,7 @@ def main():
     logging.debug('Attempting to load plan {}'.format(used_plan_names[0]))
     # Some strange issue with the query
     plan = case.TreatmentPlans[used_plan_names[0]]
+    patient.Save()
     plan.SetCurrent()
     beamset = plan.BeamSets[used_plan_names[0]]
     beamset.SetCurrent()
