@@ -261,6 +261,7 @@ def main():
                                      GantryAngle=beam_gant[i],
                                      CouchAngle=beam_couch[i],
                                      CollimatorAngle=beam_col[i])
+            beamset.PatientSetup.UseSetupBeams = True
         for beam in beamset.Beams:
             beam.BeamMU = 1
             beam.CreateRectangularField(
@@ -284,7 +285,6 @@ def main():
 
     # Adding set up fields
     # HFS Setup
-    beamset.PatientSetup.UseSetupBeams = True
     # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
     set_up = {0: ['SetUp AP', 'SetUp AP', 0.0, '5'],
               1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
