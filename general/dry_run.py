@@ -278,9 +278,7 @@ def main():
     q_p = '^'+used_plan_names[0]+'$'
     p = case.QueryPlanInfo(Filter={'Name': q_p})
     logging.debug("returned {}".format(p))
-    # They seem to have moved this out of db
     plan = case.LoadPlan(PlanInfo=p)
-    # Extraneous commit
     plan.SetCurrent()
 
 
