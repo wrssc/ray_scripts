@@ -53,7 +53,7 @@ def main():
     status = UserInterface.ScriptStatus(
         steps=['SimFiducials point declaration',
                'Enter Plan Parameters',
-               'Make plan for dry run'
+               'Make plan for dry run',
                'Confirm iso placement'],
         docstring=__doc__,
         help=__help__)
@@ -299,6 +299,13 @@ def main():
 
     beamset.UpdateSetupBeams(ResetSetupBeams=True,
                              SetupBeamsGantryAngles=angles)
+    # Set the set-up parameter specifics
+    for i, b in enumerate(beamset.PatientSetup.SetupBeams):
+        b.Name = set_up[i][0]
+        b.Description = set_up[i][1]
+        b.GantryAngle = str(set_up[i][2])
+        b.Segments[0].DoseRate = set_up[i][3]
+
     status.next_step(text="Confirm correct placement of isocenter and delete that pesky Backup Plan")
 
 
