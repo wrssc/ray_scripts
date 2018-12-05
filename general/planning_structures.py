@@ -57,6 +57,7 @@ import connect
 import logging
 import UserInterface
 import time
+import sys
 
 
 def make_boolean_structure(patient, case, examination, **kwargs):
@@ -240,9 +241,9 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     # If the InnerAir structure has contours clean them
     if inner_air_ex.HasContours():
         inner_air_pm.VolumeThreshold(InputRoi=inner_air_pm,
-                                  Examination=examination,
-                                  MinVolume=0.1,
-                                  MaxVolume=500)
+                                     Examination=examination,
+                                     MinVolume=0.1,
+                                     MaxVolume=500)
         # Check for emptied contours
         if not inner_air_ex.HasContours():
             logging.debug("make_inner_air: VolumeThresholding has eliminated InnerAir contours")
@@ -278,7 +279,7 @@ def main():
         case = connect.get_current("Case")
         examination = connect.get_current("Examination")
     except:
-        logging.warning("planning_structures.py: patient, case and examination must be loaded")
+        logging.warning("patient, case and examination must be loaded")
 
     status = UserInterface.ScriptStatus(
         steps=['User Input',
@@ -296,10 +297,10 @@ def main():
     # TODO: move this list to the xml file for a given protocol
     UnderStructureChoices = [
         'Aorta',
-        'BrachialPlexus_L',
-        'BrachialPlexus_L_PRV05',
-        'BrachialPlexus_R',
-        'BrachialPlexus_R_PRV05',
+        'BrachialPlex_L',
+        'BrachialPlex_L_PRV05',
+        'BrachialPlex_R',
+        'BrachialPlex_R_PRV05',
         'BrainStem',
         'CaudaEquina',
         'Chiasm',
@@ -335,6 +336,7 @@ def main():
     # Plan structures matched in this list will be selected for checkbox elements below
     UniformStructureChoices = [
         'Aorta_PRV05',
+        'BowelBag',
         'BrainStem_PRV03',
         'Bladder',
         'CaudaEquina_PRV05',
@@ -365,6 +367,35 @@ def main():
         'Vulva',
     ]
 
+    # Prompt the user for the number of targets, uniform dose needed, sbrt flag, underdose needed
+    dialog1 = UserInterface.InputDialog(
+        inputs={
+            '1': 'Enter Number of Targets',
+            # Not yet '2': 'Select Plan Intent',
+            '3': 'Priority 1 goals present: Use Underdosing',
+            '4': 'Targets overlap sensitive structures: Use UniformDoses',
+            '5': 'Use InnerAir to avoid high-fluence due to cavities',
+            # '6': 'SBRT'
+        },
+        title='Planning Structures and Goal Selection',
+        datatype={# Not yet '2': 'combo',
+                  '3': 'check',
+                  '4': 'check',
+                  '5': 'check',
+                 }, #'6': 'check'},
+        initial={'1': '0'},
+        options={
+                 # Not yet,  Not yet.  '2': ['Single Target/Dose', 'Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
+                 '3': ['yes'],
+                 '4': ['yes'],
+                 '5': ['yes'],
+                 # '6': ['yes']
+                 },
+        required=['1'] #, Not Yet'2']
+
+    )
+    print dialog1.show()
+
     # Find all the target names and generate the potential dropdown list for the cases
     # Use the above list for Uniform Structure Choices and Underdose choices, then
     # autoassign to the potential dropdowns
@@ -382,105 +413,82 @@ def main():
         if r.OrganData.OrganType == 'OrganAtRisk':
             AllOars.append(r.Name)
 
-    # This dialog will determine whether the user wants underdose or uniform dose structures
-    # This dialog also matches desired targets and specifies doses
-    initial_dialog = UserInterface.InputDialog(
-        inputs={
-            'PTV1': 'Select 1st target Source',
-            'PTV1Dose': 'Enter 1st target Dose in cGy',
-            'PTV2': 'Select 2nd target Source',
-            'PTV2Dose': 'Enter 2nd target Dose in cGy',
-            'PTV3': 'Select 3rd target Source',
-            'PTV3Dose': 'Enter 3rd target Dose in cGy',
-            'PTV4': 'Select 4th target Source',
-            'PTV4Dose': 'Enter 4th target Dose in cGy',
-            'PTV5': 'Select 5th target Source',
-            'PTV5Dose': 'Enter 5th target Dose in cGy',
-            'UnderDose': 'Priority 1 goals present: Use Underdosing',
-            'UniformDose': 'Targets overlap sensitive structures: Use UniformDoses',
-            'z_InnerAir': 'Use InnerAir to avoid high-fluence due to cavities'
-        },
-        title='Target Selection',
-        datatype={'PTV1': 'combo',
-                  'PTV2': 'combo',
-                  'PTV3': 'combo',
-                  'PTV4': 'combo',
-                  'PTV5': 'combo',
-                  'UniformDose': 'check',
-                  'UnderDose': 'check',
-                  'z_InnerAir': 'check'
-                  },
-        initial={
-            'PTV1Dose': '0',
-            'PTV2Dose': '0',
-            'PTV3Dose': '0',
-            'PTV4Dose': '0',
-            'PTV5Dose': '0',
-        },
-        options={'PTV1': TargetMatches,
-                 'PTV2': TargetMatches,
-                 'PTV3': TargetMatches,
-                 'PTV4': TargetMatches,
-                 'PTV5': TargetMatches,
-                 'UniformDose': ['yes'],
-                 'UnderDose': ['yes'],
-                 'z_InnerAir': ['yes']
-                 },
-        required=['PTV1'])
+    # Parse number of targets
+    n = int(dialog1.values['1'])
+    t_i = {}
+    t_o = {}
+    t_d = {}
+    t_r = []
+    for i in range(1, n + 1):
+        j = str(i)
+        k_name = j.zfill(2) + '_Aname'
+        k_dose = j.zfill(2) + '_Bdose'
+        t_name = 'PTV' + str(i)
+        t_i[k_name] = 'Match an existing plan target to ' + t_name + ':'
+        t_o[k_name] = TargetMatches
+        t_d[k_name] = 'combo'
+        t_r.append(k_name)
+        t_i[k_dose] = 'Provide dose for plan target ' + t_name + ' in cGy:'
+        t_r.append(k_dose)
 
-    # Launch the dialog
+    # User selected that Underdose is required
+    if 'yes' in dialog1.values['3']:
+        generate_underdose = True
+    else:
+        generate_underdose = False
+
+    # User selected that Uniformdose is required
+    if 'yes' in dialog1.values['4']:
+        generate_uniformdose = True
+    else:
+        generate_uniformdose = False
+
+    # User selected that InnerAir is required
+    if 'yes' in dialog1.values['5']:
+        generate_inner_air = True
+    else:
+        generate_inner_air = False
+
+    # User selected that SBRT is required
+    # Not yet, soon.  if 'yes' in dialog1.values['6']:
+    #    sbrt = True
+    #else:
+    #    sbrt = False
+
+    logging.debug('User selected {} for UnderDose'.format(generate_underdose))
+    logging.debug('User selected {} for UniformDose'.format(generate_uniformdose))
+    logging.debug('User selected {} for InnerAir'.format(generate_inner_air))
+    # logging.debug('User selected {} for SBRT'.format(sbrt))
+
+    initial_dialog = UserInterface.InputDialog(
+        inputs=t_i,
+        title='Input Target Dose Levels',
+        datatype=t_d,
+        initial={},
+        options=t_o,
+        required=t_r
+    )
     print initial_dialog.show()
 
     # Parse the output from initial_dialog
     # We are going to take a user input input_source_list and convert them into PTV's used for planning
     # input_source_list consists of the user-specified targets to be massaged into PTV1, PTV2, .... below
 
+    # TODO: Replace the separate input_source_list and source_doses lists with a dictionary or a tuple
+    # Process inputs
     input_source_list = []
     source_doses = []
-    if 'PTV1' in initial_dialog.values:
-        input_source_list.append(initial_dialog.values['PTV1'])
-        source_doses.append(initial_dialog.values['PTV1Dose'])
+    for k, v in initial_dialog.values.iteritems():
+        if len(v) > 0:
+            if 'name' in k:
+                input_source_list.append(v)
+            if 'dose' in k:
+                source_doses.append(v)
+        else:
+            logging.warning('No dialog elements returned. Script unsuccessful')
 
-    if 'PTV2' in initial_dialog.values:
-        input_source_list.append(initial_dialog.values['PTV2'])
-        source_doses.append(initial_dialog.values['PTV2Dose'])
-
-    if 'PTV3' in initial_dialog.values:
-        input_source_list.append(initial_dialog.values['PTV3'])
-        source_doses.append(initial_dialog.values['PTV3Dose'])
-
-    if 'PTV4' in initial_dialog.values:
-        input_source_list.append(initial_dialog.values['PTV4'])
-        source_doses.append(initial_dialog.values['PTV4Dose'])
-
-    if 'PTV5' in initial_dialog.values:
-        input_source_list.append(initial_dialog.values['PTV5'])
-        source_doses.append(initial_dialog.values['PTV5Dose'])
-
-    # User selected that Uniformdose is required
-    if 'yes' in initial_dialog.values['UniformDose']:
-        generate_uniformdose = True
-    else:
-        generate_uniformdose = False
-
-    # User selected that Underdose is required
-    if 'yes' in initial_dialog.values['UnderDose']:
-        generate_underdose = True
-    else:
-        generate_underdose = False
-
-    # User selected that InnerAir is required
-    if 'yes' in initial_dialog.values['z_InnerAir']:
-        generate_inner_air = True
-    else:
-        generate_inner_air = False
-
-    # Rephrase the next statement with logging
-    logging.debug('planning_structures.py: Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
-    logging.debug('planning_structures.py: Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
-    logging.debug('planning_structures.py: User selected {} for UnderDose'.format(generate_underdose))
-    logging.debug('planning_structures.py: User selected {} for UniformDose'.format(generate_uniformdose))
-    logging.debug('planning_structures.py: User selected {} for InnerAir'.format(generate_inner_air))
+    logging.debug('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
+    logging.debug('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
 
     # Underdose dialog call
     if generate_underdose:
@@ -516,11 +524,8 @@ def main():
         except KeyError:
             pass
         underdose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
-        logging.debug("planning_structures.py: Underdose list selected: {}"
+        logging.debug("Underdose list selected: {}"
                       .format(underdose_structures))
-
-    # Replace with a logging debug call
-    # for structs in uniform_structures: print structs
 
     # UniformDose dialog call
     if generate_uniformdose:
@@ -556,7 +561,7 @@ def main():
         except KeyError:
             pass
         uniformdose_standoff = float(uniformdose_dialog.values['input4_uniform_standoff'])
-        logging.debug("planning_structures.py: Uniform Dose list selected: {}"
+        logging.debug("Uniform Dose list selected: {}"
                       .format(uniformdose_structures))
 
     # OPTIONS DIALOG
@@ -603,9 +608,9 @@ def main():
     except KeyError:
         generate_target_rings = False
 
-    logging.debug("planning_structures.py: User Selected Preserve Skin Dose: {}"
+    logging.debug("User Selected Preserve Skin Dose: {}"
                   .format(generate_target_skin))
-    logging.debug("planning_structures.py: User Selected target Rings: {}"
+    logging.debug("User Selected target Rings: {}"
                   .format(generate_target_rings))
 
     # DATA PARSING FOR THE OPTIONS MENU
@@ -627,6 +632,7 @@ def main():
         PTVPrefix = "PTV"
         OTVPrefix = "OTV"
         sotvu_prefix = "sOTVu"
+        # Generate a list of names for the PTV's, Evals, OTV's and EZ (exclusion zones)
         PTVList = []
         PTVEvalList = []
         OTVList = []
@@ -668,7 +674,7 @@ def main():
             OTVList.append(OTVName)
             sotvu_list.append(sotvu_name)
         else:
-            logging.debug("planning_structures.py: Generate PTV's off - a nonsupported operation")
+            logging.debug("Generate PTV's off - a nonsupported operation")
 
     TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
 
@@ -678,11 +684,18 @@ def main():
         retval_ExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
         logging.warning("Structure " + StructureName + " exists.  Using predefined structure.")
     except:
-        retval_ExternalClean = case.PatientModel.CreateRoi(Name="ExternalClean", Color="Green", Type="External",
-                                                           TissueName="", RbeCellTypeName=None, RoiMaterial=None)
-        retval_ExternalClean.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+        retval_ExternalClean = case.PatientModel.CreateRoi(Name="ExternalClean",
+                                                           Color="Green",
+                                                           Type="External",
+                                                           TissueName="",
+                                                           RbeCellTypeName=None,
+                                                           RoiMaterial=None)
+        retval_ExternalClean.CreateExternalGeometry(Examination=examination,
+                                                    ThresholdLevel=None)
         InExternalClean = case.PatientModel.RegionsOfInterest['ExternalClean']
-        retval_ExternalClean.VolumeThreshold(InputRoi=InExternalClean, Examination=examination, MinVolume=1,
+        retval_ExternalClean.VolumeThreshold(InputRoi=InExternalClean,
+                                             Examination=examination,
+                                             MinVolume=1,
                                              MaxVolume=200000)
         retval_ExternalClean.SetAsExternal()
         newly_generated_rois.append('External_Clean')
@@ -700,7 +713,7 @@ def main():
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
     if generate_underdose:
-        logging.debug("planning_structures.py: Creating UnderDose ROI using Sources: {}"
+        logging.debug("Creating UnderDose ROI using Sources: {}"
                       .format(underdose_structures))
         # Generate the UnderDose structure
         underdose_defs = {
@@ -747,10 +760,10 @@ def main():
 
     # Generate the UniformDose structure
     if generate_uniformdose:
-        logging.debug("planning_structures.py: Creating UniformDose ROI using Sources: {}"
+        logging.debug("Creating UniformDose ROI using Sources: {}"
                       .format(uniformdose_structures))
         if generate_underdose:
-            logging.debug("planning_structures.py: UnderDose structures required, excluding overlap from UniformDose")
+            logging.debug("UnderDose structures required, excluding overlap from UniformDose")
             uniformdose_defs = {
                 "StructureName": "UniformDose",
                 "ExcludeFromExport": True,
@@ -786,7 +799,10 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "StructType": "Undefined"}
-        make_boolean_structure(patient=patient, case=case, examination=examination, **uniformdose_defs)
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **uniformdose_defs)
         newly_generated_rois.append('UniformDose')
 
     status.next_step(text='Targets being generated')
@@ -836,7 +852,7 @@ def main():
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
                     "StructType": "Ptv"}
-            logging.debug("planning_structures.py: Creating main target {}: {}"
+            logging.debug("Creating main target {}: {}"
                           .format(i, PTVList[i]))
             make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
             newly_generated_rois.append(ptv_definitions.get("StructureName"))
@@ -851,14 +867,28 @@ def main():
                                   examination=examination,
                                   inner_air_HU=InnerAirHU)
         newly_generated_rois.append(air_list)
-        logging.debug("planning_structures.py: Built Air and InnerAir structures.")
+        logging.debug("Built Air and InnerAir structures.")
     else:
-        case.PatientModel.CreateRoi(Name='InnerAir',
-                                    Color="SaddleBrown",
-                                    Type="Undefined",
-                                    TissueName=None,
-                                    RbeCellTypeName=None,
-                                    RoiMaterial=None)
+        try:
+            # If InnerAir is found, it's geometry should be blanked out.
+            StructureName = "InnerAir"
+            retval_innerair = case.PatientModel.RegionsOfInterest[StructureName]
+            logging.warning("Structure " + StructureName + " exists. Geometry will be redefined")
+            case.PatientModel.StructureSets[examination.Name]. \
+                RoiGeometries['InnerAir'].DeleteGeometry()
+            case.PatientModel.CreateRoi(Name='InnerAir',
+                                        Color="SaddleBrown",
+                                        Type="Undefined",
+                                        TissueName=None,
+                                        RbeCellTypeName=None,
+                                        RoiMaterial=None)
+        except:
+            case.PatientModel.CreateRoi(Name='InnerAir',
+                                        Color="SaddleBrown",
+                                        Type="Undefined",
+                                        TissueName=None,
+                                        RbeCellTypeName=None,
+                                        RoiMaterial=None)
 
     # Generate a rough field of view contour.  It should really be put in with the dependent structures
     if generate_field_of_view:
@@ -890,7 +920,7 @@ def main():
         # Loop over the PTV_EZs
         for index, target in enumerate(PTVList):
             ptv_ez_name = 'PTV' + str(index + 1) + '_EZ'
-            logging.debug("planning_structures.py: Creating exclusion zone target {}: {}"
+            logging.debug("Creating exclusion zone target {}: {}"
                           .format(str(index + 1), ptv_ez_name))
             # Generate the PTV_EZ
             PTVEZ_defs = {
@@ -921,14 +951,14 @@ def main():
     if generate_ptv_evals:
         if generate_underdose:
             eval_subtract = ['Skin', 'InnerAir', 'UnderDose']
-            logging.debug("planning_structures.py: Removing the following from eval structures"
+            logging.debug("Removing the following from eval structures"
                           .format(eval_subtract))
         else:
             eval_subtract = ['Skin', 'InnerAir']
-            logging.debug("planning_structures.py: Removing the following from eval structures"
+            logging.debug("Removing the following from eval structures"
                           .format(eval_subtract))
         for index, target in enumerate(PTVList):
-            logging.debug("planning_structures.py: Creating evaluation target {}: {}"
+            logging.debug("Creating evaluation target {}: {}"
                           .format(str(index + 1), PTVEvalList[index]))
             # Set the Sources Structure for Evals
             PTVEval_defs = {
@@ -964,7 +994,7 @@ def main():
             otv_subtract = ['Skin', 'InnerAir', 'UnderDose_Exp']
         else:
             otv_subtract = ['Skin', 'InnerAir']
-        logging.debug("planning_structures.py: otvs will not include {}"
+        logging.debug("otvs will not include {}"
                       .format(otv_subtract))
 
         not_otv_definitions = {
@@ -1028,7 +1058,7 @@ def main():
         if generate_uniformdose:
             # Loop over the sOTVu's
             for index, target in enumerate(PTVList):
-                logging.debug("planning_structures.py: Creating uniform zone target {}: {}"
+                logging.debug("Creating uniform zone target {}: {}"
                               .format(str(index + 1), sotvu_name))
                 # Generate the sOTVu
                 sotvu_defs = {
