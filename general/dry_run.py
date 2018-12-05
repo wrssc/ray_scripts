@@ -275,10 +275,10 @@ def main():
 
     logging.debug('Attempting to load plan {}'.format(used_plan_names[0]))
     # Some strange issue with the query
-    q_p = '^'+used_plan_names[0]+'$'
-    p = case.QueryPlanInfo(Filter={'Name': q_p})
+    q_p = used_plan_names[0]
+    p = case.QueryPlanInfo(PlanInfo={'Name': q_p})
     logging.debug("returned {}".format(p))
-    plan = case.LoadPlan(PlanInfo=p)
+    plan = case.LoadPlan(PlanInfo=p[0])
     plan.SetCurrent()
 
 
