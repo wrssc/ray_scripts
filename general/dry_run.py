@@ -50,7 +50,6 @@ def main():
     institution_inputs_machine_name = ['TrueBeamSTx', 'TrueBeam']
     institution_inputs_sites = ['Liver', 'Lung', 'Breast']
     institution_inputs_motion = ['MIBH', 'MEBH', 'Free-Breathing']
-
     status = UserInterface.ScriptStatus(
         steps=['SimFiducials point declaration',
                'Enter Plan Parameters',
@@ -112,43 +111,49 @@ def main():
     status.next_step(text="Complete plan information - check the TPO for doses " +
                           "and ARIA for the treatment machine")
     # This dialog grabs the relevant parameters to generate the dry run
+    # For now, we'll hard code a few options until these inputs do something
+    v1 = {'plan_name': 'DryRun', 'motion': 'NA in version 1', 'site': 'NA in version 1'}
     input_dialog = UserInterface.InputDialog(
         inputs={
-            'input1_plan_name': 'Enter the Plan Name, typically DryRun',
-            'input2_site': 'Select the Site',
-            'input3_MMT': 'Motion Management Technique',
+            # 'input1_plan_name': 'Enter the Plan Name, typically DryRun',
+            # 'input2_site': 'Select the Site',
+            # 'input3_MMT': 'Motion Management Technique',
             'input4_choose_machine': 'Choose Treatment Machine',
             'input5_target': 'Select target for isocenter localization'
         },
         title='Dry Run Input',
         datatype={
-            'input2_site': 'combo',
-            'input3_MMT': 'combo',
+            # 'input2_site': 'combo',
+            # 'input3_MMT': 'combo',
             'input4_choose_machine': 'combo',
             'input5_target': 'combo'
         },
         initial={
-            'input1_plan_name': 'DryRun',
+            # 'input1_plan_name': 'DryRun',
         },
         options={
-            'input2_site': institution_inputs_sites,
-            'input3_MMT': institution_inputs_motion,
+            # 'input2_site': institution_inputs_sites,
+            # 'input3_MMT': institution_inputs_motion,
             'input4_choose_machine': institution_inputs_machine_name,
             'input5_target': plan_targets
         },
         required=[
-            'input1_plan_name',
-            'input2_site',
-            'input3_MMT',
+            # 'input1_plan_name',
+            # 'input2_site',
+            # 'input3_MMT',
             'input4_choose_machine',
             'input5_target'])
 
     # Launch the dialog
     print input_dialog.show()
 
-    plan_name = input_dialog.values['input1_plan_name']
-    site = input_dialog.values['input2_site']
-    motion = input_dialog.values['input3_MMT']
+    # plan_name = input_dialog.values['input1_plan_name']
+    # site = input_dialog.values['input2_site']
+    # motion = input_dialog.values['input3_MMT']
+    plan_name = v1['plan_name']
+    site = v1['site']
+    motion = v1['motion']
+
     plan_machine = input_dialog.values['input4_choose_machine']
     target = input_dialog.values['input5_target']
 
@@ -158,7 +163,7 @@ def main():
     logging.info('User selected machine: {}'.format(plan_machine))
     logging.info('User selected target for isocenter placement: {}'.format(target))
 
-    status.next_step(text="Making plan. Confirm isocenter placement")
+    status.next_step(text="Making plan.")
 
     try:
         ui = connect.get_current('ui')
@@ -230,6 +235,7 @@ def main():
         target_center = {'x': isocenter_position.x,
                          'y': isocenter_position.y,
                          'z': isocenter_position.z}
+
         isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=target_center)
         isocenter_parameters['Name'] = "iso_" + plan_name
         isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
@@ -240,63 +246,38 @@ def main():
                          target_center['z'],
                          isocenter_parameters['Name']))
 
-        if site == 'Breast' and motion != 'MIBH':
-            beam_ener = [6, 6, 6]
-            beam_names = ['1_AP_DryRun', '2_RLat_DryRun', '3_LLat_DryRun']
-            beam_descrip = ['1 QA', '2 QA', '3 QA']
-            beam_gant = [0, 270, 90]
-            beam_col = [0, 0, 0]
-            beam_couch = [0, 0, 0]
+        beam_ener = [6, 6, 6]
+        beam_names = ['1_AP_DryRun', '2_RLat_DryRun', '3_LLat_DryRun']
+        beam_descrip = ['1 QA', '2 QA', '3 QA']
+        beam_gant = [0, 270, 90]
+        beam_col = [0, 0, 0]
+        beam_couch = [0, 0, 0]
 
-            for i, b in enumerate(beam_names):
-                beamset.CreatePhotonBeam(Energy=beam_ener[i],
-                                         IsocenterData=isocenter_parameters,
-                                         Name=b,
-                                         Description=beam_descrip[i],
-                                         GantryAngle=beam_gant[i],
-                                         CouchAngle=beam_couch[i],
-                                         CollimatorAngle=beam_col[i])
-            for beam in beamset.Beams:
-                beam.BeamMU = 1
-                beam.CreateRectangularField(
-                    Width=0.05,
-                    Height=0.05,
-                    CenterCoordinate={'x': -0.025, 'y': 0.005},
-                    MoveMLC=True, MoveAllMLCLeaves=False,
-                    MoveJaw=True,
-                    JawMargins={'x': 1, 'y': 1},
-                    DeleteWedge=False,
-                    PreventExtraLeafPairFromOpening=True)
-        else:
-            beam_ener = [6, 6, 6]
-            beam_names = ['1_AP_DryRun', '2_RLat_DryRun', '3_LLat_DryRun']
-            beam_descrip = ['1 QA', '2 QA', '3 QA']
-            beam_gant = [0, 270, 90]
-            beam_col = [0, 0, 0]
-            beam_couch = [0, 0, 0]
+        for i, b in enumerate(beam_names):
+            beamset.CreatePhotonBeam(Energy=beam_ener[i],
+                                     IsocenterData=isocenter_parameters,
+                                     Name=b,
+                                     Description=beam_descrip[i],
+                                     GantryAngle=beam_gant[i],
+                                     CouchAngle=beam_couch[i],
+                                     CollimatorAngle=beam_col[i])
+        for beam in beamset.Beams:
+            beam.BeamMU = 1
+            beam.CreateRectangularField(
+                Width=0.05,
+                Height=0.05,
+                CenterCoordinate={'x': -0.025, 'y': 0.005},
+                MoveMLC=True, MoveAllMLCLeaves=False,
+                MoveJaw=True,
+                JawMargins={'x': 1, 'y': 1},
+                DeleteWedge=False,
+                PreventExtraLeafPairFromOpening=True)
 
-            for i, b in enumerate(beam_names):
-                beamset.CreatePhotonBeam(Energy=beam_ener[i],
-                                         IsocenterData=isocenter_parameters,
-                                         Name=b,
-                                         Description=beam_descrip[i],
-                                         GantryAngle=beam_gant[i],
-                                         CouchAngle=beam_couch[i],
-                                         CollimatorAngle=beam_col[i])
-            for beam in beamset.Beams:
-                beam.BeamMU = 1
-                beam.CreateRectangularField(
-                    Width=0.05,
-                    Height=0.05,
-                    CenterCoordinate={'x': -0.025, 'y': 0.005},
-                    MoveMLC=True, MoveAllMLCLeaves=False,
-                    MoveJaw=True,
-                    JawMargins={'x': 1, 'y': 1},
-                    DeleteWedge=False,
-                    PreventExtraLeafPairFromOpening=True)
+    logging.debug('Attempting to load plan {}'.format(used_plan_names[0]))
     p = patient.QueryPlanInfo(PlanInfo={'Name': used_plan_names[0]})
     plan = db.LoadPlan(PlanInfo=p[0])
     plan.SetCurrent()
+
 
 if __name__ == '__main__':
     main()
