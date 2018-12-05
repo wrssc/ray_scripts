@@ -273,6 +273,7 @@ def main():
                 DeleteWedge=False,
                 PreventExtraLeafPairFromOpening=True)
 
+    patient.Save()
     logging.debug('Attempting to load plan {}'.format(used_plan_names[0]))
     # Some strange issue with the query
     plan = case.TreatmentPlans[used_plan_names[0]]
