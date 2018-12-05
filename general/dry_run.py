@@ -237,38 +237,57 @@ def main():
                          target_center['z'],
                          isocenter_parameters['Name']))
 
-        beamset.CreatePhotonBeam(Energy=6,
-                                 IsocenterData=isocenter_parameters,
-                                 Name='1_AP_DryRun',
-                                 Description='1 QA',
-                                 GantryAngle=0.0,
-                                 CouchAngle=0,
-                                 CollimatorAngle=0)
+        if site == 'Breast' and motion != 'MIBH':
+            beam_ener = [6, 6, 6]
+            beam_names = ['1_AP_DryRun', '2_RLat_DryRun', '3_LLat_DryRun']
+            beam_descrip = ['1 QA', '2 QA', '3 QA']
+            beam_gant = [0, 270, 90]
+            beam_col = [0, 0, 0]
+            beam_couch = [0, 0, 0]
 
-        beamset.CreatePhotonBeam(Energy=6,
-                                 IsocenterData=isocenter_parameters,
-                                 Name='2_RLAT_DryRun',
-                                 Description='2 QA',
-                                 GantryAngle=270.0,
-                                 CouchAngle=0,
-                                 CollimatorAngle=0)
+            for i, b in enumerate(beam_names):
+                beamset.CreatePhotonBeam(Energy=beam_ener[i],
+                                         IsocenterData=isocenter_parameters,
+                                         Name=b,
+                                         Description=beam_descrip[i],
+                                         GantryAngle=beam_gant[i],
+                                         CouchAngle=beam_couch[i],
+                                         CollimatorAngle=beam_col[i])
+            for beam in beamset.Beams:
+                beam.BeamMU = 1
+                beam.CreateRectangularField(
+                    Width=0.05,
+                    Height=0.05,
+                    CenterCoordinate={'x': -0.025, 'y': 0.005},
+                    MoveMLC=True, MoveAllMLCLeaves=False,
+                    MoveJaw=True,
+                    JawMargins={'x': 1, 'y': 1},
+                    DeleteWedge=False,
+                    PreventExtraLeafPairFromOpening=True)
+        else:
+            beam_ener = [6, 6, 6]
+            beam_names = ['1_AP_DryRun', '2_RLat_DryRun', '3_LLat_DryRun']
+            beam_descrip = ['1 QA', '2 QA', '3 QA']
+            beam_gant = [0, 270, 90]
+            beam_col = [0, 0, 0]
+            beam_couch = [0, 0, 0]
 
-        beamset.CreatePhotonBeam(Energy=6,
-                                 IsocenterData=isocenter_parameters,
-                                 Name='3_LLat_DryRun',
-                                 Description='3 QA',
-                                 GantryAngle=90.0,
-                                 CouchAngle=0,
-                                 CollimatorAngle=0)
-        
-        for beam in beamset.Beams:
-            beam.BeamMU = 1
-            beam.CreateRectangularField(
-                Width=0.05,
-                Height=0.05,
-                CenterCoordinate={'x': -0.025, 'y': 0.005},
-                MoveMLC=True, MoveAllMLCLeaves=False,
-                MoveJaw=True,
-                JawMargins={'x': 1, 'y': 1},
-                DeleteWedge=False,
-                PreventExtraLeafPairFromOpening=True)
+            for i, b in enumerate(beam_names):
+                beamset.CreatePhotonBeam(Energy=beam_ener[i],
+                                         IsocenterData=isocenter_parameters,
+                                         Name=b,
+                                         Description=beam_descrip[i],
+                                         GantryAngle=beam_gant[i],
+                                         CouchAngle=beam_couch[i],
+                                         CollimatorAngle=beam_col[i])
+            for beam in beamset.Beams:
+                beam.BeamMU = 1
+                beam.CreateRectangularField(
+                    Width=0.05,
+                    Height=0.05,
+                    CenterCoordinate={'x': -0.025, 'y': 0.005},
+                    MoveMLC=True, MoveAllMLCLeaves=False,
+                    MoveJaw=True,
+                    JawMargins={'x': 1, 'y': 1},
+                    DeleteWedge=False,
+                    PreventExtraLeafPairFromOpening=True)
