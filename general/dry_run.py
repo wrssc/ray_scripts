@@ -53,8 +53,8 @@ def main():
     status = UserInterface.ScriptStatus(
         steps=['SimFiducials point declaration',
                'Enter Plan Parameters',
-               'Confirm iso placement',
-               'Make plan for dry run'],
+               'Make plan for dry run'
+               'Confirm iso placement'],
         docstring=__doc__,
         help=__help__)
     try:
@@ -274,14 +274,31 @@ def main():
                 PreventExtraLeafPairFromOpening=True)
 
     patient.Save()
-    logging.debug('Attempting to load plan {}'.format(used_plan_names[0]))
-    # Some strange issue with the query
+    logging.debug('Load plan {}'.format(used_plan_names[0]))
     plan = case.TreatmentPlans[used_plan_names[0]]
     patient.Save()
     plan.SetCurrent()
     beamset = plan.BeamSets[used_plan_names[0]]
     patient.Save()
     beamset.SetCurrent()
+
+    # Adding set up fields
+    # HFS Setup
+    # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
+    set_up = {0: ['SetUp AP', 'SetUp AP', 0.0, '5'],
+              1: ['SetUp RtLat', 'SetUp RtLat', 270.0, '5'],
+              2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
+              3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
+              }
+    # Extract the angles
+    angles = []
+    for k, v in set_up.iteritems():
+        angles.append(v[2])
+        print "v2={}".format(v[2])
+
+    beamset.UpdateSetupBeams(ResetSetupBeams=True,
+                             SetupBeamsGantryAngles=angles)
+    status.next_step(text="Confirm correct placement of isocenter and delete that pesky Backup Plan")
 
 
 if __name__ == '__main__':
