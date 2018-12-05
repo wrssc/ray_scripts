@@ -1210,21 +1210,21 @@
                 <name>PTV_p</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p</name>
                 <type>Max</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTVp">110</dose>
+                <dose units="%" roi="PTV_p">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVp">90</dose>
+                <dose units="%" roi="PTV_p">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1279,7 +1279,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">105</dose>
+                <dose units="%" roi="PTV_p">105</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1299,7 +1299,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1313,7 +1313,7 @@
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">110</dose>
+                <dose units="%" roi="PTV_p">110</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1414,11 +1414,18 @@
                 <name>Skin</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">50</dose>
+                <dose units="Gy">60</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Skin</name>
+                <type>Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="Gy">50</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">45</dose>
@@ -1429,13 +1436,6 @@
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">50</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>SpinalCord</name>
-                <type>Max</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">55</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1449,7 +1449,7 @@
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">60</dose>
+                <dose units="Gy">55</dose>
                 <priority>1</priority>
             </roi>
         </goals>
@@ -1471,21 +1471,21 @@
                 <name>PTV_p</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p</name>
                 <type>Max</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTVp">110</dose>
+                <dose units="%" roi="PTV_p">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVp">90</dose>
+                <dose units="%" roi="PTV_p">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1540,7 +1540,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">105</dose>
+                <dose units="%" roi="PTV_p">105</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1560,7 +1560,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1574,7 +1574,7 @@
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">110</dose>
+                <dose units="%" roi="PTV_p">110</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1675,11 +1675,18 @@
                 <name>Skin</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">50</dose>
+                <dose units="Gy">60</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Skin</name>
+                <type>Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="Gy">50</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">45</dose>
@@ -1690,13 +1697,6 @@
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">50</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>SpinalCord</name>
-                <type>Max</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">55</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1710,7 +1710,7 @@
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">60</dose>
+                <dose units="Gy">55</dose>
                 <priority>1</priority>
             </roi>
         </goals>
@@ -1732,21 +1732,21 @@
                 <name>PTV_p</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p</name>
                 <type>Max</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTVp">110</dose>
+                <dose units="%" roi="PTV_p">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVp">90</dose>
+                <dose units="%" roi="PTV_p">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1801,7 +1801,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">105</dose>
+                <dose units="%" roi="PTV_p">105</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1821,7 +1821,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1835,7 +1835,7 @@
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">110</dose>
+                <dose units="%" roi="PTV_p">110</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1936,11 +1936,18 @@
                 <name>Skin</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">50</dose>
+                <dose units="Gy">60</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Skin</name>
+                <type>Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="Gy">50</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">45</dose>
@@ -1951,13 +1958,6 @@
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">50</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>SpinalCord</name>
-                <type>Max</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">55</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1971,7 +1971,7 @@
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">60</dose>
+                <dose units="Gy">55</dose>
                 <priority>1</priority>
             </roi>
         </goals>
@@ -1993,21 +1993,21 @@
                 <name>PTV_p</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p</name>
                 <type>Max</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTVp">110</dose>
+                <dose units="%" roi="PTV_p">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTVp">90</dose>
+                <dose units="%" roi="PTV_p">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -2062,7 +2062,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">105</dose>
+                <dose units="%" roi="PTV_p">105</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2082,7 +2082,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2096,7 +2096,7 @@
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTVp">110</dose>
+                <dose units="%" roi="PTV_p">110</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2197,11 +2197,18 @@
                 <name>Skin</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">50</dose>
+                <dose units="Gy">60</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Skin</name>
+                <type>Max</type>
+                <volume units="cc">0.1</volume>
+                <dose units="Gy">50</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">45</dose>
@@ -2212,13 +2219,6 @@
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">50</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>SpinalCord</name>
-                <type>Max</type>
-                <volume units="cc">0.1</volume>
-                <dose units="Gy">55</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2232,7 +2232,7 @@
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="Gy">60</dose>
+                <dose units="Gy">55</dose>
                 <priority>1</priority>
             </roi>
         </goals>
