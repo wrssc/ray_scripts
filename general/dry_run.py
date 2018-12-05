@@ -280,6 +280,7 @@ def main():
     patient.Save()
     plan.SetCurrent()
     beamset = plan.BeamSets[used_plan_names[0]]
+    patient.Save()
     beamset.SetCurrent()
 
 
