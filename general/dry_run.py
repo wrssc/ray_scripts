@@ -276,11 +276,10 @@ def main():
     logging.debug('Attempting to load plan {}'.format(used_plan_names[0]))
     # Some strange issue with the query
     q_p = used_plan_names[0]
-    p = case.QueryPlanInfo(PlanInfo={'Name': q_p})
-    logging.debug("returned {}".format(p))
-    # Current plan loaded from list.
-    plan = case.LoadPlan(PlanInfo=p[0])
+    plan = case.TreatmentPlans[used_plan_names[0]]
     plan.SetCurrent()
+    beamset = plan.BeamSets[used_plan_names[0]]
+    beamset.SetCurrent()
 
 
 if __name__ == '__main__':
