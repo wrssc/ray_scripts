@@ -276,8 +276,9 @@ def main():
     logging.debug('Attempting to load plan {}'.format(used_plan_names[0]))
     # Some strange issue with the query
     q_p = '^'+used_plan_names[0]+'$'
-    p = case.QueryPlanInfo(PlanInfo={'Name': used_plan_names[0]})
-    plan = patient_db.LoadPlan(PlanInfo=p[0])
+    p = case.QueryPlanInfo(Filter={'Name': q_p})
+    logging.debug("returned {}".format(p))
+    plan = patient_db.LoadPlan(PlanInfo=p)
     plan.SetCurrent()
 
 
