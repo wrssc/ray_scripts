@@ -24,7 +24,7 @@
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '01-Feb-2018'
-__version__ = '1.0.2'
+__version__ = '1.0.0'
 __status__ = 'Validation'
 __deprecated__ = False
 __reviewer__ = ''
@@ -275,7 +275,7 @@ def main():
 
     logging.debug('Attempting to load plan {}'.format(used_plan_names[0]))
     p = patient.QueryPlanInfo(PlanInfo={'Name': used_plan_names[0]})
-    plan = db.LoadPlan(PlanInfo=p[0])
+    plan = patient_db.LoadPlan(PlanInfo=p[0])
     plan.SetCurrent()
 
 
