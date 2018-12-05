@@ -274,6 +274,7 @@ def main():
                 PreventExtraLeafPairFromOpening=True)
 
     logging.debug('Attempting to load plan {}'.format(used_plan_names[0]))
+    # Some strange issue with the query
     p = case.QueryPlanInfo(PlanInfo={'Name': '^'+used_plan_names[0]+'$'})
     plan = patient_db.LoadPlan(PlanInfo=p[0])
     plan.SetCurrent()
