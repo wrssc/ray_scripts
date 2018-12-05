@@ -278,6 +278,7 @@ def main():
     q_p = used_plan_names[0]
     p = case.QueryPlanInfo(PlanInfo={'Name': q_p})
     logging.debug("returned {}".format(p))
+    # Current plan loaded from list.
     plan = case.LoadPlan(PlanInfo=p[0])
     plan.SetCurrent()
 
