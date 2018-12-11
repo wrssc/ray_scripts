@@ -127,6 +127,9 @@ def main():
         logging.debug("parsing xml: {}".format(f))
         n = tree.find('name').text
         logging.debug('Found protocol {} in {}'.format(n, f))
+        objectiveset = tree.getroot()
+        objectives = objectiveset.findall('./objectives/roi'),
+
     else:
         logging.debug('Could not find objective set using tree = {}'.format(tree))
     #for o in objs.findall('objectiveset'):
