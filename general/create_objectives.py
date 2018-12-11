@@ -91,7 +91,7 @@ def add_objective(plan,
     if volume:
         retval_0.PercentVolume = volume
     if eud_a:
-        retval_0.EudParameterA = eud_a
+        retval_0.DoseFunctionParameters.EudParameterA = eud_a
     # It should be noted that the next 4 inputs should be combined into a "type" based argument for the
     # dose fall off type of optimization option.
     if high_dose:
