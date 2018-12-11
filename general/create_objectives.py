@@ -123,6 +123,7 @@ def main():
     #       'eud_a': 3,
     #       'dose': 50}
     add_objective(plan=plan,
+                  beamset=beamset,
                   function_type='MinEud',
                   roi_name='PTV1',
                   eud_a=3,
