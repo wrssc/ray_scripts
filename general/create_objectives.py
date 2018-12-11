@@ -117,12 +117,28 @@ def main():
     except:
         logging.warning("patient, case and examination must be loaded")
 
+    protocol_folder = r'../protocols'
+    institution_folder = r'UW'
     file = 'planning_structs_conventional.xml'
+    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder,file)
+    select_objectives(filename=path_protocols)
+    logging.debug("selected file {}".format(path_protocols))
     # obj = {'function_type': 'MinEud',
     #       'roi_name': 'PTV1',
     #       'constraint': False,
     #       'eud_a': 3,
     #       'dose': 50}
+    # Types are:
+    # MinDose: Dose, Weight
+    # MaxDose: Dose, Weight
+    # MinDvh: Dose, Weight, Volume
+    # MaxDvh: Dose, Weight, Volume
+    # UniformDose: Dose, Weight, % Volume=30?
+    # MinEud: Dose, Weight, ParamA
+    # MaxEud: Dose, Weight, ParamA
+    # TargetEud: Dose, Weight, ParamA
+    # DoseFallOff: HighDose, LowDose, LowDoseDistance, AdaptToTarget, ?RelativeLowDoseWeight=1
+    # UniformityConstraint?
     add_objective(plan=plan,
                   beamset=beamset,
                   function_type='MinEud',
