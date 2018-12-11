@@ -128,8 +128,11 @@ def main():
         n = tree.find('name').text
         logging.debug('Found protocol {} in {}'.format(n, file))
         objectiveset = tree.getroot()
-        objectives = objectiveset.findall('./objectives/roi'),
-
+        objectives = objectiveset.findall('./objectives/roi')
+        for o in objectives:
+            o_name = o.find('name').text
+            o_type = o.find('type').text
+            logging.debug("objective: {} found with type {}".format(o_name, o_type))
     else:
         logging.debug('Could not find objective set using tree = {}'.format(tree))
     #for o in objs.findall('objectiveset'):
