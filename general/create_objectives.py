@@ -121,10 +121,16 @@ def main():
     institution_folder = r'UW'
     file = 'planning_structs_conventional.xml'
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder,file)
-    objs = select_objectives(filename=path_protocols)
+    tree = select_objectives(filename=path_protocols)
     logging.debug("selected file {}".format(path_protocols))
-    for o in objs.findall('objectiveset'):
-        logging.debug("Objectiveset {} found".format(o.find('name').text))
+    if tree.getroot().tag == 'objectiveset':
+        logging.debug("parsing xml: {}".format(f))
+        n = tree.find('name').text
+        logging.debug('Found protocol {} in {}'.format(n, f))
+    else:
+        logging.debug('Could not find objective set using tree = {}'.format(tree))
+    #for o in objs.findall('objectiveset'):
+    #    logging.debug("Objectiveset {} found".format(o.find('name').text))
     # obj = {'function_type': 'MinEud',
     #       'roi_name': 'PTV1',
     #       'constraint': False,
