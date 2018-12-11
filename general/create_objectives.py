@@ -121,8 +121,10 @@ def main():
     institution_folder = r'UW'
     file = 'planning_structs_conventional.xml'
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder,file)
-    select_objectives(filename=path_protocols)
+    objs = select_objectives(filename=path_protocols)
     logging.debug("selected file {}".format(path_protocols))
+    for o in objs.findall('objectiveset'):
+        logging.debug("Objectiveset {} found".format(o.find('name').text))
     # obj = {'function_type': 'MinEud',
     #       'roi_name': 'PTV1',
     #       'constraint': False,
