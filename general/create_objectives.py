@@ -34,6 +34,7 @@ def add_objective(plan,
                   beamset,
                   function_type,
                   roi_name,
+                  weight,
                   robust=False,
                   is_constraint=False,
                   dose=None,
@@ -86,6 +87,7 @@ def add_objective(plan,
                                                          RestrictToBeamSet=restrict_beamset,
                                                          UseRbeDose=False)
 
+    retval_0.DoseFunctionParameters.Weight=weight
     if dose:
         retval_0.DoseFunctionParameters.DoseLevel = dose
     if volume:
@@ -97,7 +99,7 @@ def add_objective(plan,
     if high_dose:
         retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
     if low_dose:
-        retval_0.DoseFunctionParameters.LowDoseLeve = low_dose
+        retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
     if low_dose_dist:
         retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
     if adapt_dose:
@@ -124,6 +126,7 @@ def main():
     add_objective(plan=plan,
                   beamset=beamset,
                   function_type='MinEud',
+                  weight=10,
                   roi_name='PTV1',
                   eud_a=3,
                   dose=5000)
