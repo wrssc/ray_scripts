@@ -12,7 +12,7 @@ import xml.etree.ElementTree
 import connect
 
 
-def select_objectives(folder=None,filename=None):
+def select_objectives(folder=None, filename=None):
     """
 
     :param filename: os joined protocol name
@@ -38,7 +38,7 @@ def add_objective(plan,
                   is_constraint=False,
                   dose=None,
                   volume=None,
-                  eud_a = None,
+                  eud_a=None,
                   restrict_beamset=None,
                   low_dose_dist=None,
                   high_dose=None,
@@ -71,21 +71,20 @@ def add_objective(plan,
     else:
         # Found our index.  We will use a shorthand for the remainder of the code
         plan_optimization = plan.PlanOptimizations[OptIndex]
-        #plan_optimization_parameters = plan.PlanOptimizations[OptIndex].OptimizationParameters
+        # plan_optimization_parameters = plan.PlanOptimizations[OptIndex].OptimizationParameters
         logging.info(
             'optimize_plan: Optimization found, proceeding with plan.PlanOptimization[{}] for beamset {}'.format(
                 OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
             ))
 
-
     retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-                                                  RoiName=roi_name,
-                                                  IsConstraint=is_constraint,
-                                                  RestrictAllBeamsIndividually=False,
-                                                  RestrictToBeam=None,
-                                                  IsRobust=robust,
-                                                  RestrictToBeamSet=restrict_beamset,
-                                                  UseRbeDose=False)
+                                                         RoiName=roi_name,
+                                                         IsConstraint=is_constraint,
+                                                         RestrictAllBeamsIndividually=False,
+                                                         RestrictToBeam=None,
+                                                         IsRobust=robust,
+                                                         RestrictToBeamSet=restrict_beamset,
+                                                         UseRbeDose=False)
 
     if dose:
         retval_0.DoseFunctionParameters.DoseLevel = dose
@@ -117,7 +116,7 @@ def main():
         logging.warning("patient, case and examination must be loaded")
 
     file = 'planning_structs_conventional.xml'
-    #obj = {'function_type': 'MinEud',
+    # obj = {'function_type': 'MinEud',
     #       'roi_name': 'PTV1',
     #       'constraint': False,
     #       'eud_a': 3,
