@@ -124,9 +124,9 @@ def main():
     tree = select_objectives(filename=path_protocols)
     logging.debug("selected file {}".format(path_protocols))
     if tree.getroot().tag == 'objectiveset':
-        logging.debug("parsing xml: {}".format(f))
+        logging.debug("parsing xml: {}".format(file))
         n = tree.find('name').text
-        logging.debug('Found protocol {} in {}'.format(n, f))
+        logging.debug('Found protocol {} in {}'.format(n, file))
         objectiveset = tree.getroot()
         objectives = objectiveset.findall('./objectives/roi'),
 
