@@ -25,13 +25,13 @@ def select_objectives(folder=None, filename=None):
         # Search protocol list, parsing each XML file for protocols and goalsets
         logging.debug('Searching folder {} for protocols, goal sets'.format(folder))
         for f in os.listdir(folder):
-        # This guy should prompt the user to find the appropriate file
+            # This guy should prompt the user to find the appropriate file
             if f.endswith('.xml'):
                 tree = xml.etree.ElementTree.parse(os.path.join(folder, f))
     return tree
 
 
-#def add_goal(goal, plan, roi=None, targets=None, exam=None, case=None):
+# def add_goal(goal, plan, roi=None, targets=None, exam=None, case=None):
 
 def add_objective(obj, case, plan, beamset,
                   s_roi=None, s_dose=None,
@@ -186,7 +186,7 @@ def add_objective(obj, case, plan, beamset,
         plan_optimization = plan.PlanOptimizations[OptIndex]
         # plan_optimization_parameters = plan.PlanOptimizations[OptIndex].OptimizationParameters
         logging.info(
-            'optimize_plan: Optimization found, proceeding with plan.PlanOptimization[{}] for beamset {}'.format(
+            'optimization found, proceeding with plan.PlanOptimization[{}] for beamset {}'.format(
                 OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
             ))
 
@@ -199,23 +199,25 @@ def add_objective(obj, case, plan, beamset,
                                                              IsRobust=robust,
                                                              RestrictToBeamSet=restrict_beamset,
                                                              UseRbeDose=False)
-        retval_0.DoseFunctionParameters.Weight = weight
-        retval_0.DoseFunctionParameters.DoseLevel = dose
-        if volume:
-            retval_0.PercentVolume = volume
-        if 'Eud' in function_type:
-            retval_0.DoseFunctionParameters.EudParameterA = eud_a
-        # Dose fall off type of optimization option.
-        if function_type == 'DoseFallOff':
-            retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
-            retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
-            retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-            retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
-        logging.debug("add_objective: Added objective for ROI: {}, type {}, dose {}, weight {}".format(
+        logging.debug("add_objective: Added objective for ROI:" +
+                      "{}, type {}, dose {}, weight {}".format(
             roi, function_type, dose, weight))
     except:
-        logging.debug("add_objective: Failed to add objective for ROI: {}, type {}, dose {}, weight {}".format(
-            roi, function_type, dose, weight))
+        logging.debug("add_objective: Failed to add objective for ROI:" +
+                      " {}, type {}, dose {}, weight {}, for beamset {}".format(
+                        roi, function_type, dose, weight, restrict_beamset))
+    retval_0.DoseFunctionParameters.Weight = weight
+    retval_0.DoseFunctionParameters.DoseLevel = dose
+    if volume:
+        retval_0.PercentVolume = volume
+    if 'Eud' in function_type:
+        retval_0.DoseFunctionParameters.EudParameterA = eud_a
+    # Dose fall off type of optimization option.
+    if function_type == 'DoseFallOff':
+        retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
+        retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
+        retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+        retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
 
 
 def main():
@@ -232,7 +234,7 @@ def main():
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
     file = 'planning_structs_conventional.xml'
-    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder,file)
+    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder, file)
     tree = select_objectives(filename=path_protocols)
     logging.debug("selected file {}".format(path_protocols))
     # TODO::
@@ -267,7 +269,7 @@ def main():
                           restrict_beamset=None)
     else:
         logging.debug('Could not find objective set using tree = {}'.format(tree))
-    #for o in objs.findall('objectiveset'):
+    # for o in objs.findall('objectiveset'):
     #    logging.debug("Objectiveset {} found".format(o.find('name').text))
     # obj = {'function_type': 'MinEud',
     #       'roi_name': 'PTV1',
@@ -275,7 +277,7 @@ def main():
     #       'eud_a': 3,
     #       'dose': 50}
 
-    #add_objective(plan=plan,
+    # add_objective(plan=plan,
     #              beamset=beamset,
     #              function_type='MinEud',
     #              weight=10,
