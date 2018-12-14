@@ -140,8 +140,8 @@ def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=No
                 obj.find('type').attrib['adapt']))
     if obj.find('name').text == 'DFO':
         if obj.find('dose').attrib['units'] == "%":
-            high_dose = float(s_dose) * float(obj.find('dose').text) / 100
-            low_dose = float(s_dose) * float(obj.find('dose').attrib['low']) / 100
+            high_dose = 100 * float(s_dose) * float(obj.find('dose').text) / 100
+            low_dose = 100 * float(s_dose) * float(obj.find('dose').attrib['low']) / 100
         elif obj.find('dose').attrib['units'] == "Gy":
             high_dose = float(obj.find('dose').text)
             low_dose = float(obj.find('dose').attrib['low'])
