@@ -249,12 +249,18 @@ def main():
             o_name = o.find('name').text
             o_type = o.find('type').text
             logging.debug("objective: {} found with type {}".format(o_name, o_type))
+            # TESTING ONLY - TO DO ELIMINATE THIS NEXT LINE
+            if o.find('dose').attrib['units'] == '%':
+                s_dose = '50'
+            else:
+                s_dose = None
+
             add_objective(o,
                           case=case,
                           plan=plan,
                           beamset=beamset,
                           s_roi=None,
-                          s_dose=None,
+                          s_dose=s_dose,
                           s_weight=None,
                           restrict_beamset=None)
     else:
