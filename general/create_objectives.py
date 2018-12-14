@@ -113,7 +113,7 @@ def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=No
             function_type = 'MaxDvh'
     else:
         logging.debug('add_objective: Unsupported function type for ROI: {} with type: {}'.format(
-            obj.find('text').name, obj.find('type').text))
+            obj.find('name').text, obj.find('type').text))
     #
     # Add special types
     if 'Eud' in obj.find('type').text:
