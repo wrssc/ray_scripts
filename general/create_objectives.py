@@ -61,21 +61,25 @@ def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=No
     #
     # Deal with relative or absolute volumes, modify the volume tag
     # (RayStation only allows relative volume roi's
-    if obj.find('volume').attrib["units"] == "cc":
-        try:
-            t = case.PatientModel.StructureSets[exam.Name]. \
-                RoiGeometries[s_roi]
-            if t.HasContours():
-                roi_vol = t.GetRoiVolume()
-                volume = float(obj.find('volume').text) / roi_vol
-                obj.find('volume').text = str(volume)
-                obj.find('volume').attrib["units"] = "%"
-            else:
-                logging.warning('add_objective: {} has no contours, index undefined'.format(s_roi))
-        except:
-            logging.warning('add_objective: Error getting volume for {}, volume => 0.0'.format(s_roi))
-    elif obj.find('volume').attrib["units"] == "%":
-        volume = float(obj.find('volume').text)
+    # :TODO: Check how to find existence of a tag in elementtree
+    if obj.find('volume') is None:
+        volume = None
+    else:
+        if obj.find('volume').attrib["units"] == "cc":
+            try:
+                t = case.PatientModel.StructureSets[exam.Name]. \
+                    RoiGeometries[s_roi]
+                if t.HasContours():
+                    roi_vol = t.GetRoiVolume()
+                    volume = float(obj.find('volume').text) / roi_vol
+                    obj.find('volume').text = str(volume)
+                    obj.find('volume').attrib["units"] = "%"
+                else:
+                    logging.warning('add_objective: {} has no contours, index undefined'.format(s_roi))
+            except:
+                logging.warning('add_objective: Error getting volume for {}, volume => 0.0'.format(s_roi))
+        elif obj.find('volume').attrib["units"] == "%":
+            volume = float(obj.find('volume').text)
     # Modify the dose tag if relative
     if s_dose:
         logging.debug('add_objective: ROI: {} Protocol dose {} {} substituted with {} Gy'.format(
