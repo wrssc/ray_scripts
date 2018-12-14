@@ -33,7 +33,9 @@ def select_objectives(folder=None, filename=None):
 
 #def add_goal(goal, plan, roi=None, targets=None, exam=None, case=None):
 
-def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=None, restrict_beamset=None):
+def add_objective(obj, case, plan, beamset,
+                  s_roi=None, s_dose=None,
+                  s_weight=None, restrict_beamset=None):
     """
     adds an objective function to the optimization in RayStation after
     :param obj: child (roi-tag) of an ElementTree - consider mak
