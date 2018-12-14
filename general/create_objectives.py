@@ -136,7 +136,7 @@ def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=No
         else:
             logging.warning('add_objective: Unsupported type for attribute {}'.format(
                 obj.find('type').attrib['adapt']))
-    if obj.find('type').name == 'DFO':
+    if obj.find('name').text == 'DFO':
         if obj.find('dose').attrib['units'] == "%":
             high_dose = float(s_dose) * float(obj.find('dose').text) / 100
             low_dose = float(s_dose) * float(obj.find('dose').attrib['low']) / 100
