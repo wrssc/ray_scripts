@@ -146,13 +146,12 @@ def add_objective(obj, case, plan, beamset,
             logging.warning('add_objective: Unsupported type for attribute {}'.format(
                 obj.find('type').attrib['adapt']))
     if obj.find('type').text == 'DFO':
-        # Random - TODO delete
         if obj.find('dose').attrib['units'] == "%":
             high_dose = 100 * float(s_dose) * float(obj.find('dose').text) / 100
             low_dose = 100 * float(s_dose) * float(obj.find('dose').attrib['low']) / 100
         elif obj.find('dose').attrib['units'] == "Gy":
-            high_dose = float(obj.find('dose').text)
-            low_dose = float(obj.find('dose').attrib['low'])
+            high_dose = 100 * float(obj.find('dose').text)
+            low_dose = 100 * float(obj.find('dose').attrib['low'])
         else:
             logging.warning('add_objective: Unsupported doses for Dose Fall Off')
         if 'dist' in obj.find('type').attrib:
