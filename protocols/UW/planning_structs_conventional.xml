@@ -34,7 +34,7 @@
         </roi>
         <roi>
             <name>PTV1</name>
-            <type a="3">TarEud</type>
+            <type a="3" robust="True">TarEud</type>
             <dose units="Gy" roi="PTV1">50</dose>
             <weight>10</weight>
         </roi>

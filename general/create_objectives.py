@@ -158,12 +158,19 @@ def add_objective(obj, case, plan, beamset,
             low_dose_dist = float(obj.find('type').attrib['dist'])
         else:
             logging.warning('add_objective: Unknown low dose distance for Dose Fall Off')
+    if 'robust' in obj.find('type').attrib:
+        if obj.find('type').attrib['robust'] == 'False':
+            robust = False
+        elif obj.find('type').attrib['robust'] == 'True':
+            robust = True
+        else:
+            logging.warning('Unsupported robustness type {}'.format(obj.find('type').attrib['robust']))
+    else:
+        robust = False
 
 
     # UniformDose: Dose, Weight, % Volume=30?
     # UniformityConstraint?
-    # Deal with robustness
-    robust = False
 
     # Find current Beamset Number and determine plan optimization
     OptIndex = 0
