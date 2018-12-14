@@ -111,7 +111,7 @@ def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=No
                  'TarEud': 'TargetEud',
                  'DFO': 'DoseFallOff'}
     if obj.find('type').text in obj_types:
-        function_type = obj_types[obj_types('type').text]
+        function_type = obj_types[obj('type').text]
     elif obj.find('type').text == 'DX':
         if obj.find('type').attrib['dir'] == "ge" or obj.find('type').attrib['dir'] == "gt":
             function_type = 'MinDvh'
