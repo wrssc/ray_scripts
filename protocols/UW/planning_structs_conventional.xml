@@ -3,7 +3,7 @@
     <objectives>
         <roi>
             <name>PTV1</name>
-            <type dir="ge">DX</type>
+            <type dir="gt">DX</type>
             <volume units="%">98</volume>
             <dose units="%" roi="PTV1">102.5</dose>
             <weight>10</weight>
