@@ -86,6 +86,8 @@ def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=No
             dose = float(s_dose)
         else:
             obj.find('dose').text = float(s_dose)
+    else:
+        dose = float(obj.find('dose').text) * 100
     #
     # Read the weight variable
     if s_weight:
