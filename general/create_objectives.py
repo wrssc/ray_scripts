@@ -102,7 +102,8 @@ def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=No
     else:
         weight = float(obj.find('weight').text)
     # Correct type to RS supported naming
-    # RS Compatible types
+    # If the objective does not require directional evaluation (like those in obj_types)
+    # we can reassign directly. Otherwise, we need to parse direction.
     obj_types = {'Max': 'MaxDose',
                  'Min': 'MinDose',
                  'UD': 'UniformDose',
