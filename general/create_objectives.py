@@ -83,9 +83,9 @@ def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=No
         if obj.find('dose').attrib["units"] == "%":
             obj.find('dose').attrib["units"] = "Gy"
             obj.find('dose').text = s_dose
-            dose = float(s_dose)
+            dose = float(s_dose) * 100
         else:
-            obj.find('dose').text = float(s_dose)
+            obj.find('dose').text = float(s_dose) * 100
     else:
         dose = float(obj.find('dose').text) * 100
     #
