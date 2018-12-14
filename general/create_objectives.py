@@ -168,7 +168,6 @@ def add_objective(obj, case, plan, beamset,
     else:
         robust = False
 
-
     # UniformDose: Dose, Weight, % Volume=30?
     # UniformityConstraint?
 
@@ -199,6 +198,14 @@ def add_objective(obj, case, plan, beamset,
                 OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
             ))
 
+    retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
+                                                         RoiName=roi,
+                                                         IsConstraint=constraint,
+                                                         RestrictAllBeamsIndividually=False,
+                                                         RestrictToBeam=None,
+                                                         IsRobust=robust,
+                                                         RestrictToBeamSet=restrict_beamset,
+                                                         UseRbeDose=False)
     try:
         retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
                                                              RoiName=roi,
