@@ -158,6 +158,8 @@ def add_objective(obj, case, plan, beamset,
             low_dose_dist = float(obj.find('type').attrib['dist'])
         else:
             logging.warning('add_objective: Unknown low dose distance for Dose Fall Off')
+        logging.debug('DFO object found.  High Dose: {}, Low Dose: {}, Distance: {}'.format(
+            high_dose, low_dose, low_dose_dist))
     if 'robust' in obj.find('type').attrib:
         if obj.find('type').attrib['robust'] == 'False':
             robust = False
