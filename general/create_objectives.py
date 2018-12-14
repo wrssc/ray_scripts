@@ -125,7 +125,7 @@ def add_objective(obj, case, plan, beamset, s_roi=None, s_dose=None, s_weight=No
     # Add special types
     if 'Eud' in obj.find('type').text:
         eud_a = float(obj.find('type').attrib['a'])
-    if 'constaint' not in obj.find('type').attrib:
+    if 'constraint' not in obj.find('type').attrib:
         constraint = False
     else:
         if obj.find('type').attrib['constraint'] == 'True':
