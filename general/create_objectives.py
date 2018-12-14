@@ -209,6 +209,11 @@ def add_objective(obj, case, plan, beamset,
                                                          IsRobust=robust,
                                                          RestrictToBeamSet=restrict_beamset,
                                                          UseRbeDose=False)
+    if function_type == 'DoseFallOff':
+        retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
+        retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
+        retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+        retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
     try:
         retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
                                                              RoiName=roi,
