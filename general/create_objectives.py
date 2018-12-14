@@ -200,12 +200,12 @@ def add_objective(obj, case, plan, beamset,
                                                              RestrictToBeamSet=restrict_beamset,
                                                              UseRbeDose=False)
         logging.debug("add_objective: Added objective for ROI:" +
-                      "{}, type {}, dose {}, weight {}".format(
-            roi, function_type, dose, weight))
+                      "{}, type {}, dose {}, weight {}, for beamset {}".format(
+                          roi, function_type, dose, weight, restrict_beamset))
     except:
         logging.debug("add_objective: Failed to add objective for ROI:" +
                       " {}, type {}, dose {}, weight {}, for beamset {}".format(
-                        roi, function_type, dose, weight, restrict_beamset))
+                          roi, function_type, dose, weight, restrict_beamset))
     retval_0.DoseFunctionParameters.Weight = weight
     retval_0.DoseFunctionParameters.DoseLevel = dose
     if volume:
