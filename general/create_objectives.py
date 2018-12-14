@@ -159,9 +159,11 @@ def add_objective(obj, case, plan, beamset,
         else:
             logging.warning('add_objective: Unknown low dose distance for Dose Fall Off')
 
+
     # UniformDose: Dose, Weight, % Volume=30?
     # UniformityConstraint?
     # Deal with robustness
+    robust = False
 
     # Find current Beamset Number and determine plan optimization
     OptIndex = 0
