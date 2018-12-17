@@ -74,7 +74,7 @@ def add_objective(obj, case, plan, beamset,
                     RoiGeometries[s_roi]
                 if t.HasContours():
                     roi_vol = t.GetRoiVolume()
-                    volume = float(obj.find('volume').text) / roi_vol
+                    volume = int(float(obj.find('volume').text) / roi_vol)
                     obj.find('volume').text = str(volume)
                     obj.find('volume').attrib["units"] = "%"
                 else:
@@ -82,7 +82,7 @@ def add_objective(obj, case, plan, beamset,
             except:
                 logging.warning('add_objective: Error getting volume for {}, volume => 0.0'.format(s_roi))
         elif obj.find('volume').attrib["units"] == "%":
-            volume = float(obj.find('volume').text)
+            volume = int(obj.find('volume').text)
     # Modify the dose tag if relative
     if s_dose:
         logging.debug('add_objective: ROI: {} Protocol dose {} {} substituted with {} Gy'.format(
