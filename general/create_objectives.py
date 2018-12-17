@@ -75,6 +75,8 @@ def add_objective(obj, case, plan, beamset,
                 if t.HasContours():
                     roi_vol = t.GetRoiVolume()
                     volume = int(float(obj.find('volume').text) / roi_vol)
+                    logging.debug('add_objective: ROI: {} Protocol volume {} substituted with {}'.format(
+                        obj.find('name').text, obj.find('volume').text, volume))
                     obj.find('volume').text = str(volume)
                     obj.find('volume').attrib["units"] = "%"
                 else:
