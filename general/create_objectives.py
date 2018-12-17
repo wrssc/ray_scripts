@@ -91,7 +91,7 @@ def add_objective(obj, case, plan, beamset,
             obj.find('dose').attrib["units"] = "Gy"
             # Change the element to the substitute dose times the percentage of the reference
             obj.find('dose').text = float(s_dose) * float(obj.find('dose').text) / 100
-            dose = float(s_dose) * 100
+            dose = float(obj.find('dose').text) * 100
         else:
             obj.find('dose').text = float(s_dose) * 100
     else:
