@@ -195,8 +195,8 @@ def add_objective(obj, case, plan, beamset,
         # Found our index.  We will use a shorthand for the remainder of the code
         plan_optimization = plan.PlanOptimizations[OptIndex]
         # plan_optimization_parameters = plan.PlanOptimizations[OptIndex].OptimizationParameters
-        logging.info(
-            'optimization found, proceeding with plan.PlanOptimization[{}] for beamset {}'.format(
+        logging.debug(
+            'Adding objective to plan.PlanOptimization[{}] for beamset {}'.format(
                 OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
             ))
 
@@ -223,7 +223,7 @@ def add_objective(obj, case, plan, beamset,
                                                              RestrictToBeamSet=restrict_beamset,
                                                              UseRbeDose=False)
         retval_0.DoseFunctionParameters.Weight = weight
-        retval_0.DoseFunctionParameters.DoseLevel = dose
+
         if volume:
             retval_0.PercentVolume = volume
         if 'Eud' in function_type:
@@ -234,6 +234,9 @@ def add_objective(obj, case, plan, beamset,
             retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
             retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
             retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+        # For all types other than DoseFallOff, the dose is simply entered here
+        else:
+            retval_0.DoseFunctionParameters.DoseLevel = dose
         logging.debug("add_objective: Added objective for ROI:" +
                       "{}, type {}, dose {}, weight {}, for beamset {}".format(
                           roi, function_type, dose, weight, restrict_beamset))
