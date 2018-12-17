@@ -214,6 +214,7 @@ def add_objective(obj, case, plan, beamset,
                                                          UseRbeDose=False)
     retval_0.DoseFunctionParameters.Weight = weight
 
+    # Add volume constraint
     if volume:
         retval_0.DoseFunctionParameters.PercentVolume = volume
     if 'Eud' in function_type:
@@ -242,7 +243,7 @@ def add_objective(obj, case, plan, beamset,
     #     retval_0.DoseFunctionParameters.Weight = weight
     #
     #     if volume:
-    #         retval_0.PercentVolume = volume
+    #         retval_0.DoseFunctionParameters.PercentVolume = volume
     #     if 'Eud' in function_type:
     #         retval_0.DoseFunctionParameters.EudParameterA = eud_a
     #     # Dose fall off type of optimization option.
