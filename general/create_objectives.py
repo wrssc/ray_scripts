@@ -179,6 +179,7 @@ def add_objective(obj, case, plan, beamset,
 
     # Find current Beamset Number and determine plan optimization
     OptIndex = 0
+    OptName = plan.PlanOptimizations[OptIndex].OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
     IndexNotFound = True
     # In RS, OptimizedBeamSets objects are keyed using the DicomPlanLabel, or Beam Set name.
     # Because the key to the OptimizedBeamSets presupposes the user knows the PlanOptimizations index
@@ -203,66 +204,37 @@ def add_objective(obj, case, plan, beamset,
             'Adding objective to plan.PlanOptimization[{}] for beamset {}'.format(
                 OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
             ))
-
-    o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-                                                         RoiName=roi,
-                                                         IsConstraint=constraint,
-                                                         RestrictAllBeamsIndividually=False,
-                                                         RestrictToBeam=None,
-                                                         IsRobust=robust,
-                                                         RestrictToBeamSet=restrict_beamset,
-                                                         UseRbeDose=False)
-    o.DoseFunctionParameters.Weight = weight
-
-    # Add volume constraint
-    if volume:
-        o.DoseFunctionParameters.PercentVolume = volume
-    if 'Eud' in function_type:
-        o.DoseFunctionParameters.EudParameterA = eud_a
-    # Dose fall off type of optimization option.
-    if function_type == 'DoseFallOff':
-        o.DoseFunctionParameters.HighDoseLevel = high_dose
-        o.DoseFunctionParameters.LowDoseLevel = low_dose
-        o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-        o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
-    # For all types other than DoseFallOff, the dose is simply entered here
-    else:
-        o.DoseFunctionParameters.DoseLevel = dose
-    logging.debug("add_objective: Added objective for ROI:" +
-                  "{}, type {}, dose {}, weight {}, for beamset {}".format(
-                      roi, function_type, dose, weight, restrict_beamset))
-    # try:
-    #     retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-    #                                                          RoiName=roi,
-    #                                                          IsConstraint=constraint,
-    #                                                          RestrictAllBeamsIndividually=False,
-    #                                                          RestrictToBeam=None,
-    #                                                          IsRobust=robust,
-    #                                                          RestrictToBeamSet=restrict_beamset,
-    #                                                          UseRbeDose=False)
-    #     retval_0.DoseFunctionParameters.Weight = weight
-    #
-    #     if volume:
-    #         retval_0.DoseFunctionParameters.PercentVolume = volume
-    #     if 'Eud' in function_type:
-    #         retval_0.DoseFunctionParameters.EudParameterA = eud_a
-    #     # Dose fall off type of optimization option.
-    #     if function_type == 'DoseFallOff':
-    #         retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
-    #         retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
-    #         retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-    #         retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
-    #     # For all types other than DoseFallOff, the dose is simply entered here
-    #     else:
-    #         retval_0.DoseFunctionParameters.DoseLevel = dose
-    #     logging.debug("add_objective: Added objective for ROI:" +
-    #                   "{}, type {}, dose {}, weight {}, for beamset {}".format(
-    #                       roi, function_type, dose, weight, restrict_beamset))
-    # except:
-    #     logging.debug("add_objective: Failed to add objective for ROI:" +
-    #                   " {}, type {}, dose {}, weight {}, for beamset {}".format(
-    #                       roi, function_type, dose, weight, restrict_beamset))
-
+    # Add the objective
+    try:
+        o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
+                                                      RoiName=roi,
+                                                      IsConstraint=constraint,
+                                                      RestrictAllBeamsIndividually=False,
+                                                      RestrictToBeam=None,
+                                                      IsRobust=robust,
+                                                      RestrictToBeamSet=restrict_beamset,
+                                                      UseRbeDose=False)
+        o.DoseFunctionParameters.Weight = weight
+        if volume:
+            o.DoseFunctionParameters.PercentVolume = volume
+        if 'Eud' in function_type:
+            o.DoseFunctionParameters.EudParameterA = eud_a
+            # Dose fall off type of optimization option.
+        if function_type == 'DoseFallOff':
+            o.DoseFunctionParameters.HighDoseLevel = high_dose
+            o.DoseFunctionParameters.LowDoseLevel = low_dose
+            o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+            o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+            # For all types other than DoseFallOff, the dose is simply entered here
+        else:
+            o.DoseFunctionParameters.DoseLevel = dose
+        logging.debug("add_objective: Added objective for ROI:" +
+                      "{}, type {}, dose {}, weight {}, for beamset {}".format(
+                          roi, function_type, dose, weight, restrict_beamset))
+    except:
+        logging.debug("add_objective: Failed to add objective for ROI:" +
+                      " {}, type {}, dose {}, weight {}, for beamset {}".format(
+                          roi, function_type, dose, weight, restrict_beamset))
 
 
 def main():
