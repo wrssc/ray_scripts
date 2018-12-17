@@ -202,37 +202,64 @@ def add_objective(obj, case, plan, beamset,
                 OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
             ))
 
-    try:
-        retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-                                                             RoiName=roi,
-                                                             IsConstraint=constraint,
-                                                             RestrictAllBeamsIndividually=False,
-                                                             RestrictToBeam=None,
-                                                             IsRobust=robust,
-                                                             RestrictToBeamSet=restrict_beamset,
-                                                             UseRbeDose=False)
-        retval_0.DoseFunctionParameters.Weight = weight
+    retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
+                                                         RoiName=roi,
+                                                         IsConstraint=constraint,
+                                                         RestrictAllBeamsIndividually=False,
+                                                         RestrictToBeam=None,
+                                                         IsRobust=robust,
+                                                         RestrictToBeamSet=restrict_beamset,
+                                                         UseRbeDose=False)
+    retval_0.DoseFunctionParameters.Weight = weight
 
-        if volume:
-            retval_0.PercentVolume = volume
-        if 'Eud' in function_type:
-            retval_0.DoseFunctionParameters.EudParameterA = eud_a
-        # Dose fall off type of optimization option.
-        if function_type == 'DoseFallOff':
-            retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
-            retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
-            retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-            retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
-        # For all types other than DoseFallOff, the dose is simply entered here
-        else:
-            retval_0.DoseFunctionParameters.DoseLevel = dose
-        logging.debug("add_objective: Added objective for ROI:" +
-                      "{}, type {}, dose {}, weight {}, for beamset {}".format(
-                          roi, function_type, dose, weight, restrict_beamset))
-    except:
-        logging.debug("add_objective: Failed to add objective for ROI:" +
-                      " {}, type {}, dose {}, weight {}, for beamset {}".format(
-                          roi, function_type, dose, weight, restrict_beamset))
+    if volume:
+        retval_0.PercentVolume = volume
+    if 'Eud' in function_type:
+        retval_0.DoseFunctionParameters.EudParameterA = eud_a
+    # Dose fall off type of optimization option.
+    if function_type == 'DoseFallOff':
+        retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
+        retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
+        retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+        retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+    # For all types other than DoseFallOff, the dose is simply entered here
+    else:
+        retval_0.DoseFunctionParameters.DoseLevel = dose
+    logging.debug("add_objective: Added objective for ROI:" +
+                  "{}, type {}, dose {}, weight {}, for beamset {}".format(
+                      roi, function_type, dose, weight, restrict_beamset))
+    # try:
+    #     retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
+    #                                                          RoiName=roi,
+    #                                                          IsConstraint=constraint,
+    #                                                          RestrictAllBeamsIndividually=False,
+    #                                                          RestrictToBeam=None,
+    #                                                          IsRobust=robust,
+    #                                                          RestrictToBeamSet=restrict_beamset,
+    #                                                          UseRbeDose=False)
+    #     retval_0.DoseFunctionParameters.Weight = weight
+    #
+    #     if volume:
+    #         retval_0.PercentVolume = volume
+    #     if 'Eud' in function_type:
+    #         retval_0.DoseFunctionParameters.EudParameterA = eud_a
+    #     # Dose fall off type of optimization option.
+    #     if function_type == 'DoseFallOff':
+    #         retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
+    #         retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
+    #         retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+    #         retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+    #     # For all types other than DoseFallOff, the dose is simply entered here
+    #     else:
+    #         retval_0.DoseFunctionParameters.DoseLevel = dose
+    #     logging.debug("add_objective: Added objective for ROI:" +
+    #                   "{}, type {}, dose {}, weight {}, for beamset {}".format(
+    #                       roi, function_type, dose, weight, restrict_beamset))
+    # except:
+    #     logging.debug("add_objective: Failed to add objective for ROI:" +
+    #                   " {}, type {}, dose {}, weight {}, for beamset {}".format(
+    #                       roi, function_type, dose, weight, restrict_beamset))
+
 
 
 def main():
