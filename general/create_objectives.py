@@ -88,7 +88,8 @@ def add_objective(obj, case, plan, beamset,
             obj.find('name').text, obj.find('dose').text, obj.find('dose').attrib["units"], s_dose))
         if obj.find('dose').attrib["units"] == "%":
             obj.find('dose').attrib["units"] = "Gy"
-            obj.find('dose').text = s_dose
+            # Change the element to the substitute dose times the percentage of the reference
+            obj.find('dose').text = s_dose * float(obj.find('dose').text) / 100
             dose = float(s_dose) * 100
         else:
             obj.find('dose').text = float(s_dose) * 100
@@ -200,19 +201,6 @@ def add_objective(obj, case, plan, beamset,
                 OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
             ))
 
-    retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-                                                         RoiName=roi,
-                                                         IsConstraint=constraint,
-                                                         RestrictAllBeamsIndividually=False,
-                                                         RestrictToBeam=None,
-                                                         IsRobust=robust,
-                                                         RestrictToBeamSet=restrict_beamset,
-                                                         UseRbeDose=False)
-    if function_type == 'DoseFallOff':
-        retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
-        retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
-        retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-        retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
     try:
         retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
                                                              RoiName=roi,
