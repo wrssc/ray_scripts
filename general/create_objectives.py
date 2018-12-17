@@ -204,7 +204,7 @@ def add_objective(obj, case, plan, beamset,
                 OptIndex, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
             ))
 
-    retval_0 = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
+    o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
                                                          RoiName=roi,
                                                          IsConstraint=constraint,
                                                          RestrictAllBeamsIndividually=False,
@@ -212,22 +212,22 @@ def add_objective(obj, case, plan, beamset,
                                                          IsRobust=robust,
                                                          RestrictToBeamSet=restrict_beamset,
                                                          UseRbeDose=False)
-    retval_0.DoseFunctionParameters.Weight = weight
+    o.DoseFunctionParameters.Weight = weight
 
     # Add volume constraint
     if volume:
-        retval_0.DoseFunctionParameters.PercentVolume = volume
+        o.DoseFunctionParameters.PercentVolume = volume
     if 'Eud' in function_type:
-        retval_0.DoseFunctionParameters.EudParameterA = eud_a
+        o.DoseFunctionParameters.EudParameterA = eud_a
     # Dose fall off type of optimization option.
     if function_type == 'DoseFallOff':
-        retval_0.DoseFunctionParameters.HighDoseLevel = high_dose
-        retval_0.DoseFunctionParameters.LowDoseLevel = low_dose
-        retval_0.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-        retval_0.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+        o.DoseFunctionParameters.HighDoseLevel = high_dose
+        o.DoseFunctionParameters.LowDoseLevel = low_dose
+        o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+        o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
     # For all types other than DoseFallOff, the dose is simply entered here
     else:
-        retval_0.DoseFunctionParameters.DoseLevel = dose
+        o.DoseFunctionParameters.DoseLevel = dose
     logging.debug("add_objective: Added objective for ROI:" +
                   "{}, type {}, dose {}, weight {}, for beamset {}".format(
                       roi, function_type, dose, weight, restrict_beamset))
