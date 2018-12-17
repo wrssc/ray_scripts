@@ -179,6 +179,14 @@ def add_objective(obj, case, plan, beamset,
 
     # Find current Beamset Number and determine plan optimization
     OptIndex = 0
+    IndexNotFound = True
+    while IndexNotFound:
+        for OptIndex, opts in enumerate(plan.PlanOptimizations):
+            if beamset.DicomPlanLabel in opt.OptimizedBeamSets:
+                logging.debug("Key found: {}".format(OptIndex))
+                IndexNotFound = False
+            else:
+                logging.debug("Key not found in OptIndex: {}".format(OptIndex))
     OptName = plan.PlanOptimizations[OptIndex].OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
     IndexNotFound = True
     # In RS, OptimizedBeamSets objects are keyed using the DicomPlanLabel, or Beam Set name.
@@ -186,6 +194,7 @@ def add_objective(obj, case, plan, beamset,
     # this while loop looks for the PlanOptimizations index needed below by searching for a key
     # that matches the BeamSet DicomPlanLabel
     # This can likely be replaced with a list comprehension
+    OptIndex = 0
     while IndexNotFound:
         try:
             OptName = plan.PlanOptimizations[OptIndex].OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
