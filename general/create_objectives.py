@@ -67,6 +67,7 @@ def add_objective(obj, case, plan, beamset,
     if obj.find('volume') is None:
         volume = None
     else:
+        # If the user specified an absolute volume convert this into %
         if obj.find('volume').attrib["units"] == "cc":
             try:
                 t = case.PatientModel.StructureSets[exam.Name]. \
@@ -89,7 +90,7 @@ def add_objective(obj, case, plan, beamset,
         if obj.find('dose').attrib["units"] == "%":
             obj.find('dose').attrib["units"] = "Gy"
             # Change the element to the substitute dose times the percentage of the reference
-            obj.find('dose').text = s_dose * float(obj.find('dose').text) / 100
+            obj.find('dose').text = float(s_dose) * float(obj.find('dose').text) / 100
             dose = float(s_dose) * 100
         else:
             obj.find('dose').text = float(s_dose) * 100
