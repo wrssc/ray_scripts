@@ -3,25 +3,30 @@
         <from><machine>TrueBeam</machine><energy type="photons">6</energy></from>
         <to><machine>TrueBeam2588</machine><energy type="photons">6</energy></to>
         <to><machine>TrueBeam2871</machine><energy type="photons">6</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">6</energy></to>
     </filter>
     <filter type="machine/energy">
         <from><machine>TrueBeam_FFF</machine><energy type="photons">6</energy></from>
         <to><machine>TrueBeam2588</machine><energy type="photons">6FFF</energy></to>
         <to><machine>TrueBeam2871</machine><energy type="photons">6FFF</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">6FFF</energy></to>
     </filter>
     <filter type="machine/energy">
         <from><machine>TrueBeam</machine><energy type="photons">10</energy></from>
         <to><machine>TrueBeam2588</machine><energy type="photons">10</energy></to>
         <to><machine>TrueBeam2871</machine><energy type="photons">10</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">10</energy></to>
     </filter>
     <filter type="machine/energy">
         <from><machine>TrueBeam_FFF</machine><energy type="photons">10</energy></from>
         <to><machine>TrueBeam2588</machine><energy type="photons">10FFF</energy></to>
         <to><machine>TrueBeam2871</machine><energy type="photons">10FFF</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">10FFF</energy></to>
     </filter>
     <filter type="machine/energy">
         <from><machine>TrueBeam</machine><energy type="photons">15</energy></from>
         <to><machine>TrueBeam2871</machine><energy type="photons">15</energy></to>
+        <to><machine>TrueBeam3744</machine><energy type="photons">15</energy></to>
     </filter>
     <filter type="machine/energy">
         <from><machine>TrueBeamSTx</machine><energy type="photons">6</energy></from>
@@ -43,24 +48,28 @@
         <from><machine>TrueBeam_E</machine><energy type="electrons">6</energy></from>
         <to><machine>TrueBeam2588</machine><energy type="electrons">6</energy><rate type="MU/min">1000</rate></to>
         <to><machine>TrueBeam2871</machine><energy type="electrons">6</energy><rate type="MU/min">1000</rate></to>
+        <to><machine>TrueBeam3744</machine><energy type="electrons">6</energy><rate type="MU/min">1000</rate></to>
         <to><machine>TrueBeam1358</machine><energy type="electrons">6</energy><rate type="MU/min">1000</rate></to>
     </filter>
     <filter type="machine/energy">
         <from><machine>TrueBeam_E</machine><energy type="electrons">9</energy></from>
         <to><machine>TrueBeam2588</machine><energy type="electrons">9</energy><rate type="MU/min">1000</rate></to>
         <to><machine>TrueBeam2871</machine><energy type="electrons">9</energy><rate type="MU/min">1000</rate></to>
+        <to><machine>TrueBeam3744</machine><energy type="electrons">9</energy><rate type="MU/min">1000</rate></to>
         <to><machine>TrueBeam1358</machine><energy type="electrons">9</energy><rate type="MU/min">1000</rate></to>
     </filter>
     <filter type="machine/energy">
         <from><machine>TrueBeam_E</machine><energy type="electrons">12</energy></from>
         <to><machine>TrueBeam2588</machine><energy type="electrons">12</energy><rate type="MU/min">1000</rate></to>
         <to><machine>TrueBeam2871</machine><energy type="electrons">12</energy><rate type="MU/min">1000</rate></to>
+        <to><machine>TrueBeam3744</machine><energy type="electrons">12</energy><rate type="MU/min">1000</rate></to>
         <to><machine>TrueBeam1358</machine><energy type="electrons">12</energy><rate type="MU/min">1000</rate></to>
     </filter>
     <filter type="machine/energy">
         <from><machine>TrueBeam_E</machine><energy type="electrons">15</energy></from>
         <to><machine>TrueBeam2588</machine><energy type="electrons">15</energy><rate type="MU/min">1000</rate></to>
         <to><machine>TrueBeam2871</machine><energy type="electrons">15</energy><rate type="MU/min">1000</rate></to>
+        <to><machine>TrueBeam3744</machine><energy type="electrons">15</energy><rate type="MU/min">1000</rate></to>
         <to><machine>TrueBeam1358</machine><energy type="electrons">15</energy><rate type="MU/min">1000</rate></to>
     </filter>
 </filters>
