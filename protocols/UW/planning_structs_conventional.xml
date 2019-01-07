@@ -1,0 +1,48 @@
+<objectiveset>
+    <name>Standard Fractionation</name>
+    <objectives>
+        <roi>
+            <name>PTV1</name>
+            <type dir="gt">DX</type>
+            <volume units="%">98</volume>
+            <dose units="%" roi="PTV1">102.5</dose>
+            <weight>10</weight>
+        </roi>
+        <roi>
+            <name>PTV1</name>
+            <type>Max</type>
+            <dose units="%" roi="PTV1">109.7</dose>
+            <weight>10</weight>
+        </roi>
+        <roi>
+            <name>PTV1</name>
+            <type>UD</type>
+            <dose units="%" roi="PTV1">102.5</dose>
+            <weight>10</weight>
+        </roi>
+        <roi>
+            <name>PTV1</name>
+            <type a="3">MinEud</type>
+            <dose units="%" roi="PTV1">102.5</dose>
+            <weight>10</weight>
+        </roi>
+        <roi>
+           <name>PTV1</name>
+            <type a="3">MaxEud</type>
+            <dose units="Gy" roi="PTV1">50</dose>
+            <weight>10</weight>
+        </roi>
+        <roi>
+            <name>PTV1</name>
+            <type a="3" robust="True">TarEud</type>
+            <dose units="Gy" roi="PTV1">50</dose>
+            <weight>10</weight>
+        </roi>
+        <roi>
+            <name>PTV1</name>
+            <type dist="2" adapt="True" constraint="True">DFO</type>
+            <dose units="%" roi="PTV1" low="20">100</dose>
+            <weight>10</weight>
+        </roi>
+    </objectives>
+</objectiveset>
