@@ -110,7 +110,7 @@
             <priority>1</priority>
         </roi>
         <roi>
-            <name>SpinalCord_PTV05</name>
+            <name>SpinalCord_PRV05</name>
             <type dir="le">Max</type>
             <volume units="cc">0.1</volume>
             <dose units="Gy">50</dose>
