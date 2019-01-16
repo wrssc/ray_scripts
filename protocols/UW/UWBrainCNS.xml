@@ -37,6 +37,7 @@
                 <type dir="ge">HI</type>
                 <volume units="%">95</volume>
                 <index>0.938</index>
+                <dose units="Gy">1</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -44,6 +45,7 @@
                 <type dir="ge">HI</type>
                 <volume units="%">95</volume>
                 <index>0.98</index>
+                <dose units="Gy">1</dose>
                 <priority>4</priority>
             </roi>
             <roi>
