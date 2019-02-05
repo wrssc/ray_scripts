@@ -57,6 +57,7 @@
             - [ ] Add logging for functional decreases with each step - list of items
     2.0.1 Bug fix, if co-optimization is not used, the segment weight optimization fails. Put in logic
           to declare the variable cooptimization=False for non-cooptimized beamsets
+    2.0.2 Bug fix, remind user that gantry 4 degrees cannot be changed without a reset.
 
 
     This program is free software: you can redistribute it and/or modify it under
