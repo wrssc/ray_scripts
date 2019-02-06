@@ -557,7 +557,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         logging.info('optimize_plan: User selected Fluence optimization Only')
         status.next_step('Running fluence-based optimization')
 
-
         # for beams in treatment_setup_settings.BeamSettings:
         # if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
         #    beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
@@ -584,18 +583,19 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             for beams in ts.BeamSettings:
                 mu = beams.ForBeam.BeamMU
                 if beams.TomoPropertiesPerBeam is not None:
-                  logging.debug('Tomo plan - control point spacing not set')
-                elif beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                    # If there are MU then this field has already been optimized with the wrong gantry spacing
-                    # for shame....
-                    if mu > 0:
-                        logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
-                        UserInterface.WarningBox('Attempt to correct final gantry spacing failed - check reset beams' +
-                                         ' on next attempt at this script')
-                        sys.exit('Beams must be reset to change gantry spacing to 2 degrees per control point')
-                    else:
-                        beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
-                            FinalGantrySpacing=2)
+                    logging.debug('Tomo plan - control point spacing not set')
+                elif beams.ArcConversionPropertiesPerBeam is not None:
+                    if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
+                        # If there are MU then this field has already been optimized with the wrong gantry spacing
+                        # for shame....
+                        if mu > 0:
+                            logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
+                            UserInterface.WarningBox('Attempt to correct final gantry spacing failed - check reset beams' +
+                                                     ' on next attempt at this script')
+                            quit()
+                        else:
+                            beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
+                                FinalGantrySpacing=2)
 
         while Optimization_Iteration != maximum_iteration:
             # Record the previous total objective function value
