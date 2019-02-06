@@ -207,9 +207,9 @@
         </roi>
         <roi>
             <name>Kidney_Total</name>
-            <type dir="le">DX</type>
+            <type dir="le">VX</type>
             <volume units="%">33.3</volume>
-            <dose units="Gy">60</dose>
+            <dose units="Gy">18</dose>
             <priority>1</priority>
         </roi>
         <roi>
@@ -217,6 +217,34 @@
             <type dir="le">Mean</type>
             <dose units="Gy">10</dose>
             <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Kidney_Total</name>
+            <type dir="le">VX</type>
+            <volume units="%">33</volume>
+            <dose units="Gy">18</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Kidney_Total</name>
+            <type dir="le">VX</type>
+            <volume units="%">33</volume>
+            <dose units="Gy">18</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Kidney_L</name>
+            <type dir="le">VX</type>
+            <volume units="%">50</volume>
+            <dose units="Gy">18</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Kidney_R</name>
+            <type dir="le">VX</type>
+            <volume units="%">50</volume>
+            <dose units="Gy">18</dose>
+            <priority>3</priority>
         </roi>
         <roi>
             <name>Skin</name>
