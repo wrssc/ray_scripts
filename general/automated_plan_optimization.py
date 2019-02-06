@@ -582,7 +582,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     else:
         for ts in treatment_setup_settings:
             for beams in ts.BeamSettings:
-                mu = beams.ForBeam.BeamMU.get()
+                mu = beams.ForBeam.BeamMU
                 try:
                     if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
                         # If there are MU then this field has already been optimized with the wrong gantry spacing
