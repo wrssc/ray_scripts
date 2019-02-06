@@ -58,6 +58,7 @@
     2.0.1 Bug fix, if co-optimization is not used, the segment weight optimization fails. Put in logic
           to declare the variable cooptimization=False for non-cooptimized beamsets
     2.0.2 Bug fix, remind user that gantry 4 degrees cannot be changed without a reset.
+          Inclusion of TomoTherapy Optimization methods
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -555,10 +556,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     if fluence_only:
         logging.info('optimize_plan: User selected Fluence optimization Only')
         status.next_step('Running fluence-based optimization')
-        for ts in treatment_setup_settings:
-            for beams in ts.BeamSettings:
-                if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                    beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
+
 
         # for beams in treatment_setup_settings.BeamSettings:
         # if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
@@ -582,16 +580,23 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             Optimization_Iteration, current_objective_function))
         reduce_oar_success = False
     else:
-        try:
-            for ts in treatment_setup_settings:
-                for beams in ts.BeamSettings:
+        for ts in treatment_setup_settings:
+            for beams in ts.BeamSettings:
+                mu = beams.ForBeam.BeamMU.get()
+                try:
                     if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                        beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
-        except:
-            UserInterface.WarningBox('Attempt to correct final gantry spacing failed - check reset beams' +
-                                     ' on next attempt at this script')
-            logging.error('optimize_plan: Attempt to correct final gantry spacing failed')
-            sys.exit('Beams must be reset to change gantry spacing to 2 degrees per control point')
+                        if mu > 0:
+                            logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
+                            UserInterface.WarningBox('Attempt to correct final gantry spacing failed - check reset beams' +
+                                             ' on next attempt at this script')
+                            sys.exit('Beams must be reset to change gantry spacing to 2 degrees per control point')
+                        elif beams.TomoPropertiesPerBeam is None:
+                            logging.debug('Tomo plan - control point spacing not set')
+                        else:
+                            beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
+                                FinalGantrySpacing=2)
+                except:
+                    logging.error('optimize_plan: Attempt to correct final gantry spacing failed')
 
         while Optimization_Iteration != maximum_iteration:
             # Record the previous total objective function value
