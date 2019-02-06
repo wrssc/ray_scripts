@@ -585,6 +585,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 mu = beams.ForBeam.BeamMU.get()
                 try:
                     if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
+                        # If there are MU then this field has already been optimized with the wrong gantry spacing
+                        # for shame....
                         if mu > 0:
                             logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
                             UserInterface.WarningBox('Attempt to correct final gantry spacing failed - check reset beams' +
