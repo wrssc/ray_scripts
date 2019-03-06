@@ -29,6 +29,8 @@
     Version History:
     1.0.1: Hot fix to repair inconsistency when underdose is not used but uniform dose is.
     1.0.2: Adding "inner air" as an optional feature
+    1.0.3 Hot fix to repair error in definition of sOTVu: Currently taking union of PTV and
+            not_OTV - should be intersection.
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -1066,7 +1068,7 @@ def main():
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
                     "StructColor": TargetColors[index],
-                    "OperationA": "Union",
+                    "OperationA": "Intersection",
                     "SourcesA": [target] + otv_intersect,
                     "MarginTypeA": "Expand",
                     "ExpA": [0] * 6,
