@@ -559,10 +559,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 if beams.TomoPropertiesPerBeam is not None:
                     logging.debug('Tomo plan - control point spacing not set')
                 elif beams.ArcConversionPropertiesPerBeam is not None:
-                    if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                        # If there are MU then this field has already been optimized with the wrong gantry spacing
-                        # for shame....
-                        if mu > 0:
+                    if mu > 0:
+                        if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
+                            # If there are MU then this field has already been optimized with the wrong gantry spacing
+                            # for shame....
                             logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
                             UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
                                                      'spacing failed - check reset beams' +
@@ -571,27 +571,27 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         else:
                             beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
                                 FinalGantrySpacing=2)
-                # Maximum Jaw Sizes should be limited for STx beams
 
-                # Determine the current machine
-                machine_ref = beamset.MachineReference.MachineName
-                if machine_ref == 'TrueBeamSTx':
-                    logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
-                    x1limit = -20
-                    x2limit = 20
-                    y1limit = -10.9
-                    y2limit = 10.9
-                    try:
-                        # Uncomment to automatically set jaw limits
-                        beams.EditBeamOptimizationSettings(
-                            JawMotion="Use limits as max",
-                            LeftJaw=x1limit,
-                            RightJaw=x2limit,
-                            TopJaw=y2limit,
-                            BottomJaw=y1limit,
-                            OptimizationTypes=['SegmentOpt','SegmentMU'])
-                    except:
-                        logging.debug('Failed to set limits for TrueBeamStx')
+                        # Maximum Jaw Sizes should be limited for STx beams
+                        # Determine the current machine
+                        machine_ref = beamset.MachineReference.MachineName
+                        if machine_ref == 'TrueBeamSTx':
+                            logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
+                            x1limit = -20
+                            x2limit = 20
+                            y1limit = -10.9
+                            y2limit = 10.9
+                            try:
+                                # Uncomment to automatically set jaw limits
+                                beams.EditBeamOptimizationSettings(
+                                    JawMotion="Use limits as max",
+                                    LeftJaw=x1limit,
+                                    RightJaw=x2limit,
+                                    TopJaw=y2limit,
+                                    BottomJaw=y1limit,
+                                    OptimizationTypes=['SegmentOpt','SegmentMU'])
+                            except:
+                                logging.debug('Failed to set limits for TrueBeamStx')
 
         while Optimization_Iteration != maximum_iteration:
             # Record the previous total objective function value
