@@ -456,16 +456,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     status.next_step("Setting initialization variables")
     logging.info('optimize_plan: Set some variables like Niterations, Nits={}'.format(maximum_iteration))
-    # Maximum Jaw Sizes
-    # Adjust these for StX
-    # Determine the current machine
-    machine_ref = beamset.MachineReference.MachineName
-    logging.info('Current Machine is'.format(machine_ref))
-    X1limit = -15
-    X2limit = 15
-    Y1limit = -19
-    Y2limit = 19
-
     # Variable definitions
     i = 0
     beamsinrange = True
@@ -525,25 +515,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         logging.debug('automated_plan_optimization: Plan is not co-optimized.')
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # it is clear than when co-optimization occurs, we have more than one entry in here...
-    # while beamsinrange:
-    #  try:
-    #      plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].\
-    #          BeamSettings[i].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
-    ## Uncomment to automatically set jaw limits
-    ##      plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].\
-    ##          BeamSettings[i].EditBeamOptimizationSettings(
-    ##                          JawMotion = "Use limits as max",
-    ##                          LeftJaw = X1limit,
-    ##                          RightJaw = X2limit,
-    ##                          TopJaw = Y2limit,
-    ##                          BottomJaw = Y1limit,
-    ##                          OptimizationTypes=['SegmentOpt','SegmentMU'])
-    #
-    #      i += 1
-    #      num_beams = i
-    #
-    #  except:
-    #      beamsinrange = False
 
     # Reset
     if reset_beams:
@@ -561,9 +532,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         logging.info('optimize_plan: User selected Fluence optimization Only')
         status.next_step('Running fluence-based optimization')
 
-        # for beams in treatment_setup_settings.BeamSettings:
-        # if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-        #    beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
         # Fluence only is the quick and dirty way of dialing in all necessary elements for the calc
         plan_optimization_parameters.DoseCalculation.ComputeFinalDose = False
         plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 500
@@ -594,21 +562,34 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         # for shame....
                         if mu > 0:
                             logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
-                            UserInterface.WarningBox('Restart Required: Attempt to correct final gantry spacing failed - check reset beams' +
+                            UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
+                                                     'spacing failed - check reset beams' +
                                                      ' on next attempt at this script')
                             sys.exit('Restart Required: Select reset beams on next run of script.')
                         else:
                             beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
                                 FinalGantrySpacing=2)
-                            ## Uncomment to automatically set jaw limits
-                            # Find the StX designation for autosetting max jaw limits
-                            ## beams[i].EditBeamOptimizationSettings(
-                            ##                 JawMotion = "Use limits as max",
-                            ##                 LeftJaw = X1limit,
-                            ##                 RightJaw = X2limit,
-                            ##                 TopJaw = Y2limit,
-                            ##                 BottomJaw = Y1limit,
-                            ##                 OptimizationTypes=['SegmentOpt','SegmentMU'])
+                            # Maximum Jaw Sizes
+                            # Adjust these for StX
+                            # Determine the current machine
+                            machine_ref = beamset.MachineReference.MachineName
+                            if machine_ref == 'TrueBeamSTx':
+                                logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
+                                x1limit = -20
+                                x2limit = 20
+                                y1limit = -10.9
+                                y2limit = 10.9
+                                try:
+                                    # Uncomment to automatically set jaw limits
+                                    beams.EditBeamOptimizationSettings(
+                                        JawMotion = "Use limits as max",
+                                        LeftJaw = x1limit,
+                                        RightJaw = x2limit,
+                                        TopJaw = y2limit,
+                                        BottomJaw = y1limit,
+                                        OptimizationTypes=['SegmentOpt','SegmentMU'])
+                                except:
+                                    logging.debug('Failed to set limits for TrueBeamStx')
 
         while Optimization_Iteration != maximum_iteration:
             # Record the previous total objective function value
