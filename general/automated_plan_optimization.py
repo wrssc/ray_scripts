@@ -459,7 +459,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     # Maximum Jaw Sizes
     # Adjust these for StX
     # Determine the current machine
-    machine_ref = beamset.MachineReference[0]['MachineName']
+    machine_ref = beamset.MachineReference.MachineName
     logging.info('Current Machine is'.format(machine_ref))
     X1limit = -15
     X2limit = 15
