@@ -59,6 +59,7 @@
           to declare the variable cooptimization=False for non-cooptimized beamsets
     2.0.2 Bug fix, remind user that gantry 4 degrees cannot be changed without a reset.
           Inclusion of TomoTherapy Optimization methods
+    2.0.3 Adding Jaw locking, including support for lock-to-jaw max for TrueBeamStX
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -457,6 +458,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     logging.info('optimize_plan: Set some variables like Niterations, Nits={}'.format(maximum_iteration))
     # Maximum Jaw Sizes
     # Adjust these for StX
+    # Determine the current machine
+    machine_ref = beamset.MachineReference[0]['MachineName']
+    logging.info('Current Machine is'.format(machine_ref))
     X1limit = -15
     X2limit = 15
     Y1limit = -19
@@ -596,6 +600,15 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         else:
                             beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
                                 FinalGantrySpacing=2)
+                            ## Uncomment to automatically set jaw limits
+                            # Find the StX designation for autosetting max jaw limits
+                            ## beams[i].EditBeamOptimizationSettings(
+                            ##                 JawMotion = "Use limits as max",
+                            ##                 LeftJaw = X1limit,
+                            ##                 RightJaw = X2limit,
+                            ##                 TopJaw = Y2limit,
+                            ##                 BottomJaw = Y1limit,
+                            ##                 OptimizationTypes=['SegmentOpt','SegmentMU'])
 
         while Optimization_Iteration != maximum_iteration:
             # Record the previous total objective function value
