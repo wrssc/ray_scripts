@@ -582,11 +582,11 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                 try:
                                     # Uncomment to automatically set jaw limits
                                     beams.EditBeamOptimizationSettings(
-                                        JawMotion = "Use limits as max",
-                                        LeftJaw = x1limit,
-                                        RightJaw = x2limit,
-                                        TopJaw = y2limit,
-                                        BottomJaw = y1limit,
+                                        JawMotion="Use limits as max",
+                                        LeftJaw=x1limit,
+                                        RightJaw=x2limit,
+                                        TopJaw=y2limit,
+                                        BottomJaw=y1limit,
                                         OptimizationTypes=['SegmentOpt','SegmentMU'])
                                 except:
                                     logging.debug('Failed to set limits for TrueBeamStx')
