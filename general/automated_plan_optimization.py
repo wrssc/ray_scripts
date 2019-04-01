@@ -596,6 +596,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                         JawMotion="Use limits as max",
                                         LeftJaw=x1limit,
                                         RightJaw=x2limit,
+                                        # Shewesh
                                         TopJaw=y2limit,
                                         BottomJaw=y1limit,
                                         SelectCollimatorAngle='False',
