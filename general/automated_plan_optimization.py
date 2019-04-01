@@ -551,6 +551,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             Optimization_Iteration, current_objective_function))
         reduce_oar_success = False
     else:
+        logging.info('optimize_plan: Full optimization')
         for ts in treatment_setup_settings:
             # Set properties of the beam optimization
             for beams in ts.BeamSettings:
@@ -559,19 +560,18 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 if beams.TomoPropertiesPerBeam is not None:
                     logging.debug('Tomo plan - control point spacing not set')
                 elif beams.ArcConversionPropertiesPerBeam is not None:
-                    if mu > 0:
                         if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                            # If there are MU then this field has already been optimized with the wrong gantry spacing
-                            # for shame....
-                            logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
-                            UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
-                                                     'spacing failed - check reset beams' +
-                                                     ' on next attempt at this script')
-                            sys.exit('Restart Required: Select reset beams on next run of script.')
-                        else:
-                            beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
-                                FinalGantrySpacing=2)
-
+                            if mu > 0:
+                                # If there are MU then this field has already been optimized with the wrong gantry spacing
+                                # for shame....
+                                logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
+                                UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
+                                                         'spacing failed - check reset beams' +
+                                                         ' on next attempt at this script')
+                                sys.exit('Restart Required: Select reset beams on next run of script.')
+                            else:
+                                beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
+                                    FinalGantrySpacing=2)
                         # Maximum Jaw Sizes should be limited for STx beams
                         # Determine the current machine
                         machine_ref = beamset.MachineReference.MachineName
@@ -588,7 +588,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                     LeftJaw=x1limit,
                                     RightJaw=x2limit,
                                     TopJaw=y2limit,
-                                    BottomJaw=y1limit)
+                                    BottomJaw=y1limit,
+                                    OptimizationTypes=['SegmentOpt','SegmentMU'])
                             except:
                                 logging.debug('Failed to set limits for TrueBeamStx')
 
