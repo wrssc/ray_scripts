@@ -597,8 +597,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                         LeftJaw=x1limit,
                                         RightJaw=x2limit,
                                         # Shewesh
-                                        TopJaw=y2limit,
-                                        BottomJaw=y1limit,
+                                        TopJaw=y1limit,
+                                        BottomJaw=y2limit,
                                         SelectCollimatorAngle='False',
                                         AllowBeamSplit='False',
                                         OptimizationTypes=['SegmentOpt', 'SegmentMU'])
