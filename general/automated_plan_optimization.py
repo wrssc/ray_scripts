@@ -562,8 +562,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 elif beams.ArcConversionPropertiesPerBeam is not None:
                         if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
                             if mu > 0:
-                                # If there are MU then this field has already been optimized with the wrong gantry spacing
-                                # for shame....
+                                # If there are MU then this field has already been optimized with the wrong gantry
+                                # spacing. For shame....
                                 logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
                                 UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
                                                          'spacing failed - check reset beams' +
@@ -581,17 +581,26 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                             x2limit = 20
                             y1limit = -10.9
                             y2limit = 10.9
-                            try:
-                                # Uncomment to automatically set jaw limits
-                                beams.EditBeamOptimizationSettings(
-                                    JawMotion="Use limits as max",
-                                    LeftJaw=x1limit,
-                                    RightJaw=x2limit,
-                                    TopJaw=y2limit,
-                                    BottomJaw=y1limit,
-                                    OptimizationTypes=['SegmentOpt','SegmentMU'])
-                            except:
-                                logging.debug('Failed to set limits for TrueBeamStx')
+                            if mu > 0:
+                                # If there are MU then this field has already been optimized with the wrong jaw limits
+                                # For Shame....
+                                logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
+                                UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
+                                                         'jaws failed - check reset beams' +
+                                                         ' on next attempt at this script')
+                                sys.exit('Restart Required: Select reset beams on next run of script.')
+                            else:
+                                try:
+                                    # Uncomment to automatically set jaw limits
+                                    beams.EditBeamOptimizationSettings(
+                                        JawMotion="Use limits as max",
+                                        LeftJaw=x1limit,
+                                        RightJaw=x2limit,
+                                        TopJaw=y2limit,
+                                        BottomJaw=y1limit,
+                                        OptimizationTypes=['SegmentOpt','SegmentMU'])
+                                except:
+                                    logging.debug('Failed to set limits for TrueBeamStx')
 
         while Optimization_Iteration != maximum_iteration:
             # Record the previous total objective function value
