@@ -593,10 +593,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                 try:
                                     # Uncomment to automatically set jaw limits
                                     beams.EditBeamOptimizationSettings(
-                                        JawMotion="Use limits as max",
+                                        JawMotion='Use limits as max',
                                         LeftJaw=x1limit,
                                         RightJaw=x2limit,
-                                        # Shewesh
                                         TopJaw=y1limit,
                                         BottomJaw=y2limit,
                                         SelectCollimatorAngle='False',
