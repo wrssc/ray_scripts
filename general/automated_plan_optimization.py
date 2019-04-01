@@ -577,10 +577,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         machine_ref = beamset.MachineReference.MachineName
                         if machine_ref == 'TrueBeamSTx':
                             logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
-                            x1limit = '-20'
-                            x2limit = '20'
-                            y1limit = '-10.9'
-                            y2limit = '10.9'
+                            x1limit = -20
+                            x2limit = 20
+                            y1limit = -10.9
+                            y2limit = 10.9
                             if mu > 0:
                                 # If there are MU then this field has already been optimized with the wrong jaw limits
                                 # For Shame....
