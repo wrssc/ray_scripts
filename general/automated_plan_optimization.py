@@ -588,8 +588,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                     LeftJaw=x1limit,
                                     RightJaw=x2limit,
                                     TopJaw=y2limit,
-                                    BottomJaw=y1limit,
-                                    OptimizationTypes=['SegmentOpt','SegmentMU'])
+                                    BottomJaw=y1limit)
                             except:
                                 logging.debug('Failed to set limits for TrueBeamStx')
 
