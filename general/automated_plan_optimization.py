@@ -149,6 +149,16 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
     return change_grid
 
 
+def small_target_adjustment(beamset, min_dim, iteration):
+    """
+    This function takes in the beamset, looks for field sizes that are less than a minimum
+    resets the beams, and sets iteration count to back to zero
+    :param beamset: current RS beamset
+    :param min_dim: size of smallest desired aperture
+    :param iteration: current iteration, to be zeroed if not already
+
+    """
+
 def reduce_oar_dose(plan_optimization):
     """
     Function will search the objective list and sort by target and oar generates
@@ -347,7 +357,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     :param optimization_inputs:
     :return:
     """
-
+    # For the supplied beamset compute the jaw-defined equivalent square
     try:
         patient.Save()
     except SystemError:
@@ -616,6 +626,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             logging.info(
                 'optimize_plan: Current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
             #            status.next_step(text='Iterating....')
+            # Check for small targets by evaluating the jaw size
 
             # If the change_dose_grid list has a non-zero element change the dose grid
             if vary_grid:
@@ -744,26 +755,30 @@ def main():
             'input07_vary_dose_grid': 'Start with large grid, and decrease gradually',
             'input08_n_iterations': 'Number of Iterations',
             'input09_segment_weight': 'Segment weight calculation',
-            'input10_reduce_oar': 'Reduce OAR Dose'},
+            'input10_reduce_oar': 'Reduce OAR Dose',
+            'input11_small_target': 'Target size < 3 cm'},
         datatype={
             'input07_vary_dose_grid': 'check',
             'input01_fluence_only': 'check',
             'input02_cold_start': 'check',
             'input09_segment_weight': 'check',
-            'input10_reduce_oar': 'check'},
+            'input10_reduce_oar': 'check',
+            'input11_small_target': 'check'},
         initial={'input03_cold_max_iteration': '50',
                  'input04_cold_interm_iteration': '10',
                  'input05_ws_max_iteration': '35',
                  'input06_ws_interm_iteration': '5',
                  'input08_n_iterations': '4',
                  'input09_segment_weight': ['Perform Segment Weighted optimization'],
-                 'input10_reduce_oar': ['Perform reduce OAR dose before completion']},
+                 'input10_reduce_oar': ['Perform reduce OAR dose before completion']
+                 'input11_small_target': ['Target size < 3 cm - limit jaws']},
         options={
             'input01_fluence_only': ['Fluence calc'],
             'input02_cold_start': ['Reset Beams'],
             'input07_vary_dose_grid': ['Variable Dose Grid'],
             'input09_segment_weight': ['Perform Segment Weighted optimization'],
-            'input10_reduce_oar': ['Perform reduce OAR dose before completion']},
+            'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
+            'input11_small_target': ['Target size < 3 cm - limit jaws']},
         required=[])
     print optimization_dialog.show()
 
