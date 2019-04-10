@@ -283,7 +283,7 @@ def send(case,
                     # if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
                     #         'BlockSequence' in b:
 
-                        # if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
+                        #  if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
                         #         b.ApplicatorSequence.ApplicatorID == 'A6':
                         #     tray = 'FFDA(A06)'
 
