@@ -281,21 +281,21 @@ def send(case,
 
                     # This seems to be an extraneous block added in addition to CustomFFDA
                     # If overriding the block tray ID
-                    if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                            'BlockSequence' in b:
+                    # if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
+                    #         'BlockSequence' in b:
 
-                        if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
-                                b.ApplicatorSequence.ApplicatorID == 'A6':
-                            # tray = 'FFDA(A06)'
-                            tray = 'CustomFFDA'
+                    #     if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
+                    #             b.ApplicatorSequence.ApplicatorID == 'A6':
+                    #         # tray = 'FFDA(A06)'
+                    #         tray = 'CustomFFDA'
 
-                        else:
-                            tray = 'CustomFFDA'
-                            # tray = 'FFDA(A10+)'
+                    #     else:
+                    #         tray = 'CustomFFDA'
+                    #         # tray = 'FFDA(A10+)'
 
-                        if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
-                            b.BlockSequence[0].BlockTrayID = tray
-                            expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
+                    #     if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
+                    #         b.BlockSequence[0].BlockTrayID = tray
+                    #         expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
