@@ -279,8 +279,8 @@ def send(case,
                         expected.add(b[0x300a0420])
 
                     # If overriding the block tray ID
-                    if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                            'BlockSequence' in b:
+                    # if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
+                    #         'BlockSequence' in b:
 
                         # This seems to be an extraneous block added in addition to CustomFFDA
                         # if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
