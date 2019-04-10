@@ -268,7 +268,8 @@ def send(case,
                         acc.add_new(0x300a00f9, 'LO', b.BlockSequence[0].BlockName)
                         if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
                                 b.ApplicatorSequence.ApplicatorID == 'A6':
-                            acc.add_new(0x300a0421, 'SH', 'CustomFFDA6')
+                            # acc.add_new(0x300a0421, 'SH', 'CustomFFDA6')
+                            acc.add_new(0x300a0421, 'SH', 'CustomFFDA')
 
                         else:
                             acc.add_new(0x300a0421, 'SH', 'CustomFFDA')
@@ -285,14 +286,16 @@ def send(case,
 
                         if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
                                 b.ApplicatorSequence.ApplicatorID == 'A6':
-                            tray = 'FFDA(A06)'
+                            # tray = 'FFDA(A06)'
+                            tray = 'CustomFFDA'
 
                         else:
-                            tray = 'FFDA(A10+)'
+                            tray = 'CustomFFDA'
+                            # tray = 'FFDA(A10+)'
 
-                        # if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
-                        #     b.BlockSequence[0].BlockTrayID = tray
-                        #     expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
+                        if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
+                            b.BlockSequence[0].BlockTrayID = tray
+                            expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
