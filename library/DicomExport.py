@@ -280,15 +280,15 @@ def send(case,
 
                     # This seems to be an extraneous block added in addition to CustomFFDA
                     # If overriding the block tray ID
-                    # if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                    #         'BlockSequence' in b:
+                     if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
+                             'BlockSequence' in b:
 
-                        #  if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
-                        #         b.ApplicatorSequence.ApplicatorID == 'A6':
-                        #     tray = 'FFDA(A06)'
+                          if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
+                                 b.ApplicatorSequence.ApplicatorID == 'A6':
+                             tray = 'FFDA(A06)'
 
-                        # else:
-                        #     tray = 'FFDA(A10+)'
+                          else:
+                             tray = 'FFDA(A10+)'
 
                         # if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
                         #     b.BlockSequence[0].BlockTrayID = tray
