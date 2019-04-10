@@ -278,11 +278,11 @@ def send(case,
                         b.add_new(0x300a0420, 'SQ', pydicom.Sequence([acc]))
                         expected.add(b[0x300a0420])
 
+                    # This seems to be an extraneous block added in addition to CustomFFDA
                     # If overriding the block tray ID
-                    #  if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
+                    # if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
                     #         'BlockSequence' in b:
 
-                        # This seems to be an extraneous block added in addition to CustomFFDA
                         # if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
                         #         b.ApplicatorSequence.ApplicatorID == 'A6':
                         #     tray = 'FFDA(A06)'
