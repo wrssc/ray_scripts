@@ -288,7 +288,7 @@ def send(case,
                         #     tray = 'FFDA(A06)'
 
                         # else:
-                        #     tray = 'FFDA(A10+)'
+                        #     tray  'FFDA(A10+)'
 
                         # if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
                         #     b.BlockSequence[0].BlockTrayID = tray
