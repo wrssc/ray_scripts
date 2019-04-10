@@ -281,14 +281,14 @@ def send(case,
                     #   This seems to be an extraneous block added in addition to CustomFFDA
                     # If overriding the block tray ID
                     if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                             'BlockSequence' in b:
+                            'BlockSequence' in b:
 
                         if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
-                               b.ApplicatorSequence.ApplicatorID == 'A6':
-                           tray = 'FFDA(A06)'
+                                b.ApplicatorSequence.ApplicatorID == 'A6':
+                            tray = 'FFDA(A06)'
 
                         else:
-                           tray = 'FFDA(A10+)'
+                            tray = 'FFDA(A10+)'
 
                         # if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
                         #     b.BlockSequence[0].BlockTrayID = tray
@@ -316,10 +316,10 @@ def send(case,
                             if hasattr(c, 'BeamLimitingDevicePositionSequence'):
                                 for p in c.BeamLimitingDevicePositionSequence:
                                     if 'LeafJawPositions' in p and len(p.LeafJawPositions) == 2 and \
-                                            (p.LeafJawPositions[0] != math.floor(10 * p.LeafJawPositions[0])/10 or
-                                             p.LeafJawPositions[1] != math.ceil(10 * p.LeafJawPositions[1])/10):
-                                        p.LeafJawPositions[0] = math.floor(10 * p.LeafJawPositions[0])/10
-                                        p.LeafJawPositions[1] = math.ceil(10 * p.LeafJawPositions[1])/10
+                                            (p.LeafJawPositions[0] != math.floor(10 * p.LeafJawPositions[0]) / 10 or
+                                             p.LeafJawPositions[1] != math.ceil(10 * p.LeafJawPositions[1]) / 10):
+                                        p.LeafJawPositions[0] = math.floor(10 * p.LeafJawPositions[0]) / 10
+                                        p.LeafJawPositions[1] = math.ceil(10 * p.LeafJawPositions[1]) / 10
                                         expected.add(p[0x300a011c], beam=b, cp=c)
 
                     # If adjusting PA beam angle for right sided targets
