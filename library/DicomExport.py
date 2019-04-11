@@ -284,12 +284,6 @@ def send(case,
                         if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
                                 'BlockSequence' in b:
 
-                            # Add hardcoded type - block1
-                            # mat_id = 'Block 1'
-                            # if 'MaterialID' not in b.BlockSequence[0] or b.BlockSequence[0].MaterialID != mat_id:
-                            #     b.BlockSequence[0].MaterialID = mat_id
-                            #     expected.add(b.BlockSequence[0][0x300a00e1], beam=b)
-
                             acc_code = b.BlockSequence[0].BlockName
                             if 'AccessoryCode' not in b.BlockSequence[0] or \
                                     b.BlockSequence[0].AccessoryCode != acc_code:
@@ -299,11 +293,9 @@ def send(case,
                             if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
                                     b.ApplicatorSequence.ApplicatorID == 'A6':
                                 tray = 'CustomFFDA'
-                                # tray = 'FFDA(A06)'
 
                             else:
                                 tray = 'CustomFFDA'
-                                # tray = 'FFDA(A10+)'
 
                             if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
                                 b.BlockSequence[0].BlockTrayID = tray
