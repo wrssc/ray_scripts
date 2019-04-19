@@ -218,6 +218,8 @@ def check_min_jaws(plan_opt, min_dim):
                 else:
                     logging.info('Jaw size offset unnecessary on beam:{}, X={}, Y={}, with min dimension={}'
                                  .format(b.ForBeam.Name,min_x_aperture,min_y_aperture,min_dim))
+            else:
+                logging.debug("Beam {} does not have valid segments".format(b.ForBeam.Name))
     return jaw_change
 
 
