@@ -198,7 +198,7 @@ def check_min_jaws(plan_opt, min_dim):
                     y2 = s.JawPositions[3]
                     y1 = s.JawPositions[2]
                 if min_x_aperture <= min_dim or min_y_aperture <= min_dim:
-                    logging.info('Jaw size offset neccessary on beam: {}, X = {}, Y = {}, with min dimension {}'
+                    logging.info('Jaw size offset necessary on beam: {}, X = {}, Y = {}, with min dimension {}'
                                  .format(b.ForBeam.Name,min_x_aperture,min_y_aperture,min_dim))
                     jaw_change = True
                     plan_opt.ResetOptimization()
@@ -215,6 +215,9 @@ def check_min_jaws(plan_opt, min_dim):
                             OptimizationTypes=['SegmentOpt', 'SegmentMU'])
                     except:
                         logging.warning("Could not change beam settings to change jaw sizes")
+                else:
+                    logging.info('Jaw size offset unnecessary on beam:{}, X={}, Y={}, with min dimension={}'
+                                 .format(b.ForBeam.Name,min_x_aperture,min_y_aperture,min_dim))
     return jaw_change
 
 
