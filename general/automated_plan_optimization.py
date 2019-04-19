@@ -149,13 +149,12 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
     return change_grid
 
 
-def check_min_jaws(plan_opt, min_dim, iteration):
+def check_min_jaws(plan_opt, min_dim):
     """
     This function takes in the beamset, looks for field sizes that are less than a minimum
     resets the beams, and sets iteration count to back to zero
     :param beamset: current RS beamset
     :param min_dim: size of smallest desired aperture
-    :param iteration: current iteration, to be zeroed if not already
     :return jaw_change: if a change was required return True, else False
     # This will not work with jaw tracking!!!
 
@@ -441,6 +440,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     except SystemError:
         raise IOError("No beamset loaded")
 
+    # Choose the minimum field size
+    min_dim = 10
     # Parameters used for iteration number
     initial_maximum_iteration = optimization_inputs.get('initial_max_it', 60)
     initial_intermediate_iteration = optimization_inputs.get('initial_int_it', 10)
@@ -678,6 +679,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                 logging.debug('Failed to set limits for TrueBeamStx')
 
         while Optimization_Iteration != maximum_iteration:
+            restart = check_min_jaws(plan_optimization, min_dim)
+            if restart:
+                Optimization_Iteration = 0;
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 0
