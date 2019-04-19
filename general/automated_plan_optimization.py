@@ -459,6 +459,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     maximum_iteration = optimization_inputs.get('n_iterations', 12)
     fluence_only = optimization_inputs.get('fluence_only', False)
     reset_beams = optimization_inputs.get('reset_beams', True)
+    small_target = optimization_inputs.get('small_target', True)
     reduce_oar = optimization_inputs.get('reduce_oar', True)
     segment_weight = optimization_inputs.get('segment_weight', False)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
@@ -837,7 +838,7 @@ def main():
                  'input06_ws_interm_iteration': '5',
                  'input08_n_iterations': '4',
                  'input09_segment_weight': ['Perform Segment Weighted optimization'],
-                 'input10_reduce_oar': ['Perform reduce OAR dose before completion']
+                 'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
                  'input11_small_target': ['Target size < 3 cm - limit jaws']},
         options={
             'input01_fluence_only': ['Fluence calc'],
@@ -895,6 +896,14 @@ def main():
     except KeyError:
         reduce_oar = False
 
+    # Despite a calculated beam, reset and start over
+    try:
+        if 'Target size < 3 cm - limit jaws' in optimization_dialog.values['input11_small_target']:
+            small_target = True
+        else:
+            small_target = False
+    except KeyError:
+        small_target = False
         #    try:
         #        if 'Perform Segment Weighted optimization' in optimization_dialog.values['input9_segment_weight']:
     optimization_inputs = {
@@ -911,6 +920,7 @@ def main():
         'reset_beams': reset_beams,
         'segment_weight': segment_weight,
         'reduce_oar': reduce_oar,
+        'small_target': small_target,
         'n_iterations': int(optimization_dialog.values['input08_n_iterations'])}
 
     optimize_plan(patient=Patient,
