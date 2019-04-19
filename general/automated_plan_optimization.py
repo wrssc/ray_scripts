@@ -183,42 +183,36 @@ def check_min_jaws(plan_opt, min_dim):
                 # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
                 if min_x_aperture <= min_dim:
                     logging.info('Minimum x-aperture is smaller than {} resetting beams'.format(min_dim))
-                    x2 = min_dim *(min_x2/(min_x2 - min_x1)) + min_x2
-                    x1 = min_dim *(min_x1/(min_x2 - min_x1)) + min_x1
+                    x2 = min_dim * (min_x2 / (min_x2 - min_x1)) + min_x2
+                    x1 = min_dim * (min_x1 / (min_x2 - min_x1)) + min_x1
                 else:
                     x2 = s.JawPositions[1]
                     x1 = s.JawPositions[0]
                 # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
                 if min_y_aperture <= min_dim:
                     logging.info('Minimum y-aperture is smaller than {} resetting beams'.format(min_dim))
-                    y2 = min_dim *(min_y2/(min_y2 - min_y1)) + min_y2
-                    y1 = min_dim *(min_y1/(min_y2 - min_y1)) + min_y1
+                    y2 = min_dim * (min_y2 / (min_y2 - min_y1)) + min_y2
+                    y1 = min_dim * (min_y1 / (min_y2 - min_y1)) + min_y1
                 else:
                     y2 = s.JawPositions[3]
                     y1 = s.JawPositions[2]
                 if min_x_aperture <= min_dim or min_y_aperture <= min_dim:
                     jaw_change = True
                     plan_opt.ResetOptimization()
-                    x1limit = x1
-                    x2limit = x2
-                    y1limit = y1
-                    y2limit = y2
                     try:
                         # Uncomment to automatically set jaw limits
                         b.EditBeamOptimizationSettings(
-                            JawMotion='Use limits as max',
-                            LeftJaw=x1limit,
-                            RightJaw=x2limit,
-                            TopJaw=y1limit,
-                            BottomJaw=y2limit,
+                            JawMotion='Lock to limits',
+                            LeftJaw=x1,
+                            RightJaw=x2,
+                            TopJaw=y1,
+                            BottomJaw=y2,
                             SelectCollimatorAngle='False',
                             AllowBeamSplit='False',
                             OptimizationTypes=['SegmentOpt', 'SegmentMU'])
                     except:
                         logging.warning("Could not change beam settings to change jaw sizes")
     return jaw_change
-
-
 
 
 def reduce_oar_dose(plan_optimization):
