@@ -149,15 +149,78 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
     return change_grid
 
 
-def small_target_adjustment(beamset, min_dim, iteration):
+def check_min_jaws(plan_opt, min_dim, iteration):
     """
     This function takes in the beamset, looks for field sizes that are less than a minimum
     resets the beams, and sets iteration count to back to zero
     :param beamset: current RS beamset
     :param min_dim: size of smallest desired aperture
     :param iteration: current iteration, to be zeroed if not already
+    :return jaw_change: if a change was required return True, else False
+    # This will not work with jaw tracking!!!
 
     """
+    # If there are segments, check the jaw positions to see if they are less than min_dim
+
+    jaw_change = False
+    for treatsettings in plan_opt.OptimizationParameters.TreatmentSetupSettings:
+        for b in treatsettings.BeamSettings:
+            if b.ForBeam.HasValidSegments:
+                # Find the minimum jaw position
+                min_x_aperture = 40
+                min_y_aperture = 40;
+                # Find the minimum aperture in each beam
+                for s in b.ForBeam.Segments:
+                    # Note: X2 = s.JawPositions[1], X1 = s.JawPositions[0],
+                    #       Y2 = s.JawPositions[3], Y1 = s.JawPositions[2],
+                    if s.JawPositions[1] - s.JawPositions[0] <= min_x_aperture:
+                        min_x1 = s.JawPositions[0]
+                        min_x2 = s.JawPositions[1]
+                        min_x_aperture = min_x2 - min_x1
+                    if s.JawPositions[3] - s.JawPositions[2] <= min_y_aperture:
+                        min_y1 = s.JawPositions[2]
+                        min_y2 = s.JawPositions[3]
+                        min_y_aperture = min_y2 - min_y1
+                # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
+                if min_x_aperture <= min_dim:
+                    logging.info('Minimum x-aperture is smaller than {} resetting beams'.format(min_dim))
+                    x2 = min_dim *(min_x2/(min_x2 - min_x1)) + min_x2
+                    x1 = min_dim *(min_x1/(min_x2 - min_x1)) + min_x1
+                else:
+                    x2 = s.JawPositions[1]
+                    x1 = s.JawPositions[0]
+                # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
+                if min_y_aperture <= min_dim:
+                    logging.info('Minimum y-aperture is smaller than {} resetting beams'.format(min_dim))
+                    y2 = min_dim *(min_y2/(min_y2 - min_y1)) + min_y2
+                    y1 = min_dim *(min_y1/(min_y2 - min_y1)) + min_y1
+                else:
+                    y2 = s.JawPositions[3]
+                    y1 = s.JawPositions[2]
+                if min_x_aperture <= min_dim or min_y_aperture <= min_dim:
+                    jaw_change = True
+                    plan_opt.ResetOptimization()
+                    x1limit = x1
+                    x2limit = x2
+                    y1limit = y1
+                    y2limit = y2
+                    try:
+                        # Uncomment to automatically set jaw limits
+                        b.EditBeamOptimizationSettings(
+                            JawMotion='Use limits as max',
+                            LeftJaw=x1limit,
+                            RightJaw=x2limit,
+                            TopJaw=y1limit,
+                            BottomJaw=y2limit,
+                            SelectCollimatorAngle='False',
+                            AllowBeamSplit='False',
+                            OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                    except:
+                        logging.warning("Could not change beam settings to change jaw sizes")
+    return jaw_change
+
+
+
 
 def reduce_oar_dose(plan_optimization):
     """
@@ -570,49 +633,49 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 if beams.TomoPropertiesPerBeam is not None:
                     logging.debug('Tomo plan - control point spacing not set')
                 elif beams.ArcConversionPropertiesPerBeam is not None:
-                        if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                            if mu > 0:
-                                # If there are MU then this field has already been optimized with the wrong gantry
-                                # spacing. For shame....
-                                logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
-                                UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
-                                                         'spacing failed - check reset beams' +
-                                                         ' on next attempt at this script')
-                                sys.exit('Restart Required: Select reset beams on next run of script.')
-                            else:
-                                beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
-                                    FinalGantrySpacing=2)
-                        # Maximum Jaw Sizes should be limited for STx beams
-                        # Determine the current machine
-                        machine_ref = beamset.MachineReference.MachineName
-                        if machine_ref == 'TrueBeamSTx':
-                            logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
-                            x1limit = -20
-                            x2limit = 20
-                            y1limit = -10.9
-                            y2limit = 10.9
-                            if mu > 0:
-                                # If there are MU then this field has already been optimized with the wrong jaw limits
-                                # For Shame....
-                                logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
-                                UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
-                                                         'jaws failed - check reset beams' +
-                                                         ' on next attempt at this script')
-                                sys.exit('Restart Required: Select reset beams on next run of script.')
-                            else:
-                                try:
-                                    # Uncomment to automatically set jaw limits
-                                    beams.EditBeamOptimizationSettings(
-                                        JawMotion='Use limits as max',
-                                        LeftJaw=x1limit,
-                                        RightJaw=x2limit,
-                                        TopJaw=y1limit,
-                                        BottomJaw=y2limit,
-                                        SelectCollimatorAngle='False',
-                                        AllowBeamSplit='False',
-                                        OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-                                except:
-                                    logging.debug('Failed to set limits for TrueBeamStx')
+                    if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
+                        if mu > 0:
+                            # If there are MU then this field has already been optimized with the wrong gantry
+                            # spacing. For shame....
+                            logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
+                            UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
+                                                     'spacing failed - check reset beams' +
+                                                     ' on next attempt at this script')
+                            sys.exit('Restart Required: Select reset beams on next run of script.')
+                        else:
+                            beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
+                                FinalGantrySpacing=2)
+                    # Maximum Jaw Sizes should be limited for STx beams
+                    # Determine the current machine
+                    machine_ref = beamset.MachineReference.MachineName
+                    if machine_ref == 'TrueBeamSTx':
+                        logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
+                        x1limit = -20
+                        x2limit = 20
+                        y1limit = -10.9
+                        y2limit = 10.9
+                        if mu > 0:
+                            # If there are MU then this field has already been optimized with the wrong jaw limits
+                            # For Shame....
+                            logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
+                            UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
+                                                     'jaws failed - check reset beams' +
+                                                     ' on next attempt at this script')
+                            sys.exit('Restart Required: Select reset beams on next run of script.')
+                        else:
+                            try:
+                                # Uncomment to automatically set jaw limits
+                                beams.EditBeamOptimizationSettings(
+                                    JawMotion='Use limits as max',
+                                    LeftJaw=x1limit,
+                                    RightJaw=x2limit,
+                                    TopJaw=y1limit,
+                                    BottomJaw=y2limit,
+                                    SelectCollimatorAngle='False',
+                                    AllowBeamSplit='False',
+                                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                            except:
+                                logging.debug('Failed to set limits for TrueBeamStx')
 
         while Optimization_Iteration != maximum_iteration:
             # Record the previous total objective function value
