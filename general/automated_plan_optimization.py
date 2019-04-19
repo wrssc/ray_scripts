@@ -680,9 +680,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                 logging.debug('Failed to set limits for TrueBeamStx')
 
         while Optimization_Iteration != maximum_iteration:
-            restart = check_min_jaws(plan_optimization, min_dim)
-            if restart:
-                Optimization_Iteration = 0;
+            if small_target:
+                restart = check_min_jaws(plan_optimization, min_dim)
+                if restart:
+                    Optimization_Iteration = 0;
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 0
