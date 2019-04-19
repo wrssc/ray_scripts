@@ -201,7 +201,6 @@ def check_min_jaws(plan_opt, min_dim):
                     logging.info('Jaw size offset necessary on beam: {}, X = {}, Y = {}, with min dimension {}'
                                  .format(b.ForBeam.Name,min_x_aperture,min_y_aperture,min_dim))
                     jaw_change = True
-                    plan_opt.ResetOptimization()
                     try:
                         # Uncomment to automatically set jaw limits
                         b.EditBeamOptimizationSettings(
@@ -220,6 +219,8 @@ def check_min_jaws(plan_opt, min_dim):
                                  .format(b.ForBeam.Name,min_x_aperture,min_y_aperture,min_dim))
             else:
                 logging.debug("Beam {} does not have valid segments".format(b.ForBeam.Name))
+    if jaw_change:
+        plan_opt.ResetOptimization()
     return jaw_change
 
 
