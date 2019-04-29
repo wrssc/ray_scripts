@@ -689,6 +689,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     # Reset the optimization count
                     Optimization_Iteration = 0;
                     # Go back to step:
+                    status.next_step(
+                        text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1,
+                                                                           maximum_iteration), num=2)
                     status.add_step("Repeating iteration 1")
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
