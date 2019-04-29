@@ -686,7 +686,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             if small_target:
                 restart = check_min_jaws(plan_optimization, min_dim)
                 if restart:
+                    # Reset the optimization count
                     Optimization_Iteration = 0;
+                    # Go back to step:
+                    status.add_step("Repeating iteration 1")
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 0
