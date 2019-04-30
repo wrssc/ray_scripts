@@ -690,13 +690,16 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 if Optimization_Iteration == 0:
                     plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 20
                     plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 5
-                status.next_step(
-                    text='Running test iteration for small target size')
-                plan.PlanOptimizations[OptIndex].RunOptimization()
-                restart = check_min_jaws(plan_optimization, min_dim)
-                if restart:
-                    # Reset the optimization count
+                    status.next_step(
+                        text='Running test iteration for small target size')
+                    plan.PlanOptimizations[OptIndex].RunOptimization()
+                    restart = check_min_jaws(plan_optimization, min_dim)
                     Optimization_Iteration = 0
+                else:
+                    restart = check_min_jaws(plan_optimization, min_dim)
+                    if restart:
+                        # Reset the optimization count
+                        logging.info('Jaw sizes still appear to be smaller than their nomimal minimum')
             else:
                 restart = check_min_jaws(plan_optimization, min_dim)
                 if restart:
