@@ -511,6 +511,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     if fluence_only:
         status_steps.append('Optimize Fluence Only')
     else:
+        if small_target:
+            status_steps.append('Test iteration for jaw offset.')
         for i in range(maximum_iteration):
             # Update message for changing the dose grids.
             if vary_grid:
@@ -683,6 +685,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                 logging.debug('Failed to set limits for TrueBeamStx')
 
         while Optimization_Iteration != maximum_iteration:
+            # Check for small targets by evaluating the jaw size
             if small_target:
                 restart = check_min_jaws(plan_optimization, min_dim)
                 if restart:
@@ -691,8 +694,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     # Go back to step:
                     status.next_step(
                         text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1,
-                                                                           maximum_iteration), num=2)
-                    status.add_step("Repeating iteration 1")
+                                                                           maximum_iteration))
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 0
@@ -704,7 +706,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             logging.info(
                 'optimize_plan: Current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
             #            status.next_step(text='Iterating....')
-            # Check for small targets by evaluating the jaw size
 
             # If the change_dose_grid list has a non-zero element change the dose grid
             if vary_grid:
