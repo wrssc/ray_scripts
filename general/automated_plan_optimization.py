@@ -687,14 +687,22 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         while Optimization_Iteration != maximum_iteration:
             # Check for small targets by evaluating the jaw size
             if small_target:
+                if Optimization_Iteration == 0:
+                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 20
+                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 5
                 restart = check_min_jaws(plan_optimization, min_dim)
+                status.next_step(
+                    text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1,
+                                                                       maximum_iteration))
                 if restart:
                     # Reset the optimization count
-                    Optimization_Iteration = 0;
-                    # Go back to step:
-                    status.next_step(
-                        text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1,
-                                                                           maximum_iteration))
+                    Optimization_Iteration = 0
+            else:
+                restart = check_min_jaws(plan_optimization, min_dim)
+                if restart:
+                    # Stop the calculation, and warn the user to run small target for this case.
+                    logging.warning("User is running calculation for small target without jaw-locking")
+                    sys.exit("Restart the optimization with small-target selected")
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 0
