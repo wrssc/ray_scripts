@@ -690,10 +690,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 if Optimization_Iteration == 0:
                     plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 20
                     plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 5
-                restart = check_min_jaws(plan_optimization, min_dim)
                 status.next_step(
-                    text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1,
-                                                                       maximum_iteration))
+                    text='Running test iteration for small target size')
+                plan.PlanOptimizations[OptIndex].RunOptimization()
+                restart = check_min_jaws(plan_optimization, min_dim)
                 if restart:
                     # Reset the optimization count
                     Optimization_Iteration = 0
