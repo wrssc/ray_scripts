@@ -97,6 +97,7 @@ import connect
 import UserInterface
 import datetime
 import sys
+import math
 
 
 def make_variable_grid_list(n_iterations, variable_dose_grid):
@@ -185,7 +186,9 @@ def check_min_jaws(plan_opt, min_dim):
                 if min_x_aperture <= min_dim:
                     logging.info('Minimum x-aperture is smaller than {} resetting beams'.format(min_dim))
                     x2 = min_dim * (min_x2 / (min_x2 - min_x1)) + min_x2
+                    x2 = math.ceil(10*x2)/10
                     x1 = min_dim * (min_x1 / (min_x2 - min_x1)) + min_x1
+                    x1 = math.floor(10*x1)/10
                 else:
                     x2 = s.JawPositions[1]
                     x1 = s.JawPositions[0]
@@ -193,7 +196,9 @@ def check_min_jaws(plan_opt, min_dim):
                 if min_y_aperture <= min_dim:
                     logging.info('Minimum y-aperture is smaller than {} resetting beams'.format(min_dim))
                     y2 = min_dim * (min_y2 / (min_y2 - min_y1)) + min_y2
+                    y2 = math.ceil(10*y2)/10
                     y1 = min_dim * (min_y1 / (min_y2 - min_y1)) + min_y1
+                    y1 = math.floor(10*y1)/10
                 else:
                     y2 = s.JawPositions[3]
                     y1 = s.JawPositions[2]
@@ -560,6 +565,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             OptIndex += 1
     if IndexNotFound:
         logging.warning("optimize_plan: Beamset optimization for {} could not be found.".format(beamset.DicomPlanLabel))
+        status.finish('Could not find beamset optimization"')
         sys.exit("Could not find beamset optimization")
     else:
         # Found our index.  We will use a shorthand for the remainder of the code
@@ -648,6 +654,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                             UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
                                                      'spacing failed - check reset beams' +
                                                      ' on next attempt at this script')
+                            status.finish('Restart required')
                             sys.exit('Restart Required: Select reset beams on next run of script.')
                         else:
                             beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
@@ -668,6 +675,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                             UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
                                                      'jaws failed - check reset beams' +
                                                      ' on next attempt at this script')
+                            status.finish('Restart required')
                             sys.exit('Restart Required: Select reset beams on next run of script.')
                         else:
                             try:
@@ -705,6 +713,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 if restart:
                     # Stop the calculation, and warn the user to run small target for this case.
                     logging.warning("User is running calculation for small target without jaw-locking")
+                    status.finish('Restart required select small-target')
                     sys.exit("Restart the optimization with small-target selected")
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
