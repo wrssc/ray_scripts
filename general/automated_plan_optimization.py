@@ -167,9 +167,9 @@ def check_min_jaws(plan_opt, min_dim):
         for b in treatsettings.BeamSettings:
             logging.debug("Checking beam {} for jaw size limits".format(b.ForBeam.Name))
             if b.ForBeam.HasValidSegments:
-                # Find the minimum jaw position
+                # Find the minimum jaw position, first set to the maximum
                 min_x_aperture = 40
-                min_y_aperture = 40;
+                min_y_aperture = 40
                 # Find the minimum aperture in each beam
                 for s in b.ForBeam.Segments:
                     # Note: X2 = s.JawPositions[1], X1 = s.JawPositions[0],
@@ -183,12 +183,13 @@ def check_min_jaws(plan_opt, min_dim):
                         min_y2 = s.JawPositions[3]
                         min_y_aperture = min_y2 - min_y1
                 # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
+                # Use floor and ceil functions to ensure rounding to the nearest mm
                 if min_x_aperture <= min_dim:
                     logging.info('Minimum x-aperture is smaller than {} resetting beams'.format(min_dim))
                     x2 = min_dim * (min_x2 / (min_x2 - min_x1)) + min_x2
-                    x2 = math.ceil(10*x2)/10
+                    x2 = math.ceil(10 * x2)/10
                     x1 = min_dim * (min_x1 / (min_x2 - min_x1)) + min_x1
-                    x1 = math.floor(10*x1)/10
+                    x1 = math.floor(10 * x1)/10
                 else:
                     x2 = s.JawPositions[1]
                     x1 = s.JawPositions[0]
@@ -196,15 +197,15 @@ def check_min_jaws(plan_opt, min_dim):
                 if min_y_aperture <= min_dim:
                     logging.info('Minimum y-aperture is smaller than {} resetting beams'.format(min_dim))
                     y2 = min_dim * (min_y2 / (min_y2 - min_y1)) + min_y2
-                    y2 = math.ceil(10*y2)/10
+                    y2 = math.ceil(10 * y2)/10
                     y1 = min_dim * (min_y1 / (min_y2 - min_y1)) + min_y1
-                    y1 = math.floor(10*y1)/10
+                    y1 = math.floor(10 * y1)/10
                 else:
                     y2 = s.JawPositions[3]
                     y1 = s.JawPositions[2]
                 if min_x_aperture <= min_dim or min_y_aperture <= min_dim:
                     logging.info('Jaw size offset necessary on beam: {}, X = {}, Y = {}, with min dimension {}'
-                                 .format(b.ForBeam.Name,min_x_aperture,min_y_aperture,min_dim))
+                                 .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
                     jaw_change = True
                     try:
                         # Uncomment to automatically set jaw limits
@@ -221,7 +222,7 @@ def check_min_jaws(plan_opt, min_dim):
                         logging.warning("Could not change beam settings to change jaw sizes")
                 else:
                     logging.info('Jaw size offset unnecessary on beam:{}, X={}, Y={}, with min dimension={}'
-                                 .format(b.ForBeam.Name,min_x_aperture,min_y_aperture,min_dim))
+                                 .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
             else:
                 logging.debug("Beam {} does not have valid segments".format(b.ForBeam.Name))
     if jaw_change:
@@ -449,7 +450,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         raise IOError("No beamset loaded")
 
     # Choose the minimum field size
-    min_dim = 10
+    min_dim = 3
     # Parameters used for iteration number
     initial_maximum_iteration = optimization_inputs.get('initial_max_it', 60)
     initial_intermediate_iteration = optimization_inputs.get('initial_int_it', 10)
@@ -926,7 +927,6 @@ def main():
             reduce_oar = False
     except KeyError:
         reduce_oar = False
-
     # Despite a calculated beam, reset and start over
     try:
         if 'Target size < 3 cm - limit jaws' in optimization_dialog.values['input11_small_target']:
@@ -935,8 +935,6 @@ def main():
             small_target = False
     except KeyError:
         small_target = False
-        #    try:
-        #        if 'Perform Segment Weighted optimization' in optimization_dialog.values['input9_segment_weight']:
     optimization_inputs = {
         'initial_max_it': int(optimization_dialog.values['input03_cold_max_iteration']),
         'initial_int_it': int(optimization_dialog.values['input04_cold_interm_iteration']),
