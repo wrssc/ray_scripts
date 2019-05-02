@@ -202,10 +202,10 @@ def check_min_jaws(plan_opt, min_dim):
                     logging.debug('y-aperture is Y1={}, Y2={}'.format(min_y1,min_y2))
                     y2 = min_dim * (min_y2 / (min_y2 - min_y1)) + min_y2
                     y1 = min_dim * (min_y1 / (min_y2 - min_y1)) + min_y1
-                    logging.debug('x-aperture pre-flo/ceil X1={}, X2={}'.format(x1,x2))
+                    logging.debug('y-aperture pre-flo/ceil Y1={}, Y2={}'.format(x1,x2))
                     y2 = math.ceil(10 * y2)/10
                     y1 = math.floor(10 * y1)/10
-                    logging.debug('x-aperture is being set to X1={}, X2={}'.format(x1,x2))
+                    logging.debug('y-aperture is being set to Y1={}, Y2={}'.format(x1,x2))
                 else:
                     y2 = s.JawPositions[3]
                     y1 = s.JawPositions[2]
