@@ -214,12 +214,13 @@ def check_min_jaws(plan_opt, min_dim):
                     for m in s.LeafPositions[1]:
                         if m > max_mlc_bank_1:
                             max_mlc_bank_1 = m
-
+                    # Searching from the lowest MLC number find the first open MLC
                     for i in range(0, n_mlc-1):
-                        if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i]>0:
+                        if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
                             max_open_posY = i
+                    # Searching from the highest number, find the first open MLC
                     for i in range(n_mlc-1,0,-1):
-                        if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i]>0:
+                        if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
                             max_open_negY = i
                     logging.debug('Segment: {}, MaxBank0:{}, MaxBank1:{},'.format(s.SegmentNumber,
                                                                                   max_mlc_bank_0, max_mlc_bank_1))
