@@ -163,15 +163,40 @@ def check_min_jaws(plan_opt, min_dim):
     # If there are segments, check the jaw positions to see if they are less than min_dim
 
     jaw_change = False
+    n_mlc = 64
+    y_thick_inner = 0.25
+    y_thick_outer = 0.5
     for treatsettings in plan_opt.OptimizationParameters.TreatmentSetupSettings:
         for b in treatsettings.BeamSettings:
             logging.debug("Checking beam {} for jaw size limits".format(b.ForBeam.Name))
+            jaw_change = False
+            if b.ForBeam.MachineReference.MachineName == 'TrueBeamSTx':
+                n_mlc = 64
+                y_thick_inner = 0.25
+                y_thick_outer = 0.5
+                mlc_thin_low = 15
+                mlc_thin_high = 47
+            elif b.ForBeam.MachineReference.MachineName == 'TrueBeam':
+                n_mlc = 64
+                y_thick_inner = 0.5
+                y_thick_outer = 1.0
+                mlc_thin_low = 15
+                mlc_thin_high = 47
+            else:
+                logging.debug('Machine type unsupported for this check')
+                jaw_change = false
+                return jaw_change
+            # Search for the maximum leaf extend among all positions
             if b.ForBeam.HasValidSegments:
                 # Find the minimum jaw position, first set to the maximum
                 min_x_aperture = 40
                 min_y_aperture = 40
-                # Find the minimum aperture in each beam
+                max_mlc_bank_0 = 0
+                max_mlc_bank_1 = 0
+                max_open_posY = 0
+                max_open_negY = 0
                 for s in b.ForBeam.Segments:
+                    # Find the minimum aperture in each beam
                     # Note: X2 = s.JawPositions[1], X1 = s.JawPositions[0],
                     #       Y2 = s.JawPositions[3], Y1 = s.JawPositions[2],
                     if s.JawPositions[1] - s.JawPositions[0] <= min_x_aperture:
@@ -182,6 +207,24 @@ def check_min_jaws(plan_opt, min_dim):
                         min_y1 = s.JawPositions[2]
                         min_y2 = s.JawPositions[3]
                         min_y_aperture = min_y2 - min_y1
+                    # Find max of mlc bank positions
+                    for m in s.LeafPositions[0]:
+                        if m > max_mlc_bank_0:
+                            max_mlc_bank_0 = m
+                    for m in s.LeafPositions[1]:
+                        if m > max_mlc_bank_1:
+                            max_mlc_bank_1 = m
+                    for i in range(1, n_mlc):
+                        if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i]>0:
+                            max_open_posY = i
+                    for i in range(n_mlc,1,-1):
+                        if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i]>0:
+                            max_open_negY = i
+                    logging.debug('Segment: {}, MaxBank0:{}, MaxBank1:{},'.format(s.SegmentNumber,
+                                                                                  max_mlc_bank_0, max_mlc_bank_1))
+                    logging.debug('Segment: {}, MaxYpos:{}, MaxYneg:{},'.format(s.SegmentNumber,
+                                max_open_posY, max_open_negY))
+
                 # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
                 # Use floor and ceil functions to ensure rounding to the nearest mm
                 if min_x_aperture <= min_dim:
