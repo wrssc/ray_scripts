@@ -191,8 +191,8 @@ def check_min_jaws(plan_opt, min_dim):
                 # Find the minimum jaw position, first set to the maximum
                 min_x_aperture = 40
                 min_y_aperture = 40
-                max_mlc_bank_0 = 0
-                max_mlc_bank_1 = 0
+                max_mlc_bank_0 = 40
+                max_mlc_bank_1 = -40
                 max_open_posY = 0
                 max_open_negY = 0
                 for s in b.ForBeam.Segments:
@@ -209,7 +209,7 @@ def check_min_jaws(plan_opt, min_dim):
                         min_y_aperture = min_y2 - min_y1
                     # Find max of mlc bank positions
                     for m in s.LeafPositions[0]:
-                        if m > max_mlc_bank_0:
+                        if m < max_mlc_bank_0:
                             max_mlc_bank_0 = m
                     for m in s.LeafPositions[1]:
                         if m > max_mlc_bank_1:
@@ -218,6 +218,7 @@ def check_min_jaws(plan_opt, min_dim):
                                                                                   max_mlc_bank_0, max_mlc_bank_1))
                     # Searching from the lowest MLC number find the first open MLC
                     for i in range(0, n_mlc-1):
+                        logging.debug('tracking string indexing {}',i)
                         if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
                             max_open_posY = i
                     # Searching from the highest number, find the first open MLC
