@@ -216,7 +216,6 @@ def check_min_jaws(plan_opt, min_dim):
                             max_mlc_bank_1 = m
                     # Searching from the lowest MLC number find the first open MLC
                     for i in range(0, n_mlc-1):
-
                         if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
                             max_open_posY = i
                     # Searching from the highest number, find the first open MLC
