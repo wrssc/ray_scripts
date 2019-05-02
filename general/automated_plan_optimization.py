@@ -216,6 +216,7 @@ def check_min_jaws(plan_opt, min_dim):
                             max_mlc_bank_1 = m
                     # Searching from the lowest MLC number find the first open MLC
                     for i in range(0, n_mlc-1):
+
                         if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
                             max_open_posY = i
                     # Searching from the highest number, find the first open MLC
@@ -748,8 +749,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             # Check for small targets by evaluating the jaw size
             if small_target:
                 if Optimization_Iteration == 0:
-                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 20
-                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 5
+                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 70
+                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 15
                     status.next_step(
                         text='Running test iteration for small target size')
                     plan.PlanOptimizations[OptIndex].RunOptimization()
