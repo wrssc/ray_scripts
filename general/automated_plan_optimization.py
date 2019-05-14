@@ -217,16 +217,16 @@ def check_min_jaws(plan_opt, min_dim):
                     logging.debug('Segment: {}, MaxBank 0: {}, MaxBank 1: {},'.format(s.SegmentNumber,
                                                                                   max_mlc_bank_0, max_mlc_bank_1))
                     # Searching from the lowest MLC number find the first open MLC
-                    for i in range(0, n_mlc-2):
-                        logging.debug('tracking string indexing {}',i)
-                        if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
-                            max_open_posY = i
+                    # for i in range(0, n_mlc-2):
+                    #     logging.debug('tracking string indexing {}',i)
+                    #     if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
+                    #         max_open_posY = i
                     # Searching from the highest number, find the first open MLC
-                    for i in range(n_mlc-1, 0, -1):
-                        if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
-                            max_open_negY = i
-                    logging.debug('Segment: {}, MaxYpos:{}, MaxYneg:{},'.format(s.SegmentNumber,
-                                max_open_posY, max_open_negY))
+                    # for i in range(n_mlc-1, 0, -1):
+                    #     if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
+                    #         max_open_negY = i
+                    # logging.debug('Segment: {}, MaxYpos:{}, MaxYneg:{},'.format(s.SegmentNumber,
+                    #             max_open_posY, max_open_negY))
 
                 # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
                 # Use floor and ceil functions to ensure rounding to the nearest mm
