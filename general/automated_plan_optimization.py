@@ -503,8 +503,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     except SystemError:
         raise IOError("No beamset loaded")
 
-    # Choose the minimum field size
-    min_dim = 3
+    # Choose the minimum field size in cm
+    min_dim = 2
     # Parameters used for iteration number
     initial_maximum_iteration = optimization_inputs.get('initial_max_it', 60)
     initial_intermediate_iteration = optimization_inputs.get('initial_int_it', 10)
