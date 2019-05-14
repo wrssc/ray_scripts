@@ -234,26 +234,26 @@ def check_min_jaws(plan_opt, min_dim):
                 # Use floor and ceil functions to ensure rounding to the nearest mm
                 if min_x_aperture <= min_dim:
                     logging.info('Minimum x-aperture is smaller than {} resetting beams'.format(min_dim))
-                    logging.debug('x-aperture is X1={}, X2={}'.format(min_x1,min_x2))
-                    x2 = min_dim * (min_x2 / (min_x2 - min_x1)) + min_x2
-                    x1 = min_dim * (min_x1 / (min_x2 - min_x1)) + min_x1
-                    logging.debug('x-aperture pre-flo/ceil X1={}, X2={}'.format(x1,x2))
-                    x2 = math.ceil(10 * x2)/10
-                    x1 = math.floor(10 * x1)/10
-                    logging.debug('x-aperture is being set to X1={}, X2={}'.format(x1,x2))
+                    logging.debug('x-aperture is X1={}, X2={}'.format(min_x1, min_x2))
+                    x2 = (min_dim / (min_x2 - min_x1)) * min_x2
+                    x1 = (min_dim / (min_x2 - min_x1)) * min_x1
+                    logging.debug('x-aperture pre-flo/ceil X1={}, X2={}'.format(x1, x2))
+                    x2 = math.ceil(10 * x2) / 10
+                    x1 = math.floor(10 * x1) / 10
+                    logging.debug('x-aperture is being set to X1={}, X2={}'.format(x1, x2))
                 else:
                     x2 = s.JawPositions[1]
                     x1 = s.JawPositions[0]
                 # If the minimum size in y is smaller than min_dim, set the minimum to a proportion of min_dim
                 if min_y_aperture <= min_dim:
                     logging.info('Minimum y-aperture is smaller than {} resetting beams'.format(min_dim))
-                    logging.debug('y-aperture is Y1={}, Y2={}'.format(min_y1,min_y2))
-                    y2 = min_dim * (min_y2 / (min_y2 - min_y1)) + min_y2
-                    y1 = min_dim * (min_y1 / (min_y2 - min_y1)) + min_y1
-                    logging.debug('y-aperture pre-flo/ceil Y1={}, Y2={}'.format(y1,y2))
-                    y2 = math.ceil(10 * y2)/10
-                    y1 = math.floor(10 * y1)/10
-                    logging.debug('y-aperture is being set to Y1={}, Y2={}'.format(y1,y2))
+                    logging.debug('y-aperture is Y1={}, Y2={}'.format(min_y1, min_y2))
+                    y2 = (min_dim / (min_y2 - min_y1)) * min_y2
+                    y1 = (min_dim / (min_y2 - min_y1)) * min_y1
+                    logging.debug('y-aperture pre-flo/ceil Y1={}, Y2={}'.format(y1, y2))
+                    y2 = math.ceil(10 * y2) / 10
+                    y1 = math.floor(10 * y1) / 10
+                    logging.debug('y-aperture is being set to Y1={}, Y2={}'.format(y1, y2))
                 else:
                     y2 = s.JawPositions[3]
                     y1 = s.JawPositions[2]
