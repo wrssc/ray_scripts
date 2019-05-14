@@ -207,15 +207,17 @@ def check_min_jaws(plan_opt, min_dim):
                         min_y1 = s.JawPositions[2]
                         min_y2 = s.JawPositions[3]
                         min_y_aperture = min_y2 - min_y1
+
+                    # Uncomment for development of MLC-based jaw offset
                     # Find max of mlc bank positions
-                    for m in s.LeafPositions[0]:
-                        if m < max_mlc_bank_0:
-                            max_mlc_bank_0 = m
-                    for m in s.LeafPositions[1]:
-                        if m > max_mlc_bank_1:
-                            max_mlc_bank_1 = m
-                    logging.debug('Segment: {}, MaxBank 0: {}, MaxBank 1: {},'.format(s.SegmentNumber,
-                                                                                  max_mlc_bank_0, max_mlc_bank_1))
+                    # for m in s.LeafPositions[0]:
+                    #     if m < max_mlc_bank_0:
+                    #         max_mlc_bank_0 = m
+                    # for m in s.LeafPositions[1]:
+                    #     if m > max_mlc_bank_1:
+                    #         max_mlc_bank_1 = m
+                    # logging.debug('Segment: {}, MaxBank 0: {}, MaxBank 1: {},'.format(s.SegmentNumber,
+                    #                                                               max_mlc_bank_0, max_mlc_bank_1))
                     # Searching from the lowest MLC number find the first open MLC
                     # for i in range(0, n_mlc-2):
                     #     logging.debug('tracking string indexing {}',i)
@@ -248,10 +250,10 @@ def check_min_jaws(plan_opt, min_dim):
                     logging.debug('y-aperture is Y1={}, Y2={}'.format(min_y1,min_y2))
                     y2 = min_dim * (min_y2 / (min_y2 - min_y1)) + min_y2
                     y1 = min_dim * (min_y1 / (min_y2 - min_y1)) + min_y1
-                    logging.debug('y-aperture pre-flo/ceil Y1={}, Y2={}'.format(x1,x2))
+                    logging.debug('y-aperture pre-flo/ceil Y1={}, Y2={}'.format(y1,y2))
                     y2 = math.ceil(10 * y2)/10
                     y1 = math.floor(10 * y1)/10
-                    logging.debug('y-aperture is being set to Y1={}, Y2={}'.format(x1,x2))
+                    logging.debug('y-aperture is being set to Y1={}, Y2={}'.format(y1,y2))
                 else:
                     y2 = s.JawPositions[3]
                     y1 = s.JawPositions[2]
