@@ -815,6 +815,7 @@ def main():
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
         for i, t in enumerate(input_source_list):
+            logging.debug("Creating target {} using {}".format(PTVList[i],t))
             ptv_sources.append(t)
             if i == 0:
                 ptv_definitions = {
