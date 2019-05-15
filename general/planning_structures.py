@@ -481,6 +481,7 @@ def main():
     input_source_list = []
     source_doses = []
     for k, v in initial_dialog.values.iteritems():
+        logging.debug("Dialog entries for k and v: {} and {}".format(k,v))
         if len(v) > 0:
             if 'name' in k:
                 input_source_list.append(v)
