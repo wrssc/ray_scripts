@@ -480,13 +480,18 @@ def main():
     # Process inputs
     input_source_list = []
     source_doses = []
+    input_source_list = [None] * n
+    source_doses = [None] * n
     for k, v in initial_dialog.values.iteritems():
         logging.debug("Dialog entries for k and v: {} and {}".format(k,v))
+        # Grab the first two characters in the key and convert to an index
+        i_char = k[0:1]
+        indx = int(i_char)
         if len(v) > 0:
             if 'name' in k:
-                input_source_list.append(v)
+                input_source_list[i] = v
             if 'dose' in k:
-                source_doses.append(v)
+                source_doses[i] = v
         else:
             logging.warning('No dialog elements returned. Script unsuccessful')
 
