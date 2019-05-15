@@ -162,6 +162,9 @@ def check_min_jaws(plan_opt, min_dim):
     """
     # If there are segments, check the jaw positions to see if they are less than min_dim
 
+    # epsilon is a factor used to identify whether the jaws are likely to need adjustment
+    # min_dimension * (1 + epsilon) will be used to lock jaws
+    epsilon = 0.1
     jaw_change = False
     n_mlc = 64
     y_thick_inner = 0.25
@@ -232,7 +235,7 @@ def check_min_jaws(plan_opt, min_dim):
 
                 # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
                 # Use floor and ceil functions to ensure rounding to the nearest mm
-                if min_x_aperture <= min_dim:
+                if min_x_aperture <= min_dim * (1 + epsilon):
                     logging.info('Minimum x-aperture is smaller than {} resetting beams'.format(min_dim))
                     logging.debug('x-aperture is X1={}, X2={}'.format(min_x1, min_x2))
                     x2 = (min_dim / (min_x2 - min_x1)) * min_x2
@@ -245,7 +248,7 @@ def check_min_jaws(plan_opt, min_dim):
                     x2 = s.JawPositions[1]
                     x1 = s.JawPositions[0]
                 # If the minimum size in y is smaller than min_dim, set the minimum to a proportion of min_dim
-                if min_y_aperture <= min_dim:
+                if min_y_aperture <= min_dim * (1 + epsilon):
                     logging.info('Minimum y-aperture is smaller than {} resetting beams'.format(min_dim))
                     logging.debug('y-aperture is Y1={}, Y2={}'.format(min_y1, min_y2))
                     y2 = (min_dim / (min_y2 - min_y1)) * min_y2
@@ -751,10 +754,11 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             # Check for small targets by evaluating the jaw size
             if small_target:
                 if Optimization_Iteration == 0:
-                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 70
-                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 15
+                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 30
+                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 5
                     status.next_step(
                         text='Running test iteration for small target size')
+                    plan.PlanOptimizations[OptIndex].RunOptimization()
                     plan.PlanOptimizations[OptIndex].RunOptimization()
                     restart = check_min_jaws(plan_optimization, min_dim)
                     Optimization_Iteration = 0
