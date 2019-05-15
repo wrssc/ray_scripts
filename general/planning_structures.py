@@ -482,7 +482,8 @@ def main():
     source_doses = []
     input_source_list = [None] * n
     source_doses = [None] * n
-    for k, v in initial_dialog.values.iteritems():
+    sorted_initial_dialog = sorted(initial_dialog.values, key=lambda k: int(k.split('_')[0]))
+    for k, v in sorted_initial_dialog:#initial_dialog.values.iteritems():
         logging.debug("Dialog entries for k and v: {} and {}".format(k,v))
         # Grab the first two characters in the key and convert to an index
         i_char = k[0:1]
