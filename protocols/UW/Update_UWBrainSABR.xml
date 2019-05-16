@@ -21,7 +21,7 @@
         <prefix>Brai_</prefix>
         <prescription>
             <roi>
-                <name>PTV</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">30</dose>
@@ -31,43 +31,43 @@
     </order>
     <goals>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="ge">VX</type>
             <volume units="%">95</volume>
-            <dose units="%" roi="PTV">100</dose>
+            <dose units="%" roi="PTV_p">100</dose>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="gt">DX</type>
-            <dose units="%" roi="PTV">90</dose>
+            <dose units="%" roi="PTV_p">90</dose>
             <volume units="%">99</volume>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="gt">CI</type>
-            <dose units="%" roi="PTV">100</dose>
+            <dose units="%" roi="PTV_p">100</dose>
             <index>0.83</index>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="gt">CI</type>
-            <dose units="%" roi="PTV">50</dose>
+            <dose units="%" roi="PTV_p">50</dose>
             <index>0.286</index>
             <priority>2</priority>
         </roi>
         <roi>
             <name>Normal_10</name>
             <type>Max</type>
-            <dose units="%" roi="PTV">40</dose>
+            <dose units="%" roi="PTV_p">40</dose>
             <priority>3</priority>
         </roi>
         <roi>
             <name>Brain-PTV</name>
             <type>Max</type>
-            <dose units="%" roi="PTV">105</dose>
+            <dose units="%" roi="PTV_p">105</dose>
             <priority>1</priority>
         </roi>
         <roi>

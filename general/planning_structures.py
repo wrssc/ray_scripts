@@ -483,12 +483,10 @@ def main():
     input_source_list = [None] * n
     source_doses = [None] * n
     for k, v in initial_dialog.values.iteritems():
-        logging.debug("Dialog entries for k and v: {} and {}".format(k,v))
         # Grab the first two characters in the key and convert to an index
         i_char = k[:2]
         logging.debug('key is {}'.format(i_char))
         indx = int(i_char)-1
-        logging.debug('Index for key is {}'.format(indx))
         if len(v) > 0:
             if 'name' in k:
                 input_source_list[indx] = v
