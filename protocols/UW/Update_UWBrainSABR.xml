@@ -33,7 +33,7 @@
         <roi>
             <name>PTV_p</name>
             <type dir="ge">VX</type>
-            <volume units="%">95</volume>
+            <volume units="%">98</volume>
             <dose units="%" roi="PTV_p">100</dose>
             <priority>2</priority>
         </roi>
@@ -67,6 +67,7 @@
         <roi>
             <name>Brain-PTV</name>
             <type>Max</type>
+            <volume units="cc">0.03</volume>
             <dose units="%" roi="PTV_p">105</dose>
             <priority>1</priority>
         </roi>
@@ -80,6 +81,7 @@
         <roi>
             <name>Brain-PTV</name>
             <type>Max</type>
+            <volume units="cc">0.03</volume>
             <dose units="Gy">30</dose>
             <priority>3</priority>
         </roi>
@@ -104,7 +106,8 @@
         </roi>
         <roi>
             <name>BrainStem_PRV03</name>
-            <type>Max</type>
+            <type>VX</type>
+            <volume units="%">2</volume>
             <dose units="Gy">30</dose>
             <priority>3</priority>
         </roi>
