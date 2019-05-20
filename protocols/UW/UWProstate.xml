@@ -155,56 +155,56 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
@@ -388,56 +388,56 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
@@ -553,56 +553,56 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
@@ -746,56 +746,56 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">0.1</volume>
@@ -899,56 +899,56 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">35</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">35</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">35</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">35</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">35</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">35</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">35</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">35</dose>
                 <volume units="cc">0.1</volume>
@@ -1216,42 +1216,42 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="%">10</volume>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">50</dose>
                 <volume units="cc">0.1</volume>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Femur_L_PRV05</name>
+                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">50</dose>
                 <volume units="cc">0.1</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="%">10</volume>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">50</dose>
                 <volume units="cc">0.1</volume>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Femur_R_PRV05</name>
+                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">50</dose>
                 <volume units="cc">0.1</volume>
@@ -1446,28 +1446,28 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">35</dose>
                 <volume units="%">5</volume>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Femur_L</name>
+                <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">30</dose>
                 <volume units="%">5</volume>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">35</dose>
                 <volume units="%">5</volume>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Femur_R</name>
+                <name>Femur_Head_R</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">30</dose>
                 <volume units="%">5</volume>

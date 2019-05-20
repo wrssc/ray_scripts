@@ -14,7 +14,7 @@
     </diagnoses>
     <prescription>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type>DX</type>
             <volume units="%">99.5</volume>
             <dose units="Gy" idl="100"></dose>
@@ -30,23 +30,23 @@
     </order>
     <goals>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="ge">VX</type>
-            <dose units="%" roi="PTV">100</dose>
+            <dose units="%" roi="PTV_p">100</dose>
             <volume units="%">95</volume>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="gt">CI</type>
-            <dose units="%" roi="PTV">100</dose>
+            <dose units="%" roi="PTV_p">100</dose>
             <index>0.5</index>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="gt">CI</type>
-            <dose units="%" roi="PTV">50</dose>
+            <dose units="%" roi="PTV_p">50</dose>
             <index>0.25</index>
             <priority>2</priority>
         </roi>
@@ -58,21 +58,21 @@
             <priority>1</priority>
         </roi>
         <roi>
-            <name>BrainStem</name>
+            <name>Brainstem</name>
             <type>Max</type>
             <dose units="Gy">15</dose>
             <volume units="cc">0.03</volume>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>BrainStem</name>
+            <name>Brainstem</name>
             <type>Max</type>
             <dose units="Gy">10</dose>
             <volume units="cc">0.5</volume>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>BrainStem</name>
+            <name>Brainstem</name>
             <type>Max</type>
             <dose units="Gy">15</dose>
             <volume units="cc">0.01</volume>
@@ -86,21 +86,21 @@
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Chiasm</name>
+            <name>OpticChiasm</name>
             <type>Max</type>
             <dose units="Gy">8</dose>
             <volume units="cc">0.01</volume>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>OpticNerve_L</name>
+            <name>OpticNrv_L</name>
             <type>Max</type>
             <dose units="Gy">8</dose>
             <volume units="cc">0.01</volume>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>OpticNerve_R</name>
+            <name>OpticNrv_R</name>
             <type>Max</type>
             <dose units="Gy">8</dose>
             <volume units="cc">0.01</volume>

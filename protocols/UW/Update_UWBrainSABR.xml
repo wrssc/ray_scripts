@@ -86,26 +86,26 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>BrainStem</name>
+            <name>Brainstem</name>
             <type>Max</type>
             <dose units="Gy">30</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>BrainStem</name>
+            <name>Brainstem</name>
             <type>VX</type>
             <dose units="Gy">23</dose>
             <volume units="cc">0.5</volume>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>BrainStem</name>
+            <name>Brainstem</name>
             <type>Max</type>
             <dose units="Gy">23</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>BrainStem_PRV03</name>
+            <name>Brainstem_PRV03</name>
             <type>VX</type>
             <volume units="%">2</volume>
             <dose units="Gy">30</dose>
@@ -130,55 +130,55 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Chiasm</name>
+            <name>OpticChiasm</name>
             <type>Max</type>
             <dose units="Gy">23</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Chiasm</name>
+            <name>OpticChiasm</name>
             <type>Max</type>
             <dose units="Gy">20.7</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Chiasm_PRV03</name>
+            <name>OpticChiasm_PRV03</name>
             <type>Max</type>
             <dose units="Gy">23</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>OpticNerve_L</name>
+            <name>OpticNrv_L</name>
             <type>Max</type>
             <dose units="Gy">23</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>OpticNerve_L</name>
+            <name>OpticNrv_L</name>
             <type>Max</type>
             <dose units="Gy">20.7</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>OpticNerve_L_PRV03</name>
+            <name>OpticNrv_L_PRV03</name>
             <type>Max</type>
             <dose units="Gy">23</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>OpticNerve_R</name>
+            <name>OpticNrv_R</name>
             <type>Max</type>
             <dose units="Gy">23</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>OpticNerve_R</name>
+            <name>OpticNrv_R</name>
             <type>Max</type>
             <dose units="Gy">20.7</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>OpticNerve_R_PRV03</name>
+            <name>OpticNrv_R_PRV03</name>
             <type>Max</type>
             <dose units="Gy">23</dose>
             <priority>3</priority>
@@ -268,7 +268,7 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Skin</name>
+            <name>Skin_PRV05</name>
             <type>Max</type>
             <dose units="Gy">25</dose>
             <priority>3</priority>

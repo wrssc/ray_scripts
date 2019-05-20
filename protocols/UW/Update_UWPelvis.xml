@@ -14,7 +14,7 @@
     </diagnoses>
     <prescription>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p></name>
             <type>DX</type>
             <volume units="%">50</volume>
             <dose units="Gy" idl="100"></dose>
@@ -37,7 +37,7 @@
         <prefix>Vulv_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Vulva</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">50</volume>
                 <dose units="Gy" idl="100"></dose>
@@ -45,10 +45,10 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Vulva</name>
+                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Vulva">100</dose>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>2</priority>
             </roi>
         </goals>
@@ -71,38 +71,38 @@
     </order>
     <goals>
         <roi>
-            <name>PerotinealCavity</name>
+            <name>Bag_Bowel</name>
             <type>Max</type>
             <volume units="cc">1</volume>
             <dose units="Gy">52</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>PerotinealCavity</name>
+            <name>Bag_Bowel</name>
             <type dir="lt">VX</type>
             <volume units="%">30</volume>
             <dose units="Gy">40</dose>
             <priority>5</priority>
         </roi>
         <roi>
-            <name>BowelBag</name>
+            <name>Bag_Bowel</name>
             <type dir="lt">VX</type>
             <volume units="%">20</volume>
             <dose units="Gy">40</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>PTVp</name>
+            <name>PTV_p</name>
             <type>Mean</type>
             <volume units="%">50</volume>
-            <dose units="%" roi="PTV">100</dose>
+            <dose units="%" roi="PTV_p>">100</dose>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTVp</name>
+            <name>PTV_p</name>
             <type dir="lt">VX</type>
             <volume units="cc">0.1</volume>
-            <dose units="%" roi="PTV">105</dose>
+            <dose units="%" roi="PTV_p>">105</dose>
             <priority>2</priority>
         </roi>
         <roi>
@@ -121,56 +121,56 @@
         </roi>
 
         <roi>
-            <name>Femur_L</name>
+            <name>Femur_Head_L</name>
             <type dir="lt">VX</type>
             <volume units="%">20</volume>
             <dose units="Gy">30</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Femur_L</name>
+            <name>Femur_Head_L</name>
             <type dir="lt">VX</type>
             <volume units="%">25</volume>
             <dose units="Gy">30</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Femur_R</name>
+            <name>Femur_Head_R</name>
             <type dir="lt">VX</type>
             <volume units="%">20</volume>
             <dose units="Gy">30</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Femur_R</name>
+            <name>Femur_Head_R</name>
             <type dir="lt">VX</type>
             <volume units="%">25</volume>
             <dose units="Gy">30</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>PelvicBones</name>
+            <name>Bone_Marrow</name>
             <type dir="lt">VX</type>
             <volume units="%">80</volume>
             <dose units="Gy">10</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>PelvicBones</name>
+            <name>Bone_Marrow</name>
             <type dir="lt">VX</type>
             <volume units="%">70</volume>
             <dose units="Gy">20</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>PelvicBones</name>
+            <name>Bone_Marrow</name>
             <type dir="lt">VX</type>
             <volume units="%">90</volume>
             <dose units="Gy">10</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>PelvicBones</name>
+            <name>Bone_Marrow</name>
             <type dir="lt">VX</type>
             <volume units="%">75</volume>
             <dose units="Gy">20</dose>
