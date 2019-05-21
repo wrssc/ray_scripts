@@ -259,55 +259,47 @@ def send(case,
                         b.TreatmentMachineName = machine
                         expected.add(b[0x300a00b2], beam=b)
 
-                    # If converting electron block into accessory (note, accessory ID tags are currently hard coded
-                    # if block_accessory and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                    #         'BlockSequence' in b and 'BlockName' in b.BlockSequence[0] and \
-                    #         'GeneralAccessorySequence' not in b:
+                        # If converting electron block into accessory (note, accessory ID tags are currently hard coded
+                        # if block_accessory and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
+                        #         'BlockSequence' in b and 'BlockName' in b.BlockSequence[0] and \
+                        #         'GeneralAccessorySequence' not in b:
 
-                    #     acc = pydicom.Dataset()
-                    #     acc.add_new(0x300a00f9, 'LO', b.BlockSequence[0].BlockName)
-                    #     if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
-                    #             b.ApplicatorSequence.ApplicatorID == 'A6':
-                    #         # acc.add_new(0x300a0421, 'SH', 'CustomFFDA6')
-                    #         acc.add_new(0x300a0421, 'SH', 'CustomFFDA')
-#
-                    #     else:
-                    #         acc.add_new(0x300a0421, 'SH', 'CustomFFDA')
+                        #     acc = pydicom.Dataset()
+                        #     acc.add_new(0x300a00f9, 'LO', b.BlockSequence[0].BlockName)
+                        #     if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
+                        #             b.ApplicatorSequence.ApplicatorID == 'A6':
+                        #         # acc.add_new(0x300a0421, 'SH', 'CustomFFDA6')
+                        #         acc.add_new(0x300a0421, 'SH', 'CustomFFDA')
+                        #
+                        #     else:
+                        #         acc.add_new(0x300a0421, 'SH', 'CustomFFDA')
 
-                    #     acc.add_new(0x300a0423, 'CS', 'TRAY')
-                    #     acc.add_new(0x300a0424, 'IS', b.BlockSequence[0].BlockName)
-                    #     # acc.add_new(0x300a0424, 'IS', 1)
-                    #     b.add_new(0x300a0420, 'SQ', pydicom.Sequence([acc]))
-                    #     expected.add(b[0x300a0420])
+                        #     acc.add_new(0x300a0423, 'CS', 'TRAY')
+                        #     acc.add_new(0x300a0424, 'IS', b.BlockSequence[0].BlockName)
+                        #     # acc.add_new(0x300a0424, 'IS', 1)
+                        #     b.add_new(0x300a0420, 'SQ', pydicom.Sequence([acc]))
+                        #     expected.add(b[0x300a0420])
 
-                    # If overriding the block tray ID
-                    if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
-                             'BlockSequence' in b:
+                        # If overriding the block tray ID
+                        if block_tray_id and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
+                                'BlockSequence' in b:
 
-                        # Add hardcoded type - block1
-                        # mat_id = 'Block 1'
-                        # if 'MaterialID' not in b.BlockSequence[0] or b.BlockSequence[0].MaterialID != mat_id:
-                        #     b.BlockSequence[0].MaterialID = mat_id
-                        #     expected.add(b.BlockSequence[0][0x300a00e1], beam=b)
+                            acc_code = b.BlockSequence[0].BlockName
+                            if 'AccessoryCode' not in b.BlockSequence[0] or \
+                                    b.BlockSequence[0].AccessoryCode != acc_code:
+                                b.BlockSequence[0].AccessoryCode = acc_code
+                                expected.add(b.BlockSequence[0][0x300a00f9], beam=b)
 
-                        acc_code = b.BlockSequence[0].BlockName
-                        if 'AccessoryCode' not in b.BlockSequence[0] or \
-                                b.BlockSequence[0].AccessoryCode != acc_code:
-                            b.BlockSequence[0].AccessoryCode = acc_code
-                            expected.add(b.BlockSequence[0][0x300a00f9], beam=b)
+                            if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
+                                    b.ApplicatorSequence.ApplicatorID == 'A6':
+                                tray = 'CustomFFDA'
 
-                        if 'ApplicatorSequence' in b and 'ApplicatorID' in b.ApplicatorSequence and \
-                                 b.ApplicatorSequence.ApplicatorID == 'A6':
-                            tray = 'CustomFFDA'
-                            # tray = 'FFDA(A06)'
+                            else:
+                                tray = 'CustomFFDA'
 
-                        else:
-                            tray = 'CustomFFDA'
-                            # tray = 'FFDA(A10+)'
-
-                        if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
-                            b.BlockSequence[0].BlockTrayID = tray
-                            expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
+                            if 'BlockTrayID' not in b.BlockSequence[0] or b.BlockSequence[0].BlockTrayID != tray:
+                                b.BlockSequence[0].BlockTrayID = tray
+                                expected.add(b.BlockSequence[0][0x300a00f5], beam=b)
 
                     # If updating table position
                     if table is not None and 'ControlPointSequence' in b:
@@ -331,10 +323,10 @@ def send(case,
                             if hasattr(c, 'BeamLimitingDevicePositionSequence'):
                                 for p in c.BeamLimitingDevicePositionSequence:
                                     if 'LeafJawPositions' in p and len(p.LeafJawPositions) == 2 and \
-                                            (p.LeafJawPositions[0] != math.floor(10 * p.LeafJawPositions[0]) / 10 or
-                                             p.LeafJawPositions[1] != math.ceil(10 * p.LeafJawPositions[1]) / 10):
-                                        p.LeafJawPositions[0] = math.floor(10 * p.LeafJawPositions[0]) / 10
-                                        p.LeafJawPositions[1] = math.ceil(10 * p.LeafJawPositions[1]) / 10
+                                            (p.LeafJawPositions[0] != math.floor(10 * p.LeafJawPositions[0])/10 or
+                                             p.LeafJawPositions[1] != math.ceil(10 * p.LeafJawPositions[1])/10):
+                                        p.LeafJawPositions[0] = math.floor(10 * p.LeafJawPositions[0])/10
+                                        p.LeafJawPositions[1] = math.ceil(10 * p.LeafJawPositions[1])/10
                                         expected.add(p[0x300a011c], beam=b, cp=c)
 
                     # If adjusting PA beam angle for right sided targets
