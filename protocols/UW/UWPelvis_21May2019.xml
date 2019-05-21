@@ -247,7 +247,7 @@
                 <type dir="lt">VX</type>
                 <volume units="%">80</volume>
                 <dose units="Gy">40</dose>
-                <priority>2</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>SpinalCord</name>
@@ -510,7 +510,7 @@
                 <type dir="lt">VX</type>
                 <volume units="%">80</volume>
                 <dose units="Gy">40</dose>
-                <priority>2</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>SpinalCord</name>
@@ -795,7 +795,7 @@
                 <type dir="lt">VX</type>
                 <volume units="%">80</volume>
                 <dose units="Gy">40</dose>
-                <priority>2</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Rectum</name>
