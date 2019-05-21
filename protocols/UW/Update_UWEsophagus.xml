@@ -24,7 +24,7 @@
         <prefix>Esop_</prefix>
         <prescription>
             <roi>
-                <name>PTV</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">50.4</dose>
@@ -51,7 +51,7 @@
         <prefix>Esop_</prefix>
         <prescription>
             <roi>
-                <name>PTV</name>
+                <name>PTV_p</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">41.4</dose>
@@ -75,24 +75,24 @@
     </order>
     <goals>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="ge">VX</type>
             <volume units="%">95</volume>
-            <dose units="%" roi="PTV">100</dose>
+            <dose units="%" roi="PTV_p">100</dose>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="le">Max</type>
             <volume units="cc">1</volume>
-            <dose units="%" roi="PTV">110</dose>
+            <dose units="%" roi="PTV_p">110</dose>
             <priority>2</priority>
         </roi>
         <roi>
-            <name>PTV</name>
+            <name>PTV_p</name>
             <type dir="le">Min</type>
             <volume units="cc">1</volume>
-            <dose units="%" roi="PTV">90</dose>
+            <dose units="%" roi="PTV_p">90</dose>
             <priority>2</priority>
         </roi>
         <roi>
@@ -124,41 +124,41 @@
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Lung_Total</name>
+            <name>Lungs</name>
             <type dir="le">VX</type>
             <volume units="%">60</volume>
             <dose units="Gy">5</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Lung_Total</name>
+            <name>Lungs</name>
             <type dir="le">VX</type>
             <volume units="%">75</volume>
             <dose units="Gy">5</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Lung_Total</name>
+            <name>Lungs</name>
             <type dir="le">VX</type>
             <volume units="%">30</volume>
             <dose units="Gy">20</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Lung_Total</name>
+            <name>Lungs</name>
             <type dir="le">VX</type>
             <volume units="%">35</volume>
             <dose units="Gy">20</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Lung_Total</name>
+            <name>Lungs</name>
             <type dir="le">Mean</type>
             <dose units="Gy">18</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Lung_Total</name>
+            <name>Lungs</name>
             <type dir="le">Mean</type>
             <dose units="Gy">20</dose>
             <priority>1</priority>
@@ -206,27 +206,27 @@
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Kidney_Total</name>
+            <name>Kidneys</name>
             <type dir="le">VX</type>
             <volume units="%">33.3</volume>
             <dose units="Gy">18</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Kidney_Total</name>
+            <name>Kidneys</name>
             <type dir="le">Mean</type>
             <dose units="Gy">10</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Kidney_Total</name>
+            <name>Kidneys</name>
             <type dir="le">VX</type>
             <volume units="%">33</volume>
             <dose units="Gy">18</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Kidney_Total</name>
+            <name>Kidneys</name>
             <type dir="le">VX</type>
             <volume units="%">33</volume>
             <dose units="Gy">18</dose>
@@ -247,28 +247,28 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Skin</name>
+            <name>Skin_PRV05</name>
             <type>Max</type>
             <volume units="%">0.1</volume>
             <dose units="Gy">50</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Skin</name>
+            <name>Skin_PRV05</name>
             <type>Max</type>
             <volume units="%">0.1</volume>
             <dose units="Gy">60</dose>
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Small_Bowel</name>
+            <name>Bowel_Small</name>
             <type>Max</type>
             <volume units="%">0.1</volume>
             <dose units="Gy">45</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Small_Bowel</name>
+            <name>Bowel_Small</name>
             <type>Max</type>
             <volume units="%">0.1</volume>
             <dose units="Gy">52</dose>

@@ -69,6 +69,9 @@ def main():
     else:
         os.mkdir(local)
 
+    logging.info('Local directory is: {}'.format(local))
+    sys.exit('Exiting')
+
     # Loop through folders in branch, creating folders and pulling content
     for l in file_list:
         if l.get('type'):

@@ -59,6 +59,7 @@
           to declare the variable cooptimization=False for non-cooptimized beamsets
     2.0.2 Bug fix, remind user that gantry 4 degrees cannot be changed without a reset.
           Inclusion of TomoTherapy Optimization methods
+    2.0.3 Adding Jaw locking, including support for lock-to-jaw max for TrueBeamStX
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -96,6 +97,7 @@ import connect
 import UserInterface
 import datetime
 import sys
+import math
 
 
 def make_variable_grid_list(n_iterations, variable_dose_grid):
@@ -146,6 +148,143 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
             else:
                 change_grid.append(0)
     return change_grid
+
+
+def check_min_jaws(plan_opt, min_dim):
+    """
+    This function takes in the beamset, looks for field sizes that are less than a minimum
+    resets the beams, and sets iteration count to back to zero
+    :param beamset: current RS beamset
+    :param min_dim: size of smallest desired aperture
+    :return jaw_change: if a change was required return True, else False
+    # This will not work with jaw tracking!!!
+
+    """
+    # If there are segments, check the jaw positions to see if they are less than min_dim
+
+    # epsilon is a factor used to identify whether the jaws are likely to need adjustment
+    # min_dimension * (1 + epsilon) will be used to lock jaws
+    epsilon = 0.1
+    jaw_change = False
+    n_mlc = 64
+    y_thick_inner = 0.25
+    y_thick_outer = 0.5
+    for treatsettings in plan_opt.OptimizationParameters.TreatmentSetupSettings:
+        for b in treatsettings.BeamSettings:
+            logging.debug("Checking beam {} for jaw size limits".format(b.ForBeam.Name))
+            jaw_change = False
+            if b.ForBeam.MachineReference.MachineName == 'TrueBeamSTx':
+                n_mlc = 64
+                y_thick_inner = 0.25
+                y_thick_outer = 0.5
+                mlc_thin_low = 15
+                mlc_thin_high = 47
+            elif b.ForBeam.MachineReference.MachineName == 'TrueBeam':
+                n_mlc = 64
+                y_thick_inner = 0.5
+                y_thick_outer = 1.0
+                mlc_thin_low = 15
+                mlc_thin_high = 47
+            else:
+                logging.debug('Machine type unsupported for this check')
+                jaw_change = false
+                return jaw_change
+            # Search for the maximum leaf extend among all positions
+            if b.ForBeam.HasValidSegments:
+                # Find the minimum jaw position, first set to the maximum
+                min_x_aperture = 40
+                min_y_aperture = 40
+                max_mlc_bank_0 = 40
+                max_mlc_bank_1 = -40
+                max_open_posY = 0
+                max_open_negY = 0
+                for s in b.ForBeam.Segments:
+                    # Find the minimum aperture in each beam
+                    # Note: X2 = s.JawPositions[1], X1 = s.JawPositions[0],
+                    #       Y2 = s.JawPositions[3], Y1 = s.JawPositions[2],
+                    if s.JawPositions[1] - s.JawPositions[0] <= min_x_aperture:
+                        min_x1 = s.JawPositions[0]
+                        min_x2 = s.JawPositions[1]
+                        min_x_aperture = min_x2 - min_x1
+                    if s.JawPositions[3] - s.JawPositions[2] <= min_y_aperture:
+                        min_y1 = s.JawPositions[2]
+                        min_y2 = s.JawPositions[3]
+                        min_y_aperture = min_y2 - min_y1
+
+                    # Uncomment for development of MLC-based jaw offset
+                    # Find max of mlc bank positions
+                    # for m in s.LeafPositions[0]:
+                    #     if m < max_mlc_bank_0:
+                    #         max_mlc_bank_0 = m
+                    # for m in s.LeafPositions[1]:
+                    #     if m > max_mlc_bank_1:
+                    #         max_mlc_bank_1 = m
+                    # logging.debug('Segment: {}, MaxBank 0: {}, MaxBank 1: {},'.format(s.SegmentNumber,
+                    #                                                               max_mlc_bank_0, max_mlc_bank_1))
+                    # Searching from the lowest MLC number find the first open MLC
+                    # for i in range(0, n_mlc-2):
+                    #     logging.debug('tracking string indexing {}',i)
+                    #     if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
+                    #         max_open_posY = i
+                    # Searching from the highest number, find the first open MLC
+                    # for i in range(n_mlc-1, 0, -1):
+                    #     if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
+                    #         max_open_negY = i
+                    # logging.debug('Segment: {}, MaxYpos:{}, MaxYneg:{},'.format(s.SegmentNumber,
+                    #             max_open_posY, max_open_negY))
+
+                # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
+                # Use floor and ceil functions to ensure rounding to the nearest mm
+                if min_x_aperture <= min_dim * (1 + epsilon):
+                    logging.info('Minimum x-aperture is smaller than {} resetting beams'.format(min_dim))
+                    logging.debug('x-aperture is X1={}, X2={}'.format(min_x1, min_x2))
+                    x2 = (min_dim / (min_x2 - min_x1)) * min_x2
+                    x1 = (min_dim / (min_x2 - min_x1)) * min_x1
+                    logging.debug('x-aperture pre-flo/ceil X1={}, X2={}'.format(x1, x2))
+                    x2 = math.ceil(10 * x2) / 10
+                    x1 = math.floor(10 * x1) / 10
+                    logging.debug('x-aperture is being set to X1={}, X2={}'.format(x1, x2))
+                else:
+                    x2 = s.JawPositions[1]
+                    x1 = s.JawPositions[0]
+                # If the minimum size in y is smaller than min_dim, set the minimum to a proportion of min_dim
+                if min_y_aperture <= min_dim * (1 + epsilon):
+                    logging.info('Minimum y-aperture is smaller than {} resetting beams'.format(min_dim))
+                    logging.debug('y-aperture is Y1={}, Y2={}'.format(min_y1, min_y2))
+                    y2 = (min_dim / (min_y2 - min_y1)) * min_y2
+                    y1 = (min_dim / (min_y2 - min_y1)) * min_y1
+                    logging.debug('y-aperture pre-flo/ceil Y1={}, Y2={}'.format(y1, y2))
+                    y2 = math.ceil(10 * y2) / 10
+                    y1 = math.floor(10 * y1) / 10
+                    logging.debug('y-aperture is being set to Y1={}, Y2={}'.format(y1, y2))
+                else:
+                    y2 = s.JawPositions[3]
+                    y1 = s.JawPositions[2]
+                if min_x_aperture <= min_dim or min_y_aperture <= min_dim:
+                    logging.info('Jaw size offset necessary on beam: {}, X = {}, Y = {}, with min dimension {}'
+                                 .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
+                    jaw_change = True
+                    try:
+                        # Uncomment to automatically set jaw limits
+                        b.EditBeamOptimizationSettings(
+                            JawMotion='Lock to limits',
+                            LeftJaw=x1,
+                            RightJaw=x2,
+                            TopJaw=y1,
+                            BottomJaw=y2,
+                            SelectCollimatorAngle='False',
+                            AllowBeamSplit='False',
+                            OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                    except:
+                        logging.warning("Could not change beam settings to change jaw sizes")
+                else:
+                    logging.info('Jaw size offset unnecessary on beam:{}, X={}, Y={}, with min dimension={}'
+                                 .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
+            else:
+                logging.debug("Beam {} does not have valid segments".format(b.ForBeam.Name))
+    if jaw_change:
+        plan_opt.ResetOptimization()
+    return jaw_change
 
 
 def reduce_oar_dose(plan_optimization):
@@ -346,7 +485,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     :param optimization_inputs:
     :return:
     """
-
+    # For the supplied beamset compute the jaw-defined equivalent square
     try:
         patient.Save()
     except SystemError:
@@ -367,6 +506,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     except SystemError:
         raise IOError("No beamset loaded")
 
+    # Choose the minimum field size in cm
+    min_dim = 2
     # Parameters used for iteration number
     initial_maximum_iteration = optimization_inputs.get('initial_max_it', 60)
     initial_intermediate_iteration = optimization_inputs.get('initial_int_it', 10)
@@ -384,6 +525,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     maximum_iteration = optimization_inputs.get('n_iterations', 12)
     fluence_only = optimization_inputs.get('fluence_only', False)
     reset_beams = optimization_inputs.get('reset_beams', True)
+    small_target = optimization_inputs.get('small_target', True)
     reduce_oar = optimization_inputs.get('reduce_oar', True)
     segment_weight = optimization_inputs.get('segment_weight', False)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
@@ -432,6 +574,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     if fluence_only:
         status_steps.append('Optimize Fluence Only')
     else:
+        if small_target:
+            status_steps.append('Test iteration for jaw offset.')
         for i in range(maximum_iteration):
             # Update message for changing the dose grids.
             if vary_grid:
@@ -455,13 +599,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     status.next_step("Setting initialization variables")
     logging.info('optimize_plan: Set some variables like Niterations, Nits={}'.format(maximum_iteration))
-    # Maximum Jaw Sizes
-    # Adjust these for StX
-    X1limit = -15
-    X2limit = 15
-    Y1limit = -19
-    Y2limit = 19
-
     # Variable definitions
     i = 0
     beamsinrange = True
@@ -486,6 +623,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             OptIndex += 1
     if IndexNotFound:
         logging.warning("optimize_plan: Beamset optimization for {} could not be found.".format(beamset.DicomPlanLabel))
+        status.finish('Could not find beamset optimization"')
         sys.exit("Could not find beamset optimization")
     else:
         # Found our index.  We will use a shorthand for the remainder of the code
@@ -521,25 +659,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         logging.debug('automated_plan_optimization: Plan is not co-optimized.')
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # it is clear than when co-optimization occurs, we have more than one entry in here...
-    # while beamsinrange:
-    #  try:
-    #      plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].\
-    #          BeamSettings[i].ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
-    ## Uncomment to automatically set jaw limits
-    ##      plan.PlanOptimizations[OptIndex].OptimizationParameters.TreatmentSetupSettings[0].\
-    ##          BeamSettings[i].EditBeamOptimizationSettings(
-    ##                          JawMotion = "Use limits as max",
-    ##                          LeftJaw = X1limit,
-    ##                          RightJaw = X2limit,
-    ##                          TopJaw = Y2limit,
-    ##                          BottomJaw = Y1limit,
-    ##                          OptimizationTypes=['SegmentOpt','SegmentMU'])
-    #
-    #      i += 1
-    #      num_beams = i
-    #
-    #  except:
-    #      beamsinrange = False
 
     # Reset
     if reset_beams:
@@ -557,9 +676,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         logging.info('optimize_plan: User selected Fluence optimization Only')
         status.next_step('Running fluence-based optimization')
 
-        # for beams in treatment_setup_settings.BeamSettings:
-        # if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-        #    beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(FinalGantrySpacing=2)
         # Fluence only is the quick and dirty way of dialing in all necessary elements for the calc
         plan_optimization_parameters.DoseCalculation.ComputeFinalDose = False
         plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 500
@@ -579,25 +695,85 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             Optimization_Iteration, current_objective_function))
         reduce_oar_success = False
     else:
+        logging.info('optimize_plan: Full optimization')
         for ts in treatment_setup_settings:
+            # Set properties of the beam optimization
             for beams in ts.BeamSettings:
                 mu = beams.ForBeam.BeamMU
+                # Set the control point spacing for Arc Beams
                 if beams.TomoPropertiesPerBeam is not None:
                     logging.debug('Tomo plan - control point spacing not set')
                 elif beams.ArcConversionPropertiesPerBeam is not None:
                     if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                        # If there are MU then this field has already been optimized with the wrong gantry spacing
-                        # for shame....
                         if mu > 0:
+                            # If there are MU then this field has already been optimized with the wrong gantry
+                            # spacing. For shame....
                             logging.debug('This beamset is already optimized with > 2 degrees.  Reset needed')
-                            UserInterface.WarningBox('Restart Required: Attempt to correct final gantry spacing failed - check reset beams' +
+                            UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
+                                                     'spacing failed - check reset beams' +
                                                      ' on next attempt at this script')
+                            status.finish('Restart required')
                             sys.exit('Restart Required: Select reset beams on next run of script.')
                         else:
                             beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
                                 FinalGantrySpacing=2)
+                    # Maximum Jaw Sizes should be limited for STx beams
+                    # Determine the current machine
+                    machine_ref = beamset.MachineReference.MachineName
+                    if machine_ref == 'TrueBeamSTx':
+                        logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
+                        x1limit = -20
+                        x2limit = 20
+                        y1limit = -10.9
+                        y2limit = 10.9
+                        if mu > 0:
+                            # If there are MU then this field has already been optimized with the wrong jaw limits
+                            # For Shame....
+                            logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
+                            UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
+                                                     'jaws failed - check reset beams' +
+                                                     ' on next attempt at this script')
+                            status.finish('Restart required')
+                            sys.exit('Restart Required: Select reset beams on next run of script.')
+                        else:
+                            try:
+                                # Uncomment to automatically set jaw limits
+                                beams.EditBeamOptimizationSettings(
+                                    JawMotion='Use limits as max',
+                                    LeftJaw=x1limit,
+                                    RightJaw=x2limit,
+                                    TopJaw=y1limit,
+                                    BottomJaw=y2limit,
+                                    SelectCollimatorAngle='False',
+                                    AllowBeamSplit='False',
+                                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                            except:
+                                logging.debug('Failed to set limits for TrueBeamStx')
 
         while Optimization_Iteration != maximum_iteration:
+            # Check for small targets by evaluating the jaw size
+            if small_target:
+                if Optimization_Iteration == 0:
+                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 30
+                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 5
+                    status.next_step(
+                        text='Running test iteration for small target size')
+                    plan.PlanOptimizations[OptIndex].RunOptimization()
+                    plan.PlanOptimizations[OptIndex].RunOptimization()
+                    restart = check_min_jaws(plan_optimization, min_dim)
+                    Optimization_Iteration = 0
+                else:
+                    restart = check_min_jaws(plan_optimization, min_dim)
+                    if restart:
+                        # Reset the optimization count
+                        logging.info('Jaw sizes still appear to be smaller than their nomimal minimum')
+            else:
+                restart = check_min_jaws(plan_optimization, min_dim)
+                if restart:
+                    # Stop the calculation, and warn the user to run small target for this case.
+                    logging.warning("User is running calculation for small target without jaw-locking")
+                    status.finish('Restart required select small-target')
+                    sys.exit("Restart the optimization with small-target selected")
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 0
@@ -737,26 +913,30 @@ def main():
             'input07_vary_dose_grid': 'Start with large grid, and decrease gradually',
             'input08_n_iterations': 'Number of Iterations',
             'input09_segment_weight': 'Segment weight calculation',
-            'input10_reduce_oar': 'Reduce OAR Dose'},
+            'input10_reduce_oar': 'Reduce OAR Dose',
+            'input11_small_target': 'Target size < 3 cm'},
         datatype={
             'input07_vary_dose_grid': 'check',
             'input01_fluence_only': 'check',
             'input02_cold_start': 'check',
             'input09_segment_weight': 'check',
-            'input10_reduce_oar': 'check'},
+            'input10_reduce_oar': 'check',
+            'input11_small_target': 'check'},
         initial={'input03_cold_max_iteration': '50',
                  'input04_cold_interm_iteration': '10',
                  'input05_ws_max_iteration': '35',
                  'input06_ws_interm_iteration': '5',
                  'input08_n_iterations': '4',
                  'input09_segment_weight': ['Perform Segment Weighted optimization'],
-                 'input10_reduce_oar': ['Perform reduce OAR dose before completion']},
+                 'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
+                 'input11_small_target': ['Target size < 3 cm - limit jaws']},
         options={
             'input01_fluence_only': ['Fluence calc'],
             'input02_cold_start': ['Reset Beams'],
             'input07_vary_dose_grid': ['Variable Dose Grid'],
             'input09_segment_weight': ['Perform Segment Weighted optimization'],
-            'input10_reduce_oar': ['Perform reduce OAR dose before completion']},
+            'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
+            'input11_small_target': ['Target size < 3 cm - limit jaws']},
         required=[])
     print optimization_dialog.show()
 
@@ -805,9 +985,14 @@ def main():
             reduce_oar = False
     except KeyError:
         reduce_oar = False
-
-        #    try:
-        #        if 'Perform Segment Weighted optimization' in optimization_dialog.values['input9_segment_weight']:
+    # Despite a calculated beam, reset and start over
+    try:
+        if 'Target size < 3 cm - limit jaws' in optimization_dialog.values['input11_small_target']:
+            small_target = True
+        else:
+            small_target = False
+    except KeyError:
+        small_target = False
     optimization_inputs = {
         'initial_max_it': int(optimization_dialog.values['input03_cold_max_iteration']),
         'initial_int_it': int(optimization_dialog.values['input04_cold_interm_iteration']),
@@ -822,6 +1007,7 @@ def main():
         'reset_beams': reset_beams,
         'segment_weight': segment_weight,
         'reduce_oar': reduce_oar,
+        'small_target': small_target,
         'n_iterations': int(optimization_dialog.values['input08_n_iterations'])}
 
     optimize_plan(patient=Patient,

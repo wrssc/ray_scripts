@@ -259,6 +259,8 @@ def send(case,
                         b.TreatmentMachineName = machine
                         expected.add(b[0x300a00b2], beam=b)
 
+                        # The following lines add a new accessory for the electron block which is unnecessary in ARIA
+
                         # If converting electron block into accessory (note, accessory ID tags are currently hard coded
                         # if block_accessory and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
                         #         'BlockSequence' in b and 'BlockName' in b.BlockSequence[0] and \

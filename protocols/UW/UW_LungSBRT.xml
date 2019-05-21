@@ -346,7 +346,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin</name>
+                <name>Skin_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">32</dose>
@@ -721,7 +721,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin</name>
+                <name>Skin_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">32</dose>
@@ -1092,7 +1092,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin</name>
+                <name>Skin_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">32</dose>
@@ -1462,7 +1462,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin</name>
+                <name>Skin_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">32</dose>
@@ -1835,7 +1835,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin</name>
+                <name>Skin_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">30</dose>
@@ -2206,7 +2206,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin</name>
+                <name>Skin_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">30</dose>

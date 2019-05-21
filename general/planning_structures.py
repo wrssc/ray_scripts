@@ -480,12 +480,18 @@ def main():
     # Process inputs
     input_source_list = []
     source_doses = []
+    input_source_list = [None] * n
+    source_doses = [None] * n
     for k, v in initial_dialog.values.iteritems():
+        # Grab the first two characters in the key and convert to an index
+        i_char = k[:2]
+        logging.debug('key is {}'.format(i_char))
+        indx = int(i_char)-1
         if len(v) > 0:
             if 'name' in k:
-                input_source_list.append(v)
+                input_source_list[indx] = v
             if 'dose' in k:
-                source_doses.append(v)
+                source_doses[indx] = v
         else:
             logging.warning('No dialog elements returned. Script unsuccessful')
 
@@ -815,6 +821,7 @@ def main():
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
         for i, t in enumerate(input_source_list):
+            logging.debug("Creating target {} using {}".format(PTVList[i],t))
             ptv_sources.append(t)
             if i == 0:
                 ptv_definitions = {

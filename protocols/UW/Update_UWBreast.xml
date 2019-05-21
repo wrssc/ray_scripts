@@ -79,13 +79,13 @@
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">40.05</dose>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">40.05</dose>
@@ -98,7 +98,7 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">10</dose>
@@ -113,85 +113,85 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">35</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">94</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">94</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">5</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">115</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">120</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -302,7 +302,7 @@
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">40.05</dose>
@@ -312,29 +312,29 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -445,13 +445,13 @@
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">40.05</dose>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">40.05</dose>
@@ -462,7 +462,7 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">10</dose>
@@ -474,85 +474,85 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">35</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">94</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">94</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">5</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">115</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">120</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -655,7 +655,7 @@
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">40.05</dose>
@@ -664,29 +664,29 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -789,31 +789,31 @@
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
@@ -826,7 +826,7 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">10</dose>
@@ -841,120 +841,120 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">87</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">87</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">35</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">5</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">115</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">120</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_SCV">95</dose>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_SCV">90</dose>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">80</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1000,7 +1000,7 @@
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <dose units="%" roi="PTVn_IMN">50</dose>
+                <dose units="%" roi="PTV_n3_IMN">50</dose>
                 <volume units="%">10</volume>
                 <priority>1</priority>
             </roi>
@@ -1043,7 +1043,7 @@
                 <name>Lung_L</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTVn_SCV">40</dose>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1085,25 +1085,25 @@
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
@@ -1114,64 +1114,64 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_SCV">95</dose>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_SCV">90</dose>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">80</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -1217,7 +1217,7 @@
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <dose units="%" roi="PTVn_IMN">50</dose>
+                <dose units="%" roi="PTV_n3_IMN">50</dose>
                 <volume units="%">10</volume>
                 <priority>1</priority>
             </roi>
@@ -1260,7 +1260,7 @@
                 <name>Lung_L</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTVn_SCV">40</dose>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1302,31 +1302,31 @@
         <prefix>ChwL_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
@@ -1339,7 +1339,7 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">10</dose>
@@ -1354,120 +1354,120 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Chest_Wall">95</dose>
+                <dose units="%" roi="PTV_p_Chestwall">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Chest_Wall">90</dose>
+                <dose units="%" roi="PTV_p_Chestwall">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">87</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">87</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="le">DX</type>
                 <volume units="%">35</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">5</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">115</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">120</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_SCV">95</dose>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_SCV">90</dose>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">80</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -1513,7 +1513,7 @@
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <dose units="%" roi="PTVn_IMN">50</dose>
+                <dose units="%" roi="PTV_n3_IMN">50</dose>
                 <volume units="%">10</volume>
                 <priority>1</priority>
             </roi>
@@ -1556,7 +1556,7 @@
                 <name>Lung_L</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTVn_SCV">40</dose>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1598,25 +1598,25 @@
         <prefix>ChwL_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
@@ -1627,64 +1627,64 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Chest_Wall">95</dose>
+                <dose units="%" roi="PTV_p_Chestwall">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Chest_Wall">90</dose>
+                <dose units="%" roi="PTV_p_Chestwall">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Chest_Wall">110</dose>
+                <dose units="%" roi="PTV_p_Chestwall">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Chest_Wall">115</dose>
+                <dose units="%" roi="PTV_p_Chestwall">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_SCV">95</dose>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_SCV">90</dose>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">80</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -1730,7 +1730,7 @@
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <dose units="%" roi="PTVn_IMN">50</dose>
+                <dose units="%" roi="PTV_n3_IMN">50</dose>
                 <volume units="%">10</volume>
                 <priority>1</priority>
             </roi>
@@ -1773,7 +1773,7 @@
                 <name>Lung_L</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTVn_SCV">40</dose>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1815,31 +1815,31 @@
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
@@ -1850,7 +1850,7 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">10</dose>
@@ -1862,120 +1862,120 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">87</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">87</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">35</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">5</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">115</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">120</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_SCV">95</dose>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_SCV">90</dose>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">80</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -2049,7 +2049,7 @@
                 <name>Lung_R</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTVn_SCV">40</dose>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2091,25 +2091,25 @@
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
@@ -2118,64 +2118,64 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_SCV">95</dose>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_SCV">90</dose>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">80</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -2249,7 +2249,7 @@
                 <name>Lung_R</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTVn_SCV">40</dose>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2291,31 +2291,31 @@
         <prefix>ChwR_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
@@ -2326,7 +2326,7 @@
         </prescription>
         <prescription>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">10</dose>
@@ -2338,120 +2338,120 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Chest_Wall">95</dose>
+                <dose units="%" roi="PTV_p_Chestwall">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Chest_Wall">90</dose>
+                <dose units="%" roi="PTV_p_Chestwall">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">87</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">87</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="le">DX</type>
                 <volume units="%">35</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">100</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">5</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">115</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Lumpectomy_Eval</name>
+                <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Lumpectomy_Eval">120</dose>
+                <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_SCV">95</dose>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_SCV">90</dose>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">80</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -2525,7 +2525,7 @@
                 <name>Lung_R</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTVn_SCV">40</dose>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2567,25 +2567,25 @@
         <prefix>ChwR_</prefix>
         <prescription>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
@@ -2594,64 +2594,64 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_Chest_Wall">95</dose>
+                <dose units="%" roi="PTV_p_Chestwall">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_Chest_Wall">90</dose>
+                <dose units="%" roi="PTV_p_Chestwall">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Chest_Wall">110</dose>
+                <dose units="%" roi="PTV_p_Chestwall">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_Chest_Wall</name>
+                <name>PTV_p_Chestwall</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_Chest_Wall">115</dose>
+                <dose units="%" roi="PTV_p_Chestwall">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_SCV">95</dose>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_SCV</name>
+                <name>PTV_n1_SCV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_SCV">90</dose>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTVn_IMN</name>
+                <name>PTV_n3_IMN</name>
                 <type dir="ge">DX</type>
                 <volume units="%">80</volume>
-                <dose units="%" roi="PTVn_IMN">90</dose>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTVn_Axillary</name>
+                <name>PTV_n2_Axillary</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTVn_Axillary">95</dose>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -2725,7 +2725,7 @@
                 <name>Lung_R</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
-                <dose units="%" roi="PTVn_SCV">40</dose>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
                 <priority>1</priority>
             </roi>
             <roi>
