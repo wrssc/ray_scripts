@@ -99,13 +99,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bladder</name>
-                <type dir="lt">VX</type>
-                <dose units="Gy">40</dose>
-                <volume units="%">35</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
                 <name>Rectum</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
@@ -494,13 +487,6 @@
                 <type dir="lt">VX</type>
                 <dose units="Gy">50</dose>
                 <volume units="%">40</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Bladder</name>
-                <type dir="lt">VX</type>
-                <dose units="Gy">40</dose>
-                <volume units="%">35</volume>
                 <priority>3</priority>
             </roi>
             <roi>
