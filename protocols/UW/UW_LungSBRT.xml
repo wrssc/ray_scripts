@@ -88,7 +88,7 @@
                 <name>PTV_p</name>
                 <ref>https://www.ncbi.nlm.nih.gov/pubmed/27209498</ref>
                 <type dir="ge">Mean</type>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV_p">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -108,7 +108,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">32</dose>
@@ -124,7 +124,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">27</dose>
@@ -132,7 +132,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">32</dose>
@@ -155,7 +155,7 @@
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">37</dose>
@@ -163,7 +163,7 @@
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">37</dose>
                 <priority>3</priority>
@@ -178,7 +178,7 @@
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">37</dose>
@@ -214,7 +214,7 @@
             </roi>
             <roi>
                 <name>Esophagus_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">32</dose>
@@ -361,7 +361,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">24</dose>
@@ -384,7 +384,7 @@
             </roi>
             <roi>
                 <name>Trachea_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">37</dose>
@@ -465,7 +465,7 @@
                 <name>PTV_p</name>
                 <ref>https://www.ncbi.nlm.nih.gov/pubmed/27209498</ref>
                 <type dir="ge">Mean</type>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV_p">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -485,7 +485,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">32</dose>
@@ -508,7 +508,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">32</dose>
@@ -531,7 +531,7 @@
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">37</dose>
@@ -554,7 +554,7 @@
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">37</dose>
@@ -590,7 +590,7 @@
             </roi>
             <roi>
                 <name>Esophagus_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">32</dose>
@@ -736,7 +736,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">24</dose>
@@ -759,7 +759,7 @@
             </roi>
             <roi>
                 <name>Trachea_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">37</dose>
@@ -837,7 +837,7 @@
                 <name>PTV_p</name>
                 <ref>https://www.ncbi.nlm.nih.gov/pubmed/27209498</ref>
                 <type dir="ge">Mean</type>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV_p">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -857,7 +857,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">29</dose>
@@ -880,7 +880,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">29</dose>
@@ -902,7 +902,7 @@
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">34</dose>
@@ -924,7 +924,7 @@
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">34</dose>
@@ -960,7 +960,7 @@
             </roi>
             <roi>
                 <name>Esophagus_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">30</dose>
@@ -1107,7 +1107,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">22</dose>
@@ -1129,7 +1129,7 @@
             </roi>
             <roi>
                 <name>Trachea_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">34</dose>
@@ -1207,7 +1207,7 @@
                 <name>PTV_p</name>
                 <ref>https://www.ncbi.nlm.nih.gov/pubmed/27209498</ref>
                 <type dir="ge">Mean</type>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV_p">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1227,7 +1227,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">29</dose>
@@ -1250,7 +1250,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">29</dose>
@@ -1272,7 +1272,7 @@
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">34</dose>
@@ -1294,7 +1294,7 @@
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">34</dose>
@@ -1330,7 +1330,7 @@
             </roi>
             <roi>
                 <name>Esophagus_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">30</dose>
@@ -1477,7 +1477,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">22</dose>
@@ -1500,7 +1500,7 @@
             </roi>
             <roi>
                 <name>Trachea_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">34</dose>
@@ -1578,7 +1578,7 @@
                 <name>PTV_p</name>
                 <ref>https://www.ncbi.nlm.nih.gov/pubmed/27209498</ref>
                 <type dir="ge">Mean</type>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV_p">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1598,7 +1598,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">26</dose>
@@ -1621,7 +1621,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">26</dose>
@@ -1644,7 +1644,7 @@
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">30</dose>
@@ -1667,7 +1667,7 @@
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">30</dose>
@@ -1703,7 +1703,7 @@
             </roi>
             <roi>
                 <name>Esophagus_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">27</dose>
@@ -1850,7 +1850,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">18</dose>
@@ -1873,7 +1873,7 @@
             </roi>
             <roi>
                 <name>Trachea_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">30</dose>
@@ -1951,7 +1951,7 @@
                 <name>PTV_p</name>
                 <ref>https://www.ncbi.nlm.nih.gov/pubmed/27209498</ref>
                 <type dir="ge">Mean</type>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV_p">120</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1970,7 +1970,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">26</dose>
@@ -1992,7 +1992,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">26</dose>
@@ -2015,7 +2015,7 @@
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">30</dose>
@@ -2038,7 +2038,7 @@
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">30</dose>
@@ -2074,7 +2074,7 @@
             </roi>
             <roi>
                 <name>Esophagus_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">27</dose>
@@ -2221,7 +2221,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">18</dose>
@@ -2244,7 +2244,7 @@
             </roi>
             <roi>
                 <name>Trachea_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
                 <volume units="%">2</volume>
                 <dose units="Gy">30</dose>
