@@ -42,9 +42,6 @@ def select_objective_protocol():
                 else:
                     objective_sets[n] = tree.getroot()
     # Augment the list to include all xml files found with an "objectiveset" tag in name
-    logging.debug('The Corresponding list will be {}'.format(list(objective_sets.keys())))
-    for k in objective_sets:
-        logging.debug('Objective sets to choose from are {}'.format(k, objective_sets[k]))
     input_dialog = UserInterface.InputDialog(
         inputs={'i': 'Select Objective Set'},
         title='Objective Selection',
@@ -58,6 +55,9 @@ def select_objective_protocol():
         logging.info('create_objective cancelled by user')
         # status.finish('User cancelled create objective creation.')
         sys.exit('create_objective cancelled by user')
+    for k in input_dialog.values:
+        logging.debug('This is value {}'.format(input_dialog.values[k]))
+
     logging.debug('user selected {}').format(input_dialog.values['i'])
     tree = Objectives.select_objectives(input_dialog.values['i'])
     return tree
