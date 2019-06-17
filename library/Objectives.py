@@ -53,7 +53,6 @@ def select_objective_protocol(folder=None, filename=None):
     :return: tree: Elementtree with user-selected objectives loaded
     TODO:: Make the folder-based and filename based elements work
     """
-    import UserInterface
     if filename:
         tree = xml.etree.ElementTree.parse(filename)
         return tree
