@@ -42,9 +42,9 @@ def select_objective_protocol():
                 else:
                     objective_sets[n] = tree.getroot()
     # Augment the list to include all xml files found with an "objectiveset" tag in name
+    logging.debug('The Corresponding list will be {}'.format(list(objective_sets.keys())))
     for k in objective_sets:
         logging.debug('Objective sets to choose from are {}'.format(k, objective_sets[k]))
-    logging.debug('The Corresponding list will be {}'.format(list(objective_sets.keys())))
     input_dialog = UserInterface.InputDialog(
         inputs={'i': 'Select Objective Set'},
         title='Objective Selection',
