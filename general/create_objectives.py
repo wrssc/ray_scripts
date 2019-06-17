@@ -106,8 +106,7 @@ def main():
             else:
                 s_dose = None
 
-            Objectives.add_objective(
-                                     plan=plan,
+            Objectives.add_objective(plan=plan,
                                      beamset=beamset,
                                      function_type=o_type,
                                      roi_name=o_name,
