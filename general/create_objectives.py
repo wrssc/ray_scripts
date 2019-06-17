@@ -111,7 +111,6 @@ def main():
                                      beamset=beamset,
                                      function_type=o_type,
                                      roi_name=o_name,
-                                     s_roi=None,
                                      dose=s_dose,
                                      weight=o_weight,
                                      restrict_beamset=None)
