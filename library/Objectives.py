@@ -113,6 +113,7 @@ def select_objectives(folder=None, filename=None):
     :param folder: folder from os to search within
     :return: tree: elementtree from xml file
     """
+    # This function can likely be deleted
     if filename:
         tree = xml.etree.ElementTree.parse(filename)
     elif folder:
@@ -271,25 +272,6 @@ def add_objective(obj, case, plan, beamset,
 
     OptIndex = find_optimization_index(plan=plan,beamset=beamset)
     plan_optimization = plan.PlanOptimizations[OptIndex]
-    # Find current BeamSet Number and determine plan optimization
-    # indices = []
-    # for OptIndex, opts in enumerate(plan.PlanOptimizations):
-    #     try:
-    #         opts.OptimizedBeamSets[beamset.DicomPlanLabel]
-    #         indices.append(OptIndex)
-    #     except:
-    #         pass
-    # # Ensure we have a unique match or exit
-    # if len(indices) == 1:
-    #     # Found our index.  We will use a shorthand for the remainder of the code
-    #     OptIndex = indices[0]
-    #     plan_optimization = plan.PlanOptimizations[OptIndex]
-    # elif len(indices) == 0:
-    #     logging.warning("Beamset optimization for {} could not be found.".format(beamset.DicomPlanLabel))
-    #     sys.exit("Could not find beamset optimization")
-    # elif len(indices) > 1:
-    #     logging.warning("Beamset has multiple optimizations, cannot proceed")
-    #     sys.exit("Multiple beamset optimizations found in current plan.Cannot proceed")
 
     # Add the objective
     try:
