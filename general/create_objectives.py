@@ -39,8 +39,8 @@ def select_objective_protocol():
                 if n in objective_sets:
                     objective_sets[n].extend(tree.getroot())
                 else:
-                    logging.debug('n not found in list, extending objectives dictionary with {}'.format(n))
                     objective_sets[n] = tree.getroot()
+                    logging.debug('objective sets to choose from are {}'.format(n, objective_sets[n]))
     # Augment the list to include all xml files found with an "objectiveset" tag in name
     for k in objective_sets:
         logging.debug('objective sets to choose from are {}'.format(k, objective_sets[k]))
