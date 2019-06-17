@@ -51,6 +51,7 @@ def select_objective_protocol(folder=None, filename=None):
 
     Prompt user to select the objective xml file they want to use
     :return: tree: Elementtree with user-selected objectives loaded
+    TODO:: Make the folder-based and filename based elements work
     """
     if filename:
         tree = xml.etree.ElementTree.parse(filename)
