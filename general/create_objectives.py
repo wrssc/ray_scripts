@@ -28,10 +28,10 @@ def select_objective_protocol():
 
     # Review specified directory for any objectiveset tags
     logging.debug('Searching folder {} for objectivesets'.format(path_objectives))
+    objective_sets = {}
     for f in os.listdir(path_objectives):
         if f.endswith('.xml'):
             tree = xml.etree.ElementTree.parse(os.path.join(path_objectives, f))
-            objective_sets = {}
             if tree.getroot().tag == 'objectiveset':
                 n = tree.find('name').text
                 logging.debug('Found objectiveset {} in {}'.format(n, f))
