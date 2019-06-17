@@ -8,10 +8,8 @@ import sys
 import os
 import logging
 import datetime
-import xml.etree.ElementTree
 import connect
 import Objectives
-import UserInterface
 
 
 
