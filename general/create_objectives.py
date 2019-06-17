@@ -57,7 +57,7 @@ def select_objective_protocol():
     ##     # status.finish('User cancelled create objective creation.')
     ##     sys.exit('create_objective cancelled by user')
     for k in input_dialog.values:
-        logging.debug('This is value {}'.format(input_dialog.values[k]))
+        logging.debug('This is key {} value {}'.format(k,input_dialog.values[k]))
 
     logging.debug('user selected {}').format(input_dialog.values['i'])
     tree = Objectives.select_objectives(input_dialog.values['i'])
