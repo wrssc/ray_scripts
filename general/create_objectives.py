@@ -40,7 +40,7 @@ def select_objective_protocol():
                     # objective_sets[n].extend(tree.getroot())
                     logging.debug("Objective set {} already in list".format(n))
                 else:
-                    objective_sets[n] = tree.getroot()
+                    objective_sets[n] = tree#.getroot()
     # Augment the list to include all xml files found with an "objectiveset" tag in name
     input_dialog = UserInterface.InputDialog(
         inputs={'i': 'Select Objective Set'},
