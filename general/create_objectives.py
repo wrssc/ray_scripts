@@ -108,7 +108,6 @@ def main():
                 s_dose = None
 
             Objectives.add_objective(o,
-                                     case=case,
                                      plan=plan,
                                      beamset=beamset,
                                      s_roi=None,
