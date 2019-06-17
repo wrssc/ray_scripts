@@ -49,12 +49,13 @@ def select_objective_protocol():
         initial={},
         options={'i': list(objective_sets.keys())},
         required=['i'])
-    response = input_dialog.show()
-    # Close on cancel
-    if response == {}:
-        logging.info('create_objective cancelled by user')
-        # status.finish('User cancelled create objective creation.')
-        sys.exit('create_objective cancelled by user')
+    print input_dialog.show()
+    ## response = input_dialog.show()
+    ## # Close on cancel
+    ## if response == {}:
+    ##     logging.info('create_objective cancelled by user')
+    ##     # status.finish('User cancelled create objective creation.')
+    ##     sys.exit('create_objective cancelled by user')
     for k in input_dialog.values:
         logging.debug('This is value {}'.format(input_dialog.values[k]))
 
