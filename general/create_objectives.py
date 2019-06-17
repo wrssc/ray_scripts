@@ -60,7 +60,8 @@ def select_objective_protocol():
         logging.debug('This is key {} value {}'.format(k,input_dialog.values[k]))
 
     # logging.debug('user selected {}').format(input_dialog.values['i'])
-    tree = Objectives.select_objectives(input_dialog.values['i'])
+    tree = objective_sets[input_dialog.values['i']]
+    # tree = Objectives.select_objectives(input_dialog.values['i'])
     return tree
 
 
