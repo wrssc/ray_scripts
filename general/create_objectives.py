@@ -40,7 +40,8 @@ def select_objective_protocol():
                     objective_sets[n].extend(tree.getroot())
                 else:
                     objective_sets[n] = tree.getroot()
-        logging.debug('objective sets to choose from are {}'.format(k, objective_sets[k]))
+        for k in objective_sets:
+            logging.debug('objective sets to choose from are {}'.format(k, objective_sets[k]))
     # Augment the list to include all xml files found with an "objectiveset" tag in name
     for k in objective_sets:
         logging.debug('objective sets to choose from are {}'.format(k, objective_sets[k]))
