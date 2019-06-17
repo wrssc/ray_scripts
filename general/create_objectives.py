@@ -98,6 +98,7 @@ def main():
         for o in objectives:
             o_name = o.find('name').text
             o_type = o.find('type').text
+            o_weight = o.find('weight').text
             # TESTING ONLY - TO DO ELIMINATE THIS NEXT LINE
             # This will need to be a user supplied dose level.
             if o.find('dose').attrib['units'] == '%':
@@ -105,12 +106,14 @@ def main():
             else:
                 s_dose = None
 
-            Objectives.add_objective(o,
+            Objectives.add_objective(
                                      plan=plan,
                                      beamset=beamset,
+                                     function_type=o_type,
+                                     roi_name=o_name,
                                      s_roi=None,
-                                     s_dose=s_dose,
-                                     s_weight=None,
+                                     dose=s_dose,
+                                     weight=o_weight,
                                      restrict_beamset=None)
     else:
         logging.debug('Could not find objective set using tree = {}'.format(tree))

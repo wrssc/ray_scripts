@@ -34,6 +34,7 @@ def add_objective(plan,
                   beamset,
                   function_type,
                   roi_name,
+                  weight=None,
                   robust=False,
                   is_constraint=False,
                   dose=None,
@@ -93,6 +94,8 @@ def add_objective(plan,
         retval_0.PercentVolume = volume
     if eud_a:
         retval_0.EudParameterA = eud_a
+    if weight:
+        retval_0.DoseFunctionParameters.Weight = weight
     # It should be noted that the next 4 inputs should be combined into a "type" based argument for the
     # dose fall off type of optimization option.
     if high_dose:
