@@ -54,7 +54,7 @@ def select_objective_protocol(folder=None, filename=None):
     TODO:: Make the folder-based and filename based elements work
     """
     if filename:
-        filelist = filename
+        filelist = [filename]
         path_objectives = folder
     elif folder and not filename:
         path_objectives = os.path.join(os.path.dirname(__file__),
