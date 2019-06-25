@@ -72,6 +72,9 @@ def select_objective_protocol(folder=None, filename=None):
 
     # Review specified directory for any objectiveset tags
     logging.debug('Searching folder {} for objectivesets'.format(path_objectives))
+    logging.debug('Type of filename is {} while type of listdir is {}'.format(
+        type(filelist),type(os.listdir(path_objectives))
+    ))
     objective_sets = {}
     #for f in os.listdir(path_objectives):
     for f in filelist:
