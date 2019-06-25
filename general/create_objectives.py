@@ -28,8 +28,8 @@ def main():
     institution_folder = r'UW'
     file = 'UWBrainCNS.xml'
     ##file = 'planning_structs_conventional.xml'
-    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder, file)
-    tree = Objectives.select_objective_protocol(filename=path_protocols)
+    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
+    tree = Objectives.select_objective_protocol(filename=file, folder=path_protocols)
     ## This one searches the whole directory
     ## tree = Objectives.select_objective_protocol()
     logging.debug("selected file {}".format(path_protocols))
