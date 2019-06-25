@@ -86,7 +86,7 @@ def select_objective_protocol(folder=None, filename=None):
                     objective_sets[n] = tree
             elif tree.getroot().tag == 'protocol':
                 for order in tree.iter('order'):
-                    logging.debug("Found some orders".format(order.attrib))
+                    logging.debug("Found some orders {}".format(order.attrib))
 
 
     # Augment the list to include all xml files found with an "objectiveset" tag in name

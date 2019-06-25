@@ -26,10 +26,12 @@ def main():
 
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
-    file = 'planning_structs_conventional.xml'
+    file = 'UWBrainCNS.xml'
+    ##file = 'planning_structs_conventional.xml'
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder, file)
     tree = Objectives.select_objectives(filename=path_protocols)
-    tree = Objectives.select_objective_protocol()
+    ## This one searches the whole directory
+    ## tree = Objectives.select_objective_protocol()
     logging.debug("selected file {}".format(path_protocols))
     # TODO::
     # Extend this for multiple objective sets found within a file
