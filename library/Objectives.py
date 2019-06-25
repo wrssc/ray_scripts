@@ -88,6 +88,8 @@ def select_objective_protocol(folder=None, filename=None):
                 root = tree.getroot()
                 for order in root.iter('order'):
                     logging.debug("Found some orders {}".format(order.attrib))
+            else:
+                logging.debug("Could not find anything useful in file {}".format(f))
 
 
     # Augment the list to include all xml files found with an "objectiveset" tag in name
