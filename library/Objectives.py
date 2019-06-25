@@ -85,7 +85,8 @@ def select_objective_protocol(folder=None, filename=None):
                 else:
                     objective_sets[n] = tree
             elif tree.getroot().tag == 'protocol':
-                for order in tree.iter('order'):
+                root = tree.getroot()
+                for order in root.iter('order'):
                     logging.debug("Found some orders {}".format(order.attrib))
 
 
