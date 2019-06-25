@@ -107,7 +107,7 @@ def select_objective_protocol(folder=None, filename=None):
                     if objectives:
                         logging.debug("Found some orders {} with objectives".format(
                             o.find('name').text))
-                        n = o.find('name').text)
+                        n = o.find('name').text
                         objective_sets[n] = o
                     logging.debug("Found some orders {}".format(o.find('name').text))
             else:
