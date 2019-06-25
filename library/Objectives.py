@@ -77,6 +77,7 @@ def select_objective_protocol(folder=None, filename=None):
     for f in filelist:
         if f.endswith('.xml'):
             tree = xml.etree.ElementTree.parse(os.path.join(path_objectives, f))
+            logging.debug('Searching tree: {}'.format(tree.getroot().tag))
             # Search first for a top level objectiveset
             if tree.getroot().tag == 'objectiveset':
                 n = tree.find('name').text
