@@ -92,9 +92,10 @@ def select_objective_protocol(folder=None, filename=None):
                 else:
                     objective_sets[n] = tree
             elif tree.getroot().tag == 'protocol':
-                root = tree.getroot()
-                for order in root.iter('order'):
-                    logging.debug("Found some orders {}".format(order.get('name')))
+                protocol = tree.getroot()
+                orders = protocol.findall('./orders')
+                for o in orders:
+                    logging.debug("Found some orders {}".format(o.find('name').text))
             else:
                 logging.debug("Could not find anything useful in file {}".format(f))
 
