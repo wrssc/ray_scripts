@@ -54,12 +54,12 @@ def select_objective_protocol(folder=None, filename=None):
     TODO:: Make the folder-based and filename based elements work
     """
     if filename:
-        tree = xml.etree.ElementTree.parse(filename)
-        return tree
+        filelist = filename
     elif folder:
         path_objectives = os.path.join(os.path.dirname(__file__),
                                        protocol_folder,
                                        institution_folder)
+        filelist = os.listdir(path_objectives)
     else:
         protocol_folder = r'../protocols'
         institution_folder = r'UW'
@@ -67,11 +67,13 @@ def select_objective_protocol(folder=None, filename=None):
         path_objectives = os.path.join(os.path.dirname(__file__),
                                        protocol_folder,
                                        institution_folder)
+        filelist = os.listdir(path_objectives)
 
     # Review specified directory for any objectiveset tags
     logging.debug('Searching folder {} for objectivesets'.format(path_objectives))
     objective_sets = {}
-    for f in os.listdir(path_objectives):
+    #for f in os.listdir(path_objectives):
+    for f in filelist:
         if f.endswith('.xml'):
             tree = xml.etree.ElementTree.parse(os.path.join(path_objectives, f))
             # Search first for a top level objectiveset
