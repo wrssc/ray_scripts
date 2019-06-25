@@ -44,6 +44,9 @@ def main():
     ##    n = tree.find('name').text
     ##    logging.debug('Found protocol {} in {}'.format(n, file))
     ##    objectiveset = tree.getroot()
+    logging.debug("In call: os {} has type {}".format(0,type(tree[0])))
+    logging.debug("In call: pos {} has type {}".format(1,type(tree[1])))
+
     for objsets in tree:
         objectives = objsets.findall('./objectives/roi')
         ## objectives = objectiveset.findall('./objectives/roi')
