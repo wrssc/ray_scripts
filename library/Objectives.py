@@ -94,7 +94,7 @@ def select_objective_protocol(folder=None, filename=None):
             elif tree.getroot().tag == 'protocol':
                 root = tree.getroot()
                 for order in root.iter('order'):
-                    logging.debug("Found some orders {}".format(order.attrib))
+                    logging.debug("Found some orders {}".format(order.get('name')))
             else:
                 logging.debug("Could not find anything useful in file {}".format(f))
 
