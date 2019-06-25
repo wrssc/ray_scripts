@@ -55,6 +55,7 @@ def select_objective_protocol(folder=None, filename=None):
     """
     if filename:
         filelist = filename
+        path_objectives = ""
     elif folder:
         path_objectives = os.path.join(os.path.dirname(__file__),
                                        protocol_folder,
