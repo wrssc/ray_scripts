@@ -74,6 +74,7 @@ def select_objective_protocol(folder=None, filename=None):
     for f in os.listdir(path_objectives):
         if f.endswith('.xml'):
             tree = xml.etree.ElementTree.parse(os.path.join(path_objectives, f))
+            # Search first for a top level objectiveset
             if tree.getroot().tag == 'objectiveset':
                 n = tree.find('name').text
                 logging.debug('Found objectiveset {} in {}'.format(n, f))
@@ -83,6 +84,11 @@ def select_objective_protocol(folder=None, filename=None):
                     logging.debug("Objective set {} already in list".format(n))
                 else:
                     objective_sets[n] = tree
+            elif tree.getroot().tag == 'protocol':
+                for order in tree.iter('order'):
+                    logging.debug("Found some orders".format(order.attrib))
+
+
     # Augment the list to include all xml files found with an "objectiveset" tag in name
     input_dialog = UserInterface.InputDialog(
         inputs={'i': 'Select Objective Set'},
