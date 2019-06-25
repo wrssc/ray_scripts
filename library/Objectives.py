@@ -93,12 +93,22 @@ def select_objective_protocol(folder=None, filename=None):
                     objective_sets[n] = tree
             elif tree.getroot().tag == 'protocol':
                 protocol = tree.getroot()
+                # Find the objectivesets:
+                # These get loaded for protocols regardless of orders
+                protocol_objective_set = protocol.findall('./objective_set')
                 orders = protocol.findall('./order')
+                # Search the orders to find those with objectives and return the candidates
+                # for the selectable objectives
                 for o in orders:
-                    objectives = o.findall('./objectiveset')
+                    # TODO: replace this next line with findall objectives
+                    objectives = o.findall('./objectives')
+                    # Force user to select from the orders with separate objectives
+                    # autoselect a objectiveset
                     if objectives:
                         logging.debug("Found some orders {} with objectives".format(
                             o.find('name').text))
+                        n = o.find('name').text)
+                        objective_sets[n] = o
                     logging.debug("Found some orders {}".format(o.find('name').text))
             else:
                 logging.debug("Could not find anything useful in file {}".format(f))
