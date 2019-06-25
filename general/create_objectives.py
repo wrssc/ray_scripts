@@ -39,12 +39,14 @@ def main():
     # Parse each type in a separate function
     # Add matching elements
     # Add objective function should know whether something is absolute or relative for dose and volume
-    if tree.getroot().tag == 'objectiveset':
-        logging.debug("parsing xml: {}".format(file))
-        n = tree.find('name').text
-        logging.debug('Found protocol {} in {}'.format(n, file))
-        objectiveset = tree.getroot()
-        objectives = objectiveset.findall('./objectives/roi')
+    ## if tree.getroot().tag == 'objectiveset':
+    ##    logging.debug("parsing xml: {}".format(file))
+    ##    n = tree.find('name').text
+    ##    logging.debug('Found protocol {} in {}'.format(n, file))
+    ##    objectiveset = tree.getroot()
+    for objsets in tree:
+        objectives = objsets.findall('./objectives/roi')
+        ## objectives = objectiveset.findall('./objectives/roi')
         for o in objectives:
             o_name = o.find('name').text
             o_type = o.find('type').text
@@ -63,8 +65,8 @@ def main():
                                      s_dose=s_dose,
                                      s_weight=None,
                                      restrict_beamset=None)
-    else:
-        logging.debug('Could not find objective set using tree = {}'.format(tree))
+    ##else:
+    ##    logging.debug('Could not find objective set using tree = {}'.format(tree))
 
 
 if __name__ == '__main__':
