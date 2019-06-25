@@ -93,7 +93,7 @@ def select_objective_protocol(folder=None, filename=None):
                     objective_sets[n] = tree
             elif tree.getroot().tag == 'protocol':
                 protocol = tree.getroot()
-                orders = protocol.findall('./orders')
+                orders = protocol.findall('./order')
                 for o in orders:
                     logging.debug("Found some orders {}".format(o.find('name').text))
             else:
