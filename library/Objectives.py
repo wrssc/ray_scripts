@@ -93,7 +93,6 @@ def select_objective_protocol(folder=None, filename=None):
                 protocol_obj_set = protocol.findall('./objectiveset')
 
                 for pos in protocol_obj_set:
-                    ##               (pos.get('name')), protocol.get('name'))
                     protocol_objective_set = [protocol_objective_set, pos]
                 orders = protocol.findall('./order')
                 # Search the orders to find those with objectives and return the candidates
