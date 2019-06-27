@@ -136,7 +136,6 @@ def select_objective_protocol(folder=None, filename=None):
     logging.debug("In function: pos {} has type {}".format(type(protocol_objective_set),
                  type(protocol_objective_set[0])))
     tree = [objective_sets[input_dialog.values['i']], protocol_objective_set]
-    # Eventually move this selection dialog to Objectives.py so we can clean this up
     # tree = Objectives.select_objectives(input_dialog.values['i'])
     return tree
 
