@@ -48,7 +48,10 @@ def main():
     logging.debug("In call: pos {} has type {}".format(1,type(tree[1])))
 
     for objsets in tree:
-        objectives = objsets.findall('./objectives/roi')
+        try:
+            objectives = objsets.findall('./objectives/roi')
+        except:
+            logging.debug("An issue exists with the list of elements from Objectives.py")
         ## objectives = objectiveset.findall('./objectives/roi')
         for o in objectives:
             o_name = o.find('name').text
