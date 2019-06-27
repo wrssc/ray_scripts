@@ -71,7 +71,6 @@ def select_objective_protocol(folder=None, filename=None):
         filelist = os.listdir(path_objectives)
 
     objective_sets = {}
-    #for f in os.listdir(path_objectives):
     for f in filelist:
         if f.endswith('.xml'):
             tree = xml.etree.ElementTree.parse(os.path.join(path_objectives, f))
