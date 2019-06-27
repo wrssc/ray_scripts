@@ -94,6 +94,7 @@ def select_objective_protocol(folder=None, filename=None):
 
                 for pos in protocol_obj_set:
                     protocol_objective_set = [protocol_objective_set, pos]
+                    logging.debug("Type of pos is {}".format(type(pos)))
                 orders = protocol.findall('./order')
                 # Search the orders to find those with objectives and return the candidates
                 # for the selectable objectives
