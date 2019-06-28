@@ -101,6 +101,7 @@ def select_objective_protocol(folder=None, filename=None):
                 for o in orders:
                     # TODO: replace this next line with findall objectives
                     objectives = o.findall('./objectives')
+                    logging.debug("o is {}".format(o.attrib))
                     # Force user to select from the orders with separate objectives
                     if objectives:
                         logging.debug("Found some orders {} with objectives".format(
