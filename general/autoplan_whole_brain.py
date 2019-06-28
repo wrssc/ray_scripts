@@ -313,6 +313,9 @@ def main():
         case.PatientModel.RegionsOfInterest['External'].CreateExternalGeometry(
             Examination=examination,
             ThresholdLevel=-250)
+    else:
+        check_external(rois)
+
 
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_L_PRV05'):
@@ -666,13 +669,9 @@ def main():
             # Set the BTV type above to allow dose grid to cover
             case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
             case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
-            if check_external(rois):
-                plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
-                                                   'y': 0.2,
-                                                   'z': 0.2})
-            else:
-                logging.warning('No contour set as External-Type')
-                sys.exit
+            plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
+                                               'y': 0.2,
+                                               'z': 0.2})
             try:
                 isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                     RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
