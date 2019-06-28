@@ -32,50 +32,50 @@
             <fractions>30</fractions>
         </prescription>
         <objectives>
-        <roi>
-            <name>PTV1</name>
-            <type dir="gt">DX</type>
-            <volume units="%">98</volume>
-            <dose units="%" roi="PTV1">102.5</dose>
-            <weight>10</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type>Max</type>
-            <dose units="%" roi="PTV1">109.7</dose>
-            <weight>10</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type>UD</type>
-            <dose units="%" roi="PTV1">102.5</dose>
-            <weight>10</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type a="3">MinEud</type>
-            <dose units="%" roi="PTV1">102.5</dose>
-            <weight>10</weight>
-        </roi>
-        <roi>
-           <name>PTV1</name>
-            <type a="3">MaxEud</type>
-            <dose units="Gy" roi="PTV1">50</dose>
-            <weight>10</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type a="3" robust="True">TarEud</type>
-            <dose units="Gy" roi="PTV1">50</dose>
-            <weight>10</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type dist="2" adapt="True" constraint="True">DFO</type>
-            <dose units="%" roi="PTV1" low="20">100</dose>
-            <weight>10</weight>
-        </roi>
-    </objectives>
+            <roi>
+                <name>PTV1</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV1">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV1">109.7</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV1">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type a="3">MinEud</type>
+                <dose units="%" roi="PTV1">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type a="3">MaxEud</type>
+                <dose units="Gy" roi="PTV1">50</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type a="3" robust="True">TarEud</type>
+                <dose units="Gy" roi="PTV1">50</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type dist="2" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV1" low="20">100</dose>
+                <weight>10</weight>
+            </roi>
+        </objectives>
         <goals>
             <roi>
                 <name>PTV_p</name>
@@ -198,7 +198,7 @@
                 <dose units="Gy">54</dose>
                 <priority>3</priority>
             </roi>
-             <roi>
+            <roi>
                 <name>Cochlea_L</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
@@ -372,7 +372,7 @@
                 <dose units="Gy">10</dose>
                 <priority>3</priority>
             </roi>
-			           <roi>
+            <roi>
                 <name>OpticChiasm</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
@@ -656,7 +656,7 @@
                 <dose units="Gy">9.7</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>OpticChiasm</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
@@ -857,7 +857,7 @@
                 <dose units="Gy">16</dose>
                 <priority>3</priority>
             </roi>
-			<roi>
+            <roi>
                 <name>OpticChiasm</name>
                 <type>Max</type>
                 <dose units="Gy">37.5</dose>
@@ -878,51 +878,53 @@
         </goals>
     </order>
     <objectiveset>
-            <name>Standard Fractionation</name>
-        <roi>
-            <name>PTV1</name>
-            <type dir="gt">DX</type>
-            <volume units="%">98</volume>
-            <dose units="%" roi="PTV1">102.5</dose>
-            <weight>1</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type>Max</type>
-            <dose units="%" roi="PTV1">109.7</dose>
-            <weight>2</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type>UD</type>
-            <dose units="%" roi="PTV1">102.5</dose>
-            <weight>3</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type a="3">MinEud</type>
-            <dose units="%" roi="PTV1">102.5</dose>
-            <weight>4</weight>
-        </roi>
-        <roi>
-           <name>PTV1</name>
-            <type a="3">MaxEud</type>
-            <dose units="Gy" roi="PTV1">50</dose>
-            <weight>5</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type a="3" robust="True">TarEud</type>
-            <dose units="Gy" roi="PTV1">50</dose>
-            <weight>6</weight>
-        </roi>
-        <roi>
-            <name>PTV1</name>
-            <type dist="2" adapt="True" constraint="True">DFO</type>
-            <dose units="%" roi="PTV1" low="20">100</dose>
-            <weight>7</weight>
-        </roi>
-        </objectiveset>
+        <name>Standard Fractionation</name>
+        <objectives>
+            <roi>
+                <name>PTV1</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV1">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV1">109.7</dose>
+                <weight>2</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV1">102.5</dose>
+                <weight>3</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type a="3">MinEud</type>
+                <dose units="%" roi="PTV1">102.5</dose>
+                <weight>4</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type a="3">MaxEud</type>
+                <dose units="Gy" roi="PTV1">50</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type a="3" robust="True">TarEud</type>
+                <dose units="Gy" roi="PTV1">50</dose>
+                <weight>6</weight>
+            </roi>
+            <roi>
+                <name>PTV1</name>
+                <type dist="2" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV1" low="20">100</dose>
+                <weight>7</weight>
+            </roi>
+        </objectives>
+    </objectiveset>
     <goals>
         <goalset>
             <name>QUANTEC</name>
