@@ -236,10 +236,7 @@ def main():
     total_dose = float(input_dialog.values['input3_dose'])
     plan_machine = input_dialog.values['input4_choose_machine']
 
-
-
-
-        ## patient.Save()
+    ## patient.Save()
 
     # MBS generate the globes. Manually draw lenses
     status.next_step(text="Regions at risk will be created including Globes, Lenses, and Brain.")
@@ -397,7 +394,7 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
-    #S - frame loading
+    # S - frame loading
     status.next_step(text="Roi contouring complete, loading patient immobilization.")
     # Load the S-frame into the current scan based on the structure template input above.
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
@@ -586,13 +583,10 @@ def main():
         roi_name = str(s)
         try:
             case.PatientModel.ToggleExcludeFromExport(RegionOfInterests=[roi_name])
+            if case.PatientModel.RegionsOfInterest[roi_name].ExcludeFromExport == False:
+                logging.info('RS8 Bug:Unable to exclude {} from export'.format(roi_name))
         except:
             logging.warning('Unable to exclude {} from export'.format(roi_name))
-
-        logging.debug('S is {}'.format(roi_name))
-        if case.PatientModel.RegionsOfInterest[roi_name].ExcludeFromExport == False:
-            logging.warning('Unable to exclude {} from export'.format(roi_name))
-
 
     if make_plan:
         try:
@@ -601,7 +595,7 @@ def main():
         except:
             logging.debug("Could not click on the plan Design MenuItem")
 
-        plan_names = [plan_name,'backup_r1a0']
+        plan_names = [plan_name, 'backup_r1a0']
         # RS 8: plan_names = [plan_name]
         patient.Save()
         # RS 8: eliminate for loop
@@ -706,7 +700,7 @@ def main():
                 ForceRecompute=False)
 
         # RS 8 delete next three lines
-        plan_name_regex = '^'+plan_names[0]+'$'
+        plan_name_regex = '^' + plan_names[0] + '$'
         plan_information = case.QueryPlanInfo(Filter={'Name': plan_name_regex})
         case.LoadPlan(PlanInfo=plan_information[0])
         try:
@@ -722,9 +716,6 @@ def main():
     except Exception as e:
         logging.debug('error reported {}'.format(e))
         logging.debug('cannot do name change')
-
-
-
 
 
 if __name__ == '__main__':
