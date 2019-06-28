@@ -91,10 +91,10 @@ def select_objective_protocol(folder=None, filename=None):
                 # These get loaded for protocols regardless of orders
                 protocol_obj_set = tree.findall('./objectiveset')
                 logging.debug("protocol_obj_set is {}".format(type(protocol_obj_set)))
-
-                for p in tree.findall('./objectiveset'):
+                obj_sets = tree.findall('./objectiveset')
+                for p in obj_sets:
                     logging.debug("Type of p is {} with name {}".format(
-                        type(p),p.attrib))
+                        type(p),p.find('name').text))
                 orders = tree.findall('./order')
                 # Search the orders to find those with objectives and return the candidates
                 # for the selectable objectives
