@@ -93,8 +93,8 @@ def select_objective_protocol(folder=None, filename=None):
                 logging.debug("protocol_obj_set is {}".format(type(protocol_obj_set)))
                 obj_sets = tree.findall('./objectiveset')
                 for p in obj_sets:
-                    logging.debug("Type of p is {} with name {}".format(
-                        type(p), p.find('name').text))
+                    logging.debug("objectiveset to be loaded {}".format(
+                        p.find('name').text))
                 orders = tree.findall('./order')
                 # Search the orders to find those with objectives and return the candidates
                 # for the selectable objectives
@@ -106,7 +106,6 @@ def select_objective_protocol(folder=None, filename=None):
                             o.find('name').text))
                         n = o.find('name').text
                         objective_sets[n] = o
-                    logging.debug("Found some orders {}".format(o.find('name').text))
             else:
                 logging.debug("Could not find anything useful in file {}".format(f))
 
