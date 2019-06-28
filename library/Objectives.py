@@ -87,7 +87,6 @@ def select_objective_protocol(folder=None, filename=None):
                     objective_sets[n] = tree
             elif tree.getroot().tag == 'protocol':
                 protocol = tree.getroot()
-                protocol_objective_set = []
                 # Find the objectivesets:
                 # These get loaded for protocols regardless of orders
                 protocol_obj_set = protocol.findall('./objectiveset')
@@ -97,9 +96,8 @@ def select_objective_protocol(folder=None, filename=None):
                 #    protocol_obj_set.get("name"), protocol.get("name")
                 # ))
 
-                #for pos in protocol_obj_set:
-                #    protocol_objective_set = [protocol_objective_set, pos]
-                #    logging.debug("Type of pos is {}".format(type(pos)))
+                for p in protocol_obj_set:
+                    logging.debug("Type of p is {}".format(type(p)))
                 orders = protocol.findall('./order')
                 # Search the orders to find those with objectives and return the candidates
                 # for the selectable objectives
