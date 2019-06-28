@@ -94,14 +94,12 @@ def select_objective_protocol(folder=None, filename=None):
                 obj_sets = tree.findall('./objectiveset')
                 for p in obj_sets:
                     logging.debug("Type of p is {} with name {}".format(
-                        type(p),p.find('name').text))
+                        type(p), p.find('name').text))
                 orders = tree.findall('./order')
                 # Search the orders to find those with objectives and return the candidates
                 # for the selectable objectives
                 for o in orders:
-                    # TODO: replace this next line with findall objectives
                     objectives = o.findall('./objectives')
-                    logging.debug("o is {}".format(o.attrib))
                     # Force user to select from the orders with separate objectives
                     if objectives:
                         logging.debug("Found some orders {} with objectives".format(
