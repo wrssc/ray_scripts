@@ -124,9 +124,9 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                               'Left': ExpR[5]})
     try:
         case.PatientModel.ToggleExcludeFromExport(
-            ExcludeFromExport=ExcludeFromExport,
+            ExcludeFromExport=True,
             RegionOfInterests=[StructureName],
-            PointsofInterests=[])
+            PointsOfInterests=[])
     except:
         logging.warning('Unable to exclude {} from export'.format(StructureName))
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
