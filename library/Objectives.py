@@ -91,6 +91,9 @@ def select_objective_protocol(folder=None, filename=None):
                 # Find the objectivesets:
                 # These get loaded for protocols regardless of orders
                 protocol_obj_set = protocol.findall('./objectiveset')
+                logging.debug("Found objective set {} in {}".format(
+                    protocol_obj_set.get("name"), protocol.get("name")
+                ))
 
                 for pos in protocol_obj_set:
                     protocol_objective_set = [protocol_objective_set, pos]
