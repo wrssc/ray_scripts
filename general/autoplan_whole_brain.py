@@ -579,14 +579,19 @@ def main():
         except:
             logging.debug("Structure: {} was not found".format(s))
     # Exclude these from export
-    for s in export_exclude_structs:
-        roi_name = str(s)
-        try:
-            case.PatientModel.ToggleExcludeFromExport(RegionOfInterests=[roi_name])
-            if case.PatientModel.RegionsOfInterest[roi_name].ExcludeFromExport == False:
-                logging.info('RS8 Bug:Unable to exclude {} from export'.format(roi_name))
-        except:
-            logging.warning('Unable to exclude {} from export'.format(roi_name))
+    case.PatientModel.ToggleExcludeFromExport(
+        ExcludeFromExport=True,
+        RegionOfInterests=export_exclude_structs,
+        PointsofInterest=[])
+    # for s in export_exclude_structs:
+    #    roi_name = str(s)
+    #    try:
+    #        case.PatientModel.ToggleExcludeFromExport(
+    #            ExcludeFromExport=True,
+    #            RegionOfInterests=[roi_name],
+    #            PointsofInterest=[])
+    #    except:
+    #        logging.warning('Unable to exclude {} from export'.format(roi_name))
 
     if make_plan:
         try:

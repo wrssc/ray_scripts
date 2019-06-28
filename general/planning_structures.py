@@ -123,9 +123,10 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                               'Right': ExpR[4],
                               'Left': ExpR[5]})
     try:
-        case.PatientModel.ToggleExcludeFromExport(RegionOfInterests=[StructureName]
-        if case.PatientModel.RegionsOfInterest[StructureName].ExcludeFromExport == False:
-            logging.info('RS8 Bug:Unable to exclude {} from export'.format(StructureName))
+        case.PatientModel.ToggleExcludeFromExport(
+            ExcludeFromExport=ExcludeFromExport,
+            RegionOfInterests=[StructureName],
+            PointsofInterest=[])
     except:
         logging.warning('Unable to exclude {} from export'.format(StructureName))
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
