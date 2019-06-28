@@ -66,10 +66,14 @@ import sys
 def check_external(roi_list):
     if any(roi.OfRoi.Type == 'External' for roi in roi_list):
         logging.debug('External contour designated')
+        return True
     else:
         logging.debug('No external contour designated')
         connect.await_user_input(
             'No External contour type designated. Give a contour an External type and continue script.')
+        if any(roi.OfRoi.Type == 'External' for roi in roi_list):
+            logging.debug('No external contour designated after prompt recommend exit')
+            return False
 
 
 def check_structure_exists(case, structure_name, roi_list, option):
@@ -314,7 +318,10 @@ def main():
             Examination=examination,
             ThresholdLevel=-250)
     else:
-        check_external(rois)
+        if not check_external(rois):
+            logging.warning('No External-Type Contour designated-Restart'
+                            ' script after choosing External-Type')
+            sys.exit
 
 
 
