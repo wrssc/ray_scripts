@@ -881,46 +881,46 @@
         <name>Standard Fractionation</name>
         <objectives>
             <roi>
-                <name>PTV1</name>
+                <name>PTV2</name>
                 <type dir="gt">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV1">102.5</dose>
+                <dose units="%" roi="PTV2">102.5</dose>
                 <weight>1</weight>
             </roi>
             <roi>
-                <name>PTV1</name>
+                <name>PTV2</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV1">109.7</dose>
+                <dose units="%" roi="PTV2">109.7</dose>
                 <weight>2</weight>
             </roi>
             <roi>
-                <name>PTV1</name>
+                <name>PTV2</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV1">102.5</dose>
+                <dose units="%" roi="PTV2">102.5</dose>
                 <weight>3</weight>
             </roi>
             <roi>
-                <name>PTV1</name>
+                <name>PTV2</name>
                 <type a="3">MinEud</type>
-                <dose units="%" roi="PTV1">102.5</dose>
+                <dose units="%" roi="PTV2">102.5</dose>
                 <weight>4</weight>
             </roi>
             <roi>
-                <name>PTV1</name>
+                <name>PTV2</name>
                 <type a="3">MaxEud</type>
-                <dose units="Gy" roi="PTV1">50</dose>
+                <dose units="Gy" roi="PTV2">50</dose>
                 <weight>5</weight>
             </roi>
             <roi>
-                <name>PTV1</name>
+                <name>PTV2</name>
                 <type a="3" robust="True">TarEud</type>
-                <dose units="Gy" roi="PTV1">50</dose>
+                <dose units="Gy" roi="PTV2">50</dose>
                 <weight>6</weight>
             </roi>
             <roi>
-                <name>PTV1</name>
+                <name>PTV2</name>
                 <type dist="2" adapt="True" constraint="True">DFO</type>
-                <dose units="%" roi="PTV1" low="20">100</dose>
+                <dose units="%" roi="PTV2" low="20">100</dose>
                 <weight>7</weight>
             </roi>
         </objectives>

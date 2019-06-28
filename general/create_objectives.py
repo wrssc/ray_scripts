@@ -67,7 +67,8 @@ def main():
                                      case=case,
                                      plan=plan,
                                      beamset=beamset,
-                                     s_roi='PTV_Eval_5000',
+                                     s_roi=None,
+                                 #    s_roi='PTV_Eval_5000',
                                      s_dose=s_dose,
                                      s_weight=None,
                                      restrict_beamset=None)
