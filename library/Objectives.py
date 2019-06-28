@@ -94,7 +94,7 @@ def select_objective_protocol(folder=None, filename=None):
 
                 for p in tree.findall('./objectiveset'):
                     logging.debug("Type of p is {} with name {}".format(
-                        type(p),p.get("name")))
+                        type(p),p.attrib))
                 orders = tree.findall('./order')
                 # Search the orders to find those with objectives and return the candidates
                 # for the selectable objectives
