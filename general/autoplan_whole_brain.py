@@ -584,7 +584,7 @@ def main():
     # Exclude these from export
     for s in export_exclude_structs:
         try:
-            case.PatientModel.ToggleExcludeFromExport(RegionsOfInterests=[s])
+            case.PatientModel.ToggleExcludeFromExport(RegionOfInterests=[s])
         except:
             logging.warning('Unable to exclude {} from export'.format(s))
 
