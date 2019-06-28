@@ -582,7 +582,7 @@ def main():
     case.PatientModel.ToggleExcludeFromExport(
         ExcludeFromExport=True,
         RegionOfInterests=export_exclude_structs,
-        PointsofInterests=[])
+        PointsOfInterests=[])
     # for s in export_exclude_structs:
     #    roi_name = str(s)
     #    try:
