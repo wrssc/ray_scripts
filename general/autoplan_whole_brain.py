@@ -585,10 +585,12 @@ def main():
     for s in export_exclude_structs:
         try:
             case.PatientModel.ToggleExcludeFromExport(RegionOfInterests=[s])
-            if case.PatientModel.RegionsOfInterest[s].ExcludeFromExport == False:
-                logging.warning('Unable to exclude {} from export'.format(s))
         except:
             logging.warning('Unable to exclude {} from export'.format(s))
+
+        if case.PatientModel.RegionsOfInterest[s].ExcludeFromExport == False:
+            logging.warning('Unable to exclude {} from export'.format(s))
+
 
     if make_plan:
         try:
