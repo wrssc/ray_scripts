@@ -122,6 +122,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                               'Posterior': ExpR[3],
                               'Right': ExpR[4],
                               'Left': ExpR[5]})
+    case.PatientModel.ToggleEx
     case.PatientModel.RegionsOfInterest[StructureName].ExcludeFromExport = ExcludeFromExport
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
         Examination=examination, Algorithm="Auto")
