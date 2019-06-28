@@ -717,7 +717,12 @@ def main():
 
     # Rename PTV per convention
     total_dose_string = str(int(total_dose))
-    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+    try:
+        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+    except Exception as e:
+        logging.debug('error reported {}'.format(e))
+        logging.debug('cannot do name change')
+
 
 
 
