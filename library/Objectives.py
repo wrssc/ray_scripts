@@ -133,6 +133,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
             selected_order = objective_sets[order_name]
         except KeyError:
             logging.warning('Order: {} has no objectives'.format(order_name))
+            selected_order = None
     else:
         input_dialog = UserInterface.InputDialog(
             inputs={'i': 'Select Objective Set'},
