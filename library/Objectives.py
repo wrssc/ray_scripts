@@ -42,15 +42,34 @@ def find_optimization_index(plan, beamset):
     return OptIndex
 
 
-def select_objective_protocol(folder=None, filename=None):
+def select_objective_protocol(folder=None, filename=None, order_name=None):
     """
-    :param filename: os joined protocol name
-    :param folder: folder from os to search within
-    :return: tree: elementtree from xml file
+    Function to select the location of the objectives to be loaded within the plan.
 
-    Prompt user to select the objective xml file they want to use
-    :return: tree: Elementtree with user-selected objectives loaded
-    TODO:: Make the folder-based and filename based elements work
+    This function can be used to load a raw objectiveset list from an xml file or
+    can be used to search a protocol level xml file and load desired objectives.
+
+    The locations of all the orders containing of objectives is identified and the
+    element containing this order is returned. All the
+    objectiveset elements are returned as well.
+
+    :param filename: os joined protocol name, used to directly open a file
+    :param folder: folder from os to search within and prompt user to select appropriate protocol
+    :param order_name: elementtree element containing the order level element from xml file
+
+    :return: et_list: elementtree list from xml file
+
+    Usage:
+
+    ## User knows the file the order is housed in but wants to select the order
+    # Prompt user to select an order out of a specific file (UWBrainCNS.xml) located in
+    # ../protocols/UW
+    protocol_folder = r'../protocols'
+    institution_folder = r'UW'
+    file = 'UWBrainCNS.xml'
+    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
+    objective_elements = Objectives.select_objective_protocol(filename=file, folder=path_protocols)
+
     """
     if filename:
         filelist = [filename]
@@ -114,24 +133,27 @@ def select_objective_protocol(folder=None, filename=None):
 
 
     # Augment the list to include all xml files found with an "objectiveset" tag in name
-    input_dialog = UserInterface.InputDialog(
-        inputs={'i': 'Select Objective Set'},
-        title='Objective Selection',
-        datatype={'i': 'combo'},
-        initial={},
-        options={'i': list(objective_sets.keys())},
-        required=['i'])
-    response = input_dialog.show()
-    # Close on cancel
-    if response == {}:
-        logging.info('create_objective cancelled by user')
-        sys.exit('create_objective cancelled by user')
-    for k in input_dialog.values:
-        logging.debug('This is key {} value {}'.format(k,input_dialog.values[k]))
+    if order_name:
+        selected_order = objective_sets[order_name]
+    else:
+        input_dialog = UserInterface.InputDialog(
+            inputs={'i': 'Select Objective Set'},
+            title='Objective Selection',
+            datatype={'i': 'combo'},
+            initial={},
+            options={'i': list(objective_sets.keys())},
+            required=['i'])
+        response = input_dialog.show()
+        # Close on cancel
+        if response == {}:
+            logging.info('create_objective cancelled by user')
+            sys.exit('create_objective cancelled by user')
+        else:
+            logging.debug('User selected order: {} for objectives'.format(
+                input_dialog.values['i']))
+            selected_order = objective_sets[input_dialog.values['i']]
+    et_list.append(selected_order)
 
-    # logging.debug('user selected {}').format(input_dialog.values['i'])
-    # Rename this thing
-    et_list.append(objective_sets[input_dialog.values['i']])
     return et_list
 
 def select_objectives(folder=None, filename=None):
