@@ -7,7 +7,6 @@
 import sys
 import os
 import logging
-import datetime
 import xml.etree.ElementTree
 import UserInterface
 import connect

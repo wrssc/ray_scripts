@@ -29,7 +29,7 @@ def main():
     file = 'UWBrainCNS.xml'
     ##file = 'planning_structs_conventional.xml'
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
-    tree = Objectives.select_objective_protocol(filename=file, folder=path_protocols)
+    objective_elements = Objectives.select_objective_protocol(filename=file, folder=path_protocols)
     ## This one searches the whole directory
     ## tree = Objectives.select_objective_protocol()
     logging.debug("selected file {}".format(path_protocols))
@@ -46,8 +46,11 @@ def main():
     ##    objectiveset = tree.getroot()
     #logging.debug("In call: os {} has type {}".format(0,type(tree[0])))
     #logging.debug("In call: pos {} has type {}".format(1,type(tree[1])))
+    for o in objective_elements:
+        logging.debug('Returned the objectivesets: {}'.format(
+            o.find('name').txt))
 
-    for objsets in tree:
+    for objsets in objective_elements:
         #try:
         objectives = objsets.findall('./objectives/roi')
         # except:
