@@ -110,6 +110,8 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
         file_list = os.listdir(path_objectives)
 
     objective_sets = {}
+    # Return variable. A list of ET Elements
+    et_list = []
     for f in file_list:
         if f.endswith('.xml'):
             # Parse the xml file
@@ -122,11 +124,11 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
                     logging.debug("Objective set {} already in list".format(n))
                 else:
                     objective_sets[n] = tree
+                    et_list.append(tree)
             elif tree.getroot().tag == 'protocol':
                 # Find the objectivesets:
                 # These get loaded for protocols regardless of orders
                 protocol_obj_set = tree.findall('./objectiveset')
-                et_list = []
                 for p in protocol_obj_set:
                     et_list.append(p)
                 orders = tree.findall('./order')
