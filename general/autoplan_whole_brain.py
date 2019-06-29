@@ -63,18 +63,31 @@ import random
 import sys
 
 
+def check_external(roi_list):
+    if any(roi.OfRoi.Type == 'External' for roi in roi_list):
+        logging.debug('External contour designated')
+        return True
+    else:
+        logging.debug('No external contour designated')
+        connect.await_user_input(
+            'No External contour type designated. Give a contour an External type and continue script.')
+        if any(roi.OfRoi.Type == 'External' for roi in roi_list):
+            logging.debug('No external contour designated after prompt recommend exit')
+            return False
+
+
 def check_structure_exists(case, structure_name, roi_list, option):
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if option == 'Delete':
             case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-            logging.warning("autoplan_whole_brain.py: check_structure_exists: " +
+            logging.warning("check_structure_exists: " +
                             structure_name + 'found - deleting and creating')
         elif option == 'Check':
             connect.await_user_input(
                 'Contour {} Exists - Verify its accuracy and continue script'.format(structure_name))
         return True
     else:
-        logging.info('autoplan_whole_brain.py: check_structure_exists: '
+        logging.info('check_structure_exists: '
                      'Structure {} not found, and will be created'.format(structure_name))
         return False
 
@@ -131,10 +144,20 @@ def main():
         'BTV_Flash_20',
         'BTV',
         'Brain']
+    export_exclude_structs = [
+        'Globe_L',
+        'Globe_R',
+        'Avoid',
+        'Avoid_Face',
+        'Lens_R_PRV05',
+        'Lens_L_PRV05',
+        'BTV_Brain',
+        'BTV_Flash_20',
+        'BTV']
     # Look for the sim point, if not create a point
     sim_point_found = any(poi.Name == 'SimFiducials' for poi in pois)
     if sim_point_found:
-        logging.warning("autoplan_whole_brain.py: POI SimFiducials Exists")
+        logging.warning("POI SimFiducials Exists")
         status.next_step(text="SimFiducials Point found, ensure that it is placed properly")
         connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
     else:
@@ -226,10 +249,7 @@ def main():
     total_dose = float(input_dialog.values['input3_dose'])
     plan_machine = input_dialog.values['input4_choose_machine']
 
-
-
-
-        ## patient.Save()
+    ## patient.Save()
 
     # MBS generate the globes. Manually draw lenses
     status.next_step(text="Regions at risk will be created including Globes, Lenses, and Brain.")
@@ -297,9 +317,16 @@ def main():
         case.PatientModel.RegionsOfInterest['External'].CreateExternalGeometry(
             Examination=examination,
             ThresholdLevel=-250)
+    else:
+        if not check_external(rois):
+            logging.warning('No External-Type Contour designated-Restart'
+                            ' script after choosing External-Type')
+            sys.exit
+
+
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_L_PRV05'):
-        logging.info('autoplan_whole_brain.py: Lens_L_PRV05 not found, generating from expansion')
+        logging.info('Lens_L_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
         Name="Lens_L_PRV05",
@@ -308,7 +335,6 @@ def main():
         TissueName=None,
         RbeCellTypeName=None,
         RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Lens_L_PRV05'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['Lens_L_PRV05'].SetMarginExpression(
         SourceRoiName="Lens_L",
         MarginSettings={'Type': "Expand",
@@ -323,7 +349,7 @@ def main():
 
     # The Lens_R prv will always be "remade"
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_R_PRV05'):
-        logging.info('autoplan_whole_brain.py: Lens_R_PRV05 not found, generating from expansion')
+        logging.info('Lens_R_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
         Name="Lens_R_PRV05",
@@ -332,7 +358,6 @@ def main():
         TissueName=None,
         RbeCellTypeName=None,
         RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Lens_R_PRV05'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['Lens_R_PRV05'].SetMarginExpression(
         SourceRoiName="Lens_R",
         MarginSettings={'Type': "Expand",
@@ -347,7 +372,7 @@ def main():
         Algorithm="Auto")
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid'):
-        logging.info('autoplan_whole_brain.py: Avoid not found, generating from expansion')
+        logging.info('Avoid not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid",
                                 Color="255, 128, 128",
@@ -355,7 +380,6 @@ def main():
                                 TissueName=None,
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Avoid'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['Avoid'].SetAlgebraExpression(
         ExpressionA={'Operation': "Union",
                      'SourceRoiNames': ["Lens_L_PRV05",
@@ -390,13 +414,13 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
-    #S - frame loading
+    # S - frame loading
     status.next_step(text="Roi contouring complete, loading patient immobilization.")
     # Load the S-frame into the current scan based on the structure template input above.
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
         if check_structure_exists(case=case, roi_list=rois, option='Check', structure_name='S-frame'):
-            logging.info('autoplan_whole_brain.py: S-frame found, bugging user')
+            logging.info('S-frame found, bugging user')
         else:
             support_template = patient_db.LoadTemplatePatientModel(
                 templateName=institution_inputs_support_structure_template,
@@ -413,7 +437,7 @@ def main():
             )
         status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
     except Exception:
-        logging.warning('autoplan_whole_brain.py: Support structure failed to load and was not found')
+        logging.warning('Support structure failed to load and was not found')
         status.next_step(text='S-frame failed to load and was not found. ' +
                               'Load manually and continue script.')
         connect.await_user_input(
@@ -422,13 +446,12 @@ def main():
 
     # Creating planning structures for treatment and protect
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
-        logging.info('autoplan_whole_brain.py: BTV_Brain not found, generating from expansion')
+        logging.info('BTV_Brain not found, generating from expansion')
 
     status.next_step(text='Building planning structures')
 
     case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Ptv", TissueName=None,
                                 RbeCellTypeName=None, RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['BTV_Brain'].ExcludeFromExport = True
 
     case.PatientModel.RegionsOfInterest['BTV_Brain'].SetMarginExpression(
         SourceRoiName="PTV_WB_xxxx",
@@ -447,7 +470,7 @@ def main():
     # This contour extends down 10 cm from the brain itself.  Once this is subtracted
     # from the brain - this will leave only the face
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid_Face'):
-        logging.info('autoplan_whole_brain.py: Avoid_Face not found, generating from expansion')
+        logging.info('Avoid_Face not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid_Face",
                                 Color="255, 128, 128",
@@ -455,7 +478,6 @@ def main():
                                 TissueName=None,
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Avoid_Face'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['Avoid_Face'].SetMarginExpression(
         SourceRoiName="PTV_WB_xxxx",
         MarginSettings={'Type': "Expand",
@@ -472,7 +494,7 @@ def main():
     # BTV_Flash_20: a 2 cm expansion for flash except in the directions the MD's wish to have no flash
     # Per MD's flashed dimensions are superior, anterior, and posterior
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Flash_20'):
-        logging.info('autoplan_whole_brain.py: BTV_Flash_20 not found, generating from expansion')
+        logging.info('BTV_Flash_20 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="BTV_Flash_20",
                                 Color="128, 0, 64",
@@ -481,7 +503,6 @@ def main():
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
 
-    case.PatientModel.RegionsOfInterest['BTV_Flash_20'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['BTV_Flash_20'].SetAlgebraExpression(
         ExpressionA={'Operation': "Union",
                      'SourceRoiNames': ["PTV_WB_xxxx"],
@@ -517,7 +538,7 @@ def main():
     # BTV: the block target volume.  It consists of the BTV_Brain, BTV_Flash_20 with no additional structures
     # We are going to make the BTV as a fixture if we are making a plan so that we can autoset the dose grid
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV'):
-        logging.info('autoplan_whole_brain.py: BTV not found, generating from expansion')
+        logging.info('BTV not found, generating from expansion')
 
     if make_plan:
         btv_temporary_type = "Fixation"
@@ -530,7 +551,6 @@ def main():
                                 TissueName=None,
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['BTV'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['BTV'].SetAlgebraExpression(
         ExpressionA={'Operation': "Union",
                      'SourceRoiNames': ["BTV_Brain",
@@ -570,23 +590,37 @@ def main():
             patient.SetRoiVisibility(RoiName=s,
                                      IsVisible=True)
         except:
-            logging.debug("autoplan_whole_brain.py: Structure: {} was not found".format(s))
+            logging.debug("Structure: {} was not found".format(s))
 
     for s in invisible_stuctures:
         try:
             patient.SetRoiVisibility(RoiName=s,
                                      IsVisible=False)
         except:
-            logging.debug("autoplan_whole_brain.py: Structure: {} was not found".format(s))
+            logging.debug("Structure: {} was not found".format(s))
+    # Exclude these from export
+    case.PatientModel.ToggleExcludeFromExport(
+        ExcludeFromExport=True,
+        RegionOfInterests=export_exclude_structs,
+        PointsOfInterests=[])
+    # for s in export_exclude_structs:
+    #    roi_name = str(s)
+    #    try:
+    #        case.PatientModel.ToggleExcludeFromExport(
+    #            ExcludeFromExport=True,
+    #            RegionOfInterests=[roi_name],
+    #            PointsofInterest=[])
+    #    except:
+    #        logging.warning('Unable to exclude {} from export'.format(roi_name))
 
     if make_plan:
         try:
             ui = connect.get_current('ui')
             ui.TitleBar.MenuItem['Plan Design'].Button_Plan_Design.Click()
         except:
-            logging.debug("autoplan_whole_brain.py: Could not click on the plan Design MenuItem")
+            logging.debug("Could not click on the plan Design MenuItem")
 
-        plan_names = [plan_name,'backup_r1a0']
+        plan_names = [plan_name, 'backup_r1a0']
         # RS 8: plan_names = [plan_name]
         patient.Save()
         # RS 8: eliminate for loop
@@ -649,7 +683,7 @@ def main():
                 isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                     RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
             except Exception:
-                logging.warning('autoplan_whole_brain.py: Aborting, could not locate center of PTV_WB_xxxx')
+                logging.warning('Aborting, could not locate center of PTV_WB_xxxx')
                 sys.exit
             ptv_wb_xxxx_center = {'x': isocenter_position.x,
                                   'y': isocenter_position.y,
@@ -657,7 +691,7 @@ def main():
             isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_wb_xxxx_center)
             isocenter_parameters['Name'] = "iso_" + plan_name
             isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
-            logging.info('autoplan_whole_brain.py: Isocenter chosen based on center of PTV_WB_xxxx.' +
+            logging.info('Isocenter chosen based on center of PTV_WB_xxxx.' +
                          'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
                              ptv_wb_xxxx_center['x'],
                              ptv_wb_xxxx_center['y'],
@@ -691,20 +725,22 @@ def main():
                 ForceRecompute=False)
 
         # RS 8 delete next three lines
-        plan_name_regex = '^'+plan_names[0]+'$'
+        plan_name_regex = '^' + plan_names[0] + '$'
         plan_information = case.QueryPlanInfo(Filter={'Name': plan_name_regex})
         case.LoadPlan(PlanInfo=plan_information[0])
         try:
             ui = connect.get_current('ui')
             ui.TitleBar.MenuItem['Plan Evaluation'].Button_Plan_Evaluation.Click()
         except:
-            logging.debug("autoplan_whole_brain.py: Could not click on the plan evaluation MenuItem")
+            logging.debug("Could not click on the plan evaluation MenuItem")
 
     # Rename PTV per convention
     total_dose_string = str(int(total_dose))
-    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
-
-
+    try:
+        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+    except Exception as e:
+        logging.debug('error reported {}'.format(e))
+        logging.debug('cannot do name change')
 
 
 if __name__ == '__main__':
