@@ -7,7 +7,7 @@
 import sys
 import os
 import logging
-import datetime
+import xml.etree.ElementTree
 import connect
 import Objectives
 
@@ -33,22 +33,13 @@ def main():
     ## This one searches the whole directory
     ## tree = Objectives.select_objective_protocol()
     logging.debug("selected file {}".format(path_protocols))
-    # TODO::
-    # Extend this for multiple objective sets found within a file
     # Consider adding functionality for protocols, orders, etc...
     # Parse each type in a separate function
     # Add matching elements
     # Add objective function should know whether something is absolute or relative for dose and volume
-    ## if tree.getroot().tag == 'objectiveset':
-    ##    logging.debug("parsing xml: {}".format(file))
-    ##    n = tree.find('name').text
-    ##    logging.debug('Found protocol {} in {}'.format(n, file))
-    ##    objectiveset = tree.getroot()
-    #logging.debug("In call: os {} has type {}".format(0,type(tree[0])))
-    #logging.debug("In call: pos {} has type {}".format(1,type(tree[1])))
     for o in objective_elements:
         logging.debug('Returned the objectivesets: {}'.format(
-            o.find('name').txt))
+            o.find('name').text))
 
     for objsets in objective_elements:
         #try:
