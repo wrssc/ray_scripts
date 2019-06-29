@@ -26,6 +26,8 @@
           eliminated median dose prescription.  added 8.0 compliant language on the s-frame
     1.0.3 Added a secondary plan feature to correct the RS7 GUI bug that does not update the
             gui if the first plan is created with a script.
+    1.0.4 Changed the export structure settings to reflect the new required method in RS 8.0a
+            and up.
   
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -80,8 +82,8 @@ def check_structure_exists(case, structure_name, roi_list, option):
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if option == 'Delete':
             case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-            logging.warning("check_structure_exists: " +
-                            structure_name + 'found - deleting and creating')
+            logging.warning('check_structure_exists: ' +
+                            structure_name + ' found - deleting and creating')
         elif option == 'Check':
             connect.await_user_input(
                 'Contour {} Exists - Verify its accuracy and continue script'.format(structure_name))
