@@ -94,7 +94,6 @@ def select_objective_protocol(folder=None, filename=None):
                     logging.debug('Adding the objectiveset {} to the list'.format(
                         p.find('name').text
                     ))
-                logging.debug("protocol_obj_set is {}".format(type(protocol_obj_set)))
                 obj_sets = tree.findall('./objectiveset')
                 for p in obj_sets:
                     logging.debug("objectiveset to be loaded {}".format(
@@ -139,7 +138,7 @@ def select_objective_protocol(folder=None, filename=None):
     logging.debug("In function: pos has type {}".format(
                  type(protocol_obj_set)))
     et_list.append(objective_sets[input_dialog.values['i']])
-    return tree
+    return et_list
 
 def select_objectives(folder=None, filename=None):
     """
