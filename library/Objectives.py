@@ -76,7 +76,9 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     institution_folder = r'UW'
     file = 'UWBrainCNS.xml'
     order_name = 'GBM Brain 6000cGy in 30Fx [Single-Phase Stupp]'
-    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
+    path_protocols = os.path.join(os.path.dirname(__file__),
+                                  protocol_folder,
+                                  institution_folder)
     objective_elements = Objectives.select_objective_protocol(filename=file,
                                                               folder=path_protocols,
                                                               order_name=order_name)
