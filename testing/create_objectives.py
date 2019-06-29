@@ -259,7 +259,7 @@ def main():
 
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
-    file = 'planning_structs_conventional.xml'
+    file = 'Standard_Fractionation.xml'
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder, file)
     tree = select_objectives(filename=path_protocols)
     logging.debug("selected file {}".format(path_protocols))

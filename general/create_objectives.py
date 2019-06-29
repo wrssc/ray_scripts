@@ -33,8 +33,8 @@ def main():
                                                               folder=path_protocols,
                                                               order_name=order_name)
     ## This one searches the whole directory
-    ## file = 'planning_structs_conventional.xml'
-    ## objective_elements = Objectives.select_objective_protocol()
+    ## file = 'Standard_Fractionation.xml'
+    objective_elements = Objectives.select_objective_protocol()
     ## TODO: specify the objective directory for a generic objectiveset file
     logging.debug("selected file {}".format(path_protocols))
     # Parse each type in a separate function
