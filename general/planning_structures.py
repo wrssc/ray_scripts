@@ -31,6 +31,8 @@
     1.0.2: Adding "inner air" as an optional feature
     1.0.3 Hot fix to repair error in definition of sOTVu: Currently taking union of PTV and
             not_OTV - should be intersection.
+    1.0.4 Bug fix for upgrade to RS 8 - replaced the toggling of the exclude from export with
+            the required method.
 
 
     This program is free software: you can redistribute it and/or modify it under
