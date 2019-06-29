@@ -121,14 +121,18 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
                 # for the selectable objectives
                 for o in orders:
                     objectives = o.findall('./objectives')
-                    # Force user to select from the orders with separate objectives
                     if objectives:
                         n = o.find('name').text
                         objective_sets[n] = o
+                    else:
+                        logging.debug('No objectives found in {}'.format(o.find('name').text))
 
     # Augment the list to include all xml files found with an "objectiveset" tag in name
     if order_name:
-        selected_order = objective_sets[order_name]
+        try:
+            selected_order = objective_sets[order_name]
+        except KeyError:
+            logging.warning('Order: {} has no objectives'.format(order_name))
     else:
         input_dialog = UserInterface.InputDialog(
             inputs={'i': 'Select Objective Set'},
@@ -147,11 +151,14 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
                 input_dialog.values['i']))
             selected_order = objective_sets[input_dialog.values['i']]
     et_list.append(selected_order)
-    for e in et_list:
-        logging.debug('Objective list to be loaded {}'.format(
-            e.find('name').text))
-
+    if et_list:
+        for e in et_list:
+            logging.info('Objective list to be loaded {}'.format(
+                e.find('name').text))
+    else:
+        logging.warning('objective files were not found')
     return et_list
+
 
 def select_objectives(folder=None, filename=None):
     """
