@@ -60,7 +60,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     :return: et_list: elementtree list from xml file
 
     Usage:
-
+    USE CASE 1:
     ## User knows the file the order is housed in but wants to select the order
     # Prompt user to select an order out of a specific file (UWBrainCNS.xml) located in
     # ../protocols/UW
@@ -70,6 +70,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
     objective_elements = Objectives.select_objective_protocol(filename=file, folder=path_protocols)
 
+    USE CASE 2:
     ## User knows the exact order that needs to be loaded. Return only the selected order and
     ## any objectivesets in the protocol
     protocol_folder = r'../protocols'
@@ -82,6 +83,9 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     objective_elements = Objectives.select_objective_protocol(filename=file,
                                                               folder=path_protocols,
                                                               order_name=order_name)
+    USE CASE 3:
+    ## User will select a default objectiveset from the standard objectives directory
+    objective_elements = Objectives.select_objective_protocol()
 
     """
     protocol_folder = r'../protocols'
@@ -92,7 +96,6 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     # output a list of files that are to be scanned
     if filename:
         # User directly supplied the filename of the protocol or objectiveset
-        # TODO: Provide a use case above for this in the comments
         path_objectives = folder
         file_list = [filename]
     elif folder and not filename:
@@ -168,36 +171,64 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
             logging.debug('User selected order: {} for objectives'.format(
                 input_dialog.values['i']))
             selected_order = objective_sets[input_dialog.values['i']]
+    # Add the order to the returned list
     if selected_order is not None:
         et_list.append(selected_order)
+
     if et_list is not None:
         for e in et_list:
             logging.info('Objective list to be loaded {}'.format(
                 e.find('name').text))
     else:
         logging.warning('objective files were not found')
+
     return et_list
 
 
-def select_objectives(folder=None, filename=None):
-    """
+def reformat_objectives():
+    """ Temp chunk of code to try to open an xml file"""
+    try:
+        patient = connect.get_current('Patient')
+        case = connect.get_current("Case")
+        examination = connect.get_current("Examination")
+        plan = connect.get_current("Plan")
+        beamset = connect.get_current("BeamSet")
+    except:
+        logging.warning("patient, case and examination must be loaded")
 
-    :param filename: os joined protocol name
-    :param folder: folder from os to search within
-    :return: tree: elementtree from xml file
-    """
-    # This function can likely be deleted
-    if filename:
-        tree = xml.etree.ElementTree.parse(filename)
-    elif folder:
-        # Search protocol list, parsing each XML file for protocols and goalsets
-        logging.debug('Searching folder {} for protocols, goal sets'.format(folder))
-        for f in os.listdir(folder):
-            # This guy should prompt the user to find the appropriate file
-            if f.endswith('.xml'):
-                tree = xml.etree.ElementTree.parse(os.path.join(folder, f))
-    return tree
+    protocol_folder = r'../protocols'
+    institution_folder = r'UW'
+    file = 'UWBrainCNS.xml'
+    order_name = 'GBM Brain 6000cGy in 30Fx [Single-Phase Stupp]'
+    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
+    objective_elements = Objectives.select_objective_protocol(filename=file,
+                                                              folder=path_protocols,
+                                                              order_name=order_name)
+    # Parse each type in a separate function
+    # Add matching elements
+    # Add objective function should know whether something is absolute or relative for dose and volume
 
+    for objsets in objective_elements:
+        objectives = objsets.findall('./objectives/roi')
+        for o in objectives:
+            o_name = o.find('name').text
+            o_type = o.find('type').text
+            # TESTING ONLY - TO DO ELIMINATE THIS NEXT LINE
+            # This will need to be a user supplied dose level.
+            if o.find('dose').attrib['units'] == '%':
+                s_dose = '50'
+            else:
+                s_dose = None
+
+            Objectives.add_objective(o,
+                                     case=case,
+                                     plan=plan,
+                                     beamset=beamset,
+                                     s_roi=None,
+                                     #    s_roi='PTV_Eval_5000',
+                                     s_dose=s_dose,
+                                     s_weight=None,
+                                     restrict_beamset=None)
 
 def add_objective(obj, case, plan, beamset,
                   s_roi=None, s_dose=None,
