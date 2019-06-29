@@ -55,7 +55,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
 
     :param filename: os joined protocol name, used to directly open a file
     :param folder: folder from os to search within and prompt user to select appropriate protocol
-    :param order_name: elementtree element containing the order level element from xml file
+    :param order_name: the name of order level element from xml file
 
     :return: et_list: elementtree list from xml file
 
@@ -71,28 +71,35 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     objective_elements = Objectives.select_objective_protocol(filename=file, folder=path_protocols)
 
     """
+    # First search the file list to be searched depending on the supplied information
+    # output a list of files that are to be scanned
     if filename:
-        filelist = [filename]
+        # User directly supplied the filename of the protocol or objectiveset
+        # TODO: Provide a use case above for this
         path_objectives = folder
+        file_list = [filename]
     elif folder and not filename:
+        # User wants to select the protocol or objectiveset from a list of xml files
         path_objectives = os.path.join(os.path.dirname(__file__),
                                        protocol_folder,
                                        institution_folder)
-        filelist = os.listdir(path_objectives)
+        file_list = os.listdir(path_objectives)
     else:
+        # If no information was supplied look in the objectives folder
         protocol_folder = r'../protocols'
         institution_folder = r'UW'
-        # os join autoresolves the path
+        objectives_folder = r'objectives'
         path_objectives = os.path.join(os.path.dirname(__file__),
                                        protocol_folder,
-                                       institution_folder)
-        filelist = os.listdir(path_objectives)
+                                       institution_folder,
+                                       objectives_folder)
+        file_list = os.listdir(path_objectives)
 
     objective_sets = {}
-    for f in filelist:
+    for f in file_list:
         if f.endswith('.xml'):
+            # Parse the xml file
             tree = xml.etree.ElementTree.parse(os.path.join(path_objectives, f))
-            logging.debug('Searching tree: {}'.format(tree.getroot().tag))
             # Search first for a top level objectiveset
             if tree.getroot().tag == 'objectiveset':
                 n = tree.find('name').text
@@ -103,7 +110,6 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
                 else:
                     objective_sets[n] = tree
             elif tree.getroot().tag == 'protocol':
-                #protocol = tree.getroot()
                 # Find the objectivesets:
                 # These get loaded for protocols regardless of orders
                 protocol_obj_set = tree.findall('./objectiveset')

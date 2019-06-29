@@ -27,27 +27,22 @@ def main():
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
     file = 'UWBrainCNS.xml'
-    ##file = 'planning_structs_conventional.xml'
+    order_name = 'GBM Brain 6000cGy in 30Fx [Single-Phase Stupp]'
     path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
-    objective_elements = Objectives.select_objective_protocol(filename=file, folder=path_protocols)
+    objective_elements = Objectives.select_objective_protocol(filename=file,
+                                                              folder=path_protocols,
+                                                              order_name=order_name)
     ## This one searches the whole directory
-    ## tree = Objectives.select_objective_protocol()
+    ## file = 'planning_structs_conventional.xml'
+    ## objective_elements = Objectives.select_objective_protocol()
+    ## TODO: specify the objective directory for a generic objectiveset file
     logging.debug("selected file {}".format(path_protocols))
-    # Consider adding functionality for protocols, orders, etc...
     # Parse each type in a separate function
     # Add matching elements
     # Add objective function should know whether something is absolute or relative for dose and volume
-    for o in objective_elements:
-        logging.debug('Type of returned objectivesets is {}'.format(type(o)))
-        # logging.debug('Returned the objectivesets: {}'.format(
-        #     o.find('name').text))
 
     for objsets in objective_elements:
-        #try:
         objectives = objsets.findall('./objectives/roi')
-        # except:
-        #    logging.debug("An issue exists with the list of elements from Objectives.py")
-        ## objectives = objectiveset.findall('./objectives/roi')
         for o in objectives:
             o_name = o.find('name').text
             o_type = o.find('type').text
@@ -67,9 +62,6 @@ def main():
                                      s_dose=s_dose,
                                      s_weight=None,
                                      restrict_beamset=None)
-    ##else:
-    ##    logging.debug('Could not find objective set using tree = {}'.format(tree))
-
 
 if __name__ == '__main__':
     main()
