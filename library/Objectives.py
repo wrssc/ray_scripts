@@ -141,7 +141,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
                         logging.debug('No objectives found in {}'.format(o.find('name').text))
 
     # Augment the list to include all xml files found with an "objectiveset" tag in name
-    if order_name:
+    if order_name is not None:
         try:
             selected_order = objective_sets[order_name]
         except KeyError:
@@ -166,9 +166,9 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
             logging.debug('User selected order: {} for objectives'.format(
                 input_dialog.values['i']))
             selected_order = objective_sets[input_dialog.values['i']]
-    if selected_order:
+    if selected_order is not None:
         et_list.append(selected_order)
-    if et_list:
+    if et_list is not None:
         for e in et_list:
             logging.info('Objective list to be loaded {}'.format(
                 e.find('name').text))
