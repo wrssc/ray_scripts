@@ -125,18 +125,12 @@ def select_objective_protocol(folder=None, filename=None):
     # Close on cancel
     if response == {}:
         logging.info('create_objective cancelled by user')
-   ##     status.finish('User cancelled create objective creation.')
         sys.exit('create_objective cancelled by user')
     for k in input_dialog.values:
         logging.debug('This is key {} value {}'.format(k,input_dialog.values[k]))
 
     # logging.debug('user selected {}').format(input_dialog.values['i'])
-    # tree = objective_sets[input_dialog.values['i']]
     # Rename this thing
-    logging.debug("In function: os {} has type {}".format(input_dialog.values['i'],
-                 type(objective_sets[input_dialog.values['i']])))
-    logging.debug("In function: pos has type {}".format(
-                 type(protocol_obj_set)))
     et_list.append(objective_sets[input_dialog.values['i']])
     return et_list
 
