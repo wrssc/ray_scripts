@@ -132,6 +132,8 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
         try:
             selected_order = objective_sets[order_name]
         except KeyError:
+            # This order doesn't appear to match one that has objectives in it
+            # Pass an empty entry
             logging.warning('Order: {} has no objectives'.format(order_name))
             selected_order = None
     else:
