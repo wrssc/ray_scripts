@@ -153,7 +153,8 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
             logging.debug('User selected order: {} for objectives'.format(
                 input_dialog.values['i']))
             selected_order = objective_sets[input_dialog.values['i']]
-    et_list.append(selected_order)
+    if selected_order:
+        et_list.append(selected_order)
     if et_list:
         for e in et_list:
             logging.info('Objective list to be loaded {}'.format(
