@@ -149,7 +149,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     et_list.append(selected_order)
     for e in et_list:
         logging.debug('Objective list to be loaded {}'.format(
-            p.find('name').text))
+            e.find('name').text))
 
     return et_list
 
