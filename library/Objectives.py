@@ -104,7 +104,6 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
             # Search first for a top level objectiveset
             if tree.getroot().tag == 'objectiveset':
                 n = tree.find('name').text
-                logging.debug('Found objectiveset {} in {}'.format(n, f))
                 if n in objective_sets:
                     # objective_sets[n].extend(tree.getroot())
                     logging.debug("Objective set {} already in list".format(n))
@@ -117,13 +116,6 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
                 et_list = []
                 for p in protocol_obj_set:
                     et_list.append(p)
-                    logging.debug('Adding the objectiveset {} to the list'.format(
-                        p.find('name').text
-                    ))
-                obj_sets = tree.findall('./objectiveset')
-                for p in obj_sets:
-                    logging.debug("objectiveset to be loaded {}".format(
-                        p.find('name').text))
                 orders = tree.findall('./order')
                 # Search the orders to find those with objectives and return the candidates
                 # for the selectable objectives
@@ -131,13 +123,8 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
                     objectives = o.findall('./objectives')
                     # Force user to select from the orders with separate objectives
                     if objectives:
-                        logging.debug("Found some orders {} with objectives".format(
-                            o.find('name').text))
                         n = o.find('name').text
                         objective_sets[n] = o
-            else:
-                logging.debug("Could not find anything useful in file {}".format(f))
-
 
     # Augment the list to include all xml files found with an "objectiveset" tag in name
     if order_name:
@@ -160,6 +147,9 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
                 input_dialog.values['i']))
             selected_order = objective_sets[input_dialog.values['i']]
     et_list.append(selected_order)
+    for e in et_list:
+        logging.debug('Objective list to be loaded {}'.format(
+            p.find('name').text))
 
     return et_list
 
