@@ -71,11 +71,15 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     objective_elements = Objectives.select_objective_protocol(filename=file, folder=path_protocols)
 
     """
+    protocol_folder = r'../protocols'
+    institution_folder = r'UW'
+    objectives_folder = r'objectives'
+
     # First search the file list to be searched depending on the supplied information
     # output a list of files that are to be scanned
     if filename:
         # User directly supplied the filename of the protocol or objectiveset
-        # TODO: Provide a use case above for this
+        # TODO: Provide a use case above for this in the comments
         path_objectives = folder
         file_list = [filename]
     elif folder and not filename:
@@ -86,9 +90,6 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
         file_list = os.listdir(path_objectives)
     else:
         # If no information was supplied look in the objectives folder
-        protocol_folder = r'../protocols'
-        institution_folder = r'UW'
-        objectives_folder = r'objectives'
         path_objectives = os.path.join(os.path.dirname(__file__),
                                        protocol_folder,
                                        institution_folder,
