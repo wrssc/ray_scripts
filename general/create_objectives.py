@@ -38,8 +38,9 @@ def main():
     # Add matching elements
     # Add objective function should know whether something is absolute or relative for dose and volume
     for o in objective_elements:
-        logging.debug('Returned the objectivesets: {}'.format(
-            o.find('name').text))
+        logging.debug('Type of returned objectivesets is {}'.format(type(o)))
+        # logging.debug('Returned the objectivesets: {}'.format(
+        #     o.find('name').text))
 
     for objsets in objective_elements:
         #try:
