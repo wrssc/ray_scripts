@@ -441,7 +441,7 @@ def main():
         protocol_match = {}
         nominal_dose = 0
         for k, v in target_dialog.values.iteritems():
-            logging.debug('Key is {} and value is {}', format(str(k), str(v)))
+            logging.debug('Key is {} and value is {}'.format(k, v))
             if len(v) > 0:
                 i, p = k.split("_", 1)
                 if 'name' in i:
