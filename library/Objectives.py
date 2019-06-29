@@ -185,12 +185,20 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     return et_list
 
 
-def reformat_objectives():
-    """ Temp chunk of code to try to open an xml file"""
+def reformat_objectives(protocol_file, mapping=None, order_name=None):
+    """
+    This function takes the desired protocol file, order-based keyword?, and a dictionary of mappings
+    dictionary format: key = xml name, value = desired entry
+    :param protocol_file: file location (joined) of protocol to use
+    :param order_keyword: order to be used?
+    :param mapping:
+    :return:
+    """
+
     try:
+        examination = connect.get_current("Examination")
         patient = connect.get_current('Patient')
         case = connect.get_current("Case")
-        examination = connect.get_current("Examination")
         plan = connect.get_current("Plan")
         beamset = connect.get_current("BeamSet")
     except:

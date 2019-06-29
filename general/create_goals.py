@@ -22,11 +22,12 @@
     :versions
     1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
     1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
+    2.0.0 Adding the clinical objectives for IMRT
 
 """
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '1.0.1'
+__version__ = '2.0.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -162,6 +163,7 @@ def conditional_overlap(structure_name, goal_volume, case, exam, comp_structure,
     :param exam:
     :param comp_structure:
     """
+    # TODO: This module needs to be written to evaluate overlap and put a goal volume based on residual
 
 
 def knowledge_based_goal(structure_name, goal_type, case, exam,
@@ -222,13 +224,16 @@ def main():
         steps=['Finding correct protocol',
                'Matching Structure List',
                'Getting target Doses',
-               'Adding Goals'],
+               'Adding Goals',
+               'Adding Standard Objectives'],
         docstring=__doc__,
         help=__help__)
 
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
-    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
+    path_protocols = os.path.join(os.path.dirname(__file__),
+                                  protocol_folder,
+                                  institution_folder)
 
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
@@ -258,9 +263,9 @@ def main():
     status.next_step(text="Determining correct treatment protocol" +
                           "based on treatment planning order.", num=0)
 
-    # Eventually we may want to convert to accepting a call from a filename
-    # Alternatively, this could all be set up as a function call
     # TODO: Set up a means of bypassing the dialogs
+    #  Eventually we may want to convert to accepting a call from a filename
+    #  Alternatively, this could all be set up as a function call
     if filename:
         logging.info("Protocol selected: {}".format(
             filename))
@@ -275,10 +280,13 @@ def main():
             options={'i': list(tpo.protocols.keys())},
             required=['i'])
         # Launch the dialog
-        print input_dialog.show()
+        response = input_dialog.show()
         # Link root to selected protocol ElementTree
         logging.info("Protocol selected: {}".format(
             input_dialog.values['i']))
+        # Store the protocol name and optional order name
+        protocol_name = input_dialog.values['i']
+        order_name = None
         order_list = []
         protocol = tpo.protocols[input_dialog.values['i']]
         for o in protocol.findall('order/name'):
@@ -295,10 +303,12 @@ def main():
                 options={'i': order_list},
                 required=['i'])
             # Launch the dialog
-            print input_dialog.show()
+            response = input_dialog.show()
             # Link root to selected protocol ElementTree
             logging.info("Order selected: {}".format(
                 input_dialog.values['i']))
+            # Update the order name
+
             # I believe this loop can be eliminated with we can use a different function
             # to match protocol.find('order') with input_dialog.values['i']
             for o in protocol.findall('order'):
@@ -307,6 +317,8 @@ def main():
                     logging.debug('Matching protocol ElementTag found for {}'.format(
                         input_dialog.values['i']))
                     break
+            order_name = input_dialog.values['i']
+
         else:
             logging.debug('No orders in protocol')
             use_orders = False
@@ -429,6 +441,7 @@ def main():
         protocol_match = {}
         nominal_dose = 0
         for k, v in target_dialog.values.iteritems():
+            logging.debug('Key is {} and value is {}', format(k, v))
             if len(v) > 0:
                 i, p = k.split("_", 1)
                 if 'name' in i:
