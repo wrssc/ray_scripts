@@ -78,7 +78,6 @@ def select_objective_protocol(folder=None, filename=None):
             if tree.getroot().tag == 'objectiveset':
                 n = tree.find('name').text
                 logging.debug('Found objectiveset {} in {}'.format(n, f))
-                # Debugging fun
                 if n in objective_sets:
                     # objective_sets[n].extend(tree.getroot())
                     logging.debug("Objective set {} already in list".format(n))
@@ -89,6 +88,12 @@ def select_objective_protocol(folder=None, filename=None):
                 # Find the objectivesets:
                 # These get loaded for protocols regardless of orders
                 protocol_obj_set = tree.findall('./objectiveset')
+                et_list = []
+                for p in protocol_obj_set:
+                    et_list.append(p)
+                    logging.debug('Adding the objectiveset {} to the list'.format(
+                        p.find('name').text
+                    ))
                 logging.debug("protocol_obj_set is {}".format(type(protocol_obj_set)))
                 obj_sets = tree.findall('./objectiveset')
                 for p in obj_sets:
@@ -133,8 +138,7 @@ def select_objective_protocol(folder=None, filename=None):
                  type(objective_sets[input_dialog.values['i']])))
     logging.debug("In function: pos has type {}".format(
                  type(protocol_obj_set)))
-    tree = [objective_sets[input_dialog.values['i']],protocol_obj_set]
-    # tree = Objectives.select_objectives(input_dialog.values['i'])
+    et_list.append(objective_sets[input_dialog.values['i']])
     return tree
 
 def select_objectives(folder=None, filename=None):
