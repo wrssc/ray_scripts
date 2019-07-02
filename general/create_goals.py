@@ -35,7 +35,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import sys
 import os
 import logging
-import datetime
+import Objectives
 import connect
 import UserInterface
 import Goals
@@ -257,6 +257,11 @@ def main():
     except Exception:
         raise IOError("No plan loaded. Load patient and plan.")
 
+    try:
+        beamset = connect.get_current("BeamSet")
+    except Exception:
+        raise IOError("No plan loaded. Load patient and plan.")
+
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
 
@@ -438,23 +443,28 @@ def main():
 
         # Process inputs
         # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
-        protocol_match = {}
         nominal_dose = 0
+        translation_map = {}
+        # TODO Add a dict element that is just key and dose
+        #  seems like the next two loops could be combined, but
+        #  since dict cycling isn't ordered I don't know how to create
+        #  a blank element space
         for k, v in target_dialog.values.iteritems():
-            logging.debug('Key is {} and value is {}'.format(k, v))
             if len(v) > 0:
                 i, p = k.split("_", 1)
+                if p not in translation_map:
+                    translation_map[p] = [None] * 2
                 if 'name' in i:
                     # Key name will be the protocol target name
-                    protocol_match[p] = v
+                    translation_map[p][0] = v
+
                 if 'dose' in i:
                     # Append _dose to the key name
                     pd = p + '_dose'
-                    protocol_match[pd] = (float(v) / 100.)
                     # Not sure if this loop is still needed
-                    if nominal_dose == 0:
-                        # Set a nominal dose to the first matched pair
-                        nominal_dose = protocol_match[pd]
+                    translation_map[p][1] = (float(v) / 100.)
+                    ## if nominal_dose == 0:
+                    ##     # Set a nominal dose to the first matched pair
 
         status.next_step(text="Adding goals.", num=3)
         # Iterate over goals in orders and protocols
@@ -466,12 +476,13 @@ def main():
                 p_d = g.find('dose').text
                 p_t = g.find('type').text
                 # Change the name for the roi goal if the user has matched it to a target
-                if p_n in protocol_match:
+                if p_n in translation_map:
                     # Change the roi name the goal uses to the matched value
-                    g.find('name').text = protocol_match[p_n]
+                    g.find('name').text = translation_map[p_n][0]
+
                     logging.debug('Reassigned protocol target name:{} to {}'.format(
                         p_n, g.find('name').text))
-                # :TODO: Exception catching in here for an unresolved reference
+                # TODO: Exception catching in here for an unresolved reference
                 # else:
                 #    logging.debug('Protocol ROI: {}'.format(p_n) +
                 #                  ' was not matched to a target supplied by the user. ' +
@@ -486,13 +497,12 @@ def main():
                     logging.debug('ROI: {} has a relative goal of type: {} with a relative dose level: {}%'.format(
                         p_n, p_t, p_d))
                     # Correct the relative dose to the user-specified dose levels for this structure
-                    if p_r in protocol_match:
-                        d_key = p_r + '_dose'
+                    if p_r in translation_map:
                         # Change the dose attribute to absolute
                         # TODO:: This may not be such a hot idea.
                         g.find('dose').attrib['units'] = "Gy"
-                        g.find('dose').attrib['roi'] = protocol_match[p_r]
-                        goal_dose = float(protocol_match[d_key]) * float(p_d) / 100
+                        g.find('dose').attrib['roi'] = translation_map[p_r][0]
+                        goal_dose = float(translation_map[p_r][1]) * float(p_d) / 100
                         g.find('dose').text = str(goal_dose)
                         logging.debug('Reassigned protocol dose attribute name:' +
                                       '{} to {}, for dose:{}% to {} Gy'.format(
@@ -553,6 +563,83 @@ def main():
                 #    logging.debug('Goal loaded which does not have dose attribute.')
                 # Regardless, add the goal now
                 Goals.add_goal(g, connect.get_current('Plan'))
+
+    status.next_step(text="Adding Objectives.", num=4)
+    objective_elements = Objectives.select_objective_protocol(order_name=order_name,
+                                                              protocol=protocol)
+    # Parse each type in a separate function
+    # Add matching elements
+    # Add objective function should know whether something is absolute or relative for dose and volume
+    # TODO: Go back to planning structs and generate a mapping to be used for OTVs, etc
+    #  but for now, we'll match to the closest suffix
+
+    gen_obj_targets = ['OTV1_','sOTVu1_','PTV1_EZ_',
+                   'OTV2_','sOTVu2_','PTV2_EZ_',
+                   'OTV3_','sOTVu3_','PTV3_EZ_',
+                   'OTV4_','sOTVu4_','PTV4_EZ_',
+                   'OTV5_','sOTVu5_','PTV5_EZ_']
+    obj_targets = []
+    for r in rois:
+        for g in gen_obj_targets:
+            if g in r:
+                if g not in translation_map:
+                    translation_map[g] = [None] * 2
+                translation_map[g][0] = r
+                obj_targets.append(r)
+                logging.debug('Added a target match {}'.format(r))
+    # TODO: Decide how we want the saved xml file to look. Do we want it a
+    #  simple mapping+protocol? If so, the xml element file should really be unaltered
+    #  we'd map an xml-input to objectives using the mapping, save the mapping and
+    #  output the xml-result using the inverse mapping
+
+    for objsets in objective_elements:
+        objectives = objsets.findall('./objectives/roi')
+        for o in objectives:
+            o_n = o.find('name').text
+            o_t = o.find('type').text
+            o_d = o.find('dose').text
+            if o_n in translation_map:
+                s_roi = translation_map[o_n][0]
+            else:
+                s_roi = None
+
+            if "%" in o.find('dose').attrib['units']:
+                # Define the unmatched and unmodified protocol name and dose
+                o_r = o.find('dose').attrib['roi']
+                # See if the goal is on a matched target and change the % dose of the attributed ROI
+                # to match the user input target and dose level for that named structure
+                # Correct the relative dose to the user-specified dose levels for this structure
+                if o_r in translation_map:
+                    s_dose = float(translation_map[o_r][1]) * float(o_d) / 100
+                    Objectives.add_objective(o,
+                                             exam=exam,
+                                             case=case,
+                                             plan=plan,
+                                             beamset=beamset,
+                                             s_roi=s_roi,
+                                             s_dose=s_dose,
+                                             s_weight=None,
+                                             restrict_beamset=None)
+                else:
+                    logging.warning('Unsuccessful match between relative dose goal for ROI: ' +
+                                    '{}. '.format(o_r) +
+                                    'The user did not match an existing roi to one required for this goal. ' +
+                                    'An arbitrary value of 0 may be added')
+                    s_dose = 0
+                    pass
+            else:
+                s_dose = None
+                Objectives.add_objective(o,
+                                         exam=exam,
+                                         case=case,
+                                         plan=plan,
+                                         beamset=beamset,
+                                         s_roi=s_roi,
+                                         s_dose=s_dose,
+                                         s_weight=None,
+                                         restrict_beamset=None)
+
+
 
 
 if __name__ == '__main__':

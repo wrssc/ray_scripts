@@ -122,7 +122,14 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                               'Posterior': ExpR[3],
                               'Right': ExpR[4],
                               'Left': ExpR[5]})
-    case.PatientModel.RegionsOfInterest[StructureName].ExcludeFromExport = ExcludeFromExport
+    try:
+        case.PatientModel.ToggleExcludeFromExport(
+            ExcludeFromExport=True,
+            RegionOfInterests=[StructureName],
+            PointsOfInterests=[])
+    except:
+        logging.warning('Unable to exclude {} from export'.format(StructureName))
+
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
         Examination=examination, Algorithm="Auto")
     patient.SetRoiVisibility(RoiName=StructureName,

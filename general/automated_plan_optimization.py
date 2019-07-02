@@ -187,7 +187,7 @@ def check_min_jaws(plan_opt, min_dim):
                 mlc_thin_high = 47
             else:
                 logging.debug('Machine type unsupported for this check')
-                jaw_change = false
+                jaw_change = False
                 return jaw_change
             # Search for the maximum leaf extend among all positions
             if b.ForBeam.HasValidSegments:

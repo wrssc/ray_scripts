@@ -42,7 +42,7 @@ def find_optimization_index(plan, beamset):
     return OptIndex
 
 
-def select_objective_protocol(folder=None, filename=None, order_name=None):
+def select_objective_protocol(folder=None, filename=None, order_name=None, protocol=None):
     """
     Function to select the location of the objectives to be loaded within the plan.
 
@@ -56,8 +56,9 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     :param filename: os joined protocol name, used to directly open a file
     :param folder: folder from os to search within and prompt user to select appropriate protocol
     :param order_name: the name of order level element from xml file
+    :param protocol: ElementTree-Element of the objectiveset you want
 
-    :return: et_list: elementtree list from xml file
+    :return: et_list: elementtree list of elements with objectives and/or objectivesets
 
     Usage:
     USE CASE 1:
@@ -87,6 +88,11 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     ## User will select a default objectiveset from the standard objectives directory
     objective_elements = Objectives.select_objective_protocol()
 
+    USE CASE 4:
+    ## User supplies ordername and protocol element:
+    objective_elements = Objectives.select_objective_protocol(order_name=order_name,
+                                                              protocol=protocol)
+
     """
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
@@ -115,35 +121,53 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     objective_sets = {}
     # Return variable. A list of ET Elements
     et_list = []
-    for f in file_list:
-        if f.endswith('.xml'):
-            # Parse the xml file
-            tree = xml.etree.ElementTree.parse(os.path.join(path_objectives, f))
-            # Search first for a top level objectiveset
-            if tree.getroot().tag == 'objectiveset':
-                n = tree.find('name').text
-                if n in objective_sets:
-                    # objective_sets[n].extend(tree.getroot())
-                    logging.debug("Objective set {} already in list".format(n))
-                else:
-                    objective_sets[n] = tree
-                    et_list.append(tree)
-            elif tree.getroot().tag == 'protocol':
-                # Find the objectivesets:
-                # These get loaded for protocols regardless of orders
-                protocol_obj_set = tree.findall('./objectiveset')
-                for p in protocol_obj_set:
-                    et_list.append(p)
-                orders = tree.findall('./order')
-                # Search the orders to find those with objectives and return the candidates
-                # for the selectable objectives
-                for o in orders:
-                    objectives = o.findall('./objectives')
-                    if objectives:
-                        n = o.find('name').text
-                        objective_sets[n] = o
+    if protocol:
+        # Search first for a top level objectiveset
+        # Find the objectivesets:
+        # These get loaded for protocols regardless of orders
+        protocol_obj_set = protocol.findall('./objectiveset')
+        for p in protocol_obj_set:
+            et_list.append(p)
+        orders = protocol.findall('./order')
+        # Search the orders to find those with objectives and return the candidates
+        # for the selectable objectives
+        for o in orders:
+            objectives = o.findall('./objectives')
+            if objectives:
+                n = o.find('name').text
+                objective_sets[n] = o
+            else:
+                logging.debug('No objectives found in {}'.format(o.find('name').text))
+    else:
+        for f in file_list:
+            if f.endswith('.xml'):
+                # Parse the xml file
+                tree = xml.etree.ElementTree.parse(os.path.join(path_objectives, f))
+                # Search first for a top level objectiveset
+                if tree.getroot().tag == 'objectiveset':
+                    n = tree.find('name').text
+                    if n in objective_sets:
+                        # objective_sets[n].extend(tree.getroot())
+                        logging.debug("Objective set {} already in list".format(n))
                     else:
-                        logging.debug('No objectives found in {}'.format(o.find('name').text))
+                        objective_sets[n] = tree
+                        et_list.append(tree)
+                elif tree.getroot().tag == 'protocol':
+                    # Find the objectivesets:
+                    # These get loaded for protocols regardless of orders
+                    protocol_obj_set = tree.findall('./objectiveset')
+                    for p in protocol_obj_set:
+                        et_list.append(p)
+                    orders = tree.findall('./order')
+                    # Search the orders to find those with objectives and return the candidates
+                    # for the selectable objectives
+                    for o in orders:
+                        objectives = o.findall('./objectives')
+                        if objectives:
+                            n = o.find('name').text
+                            objective_sets[n] = o
+                        else:
+                            logging.debug('No objectives found in {}'.format(o.find('name').text))
 
     # Augment the list to include all xml files found with an "objectiveset" tag in name
     if order_name is not None:
@@ -185,65 +209,67 @@ def select_objective_protocol(folder=None, filename=None, order_name=None):
     return et_list
 
 
-def reformat_objectives(protocol_file, mapping=None, order_name=None):
+def reformat_objectives(objective_elements, translation_map=None):
     """
     This function takes the desired protocol file, order-based keyword?, and a dictionary of mappings
     dictionary format: key = xml name, value = desired entry
-    :param protocol_file: file location (joined) of protocol to use
-    :param order_keyword: order to be used?
-    :param mapping:
     :return:
     """
-
-    try:
-        examination = connect.get_current("Examination")
-        patient = connect.get_current('Patient')
-        case = connect.get_current("Case")
-        plan = connect.get_current("Plan")
-        beamset = connect.get_current("BeamSet")
-    except:
-        logging.warning("patient, case and examination must be loaded")
-
-    protocol_folder = r'../protocols'
-    institution_folder = r'UW'
-    file = 'UWBrainCNS.xml'
-    order_name = 'GBM Brain 6000cGy in 30Fx [Single-Phase Stupp]'
-    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
-    objective_elements = Objectives.select_objective_protocol(filename=file,
-                                                              folder=path_protocols,
-                                                              order_name=order_name)
     # Parse each type in a separate function
     # Add matching elements
     # Add objective function should know whether something is absolute or relative for dose and volume
+    # TODO: Go back to planning structs and generate a mapping to be used for OTVs, etc
+    #  but for now, we'll match to the closest suffix
 
     for objsets in objective_elements:
         objectives = objsets.findall('./objectives/roi')
         for o in objectives:
-            o_name = o.find('name').text
-            o_type = o.find('type').text
-            # TESTING ONLY - TO DO ELIMINATE THIS NEXT LINE
-            # This will need to be a user supplied dose level.
-            if o.find('dose').attrib['units'] == '%':
-                s_dose = '50'
+            o_n = o.find('name').text
+            o_t = o.find('type').text
+            o_d = o.find('dose').text
+            # logging.debug('ROI: {} has a goal of type: {} with a dose level: {}%'.format(
+            #    o_n, o_t, o_d))
+            if o_n in translation_map:
+                s_roi = translation_map[o_n][0]
+                o.find('name').text = s_roi
+            # logging.debug('translation map used {} mapped to {}'.format(
+            #     o_n, s_roi))
             else:
-                s_dose = None
+                s_roi = None
 
-            Objectives.add_objective(o,
-                                     case=case,
-                                     plan=plan,
-                                     beamset=beamset,
-                                     s_roi=None,
-                                     #    s_roi='PTV_Eval_5000',
-                                     s_dose=s_dose,
-                                     s_weight=None,
-                                     restrict_beamset=None)
+            if "%" in o.find('dose').attrib['units']:
+                # Define the unmatched and unmodified protocol name and dose
+                o_r = o.find('dose').attrib['roi']
+                # See if the goal is on a matched target and change the % dose of the attributed ROI
+                # to match the user input target and dose level for that named structure
+                # Correct the relative dose to the user-specified dose levels for this structure
+                if o_r in translation_map:
+                    # Change the dose attribute to absolute
+                    # TODO:: these change the xml object, might be needed for datamining project
+                    o.find('dose').attrib['units'] = "Gy"
+                    o.find('dose').attrib['roi'] = translation_map[p_r][0]
+                    s_dose = float(translation_map[o_r][1]) * float(o_d) / 100
+                    o.find('dose').text = str(s_dose)
+                    # logging.debug('Reassigned protocol dose attribute name:' +
+                    #               '{} to {}, for dose:{}% to {} Gy'.format(
+                    #                   o_r, o.find('dose').attrib['roi'], o_d, o.find('dose').text))
+                else:
+                    logging.warning('Unsuccessful match between relative dose goal for ROI: ' +
+                                    '{}. '.format(o_r) +
+                                    'The user did not match an existing roi to one required for this goal. ' +
+                                    'An arbitrary value of 0 may be added')
+                    s_dose = 0
+                    pass
+        return objective_elements
 
-def add_objective(obj, case, plan, beamset,
+
+def add_objective(obj, exam, case, plan, beamset,
                   s_roi=None, s_dose=None,
                   s_weight=None, restrict_beamset=None):
     """
     adds an objective function to the optimization in RayStation after
     :param obj: child (roi-tag) of an ElementTree - consider mak
+    :param exam: RS Exam
     :param case: RS case
     :param plan: RS plan
     :param beamset: RS beamset
