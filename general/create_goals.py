@@ -616,7 +616,7 @@ def main():
                     if o_t == 'DFO':
                         o.find('dose').attrib['units'] = "Gy"
                         s_dose = s_dose / 100
-                        o.find('dose').attrib['low'] = s_dose * float(o.find('dose').attrib['low']) / 100
+                        o.find('dose').attrib['low'] = s_dose * float(o.find('dose').attrib['low'])
                     Objectives.add_objective(o,
                                              exam=exam,
                                              case=case,
