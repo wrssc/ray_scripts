@@ -621,7 +621,8 @@ def main():
                             s_dose,
                             o.find('dose').attrib['low']
                         ))
-                        o.find('dose').attrib['low'] = s_dose * float(o.find('dose').attrib['low'])
+                        o.find('dose').attrib['low'] = float(translation_map[o_r][1]) *\
+                                                       float(o.find('dose').attrib['low']) / 100
                         s_dose = s_dose / 100
                     Objectives.add_objective(o,
                                              exam=exam,
