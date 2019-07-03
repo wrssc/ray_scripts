@@ -327,6 +327,7 @@ def add_objective(obj, exam, case, plan, beamset,
             dose = float(obj.find('dose').text) * 100
         else:
             obj.find('dose').text = float(s_dose) * 100
+            dose = float(obj.find('dose').text) * 100
     else:
         dose = float(obj.find('dose').text) * 100
     #
