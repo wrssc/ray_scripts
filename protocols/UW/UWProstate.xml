@@ -34,6 +34,94 @@
                 <volume units="%">95</volume>
             </roi>
         </prescription>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_sib">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_sib">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_sib">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_sib">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_sib">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV1u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_sib">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_sib" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV2u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_2</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
         <goals>
             <roi>
                 <name>PTV_p</name>
@@ -207,7 +295,7 @@
     </order>
     <order>
         <name>Prostate + Nodes 7000cGy 28Fx</name>
-        <prefix>ProN _</prefix>
+        <prefix>ProN_</prefix>
         <prescription>
             <fractions>28</fractions>
             <frequency>Daily</frequency>
@@ -232,6 +320,180 @@
                 <dose units="Gy" idl="100">74.2</dose>
             </roi>
         </prescription>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_sib">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_sib">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_sib">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_sib">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_sib">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV1u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_sib">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_sib" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV2u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_2</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n1">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n1">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV3_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV3u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_3</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_n1" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n2">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n2">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV4_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_n2">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV4u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_4</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_n2" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
         <goals>
             <roi>
                 <name>PTV_p</name>
@@ -453,6 +715,51 @@
                 <dose units="Gy" idl="100">62.5</dose>
             </roi>
         </prescription>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV1u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
         <goals>
             <roi>
                 <name>PTV_p</name>
@@ -611,6 +918,137 @@
                 <dose units="Gy" idl="100">62.5</dose>
             </roi>
         </prescription>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV1u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n1">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n1">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV2u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_2</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_n1" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n2">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n2">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV3_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_n2">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV3u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_3</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_n2" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
         <goals>
             <roi>
                 <name>PTV_p</name>
@@ -806,6 +1244,94 @@
                 <dose units="Gy" idl="100">46.0</dose>
             </roi>
         </prescription>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV1u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n1">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n1">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV2u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n1">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_2</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_n1" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
         <goals>
             <roi>
                 <name>PTV_p</name>
@@ -963,6 +1489,94 @@
             </roi>
             <fractions>19</fractions>
         </prescription>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_bst">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_bst">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_bst">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_bst">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_bst">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV1u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_bst">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_bst" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_pri">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_pri">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_pri">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_pri">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_pri">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV2u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_pri">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_2</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_pri" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
         <goals>
             <roi>
                 <name>PTV_bst</name>
@@ -1246,7 +1860,7 @@
         </goals>
     </order>
     <order>
-        <name>PROFIT/CHHIP 6000cGy 20Fx </name>
+        <name>PROFIT/CHHIP 6000cGy 20Fx</name>
         <prefix>Pros_</prefix>
         <prescription>
             <roi>
@@ -1257,6 +1871,94 @@
             </roi>
             <fractions>20</fractions>
         </prescription>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="CTV">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="CTV">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="CTV">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="CTV">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="CTV">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV1u_</name>
+                <type>UD</type>
+                <dose units="%" roi="CTV">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="CTV" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV2u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_2</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
         <goals>
             <roi>
                 <name>PTV_p</name>
@@ -1475,6 +2177,29 @@
             </roi>
         </goals>
     </order>
+    <objectiveset>
+        <name>Standard Fractionation Prostate</name>
+        <objectives>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="2" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="20">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Normal_2cm</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
+    </objectiveset>
     <goals>
         <roi>
             <name>PeritonealCavity</name>

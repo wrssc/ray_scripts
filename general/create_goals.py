@@ -1,4 +1,4 @@
-""" Create Clinical Goals
+""" Create Clinical Goals and Objectives
 
     Add clinical goals and objectives in RayStation given user supplied inputs
     At this time, we are looking in the UW protocols directory for a
@@ -573,11 +573,12 @@ def main():
     # TODO: Go back to planning structs and generate a mapping to be used for OTVs, etc
     #  but for now, we'll match to the closest suffix
 
-    gen_obj_targets = ['OTV1_','sOTVu1_','PTV1_EZ_',
-                   'OTV2_','sOTVu2_','PTV2_EZ_',
-                   'OTV3_','sOTVu3_','PTV3_EZ_',
-                   'OTV4_','sOTVu4_','PTV4_EZ_',
-                   'OTV5_','sOTVu5_','PTV5_EZ_']
+    gen_obj_targets = ['OTV1_','sOTVu1_','OTV1_EZ_',
+                   'OTV2_','sOTVu2_','OTV2_EZ_',
+                   'OTV3_','sOTVu3_','OTV3_EZ_',
+                   'OTV4_','sOTVu4_','OTV4_EZ_',
+                   'OTV5_','sOTVu5_','OTV5_EZ_',
+                   'ring1_','ring2_','ring_3','ring_4','ring_5']
     obj_targets = []
     for r in rois:
         for g in gen_obj_targets:

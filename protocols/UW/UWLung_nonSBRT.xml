@@ -2237,6 +2237,115 @@
             </roi>
         </goals>
     </order>
+      <objectiveset>
+        <name>Standard Fractionation Brain</name>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV1u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p2">109.7</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p2">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV2u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_2</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p2" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="2" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="20">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Normal_2cm</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
+    </objectiveset>
     <goalset>
         <name>QUANTEC</name>
         <priority>5</priority>

@@ -148,7 +148,7 @@
             <roi>
                 <name>Bronchus_L</name>
                 <type>Max</type>
-                  <ref> RTOG 0813</ref>
+                <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
@@ -171,7 +171,7 @@
             <roi>
                 <name>Bronchus_R</name>
                 <type>Max</type>
-                  <ref> RTOG 0813</ref>
+                <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
@@ -370,7 +370,7 @@
             <roi>
                 <name>Trachea</name>
                 <type>Max</type>
-                  <ref> RTOG 0813</ref>
+                <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
@@ -524,7 +524,7 @@
             <roi>
                 <name>Bronchus_L</name>
                 <type>Max</type>
-                  <ref> RTOG 0813</ref>
+                <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
@@ -547,7 +547,7 @@
             <roi>
                 <name>Bronchus_R</name>
                 <type>Max</type>
-                  <ref> RTOG 0813</ref>
+                <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
@@ -745,7 +745,7 @@
             <roi>
                 <name>Trachea</name>
                 <type>Max</type>
-                  <ref> RTOG 0813</ref>
+                <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
@@ -1486,7 +1486,7 @@
             <roi>
                 <name>Trachea</name>
                 <type>Max</type>
-                <ref> RTOG 0813 BED a/b=3</ref>
+                <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">16</dose>
                 <priority>1</priority>
@@ -1637,7 +1637,7 @@
             <roi>
                 <name>Bronchus_L</name>
                 <type>Max</type>
-                  <ref> RTOG 0813 BED a/b=3</ref>
+                <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
                 <priority>1</priority>
@@ -1660,7 +1660,7 @@
             <roi>
                 <name>Bronchus_R</name>
                 <type>Max</type>
-                  <ref> RTOG 0813 BED a/b=3</ref>
+                <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
                 <priority>1</priority>
@@ -1859,7 +1859,7 @@
             <roi>
                 <name>Trachea</name>
                 <type>Max</type>
-                  <ref> RTOG 0813 BED a/b=3</ref>
+                <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
                 <priority>1</priority>
@@ -2008,7 +2008,7 @@
             <roi>
                 <name>Bronchus_L</name>
                 <type>Max</type>
-                  <ref> RTOG 0813 BED a/b=3</ref>
+                <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
                 <priority>1</priority>
@@ -2031,7 +2031,7 @@
             <roi>
                 <name>Bronchus_R</name>
                 <type>Max</type>
-                  <ref> RTOG 0813 BED a/b=3</ref>
+                <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
                 <priority>1</priority>
@@ -2230,7 +2230,7 @@
             <roi>
                 <name>Trachea</name>
                 <type>Max</type>
-                  <ref> RTOG 0813 BED a/b=3</ref>
+                <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
                 <priority>1</priority>
@@ -2252,6 +2252,215 @@
             </roi>
         </goals>
     </order>
+    <objectiveset>
+        <name>SBRT Lung</name>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">99</volume>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV1u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>ring_1</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">99</volume>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p2">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV2u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_2</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>ring_2</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p2" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+
+            <roi>
+                <name>OTV3_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">99</volume>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p3">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV3u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_3</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>ring_3</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p3" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">99</volume>
+                <dose units="%" roi="PTV_p4">102.5</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p4">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV4_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p4">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV4u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p4">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_4</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>ring_4</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p4" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV5_</name>
+                <type dir="gt">DX</type>
+                <volume units="%">99</volume>
+                <dose units="%" roi="PTV_p5">102.5</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>OTV5_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p5">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV5_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p5">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTV5u_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p5">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring_5</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>ring_5</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p5" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="2" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="20">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Normal_2cm</name>
+                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
+    </objectiveset>
     <goalset>
         <name>QUANTEC-SBRT</name>
         <priority>5</priority>
