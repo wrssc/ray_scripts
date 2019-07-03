@@ -311,14 +311,14 @@ def add_objective(obj, exam, case, plan, beamset,
                     obj.find('volume').text = str(volume)
                     obj.find('volume').attrib["units"] = "%"
                 else:
-                    logging.warning('add_objective: {} has no contours, index undefined'.format(s_roi))
+                    logging.warning('{} has no contours, index undefined'.format(s_roi))
             except:
-                logging.warning('add_objective: Error getting volume for {}, volume => 0.0'.format(s_roi))
+                logging.warning('Error getting volume for {}, volume => 0.0'.format(s_roi))
         elif obj.find('volume').attrib["units"] == "%":
             volume = int(obj.find('volume').text)
     # Modify the dose tag if relative
     if s_dose:
-        logging.debug('add_objective: ROI: {} Protocol dose {} {} substituted with {} Gy'.format(
+        logging.debug('ROI: {} Protocol dose {} {} substituted with {} Gy'.format(
             obj.find('name').text, obj.find('dose').text, obj.find('dose').attrib["units"], s_dose))
         if obj.find('dose').attrib["units"] == "%":
             obj.find('dose').attrib["units"] = "Gy"
@@ -333,7 +333,7 @@ def add_objective(obj, exam, case, plan, beamset,
     #
     # Read the weight variable
     if s_weight:
-        logging.debug('add_objective: ROI: {} Protocol weight {} substituted with {}'.format(
+        logging.debug('ROI: {} Protocol weight {} substituted with {}'.format(
             obj.find('name').text, obj.find('weight').text, s_weight))
         obj.find('weight').text = s_weight
         weight = float(s_weight)
@@ -357,7 +357,7 @@ def add_objective(obj, exam, case, plan, beamset,
         elif obj.find('type').attrib['dir'] == "le" or obj.find('type').attrib['dir'] == "lt":
             function_type = 'MaxDvh'
     else:
-        logging.debug('add_objective: Unsupported function type for ROI: {} with type: {}'.format(
+        logging.debug('Unsupported function type for ROI: {} with type: {}'.format(
             obj.find('name').text, obj.find('type').text))
     #
     # Add special types
@@ -371,7 +371,7 @@ def add_objective(obj, exam, case, plan, beamset,
         elif obj.find('type').attrib['constraint'] == 'False':
             constraint = False
         else:
-            logging.warning('add_objective: Unsupported constraint specification {}'.format(
+            logging.warning('Unsupported constraint specification {}'.format(
                 obj.find('type').attrib['constraint']))
     if 'adapt' in obj.find('type').attrib:
         if obj.find('type').attrib['adapt'] == 'True':
@@ -379,7 +379,7 @@ def add_objective(obj, exam, case, plan, beamset,
         elif obj.find('type').attrib['adapt'] == 'False':
             adapt_dose = False
         else:
-            logging.warning('add_objective: Unsupported type for attribute {}'.format(
+            logging.warning('Unsupported type for attribute {}'.format(
                 obj.find('type').attrib['adapt']))
     if obj.find('type').text == 'DFO':
         if obj.find('dose').attrib['units'] == "%":
@@ -389,11 +389,11 @@ def add_objective(obj, exam, case, plan, beamset,
             high_dose = 100 * float(obj.find('dose').text)
             low_dose = 100 * float(obj.find('dose').attrib['low'])
         else:
-            logging.warning('add_objective: Unsupported doses for Dose Fall Off')
+            logging.warning('Unsupported doses for Dose Fall Off')
         if 'dist' in obj.find('type').attrib:
             low_dose_dist = float(obj.find('type').attrib['dist'])
         else:
-            logging.warning('add_objective: Unknown low dose distance for Dose Fall Off')
+            logging.warning('Unknown low dose distance for Dose Fall Off')
         logging.debug('DFO object found.  High Dose: {}, Low Dose: {}, Distance: {}'.format(
             high_dose, low_dose, low_dose_dist))
     if 'robust' in obj.find('type').attrib:
