@@ -615,12 +615,6 @@ def main():
                     s_dose = float(translation_map[o_r][1]) * float(o_d) / 100
                     if o_t == 'DFO':
                         o.find('dose').attrib['units'] = "Gy"
-                        logging.debug('O_D {}, tr map {}, Sdose {}, low {}'.format(
-                            float(translation_map[o_r][1]),
-                            float(o_d),
-                            s_dose,
-                            o.find('dose').attrib['low']
-                        ))
                         o.find('dose').attrib['low'] = float(translation_map[o_r][1]) *\
                                                        float(o.find('dose').attrib['low']) / 100
                         s_dose = s_dose / 100
