@@ -611,7 +611,11 @@ def main():
                 # to match the user input target and dose level for that named structure
                 # Correct the relative dose to the user-specified dose levels for this structure
                 if o_r in translation_map:
+                    # TODO reconcile DFO with rest of modifications for elementrees
                     s_dose = float(translation_map[o_r][1]) * float(o_d) / 100
+                    if o_t == 'DFO':
+                        o.find('dose').attrib['units'] = "Gy"
+                        o.find('dose').attrib['low'] = s_dose * float(o.find('dose').attrib['low']) / 100
                     Objectives.add_objective(o,
                                              exam=exam,
                                              case=case,
