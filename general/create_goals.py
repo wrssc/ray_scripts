@@ -627,10 +627,7 @@ def main():
                                              s_weight=None,
                                              restrict_beamset=None)
                 else:
-                    logging.warning('Unsuccessful match between relative dose goal for ROI: ' +
-                                    '{}. '.format(o_r) +
-                                    'The user did not match an existing roi to one required for this goal. ' +
-                                    'An arbitrary value of 0 may be added')
+                    logging.debug('No match found for objective on ROI: {}'.format(o_r))
                     s_dose = 0
                     pass
             else:
