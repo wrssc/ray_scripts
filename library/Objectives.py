@@ -295,6 +295,7 @@ def add_objective(obj, exam, case, plan, beamset,
     # Deal with relative or absolute volumes, modify the volume tag
     # (RayStation only allows relative volume roi's
     # :TODO: Check how to find existence of a tag in elementtree
+    # TODO: Clean up the debugging in here to one message
     if obj.find('volume') is None:
         volume = None
     else:

@@ -71,7 +71,8 @@
     <prescription>
         <frequency>Daily</frequency>
         <imaging>Weekly kV</imaging>
-        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
+        </technique>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
@@ -107,7 +108,8 @@
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
+            </technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -468,7 +470,8 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
+            </technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -835,7 +838,8 @@
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
+            </technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -1348,7 +1352,8 @@
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
+            </technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -1856,7 +1861,8 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
+            </technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -2332,7 +2338,8 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
+            </technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -2762,7 +2769,7 @@
             </roi>
         </goals>
     </order>
-        <objectiveset>
+    <objectiveset>
         <name>Standard Fractionation Breast</name>
         <objectives>
             <roi>
@@ -2788,6 +2795,18 @@
                 <name>OTV1_</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_Chestwall">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
                 <weight>200</weight>
             </roi>
             <roi>
@@ -2820,6 +2839,18 @@
                 <type>Max</type>
                 <dose units="%" roi="PTV_n1_SCV">109.7</dose>
                 <weight>50</weight>
+            </roi>
+            <roi>
+                <name>PTV_n1_SCV</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_n1_SCV">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_n1_SCV">102.5</dose>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
@@ -2960,6 +2991,18 @@
                 <name>OTV1_</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_Breast">117.9</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>PTV_p_Breast</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Breast">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Breast">102.5</dose>
                 <weight>200</weight>
             </roi>
             <roi>
