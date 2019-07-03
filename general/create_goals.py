@@ -96,7 +96,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     v = prot_vol[0]
     i = 0
     # Find first volume exceeding target volume or find the end of the list
-    while v <= vol and i <= len(prot_vol):
+    while v <= vol and i <= len(prot_vol)-1:
         i += 1
         v = prot_vol[i]
     # Exceptions for target volumes exceeding or smaller than the minimum volume
