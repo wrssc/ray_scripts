@@ -578,6 +578,8 @@ def main():
                    'OTV3_','sOTVu3_','OTV3_EZ_',
                    'OTV4_','sOTVu4_','OTV4_EZ_',
                    'OTV5_','sOTVu5_','OTV5_EZ_',
+                   'sOTVu1','sOTVu2','sOTVu3',
+                   'sOTVu4','sOTVu5',
                    'ring1_','ring2_','ring3_','ring4_','ring5_']
     obj_targets = []
     for r in rois:
@@ -614,10 +616,13 @@ def main():
                     # TODO reconcile DFO with rest of modifications for elementrees
                     s_dose = float(translation_map[o_r][1])# * float(o_d) / 100
                     if o_t == 'DFO':
+                        logging.debug('s_dose {}, tr {}, o_d {}, low {}'.format(
+                            s_dose,translation_map[o_r][1],o_d,o.find('dose').attrib['low']
+                        ))
+                        s_dose = s_dose * float(o_d) / 100
                         o.find('dose').attrib['units'] = "Gy"
                         o.find('dose').attrib['low'] = float(translation_map[o_r][1]) *\
                                                        float(o.find('dose').attrib['low']) / 100
-                        s_dose = s_dose / 100
                     Objectives.add_objective(o,
                                              exam=exam,
                                              case=case,

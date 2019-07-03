@@ -67,7 +67,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV1u_</name>
+                <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_sib">102.5</dose>
                 <weight>50</weight>
@@ -110,7 +110,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV2u_</name>
+                <name>sOTVu2_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>50</weight>
@@ -353,7 +353,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV1u_</name>
+                <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_sib">102.5</dose>
                 <weight>50</weight>
@@ -396,7 +396,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV2u_</name>
+                <name>sOTVu2_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>50</weight>
@@ -439,7 +439,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV3u_</name>
+                <name>sOTVu3_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_n1">102.5</dose>
                 <weight>50</weight>
@@ -482,7 +482,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV4u_</name>
+                <name>sOTVu4_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_n2">102.5</dose>
                 <weight>50</weight>
@@ -748,7 +748,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV1u_</name>
+                <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>50</weight>
@@ -951,7 +951,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV1u_</name>
+                <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>50</weight>
@@ -994,7 +994,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV2u_</name>
+                <name>sOTVu2_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_n1">102.5</dose>
                 <weight>50</weight>
@@ -1037,7 +1037,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV3u_</name>
+                <name>sOTVu3_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_n2">102.5</dose>
                 <weight>50</weight>
@@ -1277,7 +1277,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV1u_</name>
+                <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>50</weight>
@@ -1320,7 +1320,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV2u_</name>
+                <name>sOTVu2_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_n1">102.5</dose>
                 <weight>50</weight>
@@ -1522,7 +1522,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV1u_</name>
+                <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_bst">102.5</dose>
                 <weight>50</weight>
@@ -1565,7 +1565,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV2u_</name>
+                <name>sOTVu2_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_pri">102.5</dose>
                 <weight>50</weight>
@@ -1904,7 +1904,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV1u_</name>
+                <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="CTV">102.5</dose>
                 <weight>50</weight>
@@ -1947,7 +1947,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV2u_</name>
+                <name>sOTVu2_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>50</weight>

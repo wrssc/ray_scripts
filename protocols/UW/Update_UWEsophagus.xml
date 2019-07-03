@@ -314,7 +314,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV1u_</name>
+                <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>50</weight>
@@ -357,7 +357,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>sOTV2u_</name>
+                <name>sOTVu2_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_n">102.5</dose>
                 <weight>50</weight>
