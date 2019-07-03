@@ -2278,8 +2278,8 @@
                 <weight>50</weight>
             </roi>
             <roi>
-                <name>ring_1</name>
-                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <name>ring1_</name>
+                <type dist="1" adapt="True" constraint="True">DFO</type>
                 <dose units="%" roi="PTV_p" low="5">100</dose>
                 <weight>5</weight>
             </roi>
@@ -2321,8 +2321,8 @@
                 <weight>50</weight>
             </roi>
             <roi>
-                <name>ring_2</name>
-                <type dist="5" adapt="True" constraint="True">DFO</type>
+                <name>ring2_</name>
+                <type dist="1" adapt="True" constraint="True">DFO</type>
                 <dose units="%" roi="PTV_p2" low="5">100</dose>
                 <weight>5</weight>
             </roi>

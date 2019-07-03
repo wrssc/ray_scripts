@@ -578,7 +578,7 @@ def main():
                    'OTV3_','sOTVu3_','OTV3_EZ_',
                    'OTV4_','sOTVu4_','OTV4_EZ_',
                    'OTV5_','sOTVu5_','OTV5_EZ_',
-                   'ring1_','ring2_','ring_3','ring_4','ring_5']
+                   'ring1_','ring2_','ring3_','ring4_','ring5_']
     obj_targets = []
     for r in rois:
         for g in gen_obj_targets:
