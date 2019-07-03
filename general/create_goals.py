@@ -615,6 +615,9 @@ def main():
                     s_dose = float(translation_map[o_r][1]) * float(o_d) / 100
                     if o_t == 'DFO':
                         o.find('dose').attrib['units'] = "Gy"
+                        logging.debug('Substitute dose {} is multiplied by low {}'.format(
+                            s_dose,o.find('dose').attrib['low']
+                        ))
                         o.find('dose').attrib['low'] = s_dose * float(o.find('dose').attrib['low'])
                         s_dose = s_dose / 100
                     Objectives.add_objective(o,
