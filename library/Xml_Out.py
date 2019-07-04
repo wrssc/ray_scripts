@@ -7,7 +7,9 @@ import logging
 from xml.etree import ElementTree
 from xml.dom import minidom
 
+# TODO: Is this an attribute we can pull from the logging module?
 log_dir = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\RayScripts\dev_logs'
+
 
 
 def prettify(elem):
