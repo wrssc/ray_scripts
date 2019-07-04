@@ -22,35 +22,41 @@ def prettify(elem):
 def save_structure_map():
     pat_id = 'TPL_045_DAPD'
     m_logs_dir = os.path.join(log_dir, pat_id)
-    filename = 'Structure_map'+pat_id+'.xml'
-    from xml.etree.ElementTree import ElementTree, Element, SubElement, Comment
-    from datetime import datetime, date
+    filename = pat_id+'structure_map.xml'
 
-    top = Element('StructureMap')
+    import xml.etree.ElementTree as ET
+    # from xml.etree.ElementTree import ElementTree, Element, SubElement, Comment
+    from datetime import datetime, date
+    from xml.dom import minidom
+
+
+    top = ET.Element('StructureMap')
 
     d = datetime.now()
-    comment = Comment(d.isoformat())
+    comment = ET.Comment(d.isoformat())
     top.append(comment)
 
-    protocol = SubElement(top, 'protocol_structure')
+    protocol = ET.SubElement(top, 'protocol_structure')
     protocol.text = 'OTV4_4000'
 
-    local_name = SubElement(top, 'local_name')
+    local_name = ET.SubElement(top, 'local_name')
     local_name.text = 'PTV1_MD'
 
-    local_dose = SubElement(top, 'local_dose', units='Gy')
+    local_dose = ET.SubElement(top, 'local_dose')#, units='Gy')
     local_dose.text = '40'
+    local_dose.set('units','Gy')
 
     print prettify(top)
-    try:
-        ElementTree(top).write(os.path.normpath('{}/{}'.format(m_logs_dir, filename)))
-    except:
-        logging.debug('error occured with write')
+    xmlstr = minidom.parseString(ET.tostring(top)).toprettyxml(indent="   ")
+    full_path_filename = os.path.normpath('{}/{}'.format(m_logs_dir, filename))
+    with open(full_path_filename, "w") as f:
+        f.write(xmlstr)
+    # ElementTree(top).write(os.path.normpath('{}/{}'.format(m_logs_dir, filename)))
 
 
-#def main():
-#    save_stucture_map()
-#
-#
-#if __name__ == '__main__':
-#    main()
+def main():
+    save_structure_map()
+
+
+if __name__ == '__main__':
+    main()
