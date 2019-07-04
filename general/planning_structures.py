@@ -264,9 +264,12 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 
 
 def main():
+    from Xml_Out import save_structure_map
+
     # The following list allows different elements of the code to be toggled
     # No guarantee can be made that things will work if elements are turned off
     # all dependencies are not really resolved
+    save_structure_map()
     generate_ptvs = True
     generate_ptv_evals = True
     generate_otvs = True
