@@ -42,9 +42,9 @@ def save_stucture_map():
     ElementTree.write(os.path.normpath('{}/{}'.format(m_logs_dir, filename)))
 
 
-def main():
-    save_stucture_map()
-
-
-if __name__ == '__main__':
-    main()
+#def main():
+#    save_stucture_map()
+#
+#
+#if __name__ == '__main__':
+#    main()

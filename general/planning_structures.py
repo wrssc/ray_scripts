@@ -270,7 +270,7 @@ def main():
     # No guarantee can be made that things will work if elements are turned off
     # all dependencies are not really resolved
     # TODO: Move this down to where the translation map gets declared
-    Xml_Out.save_structure_map()
+    Xml_Out.save_stucture_map()
 
     generate_ptvs = True
     generate_ptv_evals = True
