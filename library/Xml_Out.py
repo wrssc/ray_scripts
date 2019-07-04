@@ -16,7 +16,7 @@ def prettify(elem):
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="  ")
 
-def save_stucture_map():
+def save_structure_map():
     pat_id = 'TPL_045_DAPD'
     m_logs_dir = os.path.join(log_dir, pat_id)
     filename = 'Structure_map'+pat_id+'.xml'
