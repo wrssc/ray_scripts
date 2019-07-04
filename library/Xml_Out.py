@@ -2,6 +2,7 @@
 Output file formats for saving xml-based information from current parameters
 """
 import os
+import logging
 
 from xml.etree import ElementTree
 from xml.dom import minidom
@@ -39,7 +40,10 @@ def save_structure_map():
     local_dose.text = '40'
 
     print prettify(top)
-    ElementTree(top).write(os.path.normpath('{}/{}'.format(m_logs_dir, filename)))
+    try:
+        ElementTree(top).write(os.path.normpath('{}/{}'.format(m_logs_dir, filename)))
+    except:
+        logging.debug('error occured with write')
 
 
 #def main():
