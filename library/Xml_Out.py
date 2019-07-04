@@ -39,7 +39,7 @@ def save_structure_map():
     local_dose.text = '40'
 
     print prettify(top)
-    ElementTree.write(os.path.normpath('{}/{}'.format(m_logs_dir, filename)))
+    ElementTree(top).write(os.path.normpath('{}/{}'.format(m_logs_dir, filename)))
 
 
 #def main():
