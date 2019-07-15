@@ -141,7 +141,11 @@ def main():
     initial = {'a': ['CT', 'Structures'], 'd': 'No'}
     if ignore:
         initial['d'] = 'Yes'
-
+    try:
+        for b in DicomExport.machines(beamset):
+            logging.debug('list of machines is {}'.format(b))
+    except:
+        logging.debug("No machines found")
     if beamset is not None and len(DicomExport.machines(beamset)) > 0:
         options['a'].append('Plan')
         initial['a'].append('Plan')
