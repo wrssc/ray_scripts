@@ -188,6 +188,7 @@ def main():
         if filters[2] in response['e']:
             t = [0, 1000, 0]
         else:
+            # Included for Tomo TODO delete this comment
             t = None
 
     else:
