@@ -20,7 +20,7 @@
     <destination type="scp">
         <name type="text">RayGateway</name>
         <host type="text">10.151.28.149</host>
-        <aet type="text">IDMS</aet>
+        <aet type="text">RAYGATEWAY</aet>
         <port type="int">7809</port>
     </destination>
     <destination type="scp">
