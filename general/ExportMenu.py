@@ -117,11 +117,8 @@ def main():
             else:
                 logging.warning('The user chose to export the structure set without approval')
                 ignore = True
-    try:
-        for b in DicomExport.machines(beamset):
-            logging.debug('list of machines is {}'.format(b))
-    except:
-        logging.debug("No machines found")
+    for b in DicomExport.machines(beamset):
+        logging.debug('list of machines is {}'.format(b))
 
     # Prompt user for DICOM export details
     status.next_step(text='In the dialog window that appears, check each DICOM destination that you would like to ' +
