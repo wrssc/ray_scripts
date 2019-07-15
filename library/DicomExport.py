@@ -171,10 +171,14 @@ def send(case,
                 raise IOError('Association to {} was rejected by the peer'.format(info['host']))
 
             elif assoc.is_aborted and not ignore_errors:
-                if isinstance(bar, UserInterface.ProgressBar):
-                    bar.close()
+                if 'Tomo' in beamset.DeliveryTechnique:
+                    logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
+                else:
+                    if isinstance(bar, UserInterface.ProgressBar):
+                        bar.close()
 
-                raise IOError('Received A-ABORT from the peer during association to {}'.format(info['host']))
+                    raise IOError('Received A-ABORT from the peer during association to {}'.format(info['host']))
+
 
             else:
                 status = False
