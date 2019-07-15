@@ -18,6 +18,12 @@
         <port type="int">104</port>
     </destination>
     <destination type="scp">
+        <name type="text">RayGateway</name>
+        <host type="text">10.151.28.149</host>
+        <aet type="text">RAYGATEWAY</aet>
+        <port type="int">7809</port>
+    </destination>
+    <destination type="scp">
         <name type="text">Tomo (Room B)</name>
         <host type="text">10.151.1.141</host>
         <aet type="text">TomoProvider2</aet>

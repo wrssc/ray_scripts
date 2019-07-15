@@ -142,7 +142,7 @@
         </goalset>
     </goals>
     <objectiveset>
-        <name>FSRT Brain</name>
+        <name>SRS Brain</name>
         <objectives>
             <roi>
                 <name>OTV1_</name>
