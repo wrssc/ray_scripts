@@ -171,7 +171,7 @@ def send(case,
                 raise IOError('Association to {} was rejected by the peer'.format(info['host']))
 
             elif assoc.is_aborted and not ignore_errors:
-                if 'RAYGATEWAY' in local_AET:
+                if 'RAYGATEWAY' in info['aet']:
                     logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
                 else:
                     if isinstance(bar, UserInterface.ProgressBar):
@@ -589,7 +589,7 @@ def send(case,
 
                     elif assoc.is_aborted and not ignore_errors:
 
-                        if 'RAYGATEWAY' in local_AET:
+                        if 'RAYGATEWAY' in info['aet']:
                             logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
                         else:
                             if isinstance(bar, UserInterface.ProgressBar):
