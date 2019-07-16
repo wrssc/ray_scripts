@@ -199,13 +199,9 @@ def main():
 
             if filters[1] in response['e']:
                 f.append('energy')
-            else:
-                f.append(False)
 
             if filters[2] in response['e']:
                 t = [0, 1000, 0]
-            else:
-                f.append(False)
 
     else:
         f = None
