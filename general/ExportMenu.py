@@ -129,7 +129,7 @@ def main():
 
     # Define filter descriptions
     if 'Tomo' in beamset.DeliveryTechnique:
-        filters = ['']
+        filters = ['', '', '', '', '']
     else:
         filters = ['Convert machine name',
                    'Convert machine energy (FFF)',
@@ -189,8 +189,10 @@ def main():
             # Disable filtering for Tomo and RayGateway
             t = 'Tomo'
             f = None
-            response['e'] = []
+            response['e'] = [None, None, False, False, False]
             response['c'] = None
+
+
         else:
             if filters[0] in response['e']:
                 f.append('machine')
@@ -204,21 +206,6 @@ def main():
 
             if filters[2] in response['e']:
                 t = [0, 1000, 0]
-            else:
-                f.append(False)
-
-            if filters[3] in response['e']:
-                f.append(filters[3] in response['e'])
-            else:
-                f.append(False)
-
-            if filters[4] in response['e']:
-                f.append(filters[4] in response['e'])
-            else:
-                f.append(False)
-
-            if filters[5] in response['e']:
-                f.append(filters[5] in response['e'])
             else:
                 f.append(False)
 
@@ -243,10 +230,10 @@ def main():
                                filters=f,
                                machine=response['c'],
                                table=t,
-                               round_jaws=f[3],
-                               prescription=f[4],
-                               block_accessory=f[5],
-                               block_tray_id=f[5],
+                               round_jaws=filters[3] in response['e'],
+                               prescription=filters[4] in response['e'],
+                               block_accessory=filters[5] in response['e'],
+                               block_tray_id=filters[5] in response['e'],
                                bar=True)
 
     # Finish up
