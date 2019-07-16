@@ -241,11 +241,13 @@ def send(case,
         else:
             bar.update(text='Exporting DICOM files to temporary folder')
 
+    for d in dest_list:
+        logging.debug('dest list element {}'.format(d))
     try:
         if raygateway_args is not None and len(dest_list) == 1:
             # If we are only sending to the Gateway, do the export and exit.
             logging.debug('Executing ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
-            args['RayGateway'] = raygateway_args
+            args['RayGatewayTitle'] = raygateway_args
             for k, v in args.iteritems():
                 logging.debug('Export script called with k: {}, and v: {}'.format(k,v))
             case.ScriptableDicomExport(**args)
@@ -530,7 +532,7 @@ def send(case,
         if 'RAYGATEWAY' in info['aet']:
             logging.debug('Multiple destinations, ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
             rg_args = args
-            rg_args['RayGateway'] = raygateway_args
+            rg_args['RayGatewayTitle'] = raygateway_args
             case.ScriptableDicomExport(**rg_args)
 
         elif len({'host', 'aet', 'port'}.difference(info)) == 0:
