@@ -534,6 +534,7 @@ def send(case,
             rg_args = args
             rg_args['RayGatewayTitle'] = raygateway_args
             case.ScriptableDicomExport(**rg_args)
+            assoc = None
 
         elif len({'host', 'aet', 'port'}.difference(info)) == 0:
             ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.5.1.4.1.1.481.5',
