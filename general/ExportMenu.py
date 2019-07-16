@@ -189,7 +189,7 @@ def main():
             # Disable filtering for Tomo and RayGateway
             t = 'Tomo'
             f = None
-            response['e'] = [None, None, False, False, False]
+            response['e'] = [None, None, False, False, False, False]
             response['c'] = None
 
 
