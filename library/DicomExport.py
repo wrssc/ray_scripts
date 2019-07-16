@@ -243,6 +243,7 @@ def send(case,
 
     for d in destination:
         logging.debug('destination element {}'.format(d))
+    logging.debug('destination length {} and raygatewayargs {}'.format(len(destination),raygateway_args))
     try:
         if raygateway_args is not None and len(destination) == 1:
             # If we are only sending to the Gateway, do the export and exit.
