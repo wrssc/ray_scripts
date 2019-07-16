@@ -129,7 +129,7 @@ def main():
 
     # Define filter descriptions
     if 'Tomo' in beamset.DeliveryTechnique:
-        filters = ['', '', '', '', '']
+        filters = []
     else:
         filters = ['Convert machine name',
                    'Convert machine energy (FFF)',
@@ -189,7 +189,8 @@ def main():
             # Disable filtering for Tomo and RayGateway
             t = 'Tomo'
             f = None
-            response['e'] = [None, None, False, False, False, False]
+            filters = [None] * 6
+            response['e'] = [False] * 6
             response['c'] = None
 
 
