@@ -185,14 +185,13 @@ def main():
     if beamset is not None:
         f = []
 
+        # Disable filtering for Tomo and RayGateway
         if 'Tomo' in beamset.DeliveryTechnique:
-            # Disable filtering for Tomo and RayGateway
             t = None
             f = None
             filters = ['x'] * 6
             response['e'] = [False] * 6
             response['c'] = None
-
 
         else:
             if filters[0] in response['e']:
