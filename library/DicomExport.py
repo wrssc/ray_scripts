@@ -243,17 +243,25 @@ def send(case,
 
     try:
         if raygateway_args is not None and len(destination) == 1:
+            if 'anonymize' in info and info['anonymize']:
+                random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
+                random_id = ''.join(random.choice(string.digits) for _ in range(8))
+                logging.debug('Export destination {} is anonymous, patient will be stored under name {} and ID {}'.
+                              format(d, random_name, random_id))
+
             # If we are only sending to the Gateway, do the export and exit.
             logging.debug('Executing ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
             rg_args = args
             rg_args['RayGatewayTitle'] = raygateway_args
             del rg_args['ExportFolderPath']
 
-            for k, v in args.iteritems():
-                logging.debug('Export script called with k: {}, and v: {}'.format(k, v))
             try:
                 case.ScriptableDicomExport(**args)
                 logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
+
+                if isinstance(bar, UserInterface.ProgressBar):
+                    bar.close()
+
                 UserInterface.MessageBox('DICOM export was successful', 'Export Success')
 
             except Exception as error:
@@ -548,7 +556,24 @@ def send(case,
             logging.debug('Multiple destinations, ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
             rg_args = args
             rg_args['RayGatewayTitle'] = raygateway_args
-            case.ScriptableDicomExport(**rg_args)
+            del rg_args['ExportFolderPath']
+
+            try:
+                case.ScriptableDicomExport(**args)
+                logging.info('Export to {} success'.format(info['aet']))
+
+            except Exception as error:
+                status = False
+                if hasattr(error, 'message'):
+                    logging.error('DicomExport failed {}'.format(error.message))
+                    UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
+
+                else:
+                    logging.error('DicomExport failed {}'.format(error))
+                    UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
+
+                raise
+
             assoc = None
 
         elif len({'host', 'aet', 'port'}.difference(info)) == 0:
