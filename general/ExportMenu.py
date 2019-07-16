@@ -196,8 +196,6 @@ def main():
         else:
             if filters[0] in response['e']:
                 f.append('machine')
-            else:
-                f.append(False)
 
             if filters[1] in response['e']:
                 f.append('energy')
