@@ -36,7 +36,6 @@ import DicomExport
 
 
 def main():
-
     # Get current patient, case, exam, plan, and beamset
     try:
         patient = connect.get_current('Patient')
@@ -129,12 +128,15 @@ def main():
                           'system to convert to.')
 
     # Define filter descriptions
-    filters = ['Convert machine name',
-               'Convert machine energy (FFF)',
-               'Set couch to (0, 100, 0)',
-               'Round jaw positions to 0.1 mm',
-               'Create reference point',
-               'Set block tray and slot ID (electrons only)']
+    if 'Tomo' in beamset.DeliveryTechnique:
+        filters = ['']
+    else:
+        filters = ['Convert machine name',
+                   'Convert machine energy (FFF)',
+                   'Set couch to (0, 100, 0)',
+                   'Round jaw positions to 0.1 mm',
+                   'Create reference point',
+                   'Set block tray and slot ID (electrons only)']
 
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'a': 'Select which data elements to export:',
@@ -191,10 +193,12 @@ def main():
         if filters[2] in response['e']:
             t = [0, 1000, 0]
 
-        elif 'Tomo' in beamset.DeliveryTechnique:
+        if 'Tomo' in beamset.DeliveryTechnique:
             # Disable filtering for Tomo and RayGateway
             t = 'Tomo'
             f = None
+            response['e'] = []
+            response['c'] = None
 
     else:
         f = None
