@@ -235,7 +235,7 @@ def send(case,
 
     # Export data to temp folder
     if isinstance(bar, UserInterface.ProgressBar):
-        if raygateway_args is not None and len(dest_list) == 1:
+        if raygateway_args is not None and len(destination) == 1:
             bar.update(text='Exporting DICOM files to RayGateway')
 
         else:
@@ -248,9 +248,11 @@ def send(case,
         if raygateway_args is not None and len(destination) == 1:
             # If we are only sending to the Gateway, do the export and exit.
             logging.debug('Executing ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
-            args['RayGatewayTitle'] = raygateway_args
+            rg_args = args
+            rg_args['RayGatewayTitle'] = raygateway_args
+            del rg_args['ExportFolderPath']
             for k, v in args.iteritems():
-                logging.debug('Export script called with k: {}, and v: {}'.format(k,v))
+                logging.debug('Export script called with k: {}, and v: {}'.format(k, v))
             case.ScriptableDicomExport(**args)
             logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
             UserInterface.MessageBox('DICOM export was successful', 'Export Success')
