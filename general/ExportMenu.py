@@ -5,6 +5,9 @@
     treatment delivery system to convert the plan to. This conversion is performed
     according to the DICOM filters.
 
+    TODO: DICOM filters are not supported at this time for RS-exports to iDMS,
+          filtering is disabled, for Tomo plans.
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
@@ -187,9 +190,11 @@ def main():
 
         if filters[2] in response['e']:
             t = [0, 1000, 0]
-        else:
-            # Included for Tomo TODO delete this comment
-            t = None
+
+        elif 'Tomo' in beamset.DeliveryTechnique:
+            # Disable filtering for Tomo and RayGateway
+            t = 'Tomo'
+            f = None
 
     else:
         f = None
