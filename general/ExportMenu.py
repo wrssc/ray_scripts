@@ -184,14 +184,6 @@ def main():
 
     if beamset is not None:
         f = []
-        if filters[0] in response['e']:
-            f.append('machine')
-
-        if filters[1] in response['e']:
-            f.append('energy')
-
-        if filters[2] in response['e']:
-            t = [0, 1000, 0]
 
         if 'Tomo' in beamset.DeliveryTechnique:
             # Disable filtering for Tomo and RayGateway
@@ -199,6 +191,15 @@ def main():
             f = None
             response['e'] = []
             response['c'] = None
+        else:
+            if filters[0] in response['e']:
+                f.append('machine')
+
+            if filters[1] in response['e']:
+                f.append('energy')
+
+            if filters[2] in response['e']:
+                t = [0, 1000, 0]
 
     else:
         f = None
