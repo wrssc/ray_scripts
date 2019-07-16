@@ -255,10 +255,18 @@ def send(case,
                 case.ScriptableDicomExport(**args)
                 logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
                 UserInterface.MessageBox('DICOM export was successful', 'Export Success')
-            except Exception as e:
-                logging.error('DicomExport failed {}: {}'.format(e.message, e.args))
-                UserInterface.MessageBox('DICOM export failed {}'.format(e.message), 'Export Fail')
+
+            except Exception as error:
                 status = False
+                if hasattr(error, 'message'):
+                    logging.error('DicomExport failed {}'.format(error.message))
+                    UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
+
+                else:
+                    logging.error('DicomExport failed {}'.format(error))
+                    UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
+
+                raise
 
             return status
 
