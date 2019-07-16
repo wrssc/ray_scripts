@@ -187,7 +187,7 @@ def main():
 
         if 'Tomo' in beamset.DeliveryTechnique:
             # Disable filtering for Tomo and RayGateway
-            t = 'Tomo'
+            t = None
             f = None
             filters = ['x'] * 6
             response['e'] = [False] * 6
