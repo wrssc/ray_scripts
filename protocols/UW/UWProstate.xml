@@ -2006,14 +2006,14 @@
                 <name>Femur_Head_L</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">50</dose>
-                <volume units="cc">0.1</volume>
+                <volume units="cc">0.03</volume>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">50</dose>
-                <volume units="cc">0.1</volume>
+                <volume units="%">2</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2027,14 +2027,14 @@
                 <name>Femur_Head_R</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">50</dose>
-                <volume units="cc">0.1</volume>
+                <volume units="cc">0.03</volume>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">Max</type>
                 <dose units="Gy">50</dose>
-                <volume units="cc">0.1</volume>
+                <volume units="%">2</volume>
                 <priority>3</priority>
             </roi>
         </goals>
