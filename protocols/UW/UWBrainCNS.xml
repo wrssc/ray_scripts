@@ -78,7 +78,7 @@
             </roi>
             <roi>
                 <name>Brain</name>
-                <type>Max</type>
+                <type dir="le">VX</type>
                 <volume units="%">50</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
@@ -141,14 +141,14 @@
             </roi>
             <roi>
                 <name>Brainstem_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">2</volume>
                 <dose units="Gy">64</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Brainstem_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">2</volume>
                 <dose units="Gy">54</dose>
                 <priority>3</priority>
@@ -157,7 +157,7 @@
                 <name>Cochlea_L</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
-                <dose units="Gy">40</dose>
+                <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -183,7 +183,7 @@
                 <name>Cochlea_R</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
-                <dose units="Gy">40</dose>
+                <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -266,7 +266,7 @@
             </roi>
             <roi>
                 <name>Glnd_Lacrimal_L_PRV05</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
@@ -280,7 +280,7 @@
             </roi>
             <roi>
                 <name>Glnd_Lacrimal_R_PRV05</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
@@ -301,7 +301,7 @@
             </roi>
             <roi>
                 <name>Lens_L_PRV05</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">10</dose>
                 <priority>3</priority>
@@ -322,7 +322,7 @@
             </roi>
             <roi>
                 <name>Lens_R_PRV05</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">10</dose>
                 <priority>3</priority>
@@ -332,25 +332,25 @@
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">54</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>OpticChiasm</name>
                 <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">60</dose>
-                <priority>3</priority>
+                <priority>1</priority>
             </roi>
             <roi>
                 <name>OpticChiasm_PRV03</name>
-                <type>Max</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">60</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>OpticChiasm_PRV03</name>
-                <type>Max</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">54</dose>
                 <priority>3</priority>
@@ -371,14 +371,14 @@
             </roi>
             <roi>
                 <name>OpticNrv_L_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">54</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>OpticNrv_L_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">60</dose>
                 <priority>1</priority>
@@ -399,14 +399,14 @@
             </roi>
             <roi>
                 <name>OpticNrv_R_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">54</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>OpticNrv_R_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">60</dose>
                 <priority>1</priority>
@@ -463,7 +463,7 @@
         <goals>
             <roi>
                 <name>PTV_p</name>
-                <type dir="le">VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p">115</dose>
                 <priority>2</priority>
@@ -498,7 +498,7 @@
             </roi>
             <roi>
                 <name>Brainstem_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
@@ -550,7 +550,7 @@
             </roi>
             <roi>
                 <name>Glnd_Lacrimal_L_PRV05</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">25.5</dose>
                 <priority>3</priority>
@@ -564,7 +564,7 @@
             </roi>
             <roi>
                 <name>Glnd_Lacrimal_R_PRV05</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">25.5</dose>
                 <priority>3</priority>
@@ -585,7 +585,7 @@
             </roi>
             <roi>
                 <name>Lens_L_PRV05</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">9.7</dose>
                 <priority>3</priority>
@@ -606,7 +606,7 @@
             </roi>
             <roi>
                 <name>Lens_R_PRV05</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">9.7</dose>
                 <priority>3</priority>
@@ -620,7 +620,7 @@
             </roi>
             <roi>
                 <name>OpticChiasm_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
@@ -634,7 +634,7 @@
             </roi>
             <roi>
                 <name>OpticNrv_L_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
@@ -648,7 +648,7 @@
             </roi>
             <roi>
                 <name>OpticNrv_R_PRV03</name>
-                <type>VX</type>
+                <type dir="lt">VX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p">100</dose>
                 <priority>3</priority>
