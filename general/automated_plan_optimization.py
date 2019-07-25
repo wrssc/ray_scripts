@@ -618,7 +618,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     # SNS Properties
     num_beams = 0
-    maximum_segments_per_beam = 12
+    maximum_segments_per_beam = 12  # type: int
+    min_leaf_pairs = '2'  # type: str
+    min_leaf_end_separation = '0.5'  # type: str
     allow_beam_split = False
 
     # Find current Beamset Number and determine plan optimization
@@ -775,10 +777,15 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                 logging.debug('Failed to set limits for TrueBeamStx')
                 num_beams += 1
             if ts.ForTreatmentSetup.DeliveryTechnique == 'SMLC':
-                ts.SegmentConversion.MinSegmentArea = '2'
-                ts.SegmentConversion.MinSegmentMUPerFraction = '2'
-                maximum_segments = num_beams * maximum_segments_per_beam
-                ts.SegmentConversion.MaxNumberOfSegments = str(maximum_segments)
+                if mu > 0:
+                    logging.warning('This plan may not have typical SMLC optimization params enforced')
+                else:
+                    ts.SegmentConversion.MinSegmentArea = '2'
+                    ts.SegmentConversion.MinSegmentMUPerFraction = '2'
+                    maximum_segments = num_beams * maximum_segments_per_beam
+                    ts.SegmentConversion.MinNumberOfOpenLeafPairs = min_leaf_pairs
+                    ts.SegmentConversion.MinLeafEndSeparation = min_leaf_end_separation
+                    ts.SegmentConversion.MaxNumberOfSegments = str(maximum_segments)
 
 
         while Optimization_Iteration != maximum_iteration:
