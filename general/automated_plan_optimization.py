@@ -190,7 +190,18 @@ def check_min_jaws(plan_opt, min_dim):
                 jaw_change = False
                 return jaw_change
             # Search for the maximum leaf extend among all positions
-            if b.ForBeam.HasValidSegments:
+            plan_is_optimized = False
+            try:
+                if b.ForBeam.DeliveryTechnique == 'SMLC':
+                    if b.ForBeam.Segments:
+                        plan_is_optimized = True
+                elif b.ForBeam.DeliveryTechnique == 'VMAT':
+                    if b.ForBeam.HasValidSegments:
+                        plan_is_optimized = True
+            except:
+                logging.debug("Plan is not VMAT or SNS, behavior will not be clear for this test")
+
+            if plan_is_optimized:
                 # Find the minimum jaw position, first set to the maximum
                 min_x_aperture = 40
                 min_y_aperture = 40
