@@ -776,7 +776,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 num_beams += 1
             if ts.ForTreatmentSetup.DeliveryTechnique == 'SMLC':
                 ts.SegmentConversion.MinSegmentArea = '2'
-                ts.SegmentConversion.MinimumSegmentMUPerFraction = '2'
+                ts.SegmentConversion.MinSegmentMUPerFraction = '2'
                 maximum_segments = num_beams * maximum_segments_per_beam
                 ts.SegmentConversion.MaxNumberOfSegments = str(maximum_segments)
 
