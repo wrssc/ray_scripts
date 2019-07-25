@@ -878,13 +878,13 @@
             </roi>
             <roi>
                 <name>Eye_L</name>
-                <type a="3">MaxEUD</type>
+                <type a="3">MaxEud</type>
                 <dose units="Gy">5</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Eye_L</name>
-                <type a="3">MaxEUD</type>
+                <type a="3">MaxEud</type>
                 <dose units="Gy">4</dose>
                 <weight>1</weight>
             </roi>
@@ -902,13 +902,13 @@
             </roi>
             <roi>
                 <name>Eye_R</name>
-                <type a="3">MaxEUD</type>
+                <type a="3">MaxEud</type>
                 <dose units="Gy">5</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Eye_R</name>
-                <type a="3">MaxEUD</type>
+                <type a="3">MaxEud</type>
                 <dose units="Gy">4</dose>
                 <weight>1</weight>
             </roi>
@@ -932,13 +932,13 @@
             </roi>
             <roi>
                 <name>Cochlea_L</name>
-                <type a="3">MaxEUD</type>
+                <type a="3">MaxEud</type>
                 <dose units="Gy">15</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Cochlea_L</name>
-                <type a="3">MaxEUD</type>
+                <type a="3">MaxEud</type>
                 <dose units="Gy">13.5</dose>
                 <weight>1</weight>
             </roi>
@@ -956,13 +956,13 @@
             </roi>
             <roi>
                 <name>Cochlea_R</name>
-                <type a="3">MaxEUD</type>
+                <type a="3">MaxEud</type>
                 <dose units="Gy">15</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Cochlea_R</name>
-                <type a="3">MaxEUD</type>
+                <type a="3">MaxEud</type>
                 <dose units="Gy">13.5</dose>
                 <weight>1</weight>
             </roi>
