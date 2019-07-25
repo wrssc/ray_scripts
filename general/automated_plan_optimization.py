@@ -725,6 +725,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         logging.debug('This beamset is already optimized with beamsplitting not applied')
                     else:
                         beams.AllowBeamSplit = allow_beam_split
+                # TODO: find the DeliveryTechnique for VMAT and substitute here
                 elif beams.ArcConversionPropertiesPerBeam is not None:
                     # Set the control point spacing for Arc Beams
                     if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
