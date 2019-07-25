@@ -614,6 +614,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     i = 0
     beamsinrange = True
     num_beams = 0
+    maximum_segments_per_beam = 12
     OptIndex = 0
     Optimization_Iteration = 0
 
@@ -650,6 +651,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     # Turn off autoscale
     plan.PlanOptimizations[OptIndex].AutoScaleToPrescription = False
+
+
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
@@ -709,12 +712,18 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         logging.info('optimize_plan: Full optimization')
         for ts in treatment_setup_settings:
             # Set properties of the beam optimization
+
             for beams in ts.BeamSettings:
                 mu = beams.ForBeam.BeamMU
-                # Set the control point spacing for Arc Beams
                 if beams.TomoPropertiesPerBeam is not None:
                     logging.debug('Tomo plan - control point spacing not set')
+                elif beams.ForBeam.DeliveryTechnique == 'SMLC':
+                    if mu > 0:
+                        logging.debug('This beamset is already optimized with beamsplitting enabled')
+                    else:
+                        beams.AllowBeamSplit = False
                 elif beams.ArcConversionPropertiesPerBeam is not None:
+                    # Set the control point spacing for Arc Beams
                     if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
                         if mu > 0:
                             # If there are MU then this field has already been optimized with the wrong gantry
@@ -760,6 +769,13 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                     OptimizationTypes=['SegmentOpt', 'SegmentMU'])
                             except:
                                 logging.debug('Failed to set limits for TrueBeamStx')
+                num_beams += 1
+            if ts.ForTreatmentSetup.DeliveryTechnique == 'SMLC':
+                ts.SegmentConversion.MinSegmentArea = '2'
+                ts.SegmentConversion.MinimumSegmentMUPerFraction = '2'
+                maximum_segments = num_beams * maximum_segments_per_beam
+                ts.SegmentConversion.MaxNumberOfSegments = str(maximum_segments)
+
 
         while Optimization_Iteration != maximum_iteration:
             # Check for small targets by evaluating the jaw size
