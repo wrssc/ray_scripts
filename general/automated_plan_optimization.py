@@ -613,10 +613,13 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     # Variable definitions
     i = 0
     beamsinrange = True
-    num_beams = 0
-    maximum_segments_per_beam = 12
     OptIndex = 0
     Optimization_Iteration = 0
+
+    # SNS Properties
+    num_beams = 0
+    maximum_segments_per_beam = 12
+    allow_beam_split = False
 
     # Find current Beamset Number and determine plan optimization
     OptIndex = 0
@@ -719,9 +722,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     logging.debug('Tomo plan - control point spacing not set')
                 elif beams.ForBeam.DeliveryTechnique == 'SMLC':
                     if mu > 0:
-                        logging.debug('This beamset is already optimized with beamsplitting enabled')
+                        logging.debug('This beamset is already optimized with beamsplitting not applied')
                     else:
-                        beams.AllowBeamSplit = False
+                        beams.AllowBeamSplit = allow_beam_split
                 elif beams.ArcConversionPropertiesPerBeam is not None:
                     # Set the control point spacing for Arc Beams
                     if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
