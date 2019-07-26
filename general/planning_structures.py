@@ -33,6 +33,7 @@
             not_OTV - should be intersection.
     1.0.4 Bug fix for upgrade to RS 8 - replaced the toggling of the exclude from export with
             the required method.
+    1.0.4b Save the user mapping for this structure set as an xml file to be loaded by create_goals
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -60,6 +61,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import connect
 import logging
 import UserInterface
+import Xml_Out
 import time
 import sys
 
@@ -264,9 +266,13 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 
 
 def main():
+
     # The following list allows different elements of the code to be toggled
     # No guarantee can be made that things will work if elements are turned off
     # all dependencies are not really resolved
+    # TODO: Move this down to where the translation map gets declared
+    Xml_Out.save_structure_map()
+
     generate_ptvs = True
     generate_ptv_evals = True
     generate_otvs = True
@@ -486,14 +492,12 @@ def main():
 
     # TODO: Replace the separate input_source_list and source_doses lists with a dictionary or a tuple
     # Process inputs
-    input_source_list = []
-    source_doses = []
     input_source_list = [None] * n
     source_doses = [None] * n
+    translation_mapping = {}
     for k, v in initial_dialog.values.iteritems():
         # Grab the first two characters in the key and convert to an index
         i_char = k[:2]
-        logging.debug('key is {}'.format(i_char))
         indx = int(i_char)-1
         if len(v) > 0:
             if 'name' in k:
@@ -685,14 +689,22 @@ def main():
                 OTVName = OTVPrefix + str(index + 1) + '_' + source_doses[index]
                 sotvu_name = sotvu_prefix + str(index + 1) + '_' + source_doses[index]
             PTVList.append(PTVName)
+            translation_mapping[PTVName] = [input_source_list[index],
+                                            str(source_doses[index])]
             PTVEvalList.append(PTVEvalName)
             PTVEZList.append(PTVEZName)
+            translation_mapping[OTVName] = [input_source_list[index],
+                                            str(source_doses[index])]
             OTVList.append(OTVName)
             sotvu_list.append(sotvu_name)
         else:
-            logging.debug("Generate PTV's off - a nonsupported operation")
+            logging.warning("Generate PTV's off - a nonsupported operation")
 
     TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
+
+    for k, v in translation_mapping.iteritems():
+        logging.debug('The translation map k is {} and v {}'.format(
+            k,v))
 
     # Redraw the clean external volume if necessary
     try:

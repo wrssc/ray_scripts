@@ -190,7 +190,18 @@ def check_min_jaws(plan_opt, min_dim):
                 jaw_change = False
                 return jaw_change
             # Search for the maximum leaf extend among all positions
-            if b.ForBeam.HasValidSegments:
+            plan_is_optimized = False
+            try:
+                if b.ForBeam.DeliveryTechnique == 'SMLC':
+                    if b.ForBeam.Segments:
+                        plan_is_optimized = True
+                elif b.ForBeam.DeliveryTechnique == 'VMAT':
+                    if b.ForBeam.HasValidSegments:
+                        plan_is_optimized = True
+            except:
+                logging.debug("Plan is not VMAT or SNS, behavior will not be clear for this test")
+
+            if plan_is_optimized:
                 # Find the minimum jaw position, first set to the maximum
                 min_x_aperture = 40
                 min_y_aperture = 40
@@ -574,13 +585,13 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     if fluence_only:
         status_steps.append('Optimize Fluence Only')
     else:
-        if small_target:
-            status_steps.append('Test iteration for jaw offset.')
         for i in range(maximum_iteration):
             # Update message for changing the dose grids.
             if vary_grid:
                 if change_dose_grid[i] != 0:
                     status_steps.append('Change dose grid to: {} cm'.format(change_dose_grid[i]))
+            if small_target and i == 0:
+                status_steps.append('Test iteration for jaw offset.')
             ith_step = 'Complete Iteration:' + str(i + 1)
             status_steps.append(ith_step)
         if segment_weight:
@@ -602,9 +613,22 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     # Variable definitions
     i = 0
     beamsinrange = True
-    num_beams = 0
     OptIndex = 0
     Optimization_Iteration = 0
+
+    # SNS Properties
+    num_beams = 0
+    maximum_segments_per_beam = 10  # type: int
+    min_leaf_pairs = '2'  # type: str
+    min_leaf_end_separation = '0.5'  # type: str
+    allow_beam_split = False
+    min_segment_area = '2'
+    min_segment_mu = '2'
+
+    if 'PRD' in beamset.DicomPlanLabel:
+        min_segment_area = '4'
+        min_segment_mu = '6'
+
 
     # Find current Beamset Number and determine plan optimization
     OptIndex = 0
@@ -640,9 +664,11 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     # Turn off autoscale
     plan.PlanOptimizations[OptIndex].AutoScaleToPrescription = False
 
+
+
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
-    plan_optimization_parameters.Algorithm.OptimalityTolerance = 1e-12
+    plan_optimization_parameters.Algorithm.OptimalityTolerance = 1e-8
     plan_optimization_parameters.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
     plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = initial_intermediate_iteration
 
@@ -698,12 +724,19 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         logging.info('optimize_plan: Full optimization')
         for ts in treatment_setup_settings:
             # Set properties of the beam optimization
+
             for beams in ts.BeamSettings:
                 mu = beams.ForBeam.BeamMU
-                # Set the control point spacing for Arc Beams
                 if beams.TomoPropertiesPerBeam is not None:
                     logging.debug('Tomo plan - control point spacing not set')
+                elif beams.ForBeam.DeliveryTechnique == 'SMLC':
+                    if mu > 0:
+                        logging.debug('This beamset is already optimized with beamsplitting not applied')
+                    else:
+                        beams.AllowBeamSplit = allow_beam_split
+                # TODO: find the DeliveryTechnique for VMAT and substitute here
                 elif beams.ArcConversionPropertiesPerBeam is not None:
+                    # Set the control point spacing for Arc Beams
                     if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
                         if mu > 0:
                             # If there are MU then this field has already been optimized with the wrong gantry
@@ -749,42 +782,29 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                     OptimizationTypes=['SegmentOpt', 'SegmentMU'])
                             except:
                                 logging.debug('Failed to set limits for TrueBeamStx')
+                num_beams += 1
+            if ts.ForTreatmentSetup.DeliveryTechnique == 'SMLC':
+                if mu > 0:
+                    logging.warning('This plan may not have typical SMLC optimization params enforced')
+                else:
+                    ts.SegmentConversion.MinSegmentArea = min_segment_area
+                    ts.SegmentConversion.MinSegmentMUPerFraction = min_segment_mu
+                    maximum_segments = num_beams * maximum_segments_per_beam
+                    ts.SegmentConversion.MinNumberOfOpenLeafPairs = min_leaf_pairs
+                    ts.SegmentConversion.MinLeafEndSeparation = min_leaf_end_separation
+                    ts.SegmentConversion.MaxNumberOfSegments = str(maximum_segments)
+
 
         while Optimization_Iteration != maximum_iteration:
             # Check for small targets by evaluating the jaw size
-            if small_target:
-                if Optimization_Iteration == 0:
-                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 30
-                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 5
-                    status.next_step(
-                        text='Running test iteration for small target size')
-                    plan.PlanOptimizations[OptIndex].RunOptimization()
-                    plan.PlanOptimizations[OptIndex].RunOptimization()
-                    restart = check_min_jaws(plan_optimization, min_dim)
-                    Optimization_Iteration = 0
-                else:
-                    restart = check_min_jaws(plan_optimization, min_dim)
-                    if restart:
-                        # Reset the optimization count
-                        logging.info('Jaw sizes still appear to be smaller than their nomimal minimum')
-            else:
-                restart = check_min_jaws(plan_optimization, min_dim)
-                if restart:
-                    # Stop the calculation, and warn the user to run small target for this case.
-                    logging.warning("User is running calculation for small target without jaw-locking")
-                    status.finish('Restart required select small-target')
-                    sys.exit("Restart the optimization with small-target selected")
+
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 0
             else:
                 previous_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
 
-            status.next_step(
-                text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
-            logging.info(
-                'optimize_plan: Current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
-            #            status.next_step(text='Iterating....')
+
 
             # If the change_dose_grid list has a non-zero element change the dose grid
             if vary_grid:
@@ -807,6 +827,39 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     report_inputs.setdefault('time_dose_grid_final', []).append(datetime.datetime.now())
             # Start the clock
             report_inputs.setdefault('time_iteration_initial', []).append(datetime.datetime.now())
+            if small_target:
+                if Optimization_Iteration == 0:
+                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
+                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = \
+                        initial_intermediate_iteration
+
+                    status.next_step(
+                        text='Running test iteration for small target size')
+                    plan.PlanOptimizations[OptIndex].RunOptimization()
+                    plan.PlanOptimizations[OptIndex].RunOptimization()
+                    restart = check_min_jaws(plan_optimization, min_dim)
+                    if restart:
+                        Optimization_Iteration = 0
+                    else:
+                        Optimization_Iteration = 1
+                        status.next_step('Iteration 1 completed during small target test - advancing')
+                else:
+                    restart = check_min_jaws(plan_optimization, min_dim)
+                    if restart:
+                        # Reset the optimization count
+                        logging.info('Jaw sizes still appear to be smaller than their nomimal minimum')
+            else:
+                restart = check_min_jaws(plan_optimization, min_dim)
+                if restart:
+                    # Stop the calculation, and warn the user to run small target for this case.
+                    logging.warning("User is running calculation for small target without jaw-locking")
+                    status.finish('Restart required select small-target')
+                    sys.exit("Restart the optimization with small-target selected")
+            status.next_step(
+                text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
+            logging.info(
+                'optimize_plan: Current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
+            #            status.next_step(text='Iterating....')
             # Run the optimization
             plan.PlanOptimizations[OptIndex].RunOptimization()
             # Stop the clock

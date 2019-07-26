@@ -62,7 +62,6 @@ api = 'https://api.github.com/repos/wrssc/ray_scripts'
 
 # If this is the primary script
 def main(m_local, m_module, m_library, m_logs, m_api, m_token):
-
     # Link .NET assemblies
     clr.AddReference('System.Windows.Forms')
     clr.AddReference('System.Drawing')
@@ -78,7 +77,10 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     # Configure file logging
     logging.captureWarnings(True)
     if m_logs != '':
-        logging.basicConfig(filename=os.path.normpath('{}/{}.txt'.format(m_logs, pat_id)),
+        m_logs_dir = os.path.join(m_logs, pat_id)
+        if not os.path.isdir(m_logs_dir):
+            os.mkdir(m_logs_dir)
+        logging.basicConfig(filename=os.path.normpath('{}/{}.txt'.format(m_logs_dir, pat_id)),
                             level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S', filemode='a',
                             format='%(asctime)s\t%(levelname)s\t%(filename)s: %(message)s')
 
@@ -211,7 +213,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                             os.remove(os.path.join(m_local, x['path']))
                         if m_token != '':
                             y = requests.get(x['download_url'], headers={'Authorization':
-                                                                         'token {}'.format(m_token),
+                                                                             'token {}'.format(m_token),
                                                                          'Accept': 'application/vnd.github.v3+json'})
                         else:
                             y = requests.get(x['download_url'], headers={'Accept': 'application/vnd.github.v3+json'})
@@ -258,8 +260,8 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
                 script['script'] = f.rstrip('.py')
                 with open(os.path.join(root, f)) as fid:
                     c = fid.readlines()
-                    script['name'] = c.pop(0).strip(' " \n')   # Assume first line contains name
-                    c.pop(0)   # Skip second line
+                    script['name'] = c.pop(0).strip(' " \n')  # Assume first line contains name
+                    c.pop(0)  # Skip second line
                     s = []
                     for l in c:
                         if l.strip() == '':

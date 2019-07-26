@@ -5,6 +5,9 @@
     treatment delivery system to convert the plan to. This conversion is performed
     according to the DICOM filters.
 
+    TODO: DICOM filters are not supported at this time for RS-exports to iDMS,
+          filtering is disabled, for Tomo plans.
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
@@ -33,7 +36,6 @@ import DicomExport
 
 
 def main():
-
     # Get current patient, case, exam, plan, and beamset
     try:
         patient = connect.get_current('Patient')
@@ -117,6 +119,8 @@ def main():
             else:
                 logging.warning('The user chose to export the structure set without approval')
                 ignore = True
+    for b in DicomExport.machines(beamset):
+        logging.debug('list of machines is {}'.format(b))
 
     # Prompt user for DICOM export details
     status.next_step(text='In the dialog window that appears, check each DICOM destination that you would like to ' +
@@ -124,12 +128,15 @@ def main():
                           'system to convert to.')
 
     # Define filter descriptions
-    filters = ['Convert machine name',
-               'Convert machine energy (FFF)',
-               'Set couch to (0, 100, 0)',
-               'Round jaw positions to 0.1 mm',
-               'Create reference point',
-               'Set block tray and slot ID (electrons only)']
+    if 'Tomo' in beamset.DeliveryTechnique:
+        filters = []
+    else:
+        filters = ['Convert machine name',
+                   'Convert machine energy (FFF)',
+                   'Set couch to (0, 100, 0)',
+                   'Round jaw positions to 0.1 mm',
+                   'Create reference point',
+                   'Set block tray and slot ID (electrons only)']
 
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'a': 'Select which data elements to export:',
@@ -141,7 +148,6 @@ def main():
     initial = {'a': ['CT', 'Structures'], 'd': 'No'}
     if ignore:
         initial['d'] = 'Yes'
-
     if beamset is not None and len(DicomExport.machines(beamset)) > 0:
         options['a'].append('Plan')
         initial['a'].append('Plan')
@@ -178,14 +184,24 @@ def main():
 
     if beamset is not None:
         f = []
-        if filters[0] in response['e']:
-            f.append('machine')
 
-        if filters[1] in response['e']:
-            f.append('energy')
+        # Disable filtering for Tomo and RayGateway
+        if 'Tomo' in beamset.DeliveryTechnique:
+            t = None
+            f = None
+            filters = ['x'] * 6
+            response['e'] = [False] * 6
+            response['c'] = None
 
-        if filters[2] in response['e']:
-            t = [0, 1000, 0]
+        else:
+            if filters[0] in response['e']:
+                f.append('machine')
+
+            if filters[1] in response['e']:
+                f.append('energy')
+
+            if filters[2] in response['e']:
+                t = [0, 1000, 0]
 
     else:
         f = None
