@@ -1,0 +1,12 @@
+<application>
+  <component name="VimSettings">
+    <state version="5" enabled="true" />
+    <shortcut-conflicts />
+    <editor />
+    <notifications>
+      <idea-join enabled="false" />
+      <idea-put enabled="false" />
+      <template-selectmode enabled="false" />
+    </notifications>
+  </component>
+</application>
