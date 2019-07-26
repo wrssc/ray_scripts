@@ -764,8 +764,8 @@
         </goals>
     </order>
     <order>
-        <name>Whole Brain w/ Hippocampal Sparing</name>
-        <prefix>Brai_</prefix>
+        <name>Whole Brain w/ HA - 30 Gy[RTOG0933/CC001]</name>
+        <prefix>WBHA_</prefix>
         <prescription>
             <roi>
                 <name>PTV_p</name>
@@ -781,8 +781,22 @@
             <roi>
                 <name>PTV_p</name>
                 <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">40</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -790,6 +804,13 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="Gy">37.5</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy">22.5</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -797,17 +818,56 @@
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
                 <dose units="Gy">25</dose>
-                <priority>2</priority>
+                <priority>4</priority>
             </roi>
             <roi>
-                <name>Hippocampus</name>
+                <name>Hippocampus_L</name>
+                <type dir="le">DX</type>
+                <volume units="%">100</volume>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
                 <type dir="le">DX</type>
                 <volume units="%">100</volume>
                 <dose units="Gy">9</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Hippocampus</name>
+                <name>Hippocampus_L</name>
+                <type>Max</type>
+                <dose units="Gy">17</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type>Max</type>
+                <dose units="Gy">16</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type dir="le">DX</type>
+                <volume units="%">100</volume>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type dir="le">DX</type>
+                <volume units="%">100</volume>
+                <dose units="Gy">9</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type>Max</type>
+                <dose units="Gy">17</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
                 <type>Max</type>
                 <dose units="Gy">16</dose>
                 <priority>3</priority>
@@ -816,18 +876,176 @@
                 <name>OpticChiasm</name>
                 <type>Max</type>
                 <dose units="Gy">37.5</dose>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>OpticChiasm</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>OpticNrv_L</name>
                 <type>Max</type>
                 <dose units="Gy">37.5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>OpticNrv_R</name>
                 <type>Max</type>
                 <dose units="Gy">37.5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>Whole Brain w/ HA - 25 Gy[CC003]</name>
+        <prefix>WBHA_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">25</dose>
+            </roi>
+            <fractions>10</fractions>
+            <imaging>Daily CBCT</imaging>
+            <technique modality="Photons" technique="Conformal" code="VMAT" machine="TrueBeam">VMAT</technique>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">33.3</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">31.25</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy">21</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type dir="le">DX</type>
+                <volume units="%">100</volume>
+                <dose units="Gy">8.5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type dir="le">DX</type>
+                <volume units="%">100</volume>
+                <dose units="Gy">7.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type>Max</type>
+                <dose units="Gy">13.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type dir="le">DX</type>
+                <volume units="%">100</volume>
+                <dose units="Gy">8.5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type dir="le">DX</type>
+                <volume units="%">100</volume>
+                <dose units="Gy">7.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type>Max</type>
+                <dose units="Gy">13.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticChiasm</name>
+                <type>Max</type>
+                <dose units="Gy">36</dose>
+                <priority>1</priority>
+            </roi>
+			<roi>
+                <name>OpticChiasm</name>
+                <type>Max</type>
+                <dose units="Gy">25</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L</name>
+                <type>Max</type>
+                <dose units="Gy">36</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L</name>
+                <type>Max</type>
+                <dose units="Gy">25</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R</name>
+                <type>Max</type>
+                <dose units="Gy">36</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R</name>
+                <type>Max</type>
+                <dose units="Gy">25</dose>
                 <priority>3</priority>
             </roi>
         </goals>

@@ -106,7 +106,7 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
     dose grid change.
 
     :param  n_iterations - number of total iterations to be run, from 1 to n_iterations
-            variable_dose_grid - a four element list with an iteration number
+    :param  variable_dose_grid - a four element list with an iteration number
               at each iteration number a grid change should occur
 
     :returns change_grid  (list type)

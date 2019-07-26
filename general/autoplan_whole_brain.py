@@ -26,6 +26,8 @@
           eliminated median dose prescription.  added 8.0 compliant language on the s-frame
     1.0.3 Added a secondary plan feature to correct the RS7 GUI bug that does not update the
             gui if the first plan is created with a script.
+    1.0.4 Changed the export structure settings to reflect the new required method in RS 8.0a
+            and up.
   
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -61,6 +63,19 @@ import logging
 import UserInterface
 import random
 import sys
+
+
+def check_external(roi_list):
+    if any(roi.OfRoi.Type == 'External' for roi in roi_list):
+        logging.debug('External contour designated')
+        return True
+    else:
+        logging.debug('No external contour designated')
+        connect.await_user_input(
+            'No External contour type designated. Give a contour an External type and continue script.')
+        if any(roi.OfRoi.Type == 'External' for roi in roi_list):
+            logging.debug('No external contour designated after prompt recommend exit')
+            return False
 
 
 def check_structure_exists(case, structure_name, roi_list, option):
@@ -131,6 +146,16 @@ def main():
         'BTV_Flash_20',
         'BTV',
         'Brain']
+    export_exclude_structs = [
+        'Globe_L',
+        'Globe_R',
+        'Avoid',
+        'Avoid_Face',
+        'Lens_R_PRV05',
+        'Lens_L_PRV05',
+        'BTV_Brain',
+        'BTV_Flash_20',
+        'BTV']
     # Look for the sim point, if not create a point
     sim_point_found = any(poi.Name == 'SimFiducials' for poi in pois)
     if sim_point_found:
@@ -226,10 +251,7 @@ def main():
     total_dose = float(input_dialog.values['input3_dose'])
     plan_machine = input_dialog.values['input4_choose_machine']
 
-
-
-
-        ## patient.Save()
+    ## patient.Save()
 
     # MBS generate the globes. Manually draw lenses
     status.next_step(text="Regions at risk will be created including Globes, Lenses, and Brain.")
@@ -297,6 +319,13 @@ def main():
         case.PatientModel.RegionsOfInterest['External'].CreateExternalGeometry(
             Examination=examination,
             ThresholdLevel=-250)
+    else:
+        if not check_external(rois):
+            logging.warning('No External-Type Contour designated-Restart'
+                            ' script after choosing External-Type')
+            sys.exit
+
+
 
     if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_L_PRV05'):
         logging.info('Lens_L_PRV05 not found, generating from expansion')
@@ -308,7 +337,6 @@ def main():
         TissueName=None,
         RbeCellTypeName=None,
         RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Lens_L_PRV05'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['Lens_L_PRV05'].SetMarginExpression(
         SourceRoiName="Lens_L",
         MarginSettings={'Type': "Expand",
@@ -332,7 +360,6 @@ def main():
         TissueName=None,
         RbeCellTypeName=None,
         RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Lens_R_PRV05'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['Lens_R_PRV05'].SetMarginExpression(
         SourceRoiName="Lens_R",
         MarginSettings={'Type': "Expand",
@@ -355,7 +382,6 @@ def main():
                                 TissueName=None,
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Avoid'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['Avoid'].SetAlgebraExpression(
         ExpressionA={'Operation': "Union",
                      'SourceRoiNames': ["Lens_L_PRV05",
@@ -390,7 +416,7 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
-    #S - frame loading
+    # S - frame loading
     status.next_step(text="Roi contouring complete, loading patient immobilization.")
     # Load the S-frame into the current scan based on the structure template input above.
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
@@ -428,7 +454,6 @@ def main():
 
     case.PatientModel.CreateRoi(Name="BTV_Brain", Color="128, 0, 64", Type="Ptv", TissueName=None,
                                 RbeCellTypeName=None, RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['BTV_Brain'].ExcludeFromExport = True
 
     case.PatientModel.RegionsOfInterest['BTV_Brain'].SetMarginExpression(
         SourceRoiName="PTV_WB_xxxx",
@@ -455,7 +480,6 @@ def main():
                                 TissueName=None,
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['Avoid_Face'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['Avoid_Face'].SetMarginExpression(
         SourceRoiName="PTV_WB_xxxx",
         MarginSettings={'Type': "Expand",
@@ -481,7 +505,6 @@ def main():
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
 
-    case.PatientModel.RegionsOfInterest['BTV_Flash_20'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['BTV_Flash_20'].SetAlgebraExpression(
         ExpressionA={'Operation': "Union",
                      'SourceRoiNames': ["PTV_WB_xxxx"],
@@ -530,7 +553,6 @@ def main():
                                 TissueName=None,
                                 RbeCellTypeName=None,
                                 RoiMaterial=None)
-    case.PatientModel.RegionsOfInterest['BTV'].ExcludeFromExport = True
     case.PatientModel.RegionsOfInterest['BTV'].SetAlgebraExpression(
         ExpressionA={'Operation': "Union",
                      'SourceRoiNames': ["BTV_Brain",
@@ -578,6 +600,20 @@ def main():
                                      IsVisible=False)
         except:
             logging.debug("Structure: {} was not found".format(s))
+    # Exclude these from export
+    case.PatientModel.ToggleExcludeFromExport(
+        ExcludeFromExport=True,
+        RegionOfInterests=export_exclude_structs,
+        PointsOfInterests=[])
+    # for s in export_exclude_structs:
+    #    roi_name = str(s)
+    #    try:
+    #        case.PatientModel.ToggleExcludeFromExport(
+    #            ExcludeFromExport=True,
+    #            RegionOfInterests=[roi_name],
+    #            PointsofInterest=[])
+    #    except:
+    #        logging.warning('Unable to exclude {} from export'.format(roi_name))
 
     if make_plan:
         try:
@@ -586,7 +622,7 @@ def main():
         except:
             logging.debug("Could not click on the plan Design MenuItem")
 
-        plan_names = [plan_name,'backup_r1a0']
+        plan_names = [plan_name, 'backup_r1a0']
         # RS 8: plan_names = [plan_name]
         patient.Save()
         # RS 8: eliminate for loop
@@ -691,7 +727,7 @@ def main():
                 ForceRecompute=False)
 
         # RS 8 delete next three lines
-        plan_name_regex = '^'+plan_names[0]+'$'
+        plan_name_regex = '^' + plan_names[0] + '$'
         plan_information = case.QueryPlanInfo(Filter={'Name': plan_name_regex})
         case.LoadPlan(PlanInfo=plan_information[0])
         try:
@@ -702,9 +738,11 @@ def main():
 
     # Rename PTV per convention
     total_dose_string = str(int(total_dose))
-    case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
-
-
+    try:
+        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+    except Exception as e:
+        logging.debug('error reported {}'.format(e))
+        logging.debug('cannot do name change')
 
 
 if __name__ == '__main__':
