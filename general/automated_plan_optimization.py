@@ -618,10 +618,17 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     # SNS Properties
     num_beams = 0
-    maximum_segments_per_beam = 12  # type: int
+    maximum_segments_per_beam = 10  # type: int
     min_leaf_pairs = '2'  # type: str
     min_leaf_end_separation = '0.5'  # type: str
     allow_beam_split = False
+    min_segment_area = '2'
+    min_segment_mu = '2'
+
+    if 'PRD' in beamset.DicomPlanLabel:
+        min_segment_area = '4'
+        min_segment_mu = '6'
+
 
     # Find current Beamset Number and determine plan optimization
     OptIndex = 0
@@ -780,8 +787,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 if mu > 0:
                     logging.warning('This plan may not have typical SMLC optimization params enforced')
                 else:
-                    ts.SegmentConversion.MinSegmentArea = '2'
-                    ts.SegmentConversion.MinSegmentMUPerFraction = '2'
+                    ts.SegmentConversion.MinSegmentArea = min_segment_area
+                    ts.SegmentConversion.MinSegmentMUPerFraction = min_segment_mu
                     maximum_segments = num_beams * maximum_segments_per_beam
                     ts.SegmentConversion.MinNumberOfOpenLeafPairs = min_leaf_pairs
                     ts.SegmentConversion.MinLeafEndSeparation = min_leaf_end_separation
