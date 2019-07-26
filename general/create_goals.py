@@ -1,4 +1,4 @@
-""" Create Clinical Goals
+""" Create Clinical Goals and Objectives
 
     Add clinical goals and objectives in RayStation given user supplied inputs
     At this time, we are looking in the UW protocols directory for a
@@ -22,11 +22,12 @@
     :versions
     1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
     1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
+    2.0.0 Adding the clinical objectives for IMRT
 
 """
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '1.0.1'
+__version__ = '2.0.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -34,7 +35,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import sys
 import os
 import logging
-import datetime
+import Objectives
 import connect
 import UserInterface
 import Goals
@@ -95,7 +96,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     v = prot_vol[0]
     i = 0
     # Find first volume exceeding target volume or find the end of the list
-    while v <= vol and i <= len(prot_vol):
+    while v <= vol and i <= len(prot_vol)-1:
         i += 1
         v = prot_vol[i]
     # Exceptions for target volumes exceeding or smaller than the minimum volume
@@ -162,6 +163,7 @@ def conditional_overlap(structure_name, goal_volume, case, exam, comp_structure,
     :param exam:
     :param comp_structure:
     """
+    # TODO: This module needs to be written to evaluate overlap and put a goal volume based on residual
 
 
 def knowledge_based_goal(structure_name, goal_type, case, exam,
@@ -222,13 +224,16 @@ def main():
         steps=['Finding correct protocol',
                'Matching Structure List',
                'Getting target Doses',
-               'Adding Goals'],
+               'Adding Goals',
+               'Adding Standard Objectives'],
         docstring=__doc__,
         help=__help__)
 
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
-    path_protocols = os.path.join(os.path.dirname(__file__), protocol_folder, institution_folder)
+    path_protocols = os.path.join(os.path.dirname(__file__),
+                                  protocol_folder,
+                                  institution_folder)
 
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
@@ -252,15 +257,20 @@ def main():
     except Exception:
         raise IOError("No plan loaded. Load patient and plan.")
 
+    try:
+        beamset = connect.get_current("BeamSet")
+    except Exception:
+        raise IOError("No plan loaded. Load patient and plan.")
+
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
 
     status.next_step(text="Determining correct treatment protocol" +
                           "based on treatment planning order.", num=0)
 
-    # Eventually we may want to convert to accepting a call from a filename
-    # Alternatively, this could all be set up as a function call
     # TODO: Set up a means of bypassing the dialogs
+    #  Eventually we may want to convert to accepting a call from a filename
+    #  Alternatively, this could all be set up as a function call
     if filename:
         logging.info("Protocol selected: {}".format(
             filename))
@@ -275,10 +285,13 @@ def main():
             options={'i': list(tpo.protocols.keys())},
             required=['i'])
         # Launch the dialog
-        print input_dialog.show()
+        response = input_dialog.show()
         # Link root to selected protocol ElementTree
         logging.info("Protocol selected: {}".format(
             input_dialog.values['i']))
+        # Store the protocol name and optional order name
+        protocol_name = input_dialog.values['i']
+        order_name = None
         order_list = []
         protocol = tpo.protocols[input_dialog.values['i']]
         for o in protocol.findall('order/name'):
@@ -295,10 +308,12 @@ def main():
                 options={'i': order_list},
                 required=['i'])
             # Launch the dialog
-            print input_dialog.show()
+            response = input_dialog.show()
             # Link root to selected protocol ElementTree
             logging.info("Order selected: {}".format(
                 input_dialog.values['i']))
+            # Update the order name
+
             # I believe this loop can be eliminated with we can use a different function
             # to match protocol.find('order') with input_dialog.values['i']
             for o in protocol.findall('order'):
@@ -307,6 +322,8 @@ def main():
                     logging.debug('Matching protocol ElementTag found for {}'.format(
                         input_dialog.values['i']))
                     break
+            order_name = input_dialog.values['i']
+
         else:
             logging.debug('No orders in protocol')
             use_orders = False
@@ -426,22 +443,28 @@ def main():
 
         # Process inputs
         # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
-        protocol_match = {}
         nominal_dose = 0
+        translation_map = {}
+        # TODO Add a dict element that is just key and dose
+        #  seems like the next two loops could be combined, but
+        #  since dict cycling isn't ordered I don't know how to create
+        #  a blank element space
         for k, v in target_dialog.values.iteritems():
             if len(v) > 0:
                 i, p = k.split("_", 1)
+                if p not in translation_map:
+                    translation_map[p] = [None] * 2
                 if 'name' in i:
                     # Key name will be the protocol target name
-                    protocol_match[p] = v
+                    translation_map[p][0] = v
+
                 if 'dose' in i:
                     # Append _dose to the key name
                     pd = p + '_dose'
-                    protocol_match[pd] = (float(v) / 100.)
                     # Not sure if this loop is still needed
-                    if nominal_dose == 0:
-                        # Set a nominal dose to the first matched pair
-                        nominal_dose = protocol_match[pd]
+                    translation_map[p][1] = (float(v) / 100.)
+                    ## if nominal_dose == 0:
+                    ##     # Set a nominal dose to the first matched pair
 
         status.next_step(text="Adding goals.", num=3)
         # Iterate over goals in orders and protocols
@@ -453,12 +476,13 @@ def main():
                 p_d = g.find('dose').text
                 p_t = g.find('type').text
                 # Change the name for the roi goal if the user has matched it to a target
-                if p_n in protocol_match:
+                if p_n in translation_map:
                     # Change the roi name the goal uses to the matched value
-                    g.find('name').text = protocol_match[p_n]
+                    g.find('name').text = translation_map[p_n][0]
+
                     logging.debug('Reassigned protocol target name:{} to {}'.format(
                         p_n, g.find('name').text))
-                # :TODO: Exception catching in here for an unresolved reference
+                # TODO: Exception catching in here for an unresolved reference
                 # else:
                 #    logging.debug('Protocol ROI: {}'.format(p_n) +
                 #                  ' was not matched to a target supplied by the user. ' +
@@ -473,13 +497,12 @@ def main():
                     logging.debug('ROI: {} has a relative goal of type: {} with a relative dose level: {}%'.format(
                         p_n, p_t, p_d))
                     # Correct the relative dose to the user-specified dose levels for this structure
-                    if p_r in protocol_match:
-                        d_key = p_r + '_dose'
+                    if p_r in translation_map:
                         # Change the dose attribute to absolute
                         # TODO:: This may not be such a hot idea.
                         g.find('dose').attrib['units'] = "Gy"
-                        g.find('dose').attrib['roi'] = protocol_match[p_r]
-                        goal_dose = float(protocol_match[d_key]) * float(p_d) / 100
+                        g.find('dose').attrib['roi'] = translation_map[p_r][0]
+                        goal_dose = float(translation_map[p_r][1]) * float(p_d) / 100
                         g.find('dose').text = str(goal_dose)
                         logging.debug('Reassigned protocol dose attribute name:' +
                                       '{} to {}, for dose:{}% to {} Gy'.format(
@@ -540,6 +563,91 @@ def main():
                 #    logging.debug('Goal loaded which does not have dose attribute.')
                 # Regardless, add the goal now
                 Goals.add_goal(g, connect.get_current('Plan'))
+
+    status.next_step(text="Adding Objectives.", num=4)
+    objective_elements = Objectives.select_objective_protocol(order_name=order_name,
+                                                              protocol=protocol)
+    # Parse each type in a separate function
+    # Add matching elements
+    # Add objective function should know whether something is absolute or relative for dose and volume
+    # TODO: Go back to planning structs and generate a mapping to be used for OTVs, etc
+    #  but for now, we'll match to the closest suffix
+
+    gen_obj_targets = ['OTV1_','sOTVu1_','OTV1_EZ_',
+                   'OTV2_','sOTVu2_','OTV2_EZ_',
+                   'OTV3_','sOTVu3_','OTV3_EZ_',
+                   'OTV4_','sOTVu4_','OTV4_EZ_',
+                   'OTV5_','sOTVu5_','OTV5_EZ_',
+                   'sOTVu1','sOTVu2','sOTVu3',
+                   'sOTVu4','sOTVu5',
+                   'ring1_','ring2_','ring3_','ring4_','ring5_']
+    obj_targets = []
+    for r in rois:
+        for g in gen_obj_targets:
+            if g in r:
+                if g not in translation_map:
+                    translation_map[g] = [None] * 2
+                translation_map[g][0] = r
+                obj_targets.append(r)
+                logging.debug('Added a target match {}'.format(r))
+    # TODO: Decide how we want the saved xml file to look. Do we want it a
+    #  simple mapping+protocol? If so, the xml element file should really be unaltered
+    #  we'd map an xml-input to objectives using the mapping, save the mapping and
+    #  output the xml-result using the inverse mapping
+
+    for objsets in objective_elements:
+        objectives = objsets.findall('./objectives/roi')
+        for o in objectives:
+            o_n = o.find('name').text
+            o_t = o.find('type').text
+            o_d = o.find('dose').text
+            if o_n in translation_map:
+                s_roi = translation_map[o_n][0]
+            else:
+                s_roi = None
+
+            if "%" in o.find('dose').attrib['units']:
+                # Define the unmatched and unmodified protocol name and dose
+                o_r = o.find('dose').attrib['roi']
+                # See if the goal is on a matched target and change the % dose of the attributed ROI
+                # to match the user input target and dose level for that named structure
+                # Correct the relative dose to the user-specified dose levels for this structure
+                if o_r in translation_map:
+                    s_dose = float(translation_map[o_r][1])# * float(o_d) / 100
+                    # if o_t == 'DFO':
+                    #     logging.debug('s_dose {}, tr {}, o_d {}, low {}'.format(
+                    #         s_dose,translation_map[o_r][1],o_d,o.find('dose').attrib['low']
+                    #     ))
+                    #    s_dose = s_dose * float(o_d) / 100
+                    #    o.find('dose').attrib['units'] = "Gy"
+                    #    o.find('dose').attrib['low'] = float(translation_map[o_r][1]) *\
+                    #                                   float(o.find('dose').attrib['low']) / 100
+                    Objectives.add_objective(o,
+                                             exam=exam,
+                                             case=case,
+                                             plan=plan,
+                                             beamset=beamset,
+                                             s_roi=s_roi,
+                                             s_dose=s_dose,
+                                             s_weight=None,
+                                             restrict_beamset=None)
+                else:
+                    logging.debug('No match found for objective on ROI: {}'.format(o_r))
+                    s_dose = 0
+                    pass
+            else:
+                s_dose = None
+                Objectives.add_objective(o,
+                                         exam=exam,
+                                         case=case,
+                                         plan=plan,
+                                         beamset=beamset,
+                                         s_roi=s_roi,
+                                         s_dose=s_dose,
+                                         s_weight=None,
+                                         restrict_beamset=None)
+
+
 
 
 if __name__ == '__main__':

@@ -11,6 +11,13 @@
     filters, respectively. For information on their required formats, see the
     provided wiki link in __help__.
 
+    Note that the addition of TomoTherapy Planning requires a slightly different call
+    to ScriptableDicomExport() and the avoidance of attempts to create an AE Title-based
+    association with RayGateway. RayGateway is not a standard DICOM destination. Rather
+    it is used to give RayStation-generated DICOM plans the secret sauce they need to
+    be interpretable by IDMS. As a result, in version 1.0.1 I am only adding RS-based export
+    to the script. I do not have a filtering strategy as this time. - abayliss
+
     Below is an example of how to call the send() function. There are multiple
     additional input arguments that can be added to further filter the DICOM files,
     such as anonymization, overriding table positions, rounding jaws, or setting
@@ -27,6 +34,9 @@
                      beamset=get_current('BeamSet'),
                      filters=['machine', 'energy'],
                      ignore_warnings=True)
+    Version History:
+    1.0.0 Original Release
+    1.0.1 Update with TomoTherapy support for IDMS and RayGateway (without DICOM filtering)
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -97,7 +107,7 @@ def send(case,
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
 
-    # Start logigng and timer
+    # Start logging and timer
     logging.debug('Executing DICOM send() function, version {}'.format(__version__))
     tic = time.time()
     status = True
@@ -150,7 +160,12 @@ def send(case,
 
     for d in destination:
         info = destination_info(d)
-        if len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
+
+        if 'RAYGATEWAY' in info['aet']:
+            logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
+            raygateway_args = info['aet']
+
+        elif len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
             ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.1.1'],
                                 ae_title=local_AET,
                                 port=local_port)
@@ -220,11 +235,52 @@ def send(case,
 
     # Export data to temp folder
     if isinstance(bar, UserInterface.ProgressBar):
-        bar.update(text='Exporting DICOM files to temporary folder')
+        if raygateway_args is not None and len(destination) == 1:
+            bar.update(text='Exporting DICOM files to RayGateway')
+
+        else:
+            bar.update(text='Exporting DICOM files to temporary folder')
 
     try:
-        logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
-        case.ScriptableDicomExport(**args)
+        if raygateway_args is not None and len(destination) == 1:
+            if 'anonymize' in info and info['anonymize']:
+                random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
+                random_id = ''.join(random.choice(string.digits) for _ in range(8))
+                logging.debug('Export destination {} is anonymous, patient will be stored under name {} and ID {}'.
+                              format(d, random_name, random_id))
+
+            # If we are only sending to the Gateway, do the export and exit.
+            logging.debug('Executing ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
+            rg_args = args
+            rg_args['RayGatewayTitle'] = raygateway_args
+            del rg_args['ExportFolderPath']
+
+            try:
+                case.ScriptableDicomExport(**args)
+                logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
+
+                if isinstance(bar, UserInterface.ProgressBar):
+                    bar.close()
+
+                UserInterface.MessageBox('DICOM export was successful', 'Export Success')
+
+            except Exception as error:
+                status = False
+                if hasattr(error, 'message'):
+                    logging.error('DicomExport failed {}'.format(error.message))
+                    UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
+
+                else:
+                    logging.error('DicomExport failed {}'.format(error))
+                    UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
+
+                raise
+
+            return status
+
+        else:
+            logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
+            case.ScriptableDicomExport(**args)
 
     except Exception as error:
         if ignore_errors:
@@ -496,7 +552,31 @@ def send(case,
                           format(d, random_name, random_id))
 
         # If an AE destination, establish pynetdicom3 association
-        if len({'host', 'aet', 'port'}.difference(info)) == 0:
+        if 'RAYGATEWAY' in info['aet']:
+            logging.debug('Multiple destinations, ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
+            rg_args = args
+            rg_args['RayGatewayTitle'] = raygateway_args
+            del rg_args['ExportFolderPath']
+
+            try:
+                case.ScriptableDicomExport(**args)
+                logging.info('Export to {} success'.format(info['aet']))
+
+            except Exception as error:
+                status = False
+                if hasattr(error, 'message'):
+                    logging.error('DicomExport failed {}'.format(error.message))
+                    UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
+
+                else:
+                    logging.error('DicomExport failed {}'.format(error))
+                    UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
+
+                raise
+
+            assoc = None
+
+        elif len({'host', 'aet', 'port'}.difference(info)) == 0:
             ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.5.1.4.1.1.481.5',
                                                '1.2.840.10008.5.1.4.1.1.481.3',
                                                '1.2.840.10008.5.1.4.1.1.481.2',
@@ -560,8 +640,12 @@ def send(case,
                     ds.PatientID = ''.join(random.choice(string.digits) for _ in range(8))
                     ds.PatientBirthdate = ''
 
+                # Do not send to SCP for RayGateway
+                if 'RAYGATEWAY' in info['aet']:
+                    logging.debug('{} is a RayGateway, skipping SCP'.format(info['host']))
+
                 # Send to SCP via pynetdicom3
-                if assoc is not None:
+                elif assoc is not None:
                     if assoc.is_established:
                         response = assoc.send_c_store(dataset=ds,
                                                       msg_id=1,

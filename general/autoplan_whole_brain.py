@@ -82,8 +82,8 @@ def check_structure_exists(case, structure_name, roi_list, option):
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if option == 'Delete':
             case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-            logging.warning('check_structure_exists: ' +
-                            structure_name + ' found - deleting and creating')
+            logging.warning("check_structure_exists: " +
+                            structure_name + 'found - deleting and creating')
         elif option == 'Check':
             connect.await_user_input(
                 'Contour {} Exists - Verify its accuracy and continue script'.format(structure_name))
