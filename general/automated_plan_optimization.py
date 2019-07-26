@@ -585,13 +585,13 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     if fluence_only:
         status_steps.append('Optimize Fluence Only')
     else:
-        if small_target:
-            status_steps.append('Test iteration for jaw offset.')
         for i in range(maximum_iteration):
             # Update message for changing the dose grids.
             if vary_grid:
                 if change_dose_grid[i] != 0:
                     status_steps.append('Change dose grid to: {} cm'.format(change_dose_grid[i]))
+            if small_target and i == 0:
+                status_steps.append('Test iteration for jaw offset.')
             ith_step = 'Complete Iteration:' + str(i + 1)
             status_steps.append(ith_step)
         if segment_weight:
@@ -797,33 +797,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
         while Optimization_Iteration != maximum_iteration:
             # Check for small targets by evaluating the jaw size
-            if small_target:
-                if Optimization_Iteration == 0:
-                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
-                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = \
-                        initial_intermediate_iteration
 
-                    status.next_step(
-                        text='Running test iteration for small target size')
-                    plan.PlanOptimizations[OptIndex].RunOptimization()
-                    plan.PlanOptimizations[OptIndex].RunOptimization()
-                    restart = check_min_jaws(plan_optimization, min_dim)
-                    if restart:
-                        Optimization_Iteration = 0
-                    else:
-                        Optimization_Iteration = 1
-                else:
-                    restart = check_min_jaws(plan_optimization, min_dim)
-                    if restart:
-                        # Reset the optimization count
-                        logging.info('Jaw sizes still appear to be smaller than their nomimal minimum')
-            else:
-                restart = check_min_jaws(plan_optimization, min_dim)
-                if restart:
-                    # Stop the calculation, and warn the user to run small target for this case.
-                    logging.warning("User is running calculation for small target without jaw-locking")
-                    status.finish('Restart required select small-target')
-                    sys.exit("Restart the optimization with small-target selected")
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 0
@@ -857,6 +831,33 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     report_inputs.setdefault('time_dose_grid_final', []).append(datetime.datetime.now())
             # Start the clock
             report_inputs.setdefault('time_iteration_initial', []).append(datetime.datetime.now())
+            if small_target:
+                if Optimization_Iteration == 0:
+                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
+                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = \
+                        initial_intermediate_iteration
+
+                    status.next_step(
+                        text='Running test iteration for small target size')
+                    plan.PlanOptimizations[OptIndex].RunOptimization()
+                    plan.PlanOptimizations[OptIndex].RunOptimization()
+                    restart = check_min_jaws(plan_optimization, min_dim)
+                    if restart:
+                        Optimization_Iteration = 0
+                    else:
+                        Optimization_Iteration = 1
+                else:
+                    restart = check_min_jaws(plan_optimization, min_dim)
+                    if restart:
+                        # Reset the optimization count
+                        logging.info('Jaw sizes still appear to be smaller than their nomimal minimum')
+            else:
+                restart = check_min_jaws(plan_optimization, min_dim)
+                if restart:
+                    # Stop the calculation, and warn the user to run small target for this case.
+                    logging.warning("User is running calculation for small target without jaw-locking")
+                    status.finish('Restart required select small-target')
+                    sys.exit("Restart the optimization with small-target selected")
             # Run the optimization
             plan.PlanOptimizations[OptIndex].RunOptimization()
             # Stop the clock
