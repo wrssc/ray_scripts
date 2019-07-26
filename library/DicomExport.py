@@ -162,10 +162,13 @@ def send(case,
         info = destination_info(d)
 
         if 'RAYGATEWAY' in info['aet']:
+            # TODO delete the following to enable export
+            sys.exit('Tomo Export is not supported at this time')
             logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
             raygateway_args = info['aet']
 
         elif len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
+            raygateway_args = None
             ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.1.1'],
                                 ae_title=local_AET,
                                 port=local_port)
@@ -193,6 +196,8 @@ def send(case,
 
             else:
                 status = False
+        else:
+            raygateway_args = None
 
     # Initialize ScriptableDicomExport() arguments
     args = {'IgnorePreConditionWarnings': ignore_warnings, 'DicomFilter': '', 'ExportFolderPath': original}
