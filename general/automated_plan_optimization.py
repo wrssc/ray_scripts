@@ -804,11 +804,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             else:
                 previous_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
 
-            status.next_step(
-                text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
-            logging.info(
-                'optimize_plan: Current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
-            #            status.next_step(text='Iterating....')
+
 
             # If the change_dose_grid list has a non-zero element change the dose grid
             if vary_grid:
@@ -846,6 +842,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         Optimization_Iteration = 0
                     else:
                         Optimization_Iteration = 1
+                        status.next_step('Iteration 1 completed during small target test - advancing')
                 else:
                     restart = check_min_jaws(plan_optimization, min_dim)
                     if restart:
@@ -858,6 +855,11 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     logging.warning("User is running calculation for small target without jaw-locking")
                     status.finish('Restart required select small-target')
                     sys.exit("Restart the optimization with small-target selected")
+            status.next_step(
+                text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
+            logging.info(
+                'optimize_plan: Current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
+            #            status.next_step(text='Iterating....')
             # Run the optimization
             plan.PlanOptimizations[OptIndex].RunOptimization()
             # Stop the clock

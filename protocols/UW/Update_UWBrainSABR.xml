@@ -708,21 +708,14 @@
             <roi>
                 <name>Normal_10</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">40</dose>
+                <dose units="%" roi="PTV_p">30</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Brain-PTV</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">105</dose>
-                <weight>1</weight>
-            </roi>
-            <roi>
-                <name>Brain-PTV</name>
-                <type dir="lt">DX</type>
-                <dose units="Gy">22</dose>
-                <volume units="cc">50</volume>
-                <weight>1</weight>
+                <dose units="%" roi="PTV_p">100</dose>
+                <weight>0.01</weight>
             </roi>
             <roi>
                 <name>Brain-PTV</name>
@@ -733,21 +726,14 @@
             <roi>
                 <name>Brainstem</name>
                 <type>Max</type>
-                <dose units="Gy">30</dose>
-                <weight>1</weight>
-            </roi>
-            <roi>
-                <name>Brainstem</name>
-                <type dir="lt">DX</type>
-                <dose units="Gy">23</dose>
-                <volume units="cc">0.5</volume>
+                <dose units="Gy">28</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Brainstem</name>
                 <type>Max</type>
                 <dose units="Gy">23</dose>
-                <weight>1</weight>
+                <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Brainstem_PRV03</name>
