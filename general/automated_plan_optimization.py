@@ -668,7 +668,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
-    plan_optimization_parameters.Algorithm.OptimalityTolerance = 1e-12
+    plan_optimization_parameters.Algorithm.OptimalityTolerance = 1e-8
     plan_optimization_parameters.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
     plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = initial_intermediate_iteration
 
