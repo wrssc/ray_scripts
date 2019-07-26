@@ -315,7 +315,7 @@ def add_objective(obj, exam, case, plan, beamset,
         if obj.find('volume').attrib["units"] == "cc":
             try:
                 t = case.PatientModel.StructureSets[exam.Name]. \
-                    RoiGeometries[s_roi]
+                    RoiGeometries[roi]
                 if t.HasContours():
                     roi_vol = t.GetRoiVolume()
                     volume = int(float(obj.find('volume').text) / roi_vol)
@@ -324,9 +324,9 @@ def add_objective(obj, exam, case, plan, beamset,
                     obj.find('volume').text = str(volume)
                     obj.find('volume').attrib["units"] = "%"
                 else:
-                    logging.warning('{} has no contours, index undefined'.format(s_roi))
+                    logging.warning('{} has no contours, index undefined'.format(roi))
             except:
-                logging.warning('Error getting volume for {}, volume => 0.0'.format(s_roi))
+                logging.warning('Error getting volume for {}, volume => 0.0'.format(roi))
         elif obj.find('volume').attrib["units"] == "%":
             volume = int(obj.find('volume').text)
     # Modify the dose tag if relative
