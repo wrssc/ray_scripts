@@ -66,16 +66,20 @@ def main():
 
     # find the correct verification plan
     index_not_found = True
+    bs_name = str(beamset.DicomPlanLabel)
+    qa_name = str(plan.VerificationPlans[0].ForTreatmentPlan.Name)
     logging.debug('Finding verification plan for {}'.format(beamset.DicomPlanLabel))
     logging.debug('Verification plan[{}] is {}, not a match for {}.'.format(
-        0, type(plan.VerificationPlans[0].ForTreatmentPlan.Name), type(beamset.DicomPlanLabel)
+        0, qa_name, bs_name
     ))
     # Find the correct verification plan for this beamset
     try:
         indx = 0
-        while plan.VerificationPlans[indx].ForTreatmentPlan.Name not in beamset.DicomPlanLabel:
+        bs_name = str(beamset.DicomPlanLabel)
+        qa_name = str(plan.VerificationPlans[indx].ForTreatmentPlan.Name)
+        while qa_name not in bs_name:
             logging.debug('Verification plan[{}] is {}, not a match for {}.'.format(
-                indx, plan.VerificationPlans[indx].ForTreatmentPlan.Name, beamset.DicomPlanLabel
+                indx, qa_name, bs_name
             ))
             indx += 1
 
