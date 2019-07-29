@@ -167,6 +167,7 @@ def send(case,
         if 'RAYGATEWAY' in info['destination']:
             # TODO delete the following to enable export
             sys.exit('Tomo Export is not supported at this time')
+
             logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
             raygateway_args = info['aet']
 
