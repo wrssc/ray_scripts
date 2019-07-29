@@ -64,22 +64,14 @@ def main():
         plan = None
         beamset = None
 
-    # find the correct verification plan
-    index_not_found = True
-    bs_name = str(beamset.DicomPlanLabel)
-    qa_name = str(plan.VerificationPlans[0].ForTreatmentPlan.Name)
-    logging.debug('Finding verification plan for {}'.format(beamset.DicomPlanLabel))
-
     # Find the correct verification plan for this beamset
     try:
         indx = 0
         bs_name = str(beamset.DicomPlanLabel)
         qa_name = str(plan.VerificationPlans[indx].ForTreatmentPlan.Name)
         while qa_name != bs_name:
-            logging.debug('Verification plan[{}] is {}, not a match for {}.'.format(
-                indx, qa_name, bs_name
-            ))
             indx += 1
+
         index_not_found = False
 
     except IndexError:
@@ -89,11 +81,11 @@ def main():
     if index_not_found:
         logging.warning("verification plan for {} could not be found.".format(beamset.DicomPlanLabel))
         sys.exit("Could not find beamset optimization")
+
     else:
-        # Found our index.  We will use a shorthand for the remainder of the code
         qa_plan = plan.VerificationPlans[indx]
         logging.info('verification plan found, exporting {} for beamset {}'.format(
-                plan.VerificationPlan[indx].DicomPlanLabel, beamset.DicomPlanLabel))
+                plan.VerificationPlans[indx].DicomPlanLabel, beamset.DicomPlanLabel))
 
     # extract dicom file and gantry period from directory files
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
