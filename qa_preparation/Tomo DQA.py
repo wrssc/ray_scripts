@@ -96,6 +96,10 @@ def main():
     options = {'b': DicomExport.destinations()}
     initial = {}
 
+    info = DicomExport.destination_info('RayGateway')
+    for k,v in info.iteritems():
+        logging.debug('k is {} and v is {}'.format(k,v))
+
     dialog = UserInterface.InputDialog(inputs=inputs,
                                        datatype=types,
                                        options=options,
