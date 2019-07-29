@@ -38,28 +38,99 @@ __credits__ = []
 import connect
 import logging
 import UserInterface
+import DicomExport
 
 import os
-import pydicom
-from pydicom.tag import Tag
+import sys
 
 
 def main():
+    # Get current patient, case, exam, plan, and beamset
+    try:
+        patient = connect.get_current('Patient')
+        case = connect.get_current('Case')
+        exam = connect.get_current('Examination')
+
+    except Exception:
+        UserInterface.WarningBox('This script requires a patient to be loaded')
+        sys.exit('This script requires a patient to be loaded')
+
+    try:
+        plan = connect.get_current('Plan')
+        beamset = connect.get_current('BeamSet')
+
+    except Exception:
+        logging.debug('A plan and/or beamset is not loaded; plan export options will be disabled')
+        plan = None
+        beamset = None
+
+    # find the correct verification plan
+    index_not_found = True
+    # Find the correct verification plan for this beamset
+    try:
+        indx = 0
+        while plan.VerificationPlans[indx].ForTreatmentPlan.Name != beamset.DicomPlanLabel:
+            indx += 1
+
+    except Exception:
+        index_not_found = True
+
+    if index_not_found:
+        logging.warning("verification plan for {} could not be found.".format(beamset.DicomPlanLabel))
+        sys.exit("Could not find beamset optimization")
+    else:
+        # Found our index.  We will use a shorthand for the remainder of the code
+        qa_plan = plan.VerificationPlans[indx]
+        logging.info('verification plan found, exporting {} for beamset {}'.format(
+                plan.VerificationPlan[indx].DicomPlanLabel, beamset.DicomPlanLabel))
+
     # extract dicom file and gantry period from directory files
-    input_dialog = UserInterface.InputDialog(
-        inputs={'1': 'Enter Gantry Period'},
-        title='Gantry Period',
-        datatype={},
-        initial={},
-        options={},
-        required=['1'])
-    # Launch the dialog
-    response = input_dialog.show()
+    # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
+    inputs = {'a': 'Enter the gantry period',
+              'b': 'Check one or more DICOM destinations to export to:'}
+    required = ['a', 'b']
+    types = {'b': 'check'}
+    options = {'b': DicomExport.destinations()}
+    initial = {}
+
+    dialog = UserInterface.InputDialog(inputs=inputs,
+                                       datatype=types,
+                                       options=options,
+                                       initial=initial,
+                                       required=required,
+                                       title='Export Options')
+    response = dialog.show()
+    if response == {}:
+        sys.exit('DICOM export was cancelled')
     # Link root to selected protocol ElementTree
     logging.info("User input the following Gantry Period: {}".format(
-        input_dialog.values['1']))
-    # Store the protocol name and optional order name
-    gantry_period = input_dialog.values['1']
+        response['a']))
+
+    success = DicomExport.send(case=case,
+                               destination=response['b'],
+                               qa_plan=qa_plan,
+                               exam=False,
+                               beamset=False,
+                               ct=False,
+                               structures=False,
+                               plan=False,
+                               plan_dose=False,
+                               beam_dose=False,
+                               ignore_warnings=False,
+                               ignore_errors=False,
+                               gantry_period=response['a'],
+                               filters=['tomo_dqa'],
+                               bar=False)
+
+    # Finish up
+    if success:
+        logging.info('Export script completed successfully in {:.3f} seconds'.format(time.time() - tic))
+        status.finish(text='DICOM export was successful. You can now close this dialog.')
+
+    else:
+        logging.warning('Export script completed with errors in {:.3f} seconds'.format(time.time() - tic))
+        status.finish(text='DICOM export finished but with errors. You can now close this dialog.')
+
 
     filepath = 'W:\\rsconvert\\'
     hlist = os.listdir(filepath)
@@ -68,7 +139,6 @@ def main():
     GPlist = filter(lambda x: '.txt' in x, hlist)
     # GPval = GPlist[0][3:8]+' '
 
-    GPval = gantry_period + ' '
 
     # format and set tag to change
     t1 = Tag('300d1040')

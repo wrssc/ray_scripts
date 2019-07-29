@@ -37,6 +37,7 @@
     Version History:
     1.0.0 Original Release
     1.0.1 Update with TomoTherapy support for IDMS and RayGateway (without DICOM filtering)
+    1.0.2 Added support for sending a TomoTherapy-based QA Plan with a filter for gantry period
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -92,6 +93,7 @@ def send(case,
          plan=True,
          plan_dose=True,
          beam_dose=False,
+         qa_plan=None,
          ignore_warnings=False,
          ignore_errors=False,
          rename=None,
@@ -99,6 +101,7 @@ def send(case,
          machine=None,
          table=None,
          pa_threshold=None,
+         gantry_period=None,
          prescription=False,
          round_jaws=False,
          block_accessory=False,
@@ -285,7 +288,18 @@ def send(case,
 
         else:
             logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
-            case.ScriptableDicomExport(**args)
+
+            if qa_plan is not None and filters is not None and 'tomo_dqa' in filters:
+                args = {'IgnorePreConditionWarnings': ignore_warnings,
+                        'ExportFolderPath': original,
+                        'QaPlanIdentity': 'Phantom',
+                        'ExportBeamSet': True,
+                        'ExportBeamSetDose': True,
+                        'ExportBeamSetBeamDose': True}
+                qa_plan.ScriptableQADicomExport(**args)
+
+            else:
+                case.ScriptableDicomExport(**args)
 
     except Exception as error:
         if ignore_errors:
@@ -434,6 +448,17 @@ def send(case,
                                 if m != '' and ('FluenceModeID' not in b or b.FluenceModeID != m):
                                     b.FluenceModeID = m
                                     expected.add(b[0x30020052], beam=b, cp=c)
+
+                    # If adding gantry period to TomoTherapy QA Plans
+                    if gantry_period is not None:
+                        # format and set tag to change
+                        t1 = pydicom.tag('300d1040')
+
+                        # Add some white-space to the end of gantry period
+                        str_gantry_period = gantry_period + ' '
+
+                        # add attribute to beam sequence
+                        b.add_new(t1, 'UN', str_gantry_period)
 
                 # If adding reference points
                 if prescription and beamset.Prescription.PrimaryDosePrescription is not None and \
