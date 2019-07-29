@@ -291,6 +291,7 @@ def send(case,
             logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
 
             if qa_plan is not None and filters is not None and 'tomo_dqa' in filters:
+                # It is not clear what is needed to identify the phantom as the Plan identifier
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
                         'ExportFolderPath': original,
                         'ExportExamination': False,
