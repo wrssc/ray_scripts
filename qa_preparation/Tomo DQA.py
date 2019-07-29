@@ -69,7 +69,7 @@ def main():
     # Find the correct verification plan for this beamset
     try:
         indx = 0
-        while plan.VerificationPlans[indx].ForTreatmentPlan.Name != beamset.DicomPlanLabel:
+        while plan.VerificationPlans[indx].ForTreatmentPlan.Name not in beamset.DicomPlanLabel:
             indx += 1
 
     except Exception:
