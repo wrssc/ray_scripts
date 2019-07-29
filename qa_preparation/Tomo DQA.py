@@ -83,6 +83,7 @@ def main():
         index_not_found = False
 
     except IndexError:
+        logging.debug('All plans searched through indx = {}'.format(indx))
         index_not_found = True
 
     if index_not_found:
