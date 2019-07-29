@@ -71,18 +71,19 @@ def main():
     logging.debug('Finding verification plan for {}'.format(beamset.DicomPlanLabel))
 
     # Find the correct verification plan for this beamset
-    try:
-        indx = 0
-        bs_name = str(beamset.DicomPlanLabel)
-        qa_name = str(plan.VerificationPlans[indx].ForTreatmentPlan.Name)
-        while qa_name != bs_name:
-            logging.debug('Verification plan[{}] is {}, not a match for {}.'.format(
-                indx, qa_name, bs_name
-            ))
-            indx += 1
+   # try:
+    indx = 0
+    bs_name = str(beamset.DicomPlanLabel)
+    qa_name = str(plan.VerificationPlans[indx].ForTreatmentPlan.Name)
+    while qa_name != bs_name:
+        logging.debug('Verification plan[{}] is {}, not a match for {}.'.format(
+            indx, qa_name, bs_name
+        ))
+        indx += 1
 
-    except Exception:
-        index_not_found = True
+
+   # except Exception:
+   #     index_not_found = True
 
     if index_not_found:
         logging.warning("verification plan for {} could not be found.".format(beamset.DicomPlanLabel))
