@@ -164,7 +164,7 @@ def send(case,
     for d in destination:
         info = destination_info(d)
 
-        if 'RAYGATEWAY' in info['name']:
+        if 'RayGateway' in info['type']:
             # TODO delete the following to enable export
             sys.exit('Tomo Export is not supported at this time')
 
@@ -293,6 +293,8 @@ def send(case,
             if qa_plan is not None and filters is not None and 'tomo_dqa' in filters:
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
                         'ExportFolderPath': original,
+                        'ExportExamination': False,
+                        'ExportStructureSet': False,
                         'QaPlanIdentity': 'Phantom',
                         'ExportBeamSet': True,
                         'ExportBeamSetDose': True,
@@ -583,7 +585,7 @@ def send(case,
                           format(d, random_name, random_id))
 
         # If an AE destination, establish pynetdicom3 association
-        if 'RAYGATEWAY' in info['destination']:
+        if 'RayGateway' in info['type']:
             logging.debug('Multiple destinations, ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
             rg_args = args
             rg_args['RayGatewayTitle'] = raygateway_args
@@ -672,7 +674,7 @@ def send(case,
                     ds.PatientBirthdate = ''
 
                 # Do not send to SCP for RayGateway
-                if 'RAYGATEWAY' in info['destination']:
+                if 'RAYGATEWAY' in info['type']:
                     logging.debug('{} is a RayGateway, skipping SCP'.format(info['host']))
 
                 # Send to SCP via pynetdicom3
