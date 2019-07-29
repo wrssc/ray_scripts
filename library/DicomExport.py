@@ -849,7 +849,10 @@ def destination_info(destination):
     info = {}
     for d in dest_xml.findall('destination'):
         if d.find('name').text == destination:
-            info['type'] = d.find('name').attrib
+            if 'type' in d.attrib:
+                info['type'] = d.attrib
+            else:
+                info['type'] = None
             for e in d.findall('*'):
                 if 'type' in e.attrib and e.attrib['type'] == 'text':
                     info[e.tag] = e.text
