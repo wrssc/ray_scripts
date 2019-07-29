@@ -69,6 +69,7 @@ def main():
         indx = 0
         bs_name = str(beamset.DicomPlanLabel)
         qa_name = str(plan.VerificationPlans[indx].ForTreatmentPlan.Name)
+
         while qa_name != bs_name:
             indx += 1
 
