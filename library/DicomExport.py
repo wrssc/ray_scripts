@@ -302,7 +302,7 @@ def send(case,
                         'ExportBeamSetBeamDose': True}
                 qa_plan.ScriptableQADicomExport(
                     ExportFolderPath=original,
-                    QaPlanIdentity=qa_plan.PhantomStudy.PhantomName,
+                    QaPlanIdentity='Patient',
                     ExportExamination=False,
                     ExportExaminationStructureSet=False,
                     ExportBeamSet=True,
