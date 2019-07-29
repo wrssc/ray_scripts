@@ -164,7 +164,7 @@ def send(case,
     for d in destination:
         info = destination_info(d)
 
-        if 'RAYGATEWAY' in info['destination']:
+        if 'RAYGATEWAY' in info['name']:
             # TODO delete the following to enable export
             sys.exit('Tomo Export is not supported at this time')
 
@@ -849,6 +849,7 @@ def destination_info(destination):
     info = {}
     for d in dest_xml.findall('destination'):
         if d.find('name').text == destination:
+            info['type'] = d.find('name').attrib
             for e in d.findall('*'):
                 if 'type' in e.attrib and e.attrib['type'] == 'text':
                     info[e.tag] = e.text
