@@ -86,7 +86,7 @@ def main():
     else:
         qa_plan = plan.VerificationPlans[indx]
         logging.info('verification plan found, exporting {} for beamset {}'.format(
-                plan.VerificationPlans[indx].DicomPlanLabel, beamset.DicomPlanLabel))
+                plan.VerificationPlans[indx].BeamSet.DicomPlanLabel, beamset.DicomPlanLabel))
 
     # extract dicom file and gantry period from directory files
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
