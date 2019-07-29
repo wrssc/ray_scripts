@@ -88,7 +88,6 @@ def main():
         logging.info('verification plan found, exporting {} for beamset {}'.format(
                 plan.VerificationPlans[indx].BeamSet.DicomPlanLabel, beamset.DicomPlanLabel))
 
-    # extract dicom file and gantry period from directory files
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'a': 'Enter the gantry period',
               'b': 'Check one or more DICOM destinations to export to:'}
