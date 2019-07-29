@@ -97,6 +97,7 @@ def main():
     initial = {}
 
     info = DicomExport.destination_info('RayGateway')
+    # Need to find where the destination type is hidden
     for k,v in info.iteritems():
         logging.debug('k is {} and v is {}'.format(k,v))
 
