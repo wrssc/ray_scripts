@@ -300,7 +300,15 @@ def send(case,
                         'ExportBeamSet': True,
                         'ExportBeamSetDose': True,
                         'ExportBeamSetBeamDose': True}
-                qa_plan.ScriptableQADicomExport(**args)
+                qa_plan.ScriptableQADicomExport(
+                    IgnorePreConditionWarnings=ignore_warnings,
+                    ExportFolderPath=original,
+                    ExportExamination=False,
+                    ExportExaminationStructureSet=False,
+                    QaPlanIdentity='Phantom',
+                    ExportBeamSet=True,
+                    ExportBeamSetDose=True,
+                    ExportBeamSetBeamDose=True)
 
             else:
                 case.ScriptableDicomExport(**args)
@@ -404,10 +412,10 @@ def send(case,
                             if hasattr(c, 'BeamLimitingDevicePositionSequence'):
                                 for p in c.BeamLimitingDevicePositionSequence:
                                     if 'LeafJawPositions' in p and len(p.LeafJawPositions) == 2 and \
-                                            (p.LeafJawPositions[0] != math.floor(10 * p.LeafJawPositions[0])/10 or
-                                             p.LeafJawPositions[1] != math.ceil(10 * p.LeafJawPositions[1])/10):
-                                        p.LeafJawPositions[0] = math.floor(10 * p.LeafJawPositions[0])/10
-                                        p.LeafJawPositions[1] = math.ceil(10 * p.LeafJawPositions[1])/10
+                                            (p.LeafJawPositions[0] != math.floor(10 * p.LeafJawPositions[0]) / 10 or
+                                             p.LeafJawPositions[1] != math.ceil(10 * p.LeafJawPositions[1]) / 10):
+                                        p.LeafJawPositions[0] = math.floor(10 * p.LeafJawPositions[0]) / 10
+                                        p.LeafJawPositions[1] = math.ceil(10 * p.LeafJawPositions[1]) / 10
                                         expected.add(p[0x300a011c], beam=b, cp=c)
 
                     # If adjusting PA beam angle for right sided targets
