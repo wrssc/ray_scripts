@@ -301,14 +301,14 @@ def send(case,
                         'ExportBeamSetDose': True,
                         'ExportBeamSetBeamDose': True}
                 qa_plan.ScriptableQADicomExport(
-                    IgnorePreConditionWarnings=ignore_warnings,
                     ExportFolderPath=original,
+                    QaPlanIdentity='Phantom',
                     ExportExamination=False,
                     ExportExaminationStructureSet=False,
-                    QaPlanIdentity='Phantom',
                     ExportBeamSet=True,
                     ExportBeamSetDose=True,
-                    ExportBeamSetBeamDose=True)
+                    ExportBeamSetBeamDose=True,
+                    IgnorePreConditionWarnings=ignore_warnings)
 
             else:
                 case.ScriptableDicomExport(**args)
