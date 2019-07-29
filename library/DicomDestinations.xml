@@ -17,7 +17,7 @@
         <aet type="text">TomoProvider1</aet>
         <port type="int">104</port>
     </destination>
-    <destination type="scp">
+    <destination type="RayGateway">
         <name type="text">RayGateway</name>
         <host type="text">10.151.28.149</host>
         <aet type="text">RAYGATEWAY</aet>
