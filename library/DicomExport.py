@@ -300,6 +300,7 @@ def send(case,
                         'ExportBeamSet': True,
                         'ExportBeamSetDose': True,
                         'ExportBeamSetBeamDose': True}
+
                 # Change back to args if possible.
                 qa_plan.ScriptableQADicomExport(
                     ExportFolderPath=original,
