@@ -467,7 +467,7 @@ def send(case,
                     # If adding gantry period to TomoTherapy QA Plans
                     if gantry_period is not None:
                         # format and set tag to change
-                        t1 = pydicom.tag('300d1040')
+                        t1 = pydicom.Tag('300d1040')
 
                         # Add some white-space to the end of gantry period
                         str_gantry_period = gantry_period + ' '
