@@ -255,7 +255,47 @@ def send(case,
             bar.update(text='Exporting DICOM files to temporary folder')
 
     try:
-        if raygateway_args is not None and len(destination) == 1:
+        if qa_plan is not None:
+            if raygateway_args is None and filters is not None and 'tomo_dqa' in filters:
+                # Save to the file destination for filtering
+                args = {'IgnorePreConditionWarnings': ignore_warnings,
+                        'QaPlanIdentity': 'Patient',
+                        'ExportFolderPath': original,
+                        'ExportExamination': False,
+                        'ExportExaminationStructureSet': False,
+                        'ExportBeamSet': True,
+                        'ExportBeamSetDose': True,
+                        'ExportBeamSetBeamDose': True}
+
+                qa_plan.ScriptableQADicomExport(**args)
+
+            elif raygateway_args is not None:
+                # Try to export to RayGateway
+                # args = {'IgnorePreConditionWarnings': ignore_warnings,
+                #         'QaPlanIdentity': 'Phantom',
+                #         'AEHostname': host,
+                #         'AEPort': port,
+                #         'CallingAETitle': 'RayStation',
+                #         'CalledAETitle': aet,
+                #         'ExportFolderPath': '',
+                #         'ExportExamination': True,
+                #         'ExportExaminationStructureSet': True,
+                #         'ExportBeamSet': True,
+                #         'ExportBeamSetDose': True,
+                #         'ExportBeamSetBeamDose': True}
+                args = {'IgnorePreConditionWarnings': ignore_warnings,
+                        'QaPlanIdentity': 'Phantom',
+                        'RayGatewayTitle': raygateway_args,
+                        'ExportFolderPath': '',
+                        'ExportExamination': True,
+                        'ExportExaminationStructureSet': True,
+                        'ExportBeamSet': True,
+                        'ExportBeamSetDose': True,
+                        'ExportBeamSetBeamDose': False}
+
+                qa_plan.ScriptableQADicomExport(**args)
+
+        elif raygateway_args is not None and len(destination) == 1:
             if 'anonymize' in info and info['anonymize']:
                 random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
                 random_id = ''.join(random.choice(string.digits) for _ in range(8))
@@ -294,56 +334,7 @@ def send(case,
 
         else:
             logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
-
-            if qa_plan is not None and filters is not None and 'tomo_dqa' in filters and raygateway_args is None:
-                args = {'IgnorePreConditionWarnings': ignore_warnings,
-                        'QaPlanIdentity': 'Patient',
-                        'ExportFolderPath': original,
-                        'ExportExamination': False,
-                        'ExportExaminationStructureSet': False,
-                        'ExportBeamSet': True,
-                        'ExportBeamSetDose': True,
-                        'ExportBeamSetBeamDose': True}
-
-                # Change back to args if possible.
-                qa_plan.ScriptableQADicomExport(**args)
-            elif qa_plan is not None and raygateway_args is not None:
-                # args = {'IgnorePreConditionWarnings': ignore_warnings,
-                #         'QaPlanIdentity': 'Phantom',
-                #         'AEHostname': host,
-                #         'AEPort': port,
-                #         'CallingAETitle': 'RayStation',
-                #         'CalledAETitle': aet,
-                #         'ExportFolderPath': '',
-                #         'ExportExamination': True,
-                #         'ExportExaminationStructureSet': True,
-                #         'ExportBeamSet': True,
-                #         'ExportBeamSetDose': True,
-                #         'ExportBeamSetBeamDose': True}
-                args = {'IgnorePreConditionWarnings': ignore_warnings,
-                        'QaPlanIdentity': 'Phantom',
-                        'RayGatewayTitle': raygateway_args,
-                        'ExportFolderPath': '',
-                        'ExportExamination': True,
-                        'ExportExaminationStructureSet': True,
-                        'ExportBeamSet': True,
-                        'ExportBeamSetDose': True,
-                        'ExportBeamSetBeamDose': True}
-
-                # Change back to args if possible.
-                qa_plan.ScriptableQADicomExport(**args)
-                # qa_plan.ScriptableQADicomExport(
-                #     ExportFolderPath=original,
-                #     QaPlanIdentity='Patient',
-                #     ExportExamination=False,
-                #     ExportExaminationStructureSet=False,
-                #     ExportBeamSet=True,
-                #     ExportBeamSetDose=True,
-                #     ExportBeamSetBeamDose=True,
-                #     IgnorePreConditionWarnings=ignore_warnings)
-
-            else:
-                case.ScriptableDicomExport(**args)
+            case.ScriptableDicomExport(**args)
 
     except Exception as error:
         if ignore_errors:
