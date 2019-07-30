@@ -39,8 +39,7 @@ import connect
 import logging
 import UserInterface
 import DicomExport
-
-import os
+import time
 import sys
 
 
