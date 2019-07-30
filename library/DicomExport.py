@@ -166,6 +166,7 @@ def send(case,
 
         if 'RayGateway' in info['type']:
             if qa_plan:
+                sys.exit('Tomo Export is not supported at this time')
                 logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
                 raygateway_args = info['aet']
             else:
@@ -270,6 +271,7 @@ def send(case,
                 qa_plan.ScriptableQADicomExport(**args)
 
             elif raygateway_args is not None:
+
                 # Try to export to RayGateway
                 # args = {'IgnorePreConditionWarnings': ignore_warnings,
                 #         'QaPlanIdentity': 'Phantom',
@@ -309,14 +311,13 @@ def send(case,
             del rg_args['ExportFolderPath']
 
             try:
-                if qa_plan is None:
-                    case.ScriptableDicomExport(**args)
-                    logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
+                case.ScriptableDicomExport(**args)
+                logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
 
-                    if isinstance(bar, UserInterface.ProgressBar):
-                        bar.close()
+                if isinstance(bar, UserInterface.ProgressBar):
+                    bar.close()
 
-                    UserInterface.MessageBox('DICOM export was successful', 'Export Success')
+                UserInterface.MessageBox('DICOM export was successful', 'Export Success')
 
             except Exception as error:
                 status = False
