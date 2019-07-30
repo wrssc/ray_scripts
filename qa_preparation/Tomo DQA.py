@@ -64,6 +64,7 @@ def main():
         plan = None
         beamset = None
 
+    tic = time.time()
     # Find the correct verification plan for this beamset
     try:
         indx = 0
@@ -128,32 +129,9 @@ def main():
     # Finish up
     if success:
         logging.info('Export script completed successfully in {:.3f} seconds'.format(time.time() - tic))
-        status.finish(text='DICOM export was successful. You can now close this dialog.')
 
     else:
         logging.warning('Export script completed with errors in {:.3f} seconds'.format(time.time() - tic))
-        status.finish(text='DICOM export finished but with errors. You can now close this dialog.')
-
-
-    filepath = 'W:\\rsconvert\\'
-    hlist = os.listdir(filepath)
-    flist = filter(lambda x: '.dcm' in x, hlist)
-    filename = flist[0]
-    GPlist = filter(lambda x: '.txt' in x, hlist)
-    # GPval = GPlist[0][3:8]+' '
-
-
-    # format and set tag to change
-    t1 = Tag('300d1040')
-
-    # read file
-    ds = pydicom.read_file(filepath+filename)
-
-    # add attribute to beam sequence
-    ds.BeamSequence[0].add_new(t1, 'UN', GPval)
-
-    # output file
-    ds.save_as(filepath+'new_'+filename, write_like_original=True)
 
 
 if __name__ == '__main__':
