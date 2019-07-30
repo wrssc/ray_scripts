@@ -54,10 +54,6 @@
         <port type="text">104</port>
     </destination>
     <destination type="folder">
-        <name type="text">Delta4_old</name>
-        <path type="text">\\aria.uwhealth.wisc.edu\echart\Delta4\DICOM</path>
-    </destination>
-    <destination type="folder">
         <name type="text">Transfer Folder</name>
         <path type="text">\\uwhis.hosp.wisc.edu\UFS\UWHealth\RadOnc\ShareAll\Transfer</path>
         <anonymize type="bool">True</anonymize>
