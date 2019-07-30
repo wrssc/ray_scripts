@@ -1,10 +1,10 @@
-""" Modify Tomo DQA Plan
+""" Export Tomo DQA Plan to QA Destination
 
     Prompts user for Gantry Period for running a TomoDQA
 
     Version:
-    1.0 Load targets as filled. Normalize isodose to prescription, and try to normalize to the
-        maximum dose in External or External_Clean
+    1.0 Modify RS RTPlans to include a gantry period, needed by the Delta4 software,
+        then send them to the specified destination with scp.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
