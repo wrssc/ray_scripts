@@ -47,8 +47,14 @@
         <aet type="text">ARIA</aet>
         <port type="int">106</port>
     </destination>
-    <destination type="folder">
+    <destination type="scp">
         <name type="text">Delta4</name>
+        <host type="text">mvs-dailyqa03.uwhis.hosp.wisc.edu</host>
+        <aet type="text">Delta4</aet>
+        <port type="text">104</port>
+    </destination>
+    <destination type="folder">
+        <name type="text">Delta4_old</name>
         <path type="text">\\aria.uwhealth.wisc.edu\echart\Delta4\DICOM</path>
     </destination>
     <destination type="folder">
