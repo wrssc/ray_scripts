@@ -167,6 +167,7 @@ def send(case,
 
         if 'RayGateway' in info['type']:
             if qa_plan:
+                # TODO delete the sys exit when QA Plans are supported
                 sys.exit('Tomo Export is not supported at this time')
                 logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
                 raygateway_args = info['aet']
