@@ -167,13 +167,13 @@ def send(case,
 
         if 'RayGateway' in info['type']:
             if qa_plan:
-                # TODO delete the sys exit when QA Plans are supported
-                sys.exit('Tomo Export is not supported at this time')
+                # TODO: QA RayGateway delete the sys exit when QA Plans are supported
+                sys.exit('RayGateway Export is not supported at this time')
                 logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
                 raygateway_args = info['aet']
             else:
-                # TODO delete the following to enable export
-                sys.exit('Tomo Export is not supported at this time')
+                # TODO: Export Patient plan delete the following to enable export
+                sys.exit('RayGateway Export is not supported at this time')
 
                 logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
                 raygateway_args = info['aet']
@@ -274,6 +274,7 @@ def send(case,
 
             elif raygateway_args is not None:
 
+                # TODO: QA RayGateway - when supported these commands must be tested
                 # Try to export to RayGateway
                 # args = {'IgnorePreConditionWarnings': ignore_warnings,
                 #         'QaPlanIdentity': 'Phantom',
