@@ -165,11 +165,15 @@ def send(case,
         info = destination_info(d)
 
         if 'RayGateway' in info['type']:
-            # TODO delete the following to enable export
-            sys.exit('Tomo Export is not supported at this time')
+            if qa_plan:
+                logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
+                raygateway_args = info['aet']
+            else:
+                # TODO delete the following to enable export
+                sys.exit('Tomo Export is not supported at this time')
 
-            logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
-            raygateway_args = info['aet']
+                logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
+                raygateway_args = info['aet']
 
         elif len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
             raygateway_args = None
@@ -265,13 +269,14 @@ def send(case,
             del rg_args['ExportFolderPath']
 
             try:
-                case.ScriptableDicomExport(**args)
-                logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
+                if qa_plan is None:
+                    case.ScriptableDicomExport(**args)
+                    logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
 
-                if isinstance(bar, UserInterface.ProgressBar):
-                    bar.close()
+                    if isinstance(bar, UserInterface.ProgressBar):
+                        bar.close()
 
-                UserInterface.MessageBox('DICOM export was successful', 'Export Success')
+                    UserInterface.MessageBox('DICOM export was successful', 'Export Success')
 
             except Exception as error:
                 status = False
@@ -290,12 +295,37 @@ def send(case,
         else:
             logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
 
-            if qa_plan is not None and filters is not None and 'tomo_dqa' in filters:
+            if qa_plan is not None and filters is not None and 'tomo_dqa' in filters and raygateway_args is None:
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
                         'QaPlanIdentity': 'Patient',
                         'ExportFolderPath': original,
                         'ExportExamination': False,
                         'ExportExaminationStructureSet': False,
+                        'ExportBeamSet': True,
+                        'ExportBeamSetDose': True,
+                        'ExportBeamSetBeamDose': True}
+
+                # Change back to args if possible.
+                qa_plan.ScriptableQADicomExport(**args)
+            elif qa_plan is not None and raygateway_args is not None:
+                # args = {'IgnorePreConditionWarnings': ignore_warnings,
+                #         'QaPlanIdentity': 'Phantom',
+                #         'AEHostname': host,
+                #         'AEPort': port,
+                #         'CallingAETitle': 'RayStation',
+                #         'CalledAETitle': aet,
+                #         'ExportFolderPath': '',
+                #         'ExportExamination': True,
+                #         'ExportExaminationStructureSet': True,
+                #         'ExportBeamSet': True,
+                #         'ExportBeamSetDose': True,
+                #         'ExportBeamSetBeamDose': True}
+                args = {'IgnorePreConditionWarnings': ignore_warnings,
+                        'QaPlanIdentity': 'Phantom',
+                        'RayGatewayTitle': raygateway_args,
+                        'ExportFolderPath': '',
+                        'ExportExamination': True,
+                        'ExportExaminationStructureSet': True,
                         'ExportBeamSet': True,
                         'ExportBeamSetDose': True,
                         'ExportBeamSetBeamDose': True}
@@ -475,7 +505,6 @@ def send(case,
                         b.add_new(t1, 'UN', str_gantry_period)
                         # b.add_new(0x300d1040, 'UN', str_gantry_period)
                         expected.add(b[t1], beam=b)
-
 
                 # If adding reference points
                 if prescription and beamset.Prescription.PrimaryDosePrescription is not None and \

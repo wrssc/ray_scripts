@@ -65,13 +65,13 @@ def main():
     # Find the correct verification plan for this beamset
     try:
         indx = 0
-        bs_name = str(beamset.DicomPlanLabel)
-        qa_name = str(plan.VerificationPlans[indx].ForTreatmentPlan.Name)
-
-        while qa_name != bs_name:
-            indx += 1
-
-        index_not_found = False
+        for vp in plan.VerificationPlans:
+            for bs in vp.ForTreatmentPlan.BeamSets:
+                if vp.ForTreatmentPlan.Name == plan.Name and \
+                        bs.DicomPlanLabel == beamset.DicomPlanLabel:
+                    index_not_found = False
+                else:
+                    indx += 1
 
     except IndexError:
         logging.debug('All plans searched through indx = {}'.format(indx))
@@ -84,7 +84,7 @@ def main():
     else:
         qa_plan = plan.VerificationPlans[indx]
         logging.info('verification plan found, exporting {} for beamset {}'.format(
-                plan.VerificationPlans[indx].BeamSet.DicomPlanLabel, beamset.DicomPlanLabel))
+            plan.VerificationPlans[indx].BeamSet.DicomPlanLabel, beamset.DicomPlanLabel))
 
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'a': 'Enter the Gantry period as [ss.ff]:',
@@ -133,5 +133,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
