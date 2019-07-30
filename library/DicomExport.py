@@ -293,24 +293,25 @@ def send(case,
             if qa_plan is not None and filters is not None and 'tomo_dqa' in filters:
                 # It is not clear what is needed to identify the phantom as the Plan identifier
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
+                        'QaPlanIdentity': 'Phantom',
                         'ExportFolderPath': original,
                         'ExportExamination': False,
                         'ExportExaminationStructureSet': False,
-                        'QaPlanIdentity': 'Phantom',
                         'ExportBeamSet': True,
                         'ExportBeamSetDose': True,
                         'ExportBeamSetBeamDose': True}
 
                 # Change back to args if possible.
-                qa_plan.ScriptableQADicomExport(
-                    ExportFolderPath=original,
-                    QaPlanIdentity='Patient',
-                    ExportExamination=False,
-                    ExportExaminationStructureSet=False,
-                    ExportBeamSet=True,
-                    ExportBeamSetDose=True,
-                    ExportBeamSetBeamDose=True,
-                    IgnorePreConditionWarnings=ignore_warnings)
+                qa_plan.ScriptableQADicomExport(**args)
+                # qa_plan.ScriptableQADicomExport(
+                #     ExportFolderPath=original,
+                #     QaPlanIdentity='Patient',
+                #     ExportExamination=False,
+                #     ExportExaminationStructureSet=False,
+                #     ExportBeamSet=True,
+                #     ExportBeamSetDose=True,
+                #     ExportBeamSetBeamDose=True,
+                #     IgnorePreConditionWarnings=ignore_warnings)
 
             else:
                 case.ScriptableDicomExport(**args)
