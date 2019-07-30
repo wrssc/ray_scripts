@@ -472,7 +472,10 @@ def send(case,
                         str_gantry_period = gantry_period + ' '
 
                         # add attribute to beam sequence
-                        b.add_new(t1, 'UN', str_gantry_period)
+                        # b.add_new(t1, 'UN', str_gantry_period)
+                        b.add_new(0x300d1040, 'UN', str_gantry_period)
+                        expected.add(b[0x300d140])
+
 
                 # If adding reference points
                 if prescription and beamset.Prescription.PrimaryDosePrescription is not None and \
