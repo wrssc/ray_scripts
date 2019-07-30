@@ -63,6 +63,7 @@ def main():
         plan = None
         beamset = None
 
+    # Start the clock
     tic = time.time()
     # Find the correct verification plan for this beamset
     try:
