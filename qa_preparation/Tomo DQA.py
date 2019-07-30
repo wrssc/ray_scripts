@@ -39,7 +39,6 @@ import connect
 import logging
 import UserInterface
 import DicomExport
-import time
 import sys
 
 
@@ -63,8 +62,6 @@ def main():
         plan = None
         beamset = None
 
-    # Start the clock
-    tic = time.time()
     # Find the correct verification plan for this beamset
     try:
         indx = 0
@@ -128,10 +125,10 @@ def main():
 
     # Finish up
     if success:
-        logging.info('Export script completed successfully in {:.3f} seconds'.format(time.time() - tic))
+        logging.info('Export script completed successfully')
 
     else:
-        logging.warning('Export script completed with errors in {:.3f} seconds'.format(time.time() - tic))
+        logging.warning('Export script completed with errors')
 
 
 if __name__ == '__main__':
