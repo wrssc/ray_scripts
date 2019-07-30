@@ -59,6 +59,7 @@ __help__ = 'https://github.com/wrssc/ray_scripts/wiki/DICOM-Export'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import os
+import sys
 import xml.etree.ElementTree
 import time
 import tempfile
