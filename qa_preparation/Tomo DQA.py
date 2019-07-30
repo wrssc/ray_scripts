@@ -89,7 +89,7 @@ def main():
                 plan.VerificationPlans[indx].BeamSet.DicomPlanLabel, beamset.DicomPlanLabel))
 
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
-    inputs = {'a': 'Enter the gantry period',
+    inputs = {'a': 'Enter the Gantry period as [ss.ff]:',
               'b': 'Check one or more DICOM destinations to export to:'}
     required = ['a', 'b']
     types = {'b': 'check'}
@@ -106,7 +106,7 @@ def main():
     if response == {}:
         sys.exit('DICOM export was cancelled')
     # Link root to selected protocol ElementTree
-    logging.info("Gantry period filter to be used. Gantry Period (s) = {} ".format(
+    logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
         response['a']))
 
     success = DicomExport.send(case=case,
