@@ -106,7 +106,7 @@ def main():
     if response == {}:
         sys.exit('DICOM export was cancelled')
     # Link root to selected protocol ElementTree
-    logging.info("User input the following Gantry Period: {}".format(
+    logging.info("Gantry period filter to be used. Gantry Period (s) = {} ".format(
         response['a']))
 
     success = DicomExport.send(case=case,
