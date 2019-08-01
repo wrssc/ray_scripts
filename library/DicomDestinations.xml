@@ -17,7 +17,7 @@
         <aet type="text">TomoProvider1</aet>
         <port type="int">104</port>
     </destination>
-    <destination type="scp">
+    <destination type="RayGateway">
         <name type="text">RayGateway</name>
         <host type="text">10.151.28.149</host>
         <aet type="text">RAYGATEWAY</aet>
@@ -47,9 +47,11 @@
         <aet type="text">ARIA</aet>
         <port type="int">106</port>
     </destination>
-    <destination type="folder">
+    <destination type="scp">
         <name type="text">Delta4</name>
-        <path type="text">\\aria.uwhealth.wisc.edu\echart\Delta4\DICOM</path>
+        <host type="text">mvs-dailyqa03.uwhis.hosp.wisc.edu</host>
+        <aet type="text">Delta4</aet>
+        <port type="text">104</port>
     </destination>
     <destination type="folder">
         <name type="text">Transfer Folder</name>

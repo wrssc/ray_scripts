@@ -37,6 +37,7 @@
     Version History:
     1.0.0 Original Release
     1.0.1 Update with TomoTherapy support for IDMS and RayGateway (without DICOM filtering)
+    1.0.2 Added support for sending a TomoTherapy-based QA Plan with a filter for gantry period
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -58,6 +59,7 @@ __help__ = 'https://github.com/wrssc/ray_scripts/wiki/DICOM-Export'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import os
+import sys
 import xml.etree.ElementTree
 import time
 import tempfile
@@ -92,6 +94,7 @@ def send(case,
          plan=True,
          plan_dose=True,
          beam_dose=False,
+         qa_plan=None,
          ignore_warnings=False,
          ignore_errors=False,
          rename=None,
@@ -99,6 +102,7 @@ def send(case,
          machine=None,
          table=None,
          pa_threshold=None,
+         gantry_period=None,
          prescription=False,
          round_jaws=False,
          block_accessory=False,
@@ -161,11 +165,18 @@ def send(case,
     for d in destination:
         info = destination_info(d)
 
-        if 'RAYGATEWAY' in info['aet']:
-            # TODO delete the following to enable export
-            sys.exit('Tomo Export is not supported at this time')
-            logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
-            raygateway_args = info['aet']
+        if 'RayGateway' in info['type']:
+            if qa_plan:
+                # TODO: QA RayGateway delete the sys exit when QA Plans are supported
+                sys.exit('RayGateway Export is not supported at this time')
+                logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
+                raygateway_args = info['aet']
+            else:
+                # TODO: Export Patient plan delete the following to enable export
+                sys.exit('RayGateway Export is not supported at this time')
+
+                logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
+                raygateway_args = info['aet']
 
         elif len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
             raygateway_args = None
@@ -247,7 +258,49 @@ def send(case,
             bar.update(text='Exporting DICOM files to temporary folder')
 
     try:
-        if raygateway_args is not None and len(destination) == 1:
+        if qa_plan is not None:
+            if raygateway_args is None and filters is not None and 'tomo_dqa' in filters:
+                # Save to the file destination for filtering
+                args = {'IgnorePreConditionWarnings': ignore_warnings,
+                        'QaPlanIdentity': 'Patient',
+                        'ExportFolderPath': original,
+                        'ExportExamination': False,
+                        'ExportExaminationStructureSet': False,
+                        'ExportBeamSet': True,
+                        'ExportBeamSetDose': True,
+                        'ExportBeamSetBeamDose': True}
+
+                qa_plan.ScriptableQADicomExport(**args)
+
+            elif raygateway_args is not None:
+
+                # TODO: QA RayGateway - when supported these commands must be tested
+                # Try to export to RayGateway
+                # args = {'IgnorePreConditionWarnings': ignore_warnings,
+                #         'QaPlanIdentity': 'Phantom',
+                #         'AEHostname': host,
+                #         'AEPort': port,
+                #         'CallingAETitle': 'RayStation',
+                #         'CalledAETitle': aet,
+                #         'ExportFolderPath': '',
+                #         'ExportExamination': True,
+                #         'ExportExaminationStructureSet': True,
+                #         'ExportBeamSet': True,
+                #         'ExportBeamSetDose': True,
+                #         'ExportBeamSetBeamDose': True}
+                args = {'IgnorePreConditionWarnings': ignore_warnings,
+                        'QaPlanIdentity': 'Phantom',
+                        'RayGatewayTitle': raygateway_args,
+                        'ExportFolderPath': '',
+                        'ExportExamination': True,
+                        'ExportExaminationStructureSet': True,
+                        'ExportBeamSet': True,
+                        'ExportBeamSetDose': True,
+                        'ExportBeamSetBeamDose': False}
+
+                qa_plan.ScriptableQADicomExport(**args)
+
+        elif raygateway_args is not None and len(destination) == 1:
             if 'anonymize' in info and info['anonymize']:
                 random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
                 random_id = ''.join(random.choice(string.digits) for _ in range(8))
@@ -386,10 +439,10 @@ def send(case,
                             if hasattr(c, 'BeamLimitingDevicePositionSequence'):
                                 for p in c.BeamLimitingDevicePositionSequence:
                                     if 'LeafJawPositions' in p and len(p.LeafJawPositions) == 2 and \
-                                            (p.LeafJawPositions[0] != math.floor(10 * p.LeafJawPositions[0])/10 or
-                                             p.LeafJawPositions[1] != math.ceil(10 * p.LeafJawPositions[1])/10):
-                                        p.LeafJawPositions[0] = math.floor(10 * p.LeafJawPositions[0])/10
-                                        p.LeafJawPositions[1] = math.ceil(10 * p.LeafJawPositions[1])/10
+                                            (p.LeafJawPositions[0] != math.floor(10 * p.LeafJawPositions[0]) / 10 or
+                                             p.LeafJawPositions[1] != math.ceil(10 * p.LeafJawPositions[1]) / 10):
+                                        p.LeafJawPositions[0] = math.floor(10 * p.LeafJawPositions[0]) / 10
+                                        p.LeafJawPositions[1] = math.ceil(10 * p.LeafJawPositions[1]) / 10
                                         expected.add(p[0x300a011c], beam=b, cp=c)
 
                     # If adjusting PA beam angle for right sided targets
@@ -434,6 +487,19 @@ def send(case,
                                 if m != '' and ('FluenceModeID' not in b or b.FluenceModeID != m):
                                     b.FluenceModeID = m
                                     expected.add(b[0x30020052], beam=b, cp=c)
+
+                    # If adding gantry period to TomoTherapy QA Plans
+                    if gantry_period is not None:
+                        # format and set tag to change
+                        t1 = pydicom.tag.Tag('300d1040')
+
+                        # Add some white-space to the end of gantry period
+                        str_gantry_period = gantry_period + ' '
+
+                        # add attribute to beam sequence
+                        b.add_new(t1, 'UN', str_gantry_period)
+                        # b.add_new(0x300d1040, 'UN', str_gantry_period)
+                        expected.add(b[t1], beam=b)
 
                 # If adding reference points
                 if prescription and beamset.Prescription.PrimaryDosePrescription is not None and \
@@ -557,7 +623,7 @@ def send(case,
                           format(d, random_name, random_id))
 
         # If an AE destination, establish pynetdicom3 association
-        if 'RAYGATEWAY' in info['aet']:
+        if 'RayGateway' in info['type']:
             logging.debug('Multiple destinations, ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
             rg_args = args
             rg_args['RayGatewayTitle'] = raygateway_args
@@ -646,7 +712,7 @@ def send(case,
                     ds.PatientBirthdate = ''
 
                 # Do not send to SCP for RayGateway
-                if 'RAYGATEWAY' in info['aet']:
+                if 'RAYGATEWAY' in info['type']:
                     logging.debug('{} is a RayGateway, skipping SCP'.format(info['host']))
 
                 # Send to SCP via pynetdicom3
@@ -823,6 +889,10 @@ def destination_info(destination):
     info = {}
     for d in dest_xml.findall('destination'):
         if d.find('name').text == destination:
+            if 'type' in d.attrib:
+                info['type'] = d.get('type')
+            else:
+                info['type'] = None
             for e in d.findall('*'):
                 if 'type' in e.attrib and e.attrib['type'] == 'text':
                     info[e.tag] = e.text
