@@ -18,6 +18,7 @@ import clr
 import math
 import numpy as np
 import connect
+import logging
 
 clr.AddReference('System')
 
@@ -58,7 +59,7 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     else:
         rx = dose_per_fraction
 
-    print 'rx = ', str(rx)
+    logging.debug('rx = '.format(rx))
 
     xpos = None
     tolerance = 5.0e-2
