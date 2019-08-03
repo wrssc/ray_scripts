@@ -265,7 +265,7 @@ def reformat_objectives(objective_elements, translation_map=None):
 
 def add_objective(obj, exam, case, plan, beamset,
                   s_roi=None, s_dose=None,
-                  s_weight=None, restrict_beamset=None, check_empty=False ):
+                  s_weight=None, restrict_beamset=None, check_empty=False):
     """
     adds an objective function to the optimization in RayStation after
     :param obj: child (roi-tag) of an ElementTree - consider mak
