@@ -135,5 +135,5 @@ def exclude_from_export(case, rois):
             RegionOfInterests=rois,
             PointsOfInterests=[])
     except Exception:
-        logging.warning('Unable to exclude {} from export'.format(roi))
+        logging.warning('Unable to exclude {} from export'.format(rois))
 
