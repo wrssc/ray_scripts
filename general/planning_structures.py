@@ -989,10 +989,22 @@ def main():
             eval_subtract = ['Skin_PRV05', 'InnerAir', 'UnderDose']
             logging.debug("Removing the following from eval structures"
                           .format(eval_subtract))
+            if not any(StructureOperations.exists_roi(case=case, rois=eval_subtract)):
+                logging.error('Missing structure needed for UnderDose: {} needed'.format(
+                    eval_subtract))
+                sys.exit('Missing structure needed for UnderDose: {} needed'.format(
+                    eval_subtract))
+
         else:
-            eval_subtract = ['Skin', 'InnerAir']
+            eval_subtract = ['Skin_PRV05', 'InnerAir']
             logging.debug("Removing the following from eval structures"
                           .format(eval_subtract))
+            if not any(StructureOperations.exists_roi(case=case, rois=eval_subtract)):
+                logging.error('Missing structure needed for UnderDose: {} needed'.format(
+                    eval_subtract))
+                sys.exit('Missing structure needed for UnderDose: {} needed'.format(
+                    eval_subtract))
+
         for index, target in enumerate(PTVList):
             logging.debug("Creating evaluation target {}: {}"
                           .format(str(index + 1), PTVEvalList[index]))
@@ -1027,9 +1039,9 @@ def main():
     if generate_otvs:
         otv_intersect = []
         if generate_underdose:
-            otv_subtract = ['Skin', 'InnerAir', 'UnderDose_Exp']
+            otv_subtract = ['Skin_PRV05', 'InnerAir', 'UnderDose_Exp']
         else:
-            otv_subtract = ['Skin', 'InnerAir']
+            otv_subtract = ['Skin_PRV05', 'InnerAir']
         logging.debug("otvs will not include {}"
                       .format(otv_subtract))
 
