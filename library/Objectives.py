@@ -265,7 +265,7 @@ def reformat_objectives(objective_elements, translation_map=None):
 
 def add_objective(obj, exam, case, plan, beamset,
                   s_roi=None, s_dose=None,
-                  s_weight=None, restrict_beamset=None, check_empty=False):
+                  s_weight=None, restrict_beamset=None, checking=False):
     """
     adds an objective function to the optimization in RayStation after
     :param obj: child (roi-tag) of an ElementTree - consider mak
@@ -414,40 +414,50 @@ def add_objective(obj, exam, case, plan, beamset,
     else:
         robust = False
 
-    OptIndex = find_optimization_index(plan=plan,beamset=beamset)
+    OptIndex = find_optimization_index(plan=plan, beamset=beamset)
     plan_optimization = plan.PlanOptimizations[OptIndex]
 
     # Add the objective
     try:
-        if not any(StructureOperations.exists_roi(case=case, rois=roi)):
-            if StructureOperations.check_roi(case=case, exam=exam, rois=roi):
-                o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-                                                              RoiName=roi,
-                                                              IsConstraint=constraint,
-                                                              RestrictAllBeamsIndividually=False,
-                                                              RestrictToBeam=None,
-                                                              IsRobust=robust,
-                                                              RestrictToBeamSet=restrict_beamset,
-                                                              UseRbeDose=False)
-                o.DoseFunctionParameters.Weight = weight
-                if volume:
-                    o.DoseFunctionParameters.PercentVolume = volume
-                if 'Eud' in function_type:
-                    o.DoseFunctionParameters.EudParameterA = eud_a
-                    # Dose fall off type of optimization option.
-                if function_type == 'DoseFallOff':
-                    o.DoseFunctionParameters.HighDoseLevel = high_dose
-                    o.DoseFunctionParameters.LowDoseLevel = low_dose
-                    o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-                    o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
-                    # For all types other than DoseFallOff, the dose is simply entered here
-                else:
-                    o.DoseFunctionParameters.DoseLevel = dose
-                logging.debug("Added objective for ROI: " +
-                              "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
+
+        if checking:
+            roi_exists = all(StructureOperations.exists_roi(case=case, rois=roi))
+            roi_has_contours = StructureOperations.check_roi(case=case, exam=exam, rois=roi)
+            roi_check = roi_exists and roi_has_contours
+            logging.debug('Check for Roi {}| Exists {}, Has Contours {}'.format(
+                roi, roi_exists, roi_has_contours))
+        else:
+            roi_check = True
+
+        if roi_check:
+            o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
+                                                          RoiName=roi,
+                                                          IsConstraint=constraint,
+                                                          RestrictAllBeamsIndividually=False,
+                                                          RestrictToBeam=None,
+                                                          IsRobust=robust,
+                                                          RestrictToBeamSet=restrict_beamset,
+                                                          UseRbeDose=False)
+            o.DoseFunctionParameters.Weight = weight
+            if volume:
+                o.DoseFunctionParameters.PercentVolume = volume
+            if 'Eud' in function_type:
+                o.DoseFunctionParameters.EudParameterA = eud_a
+                # Dose fall off type of optimization option.
+            if function_type == 'DoseFallOff':
+                o.DoseFunctionParameters.HighDoseLevel = high_dose
+                o.DoseFunctionParameters.LowDoseLevel = low_dose
+                o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+                o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+                # For all types other than DoseFallOff, the dose is simply entered here
+            else:
+                o.DoseFunctionParameters.DoseLevel = dose
+            logging.debug("Added objective for ROI: " +
+                          "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
                               roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
         else:
             logging.debug("ROI: {}, did not exist despite protocol. Objective not added".format(roi))
+
     except:
         logging.debug("Failed to add objective for ROI:" +
                       " {}, type {}, dose {}, weight {}, for beamset {}".format(

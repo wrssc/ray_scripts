@@ -59,10 +59,8 @@ def exists_roi(case, rois):
 
     for r in rois:
         if r in defined_rois:
-            logging.debug('ROI {} found'.format(r))
             roi_exists.append(True)
         else:
-            logging.debug('ROI {} not found'.format(r))
             roi_exists.append(False)
 
     return roi_exists
