@@ -6,6 +6,9 @@
     exists_roi
     checks if ROI is present in the contour list
 
+    max_roi
+    checks for maximum extent of an roi
+
     Versions:
     01.00.00 Original submission
 
