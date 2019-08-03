@@ -714,7 +714,7 @@ def main():
         logging.warning("Structure " + StructureName + " exists.  Using predefined structure.")
     except:
         retval_ExternalClean = case.PatientModel.CreateRoi(Name="ExternalClean",
-                                                           Color="New Tan",
+                                                           Color="#FFEAC086",
                                                            Type="External",
                                                            TissueName="",
                                                            RbeCellTypeName=None,
