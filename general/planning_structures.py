@@ -68,19 +68,6 @@ import time
 import sys
 
 
-def exclude_from_export(case, RoiName):
-    """Toggle export
-    :param case: current case
-    :param RoiName: name of structure to exclude"""
-    try:
-        case.PatientModel.ToggleExcludeFromExport(
-            ExcludeFromExport=True,
-            RegionOfInterests=[RoiName],
-            PointsOfInterests=[])
-    except Exception:
-        logging.warning('Unable to exclude {} from export'.format(RoiName))
-
-
 def make_boolean_structure(patient, case, examination, **kwargs):
     StructureName = kwargs.get("StructureName")
     ExcludeFromExport = kwargs.get("ExcludeFromExport")
@@ -142,7 +129,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                               'Right': ExpR[4],
                               'Left': ExpR[5]})
     if ExcludeFromExport:
-        exclude_from_export(case=case, RoiName=StructureName)
+        StructureOperations.exclude_from_export(case=case, rois=StructureName)
 
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
         Examination=examination, Algorithm="Auto")
@@ -219,7 +206,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
                                                  RoiMaterial=None)
         new_structs.append("Air")
     patient.SetRoiVisibility(RoiName='Air', IsVisible=False)
-    exclude_from_export(case=case, RoiName='Air')
+    StructureOperations.exclude_from_export(case=case, rois='Air')
 
     retval_AIR.GrayLevelThreshold(Examination=examination,
                                   LowThreshold=-1024,
@@ -960,7 +947,7 @@ def main():
             )
             patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
-            exclude_from_export(case=case, RoiName='FieldOfView')
+            StructureOperations.exclude_from_export(case=case, rois='FieldOfView')
             newly_generated_rois.append(fov_name)
 
     # Make the PTVEZ objects now
