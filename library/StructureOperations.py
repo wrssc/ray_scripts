@@ -72,12 +72,19 @@ def check_roi(case, exam, rois):
         rois = [rois]
 
     roi_passes = []
-    if not any(exists_roi(case=case, rois=rois)):
+
+    if all(exists_roi(case=case, rois=rois)):
         for r in rois:
             if case.PatientModel.StructureSets[exam].RoiGeometries[r].HasContours():
-                return roi_passes.append(True)
+                roi_passes.append(True)
             else:
-                return roi_passes.append(False)
+                roi_passes.append(False)
+
+        return roi_passes
+
+    else:
+        roi_passes = [False]
+        logging.warning('ROIs {} may be missing'.format(rois))
 
 
 def max_coordinates(case, exam, rois):
@@ -91,10 +98,10 @@ def max_coordinates(case, exam, rois):
         rois = [rois]
 
     if any(exists_roi(case, rois)):
-        logging.warning('Maximum Coordinates of ROI: {} could NOT be determined. ROI does not exist'.format(roi_name))
+        logging.warning('Maximum Coordinates of ROI: {} could NOT be determined. ROI does not exist'.format(rois))
         return None
 
-    logging.debug('Determining maximum coordinates of ROI: {}'.format(roi_name))
+    logging.debug('Determining maximum coordinates of ROI: {}'.format(rois))
 
     ret = case.PatientModel.StructureSets[exam.Name]. \
         RoiGeometries[rois].SetRepresentation(Representation='Contours')
