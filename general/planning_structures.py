@@ -34,6 +34,7 @@
     1.0.4 Bug fix for upgrade to RS 8 - replaced the toggling of the exclude from export with
             the required method.
     1.0.4b Save the user mapping for this structure set as an xml file to be loaded by create_goals
+    1.0.5 Exclude InnerAir and FOV from Export, add IGRT Alignment Structure
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -141,13 +142,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                                      Mode=VisualizationType)
 
 
-def make_wall(wall,
-              sources,
-              delta,
-              patient,
-              case,
-              examination,
-              inner=True):
+def make_wall(wall, sources, delta, patient, case, examination, inner=True):
     """
 
     :param wall: Name of wall contour
@@ -258,7 +253,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
                                      MaxVolume=500)
         # Check for emptied contours
         if not inner_air_ex.HasContours():
-            logging.debug("make_inner_air: VolumeThresholding has eliminated InnerAir contours")
+            logging.debug("make_inner_air: Volume Thresholding has eliminated InnerAir contours")
     else:
         logging.debug("make_inner_air: No air contours were found near the targets")
 
@@ -410,7 +405,10 @@ def main():
         required=['1'] #, Not Yet'2']
 
     )
-    print dialog1.show()
+    dialog1_response = dialog1.show()
+    if dialog1_response == {}:
+        sys.exit('Planning Structures and Goal Selection was cancelled')
+    # Determine if targets using the skin are in place
 
     # Find all the target names and generate the potential dropdown list for the cases
     # Use the above list for Uniform Structure Choices and Underdose choices, then
@@ -430,7 +428,7 @@ def main():
             AllOars.append(r.Name)
 
     # Parse number of targets
-    n = int(dialog1.values['1'])
+    n = int(dialog1_response['1'])
     t_i = {}
     t_o = {}
     t_d = {}
@@ -448,25 +446,25 @@ def main():
         t_r.append(k_dose)
 
     # User selected that Underdose is required
-    if 'yes' in dialog1.values['3']:
+    if 'yes' in dialog1_response['3']:
         generate_underdose = True
     else:
         generate_underdose = False
 
     # User selected that Uniformdose is required
-    if 'yes' in dialog1.values['4']:
+    if 'yes' in dialog1_response['4']:
         generate_uniformdose = True
     else:
         generate_uniformdose = False
 
     # User selected that InnerAir is required
-    if 'yes' in dialog1.values['5']:
+    if 'yes' in dialog1_response['5']:
         generate_inner_air = True
     else:
         generate_inner_air = False
 
     # User selected that SBRT is required
-    # Not yet, soon.  if 'yes' in dialog1.values['6']:
+    # Not yet, soon.  if 'yes' in dialog1_response['6']:
     #    sbrt = True
     #else:
     #    sbrt = False
@@ -484,8 +482,11 @@ def main():
         options=t_o,
         required=t_r
     )
-    print initial_dialog.show()
 
+    initial_response = initial_dialog.show()
+
+    if initial_response == {}:
+        sys.exit('Planning Structures and Goal Selection was cancelled')
     # Parse the output from initial_dialog
     # We are going to take a user input input_source_list and convert them into PTV's used for planning
     # input_source_list consists of the user-specified targets to be massaged into PTV1, PTV2, .... below
@@ -495,7 +496,7 @@ def main():
     input_source_list = [None] * n
     source_doses = [None] * n
     translation_mapping = {}
-    for k, v in initial_dialog.values.iteritems():
+    for k, v in initial_response.iteritems():
         # Grab the first two characters in the key and convert to an index
         i_char = k[:2]
         indx = int(i_char)-1
@@ -585,8 +586,6 @@ def main():
                       .format(uniformdose_structures))
 
     # OPTIONS DIALOG
-    #  Users will select use of:
-    #
     options_dialog = UserInterface.InputDialog(
         title='Options',
         inputs={
@@ -607,11 +606,13 @@ def main():
             'input3_skintarget': ['Preserve Skin Dose'],
             'input4_targetrings': ['Use target-specific rings']},
         required=[])
-    print options_dialog.show()
 
+    options_response = options_dialog.show()
+    if options_response == {}:
+        sys.exit('Selection of planning structure options was cancelled')
     # Determine if targets using the skin are in place
     try:
-        if 'Preserve Skin Dose' in options_dialog.values['input3_skintarget']:
+        if 'Preserve Skin Dose' in options_response['input3_skintarget']:
             generate_target_skin = True
         else:
             generate_target_skin = False
@@ -620,7 +621,7 @@ def main():
 
     # User wants target specific rings or no
     try:
-        if 'Use target-specific rings' in options_dialog.values['input4_targetrings']:
+        if 'Use target-specific rings' in options_response['input4_targetrings']:
             generate_target_rings = True
             generate_ring_hd = False
         else:
@@ -636,14 +637,14 @@ def main():
     # DATA PARSING FOR THE OPTIONS MENU
     # Stand - Off Values - Gaps between structures
     # cm gap between higher dose targets (used for OTV volumes)
-    otv_standoff = float(options_dialog.values['input1_otv_standoff'])
+    otv_standoff = float(options_response['input1_otv_standoff'])
 
     # ring_standoff: cm Expansion between targets and rings
-    ring_standoff = float(options_dialog.values['input2_ring_standoff'])
+    ring_standoff = float(options_response['input2_ring_standoff'])
 
     # Ring thicknesses
-    thickness_hd_ring = float(options_dialog.values['input5_thick_hd_ring'])
-    thickness_ld_ring = float(options_dialog.values['input6_thick_ld_ring'])
+    thickness_hd_ring = float(options_response['input5_thick_hd_ring'])
+    thickness_ld_ring = float(options_response['input6_thick_ld_ring'])
 
     status.next_step(text='Support structures used for removing air, skin, and overlap being generated')
 
@@ -713,7 +714,7 @@ def main():
         logging.warning("Structure " + StructureName + " exists.  Using predefined structure.")
     except:
         retval_ExternalClean = case.PatientModel.CreateRoi(Name="ExternalClean",
-                                                           Color="Green",
+                                                           Color="New Tan",
                                                            Type="External",
                                                            TissueName="",
                                                            RbeCellTypeName=None,
