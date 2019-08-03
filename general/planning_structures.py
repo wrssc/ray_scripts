@@ -67,6 +67,19 @@ import time
 import sys
 
 
+def exclude_from_export(case, RoiName):
+    """Toggle export
+    :param case: current case
+    :param RoiName: name of structure to exclude"""
+    try:
+        case.PatientModel.ToggleExcludeFromExport(
+            ExcludeFromExport=True,
+            RegionOfInterests=[RoiName],
+            PointsOfInterests=[])
+    except Exception:
+        logging.warning('Unable to exclude {} from export'.format(RoiName))
+
+
 def make_boolean_structure(patient, case, examination, **kwargs):
     StructureName = kwargs.get("StructureName")
     ExcludeFromExport = kwargs.get("ExcludeFromExport")
@@ -127,13 +140,9 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                               'Posterior': ExpR[3],
                               'Right': ExpR[4],
                               'Left': ExpR[5]})
-    try:
-        case.PatientModel.ToggleExcludeFromExport(
-            ExcludeFromExport=True,
-            RegionOfInterests=[StructureName],
-            PointsOfInterests=[])
-    except:
-        logging.warning('Unable to exclude {} from export'.format(StructureName))
+    if ExcludeFromExport:
+        exclude_from_export(case=case, RoiName=StructureName)
+
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
         Examination=examination, Algorithm="Auto")
     patient.SetRoiVisibility(RoiName=StructureName,
@@ -209,6 +218,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
                                                  RoiMaterial=None)
         new_structs.append("Air")
     patient.SetRoiVisibility(RoiName='Air', IsVisible=False)
+    exclude_from_export(case=case, RoiName='Air')
 
     retval_AIR.GrayLevelThreshold(Examination=examination,
                                   LowThreshold=-1024,
@@ -239,6 +249,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
                            case=case,
                            examination=examination,
                            **inner_air_defs)
+
     # Define the inner_air structure at the Patient Model level
     inner_air_pm = case.PatientModel.RegionsOfInterest['InnerAir']
     # Define the inner_air structure at the examination level
@@ -703,8 +714,8 @@ def main():
                                             str(source_doses[index])]
             OTVList.append(OTVName)
             sotvu_list.append(sotvu_name)
-        else:
-            logging.warning("Generate PTV's off - a nonsupported operation")
+    else:
+        logging.warning("Generate PTV's off - a nonsupported operation")
 
     TargetColors = ["Red", "Green", "Blue", "Yellow", "Orange", "Purple"]
 
@@ -719,7 +730,7 @@ def main():
         logging.warning("Structure " + StructureName + " exists.  Using predefined structure.")
     except:
         retval_ExternalClean = case.PatientModel.CreateRoi(Name="ExternalClean",
-                                                           Color="#FFEAC086",
+                                                           Color="[234, 192, 134]",
                                                            Type="External",
                                                            TissueName="",
                                                            RbeCellTypeName=None,
@@ -736,7 +747,7 @@ def main():
 
     if generate_skin:
         make_wall(
-            wall="Skin",
+            wall="Skin_PRV05",
             sources=["ExternalClean"],
             delta=skin_contraction,
             patient=patient,
@@ -948,6 +959,7 @@ def main():
             )
             patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
+            exclude_from_export(case=case, RoiName='FieldOfView')
             newly_generated_rois.append(fov_name)
 
     # Make the PTVEZ objects now

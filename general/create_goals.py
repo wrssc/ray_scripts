@@ -428,7 +428,7 @@ def main():
                 logging.debug('All structures in protocol accounted for')
             else:
                 mc_list = ',\n'.join(m_c)
-                missing_message = 'Missing structures remain \n' + mc_list
+                missing_message = 'Missing structures remain: ' + mc_list
                 logging.warning(missing_message)
 
         status.next_step(text="Getting target doses from user.", num=2)

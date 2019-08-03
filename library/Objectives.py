@@ -9,19 +9,8 @@ import os
 import logging
 import xml.etree.ElementTree
 import UserInterface
+import StructureOperations
 import connect
-
-
-def exists_roi(case, roi):
-    """See if roi is in the list"""
-
-    rois = []
-    for r in case.PatientModel.RegionsOfInterest:
-        rois.append(r.Name)
-    if roi in rois:
-        return True
-    else:
-        return False
 
 
 def find_optimization_index(plan, beamset):
@@ -133,7 +122,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None, proto
     objective_sets = {}
     # Return variable. A list of ET Elements
     et_list = []
-    if protocol:
+    if protocol is not None:
         # Search first for a top level objectiveset
         # Find the objectivesets:
         # These get loaded for protocols regardless of orders
@@ -277,7 +266,7 @@ def reformat_objectives(objective_elements, translation_map=None):
 
 def add_objective(obj, exam, case, plan, beamset,
                   s_roi=None, s_dose=None,
-                  s_weight=None, restrict_beamset=None):
+                  s_weight=None, restrict_beamset=None, check_empty=False ):
     """
     adds an objective function to the optimization in RayStation after
     :param obj: child (roi-tag) of an ElementTree - consider mak
@@ -296,6 +285,7 @@ def add_objective(obj, exam, case, plan, beamset,
     # Parse the objectives
     #
     # If an roi was specified replace the name tag
+
     if s_roi:
         logging.debug("Objective is added for protocol ROI: {} using plan ROI: {}".format(
             obj.find('name').text, s_roi))
@@ -303,10 +293,11 @@ def add_objective(obj, exam, case, plan, beamset,
         obj.find('name').text = roi
     else:
         roi = obj.find('name').text
+
     #
     # Deal with relative or absolute volumes, modify the volume tag
     # (RayStation only allows relative volume roi's
-    # :TODO: Check how to find existence of a tag in elementtree
+    # TODO: Check how to find existence of a tag in elementtree
     # TODO: Clean up the debugging in here to one message
     if obj.find('volume') is None:
         volume = None
@@ -429,32 +420,33 @@ def add_objective(obj, exam, case, plan, beamset,
 
     # Add the objective
     try:
-        if exists_roi(case=case, roi=roi):
-            o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-                                                          RoiName=roi,
-                                                          IsConstraint=constraint,
-                                                          RestrictAllBeamsIndividually=False,
-                                                          RestrictToBeam=None,
-                                                          IsRobust=robust,
-                                                          RestrictToBeamSet=restrict_beamset,
-                                                          UseRbeDose=False)
-            o.DoseFunctionParameters.Weight = weight
-            if volume:
-                o.DoseFunctionParameters.PercentVolume = volume
-            if 'Eud' in function_type:
-                o.DoseFunctionParameters.EudParameterA = eud_a
-                # Dose fall off type of optimization option.
-            if function_type == 'DoseFallOff':
-                o.DoseFunctionParameters.HighDoseLevel = high_dose
-                o.DoseFunctionParameters.LowDoseLevel = low_dose
-                o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-                o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
-                # For all types other than DoseFallOff, the dose is simply entered here
-            else:
-                o.DoseFunctionParameters.DoseLevel = dose
-            logging.debug("Added objective for ROI: " +
-                          "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
-                          roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
+        if StructureOperations.exists_roi(case=case, roi=roi):
+            if StructureOperations.check_roi(case=case, exam=exam, roi=roi):
+                o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
+                                                              RoiName=roi,
+                                                              IsConstraint=constraint,
+                                                              RestrictAllBeamsIndividually=False,
+                                                              RestrictToBeam=None,
+                                                              IsRobust=robust,
+                                                              RestrictToBeamSet=restrict_beamset,
+                                                              UseRbeDose=False)
+                o.DoseFunctionParameters.Weight = weight
+                if volume:
+                    o.DoseFunctionParameters.PercentVolume = volume
+                if 'Eud' in function_type:
+                    o.DoseFunctionParameters.EudParameterA = eud_a
+                    # Dose fall off type of optimization option.
+                if function_type == 'DoseFallOff':
+                    o.DoseFunctionParameters.HighDoseLevel = high_dose
+                    o.DoseFunctionParameters.LowDoseLevel = low_dose
+                    o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+                    o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+                    # For all types other than DoseFallOff, the dose is simply entered here
+                else:
+                    o.DoseFunctionParameters.DoseLevel = dose
+                logging.debug("Added objective for ROI: " +
+                              "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
+                              roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
         else:
             logging.debug("ROI: {}, did not exist despite protocol. Objective not added".format(roi))
     except:
