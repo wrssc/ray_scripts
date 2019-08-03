@@ -43,10 +43,10 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import logging
 
 
-def exists_roi(case, roi):
-    """See if roi is in the list"""
-    if type(roi) is not list:
-        roi = [roi]
+def exists_roi(case, rois):
+    """See if rois is in the list"""
+    if type(rois) is not list:
+        rois = [rois]
 
     defined_rois = []
     for r in case.PatientModel.RegionsOfInterest:
@@ -54,7 +54,7 @@ def exists_roi(case, roi):
 
     roi_exists = []
 
-    for r in roi:
+    for r in rois:
         if r in defined_rois:
             roi_exists.append(True)
         else:
@@ -63,48 +63,48 @@ def exists_roi(case, roi):
     return roi_exists
 
 
-def check_roi(case, exam, roi):
-    """ See if the provided roi has contours, later check for contiguous"""
-    if type(roi) is not list:
-        roi = [roi]
+def check_roi(case, exam, rois):
+    """ See if the provided rois has contours, later check for contiguous"""
+    if type(rois) is not list:
+        rois = [rois]
 
     roi_passes = []
-    if not any(exists_roi(case=case, roi=roi)):
-        for r in roi:
+    if not any(exists_roi(case=case, rois=rois)):
+        for r in rois:
             if case.PatientModel.StructureSets[exam].RoiGeometries[r].HasContours():
                 return roi_passes.append(True)
             else:
                 return roi_passes.append(False)
 
 
-def max_coordinates(case, exam, roi):
-    """ Returns the maximum coordinates of the roi as a nested dictionary, e.g.
-    roi = PTV1
-    a = max_coordinates(case=case, exam=exam, roi=roi)
+def max_coordinates(case, exam, rois):
+    """ Returns the maximum coordinates of the rois as a nested dictionary, e.g.
+    rois = PTV1
+    a = max_coordinates(case=case, exam=exam, rois=rois)
     a['PTV1']['min_x'] = ...
 
     TODO: Give max Patient L/R/A/P/S/I, and consider creating a type with defined methods"""
-    if type(roi) is not list:
-        roi = [roi]
+    if type(rois) is not list:
+        rois = [rois]
 
-    if any(exists_roi(case, roi)):
+    if any(exists_roi(case, rois)):
         logging.warning('Maximum Coordinates of ROI: {} could NOT be determined. ROI does not exist'.format(roi_name))
         return None
 
     logging.debug('Determining maximum coordinates of ROI: {}'.format(roi_name))
 
     ret = case.PatientModel.StructureSets[exam.Name]. \
-        RoiGeometries[roi].SetRepresentation(Representation='Contours')
+        RoiGeometries[rois].SetRepresentation(Representation='Contours')
     logging.debug('ret of operation is {}'.format(ret))
 
     max_roi = {}
 
-    for r in roi:
+    for r in rois:
         x = []
         y = []
         z = []
 
-        contours = case.PatientModel.StructureSets[exam].RoiGeometries[roi].PrimaryShape.Contours
+        contours = case.PatientModel.StructureSets[exam].RoiGeometries[rois].PrimaryShape.Contours
 
         for contour in contours:
             for point in contour:
@@ -119,3 +119,21 @@ def max_coordinates(case, exam, roi):
                       'min_z': min(z),
                       'max_z': max(z)}
         return max_roi
+
+
+def exclude_from_export(case, rois):
+    """Toggle export
+    :param case: current case
+    :param rois: name of structure to exclude"""
+
+    if type(rois) is not list:
+        rois = [rois]
+
+    try:
+        case.PatientModel.ToggleExcludeFromExport(
+            ExcludeFromExport=True,
+            RegionOfInterests=rois,
+            PointsOfInterests=[])
+    except Exception:
+        logging.warning('Unable to exclude {} from export'.format(roi))
+

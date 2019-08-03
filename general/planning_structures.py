@@ -63,6 +63,7 @@ import connect
 import logging
 import UserInterface
 import Xml_Out
+import StructureOperations
 import time
 import sys
 

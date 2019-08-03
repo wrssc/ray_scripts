@@ -419,8 +419,8 @@ def add_objective(obj, exam, case, plan, beamset,
 
     # Add the objective
     try:
-        if StructureOperations.exists_roi(case=case, roi=roi):
-            if StructureOperations.check_roi(case=case, exam=exam, roi=roi):
+        if not any(StructureOperations.exists_roi(case=case, rois=roi)):
+            if StructureOperations.check_roi(case=case, exam=exam, rois=roi):
                 o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
                                                               RoiName=roi,
                                                               IsConstraint=constraint,
