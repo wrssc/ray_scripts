@@ -20,7 +20,7 @@
         <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
     </prescription>
     <order>
-        <name>50.4 Gy / 28 fx</name>
+        <name>Esophagus [50.4 Gy / 28 fx]</name>
         <prefix>Esop_</prefix>
         <prescription>
             <roi>
