@@ -398,7 +398,8 @@ def main():
                   '4': 'check',
                   '5': 'check',
                  }, #'6': 'check'},
-        initial={'1': '0'},
+        initial={'1': '0',
+                 '5': ['yes']},
         options={
                  # Not yet,  Not yet.  '2': ['Single Target/Dose', 'Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
                  '3': ['yes'],
