@@ -54,7 +54,7 @@ from pickle import FALSE
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '1.0.1'
+__version__ = '1.0.5'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
