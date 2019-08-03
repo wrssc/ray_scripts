@@ -10,7 +10,6 @@ import logging
 import xml.etree.ElementTree
 import UserInterface
 import StructureOperations
-import connect
 
 
 def find_optimization_index(plan, beamset):
@@ -248,7 +247,7 @@ def reformat_objectives(objective_elements, translation_map=None):
                     # Change the dose attribute to absolute
                     # TODO:: these change the xml object, might be needed for datamining project
                     o.find('dose').attrib['units'] = "Gy"
-                    o.find('dose').attrib['roi'] = translation_map[p_r][0]
+                    o.find('dose').attrib['roi'] = translation_map[o_r][0]
                     s_dose = float(translation_map[o_r][1]) * float(o_d) / 100
                     o.find('dose').text = str(s_dose)
                     # logging.debug('Reassigned protocol dose attribute name:' +

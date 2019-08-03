@@ -43,6 +43,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
 
+
 def exists_roi(case, roi):
     """See if roi is in the list"""
 
@@ -54,13 +55,15 @@ def exists_roi(case, roi):
     else:
         return False
 
+
 def check_roi(case, exam, roi):
     """ See if the provided roi has contours, later check for contiguous"""
     if exists_roi(case=case, roi=roi):
-        if case.PatientModel.StructureSets[exam].RoiGeometries[roi].HasContours()
+        if case.PatientModel.StructureSets[exam].RoiGeometries[roi].HasContours():
             return True
-        else
+        else:
             return False
+
 
 def max_coordinates(case, exam, roi_name):
     """ Returns the maximum coordinates of the roi in roi_name
@@ -73,7 +76,7 @@ def max_coordinates(case, exam, roi_name):
         return None
 
     ret = case.PatientModel.StructureSets[exam.Name].\
-        RoiGeometries[roi_name].SetRepresentation(Representation=’Contours’)
+        RoiGeometries[roi_name].SetRepresentation(Representation='Contours')
     logging.debug('ret of operation is {}'.format(ret))
 
     contours = case.PatientModel.StructureSets[exam].RoiGeometries[roi_name].PrimaryShape.Contours
@@ -88,10 +91,10 @@ def max_coordinates(case, exam, roi_name):
             y.append(point.y)
             z.append(point.z)
 
-    max_roi = {}
-    max_roi['min_x'] = min(x)
-    max_roi['max_x'] = max(x)
-    max_roi['max_y'] = min(y)
-    max_roi['min_y'] = max(y)
-    max_roi['min_z'] = min(z)
-    max_roi['max_z'] = max(z)
+    max_roi = {'min_x': min(x),
+               'max_x': max(x),
+               'max_y': min(y),
+               'min_y': max(y),
+               'min_z': min(z),
+               'max_z': max(z)}
+    return max_roi
