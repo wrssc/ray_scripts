@@ -75,6 +75,8 @@ def check_roi(case, exam, rois):
 
     roi_passes = []
 
+    logging.debug('exam name is {} and rois are {}'.format(exam.Name, rois))
+
     if all(exists_roi(case=case, rois=rois)):
         for r in rois:
             if case.PatientModel.StructureSets[exam.Name].RoiGeometries[r].HasContours():
