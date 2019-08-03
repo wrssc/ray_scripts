@@ -63,6 +63,8 @@ def exists_roi(case, rois):
         else:
             roi_exists.append(False)
 
+    logging.debug('roi_exists {} for rois {}'.format(roi_exists, rois))
+
     return roi_exists
 
 
@@ -80,6 +82,7 @@ def check_roi(case, exam, rois):
             else:
                 roi_passes.append(False)
 
+        logging.debug('roi_exists {} for rois {}'.format(roi_passes, rois))
         return roi_passes
 
     else:
