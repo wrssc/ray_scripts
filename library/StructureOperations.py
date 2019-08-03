@@ -40,61 +40,82 @@ __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-
 import logging
 
 
 def exists_roi(case, roi):
     """See if roi is in the list"""
+    if type(roi) is not list:
+        roi = [roi]
 
-    rois = []
+    defined_rois = []
     for r in case.PatientModel.RegionsOfInterest:
-        rois.append(r.Name)
-    if roi in rois:
-        return True
-    else:
-        return False
+        defined_rois.append(r.Name)
+
+    roi_exists = []
+
+    for r in roi:
+        if r in defined_rois:
+            roi_exists.append(True)
+        else:
+            roi_exists.append(False)
+
+    return roi_exists
 
 
 def check_roi(case, exam, roi):
     """ See if the provided roi has contours, later check for contiguous"""
-    if exists_roi(case=case, roi=roi):
-        if case.PatientModel.StructureSets[exam].RoiGeometries[roi].HasContours():
-            return True
-        else:
-            return False
+    if type(roi) is not list:
+        roi = [roi]
+
+    roi_passes = []
+    if not any(exists_roi(case=case, roi=roi)):
+        for r in roi:
+            if case.PatientModel.StructureSets[exam].RoiGeometries[r].HasContours():
+                return roi_passes.append(True)
+            else:
+                return roi_passes.append(False)
 
 
-def max_coordinates(case, exam, roi_name):
-    """ Returns the maximum coordinates of the roi in roi_name
-    TODO: Give max Patient L/R/A/P/S/I"""
+def max_coordinates(case, exam, roi):
+    """ Returns the maximum coordinates of the roi as a nested dictionary, e.g.
+    roi = PTV1
+    a = max_coordinates(case=case, exam=exam, roi=roi)
+    a['PTV1']['min_x'] = ...
 
-    if exists_roi(case, roi_name):
-        logging.debug('Determining maximum coordinates of ROI: {}'.format(roi_name))
-    else:
+    TODO: Give max Patient L/R/A/P/S/I, and consider creating a type with defined methods"""
+    if type(roi) is not list:
+        roi = [roi]
+
+    if any(exists_roi(case, roi)):
         logging.warning('Maximum Coordinates of ROI: {} could NOT be determined. ROI does not exist'.format(roi_name))
         return None
 
-    ret = case.PatientModel.StructureSets[exam.Name].\
-        RoiGeometries[roi_name].SetRepresentation(Representation='Contours')
+    logging.debug('Determining maximum coordinates of ROI: {}'.format(roi_name))
+
+    ret = case.PatientModel.StructureSets[exam.Name]. \
+        RoiGeometries[roi].SetRepresentation(Representation='Contours')
     logging.debug('ret of operation is {}'.format(ret))
 
-    contours = case.PatientModel.StructureSets[exam].RoiGeometries[roi_name].PrimaryShape.Contours
+    max_roi = {}
 
-    x = []
-    y = []
-    z = []
+    for r in roi:
+        x = []
+        y = []
+        z = []
 
-    for contour in contours:
-        for point in contour:
-            x.append(point.x)
-            y.append(point.y)
-            z.append(point.z)
+        contours = case.PatientModel.StructureSets[exam].RoiGeometries[roi].PrimaryShape.Contours
 
-    max_roi = {'min_x': min(x),
-               'max_x': max(x),
-               'max_y': min(y),
-               'min_y': max(y),
-               'min_z': min(z),
-               'max_z': max(z)}
-    return max_roi
+        for contour in contours:
+            for point in contour:
+                x.append(point.x)
+                y.append(point.y)
+                z.append(point.z)
+
+        max_roi[r] = {'min_x': min(x),
+                      'max_x': max(x),
+                      'max_y': min(y),
+                      'min_y': max(y),
+                      'min_z': min(z),
+                      'max_z': max(z)}
+        return max_roi

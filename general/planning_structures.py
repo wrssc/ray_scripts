@@ -754,7 +754,7 @@ def main():
             case=case,
             examination=examination,
             inner=True)
-        newly_generated_rois.append('Skin')
+        newly_generated_rois.append('Skin_PRV05')
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
     if generate_underdose:
@@ -997,7 +997,7 @@ def main():
     # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
     if generate_ptv_evals:
         if generate_underdose:
-            eval_subtract = ['Skin', 'InnerAir', 'UnderDose']
+            eval_subtract = ['Skin_PRV05', 'InnerAir', 'UnderDose']
             logging.debug("Removing the following from eval structures"
                           .format(eval_subtract))
         else:
