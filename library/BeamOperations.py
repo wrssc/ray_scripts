@@ -121,7 +121,7 @@ def rename_beams():
         logging.warning('Technique: {} unsupported in renaming script'.format(technique))
         raise IOError("Technique unsupported, manually name beams according to clinical convention.")
 
-    # Handle TomoHelical
+    # Tomo Helical naming
     if technique == 'TomoHelical':
         for b in beamset.Beams:
             beam_description = 'TomoHelical' + site_name
