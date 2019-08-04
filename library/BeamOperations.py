@@ -127,6 +127,7 @@ def rename_beams():
             beam_description = 'TomoHelical' + site_name
             b.Name = beam_description
             b.Description = input_technique
+        return
 
     # While loop variable definitions
     beam_index = 0
