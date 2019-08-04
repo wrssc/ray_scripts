@@ -260,7 +260,6 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 
 
 def main():
-
     # The following list allows different elements of the code to be toggled
     # No guarantee can be made that things will work if elements are turned off
     # all dependencies are not really resolved
@@ -393,21 +392,21 @@ def main():
             # '6': 'SBRT'
         },
         title='Planning Structures and Goal Selection',
-        datatype={# Not yet '2': 'combo',
-                  '3': 'check',
-                  '4': 'check',
-                  '5': 'check',
-                 }, #'6': 'check'},
+        datatype={  # Not yet '2': 'combo',
+            '3': 'check',
+            '4': 'check',
+            '5': 'check',
+        },  # '6': 'check'},
         initial={'1': '0',
                  '5': ['yes']},
         options={
-                 # Not yet,  Not yet.  '2': ['Single Target/Dose', 'Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
-                 '3': ['yes'],
-                 '4': ['yes'],
-                 '5': ['yes'],
-                 # '6': ['yes']
-                 },
-        required=['1'] #, Not Yet'2']
+            # Not yet,  Not yet.  '2': ['Single Target/Dose', 'Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
+            '3': ['yes'],
+            '4': ['yes'],
+            '5': ['yes'],
+            # '6': ['yes']
+        },
+        required=['1']  # , Not Yet'2']
 
     )
     dialog1_response = dialog1.show()
@@ -471,7 +470,7 @@ def main():
     # User selected that SBRT is required
     # Not yet, soon.  if 'yes' in dialog1_response['6']:
     #    sbrt = True
-    #else:
+    # else:
     #    sbrt = False
 
     logging.debug('User selected {} for UnderDose'.format(generate_underdose))
@@ -504,7 +503,7 @@ def main():
     for k, v in initial_response.iteritems():
         # Grab the first two characters in the key and convert to an index
         i_char = k[:2]
-        indx = int(i_char)-1
+        indx = int(i_char) - 1
         if len(v) > 0:
             if 'name' in k:
                 input_source_list[indx] = v
@@ -710,15 +709,25 @@ def main():
 
     for k, v in translation_mapping.iteritems():
         logging.debug('The translation map k is {} and v {}'.format(
-            k,v))
+            k, v))
 
     # Redraw the clean external volume if necessary
     try:
-        StructureName = "ExternalClean"
+        StructureName = 'ExternalClean'
         retval_ExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
+        retval_ExternalClean.SetAsExternal()
+        case.PatientModel.StructureSets[examination.Name].SimplifyContours(RoiNames=[StructureName],
+                                                                           RemoveHoles3D=True,
+                                                                           RemoveSmallContours=False,
+                                                                           AreaThreshold=None,
+                                                                           ReduceMaxNumberOfPointsInContours=False,
+                                                                           MaxNumberOfPoints=None,
+                                                                           CreateCopyOfRoi=False,
+                                                                           ResolveOverlappingContours=False)
         logging.warning("Structure " + StructureName + " exists.  Using predefined structure.")
     except:
-        retval_ExternalClean = case.PatientModel.CreateRoi(Name="ExternalClean",
+        StructureName = 'ExternalClean'
+        retval_ExternalClean = case.PatientModel.CreateRoi(Name=StructureName,
                                                            Color="234, 192, 134",
                                                            Type="External",
                                                            TissueName="",
@@ -726,13 +735,21 @@ def main():
                                                            RoiMaterial=None)
         retval_ExternalClean.CreateExternalGeometry(Examination=examination,
                                                     ThresholdLevel=None)
-        InExternalClean = case.PatientModel.RegionsOfInterest['ExternalClean']
+        InExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
         retval_ExternalClean.VolumeThreshold(InputRoi=InExternalClean,
                                              Examination=examination,
                                              MinVolume=1,
                                              MaxVolume=200000)
         retval_ExternalClean.SetAsExternal()
-        newly_generated_rois.append('External_Clean')
+        case.PatientModel.StructureSets[examination.Name].SimplifyContours(RoiNames=[StructureName],
+                                                                           RemoveHoles3D=True,
+                                                                           RemoveSmallContours=False,
+                                                                           AreaThreshold=None,
+                                                                           ReduceMaxNumberOfPointsInContours=False,
+                                                                           MaxNumberOfPoints=None,
+                                                                           CreateCopyOfRoi=False,
+                                                                           ResolveOverlappingContours=False)
+        newly_generated_rois.append('ExternalClean')
 
     if generate_skin:
         make_wall(
@@ -847,7 +864,7 @@ def main():
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
         for i, t in enumerate(input_source_list):
-            logging.debug("Creating target {} using {}".format(PTVList[i],t))
+            logging.debug("Creating target {} using {}".format(PTVList[i], t))
             ptv_sources.append(t)
             if i == 0:
                 ptv_definitions = {
