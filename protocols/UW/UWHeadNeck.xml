@@ -17,7 +17,7 @@
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Left HN Definitive [7000, 6000, 5400cGy] 33Fx</name>
+        <name>Left Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecL_</prefix>
         <prescription>
             <roi>
@@ -476,7 +476,7 @@
         </goals>
     </order>
     <order>
-        <name>Right HN Definitive [7000, 6000, 5400cGy] 33Fx</name>
+        <name>Right Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecR_</prefix>
         <prescription>
             <roi>
@@ -935,7 +935,7 @@
         </goals>
     </order>
     <order>
-        <name>Bilat HN Definitive [7000, 6000, 5400cGy] 33Fx</name>
+        <name>Bilat Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecB_</prefix>
         <prescription>
             <roi>
@@ -1394,7 +1394,7 @@
         </goals>
     </order>
     <order>
-        <name>Right HN Adjuvant [6300, 6000, 5400cGy] 30Fx</name>
+        <name>Right Head and Neck [Adjuvant 6300, 6000, 5400cGy 30Fx]</name>
         <prefix>NecR_</prefix>
         <prescription>
             <roi>
@@ -1853,7 +1853,7 @@
         </goals>
     </order>
     <order>
-        <name>Left HN Adjuvant [6300, 6000, 5400cGy] 30Fx</name>
+        <name>Left Head and Neck [Adjuvant 6300, 6000, 5400cGy 30Fx]</name>
         <prefix>NecL_</prefix>
         <prescription>
             <roi>
@@ -2312,7 +2312,7 @@
         </goals>
     </order>
     <order>
-        <name>BiLat HN Adjuvant [6300, 6000, 5400cGy] 30Fx</name>
+        <name>BiLat Head and Neck [Adjuvant 6300, 6000, 5400cGy 30Fx]</name>
         <prefix>NecB_</prefix>
         <prescription>
             <roi>
@@ -2771,7 +2771,7 @@
         </goals>
     </order>
     <order>
-        <name>Simultaneous Boost</name>
+        <name>Head and Neck - Simultaneous Boost</name>
         <prefix>Nec_</prefix>
         <prescription>
             <roi>
@@ -3230,7 +3230,7 @@
         </goals>
     </order>
     <order>
-        <name>One Sequential Boost</name>
+        <name>Head and Neck - One Sequential Boost</name>
         <prefix>Nec_</prefix>
         <prescription>
             <roi>
@@ -3692,7 +3692,7 @@
         </goals>
     </order>
     <order>
-        <name>Two Sequential Boosts</name>
+        <name>Head and Neck - Two Sequential Boosts</name>
         <prefix>Nec_</prefix>
         <prescription>
             <roi>

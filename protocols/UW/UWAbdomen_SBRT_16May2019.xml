@@ -18,7 +18,20 @@
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>5 fraction SBRT</name>
+        <name>Abdomen-SBRT</name>
+        <prefix>Abdo_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">90</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions>5</fractions>
+        </prescription>
+    </order>
+    <order>
+        <name>Liver-SBRT-5Fx</name>
         <prefix>Abdo_</prefix>
         <prescription>
             <roi>
@@ -228,7 +241,7 @@
         </goalset>
     </goals>
     <objectiveset>
-        <name>SBRT Abdomen</name>
+        <name>Abdomen-SBRT</name>
         <objectives>
             <roi>
                 <name>OTV1_</name>

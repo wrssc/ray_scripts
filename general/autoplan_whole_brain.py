@@ -63,6 +63,7 @@ import logging
 import UserInterface
 import random
 import sys
+import BeamOperations
 
 
 def check_external(roi_list):
@@ -743,6 +744,8 @@ def main():
     except Exception as e:
         logging.debug('error reported {}'.format(e))
         logging.debug('cannot do name change')
+
+    BeamOperations.rename_beams()
 
 
 if __name__ == '__main__':

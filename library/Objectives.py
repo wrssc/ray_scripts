@@ -9,19 +9,7 @@ import os
 import logging
 import xml.etree.ElementTree
 import UserInterface
-import connect
-
-
-def exists_roi(case, roi):
-    """See if roi is in the list"""
-
-    rois = []
-    for r in case.PatientModel.RegionsOfInterest:
-        rois.append(r.Name)
-    if roi in rois:
-        return True
-    else:
-        return False
+import StructureOperations
 
 
 def find_optimization_index(plan, beamset):
@@ -133,7 +121,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None, proto
     objective_sets = {}
     # Return variable. A list of ET Elements
     et_list = []
-    if protocol:
+    if protocol is not None:
         # Search first for a top level objectiveset
         # Find the objectivesets:
         # These get loaded for protocols regardless of orders
@@ -188,7 +176,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None, proto
         except KeyError:
             # This order doesn't appear to match one that has objectives in it
             # Pass an empty entry
-            logging.warning('Order: {} has no objectives'.format(order_name))
+            logging.debug('Order: {} has no objectives. Protocol objectives being used'.format(order_name))
             selected_order = None
     else:
         input_dialog = UserInterface.InputDialog(
@@ -259,7 +247,7 @@ def reformat_objectives(objective_elements, translation_map=None):
                     # Change the dose attribute to absolute
                     # TODO:: these change the xml object, might be needed for datamining project
                     o.find('dose').attrib['units'] = "Gy"
-                    o.find('dose').attrib['roi'] = translation_map[p_r][0]
+                    o.find('dose').attrib['roi'] = translation_map[o_r][0]
                     s_dose = float(translation_map[o_r][1]) * float(o_d) / 100
                     o.find('dose').text = str(s_dose)
                     # logging.debug('Reassigned protocol dose attribute name:' +
@@ -277,7 +265,7 @@ def reformat_objectives(objective_elements, translation_map=None):
 
 def add_objective(obj, exam, case, plan, beamset,
                   s_roi=None, s_dose=None,
-                  s_weight=None, restrict_beamset=None):
+                  s_weight=None, restrict_beamset=None, checking=False):
     """
     adds an objective function to the optimization in RayStation after
     :param obj: child (roi-tag) of an ElementTree - consider mak
@@ -296,17 +284,31 @@ def add_objective(obj, exam, case, plan, beamset,
     # Parse the objectives
     #
     # If an roi was specified replace the name tag
+
     if s_roi:
-        logging.debug("Objective is added for protocol ROI: {} using plan ROI: {}".format(
-            obj.find('name').text, s_roi))
+        protocol_roi = obj.find('name').text
         roi = s_roi
         obj.find('name').text = roi
+
     else:
+        protocol_roi = obj.find('name').text
         roi = obj.find('name').text
+
+    if checking:
+        roi_check = all(StructureOperations.check_roi(case=case, exam=exam, rois=roi))
+
+        if not roi_check:
+            logging.warning("Objective skipped for protocol ROI: {} since plan roi {} has no contours".format(
+                protocol_roi, roi))
+            return
+
+    if s_roi:
+        logging.debug("Objective for protocol ROI: {} substituted with plan ROI: {}".format(
+            protocol_roi, s_roi))
     #
     # Deal with relative or absolute volumes, modify the volume tag
     # (RayStation only allows relative volume roi's
-    # :TODO: Check how to find existence of a tag in elementtree
+    # TODO: Check how to find existence of a tag in elementtree
     # TODO: Clean up the debugging in here to one message
     if obj.find('volume') is None:
         volume = None
@@ -424,40 +426,39 @@ def add_objective(obj, exam, case, plan, beamset,
     else:
         robust = False
 
-    OptIndex = find_optimization_index(plan=plan,beamset=beamset)
+    OptIndex = find_optimization_index(plan=plan, beamset=beamset)
     plan_optimization = plan.PlanOptimizations[OptIndex]
 
     # Add the objective
-    try:
-        if exists_roi(case=case, roi=roi):
-            o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-                                                          RoiName=roi,
-                                                          IsConstraint=constraint,
-                                                          RestrictAllBeamsIndividually=False,
-                                                          RestrictToBeam=None,
-                                                          IsRobust=robust,
-                                                          RestrictToBeamSet=restrict_beamset,
-                                                          UseRbeDose=False)
-            o.DoseFunctionParameters.Weight = weight
-            if volume:
-                o.DoseFunctionParameters.PercentVolume = volume
-            if 'Eud' in function_type:
-                o.DoseFunctionParameters.EudParameterA = eud_a
-                # Dose fall off type of optimization option.
-            if function_type == 'DoseFallOff':
-                o.DoseFunctionParameters.HighDoseLevel = high_dose
-                o.DoseFunctionParameters.LowDoseLevel = low_dose
-                o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-                o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
-                # For all types other than DoseFallOff, the dose is simply entered here
-            else:
-                o.DoseFunctionParameters.DoseLevel = dose
-            logging.debug("Added objective for ROI: " +
-                          "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
-                          roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
-        else:
-            logging.debug("ROI: {}, did not exist despite protocol. Objective not added".format(roi))
-    except:
-        logging.debug("Failed to add objective for ROI:" +
-                      " {}, type {}, dose {}, weight {}, for beamset {}".format(
-                          roi, function_type, dose, weight, restrict_beamset))
+    # try:
+
+    o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
+                                                  RoiName=roi,
+                                                  IsConstraint=constraint,
+                                                  RestrictAllBeamsIndividually=False,
+                                                  RestrictToBeam=None,
+                                                  IsRobust=robust,
+                                                  RestrictToBeamSet=restrict_beamset,
+                                                  UseRbeDose=False)
+    o.DoseFunctionParameters.Weight = weight
+    if volume:
+        o.DoseFunctionParameters.PercentVolume = volume
+    if 'Eud' in function_type:
+        o.DoseFunctionParameters.EudParameterA = eud_a
+        # Dose fall off type of optimization option.
+    if function_type == 'DoseFallOff':
+        o.DoseFunctionParameters.HighDoseLevel = high_dose
+        o.DoseFunctionParameters.LowDoseLevel = low_dose
+        o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+        o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+        # For all types other than DoseFallOff, the dose is simply entered here
+    else:
+        o.DoseFunctionParameters.DoseLevel = dose
+    logging.debug("Added objective for ROI: " +
+                  "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
+                      roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
+
+# except:
+#     logging.debug("Failed to add objective for ROI:" +
+#                   " {}, type {}, dose {}, weight {}, for beamset {}".format(
+#                       roi, function_type, dose, weight, restrict_beamset))

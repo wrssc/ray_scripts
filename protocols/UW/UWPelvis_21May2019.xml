@@ -14,7 +14,7 @@
     </diagnoses>
 
     <order>
-        <name>Gyn Pelvis - 45 Gy</name>
+        <name>Gyn [45 Gy]</name>
         <prefix>Pelv_</prefix>
         <prescription>
             <roi>
@@ -277,7 +277,7 @@
         </goals>
     </order>
     <order>
-        <name>Gyn Pelvis - 50.4 Gy</name>
+        <name>Gyn [50.4 Gy]</name>
         <prefix>Pelv_</prefix>
         <prescription>
             <roi>
@@ -540,7 +540,7 @@
         </goals>
     </order>
     <order>
-        <name>Vulva</name>
+        <name>Gyn [Vulva]</name>
         <prefix>Vulv_</prefix>
         <prescription>
             <roi>
@@ -833,7 +833,7 @@
     </order>
 
     <order>
-        <name>Endometrium</name>
+        <name>Gyn [Endometrium]</name>
         <prefix>Endo_</prefix>
         <prescription>
             <roi>
@@ -1068,7 +1068,7 @@
         </goals>
     </order>
     <order>
-        <name>Cervix</name>
+        <name>Gyn [Cervix]</name>
         <prefix>Cerv_</prefix>
         <prescription>
             <roi>
@@ -1303,7 +1303,7 @@
         </goals>
     </order>
     <order>
-        <name>Uterus</name>
+        <name>Gyn [Uterus]</name>
         <prefix>Uter_</prefix>
         <prescription>
             <roi>
@@ -1538,7 +1538,7 @@
         </goals>
     </order>
     <order>
-        <name>Vagina</name>
+        <name>Gyn [Vagina]</name>
         <prefix>Vagi_</prefix>
         <prescription>
             <roi>

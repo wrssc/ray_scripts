@@ -20,7 +20,7 @@
         </technique>
     </prescription>
     <order>
-        <name>GBM Brain 6000cGy in 30Fx [Single-Phase Stupp]</name>
+        <name>Brain-Fractionated [GBM Brain 6000cGy in 30Fx Single-Phase Stupp]</name>
         <prefix>Glio_</prefix>
         <prescription>
             <roi>
@@ -449,7 +449,7 @@
         </goals>
     </order>
     <order>
-        <name>GBM Brain 4005cGy in 15Fx [Hypo GBM]</name>
+        <name>Brain-Hypo [GBM Brain 4005cGy in 15Fx]</name>
         <prefix>Glio_</prefix>
         <prescription>
             <roi>
@@ -691,7 +691,7 @@
         </goals>
     </order>
     <order>
-        <name>Whole Brain</name>
+        <name>Brain-WBRT</name>
         <prefix>Brai_</prefix>
         <prescription>
             <roi>
@@ -764,7 +764,7 @@
         </goals>
     </order>
     <order>
-        <name>Whole Brain w/ HA - 30 Gy[RTOG0933/CC001]</name>
+        <name>Brain-WBRT-Hippocampal Avoidance [30Gy CC001]</name>
         <prefix>WBHA_</prefix>
         <prescription>
             <roi>
@@ -911,7 +911,7 @@
         </goals>
     </order>
     <order>
-        <name>Whole Brain w/ HA - 25 Gy[CC003]</name>
+        <name>Brain-WBRT-Hippocampal Avoidance [30Gy CC003]</name>
         <prefix>WBHA_</prefix>
         <prescription>
             <roi>
