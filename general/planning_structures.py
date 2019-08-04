@@ -725,7 +725,8 @@ def main():
                                                                            CreateCopyOfRoi=False,
                                                                            ResolveOverlappingContours=False)
         retval_ExternalClean.Color = StructureOperations.define_sys_color(['234, 192, 134'])
-        logging.warning("Structure " + StructureName + " exists.  Using predefined structure.")
+        logging.warning("Structure " + StructureName +
+                        " exists.  Using predefined structure after removing holes and changing color.")
     except:
         StructureName = 'ExternalClean'
         retval_ExternalClean = case.PatientModel.CreateRoi(Name=StructureName,
