@@ -922,7 +922,7 @@ def main():
                     "OperationResult": "None",
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
-                    "StructType": "Ptv"}
+                    "StructType": "Undefined"}
             else:
                 ptv_definitions = {
                     "StructureName": PTVList[i],
@@ -941,7 +941,7 @@ def main():
                     "OperationResult": "Subtraction",
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
-                    "StructType": "Ptv"}
+                    "StructType": "Undefined"}
             logging.debug("Creating main target {}: {}"
                           .format(i, PTVList[i]))
             make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
@@ -1030,7 +1030,7 @@ def main():
                 "OperationResult": "Intersection",
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
-                "StructType": "Ptv"}
+                "StructType": "Undefined"}
             make_boolean_structure(
                 patient=patient,
                 case=case,
@@ -1140,7 +1140,7 @@ def main():
                 "MarginTypeB": "Expand",
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
-                "StructType": "Ptv"}
+                "StructType": "Undefined"}
             if index == 0:
                 OTV_defs['SourcesB'] = []
                 OTV_defs['OperationResult'] = "None"
@@ -1180,7 +1180,7 @@ def main():
                     "OperationResult": "Intersection",
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
-                    "StructType": "Ptv"}
+                    "StructType": "Undefined"}
                 make_boolean_structure(
                     patient=patient,
                     case=case,
