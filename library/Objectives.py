@@ -289,8 +289,6 @@ def add_objective(obj, exam, case, plan, beamset,
         protocol_roi = obj.find('name').text
         roi = s_roi
         obj.find('name').text = roi
-        logging.debug("Objective for protocol ROI: {} substituted with plan ROI: {}".format(
-            protocol_roi, s_roi))
 
     else:
         protocol_roi = obj.find('name').text
@@ -303,6 +301,10 @@ def add_objective(obj, exam, case, plan, beamset,
             logging.warning("Objective skipped for protocol ROI: {} since plan roi {} has no contours".format(
                 protocol_roi, roi))
             return
+
+    if s_roi:
+        logging.debug("Objective for protocol ROI: {} substituted with plan ROI: {}".format(
+            protocol_roi, s_roi))
     #
     # Deal with relative or absolute volumes, modify the volume tag
     # (RayStation only allows relative volume roi's
