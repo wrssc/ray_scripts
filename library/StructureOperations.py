@@ -44,6 +44,11 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
+import connect
+import sys
+import clr
+clr.AddReference('System.Drawing')
+import System.Drawing
 
 
 def exists_roi(case, rois):
@@ -149,13 +154,11 @@ def exclude_from_export(case, rois):
     except Exception:
         logging.warning('Unable to exclude {} from export'.format(rois))
 
+
 def define_sys_color(rgb):
     """ Takes an rgb list and converts to a Color object useable by RS
     :param rgb: an rgb color list, e.g. [128, 132, 256]
     :return Color object"""
-    import clr
-    clr.AddReference('System.Drawing')
-    import System.Drawing
 
     return System.Drawing.Color.FromArgb(255, rgb[0], rgb[1], rgb[2])
 
@@ -166,8 +169,7 @@ def find_targets(case):
     :param case: Current RS Case
     :return: plan_targets # A List of targets
     """
-    import sys
-    import connect
+
     # Find RS targets
     plan_targets = []
     for r in case.PatientModel.RegionsOfInterest:
@@ -197,7 +199,7 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check'):
         Check - simply returns true or false if found
     :return: Logical - True if structure is present in ROI List, false otherwise
     """
-    import connect
+
     # If no roi_list is given, build it using all roi in the case
     if roi_list is None:
         roi_list = []
