@@ -304,6 +304,7 @@ def main():
     # Redraw the clean external volume if necessary
     StructureName = 'ExternalClean'
     roi_check = all(StructureOperations.check_roi(case=case, exam=examination, rois=StructureName))
+
     if roi_check:
         retval_ExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
         retval_ExternalClean.SetAsExternal()
