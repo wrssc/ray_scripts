@@ -724,6 +724,7 @@ def main():
                                                                            MaxNumberOfPoints=None,
                                                                            CreateCopyOfRoi=False,
                                                                            ResolveOverlappingContours=False)
+        retval_ExternalClean.Color = StructureOperations.define_sys_color(['234, 192, 134'])
         logging.warning("Structure " + StructureName + " exists.  Using predefined structure.")
     except:
         StructureName = 'ExternalClean'
