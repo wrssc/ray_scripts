@@ -286,13 +286,23 @@ def add_objective(obj, exam, case, plan, beamset,
     # If an roi was specified replace the name tag
 
     if s_roi:
-        logging.debug("Objective is added for protocol ROI: {} using plan ROI: {}".format(
-            obj.find('name').text, s_roi))
         roi = s_roi
         obj.find('name').text = roi
+        logging.debug("Objective for protocol ROI: {} substituted with plan ROI: {}".format(
+            obj.find('name').text, s_roi))
+
     else:
         roi = obj.find('name').text
 
+    if checking:
+        roi_check = all(StructureOperations.check_roi(case=case, exam=exam, rois=roi))
+        logging.debug('Plan Roi {} has contours?: {}'.format(
+            roi, roi_check))
+
+        if not roi_check:
+            logging.warning("Objective is not added for protocol ROI: {}".format(
+                obj.find('name').text, s_roi))
+            return
     #
     # Deal with relative or absolute volumes, modify the volume tag
     # (RayStation only allows relative volume roi's
@@ -420,43 +430,33 @@ def add_objective(obj, exam, case, plan, beamset,
     # Add the objective
     # try:
 
-    if checking:
-        roi_check = all(StructureOperations.check_roi(case=case, exam=exam, rois=roi))
-        logging.debug('Check for Roi {}: Has Contours {}'.format(
-            roi, roi_check))
+    o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
+                                                  RoiName=roi,
+                                                  IsConstraint=constraint,
+                                                  RestrictAllBeamsIndividually=False,
+                                                  RestrictToBeam=None,
+                                                  IsRobust=robust,
+                                                  RestrictToBeamSet=restrict_beamset,
+                                                  UseRbeDose=False)
+    o.DoseFunctionParameters.Weight = weight
+    if volume:
+        o.DoseFunctionParameters.PercentVolume = volume
+    if 'Eud' in function_type:
+        o.DoseFunctionParameters.EudParameterA = eud_a
+        # Dose fall off type of optimization option.
+    if function_type == 'DoseFallOff':
+        o.DoseFunctionParameters.HighDoseLevel = high_dose
+        o.DoseFunctionParameters.LowDoseLevel = low_dose
+        o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+        o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+        # For all types other than DoseFallOff, the dose is simply entered here
     else:
-        roi_check = True
+        o.DoseFunctionParameters.DoseLevel = dose
+    logging.debug("Added objective for ROI: " +
+                  "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
+                      roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
 
-    if roi_check:
-        o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
-                                                      RoiName=roi,
-                                                      IsConstraint=constraint,
-                                                      RestrictAllBeamsIndividually=False,
-                                                      RestrictToBeam=None,
-                                                      IsRobust=robust,
-                                                      RestrictToBeamSet=restrict_beamset,
-                                                      UseRbeDose=False)
-        o.DoseFunctionParameters.Weight = weight
-        if volume:
-            o.DoseFunctionParameters.PercentVolume = volume
-        if 'Eud' in function_type:
-            o.DoseFunctionParameters.EudParameterA = eud_a
-            # Dose fall off type of optimization option.
-        if function_type == 'DoseFallOff':
-            o.DoseFunctionParameters.HighDoseLevel = high_dose
-            o.DoseFunctionParameters.LowDoseLevel = low_dose
-            o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
-            o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
-            # For all types other than DoseFallOff, the dose is simply entered here
-        else:
-            o.DoseFunctionParameters.DoseLevel = dose
-        logging.debug("Added objective for ROI: " +
-                      "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
-                          roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
-    else:
-        logging.debug("ROI: {}, did not exist despite protocol. Objective not added".format(roi))
-
-    # except:
-    #     logging.debug("Failed to add objective for ROI:" +
-    #                   " {}, type {}, dose {}, weight {}, for beamset {}".format(
-    #                       roi, function_type, dose, weight, restrict_beamset))
+# except:
+#     logging.debug("Failed to add objective for ROI:" +
+#                   " {}, type {}, dose {}, weight {}, for beamset {}".format(
+#                       roi, function_type, dose, weight, restrict_beamset))

@@ -75,8 +75,6 @@ def check_roi(case, exam, rois):
 
     roi_passes = []
 
-    logging.debug('exam name is {} and rois are {}'.format(exam.Name, rois))
-
     if all(exists_roi(case=case, rois=rois)):
 
         for r in rois:
@@ -85,13 +83,11 @@ def check_roi(case, exam, rois):
             else:
                 roi_passes.append(False)
 
-        logging.debug('roi_exists {} for rois {}'.format(roi_passes, rois))
         return roi_passes
 
     else:
 
         return [False]
-        logging.warning('ROIs {} may be missing'.format(rois))
 
 
 def max_coordinates(case, exam, rois):
