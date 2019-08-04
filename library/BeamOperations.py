@@ -79,10 +79,12 @@ def rename_beams():
         'SnS PRDR MLC -- IMRT',
         'Conformal Arc -- 2D',
         'Conformal Arc -- 3D',
-        'VMAT Arc -- IMRT']
+        'VMAT Arc -- IMRT',
+        'Tomo Helical -- IMRT']
     supported_rs_techniques = [
         'SMLC',
-        'DynamicArc']
+        'DynamicArc',
+        'TomoHelical']
 
 
     try:
@@ -118,6 +120,13 @@ def rename_beams():
     if technique not in supported_rs_techniques:
         logging.warning('Technique: {} unsupported in renaming script'.format(technique))
         raise IOError("Technique unsupported, manually name beams according to clinical convention.")
+
+    # Handle TomoHelical
+    if technique == 'TomoHelical':
+        for b in beamset.Beams:
+            beam_description = 'TomoHelical' + site_name
+            b.Name = beam_description
+            b.Description = input_technique
 
     # While loop variable definitions
     beam_index = 0

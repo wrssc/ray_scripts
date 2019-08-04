@@ -580,7 +580,7 @@ def main():
             "OperationResult": "None",
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
-            "StructType": "Undefined"}
+            "StructType": "Ptv"}
         make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
