@@ -296,7 +296,7 @@ def add_objective(obj, exam, case, plan, beamset,
 
     if checking:
         roi_check = all(StructureOperations.check_roi(case=case, exam=exam, rois=roi))
-        logging.debug('Plan Roi {} has contours?: {}'.format(
+        logging.debug('Plan Roi {} has contours: {}'.format(
             roi, roi_check))
 
         if not roi_check:

@@ -63,8 +63,6 @@ def exists_roi(case, rois):
         else:
             roi_exists.append(False)
 
-    logging.debug('roi_exists {} for rois {}'.format(roi_exists, rois))
-
     return roi_exists
 
 
@@ -147,6 +145,7 @@ def exclude_from_export(case, rois):
             ExcludeFromExport=True,
             RegionOfInterests=rois,
             PointsOfInterests=[])
+
     except Exception:
         logging.warning('Unable to exclude {} from export'.format(rois))
 
