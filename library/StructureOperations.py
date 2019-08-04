@@ -88,7 +88,7 @@ def check_roi(case, exam, rois):
         return roi_passes
 
     else:
-        roi_passes = [False]
+        roi_passes.append = [False]
         logging.warning('ROIs {} may be missing'.format(rois))
 
 
