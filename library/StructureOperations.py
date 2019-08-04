@@ -149,3 +149,74 @@ def exclude_from_export(case, rois):
     except Exception:
         logging.warning('Unable to exclude {} from export'.format(rois))
 
+def define_sys_color(rgb):
+    """ Takes an rgb list and converts to a Color object useable by RS
+    :param rgb: an rgb color list, e.g. [128, 132, 256]
+    :return Color object"""
+    import clr
+    clr.AddReference('System.Drawing')
+    import System.Drawing
+
+    return System.Drawing.Color.FromArgb(255, rgb[0], rgb[1], rgb[2])
+
+
+def find_targets(case):
+    """
+    Find all structures with type 'Target' within the current case. Return the matches as a list
+    :param case: Current RS Case
+    :return: plan_targets # A List of targets
+    """
+    import sys
+    import connect
+    # Find RS targets
+    plan_targets = []
+    for r in case.PatientModel.RegionsOfInterest:
+        if r.OrganData.OrganType == 'Target':
+            plan_targets.append(r.Name)
+    # Add user threat: empty PTV list.
+    if not plan_targets:
+        connect.await_user_input("The target list is empty." +
+                                 " Please apply type PTV to the targets and continue.")
+        for r in case.PatientModel.RegionsOfInterest:
+            if r.OrganData.OrganType == 'Target':
+                plan_targets.append(r.Name)
+    if plan_targets:
+        return plan_targets
+    else:
+        sys.exit('Script cancelled')
+
+
+def check_structure_exists(case, structure_name, roi_list=None, option='Check'):
+    """
+    Verify if a structure with the exact name specified exists or not
+    :param case: Current RS case
+    :param structure_name: the name of the structure to be confirmed
+    :param roi_list: complete list of all available ROI's.
+    :param option: desired behavior
+        Delete - deletes structure if found
+        Check - simply returns true or false if found
+    :return: Logical - True if structure is present in ROI List, false otherwise
+    """
+    import connect
+    # If no roi_list is given, build it using all roi in the case
+    if roi_list is None:
+        roi_list = []
+        for r in case.PatientModel.RegionsOfInterest:
+            roi_list.append(r.Name)
+
+    if any(roi.OfRoi.Name == structure_name for roi in roi_list):
+        if option == 'Delete':
+            case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
+            logging.warning(structure_name + 'found - deleting and creating')
+        elif option == 'Check':
+            logging.info(structure_name + 'found')
+        return True
+    elif option == 'Wait':
+        connect.await_user_input(
+            'Create the structure {} and continue script.'.format(structure_name))
+    else:
+        logging.info(structure_name + 'not found')
+        return False
+
+
+

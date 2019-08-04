@@ -43,6 +43,7 @@ import clr
 
 clr.AddReference('System.Drawing')
 import System.Drawing
+import StructureOperations
 
 
 def find_targets(case):
@@ -69,36 +70,7 @@ def find_targets(case):
         sys.exit('Script cancelled')
 
 
-def check_structure_exists(case, structure_name, roi_list=None, option='Check'):
-    """
-    Verify if a structure with the exact name specified exists or not
-    :param case: Current RS case
-    :param structure_name: the name of the structure to be confirmed
-    :param roi_list: complete list of all available ROI's.
-    :param option: desired behavior
-        Delete - deletes structure if found
-        Check - simply returns true or false if found
-    :return: Logical - True if structure is present in ROI List, false otherwise
-    """
-    # If no roi_list is given, build it using all roi in the case
-    if roi_list is None:
-        roi_list = []
-        for r in case.PatientModel.RegionsOfInterest:
-            roi_list.append(r.Name)
 
-    if any(roi.OfRoi.Name == structure_name for roi in roi_list):
-        if option == 'Delete':
-            case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-            logging.warning(structure_name + 'found - deleting and creating')
-        elif option == 'Check':
-            logging.info(structure_name + 'found')
-        return True
-    elif option == 'Wait':
-        connect.await_user_input(
-            'Create the structure {} and continue script.'.format(structure_name))
-    else:
-        logging.info(structure_name + 'not found')
-        return False
 
 
 def isodose_reconfig(case, ref_dose, max_dose=None, levels=None):
@@ -121,19 +93,19 @@ def isodose_reconfig(case, ref_dose, max_dose=None, levels=None):
 
     dose_levels = {}
     if levels is None:
-        dose_levels = {10: System.Drawing.Color.FromArgb(255, 127, 0, 255),
-                       20: System.Drawing.Color.FromArgb(255, 0, 0, 255),
-                       30: System.Drawing.Color.FromArgb(255, 0, 127, 255),
-                       40: System.Drawing.Color.FromArgb(255, 0, 255, 255),
-                       50: System.Drawing.Color.FromArgb(255, 0, 255, 127),
-                       60: System.Drawing.Color.FromArgb(255, 0, 255, 0),
-                       70: System.Drawing.Color.FromArgb(255, 127, 255, 0),
-                       80: System.Drawing.Color.FromArgb(255, 255, 255, 0),
-                       90: System.Drawing.Color.FromArgb(255, 255, 127, 0),
-                       95: System.Drawing.Color.FromArgb(255, 255, 0, 0),
-                       100: System.Drawing.Color.FromArgb(255, 255, 0, 255),
-                       105: System.Drawing.Color.FromArgb(255, 255, 0, 127),
-                       max_isodose: System.Drawing.Color.FromArgb(255, 128, 20, 20)}
+        dose_levels = {10: StructureOperations.define_sys_color([127, 0, 255]),
+                       20: StructureOperations.define_sys_color([0, 0, 255]),
+                       30: StructureOperations.define_sys_color([0, 127, 255]),
+                       40: StructureOperations.define_sys_color([0, 255, 255]),
+                       50: StructureOperations.define_sys_color([0, 255, 127]),
+                       60: StructureOperations.define_sys_color([0, 255, 0]),
+                       70: StructureOperations.define_sys_color([127, 255, 0]),
+                       80: StructureOperations.define_sys_color([255, 255, 0]),
+                       90: StructureOperations.define_sys_color([255, 127, 0]),
+                       95: StructureOperations.define_sys_color([255, 0, 0]),
+                       100: StructureOperations.define_sys_color([255, 0, 255]),
+                       105: StructureOperations.define_sys_color([255, 0, 127]),
+                       max_isodose: StructureOperations.define_sys_color([128, 20, 20])}
     else:
         for k, v in levels.iteritems():
             dose_levels[k] = System.Drawing.Color.FromArgb(
