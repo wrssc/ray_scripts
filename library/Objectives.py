@@ -176,7 +176,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None, proto
         except KeyError:
             # This order doesn't appear to match one that has objectives in it
             # Pass an empty entry
-            logging.warning('Order: {} has no objectives'.format(order_name))
+            logging.debug('Order: {} has no objectives. Protocol objectives being used'.format(order_name))
             selected_order = None
     else:
         input_dialog = UserInterface.InputDialog(
