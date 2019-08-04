@@ -712,8 +712,9 @@ def main():
             k, v))
 
     # Redraw the clean external volume if necessary
-    try:
-        StructureName = 'ExternalClean'
+    StructureName = 'ExternalClean'
+    roi_check = all(StructureOperations.check_roi(case=case, exam=exam, rois=StructureName))
+    if roi_check:
         retval_ExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
         retval_ExternalClean.SetAsExternal()
         case.PatientModel.StructureSets[examination.Name].SimplifyContours(RoiNames=[StructureName],
@@ -727,7 +728,7 @@ def main():
         retval_ExternalClean.Color = StructureOperations.define_sys_color(['234, 192, 134'])
         logging.warning("Structure " + StructureName +
                         " exists.  Using predefined structure after removing holes and changing color.")
-    except:
+    else:
         StructureName = 'ExternalClean'
         retval_ExternalClean = case.PatientModel.CreateRoi(Name=StructureName,
                                                            Color="234, 192, 134",
