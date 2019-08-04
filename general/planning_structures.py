@@ -302,6 +302,7 @@ def main():
     newly_generated_rois = []
 
     # Redraw the clean external volume if necessary
+    # Reform the external immediately
     StructureName = 'ExternalClean'
     roi_check = all(StructureOperations.check_roi(case=case, exam=examination, rois=StructureName))
     if roi_check:
