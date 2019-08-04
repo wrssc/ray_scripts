@@ -421,12 +421,9 @@ def add_objective(obj, exam, case, plan, beamset,
     # try:
 
     if checking:
-        roi_exists = all(StructureOperations.exists_roi(case=case, rois=roi))
-        roi_has_contours = StructureOperations.check_roi(case=case, exam=exam, rois=roi)
-        roi_check = all(roi_exists) and all(roi_has_contours)
-        logging.debug('Roi {} and check {}'.format(roi,roi_check))
-        logging.debug('Check for Roi {}: Exists {}, Has Contours {}'.format(
-            roi, roi_exists, roi_has_contours))
+        roi_check = all(StructureOperations.check_roi(case=case, exam=exam, rois=roi))
+        logging.debug('Check for Roi {}: Has Contours {}'.format(
+            roi, roi_check))
     else:
         roi_check = True
 
