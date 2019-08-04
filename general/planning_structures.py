@@ -275,6 +275,7 @@ def main():
     generate_ring_hd = True
     generate_ring_ld = True
     generate_normal_2cm = True
+    generate_combined_ptv = True
 
     # Contraction in cm to be used in the definition of the skin contour
     skin_contraction = 0.5
@@ -557,6 +558,35 @@ def main():
                 source_doses[indx] = v
         else:
             logging.warning('No dialog elements returned. Script unsuccessful')
+
+    # Generate Scan Lengths
+    if generate_combined_ptv:
+        logging.debug("Creating All_PTVs ROI using Sources: {}"
+                      .format(input_source_list))
+        # Generate the UnderDose structure
+        all_ptv_defs = {
+            "StructureName": "All_PTVs",
+            "ExcludeFromExport": False,
+            "VisualizeStructure": False,
+            "StructColor": " Red",
+            "OperationA": "Union",
+            "SourcesA": input_source_list,
+            "MarginTypeA": "Expand",
+            "ExpA": [0] * 6,
+            "OperationB": "Union",
+            "SourcesB": [],
+            "MarginTypeB": "Expand",
+            "ExpB": [0] * 6,
+            "OperationResult": "None",
+            "MarginTypeR": "Expand",
+            "ExpR": [0] * 6,
+            "StructType": "Undefined"}
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **all_ptv_defs)
+        newly_generated_rois.append('All_PTVs')
+
 
     logging.debug('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
     logging.debug('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
