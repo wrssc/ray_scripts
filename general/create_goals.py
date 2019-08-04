@@ -589,7 +589,6 @@ def main():
                     translation_map[g] = [None] * 2
                 translation_map[g][0] = r
                 obj_targets.append(r)
-                logging.debug('Added a target match {}'.format(r))
     # TODO: Decide how we want the saved xml file to look. Do we want it a
     #  simple mapping+protocol? If so, the xml element file should really be unaltered
     #  we'd map an xml-input to objectives using the mapping, save the mapping and
@@ -613,15 +612,8 @@ def main():
                 # to match the user input target and dose level for that named structure
                 # Correct the relative dose to the user-specified dose levels for this structure
                 if o_r in translation_map:
+
                     s_dose = float(translation_map[o_r][1])# * float(o_d) / 100
-                    # if o_t == 'DFO':
-                    #     logging.debug('s_dose {}, tr {}, o_d {}, low {}'.format(
-                    #         s_dose,translation_map[o_r][1],o_d,o.find('dose').attrib['low']
-                    #     ))
-                    #    s_dose = s_dose * float(o_d) / 100
-                    #    o.find('dose').attrib['units'] = "Gy"
-                    #    o.find('dose').attrib['low'] = float(translation_map[o_r][1]) *\
-                    #                                   float(o.find('dose').attrib['low']) / 100
                     Objectives.add_objective(o,
                                              exam=exam,
                                              case=case,
@@ -633,7 +625,8 @@ def main():
                                              restrict_beamset=None,
                                              checking=True)
                 else:
-                    logging.debug('No match found for objective on ROI: {}'.format(o_r))
+                    logging.debug('No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
+                        .format(o_n, o_r))
                     s_dose = 0
                     pass
             else:
