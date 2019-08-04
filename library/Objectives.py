@@ -286,23 +286,22 @@ def add_objective(obj, exam, case, plan, beamset,
     # If an roi was specified replace the name tag
 
     if s_roi:
-        logging.debug("Objective for protocol ROI: {} substituted with plan ROI: {}".format(
-            obj.find('name').text, s_roi))
-
+        protocol_roi = obj.find('name').text
         roi = s_roi
         obj.find('name').text = roi
+        logging.debug("Objective for protocol ROI: {} substituted with plan ROI: {}".format(
+            protocol_roi, s_roi))
 
     else:
+        protocol_roi = obj.find('name').text
         roi = obj.find('name').text
 
     if checking:
         roi_check = all(StructureOperations.check_roi(case=case, exam=exam, rois=roi))
-        logging.debug('Plan Roi {} has contours: {}'.format(
-            roi, roi_check))
 
         if not roi_check:
-            logging.warning("Objective is not added for protocol ROI: {}".format(
-                obj.find('name').text, s_roi))
+            logging.warning("Objective skipped for protocol ROI: {} since plan roi {} has no contours".format(
+                protocol_roi, roi))
             return
     #
     # Deal with relative or absolute volumes, modify the volume tag
