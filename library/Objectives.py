@@ -286,10 +286,11 @@ def add_objective(obj, exam, case, plan, beamset,
     # If an roi was specified replace the name tag
 
     if s_roi:
-        roi = s_roi
-        obj.find('name').text = roi
         logging.debug("Objective for protocol ROI: {} substituted with plan ROI: {}".format(
             obj.find('name').text, s_roi))
+
+        roi = s_roi
+        obj.find('name').text = roi
 
     else:
         roi = obj.find('name').text
