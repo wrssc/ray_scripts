@@ -36,8 +36,10 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import BeamOperations
 
+
 def main():
     BeamOperations.rename_beams()
+
 
 if __name__ == '__main__':
     main()

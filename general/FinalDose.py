@@ -34,13 +34,39 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import BeamOperations
+import connect
 
 
 def main():
+    # Get current patient, case, exam, and plan
+    # note that the interpreter handles a missing plan as an Exception
+    try:
+        patient = connect.get_current("Patient")
+    except SystemError:
+        raise IOError("No Patient loaded. Load patient case and plan.")
+
+    try:
+        case = connect.get_current("Case")
+    except SystemError:
+        raise IOError("No Case loaded. Load patient case and plan.")
+
+    try:
+        exam = connect.get_current("Examination")
+    except SystemError:
+        raise IOError("No examination loaded. Load patient ct and plan.")
+
+    try:
+        plan = connect.get_current("Plan")
+    except Exception:
+        raise IOError("No plan loaded. Load patient and plan.")
+
+    try:
+        beamset = connect.get_current("BeamSet")
+    except Exception:
+        raise IOError("No plan loaded. Load patient and plan.")
+
     BeamOperations.rename_beams()
-    beam_set = connect.get_current('BeamSet')
-    plan = connect.get_current('Plan')
-    set_dsp(plan=plan, beam_set=beam_set)
+    BeamOperations.set_dsp(plan=plan, beam_set=beamset)
 
 
 if __name__ == '__main__':
