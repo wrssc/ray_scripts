@@ -639,7 +639,8 @@ def main():
                                          s_roi=s_roi,
                                          s_dose=s_dose,
                                          s_weight=None,
-                                         restrict_beamset=None)
+                                         restrict_beamset=None,
+                                         checking=True)
 
 
 
