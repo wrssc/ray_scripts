@@ -9,7 +9,7 @@ editor.*
 find.xml
 vim*
 vcs.xml
-ui.Inf.xml
+ui.lnf.xml
 github.xml
 _windows/
 codestyles/
