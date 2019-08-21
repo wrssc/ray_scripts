@@ -10,5 +10,6 @@ find.xml
 vim*
 vcs.xml
 ui.Inf.xml
+github.xml
 _windows/
 codestyles/
