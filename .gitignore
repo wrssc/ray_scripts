@@ -3,3 +3,12 @@
 *_tmp_*
 *.swp
 *.pyc
+colors.scheme.xml
+debugger.xml
+editor.*
+find.xml
+vim*
+vcs.xml
+ui.inf.xml
+._windows/
+.codestyles/
