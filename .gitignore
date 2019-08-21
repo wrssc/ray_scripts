@@ -9,6 +9,6 @@ editor.*
 find.xml
 vim*
 vcs.xml
-ui.inf.xml
-._windows/
-.codestyles/
+ui.Inf.xml
+_windows/
+codestyles/
