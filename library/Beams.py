@@ -62,6 +62,7 @@ def select_element(set_type, set_elements, folder=None, filename=None, order_nam
     ## User supplies ordername and protocol element:
     objective_elements = Objectives.select_objective_protocol(order_name=order_name,
                                                               protocol=protocol)
+    :TODO add an optional arguement for finding an objectiveset or beamset exact match.
 
     """
     protocol_folder = r'../protocols'

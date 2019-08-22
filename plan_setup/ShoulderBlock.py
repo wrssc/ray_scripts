@@ -13,20 +13,25 @@ import Beams
 
 
 def main():
-        protocol = 'UW Head and Neck'
-        beam_elements = Beams.select_element(set_type='beamset',
-                                                  set_element='beam',
-                                                  protocol=protocol)
-        for et_beamsets in beam_elements:
-            beams = et_beamsets.findall('./objectives/roi')
-            for b in beams:
-                b_n = b.find('name').text
-                b_t = b.find('type').text
-                beams = b.findall('./objectives/roi')
-            logging.debug('Success {}'.format(beams.))
-
-
+    protocol_folder = r'../protocols'
+    institution_folder = r'UW'
+    file = 'UWHeadNeck.xml'
+    path_protocols = os.path.join(os.path.dirname(__file__),
+                                  protocol_folder,
+                                  institution_folder)
+    beam_elements = Beams.select_element(set_type='beamset',
+                                         set_elements='beam',
+                                         filename=file,
+                                         folder=path_protocols)
+    #                                     order_name=order_name)
+    for et_beamsets in beam_elements:
+        beams = et_beamsets.findall('./objectives/roi')
+        for b in beams:
+            b_n = b.find('name').text
+            b_t = b.find('type').text
+            beams = b.findall('./objectives/roi')
+            logging.debug('Success {}'.format(b_n))
 
 
 if __name__ == '__main__':
-        main()
+    main()
