@@ -38,67 +38,10 @@ __credits__ = []
 import connect
 import logging
 import sys
+import UserInterface
 import platform
 import clr
-
-clr.AddReference('System.Drawing')
-import System.Drawing
-
-
-def find_targets(case):
-    """
-    Find all structures with type 'Target' within the current case. Return the matches as a list
-    :param case: Current RS Case
-    :return: plan_targets # A List of targets
-    """
-    # Find RS targets
-    plan_targets = []
-    for r in case.PatientModel.RegionsOfInterest:
-        if r.OrganData.OrganType == 'Target':
-            plan_targets.append(r.Name)
-    # Add user threat: empty PTV list.
-    if not plan_targets:
-        connect.await_user_input("The target list is empty." +
-                                 " Please apply type PTV to the targets and continue.")
-        for r in case.PatientModel.RegionsOfInterest:
-            if r.OrganData.OrganType == 'Target':
-                plan_targets.append(r.Name)
-    if plan_targets:
-        return plan_targets
-    else:
-        sys.exit('Script cancelled')
-
-
-def check_structure_exists(case, structure_name, roi_list=None, option='Check'):
-    """
-    Verify if a structure with the exact name specified exists or not
-    :param case: Current RS case
-    :param structure_name: the name of the structure to be confirmed
-    :param roi_list: complete list of all available ROI's.
-    :param option: desired behavior
-        Delete - deletes structure if found
-        Check - simply returns true or false if found
-    :return: Logical - True if structure is present in ROI List, false otherwise
-    """
-    # If no roi_list is given, build it using all roi in the case
-    if roi_list is None:
-        roi_list = []
-        for r in case.PatientModel.RegionsOfInterest:
-            roi_list.append(r.Name)
-
-    if any(roi.OfRoi.Name == structure_name for roi in roi_list):
-        if option == 'Delete':
-            case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-            logging.warning(structure_name + 'found - deleting and creating')
-        elif option == 'Check':
-            logging.info(structure_name + 'found')
-        return True
-    elif option == 'Wait':
-        connect.await_user_input(
-            'Create the structure {} and continue script.'.format(structure_name))
-    else:
-        logging.info(structure_name + 'not found')
-        return False
+import StructureOperations as so
 
 
 def isodose_reconfig(case, ref_dose, max_dose=None, levels=None):
@@ -107,10 +50,9 @@ def isodose_reconfig(case, ref_dose, max_dose=None, levels=None):
     :param case: ScriptObject of RS case
     :param ref_dose: The normalization dose in Gy
     :param max_dose: an optional argument that can specify the maximum dose within the plan
-    :param levels: a dictionary of relative isodose levels and colors levels[10]=[A, R, G, B]
+    :param levels: a dictionary of relative isodose levels and colors levels[10]=[R, G, B]
     :return:
     """
-    # dose_color_table =  case.CaseSettings.DoseColorMap.ColorTable
     # Clear current contents
     if max_dose:
         max_ratio = max_dose / ref_dose
@@ -121,23 +63,22 @@ def isodose_reconfig(case, ref_dose, max_dose=None, levels=None):
 
     dose_levels = {}
     if levels is None:
-        dose_levels = {10: System.Drawing.Color.FromArgb(255, 127, 0, 255),
-                       20: System.Drawing.Color.FromArgb(255, 0, 0, 255),
-                       30: System.Drawing.Color.FromArgb(255, 0, 127, 255),
-                       40: System.Drawing.Color.FromArgb(255, 0, 255, 255),
-                       50: System.Drawing.Color.FromArgb(255, 0, 255, 127),
-                       60: System.Drawing.Color.FromArgb(255, 0, 255, 0),
-                       70: System.Drawing.Color.FromArgb(255, 127, 255, 0),
-                       80: System.Drawing.Color.FromArgb(255, 255, 255, 0),
-                       90: System.Drawing.Color.FromArgb(255, 255, 127, 0),
-                       95: System.Drawing.Color.FromArgb(255, 255, 0, 0),
-                       100: System.Drawing.Color.FromArgb(255, 255, 0, 255),
-                       105: System.Drawing.Color.FromArgb(255, 255, 0, 127),
-                       max_isodose: System.Drawing.Color.FromArgb(255, 128, 20, 20)}
+        dose_levels = {10: so.define_sys_color([127, 0, 255]),
+                       20: so.define_sys_color([0, 0, 255]),
+                       30: so.define_sys_color([0, 127, 255]),
+                       40: so.define_sys_color([0, 255, 255]),
+                       50: so.define_sys_color([0, 255, 127]),
+                       60: so.define_sys_color([0, 255, 0]),
+                       70: so.define_sys_color([127, 255, 0]),
+                       80: so.define_sys_color([255, 255, 0]),
+                       90: so.define_sys_color([255, 127, 0]),
+                       95: so.define_sys_color([255, 0, 0]),
+                       100: so.define_sys_color([255, 0, 255]),
+                       105: so.define_sys_color([255, 0, 127]),
+                       max_isodose: so.define_sys_color([128, 20, 20])}
     else:
         for k, v in levels.iteritems():
-            dose_levels[k] = System.Drawing.Color.FromArgb(
-                levels[k][0], levels[k][1], levels[k][2], levels[k][3])
+            dose_levels[k] = so.define_sys_color(levels[k])
 
     dose_color_table = {}
     for k, v in dose_levels.iteritems():
@@ -150,15 +91,15 @@ def isodose_reconfig(case, ref_dose, max_dose=None, levels=None):
 
 def find_max_dose_in_plan(examination, case, plan):
     rois = case.PatientModel.StructureSets[examination.Name].RoiGeometries
-    if check_structure_exists(case=case,
-                              structure_name='External_Clean',
-                              roi_list=rois,
-                              option='Check'):
+    if so.check_structure_exists(case=case,
+                                 structure_name='External_Clean',
+                                 roi_list=rois,
+                                 option='Check'):
         max_dose = plan.TreatmentCourse.TotalDose.GetDoseStatistic(RoiName='External_Clean', DoseType='Max')
-    elif check_structure_exists(case=case,
-                                structure_name='External',
-                                roi_list=rois,
-                                option='Check'):
+    elif so.check_structure_exists(case=case,
+                                   structure_name='External',
+                                   roi_list=rois,
+                                   option='Check'):
         max_dose = plan.TreatmentCourse.TotalDose.GetDoseStatistic(RoiName='External', DoseType='Max')
     else:
         max_dose = None
@@ -167,7 +108,6 @@ def find_max_dose_in_plan(examination, case, plan):
 
 
 def main():
-
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
@@ -183,7 +123,7 @@ def main():
         sys.exit('This script requires a patient, case, and beamset to be loaded')
 
     # Capture the current list of ROI's to avoid saving over them in the future
-    targets = find_targets(case)
+    targets = so.find_targets(case)
     for t in targets:
         patient.Set2DvisualizationForRoi(RoiName=t,
                                          Mode='filled')

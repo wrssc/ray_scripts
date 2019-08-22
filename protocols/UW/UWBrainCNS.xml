@@ -20,7 +20,7 @@
         </technique>
     </prescription>
     <order>
-        <name>GBM Brain 6000cGy in 30Fx [Single-Phase Stupp]</name>
+        <name>Brain-Fractionated [GBM Brain 6000cGy in 30Fx Single-Phase Stupp]</name>
         <prefix>Glio_</prefix>
         <prescription>
             <roi>
@@ -449,7 +449,7 @@
         </goals>
     </order>
     <order>
-        <name>GBM Brain 4005cGy in 15Fx [Hypo GBM]</name>
+        <name>Brain-Hypo [GBM Brain 4005cGy in 15Fx]</name>
         <prefix>Glio_</prefix>
         <prescription>
             <roi>
@@ -691,7 +691,7 @@
         </goals>
     </order>
     <order>
-        <name>Whole Brain</name>
+        <name>Brain-WBRT</name>
         <prefix>Brai_</prefix>
         <prescription>
             <roi>
@@ -764,7 +764,7 @@
         </goals>
     </order>
     <order>
-        <name>Whole Brain w/ HA - 30 Gy[RTOG0933/CC001]</name>
+        <name>Brain-WBRT-Hippocampal Avoidance [30Gy CC001]</name>
         <prefix>WBHA_</prefix>
         <prescription>
             <roi>
@@ -911,7 +911,7 @@
         </goals>
     </order>
     <order>
-        <name>Whole Brain w/ HA - 25 Gy[CC003]</name>
+        <name>Brain-WBRT-Hippocampal Avoidance [30Gy CC003]</name>
         <prefix>WBHA_</prefix>
         <prescription>
             <roi>
@@ -1055,8 +1055,7 @@
         <objectives>
             <roi>
                 <name>OTV1_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>50</weight>
             </roi>
@@ -1110,8 +1109,7 @@
             </roi>
             <roi>
                 <name>OTV2_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p2">102.5</dose>
                 <weight>50</weight>
             </roi>
@@ -1165,8 +1163,7 @@
             </roi>
             <roi>
                 <name>OTV3_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p3">102.5</dose>
                 <weight>50</weight>
             </roi>
@@ -1220,8 +1217,7 @@
             </roi>
             <roi>
                 <name>OTV4_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p4">102.5</dose>
                 <weight>50</weight>
             </roi>
@@ -1275,8 +1271,7 @@
             </roi>
             <roi>
                 <name>OTV5_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p5">102.5</dose>
                 <weight>50</weight>
             </roi>

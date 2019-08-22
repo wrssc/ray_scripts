@@ -76,7 +76,7 @@
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Left Breast Hypo-fractionation with Boost</name>
+        <name>Left Breast-Hypo [with Boost]</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -300,7 +300,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Breast Hypo-fractionation, no Boost</name>
+        <name>Left Breast-Hypo [no Boost]</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -443,7 +443,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast Hypo-fractionation with Boost</name>
+        <name>Right Breast-Hypo [with Boost]</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
@@ -654,7 +654,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast Hypo-fractionation, no Boost</name>
+        <name>Right Breast Hypo-fractionation [no Boost]</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
@@ -788,7 +788,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Breast Conventional with Boost</name>
+        <name>Left Breast-Conventional [with Boost]</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -1085,7 +1085,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Breast Conventional, no Boost</name>
+        <name>Left Breast-Conventional [no Boost]</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -1302,7 +1302,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Chest Wall Conventional with Boost</name>
+        <name>Left Chestwall-Conventional [with Boost]</name>
         <prefix>ChwL_</prefix>
         <prescription>
             <roi>
@@ -1599,7 +1599,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Chest Wall Conventional, no Boost</name>
+        <name>Left Chestwall-Conventional [no Boost]</name>
         <prefix>ChwL_</prefix>
         <prescription>
             <roi>
@@ -1816,7 +1816,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast Conventional with Boost</name>
+        <name>Right Breast-Conventional [with Boost]</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
@@ -2093,7 +2093,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast Conventional, no Boost</name>
+        <name>Right Breast-Conventional [no Boost]</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
@@ -2293,7 +2293,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Chest Wall Conventional with Boost</name>
+        <name>Right Chestwall-Conventional [with Boost]</name>
         <prefix>ChwR_</prefix>
         <prescription>
             <roi>
@@ -2570,7 +2570,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Chest Wall Conventional, no Boost</name>
+        <name>Right Chestwall-Conventional [no Boost]</name>
         <prefix>ChwR_</prefix>
         <prescription>
             <roi>
@@ -2774,8 +2774,7 @@
         <objectives>
             <roi>
                 <name>OTV1_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
                 <weight>50</weight>
             </roi>
@@ -2829,8 +2828,7 @@
             </roi>
             <roi>
                 <name>OTV2_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_n1_SCV">102.5</dose>
                 <weight>50</weight>
             </roi>
@@ -2884,8 +2882,7 @@
             </roi>
             <roi>
                 <name>OTV3_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_n2_Axillary">102.5</dose>
                 <weight>50</weight>
             </roi>
@@ -2939,8 +2936,7 @@
             </roi>
             <roi>
                 <name>OTV4_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_n3_IMN">102.5</dose>
                 <weight>50</weight>
             </roi>
@@ -2994,8 +2990,7 @@
             </roi>
             <roi>
                 <name>OTV1_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p_Breast">102.5</dose>
                 <weight>50</weight>
             </roi>

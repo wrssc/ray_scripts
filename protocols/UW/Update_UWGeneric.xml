@@ -160,8 +160,7 @@
         <objectives>
             <roi>
                 <name>OTV1_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>50</weight>
             </roi>
@@ -215,9 +214,8 @@
             </roi>
             <roi>
                 <name>OTV2_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p2">102.5</dose>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p1">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
@@ -270,8 +268,7 @@
             </roi>
             <roi>
                 <name>OTV3_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">98</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p3">102.5</dose>
                 <weight>50</weight>
             </roi>

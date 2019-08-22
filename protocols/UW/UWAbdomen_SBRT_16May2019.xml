@@ -18,7 +18,20 @@
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>5 fraction SBRT</name>
+        <name>Abdomen-SBRT</name>
+        <prefix>Abdo_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">90</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions>5</fractions>
+        </prescription>
+    </order>
+    <order>
+        <name>Liver-SBRT-5Fx</name>
         <prefix>Abdo_</prefix>
         <prescription>
             <roi>
@@ -228,14 +241,13 @@
         </goalset>
     </goals>
     <objectiveset>
-        <name>SBRT Abdomen</name>
+        <name>Abdomen-SBRT</name>
         <objectives>
             <roi>
                 <name>OTV1_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">99</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
-                <weight>150</weight>
+                <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -281,10 +293,9 @@
             </roi>
             <roi>
                 <name>OTV2_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">99</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p2">102.5</dose>
-                <weight>150</weight>
+                <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
@@ -328,13 +339,11 @@
                 <dose units="%" roi="PTV_p2" low="5">100</dose>
                 <weight>5</weight>
             </roi>
-
             <roi>
                 <name>OTV3_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">99</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p3">102.5</dose>
-                <weight>150</weight>
+                <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV3_</name>
@@ -380,10 +389,9 @@
             </roi>
             <roi>
                 <name>OTV4_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">99</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p4">102.5</dose>
-                <weight>150</weight>
+                <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV4_</name>
@@ -429,10 +437,9 @@
             </roi>
             <roi>
                 <name>OTV5_</name>
-                <type dir="gt">DX</type>
-                <volume units="%">99</volume>
+                <type>Min</type>
                 <dose units="%" roi="PTV_p5">102.5</dose>
-                <weight>150</weight>
+                <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV5_</name>
