@@ -1,0 +1,7 @@
+<application>
+  <component name="FileTypeManager" version="17">
+    <extensionMap>
+      <mapping pattern="UWVMAT_Beamsets" type="DTD" />
+    </extensionMap>
+  </component>
+</application>
