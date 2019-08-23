@@ -11,7 +11,7 @@ import UserInterface
 import StructureOperations
 
 
-def select_element(set_type, set_elements, folder=None, filename=None, order_name=None, protocol=None):
+def select_element(set_type, set_elements, folder=None, filename=None, set_name=None, order_name=None, protocol=None):
     """
     Function to select the correct element from an xml file
 
@@ -78,6 +78,8 @@ def select_element(set_type, set_elements, folder=None, filename=None, order_nam
         # User directly supplied the filename of the protocol or file containing the set
         path_to_sets = folder
         file_list = [filename]
+        if set_name is not None:
+
     elif folder and not filename:
         # User wants to select the protocol or objectiveset from a list of xml files
         path_to_sets = os.path.join(os.path.dirname(__file__),
