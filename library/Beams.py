@@ -80,9 +80,11 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
         # User directly supplied the filename of the protocol or file containing the set
         path_to_sets = folder
         if set_name is not None:
-            path_to_sets = os.path.join(os.path.dirname(__file__),
+            if folder is None:
+                path_to_sets = os.path.join(os.path.dirname(__file__),
                                         protocol_folder,
                                         institution_folder)
+
             if filename.endswith('.xml'):
                 # Parse the xml file
                 tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
