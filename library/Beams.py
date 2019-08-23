@@ -76,7 +76,7 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
 
     # First search the file list to be searched depending on the supplied information
     # output a list of files that are to be scanned
-    if filename:
+    if filename is not None:
         # User directly supplied the filename of the protocol or file containing the set
         path_to_sets = folder
         if set_name is not None:
@@ -88,11 +88,15 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
             if filename.endswith('.xml'):
                 # Parse the xml file
                 tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
+                logging.debug('tree root is {}'.format(tree.getroot().tag))
                 # Search first for a top level set
                 sets = tree.findall(et_level)
+                logging.debug('sets is {}'.format(sets))
                 for s in sets:
+                    logging.debug('set name is {}'.format(set_name))
                     if s.find('name').text == set_name:
                         et_list.append(s)
+                        return et_list
         else:
             file_list = [filename]
 

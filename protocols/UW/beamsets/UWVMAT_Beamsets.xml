@@ -1,6 +1,11 @@
-<beamset>
-    <name>2 Arc VMAT</name>
-    <beam>
-        <name>1_Arc</name>
-    </beam>
-</beamset>
+<plan>
+    <name>UW VMAT</name>
+    <type>VMAT</type>
+    <beamset>
+        <name>2 Arc VMAT</name>
+        <beam>
+            <name>1_Arc</name>
+            <type>VMAT</type>
+        </beam>
+    </beamset>
+</plan>
