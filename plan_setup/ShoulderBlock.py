@@ -16,7 +16,7 @@ def main():
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
     beamset_folder = r'beamsets'
-    file = 'UWVMAT_Beamsets.xml'
+    file = 'UWVMAT_Beamsets.xml.xml'
     path_protocols = os.path.join(os.path.dirname(__file__),
                                   protocol_folder,
                                   institution_folder, beamset_folder)
