@@ -15,12 +15,17 @@ import Beams
 def main():
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
-    file = 'UWHeadNeck.xml'
+    beamset_folder = r'beamsets'
+    file = 'UWVMAT_Beamsets.xml'
     path_protocols = os.path.join(os.path.dirname(__file__),
                                   protocol_folder,
-                                  institution_folder)
+                                  institution_folder,
+                                  beamset_folder)
+    beamset_name = '2 Arc VMAT'
+
     beam_elements = Beams.select_element(set_type='beamset',
                                          set_elements='beam',
+                                         set_name=beamset_name,
                                          filename=file,
                                          folder=path_protocols)
     #                                     order_name=order_name)
