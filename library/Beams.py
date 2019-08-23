@@ -71,14 +71,29 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
 
     et_level = './' + set_type
     et_element = './' + set_elements
+    et_list = []
+    sets = {}
 
     # First search the file list to be searched depending on the supplied information
     # output a list of files that are to be scanned
     if filename:
         # User directly supplied the filename of the protocol or file containing the set
         path_to_sets = folder
-        file_list = [filename]
         if set_name is not None:
+            path_to_sets = os.path.join(os.path.dirname(__file__),
+                                        protocol_folder,
+                                        institution_folder)
+            if filename.endswith('.xml'):
+                # Parse the xml file
+                tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
+                # Search first for a top level set
+                sets = tree.findall(et_level)
+                for s in sets:
+                    if s.find('name').text == set_name:
+                        et_list.append(s)
+        else:
+            file_list = [filename]
+
 
     elif folder and not filename:
         # User wants to select the protocol or objectiveset from a list of xml files
@@ -94,9 +109,7 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
                                        objectives_folder)
         file_list = os.listdir(path_to_sets)
 
-    sets = {}
     # Return variable. A list of ET Elements
-    et_list = []
     if protocol is not None:
         # Search first for a top level objectiveset
         # Find the objectivesets:
