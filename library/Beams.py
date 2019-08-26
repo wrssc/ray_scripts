@@ -123,7 +123,9 @@ def create_beamset(patient, case, exam, plan, dialog=True):
                       '7'])
 
         # Launch the dialog
-        print input_dialog.show()
+        response = input_dialog.show()
+        if response == {}:
+            sys.exit('Beamset loading was cancelled')
 
         # Parse the outputs
         # User selected that they want a plan-stub made
