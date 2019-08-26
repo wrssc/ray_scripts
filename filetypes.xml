@@ -2,6 +2,9 @@
   <component name="FileTypeManager" version="17">
     <extensionMap>
       <mapping pattern="UWVMAT_Beamsets" type="DTD" />
+      <removed_mapping ext="rst" approved="true" type="ReST" />
+      <mapping ext="rst" type="XML" />
+      <removed_mapping ext="rst" approved="true" type="ReST" />
     </extensionMap>
   </component>
 </application>
