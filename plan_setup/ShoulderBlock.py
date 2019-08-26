@@ -107,29 +107,7 @@ def main():
             beams = b.findall('./objectives/roi')
             logging.debug('Success {}'.format(b_n))
 
-    try:
-
-        plan.AddNewBeamSet(
-            Name=p,
-            ExaminationName=examination.Name,
-            MachineName=plan_machine,
-            Modality="Photons",
-            TreatmentTechnique="Conformal",
-            PatientPosition="HeadFirstSupine",
-            NumberOfFractions=number_of_fractions,
-            CreateSetupBeams=False,
-            UseLocalizationPointAsSetupIsocenter=False,
-            Comment="",
-            RbeModelReference=None,
-            EnableDynamicTrackingForVero=False,
-            NewDoseSpecificationPointNames=[],
-            NewDoseSpecificationPoints=[],
-            RespiratoryMotionCompensationTechnique="Disabled",
-            RespiratorySignalSource="Disabled")
-        # copied_plan = case.CopyPlan(PlanName=plan.Name, NewPlanName='ShoulderBlock')
-    except Exception:
-        logging.warning('Unable to copy plan')
-        sys.exit('Unable to copy plan')
+    Beams.create_beamset(patient=patient, case=case, exam=exam, plan=plan, dialog=True)
 
     PlanOperations.check_localization(case=case, create=True, confirm=False)
 
