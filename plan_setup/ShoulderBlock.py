@@ -42,6 +42,7 @@ import logging
 import connect
 import UserInterface
 import Beams
+import BeamOperations
 import PlanOperations
 
 
@@ -107,11 +108,10 @@ def main():
             beams = b.findall('./objectives/roi')
             logging.debug('Success {}'.format(b_n))
 
-    Beams.create_beamset(patient=patient, case=case, exam=exam, plan=plan, dialog=True)
+    BeamOperations.create_beamset(patient=patient, case=case, exam=exam, plan=plan, dialog=True)
 
-    PlanOperations.check_localization(case=case, create=True, confirm=False)
+    PlanOperations.check_localization(case=case, exam=exam, create=True, confirm=False)
 
-    connect.set_current(copied_plan)
 
 if __name__ == '__main__':
     main()

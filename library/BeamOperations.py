@@ -58,16 +58,230 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 
-import clr
 import math
 import numpy as np
-import connect
-import logging
-import UserInterface
 import logging
 import sys
+import clr
+import connect
+import UserInterface
+import StructureOperations
 
 clr.AddReference('System')
+
+
+class Beam(object):
+
+    def __init__(self):
+        self.name = None
+        self.iso = {}
+        self.startangle = None
+        self.stopangle = None
+        self.couchangle = None
+        self.energy = None
+        self.dsp = None
+
+    def __eq__(self, other):
+        return other and self.iso == other.iso and self.startangle \
+               == other.startangle and self.stopangle == other.stopangle \
+               and self.energy == other.energy and self.dsp == other.dsp \
+               and self.couchangle == other.couchangle
+
+    def __hash__(self):
+        return hash((
+            frozenset(self.iso.items()),
+            self.startangle,
+            self.stopangle,
+            self.energy,
+            self.dsp,
+            self.couchangle,
+        ))
+
+
+class DSP(object):
+
+    def __init__(self):
+        self.name = None
+        self.coords = {}
+
+    def __eq__(self, other):
+        return other and self.coords == other.coords
+
+    def __hash__(self):
+        return hash(frozenset(self.coords.items()))
+
+
+# Return a patient position in the expected format for beamset definition
+def patient_position_map(exam_position):
+    if exam_position == 'HFP':
+        return 'HeadFirstProne'
+    elif exam_position == 'HFS':
+        return 'HeadFirstSupine'
+    elif exam_position == 'FFP':
+        return 'FeetFirstProne'
+    elif exam_position == 'FFS':
+        return 'FeetFirstSupine'
+    elif exam_position == 'HFDL':
+        return 'HeadFirstDecubitusLeft'
+    elif exam_position == 'HFDR':
+        return 'HeadFirstDecubitusRight'
+    elif exam_position == 'FFDL':
+        return 'FeetFirstDecubitusLeft'
+    elif exam_position == 'FFDR':
+        return 'FeetFirstDecubitusRight'
+
+
+def create_beamset(patient, case, exam, plan, dialog=True):
+    """ Create a beamset by opening a dialog with user or loading from scratch
+    :TODO Load the available machine inputs from xml file
+    :TODO Test gating option
+    """
+    available_modality = ['Photons', 'Electrons']
+    available_technique = ['Conformal', 'SMLC', 'VMAT', 'DMLC', 'ConformalArc', 'TomoHelical', 'TomoDirect']
+    if dialog:
+        targets = StructureOperations.find_targets(case=case)
+
+        # TODO: Find out from RS why the DB query is broken
+        # machine_db = connect.get_current('MachineDB')
+        # machines = machine_db.QueryCommissionedMachineInfo(Filter={})
+        # machine_list = []
+        # for i, m in enumerate(machines):
+        #     if m['IsCommissioned']:
+        #         machine_list.append(m['Name'])
+        machine_list = ['TrueBeam', 'TrueBeamSTx']
+
+        input_dialog = UserInterface.InputDialog(
+            inputs={
+                '0': 'Choose the Rx target',
+                '1': 'Enter the Beamset Name, typically <Site>_VMA_R0A0',
+                '2': 'Enter the number of fractions',
+                '3': 'Enter total dose in cGy',
+                '4': 'Choose Treatment Machine',
+                '5': 'Choose a Modality',
+                '6': 'Choose a Technique',
+                '7': 'Choose a Target for Isocenter Placement'
+            },
+            title='Beamset Inputs',
+            datatype={
+                '0': 'combo',
+                '4': 'combo',
+                '5': 'combo',
+                '6': 'combo',
+                '7': 'combo'
+            },
+            initial={
+                '1': 'XXXX_VMA_R0A0',
+            },
+            options={
+                '0': targets,
+                '4': machine_list,
+                '5': available_modality,
+                '6': available_technique,
+                '7': targets
+            },
+            required=['0',
+                      '2',
+                      '3',
+                      '4',
+                      '5',
+                      '6',
+                      '7'])
+
+        # Launch the dialog
+        response = input_dialog.show()
+        if response == {}:
+            sys.exit('Beamset loading was cancelled')
+
+        # Parse the outputs
+        # User selected that they want a plan-stub made
+        rx_target = input_dialog.values['0']
+        plan_name = input_dialog.values['1']
+        number_of_fractions = float(input_dialog.values['2'])
+        total_dose = float(input_dialog.values['3'])
+        plan_machine = input_dialog.values['4']
+        modality = input_dialog.values['5']
+        technique = input_dialog.values['6']
+        isocenter_target = input_dialog.values['7']
+
+    try:
+
+        plan.AddNewBeamSet(
+            Name=plan_name,
+            ExaminationName=exam.Name,
+            MachineName=plan_machine,
+            Modality=modality,
+            TreatmentTechnique=technique,
+            PatientPosition=patient_position_map(exam.PatientPosition),
+            NumberOfFractions=number_of_fractions,
+            CreateSetupBeams=True,
+            UseLocalizationPointAsSetupIsocenter=False,
+            Comment="",
+            RbeModelReference=None,
+            EnableDynamicTrackingForVero=False,
+            NewDoseSpecificationPointNames=[],
+            NewDoseSpecificationPoints=[],
+            RespiratoryMotionCompensationTechnique="Disabled",
+            RespiratorySignalSource="Disabled")
+
+    except Exception:
+        logging.warning('Unable to Add Beamset')
+        sys.exit('Unable to Add Beamset')
+
+    beamset = plan.BeamSets[plan_name]
+    patient.Save()
+
+    try:
+
+        beamset.AddDosePrescriptionToRoi(RoiName=rx_target,
+                                         DoseVolume=80,
+                                         PrescriptionType='DoseAtVolume',
+                                         DoseValue=total_dose,
+                                         RelativePrescriptionLevel=1,
+                                         AutoScaleDose=True)
+    except Exception:
+        logging.warning('Unable to set prescription')
+
+    try:
+        isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
+        RoiGeometries[isocenter_target].GetCenterOfRoi()
+    except Exception:
+        logging.warning('Aborting, could not locate center of {}'.format(isocenter_target))
+        sys.exit('Failed to place isocenter')
+
+    # Place isocenter
+    # TODO Add a check on laterality at this point (if -7< x < 7 ) put out a warning
+    ptv_center = {'x': isocenter_position.x,
+                          'y': isocenter_position.y,
+                          'z': isocenter_position.z}
+    isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
+    isocenter_parameters['Name'] = "iso_" + plan_name
+    isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
+    logging.info('Isocenter chosen based on center of {}.' +
+                 'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
+                     isocenter_target,
+                     ptv_center['x'],
+                     ptv_center['y'],
+                     ptv_center['z'],
+                     isocenter_parameters['Name']))
+
+    beamset.CreatePhotonBeam(Energy=6,
+                             IsocenterData=isocenter_parameters,
+                             Name='1_Brai_g270c355',
+                             Description='1 3DC: MLC Static Field',
+                             GantryAngle=270.0,
+                             CouchAngle=355,
+                             CollimatorAngle=0)
+
+    beamset.CreatePhotonBeam(Energy=6,
+                             IsocenterData=isocenter_parameters,
+                             Name='2_Brai_g090c005',
+                             Description='2 3DC: MLC Static Field',
+                             GantryAngle=90,
+                             CouchAngle=5,
+                             CollimatorAngle=0)
+
+    return beamset
+
 
 def rename_beams():
 
@@ -935,3 +1149,4 @@ def set_dsp(plan, beam_set):
     algorithm = beam_set.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm
     # print "\n\nComputing Dose..."
     beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
+
