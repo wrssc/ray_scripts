@@ -57,7 +57,6 @@ __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-
 import math
 import numpy as np
 import logging
@@ -98,6 +97,36 @@ class Beam(object):
         ))
 
 
+class BeamSet(object):
+
+    def __init__(self):
+        self.name = None
+        self.iso = {}
+        self.number_of_fractions = None
+        self.total_dose = None
+        self.machine = None
+        self.modality = None
+        self.technique = None
+        self.rx_target = None
+        self.iso_target = None
+
+    def __eq__(self, other):
+        return other and self.iso == other.iso and self.number_of_fractions \
+               == other.number_of_fractions and self.total_dose == other.total_dose \
+               and self.machine == other.machine and self.modality == other.modality \
+               and self.technique == other.technique and self.rx_target == other.rx_target
+
+    def __hash__(self):
+        return hash((
+            frozenset(self.iso.items()),
+            self.number_of_fractions,
+            self.total_dose,
+            self.machine,
+            self.modality,
+            self.technique,
+        ))
+
+
 class DSP(object):
 
     def __init__(self):
@@ -131,88 +160,93 @@ def patient_position_map(exam_position):
         return 'FeetFirstDecubitusRight'
 
 
-def create_beamset(patient, case, exam, plan, dialog=True):
-    """ Create a beamset by opening a dialog with user or loading from scratch
-    :TODO Load the available machine inputs from xml file
-    :TODO Test gating option
-    """
+def beamset_dialog(case):
+    # TODO: Find out from RS why the DB query is broken
+    # machine_db = connect.get_current('MachineDB')
+    # machines = machine_db.QueryCommissionedMachineInfo(Filter={})
+    # machine_list = []
+    # for i, m in enumerate(machines):
+    #     if m['IsCommissioned']:
+    #         machine_list.append(m['Name'])
+    # TODO Load the available machine inputs from xml file
+    # TODO Test gating option
+
+    dialog_beamset = BeamSet()
+
     available_modality = ['Photons', 'Electrons']
     available_technique = ['Conformal', 'SMLC', 'VMAT', 'DMLC', 'ConformalArc', 'TomoHelical', 'TomoDirect']
+    machine_list = ['TrueBeam', 'TrueBeamSTx']
+    targets = StructureOperations.find_targets(case=case)
+
+    dialog = UserInterface.InputDialog(
+        inputs={
+            '0': 'Choose the Rx target',
+            '1': 'Enter the Beamset Name, typically <Site>_VMA_R0A0',
+            '2': 'Enter the number of fractions',
+            '3': 'Enter total dose in cGy',
+            '4': 'Choose Treatment Machine',
+            '5': 'Choose a Modality',
+            '6': 'Choose a Technique',
+            '7': 'Choose a Target for Isocenter Placement'
+        },
+        title='Beamset Inputs',
+        datatype={
+            '0': 'combo',
+            '4': 'combo',
+            '5': 'combo',
+            '6': 'combo',
+            '7': 'combo'
+        },
+        initial={
+            '1': 'XXXX_VMA_R0A0',
+        },
+        options={
+            '0': targets,
+            '4': machine_list,
+            '5': available_modality,
+            '6': available_technique,
+            '7': targets
+        },
+        required=['0',
+                  '2',
+                  '3',
+                  '4',
+                  '5',
+                  '6',
+                  '7'])
+
+    # Launch the dialog
+    response = dialog.show()
+    if response == {}:
+        sys.exit('Beamset loading was cancelled')
+
+    dialog_beamset.rx_target = dialog.values['0']
+    dialog_beamset.name = dialog.values['1']
+    dialog_beamset.number_of_fractions = float(dialog.values['2'])
+    dialog_beamset.total_dose = float(dialog.values['3'])
+    dialog_beamset.machine = dialog.values['4']
+    dialog_beamset.modality = dialog.values['5']
+    dialog_beamset.technique = dialog.values['6']
+    dialog_beamset.iso_target = dialog.values['7']
+    return dialog_beamset
+
+
+def create_beamset(patient, case, exam, plan, dialog=True):
+    """ Create a beamset by opening a dialog with user or loading from scratch
+       """
     if dialog:
-        targets = StructureOperations.find_targets(case=case)
-
-        # TODO: Find out from RS why the DB query is broken
-        # machine_db = connect.get_current('MachineDB')
-        # machines = machine_db.QueryCommissionedMachineInfo(Filter={})
-        # machine_list = []
-        # for i, m in enumerate(machines):
-        #     if m['IsCommissioned']:
-        #         machine_list.append(m['Name'])
-        machine_list = ['TrueBeam', 'TrueBeamSTx']
-
-        input_dialog = UserInterface.InputDialog(
-            inputs={
-                '0': 'Choose the Rx target',
-                '1': 'Enter the Beamset Name, typically <Site>_VMA_R0A0',
-                '2': 'Enter the number of fractions',
-                '3': 'Enter total dose in cGy',
-                '4': 'Choose Treatment Machine',
-                '5': 'Choose a Modality',
-                '6': 'Choose a Technique',
-                '7': 'Choose a Target for Isocenter Placement'
-            },
-            title='Beamset Inputs',
-            datatype={
-                '0': 'combo',
-                '4': 'combo',
-                '5': 'combo',
-                '6': 'combo',
-                '7': 'combo'
-            },
-            initial={
-                '1': 'XXXX_VMA_R0A0',
-            },
-            options={
-                '0': targets,
-                '4': machine_list,
-                '5': available_modality,
-                '6': available_technique,
-                '7': targets
-            },
-            required=['0',
-                      '2',
-                      '3',
-                      '4',
-                      '5',
-                      '6',
-                      '7'])
-
-        # Launch the dialog
-        response = input_dialog.show()
-        if response == {}:
-            sys.exit('Beamset loading was cancelled')
-
-        # Parse the outputs
-        # User selected that they want a plan-stub made
-        rx_target = input_dialog.values['0']
-        plan_name = input_dialog.values['1']
-        number_of_fractions = float(input_dialog.values['2'])
-        total_dose = float(input_dialog.values['3'])
-        plan_machine = input_dialog.values['4']
-        modality = input_dialog.values['5']
-        technique = input_dialog.values['6']
-        isocenter_target = input_dialog.values['7']
+        b = beamset_dialog(case=case)
 
     try:
 
         plan.AddNewBeamSet(
-            Name=plan_name,
+            Name=b.name,
             ExaminationName=exam.Name,
-            MachineName=plan_machine,
-            Modality=modality,
-            TreatmentTechnique=technique,
+            MachineName=b.machine,
+            Modality=b.modality,
+            TreatmentTechnique=b.technique,
             PatientPosition=patient_position_map(exam.PatientPosition),
-            NumberOfFractions=number_of_fractions,
+            NumberOfFractions=b.number_of_fractions,
             CreateSetupBeams=True,
             UseLocalizationPointAsSetupIsocenter=False,
             Comment="",
@@ -227,15 +261,15 @@ def create_beamset(patient, case, exam, plan, dialog=True):
         logging.warning('Unable to Add Beamset')
         sys.exit('Unable to Add Beamset')
 
-    beamset = plan.BeamSets[plan_name]
+    beamset = plan.BeamSets[b.name]
     patient.Save()
 
     try:
 
-        beamset.AddDosePrescriptionToRoi(RoiName=rx_target,
+        beamset.AddDosePrescriptionToRoi(RoiName=b.rx_target,
                                          DoseVolume=80,
                                          PrescriptionType='DoseAtVolume',
-                                         DoseValue=total_dose,
+                                         DoseValue=b.total_dose,
                                          RelativePrescriptionLevel=1,
                                          AutoScaleDose=True)
     except Exception:
@@ -243,22 +277,22 @@ def create_beamset(patient, case, exam, plan, dialog=True):
 
     try:
         isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
-        RoiGeometries[isocenter_target].GetCenterOfRoi()
+            RoiGeometries[b.iso_target].GetCenterOfRoi()
     except Exception:
-        logging.warning('Aborting, could not locate center of {}'.format(isocenter_target))
+        logging.warning('Aborting, could not locate center of {}'.format(b.iso_target))
         sys.exit('Failed to place isocenter')
 
     # Place isocenter
     # TODO Add a check on laterality at this point (if -7< x < 7 ) put out a warning
     ptv_center = {'x': isocenter_position.x,
-                          'y': isocenter_position.y,
-                          'z': isocenter_position.z}
+                  'y': isocenter_position.y,
+                  'z': isocenter_position.z}
     isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
-    isocenter_parameters['Name'] = "iso_" + plan_name
-    isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + plan_name
+    isocenter_parameters['Name'] = "iso_" + b.name
+    isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + b.name
     logging.info('Isocenter chosen based on center of {}.' +
                  'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
-                     isocenter_target,
+                     b.iso_target,
                      ptv_center['x'],
                      ptv_center['y'],
                      ptv_center['z'],
@@ -284,7 +318,6 @@ def create_beamset(patient, case, exam, plan, dialog=True):
 
 
 def rename_beams():
-
     # These are the techniques associated with billing codes in the clinic
     # they will be imported
     available_techniques = [
@@ -307,7 +340,6 @@ def rename_beams():
         'DynamicArc',
         'TomoHelical']
 
-
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
@@ -329,7 +361,8 @@ def rename_beams():
                                        options={'Technique': available_techniques},
                                        required=['Site', 'Technique'])
     # Show the dialog
-    print dialog.show()
+    print
+    dialog.show()
 
     site_name = dialog.values['Site']
     input_technique = dialog.values['Technique']
@@ -424,7 +457,7 @@ def rename_beams():
                 UserInterface.WarningBox('Error occurred in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
 
-    # Set-Up Fields
+        # Set-Up Fields
         # HFS Setup
         # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
         set_up = {0: ['SetUp AP', 'SetUp AP', 0.0, '5'],
@@ -436,7 +469,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -509,7 +543,7 @@ def rename_beams():
                 UserInterface.WarningBox('Error occurred in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
 
-    # Set-Up Fields
+        # Set-Up Fields
         # HFLDR Setup
         # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
         set_up = {0: ['SetUp LtLat', 'SetUp LtLat', 0.0, '5'],
@@ -521,7 +555,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -606,7 +641,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -851,7 +887,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -936,7 +973,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -1082,8 +1120,10 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     zsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.z
 
     if np.amax(pd_np) < rx:
-        print 'max = ', str(max(pd))
-        print 'target = ', str(rx)
+        print
+        'max = ', str(max(pd))
+        print
+        'target = ', str(rx)
         raise ValueError('max beam dose is too low')
 
     # rx_points = np.empty((0, 3), dtype=np.int)
@@ -1112,13 +1152,14 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
         # Numpy does evaluation of advanced indicies column wise:
         # pd[sheets, columns, rows]
         matches += abs(pd[rx_points[:, 0], rx_points[:, 1], rx_points[:, 2]] / rx -
-            b.ForBeam.BeamMU / tot)
+                       b.ForBeam.BeamMU / tot)
 
     min_i = np.argmin(matches)
     xpos = rx_points[min_i, 0] * xsize + xcorner + xsize / 2
     ypos = rx_points[min_i, 1] * ysize + ycorner + ysize / 2
     zpos = rx_points[min_i, 2] * zsize + zcorner + zsize / 2
-    print 'x, y, z positions = {0}, {1}, {2}'.format(xpos, ypos, zpos)
+    print
+    'x, y, z positions = {0}, {1}, {2}'.format(xpos, ypos, zpos)
     return [xpos, ypos, zpos]
 
 
@@ -1149,4 +1190,3 @@ def set_dsp(plan, beam_set):
     algorithm = beam_set.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm
     # print "\n\nComputing Dose..."
     beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
-
