@@ -427,7 +427,7 @@
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Skin_PRV05</name>
+                <name>Skin_PRV03</name>
                 <type dir="lt">DX</type>
                 <dose units="Gy">15</dose>
                 <volume units="cc">3</volume>
@@ -722,7 +722,7 @@
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Skin_PRV05</name>
+                <name>Skin_PRV03</name>
                 <type dir="lt">DX</type>
                 <dose units="Gy">15</dose>
                 <volume units="cc">3</volume>

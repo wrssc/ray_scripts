@@ -138,6 +138,13 @@
             <roi>
                 <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
+                <volume units="%">30</volume>
+                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Eval</name>
+                <type dir="le">DX</type>
                 <volume units="%">50</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>4</priority>
@@ -682,9 +689,17 @@
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type>Max</type>
+                <type dir="le">DX</type>
+                <volume units="cc">0.1</volume>
                 <dose units="%" roi="PTV_p_Eval">110</dose>
                 <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Eval</name>
+                <type dir="le">DX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>

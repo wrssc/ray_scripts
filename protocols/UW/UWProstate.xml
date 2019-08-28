@@ -1798,7 +1798,7 @@
             </roi>
             <roi>
                 <name>PTV_bst</name>
-                <type dir="le">VX</type>
+                <type dir="le">DX</type>
                 <volume units="cc">0.03</volume>
                 <dose units="%" roi="PTV_bst">107</dose>
                 <priority>4</priority>
@@ -1854,7 +1854,7 @@
             </roi>
             <roi>
                 <name>PTV_pri</name>
-                <type dir="le">VX</type>
+                <type dir="le">DX</type>
                 <volume units="cc">0.03</volume>
                 <dose units="%" roi="PTV_pri">107</dose>
                 <priority>4</priority>
@@ -2000,7 +2000,7 @@
             </roi>
             <roi>
                 <name>Femur_Head_L</name>
-                <type dir="lt">VX</type>
+                <type dir="lt">DX</type>
                 <dose units="Gy">50</dose>
                 <volume units="cc">0.03</volume>
                 <priority>1</priority>
@@ -2021,14 +2021,14 @@
             </roi>
             <roi>
                 <name>Femur_Head_R</name>
-                <type dir="lt">Max</type>
+                <type dir="lt">DX</type>
                 <dose units="Gy">50</dose>
                 <volume units="cc">0.03</volume>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Femur_Head_R_PRV05</name>
-                <type dir="lt">Max</type>
+                <type dir="lt">VX</type>
                 <dose units="Gy">50</dose>
                 <volume units="%">2</volume>
                 <priority>3</priority>
@@ -2363,14 +2363,14 @@
             </roi>
             <roi>
                 <name>Urethra</name>
-                <type dir="lt">VX</type>
+                <type dir="lt">DX</type>
                 <dose units="Gy">61</dose>
                 <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Urethra_PRV02</name>
-                <type dir="lt">VX</type>
+                <type dir="lt">DX</type>
                 <dose units="Gy">61</dose>
                 <volume units="cc">0.03</volume>
                 <priority>3</priority>
