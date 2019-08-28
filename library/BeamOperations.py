@@ -72,28 +72,38 @@ clr.AddReference('System')
 class Beam(object):
 
     def __init__(self):
+        self.number =None
+        self.technique = None
         self.name = None
-        self.iso = {}
-        self.startangle = None
-        self.stopangle = None
-        self.couchangle = None
         self.energy = None
+        self.gantry_start_angle = None
+        self.gantry_stop_angle = None
+        self.rotation_dir = None
+        self.collimator_angle = None
+        self.iso = {}
+        self.couch_angle = None
         self.dsp = None
 
     def __eq__(self, other):
-        return other and self.iso == other.iso and self.startangle \
-               == other.startangle and self.stopangle == other.stopangle \
-               and self.energy == other.energy and self.dsp == other.dsp \
-               and self.couchangle == other.couchangle
+        return other and \
+               self.iso == other.iso \
+               and self.gantry_start_angle == other.gantry_start_angle \
+               and self.gantry_stop_angle == other.gantry_stop_angle \
+               and self.energy == other.energy \
+               and self.dsp == other.dsp \
+               and self.couch_angle == other.couch_angle \
+               and self.collimator_angle == other.collimator_angle \
+               and self.rotation_dir == other.rotation_dir \
+               and self.technique == other.technique
 
     def __hash__(self):
         return hash((
             frozenset(self.iso.items()),
-            self.startangle,
-            self.stopangle,
+            self.gantry_start_angle,
+            self.gantry_stop_angle,
             self.energy,
             self.dsp,
-            self.couchangle,
+            self.couch_angle,
         ))
 
 
@@ -101,6 +111,7 @@ class BeamSet(object):
 
     def __init__(self):
         self.name = None
+        self.DicomName = None
         self.iso = {}
         self.number_of_fractions = None
         self.total_dose = None
@@ -170,6 +181,7 @@ def beamset_dialog(case):
     #         machine_list.append(m['Name'])
     # TODO Load the available machine inputs from xml file
     # TODO Test gating option
+    # TODO Load all available beamsets found in a file
 
     dialog_beamset = BeamSet()
 
@@ -222,6 +234,7 @@ def beamset_dialog(case):
 
     dialog_beamset.rx_target = dialog.values['0']
     dialog_beamset.name = dialog.values['1']
+    dialog_beamset.DicomName = dialog.values['1']
     dialog_beamset.number_of_fractions = float(dialog.values['2'])
     dialog_beamset.total_dose = float(dialog.values['3'])
     dialog_beamset.machine = dialog.values['4']
@@ -231,16 +244,26 @@ def beamset_dialog(case):
     return dialog_beamset
 
 
-def create_beamset(patient, case, exam, plan, dialog=True):
+def create_beamset(patient, case, exam, plan, dialog=True, BeamSet=None):
     """ Create a beamset by opening a dialog with user or loading from scratch
+    Currently relies on finding out information via a dialog. I would like it to optionally take the elements
+    from the BeamSet class and return the result
+
+    Running as a dialog:
+    BeamOperations.create_beamset(patient=patient, case=case, exam=exam, plan=plan, dialog=True)
+
+    Running using the BeamSet class
+
        """
     if dialog:
         b = beamset_dialog(case=case)
+    elif BeamSet is not None:
+        b = BeamSet
 
-    try:
+#    try:
 
-        plan.AddNewBeamSet(
-            Name=b.name,
+    plan.AddNewBeamSet(
+            Name=b.DicomName,
             ExaminationName=exam.Name,
             MachineName=b.machine,
             Modality=b.modality,
@@ -257,11 +280,11 @@ def create_beamset(patient, case, exam, plan, dialog=True):
             RespiratoryMotionCompensationTechnique="Disabled",
             RespiratorySignalSource="Disabled")
 
-    except Exception:
-        logging.warning('Unable to Add Beamset')
-        sys.exit('Unable to Add Beamset')
+#    except Exception:
+#        logging.warning('Unable to Add Beamset')
+#        sys.exit('Unable to Add Beamset')
 
-    beamset = plan.BeamSets[b.name]
+    beamset = plan.BeamSets[b.DicomName]
     patient.Save()
 
     try:

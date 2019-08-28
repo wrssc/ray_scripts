@@ -93,22 +93,53 @@ def main():
     path_protocols = os.path.join(os.path.dirname(__file__),
                                   protocol_folder,
                                   institution_folder, beamset_folder)
-    beamset_name = '2 Arc VMAT'
+
+    BeamSet = BeamOperations.BeamSet()
+    BeamSet.name = '2 Arc VMAT - HN Shoulder'
+    BeamSet.DicomName ='_____VMA_R_A_'
+    BeamSet.technique = 'VMAT'
+    BeamSet.machine = 'TrueBeam'
+    BeamSet.rx_target = 'PTV_7000'
+    BeamSet.iso_target = 'PTV_7000'
+    BeamSet.modality = 'Photons'
+    BeamSet.total_dose = 7000.
+    BeamSet.number_of_fractions = 33
 
     beam_elements = Beams.select_element(set_type='beamset',
                                          set_elements='beam',
-                                         set_name=beamset_name,
+                                         set_name=BeamSet.name,
                                          filename=file,
                                          folder=path_protocols)
-    for et_beamsets in beam_elements:
-        beams = et_beamsets.findall('./beam')
-        for b in beams:
-            b_n = b.find('name').text
-            b_t = b.find('type').text
-            beams = b.findall('./objectives/roi')
-            logging.debug('Success {}'.format(b_n))
 
-    BeamOperations.create_beamset(patient=patient, case=case, exam=exam, plan=plan, dialog=True)
+    new_beamset = BeamOperations.create_beamset(patient=patient,
+                                  case=case,
+                                  exam=exam,
+                                  plan=plan,
+                                  dialog=False,
+                                  BeamSet=BeamSet)
+    beams = []
+    for et_beamsets in beam_elements:
+        beam_nodes = et_beamsets.findall('./beam')
+        for b in beam_nodes:
+            beam = BeamOperations.Beam()
+            beam.number = b.find('BeamNumber').text
+            beam.name = b.find('Name').text
+            beam.technique = b.find('DeliveryTechnique').text
+            beam.energy = b.find('Energy').text
+            beam.gantry_start_angle = b.find('GantryAngle').text
+            beam.gantry_stop_angle = b.find('GantryStopAngle').text
+            beam.rotation_dir = b.find('ArcRotationDirection').text
+            beam.collimator_angle = b.find('CollimatorAngle').text
+            beam.couch_angle = b.find('CouchAngle').text
+            beams.append(beam)
+            logging.info(('Beam {} found. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {},' +
+                         'RotationDirection {}, CollimatorAngle {}, CouchAngle{} ').format(
+                             beam.number, beam.technique, beam.name,
+                             beam.energy, beam.gantry_start_angle,
+                             beam.gantry_stop_angle, beam.rotation_dir,
+                             beam.collimator_angle, beam.couch_angle))
+
+
 
     PlanOperations.check_localization(case=case, exam=exam, create=True, confirm=False)
 

@@ -66,6 +66,7 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
     objective_elements = Objectives.select_objective_protocol(order_name=order_name,
                                                               protocol=protocol)
     :TODO add an optional arguement for finding an objectiveset or beamset exact match.
+        Note that this will match the et_level for a beamset
 
     """
     protocol_folder = r'../protocols'
@@ -100,6 +101,8 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
                     if s.find('name').text == set_name:
                         et_list.append(s)
                         return et_list
+                    else:
+                        logging.warning('No matching {} found with name {}'.format(set_type, set_name))
         else:
             file_list = [filename]
 
