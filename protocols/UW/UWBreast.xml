@@ -116,14 +116,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
@@ -165,14 +165,14 @@
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
@@ -322,14 +322,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
@@ -485,14 +485,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
@@ -527,14 +527,14 @@
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
@@ -675,14 +675,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
@@ -861,14 +861,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
@@ -903,14 +903,14 @@
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
@@ -943,35 +943,35 @@
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n2_Axillary</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
@@ -1134,14 +1134,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
@@ -1160,35 +1160,35 @@
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n2_Axillary</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
@@ -1375,14 +1375,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Chestwall</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Chestwall">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Chestwall</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Chestwall">90</dose>
                 <priority>2</priority>
@@ -1417,14 +1417,14 @@
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
@@ -1457,35 +1457,35 @@
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n2_Axillary</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
@@ -1648,14 +1648,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Chestwall</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Chestwall">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Chestwall</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Chestwall">90</dose>
                 <priority>2</priority>
@@ -1674,35 +1674,35 @@
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n2_Axillary</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
@@ -1884,14 +1884,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
@@ -1926,14 +1926,14 @@
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
@@ -1966,35 +1966,35 @@
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n2_Axillary</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
@@ -2140,14 +2140,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
@@ -2166,35 +2166,35 @@
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n2_Axillary</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
@@ -2361,14 +2361,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Chestwall</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Chestwall">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Chestwall</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Chestwall">90</dose>
                 <priority>2</priority>
@@ -2403,14 +2403,14 @@
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
                 <priority>2</priority>
@@ -2443,35 +2443,35 @@
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n2_Axillary</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
@@ -2617,14 +2617,14 @@
         <goals>
             <roi>
                 <name>PTV_p_Chestwall</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_Chestwall">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_Chestwall</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Chestwall">90</dose>
                 <priority>2</priority>
@@ -2643,35 +2643,35 @@
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n1_SCV">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n1_SCV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_n3_IMN</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">80</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_n2_Axillary</name>
-                <type dir="ge">DX</type>
+                <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
