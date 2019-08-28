@@ -93,14 +93,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">27</dose>
@@ -116,7 +116,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">27</dose>
@@ -140,14 +140,14 @@
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">37</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
@@ -170,7 +170,7 @@
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
@@ -186,7 +186,7 @@
             </roi>
             <roi>
                 <name>Chestwall</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">44</dose>
                 <priority>3</priority>
@@ -200,14 +200,14 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">27</dose>
                 <priority>3</priority>
@@ -222,7 +222,7 @@
             </roi>
             <roi>
                 <name>GreatVes</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">52</dose>
                 <priority>3</priority>
@@ -236,7 +236,7 @@
             </roi>
             <roi>
                 <name>Heart</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">50</dose>
                 <priority>3</priority>
@@ -333,21 +333,21 @@
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">44</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">30</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin_PRV05</name>
-                <type>Max</type>
+                <name>Skin_PRV03</name>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
@@ -369,7 +369,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
@@ -377,7 +377,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">37</dose>
                 <priority>3</priority>
@@ -470,14 +470,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">27</dose>
@@ -493,14 +493,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">27</dose>
@@ -516,14 +516,14 @@
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">37</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
@@ -539,14 +539,14 @@
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">37</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
@@ -562,7 +562,7 @@
             </roi>
             <roi>
                 <name>Chestwall</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">44</dose>
                 <priority>3</priority>
@@ -576,14 +576,14 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">27</dose>
                 <priority>3</priority>
@@ -598,7 +598,7 @@
             </roi>
             <roi>
                 <name>GreatVes</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">52</dose>
                 <priority>3</priority>
@@ -612,7 +612,7 @@
             </roi>
             <roi>
                 <name>Heart</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">50</dose>
                 <priority>3</priority>
@@ -708,21 +708,21 @@
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">44</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">30</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin_PRV05</name>
-                <type>Max</type>
+                <name>Skin_PRV03</name>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
@@ -744,7 +744,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
@@ -752,7 +752,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">37</dose>
                 <priority>3</priority>
@@ -842,14 +842,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">29</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002 BED(a/b=2)</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">24.55</dose>
@@ -865,14 +865,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">29</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002 BED(a/b=2)</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">24.55</dose>
@@ -888,14 +888,14 @@
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">34</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">4</volume>
                 <dose units="Gy">16</dose>
                 <priority>1</priority>
@@ -910,14 +910,14 @@
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">34</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">4</volume>
                 <dose units="Gy">16</dose>
                 <priority>1</priority>
@@ -932,7 +932,7 @@
             </roi>
             <roi>
                 <name>Chestwall</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">40</dose>
                 <priority>3</priority>
@@ -946,14 +946,14 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">25</dose>
                 <priority>3</priority>
@@ -968,7 +968,7 @@
             </roi>
             <roi>
                 <name>GreatVes</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">50</dose>
                 <priority>3</priority>
@@ -982,7 +982,7 @@
             </roi>
             <roi>
                 <name>Heart</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">48</dose>
                 <priority>3</priority>
@@ -1079,21 +1079,21 @@
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">40</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">30</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin_PRV05</name>
-                <type>Max</type>
+                <name>Skin_PRV03</name>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
@@ -1115,14 +1115,14 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">4</volume>
                 <dose units="Gy">16</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">34</dose>
                 <priority>3</priority>
@@ -1212,14 +1212,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">29</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002 BED(a/b=2)</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">24.55</dose>
@@ -1235,14 +1235,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
-                <volume units="cc">0.03</volume>
+                <type>DX</type>
+                <volume units="cc">0.01</volume>
                 <dose units="Gy">29</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002 BED(a/b=2)</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">24.55</dose>
@@ -1258,14 +1258,14 @@
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">34</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">4</volume>
                 <dose units="Gy">16</dose>
                 <priority>1</priority>
@@ -1280,14 +1280,14 @@
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">34</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">4</volume>
                 <dose units="Gy">16</dose>
                 <priority>1</priority>
@@ -1302,7 +1302,7 @@
             </roi>
             <roi>
                 <name>Chestwall</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">40</dose>
                 <priority>3</priority>
@@ -1316,14 +1316,14 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">25</dose>
                 <priority>3</priority>
@@ -1338,7 +1338,7 @@
             </roi>
             <roi>
                 <name>GreatVes</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">50</dose>
                 <priority>3</priority>
@@ -1352,7 +1352,7 @@
             </roi>
             <roi>
                 <name>Heart</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">48</dose>
                 <priority>3</priority>
@@ -1449,21 +1449,21 @@
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">40</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">30</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin_PRV05</name>
-                <type>Max</type>
+                <name>Skin_PRV03</name>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">32</dose>
                 <priority>1</priority>
@@ -1485,7 +1485,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">16</dose>
@@ -1493,7 +1493,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">34</dose>
                 <priority>3</priority>
@@ -1583,14 +1583,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">26</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002 BED(a/b=2)</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">21.67</dose>
@@ -1606,14 +1606,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
-                <volume units="cc">0.03</volume>
+                <type>DX</type>
+                <volume units="cc">0.1</volume>
                 <dose units="Gy">26</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>NRG-LU002 BED(a/b=2)</ref>
                 <volume units="cc">3</volume>
                 <dose units="Gy">21.67</dose>
@@ -1629,14 +1629,14 @@
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
@@ -1652,14 +1652,14 @@
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
@@ -1675,7 +1675,7 @@
             </roi>
             <roi>
                 <name>Chestwall</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">35</dose>
                 <priority>3</priority>
@@ -1689,14 +1689,14 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">27</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">22</dose>
                 <priority>3</priority>
@@ -1711,7 +1711,7 @@
             </roi>
             <roi>
                 <name>GreatVes</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
@@ -1725,7 +1725,7 @@
             </roi>
             <roi>
                 <name>Heart</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">40</dose>
                 <priority>3</priority>
@@ -1822,21 +1822,21 @@
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">35</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">30</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin_PRV05</name>
-                <type>Max</type>
+                <name>Skin_PRV03</name>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">30</dose>
                 <priority>1</priority>
@@ -1858,7 +1858,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
@@ -1866,7 +1866,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
@@ -1956,14 +1956,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">26</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">3</volume>
                 <dose units="Gy">24</dose>
                 <priority>3</priority>
@@ -1978,14 +1978,14 @@
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">26</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>BrachialPlex_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">3</volume>
                 <dose units="Gy">24</dose>
                 <priority>3</priority>
@@ -2000,14 +2000,14 @@
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
@@ -2023,14 +2023,14 @@
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
@@ -2046,7 +2046,7 @@
             </roi>
             <roi>
                 <name>Chestwall</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">35</dose>
                 <priority>3</priority>
@@ -2060,14 +2060,14 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">27</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">22</dose>
                 <priority>3</priority>
@@ -2082,7 +2082,7 @@
             </roi>
             <roi>
                 <name>GreatVes</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
@@ -2096,7 +2096,7 @@
             </roi>
             <roi>
                 <name>Heart</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">40</dose>
                 <priority>3</priority>
@@ -2193,28 +2193,28 @@
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">35</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">30</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin_PRV05</name>
-                <type>Max</type>
+                <name>Skin_PRV03</name>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">30</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>SpinalCord</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
@@ -2229,7 +2229,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
@@ -2237,7 +2237,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
@@ -2334,7 +2334,7 @@
             </roi>
             <roi>
                 <name>BrachialPlex_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">3</volume>
                 <dose units="Gy">33</dose>
                 <priority>1</priority>
@@ -2386,7 +2386,7 @@
             </roi>
             <roi>
                 <name>Bronchus_L</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">20</dose>
@@ -2416,7 +2416,7 @@
             </roi>
             <roi>
                 <name>Bronchus_R</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">20</dose>
@@ -2460,7 +2460,7 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">32</dose>
                 <priority>3</priority>
@@ -2629,28 +2629,28 @@
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">70</volume>
                 <dose units="Gy">30</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Rib</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">30</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Skin_PRV05</name>
-                <type>Max</type>
+                <name>Skin_PRV03</name>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">39.1</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>SpinalCord</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">28</dose>
                 <priority>1</priority>
@@ -2699,7 +2699,7 @@
             </roi>
             <roi>
                 <name>Trachea</name>
-                <type>Max</type>
+                <type>DX</type>
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">20</dose>

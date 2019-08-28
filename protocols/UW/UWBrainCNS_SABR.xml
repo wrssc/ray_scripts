@@ -380,7 +380,7 @@
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Skin_PRV05</name>
+            <name>Skin_PRV03</name>
             <type>Max</type>
             <dose units="Gy">25</dose>
             <priority>3</priority>

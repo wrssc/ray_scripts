@@ -197,7 +197,7 @@
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Skin_PRV05</name>
+            <name>Skin_PRV03</name>
             <type>Max</type>
             <volume units="cc">1</volume>
             <dose units="Gy">45</dose>
