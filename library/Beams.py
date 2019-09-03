@@ -88,6 +88,7 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
                 path_to_sets = os.path.join(os.path.dirname(__file__),
                                             protocol_folder,
                                             institution_folder)
+                logging.debug('Using a default path of {}'.format(path_to_sets))
 
             if filename.endswith('.xml'):
                 # Parse the xml file

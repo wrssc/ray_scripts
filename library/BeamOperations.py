@@ -65,6 +65,7 @@ import clr
 import connect
 import UserInterface
 import StructureOperations
+import Beams
 
 clr.AddReference('System')
 
@@ -244,6 +245,35 @@ def beamset_dialog(case):
     return dialog_beamset
 
 
+def find_isocenter_parameters(case, exam, beamset, iso_target):
+    """Function to return the dict object needed for isocenter placement from the center of a supplied
+    name of a structure"""
+
+    try:
+        isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
+            RoiGeometries[iso_target].GetCenterOfRoi()
+    except Exception:
+        logging.warning('Aborting, could not locate center of {}'.format(iso_target))
+        sys.exit('Failed to place isocenter')
+
+    # Place isocenter
+    # TODO Add a check on laterality at this point (if -7< x < 7 ) put out a warning
+    ptv_center = {'x': isocenter_position.x,
+                  'y': isocenter_position.y,
+                  'z': isocenter_position.z}
+    isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
+    isocenter_parameters['Name'] = "iso_" + beamset.DicomPlanLabel
+    isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + beamset.DicomPlanLabel
+    logging.info('Isocenter chosen based on center of {}.'.format(iso_target) +
+                 'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
+                     ptv_center['x'],
+                     ptv_center['y'],
+                     ptv_center['z'],
+                     isocenter_parameters['Name']))
+
+    return isocenter_parameters
+
+
 def create_beamset(patient, case, exam, plan, dialog=True, BeamSet=None):
     """ Create a beamset by opening a dialog with user or loading from scratch
     Currently relies on finding out information via a dialog. I would like it to optionally take the elements
@@ -288,7 +318,6 @@ def create_beamset(patient, case, exam, plan, dialog=True, BeamSet=None):
     patient.Save()
 
     try:
-
         beamset.AddDosePrescriptionToRoi(RoiName=b.rx_target,
                                          DoseVolume=80,
                                          PrescriptionType='DoseAtVolume',
@@ -298,44 +327,33 @@ def create_beamset(patient, case, exam, plan, dialog=True, BeamSet=None):
     except Exception:
         logging.warning('Unable to set prescription')
 
+    # Place isocenter
     try:
-        isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
-            RoiGeometries[b.iso_target].GetCenterOfRoi()
+        isocenter_parameters = find_isocenter_parameters(
+            case=case,
+            exam=exam,
+            beamset=beamset,
+            iso_target=b.iso_target)
+
     except Exception:
         logging.warning('Aborting, could not locate center of {}'.format(b.iso_target))
         sys.exit('Failed to place isocenter')
 
-    # Place isocenter
-    # TODO Add a check on laterality at this point (if -7< x < 7 ) put out a warning
-    ptv_center = {'x': isocenter_position.x,
-                  'y': isocenter_position.y,
-                  'z': isocenter_position.z}
-    isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
-    isocenter_parameters['Name'] = "iso_" + b.name
-    isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + b.name
-    logging.info('Isocenter chosen based on center of {}.' +
-                 'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
-                     b.iso_target,
-                     ptv_center['x'],
-                     ptv_center['y'],
-                     ptv_center['z'],
-                     isocenter_parameters['Name']))
+    # beamset.CreatePhotonBeam(Energy=6,
+    #                          IsocenterData=isocenter_parameters,
+    #                          Name='1_Brai_g270c355',
+    #                          Description='1 3DC: MLC Static Field',
+    #                          GantryAngle=270.0,
+    #                          CouchAngle=355,
+    #                          CollimatorAngle=0)
 
-    beamset.CreatePhotonBeam(Energy=6,
-                             IsocenterData=isocenter_parameters,
-                             Name='1_Brai_g270c355',
-                             Description='1 3DC: MLC Static Field',
-                             GantryAngle=270.0,
-                             CouchAngle=355,
-                             CollimatorAngle=0)
-
-    beamset.CreatePhotonBeam(Energy=6,
-                             IsocenterData=isocenter_parameters,
-                             Name='2_Brai_g090c005',
-                             Description='2 3DC: MLC Static Field',
-                             GantryAngle=90,
-                             CouchAngle=5,
-                             CollimatorAngle=0)
+    # beamset.CreatePhotonBeam(Energy=6,
+    #                          IsocenterData=isocenter_parameters,
+    #                          Name='2_Brai_g090c005',
+    #                          Description='2 3DC: MLC Static Field',
+    #                          GantryAngle=90,
+    #                          CouchAngle=5,
+    #                          CollimatorAngle=0)
 
     return beamset
 
@@ -1213,3 +1231,41 @@ def set_dsp(plan, beam_set):
     algorithm = beam_set.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm
     # print "\n\nComputing Dose..."
     beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
+
+
+def load_beams_xml(filename, beamset_name, path):
+    """Load a beamset from the file located in the path in the filename:
+    :param filename: The name of the xml file housing the beamset to be loaded
+    :param beamset_name: name of the beamset (element) to load
+    :param path: path to the xml file
+    :return beams: a list of objects of type Beam"""
+
+    beam_elements = Beams.select_element(set_type='beamset',
+                                         set_elements='beam',
+                                         set_name=beamset_name,
+                                         filename=filename,
+                                         folder=path)
+
+    beams = []
+    for et_beamsets in beam_elements:
+        beam_nodes = et_beamsets.findall('./beam')
+        for b in beam_nodes:
+            beam = Beam()
+            beam.number = b.find('BeamNumber').text
+            beam.name = b.find('Name').text
+            beam.technique = b.find('DeliveryTechnique').text
+            beam.energy = b.find('Energy').text
+            beam.gantry_start_angle = b.find('GantryAngle').text
+            beam.gantry_stop_angle = b.find('GantryStopAngle').text
+            beam.rotation_dir = b.find('ArcRotationDirection').text
+            beam.collimator_angle = b.find('CollimatorAngle').text
+            beam.couch_angle = b.find('CouchAngle').text
+            beams.append(beam)
+            logging.info(('Beam {} found. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {},' +
+                          'RotationDirection {}, CollimatorAngle {}, CouchAngle{} ').format(
+                beam.number, beam.technique, beam.name,
+                beam.energy, beam.gantry_start_angle,
+                beam.gantry_stop_angle, beam.rotation_dir,
+                beam.collimator_angle, beam.couch_angle))
+
+    return beams
