@@ -68,7 +68,7 @@
             <Energy>6</Energy>
             <GantryAngle>179</GantryAngle>
             <GantryStopAngle>120</GantryStopAngle>
-            <ArcRotationDirection>'Counterclockwise'</ArcRotationDirection>
+            <ArcRotationDirection>'CounterClockwise'</ArcRotationDirection>
             <CollimatorAngle>355</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
         </beam>
@@ -79,7 +79,7 @@
             <Energy>6</Energy>
             <GantryAngle>120</GantryAngle>
             <GantryStopAngle>60</GantryStopAngle>
-            <ArcRotationDirection>'Counterclockwise'</ArcRotationDirection>
+            <ArcRotationDirection>'CounterClockwise'</ArcRotationDirection>
             <CollimatorAngle>0</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
         </beam>
@@ -90,7 +90,7 @@
             <Energy>6</Energy>
             <GantryAngle>60</GantryAngle>
             <GantryStopAngle>290</GantryStopAngle>
-            <ArcRotationDirection>'Counterclockwise'</ArcRotationDirection>
+            <ArcRotationDirection>'CounterClockwise'</ArcRotationDirection>
             <CollimatorAngle>355</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
         </beam>
@@ -101,7 +101,7 @@
             <Energy>6</Energy>
             <GantryAngle>290</GantryAngle>
             <GantryStopAngle>230</GantryStopAngle>
-            <ArcRotationDirection>'Counterclockwise'</ArcRotationDirection>
+            <ArcRotationDirection>'CounterClockwise'</ArcRotationDirection>
             <CollimatorAngle>0</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
         </beam>
@@ -112,7 +112,7 @@
             <Energy>6</Energy>
             <GantryAngle>230</GantryAngle>
             <GantryStopAngle>181</GantryStopAngle>
-            <ArcRotationDirection>'Counterclockwise'</ArcRotationDirection>
+            <ArcRotationDirection>'CounterClockwise'</ArcRotationDirection>
             <CollimatorAngle>355</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
         </beam>

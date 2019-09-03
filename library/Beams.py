@@ -14,21 +14,22 @@ import connect
 
 
 
-def select_element(set_type, set_elements, folder=None, filename=None, set_name=None, order_name=None, protocol=None):
+def select_element(set_level, set_type, set_elements,
+                   folder=None, filename=None,
+                   set_name=None, level_name=None,
+                   protocol=None, dialog=True):
     """
     Function to select the correct element from an xml file
 
-    set_type is the xml tag of the structure to find. Accepted: objectiveset, beamset
-    set_elements are the leaves within the set_type (i.e. beams or objectives
+    :param set_level: the elementtree level where we expect the set_type to live
+    :param set_type: is the xml tag of the structure to find. Accepted: objectiveset, beamset
+    :param set_elements: are the leaves within the set_type (i.e. beams or objectives
     User will supply a folder, in which case, they will need to select from all files found
     a filename, in which case they select from all sets found
     a set_name which returns the exact element-tree match for that set.
-
-
-
     :param filename: os joined protocol name, used to directly open a file
     :param folder: folder from os to search within and prompt user to select appropriate protocol
-    :param order_name: the name of order level element from xml file
+    :param level_name: the name of order level element from xml file
     :param protocol: ElementTree-Element of the objectiveset you want
 
     :return: et_list: elementtree list of elements with objectives and/or objectivesets
@@ -65,15 +66,19 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
     ## User supplies ordername and protocol element:
     objective_elements = Objectives.select_objective_protocol(order_name=order_name,
                                                               protocol=protocol)
-    :TODO add an optional arguement for finding an objectiveset or beamset exact match.
-        Note that this will match the et_level for a beamset
+    :TODO add an optional argument for finding an objectiveset or beamset exact match.
+        Note that this will match the et_type for a beamset
+    :TODO get the dialog component out of here, make two possible returns:
+                - a list of matching sets
+                - the matching elements
 
     """
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
     objectives_folder = r'objectives'
 
-    et_level = './' + set_type
+    et_level = './' + set_level
+    et_type = './' + set_type
     et_element = './' + set_elements
     et_list = []
     sets = {}
@@ -95,7 +100,7 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
                 tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
                 logging.debug('tree root is {}'.format(tree.getroot().tag))
                 # Search first for a top level set
-                sets = tree.findall(et_level)
+                sets = tree.findall(et_type)
                 logging.debug('sets is {}'.format(sets))
                 for s in sets:
                     logging.debug('set name is {}'.format(set_name))
@@ -127,26 +132,28 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
         # Search first for a top level objectiveset
         # Find the objectivesets:
         # These get loaded for protocols regardless of orders
-        protocol_set = protocol.findall(et_level)
+        protocol_set = protocol.findall(et_type)
         for p in protocol_set:
             et_list.append(p)
-        orders = protocol.findall('./order')
+        levels = protocol.findall(et_level)
         # Search the orders to find those with objectives and return the candidates
         # for the selectable objectives
-        for o in orders:
-            elements = o.findall(et_element)
+        for l in levels:
+            elements = l.findall(et_element)
             if elements:
-                n = o.find('name').text
-                sets[n] = o
+                n = l.find('name').text
+                sets[n] = l
             else:
-                logging.debug('No objects of type {} found in {}'.format(set_type, o.find('name').text))
+                logging.debug('No objects of type {} found in {}'.format(set_type, l.find('name').text))
     else:
         for f in file_list:
             if f.endswith('.xml'):
                 # Parse the xml file
                 tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, f))
+                logging.debug('tree root level is {}'.format(tree.getroot().tag))
                 # Search first for a top level set
                 if tree.getroot().tag == set_type:
+                    logging.debug('Root level is a list of desired sets. sets will include all {}'.format(set_type))
                     n = tree.find('name').text
                     if n in sets:
                         # objective_sets[n].extend(tree.getroot())
@@ -154,34 +161,54 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
                     else:
                         sets[n] = tree
                         et_list.append(tree)
+                # Next, look at the level supplied by set_level
+                elif tree.getroot().tag == set_level:
+                    logging.debug('Root level is {}, returning all {}'.format(set_level, set_type))
+                    sets_in_level = tree.findall(et_type)
+                    for l in sets_in_level:
+                        et_list.append(l)
+                    levels = tree.findall(set_type)
+                    # Search the orders to find those with objectives and return the candidates
+                    # for the selectable objectives
+                    for l in levels:
+                        elements = l.findall(et_element)
+                        if elements:
+                            n = l.find('name').text
+                            sets[n] = l
+                        else:
+                            logging.debug('No elements of type {} found in {}'.format(set_elements,
+                                                                                      l.find('name').text))
+                    for s in sets:
+                        logging.debug('set {} found'.format(s))
+
                 elif tree.getroot().tag == 'protocol':
                     # Find the sets
                     # These get loaded for protocols regardless of orders
-                    protocol_set = tree.findall(et_level)
+                    protocol_set = tree.findall(et_type)
                     for p in protocol_set:
                         et_list.append(p)
-                    orders = tree.findall('./order')
+                    levels = tree.findall(set_level)
                     # Search the orders to find those with objectives and return the candidates
                     # for the selectable objectives
-                    for o in orders:
-                        elements = o.findall(et_element)
+                    for l in levels:
+                        elements = l.findall(et_element)
                         if elements:
-                            n = o.find('name').text
-                            sets[n] = o
+                            n = l.find('name').text
+                            sets[n] = l
                         else:
                             logging.debug('No elements of type {} found in {}'.format(set_elements,
-                                                                                      o.find('name').text))
+                                                                                      l.find('name').text))
 
     # Augment the list to include all xml files found with an "objectiveset" tag in name
-    if order_name is not None:
+    if level_name is not None:
         try:
-            selected_order = sets[order_name]
+            selected_order = sets[level_name]
         except KeyError:
             # This order doesn't appear to match one that has objectives in it
             # Pass an empty entry
-            logging.debug('Order: {} has no {}. Protocol {} being used'.format(order_name, set_elements, set_elements))
+            logging.debug('Level: {} has no {}. Protocol {} being used'.format(level_name, set_elements, set_elements))
             selected_order = None
-    else:
+    elif dialog:
         input_dialog = UserInterface.InputDialog(
             inputs={'i': 'Select Objective Set'},
             title='Objective Selection',
@@ -198,6 +225,10 @@ def select_element(set_type, set_elements, folder=None, filename=None, set_name=
             logging.debug('User selected order: {} for objectives'.format(
                 input_dialog.values['i']))
             selected_order = sets[input_dialog.values['i']]
+    else:
+        # Return the list of all sets found
+        return list(sets.keys())
+
     # Add the order to the returned list
     if selected_order is not None:
         et_list.append(selected_order)

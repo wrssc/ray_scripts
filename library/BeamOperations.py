@@ -73,7 +73,7 @@ clr.AddReference('System')
 class Beam(object):
 
     def __init__(self):
-        self.number =None
+        self.number = None
         self.technique = None
         self.name = None
         self.energy = None
@@ -121,6 +121,9 @@ class BeamSet(object):
         self.technique = None
         self.rx_target = None
         self.iso_target = None
+        self.protocol_name = None
+        self.origin_file = None
+        self.origin_folder = None
 
     def __eq__(self, other):
         return other and self.iso == other.iso and self.number_of_fractions \
@@ -172,23 +175,44 @@ def patient_position_map(exam_position):
         return 'FeetFirstDecubitusRight'
 
 
-def beamset_dialog(case):
-    # TODO: Find out from RS why the DB query is broken
+def beamset_dialog(case, filename=None, path=None, order_name=None):
+    """
+    Ask user for information required to load a beamset including the desired protocol beamset to load.
+
+    :param case: current case from RS
+    :param folder: folder name of the location of the protocol files
+    :param filename: filename housing the order
+    :param order_name: optional specification of the order to use
+    :return: dialog_beamset: an object of type BeamSet with values set by the user dialog
+    """
+    # Define an empty BeamSet object that will be the returned object
+    dialog_beamset = BeamSet()
+    # TODO: Uncomment in version 9 to load the available machine inputs from current commissioned list
     # machine_db = connect.get_current('MachineDB')
     # machines = machine_db.QueryCommissionedMachineInfo(Filter={})
     # machine_list = []
     # for i, m in enumerate(machines):
     #     if m['IsCommissioned']:
     #         machine_list.append(m['Name'])
-    # TODO Load the available machine inputs from xml file
     # TODO Test gating option
     # TODO Load all available beamsets found in a file
-
-    dialog_beamset = BeamSet()
-
     available_modality = ['Photons', 'Electrons']
     available_technique = ['Conformal', 'SMLC', 'VMAT', 'DMLC', 'ConformalArc', 'TomoHelical', 'TomoDirect']
     machine_list = ['TrueBeam', 'TrueBeamSTx']
+
+    # Open the user supplied filename located at folder and return a list of available beamsets
+    if filename is not None:
+        dialog_beamset.origin_file = filename
+        dialog_beamset.origin_folder = path
+        logging.debug('looking in {} at {} for a {}'.format(filename, path, 'beamset'))
+        available_beamsets = Beams.select_element(
+            set_level='plan',
+            set_type='beamset',
+            set_elements='beam',
+            filename=filename,
+            dialog=False,
+            folder=path)
+
     targets = StructureOperations.find_targets(case=case)
 
     dialog = UserInterface.InputDialog(
@@ -200,7 +224,8 @@ def beamset_dialog(case):
             '4': 'Choose Treatment Machine',
             '5': 'Choose a Modality',
             '6': 'Choose a Technique',
-            '7': 'Choose a Target for Isocenter Placement'
+            '7': 'Choose a Target for Isocenter Placement',
+            '8': 'Choose a Beamset to load'
         },
         title='Beamset Inputs',
         datatype={
@@ -208,17 +233,20 @@ def beamset_dialog(case):
             '4': 'combo',
             '5': 'combo',
             '6': 'combo',
-            '7': 'combo'
+            '7': 'combo',
+            '8': 'combo'
         },
         initial={
             '1': 'XXXX_VMA_R0A0',
+            '8': available_beamsets[0]
         },
         options={
             '0': targets,
             '4': machine_list,
             '5': available_modality,
             '6': available_technique,
-            '7': targets
+            '7': targets,
+            '8': available_beamsets
         },
         required=['0',
                   '2',
@@ -226,7 +254,8 @@ def beamset_dialog(case):
                   '4',
                   '5',
                   '6',
-                  '7'])
+                  '7',
+                  '8'])
 
     # Launch the dialog
     response = dialog.show()
@@ -242,6 +271,7 @@ def beamset_dialog(case):
     dialog_beamset.modality = dialog.values['5']
     dialog_beamset.technique = dialog.values['6']
     dialog_beamset.iso_target = dialog.values['7']
+    dialog_beamset.protocol_name = dialog.values['8']
     return dialog_beamset
 
 
@@ -274,7 +304,12 @@ def find_isocenter_parameters(case, exam, beamset, iso_target):
     return isocenter_parameters
 
 
-def create_beamset(patient, case, exam, plan, dialog=True, BeamSet=None):
+def create_beamset(patient, case, exam, plan,
+                   BeamSet=None,
+                   dialog=True,
+                   filename=None,
+                   path=None,
+                   order_name=None):
     """ Create a beamset by opening a dialog with user or loading from scratch
     Currently relies on finding out information via a dialog. I would like it to optionally take the elements
     from the BeamSet class and return the result
@@ -286,33 +321,29 @@ def create_beamset(patient, case, exam, plan, dialog=True, BeamSet=None):
 
        """
     if dialog:
-        b = beamset_dialog(case=case)
+        b = beamset_dialog(case=case, filename=filename, path=path, order_name=order_name)
     elif BeamSet is not None:
         b = BeamSet
-
-#    try:
+    else:
+        logging.warning('Cannot load beamset due to incorrect argument list')
 
     plan.AddNewBeamSet(
-            Name=b.DicomName,
-            ExaminationName=exam.Name,
-            MachineName=b.machine,
-            Modality=b.modality,
-            TreatmentTechnique=b.technique,
-            PatientPosition=patient_position_map(exam.PatientPosition),
-            NumberOfFractions=b.number_of_fractions,
-            CreateSetupBeams=True,
-            UseLocalizationPointAsSetupIsocenter=False,
-            Comment="",
-            RbeModelReference=None,
-            EnableDynamicTrackingForVero=False,
-            NewDoseSpecificationPointNames=[],
-            NewDoseSpecificationPoints=[],
-            RespiratoryMotionCompensationTechnique="Disabled",
-            RespiratorySignalSource="Disabled")
-
-#    except Exception:
-#        logging.warning('Unable to Add Beamset')
-#        sys.exit('Unable to Add Beamset')
+        Name=b.DicomName,
+        ExaminationName=exam.Name,
+        MachineName=b.machine,
+        Modality=b.modality,
+        TreatmentTechnique=b.technique,
+        PatientPosition=patient_position_map(exam.PatientPosition),
+        NumberOfFractions=b.number_of_fractions,
+        CreateSetupBeams=True,
+        UseLocalizationPointAsSetupIsocenter=False,
+        Comment="",
+        RbeModelReference=None,
+        EnableDynamicTrackingForVero=False,
+        NewDoseSpecificationPointNames=[],
+        NewDoseSpecificationPoints=[],
+        RespiratoryMotionCompensationTechnique="Disabled",
+        RespiratorySignalSource="Disabled")
 
     beamset = plan.BeamSets[b.DicomName]
     patient.Save()
@@ -326,35 +357,6 @@ def create_beamset(patient, case, exam, plan, dialog=True, BeamSet=None):
                                          AutoScaleDose=True)
     except Exception:
         logging.warning('Unable to set prescription')
-
-    # Place isocenter
-    try:
-        isocenter_parameters = find_isocenter_parameters(
-            case=case,
-            exam=exam,
-            beamset=beamset,
-            iso_target=b.iso_target)
-
-    except Exception:
-        logging.warning('Aborting, could not locate center of {}'.format(b.iso_target))
-        sys.exit('Failed to place isocenter')
-
-    # beamset.CreatePhotonBeam(Energy=6,
-    #                          IsocenterData=isocenter_parameters,
-    #                          Name='1_Brai_g270c355',
-    #                          Description='1 3DC: MLC Static Field',
-    #                          GantryAngle=270.0,
-    #                          CouchAngle=355,
-    #                          CollimatorAngle=0)
-
-    # beamset.CreatePhotonBeam(Energy=6,
-    #                          IsocenterData=isocenter_parameters,
-    #                          Name='2_Brai_g090c005',
-    #                          Description='2 3DC: MLC Static Field',
-    #                          GantryAngle=90,
-    #                          CouchAngle=5,
-    #                          CollimatorAngle=0)
-
     return beamset
 
 
@@ -1240,7 +1242,8 @@ def load_beams_xml(filename, beamset_name, path):
     :param path: path to the xml file
     :return beams: a list of objects of type Beam"""
 
-    beam_elements = Beams.select_element(set_type='beamset',
+    beam_elements = Beams.select_element(set_level='plan',
+                                         set_type='beamset',
                                          set_elements='beam',
                                          set_name=beamset_name,
                                          filename=filename,
@@ -1251,21 +1254,14 @@ def load_beams_xml(filename, beamset_name, path):
         beam_nodes = et_beamsets.findall('./beam')
         for b in beam_nodes:
             beam = Beam()
-            beam.number = b.find('BeamNumber').text
-            beam.name = b.find('Name').text
-            beam.technique = b.find('DeliveryTechnique').text
-            beam.energy = b.find('Energy').text
-            beam.gantry_start_angle = b.find('GantryAngle').text
-            beam.gantry_stop_angle = b.find('GantryStopAngle').text
-            beam.rotation_dir = b.find('ArcRotationDirection').text
-            beam.collimator_angle = b.find('CollimatorAngle').text
-            beam.couch_angle = b.find('CouchAngle').text
+            beam.number = int(b.find('BeamNumber').text)
+            beam.name = str(b.find('Name').text)
+            beam.technique = str(b.find('DeliveryTechnique').text)
+            beam.energy = int(b.find('Energy').text)
+            beam.gantry_start_angle = float(b.find('GantryAngle').text)
+            beam.gantry_stop_angle = float(b.find('GantryStopAngle').text)
+            beam.rotation_dir = str(b.find('ArcRotationDirection').text)
+            beam.collimator_angle = float(b.find('CollimatorAngle').text)
+            beam.couch_angle = float(b.find('CouchAngle').text)
             beams.append(beam)
-            logging.info(('Beam {} found. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {},' +
-                          'RotationDirection {}, CollimatorAngle {}, CouchAngle{} ').format(
-                beam.number, beam.technique, beam.name,
-                beam.energy, beam.gantry_start_angle,
-                beam.gantry_stop_angle, beam.rotation_dir,
-                beam.collimator_angle, beam.couch_angle))
-
     return beams

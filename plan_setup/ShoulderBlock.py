@@ -94,6 +94,7 @@ def main():
                                   protocol_folder,
                                   institution_folder, beamset_folder)
 
+    # For debugging we can bypass the dialog by uncommenting the below lines
     BeamSet = BeamOperations.BeamSet()
     BeamSet.name = '2 Arc VMAT - HN Shoulder'
     BeamSet.DicomName = '_____VMA_R_A_'
@@ -104,7 +105,6 @@ def main():
     BeamSet.modality = 'Photons'
     BeamSet.total_dose = 7000.
     BeamSet.number_of_fractions = 33
-
     new_beamset = BeamOperations.create_beamset(patient=patient,
                                                 case=case,
                                                 exam=exam,
@@ -114,33 +114,65 @@ def main():
     beams = BeamOperations.load_beams_xml(filename=file,
                                           beamset_name=BeamSet.name,
                                           path=path_protocols)
-    # beam_elements = Beams.select_element(set_type='beamset',
-    #                                     set_elements='beam',
-    #                                     set_name=BeamSet.name,
-    #                                     filename=file,
-    #                                     folder=path_protocols)
-    # beams = []
-    # for et_beamsets in beam_elements:
-    #    beam_nodes = et_beamsets.findall('./beam')
-    #    for b in beam_nodes:
-    #        beam = BeamOperations.Beam()
-    #        beam.number = b.find('BeamNumber').text
-    #        beam.name = b.find('Name').text
-    #        beam.technique = b.find('DeliveryTechnique').text
-    #        beam.energy = b.find('Energy').text
-    #        beam.gantry_start_angle = b.find('GantryAngle').text
-    #        beam.gantry_stop_angle = b.find('GantryStopAngle').text
-    #        beam.rotation_dir = b.find('ArcRotationDirection').text
-    #        beam.collimator_angle = b.find('CollimatorAngle').text
-    #        beam.couch_angle = b.find('CouchAngle').text
-    #        beams.append(beam)
-    #        logging.info(('Beam {} found. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {},' +
-    #                     'RotationDirection {}, CollimatorAngle {}, CouchAngle{} ').format(
-    #                         beam.number, beam.technique, beam.name,
-    #                         beam.energy, beam.gantry_start_angle,
-    #                         beam.gantry_stop_angle, beam.rotation_dir,
-    #                         beam.collimator_angle, beam.couch_angle))
+
+    # Uncomment for a dialog
+    # order_name = None
+    # BeamSet = BeamOperations.beamset_dialog(case=case,
+    #                                         filename=file,
+    #                                         path=path_protocols,
+    #                                         order_name=order_name)
+
+    # new_beamset = BeamOperations.create_beamset(patient=patient,
+    #                                             case=case,
+    #                                             exam=exam,
+    #                                             plan=plan,
+    #                                             BeamSet=BeamSet, dialog=False)
+    # beams = BeamOperations.load_beams_xml(filename=file,
+    #                                       beamset_name=BeamSet.protocol_name,
+    #                                       path=path_protocols)
+    patient.Save()
+
+
+    logging.debug('Beamset: {} has beams originating from protocol beamset {} in file {} at {}'.format(
+        new_beamset.DicomPlanLabel, BeamSet.protocol_name, file, path_protocols))
+
     logging.debug('now have {} elements in beams'.format(len(beams)))
+
+    new_beamset.SetCurrent()
+    # Place isocenter
+    try:
+        BeamSet.iso = BeamOperations.find_isocenter_parameters(
+            case=case,
+            exam=exam,
+            beamset=new_beamset,
+            iso_target=BeamSet.iso_target)
+
+    except Exception:
+        logging.warning('Aborting, could not locate center of {}'.format(BeamSet.iso_target))
+        sys.exit('Failed to place isocenter')
+
+    for b in beams:
+        logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
+                      'RotationDirection {}, CollimatorAngle {}, CouchAngle{} ').format(
+            b.number, b.technique, b.name,
+            b.energy, b.gantry_start_angle,
+            b.gantry_stop_angle, b.rotation_dir,
+            b.collimator_angle, b.couch_angle))
+        logging.info('Rotation {} has type {}'.format(b.rotation_dir, type(b.rotation_dir)))
+        rot = str(b.rotation_dir)
+        for k, v in BeamSet.iso.iteritems():
+            logging.debug("k {} and v {}".format(k, v))
+
+        new_beamset.CreateArcBeam(ArcStopGantryAngle=b.gantry_stop_angle,
+                                  ArcRotationDirection=rot,
+                                  Energy=b.energy,
+                                  IsocenterData=BeamSet.iso,
+                                  Name=b.name,
+                                  Description=b.name,
+                                  GantryAngle=b.gantry_start_angle,
+                                  CouchAngle=5,
+                                  CollimatorAngle=0)
+
 
     PlanOperations.check_localization(case=case, exam=exam, create=True, confirm=False)
 
