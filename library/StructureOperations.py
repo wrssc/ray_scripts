@@ -71,6 +71,36 @@ def exists_roi(case, rois):
     return roi_exists
 
 
+def exists_poi(case, pois):
+    """See if rois is in the list"""
+    if type(pois) is not list:
+        pois = [pois]
+
+    defined_pois = []
+    for p in case.PatientModel.PointsOfInterest:
+        defined_pois.append(p.Name)
+
+    poi_exists = []
+
+    for p in pois:
+        i = 0
+        exact_match = False
+        if p in defined_pois:
+            while i < len(defined_pois):
+                if p == defined_pois[i]:
+                    logging.debug('{} is an exact match to {}'.format(p, defined_pois[i]))
+                    exact_match = True
+                i += 1
+            if exact_match:
+                poi_exists.append(True)
+            else:
+                poi_exists.append(False)
+        else:
+            poi_exists.append(False)
+
+    return poi_exists
+
+
 def check_roi(case, exam, rois):
     """ See if the provided rois has contours, later check for contiguous"""
     if type(rois) is not list:

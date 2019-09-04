@@ -272,6 +272,7 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     dialog_beamset.technique = dialog.values['6']
     dialog_beamset.iso_target = dialog.values['7']
     dialog_beamset.protocol_name = dialog.values['8']
+
     return dialog_beamset
 
 
@@ -358,6 +359,33 @@ def create_beamset(patient, case, exam, plan,
     except Exception:
         logging.warning('Unable to set prescription')
     return beamset
+
+
+def place_beams_in_beamset(iso, beamset, beams):
+    """
+    Put beams in place based on a list of Beam objects
+    :param iso: isocenter data dictionary
+    :param beamset: beamset to which to add beams
+    :param beams: list of Beam objects
+    :return:
+    """
+    for b in beams:
+        logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
+                      'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
+            b.number, b.technique, b.name,
+            b.energy, b.gantry_start_angle,
+            b.gantry_stop_angle, b.rotation_dir,
+            b.collimator_angle, b.couch_angle))
+
+        beamset.CreateArcBeam(ArcStopGantryAngle=b.gantry_stop_angle,
+                              ArcRotationDirection=b.rotation_dir,
+                              Energy=b.energy,
+                              IsocenterData=iso,
+                              Name=b.name,
+                              Description=b.name,
+                              GantryAngle=b.gantry_start_angle,
+                              CouchAngle=b.couch_angle,
+                              CollimatorAngle=b.collimator_angle)
 
 
 def rename_beams():

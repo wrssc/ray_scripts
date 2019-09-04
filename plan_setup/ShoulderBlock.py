@@ -44,6 +44,8 @@ import UserInterface
 import Beams
 import BeamOperations
 import PlanOperations
+import StructureOperations
+import PlanOperations
 
 
 def main():
@@ -105,6 +107,13 @@ def main():
     BeamSet.modality = 'Photons'
     BeamSet.total_dose = 7000.
     BeamSet.number_of_fractions = 33
+    BeamSet.protocol_name = '2 Arc VMAT - HN Shoulder'
+    # Uncomment for a dialog
+    # order_name = None
+    # BeamSet = BeamOperations.beamset_dialog(case=case,
+    #                                         filename=file,
+    #                                         path=path_protocols,
+    #                                         order_name=order_name)
     new_beamset = BeamOperations.create_beamset(patient=patient,
                                                 case=case,
                                                 exam=exam,
@@ -112,33 +121,14 @@ def main():
                                                 dialog=False,
                                                 BeamSet=BeamSet)
     beams = BeamOperations.load_beams_xml(filename=file,
-                                          beamset_name=BeamSet.name,
+                                          beamset_name=BeamSet.protocol_name,
                                           path=path_protocols)
-
-    # Uncomment for a dialog
-    # order_name = None
-    # BeamSet = BeamOperations.beamset_dialog(case=case,
-    #                                         filename=file,
-    #                                         path=path_protocols,
-    #                                         order_name=order_name)
-
-    # new_beamset = BeamOperations.create_beamset(patient=patient,
-    #                                             case=case,
-    #                                             exam=exam,
-    #                                             plan=plan,
-    #                                             BeamSet=BeamSet, dialog=False)
-    # beams = BeamOperations.load_beams_xml(filename=file,
-    #                                       beamset_name=BeamSet.protocol_name,
-    #                                       path=path_protocols)
-    patient.Save()
-
 
     logging.debug('Beamset: {} has beams originating from protocol beamset {} in file {} at {}'.format(
         new_beamset.DicomPlanLabel, BeamSet.protocol_name, file, path_protocols))
 
     logging.debug('now have {} elements in beams'.format(len(beams)))
 
-    new_beamset.SetCurrent()
     # Place isocenter
     try:
         BeamSet.iso = BeamOperations.find_isocenter_parameters(
@@ -151,28 +141,168 @@ def main():
         logging.warning('Aborting, could not locate center of {}'.format(BeamSet.iso_target))
         sys.exit('Failed to place isocenter')
 
-    for b in beams:
-        logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
-                      'RotationDirection {}, CollimatorAngle {}, CouchAngle{} ').format(
-            b.number, b.technique, b.name,
-            b.energy, b.gantry_start_angle,
-            b.gantry_stop_angle, b.rotation_dir,
-            b.collimator_angle, b.couch_angle))
-        logging.info('Rotation {} has type {}'.format(b.rotation_dir, type(b.rotation_dir)))
-        rot = str(b.rotation_dir)
-        for k, v in BeamSet.iso.iteritems():
-            logging.debug("k {} and v {}".format(k, v))
+    BeamOperations.place_beams_in_beamset(iso=BeamSet.iso, beamset=new_beamset, beams=beams)
 
-        new_beamset.CreateArcBeam(ArcStopGantryAngle=b.gantry_stop_angle,
-                                  ArcRotationDirection=rot,
-                                  Energy=b.energy,
-                                  IsocenterData=BeamSet.iso,
-                                  Name=b.name,
-                                  Description=b.name,
-                                  GantryAngle=b.gantry_start_angle,
-                                  CouchAngle=5,
-                                  CollimatorAngle=0)
+    patient.Save()
+    new_beamset.SetCurrent()
 
+    try:
+        ui = connect.get_current('ui')
+        ui.TitleBar.MenuItem['Patient Modeling'].Button_Patient_Modeling.Click()
+    except:
+        logging.debug("Could not click on the plan Design MenuItem")
+
+    shoulder_poi_left = 'Shoulder_L_POI'
+    shoulder_poi_right = 'Shoulder_R_POI'
+    logging.debug('Points exist? {}'.format(StructureOperations.exists_poi(case=case, pois=[
+        shoulder_poi_right, shoulder_poi_left
+    ])))
+
+    if StructureOperations.exists_poi(case=case, pois=shoulder_poi_left):
+        connect.await_user_input(('Ensure the point {} is at the left acromial-clavicular joint' +
+                                  ' and continue script.').format(shoulder_poi_left))
+    else:
+        case.PatientModel.CreatePoi(Examination=exam,
+                                    Point=BeamSet.iso['Position'],
+                                    Volume=0,
+                                    Name=shoulder_poi_left,
+                                    Color='Green',
+                                    VisualizationDiameter=1,
+                                    Type='Control')
+        connect.await_user_input(('Place the point {} at the left acromial-clavicular joint' +
+                                  ' and continue script.'.format(shoulder_poi_left)))
+
+    shoulder_left_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_left]
+    logging.debug('The value of the x={}, y={}, z={}'.format(
+        shoulder_left_position.Point.x,
+        shoulder_left_position.Point.y,
+        shoulder_left_position.Point.z))
+
+    if StructureOperations.exists_poi(case=case, pois=shoulder_poi_right):
+        connect.await_user_input(('Ensure the point {} is at the right acromial-clavicular joint' +
+                                  ' and continue script.').format(shoulder_poi_right))
+    else:
+        case.PatientModel.CreatePoi(Examination=exam,
+                                    Point=BeamSet.iso['Position'],
+                                    Volume=0,
+                                    Name=shoulder_poi_right,
+                                    Color='Yellow',
+                                    VisualizationDiameter=1,
+                                    Type='Control')
+        connect.await_user_input(('Place the point {} at the right acromial-clavicular joint' +
+                                  ' and continue script.'.format(shoulder_poi_right)))
+
+    shoulder_right_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_right]
+    logging.debug('The value of the x={}, y={}, z={}'.format(
+        shoulder_right_position.Point.x,
+        shoulder_right_position.Point.y,
+        shoulder_right_position.Point.z))
+
+
+    machine_ref = new_beamset.MachineReference.MachineName
+    if machine_ref == 'TrueBeamSTx':
+        logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
+        x1limit = -20
+        x2limit = 20
+        y1limit = -10.9
+        y2limit = 10.9
+    elif machine_ref == 'TrueBeam':
+        x1limit = -20
+        x2limit = 20
+        y1limit = -20
+        y2limit = 20
+    # For a point at (xo, yo, zo) and isocenter at (xi, yi, zi), the value of the y1 jaw (presuming collimator zero),
+    # letting xi = 100 cm, is:
+    # y1 = xi * (yo - yi)/(xi - xo) = 100 * (yo - yi)/(xi - xo)
+    iso_position = BeamSet.iso['Position']
+    xi = 100
+    yi = iso_position['y']
+
+    xl = shoulder_left_position.Point.x
+    yl = shoulder_left_position.Point.y
+    left_y1 = xi * (yl - yi) / (xi - xl)
+
+    xr = shoulder_left_position.Point.x
+    yr = shoulder_left_position.Point.y
+    right_y1 = xi * (yr - yi) / (xi - xr)
+
+    logging.info('Left shoulder jaw position on lateral arcs should be {}'.format(left_y1))
+
+    # Setting beam limits
+    #
+    opt_index = PlanOperations.find_optimization_index(plan=plan, beamset=new_beamset)
+    i = 0
+    while i is not None:
+        try:
+            opt_setup = plan.PlanOptimizations[opt_index].OptimizationParameters.TreatmentSetupSettings[i]
+            if opt_setup.ForTreatmentSetup.DicomPlanLabel == new_beamset.DicomPlanLabel:
+                i = None
+            else:
+                i += 1
+        except:
+            logging.debug('Could not find the TreatmentSetupSettings corresponding to {}'.format(
+                new_beamset.DicomPlanLabel))
+            sys.exit('Could not find the TreatmentSetupSettings corresponding to {}'.format(
+                new_beamset.DicomPlanLabel))
+
+    for b in opt_setup.BeamSettings:
+        start = b.ForBeam.GantryAngle
+        stop = b.ForBeam.ArcStopGantryAngle
+        rot = b.ForBeam.ArcRotationDirection
+        right_sided = (start >= 180 and stop >= 180) and \
+                      ((start >= 230 and stop <= 290 and rot == 'Clockwise') or
+                       (start <= 290 and stop >= 230 and rot == 'CounterClockwise'))
+        left_sided = (start <= 180 and stop <= 180) and \
+                     ((start <= 60 and stop <= 120 and rot == 'Clockwise') or
+                      (start <= 120 and stop >= 60 and rot == 'CounterClockwise'))
+        logging.debug('Start={}, Stop={}, Dir={}, Right={}, Left={}'.format(
+            start, stop, rot, right_sided, left_sided))
+
+        # Set Left Jaws
+        if left_sided or right_sided:
+            if right_sided:
+                y1_limit = right_y1
+            else:
+                y1_limit = left_y1
+
+            logging.info('Beam {} enters through the shoulder and will have jaw locked to less than y1 = {}'.format(
+                b.ForBeam.Name, y1_limit))
+
+            if b.ForBeam.InitialJawPositions is not None:
+                init_y1 = b.InitialJawPositions[2]
+                if init_y1 < y1_limit:
+                    b.EditBeamOptimizationSettings(
+                        JawMotion='Use limits as max',
+                        LeftJaw=b.ForBeam.InitialJawPositions[0],
+                        RightJaw=b.ForBeam.InitialJawPositions[1],
+                        TopJaw=y1_limit,
+                        BottomJaw=b.ForBeam.InitialJawPositions[2],
+                        SelectCollimatorAngle='False',
+                        AllowBeamSplit='False',
+                        OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                    logging.info('Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'.format(
+                        b.ForBeam.InitialJawPositions[0],
+                        b.ForBeam.InitialJawPositions[1],
+                        b.ForBeam.InitialJawPositions[2],
+                        b.ForBeam.InitialJawPositions[3]))
+                else:
+                    logging.debug('Initial y1 limit more conservative than required by shoulder block.'
+                                  ' Position unchanged')
+            else:
+                b.EditBeamOptimizationSettings(
+                    JawMotion='Use limits as max',
+                    LeftJaw=x1limit,
+                    RightJaw=x2limit,
+                    TopJaw=y1_limit,
+                    BottomJaw=y2limit,
+                    SelectCollimatorAngle='False',
+                    AllowBeamSplit='False',
+                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                logging.info('Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'.format(
+                    b.ForBeam.InitialJawPositions[0],
+                    b.ForBeam.InitialJawPositions[1],
+                    b.ForBeam.InitialJawPositions[2],
+                    b.ForBeam.InitialJawPositions[3]))
 
     PlanOperations.check_localization(case=case, exam=exam, create=True, confirm=False)
 
