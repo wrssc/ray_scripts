@@ -759,7 +759,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         x2limit = 20
                         y1limit = -10.9
                         y2limit = 10.9
-                        if mu > 0:
+                        if mu > 0 and beams.BeamAperatureLimit is None:
                             # If there are MU then this field has already been optimized with the wrong jaw limits
                             # For Shame....
                             logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
@@ -770,16 +770,24 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                             sys.exit('Restart Required: Select reset beams on next run of script.')
                         else:
                             try:
-                                # Uncomment to automatically set jaw limits
-                                beams.EditBeamOptimizationSettings(
-                                    JawMotion='Use limits as max',
-                                    LeftJaw=x1limit,
-                                    RightJaw=x2limit,
-                                    TopJaw=y1limit,
-                                    BottomJaw=y2limit,
-                                    SelectCollimatorAngle='False',
-                                    AllowBeamSplit='False',
-                                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                                if beams.BeamAperatureLimit is not None and \
+                                        beams.ForBeam.InitialJawPositions is not None:
+                                    x1 = beams.ForBeam.InitialJawPositions[0]
+                                    x2 = beams.ForBeam.InitialJawPositions[1]
+                                    y1 = beams.ForBeam.InitialJawPositions[2]
+                                    y2 = beams.ForBeam.InitialJawPositions[3]
+                                    change_jaw_limits = abs()
+                                else:
+                                    # Uncomment to automatically set jaw limits
+                                    beams.EditBeamOptimizationSettings(
+                                     JawMotion='Use limits as max',
+                                     LeftJaw=x1limit,
+                                     RightJaw=x2limit,
+                                     TopJaw=y1limit,
+                                     BottomJaw=y2limit,
+                                     SelectCollimatorAngle='False',
+                                     AllowBeamSplit='False',
+                                     OptimizationTypes=['SegmentOpt', 'SegmentMU'])
                             except:
                                 logging.debug('Failed to set limits for TrueBeamStx')
                 num_beams += 1

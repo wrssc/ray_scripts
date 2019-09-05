@@ -40,6 +40,7 @@ import sys
 import os
 import logging
 import connect
+import numpy as np
 import UserInterface
 import Beams
 import BeamOperations
@@ -108,6 +109,7 @@ def main():
     BeamSet.total_dose = 7000.
     BeamSet.number_of_fractions = 33
     BeamSet.protocol_name = '2 Arc VMAT - HN Shoulder'
+
     # Uncomment for a dialog
     # order_name = None
     # BeamSet = BeamOperations.beamset_dialog(case=case,
@@ -152,13 +154,13 @@ def main():
     except:
         logging.debug("Could not click on the plan Design MenuItem")
 
-    shoulder_poi_left = 'Shoulder_L_POI'
-    shoulder_poi_right = 'Shoulder_R_POI'
+    shoulder_poi_left = 'Block_L_Inf_POI'
+    shoulder_poi_right = 'Block_R_Inf_POI'
     logging.debug('Points exist? {}'.format(StructureOperations.exists_poi(case=case, pois=[
         shoulder_poi_right, shoulder_poi_left
     ])))
 
-    if StructureOperations.exists_poi(case=case, pois=shoulder_poi_left):
+    if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_left)):
         connect.await_user_input(('Ensure the point {} is at the left acromial-clavicular joint' +
                                   ' and continue script.').format(shoulder_poi_left))
     else:
@@ -167,7 +169,7 @@ def main():
                                     Volume=0,
                                     Name=shoulder_poi_left,
                                     Color='Green',
-                                    VisualizationDiameter=1,
+                                    VisualizationDiameter=2,
                                     Type='Control')
         connect.await_user_input(('Place the point {} at the left acromial-clavicular joint' +
                                   ' and continue script.'.format(shoulder_poi_left)))
@@ -178,7 +180,7 @@ def main():
         shoulder_left_position.Point.y,
         shoulder_left_position.Point.z))
 
-    if StructureOperations.exists_poi(case=case, pois=shoulder_poi_right):
+    if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_right)):
         connect.await_user_input(('Ensure the point {} is at the right acromial-clavicular joint' +
                                   ' and continue script.').format(shoulder_poi_right))
     else:
@@ -187,16 +189,12 @@ def main():
                                     Volume=0,
                                     Name=shoulder_poi_right,
                                     Color='Yellow',
-                                    VisualizationDiameter=1,
+                                    VisualizationDiameter=2,
                                     Type='Control')
         connect.await_user_input(('Place the point {} at the right acromial-clavicular joint' +
                                   ' and continue script.'.format(shoulder_poi_right)))
 
     shoulder_right_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_right]
-    logging.debug('The value of the x={}, y={}, z={}'.format(
-        shoulder_right_position.Point.x,
-        shoulder_right_position.Point.y,
-        shoulder_right_position.Point.z))
 
 
     machine_ref = new_beamset.MachineReference.MachineName
@@ -213,20 +211,43 @@ def main():
         y2limit = 20
     # For a point at (xo, yo, zo) and isocenter at (xi, yi, zi), the value of the y1 jaw (presuming collimator zero),
     # letting xi = 100 cm, is:
-    # y1 = xi * (yo - yi)/(xi - xo) = 100 * (yo - yi)/(xi - xo)
+    # y1 = xi * (yi - yo)/(xi - xo) = 100 * (yi - yo)/(xi - xo) - note the sign is < 0 if yi < yl
+    # (assuming y increases as we move inferior)
+    # we will also use the visualization diameter of the point to capture the superior margin we should give the point
+    # TODO replace this with a comprehensive blocking solution - jaw based if 9 doesn't have blocking
     iso_position = BeamSet.iso['Position']
-    xi = 100
-    yi = iso_position['y']
+    isd = 100.
+    xi = float(iso_position['x'])
+    yi = iso_position['z']
+    # logging.debug('Iso x={}, y={}, z={}'.format(
+    #    iso_position['x'],
+    #   iso_position['y'],
+    #   iso_position['z']))
+    #ogging.debug('Right Shoulder x={}, y={}, z={}'.format(
+    #   shoulder_right_position.Point.x,
+    #   shoulder_right_position.Point.y,
+    #   shoulder_right_position.Point.z))
+    #ogging.debug('Left Shoulder x={}, y={}, z={}'.format(
+    #   shoulder_left_position.Point.x,
+    #   shoulder_left_position.Point.y,
+    #   shoulder_left_position.Point.z))
+
+
+    # Add a margin based on the visualization diameter of the point
+    yl_margin = float(case.PatientModel.PointsOfInterest[shoulder_poi_left].VisualizationDiameter)/2.
+    yr_margin = float(case.PatientModel.PointsOfInterest[shoulder_poi_right].VisualizationDiameter)/2.
 
     xl = shoulder_left_position.Point.x
-    yl = shoulder_left_position.Point.y
-    left_y1 = xi * (yl - yi) / (xi - xl)
+    yl = shoulder_left_position.Point.z
+    left_y1 = np.sign(yl - yi) * isd * abs((yl - yi) / (isd - xl - xi)) + yl_margin
 
-    xr = shoulder_left_position.Point.x
-    yr = shoulder_left_position.Point.y
-    right_y1 = xi * (yr - yi) / (xi - xr)
+    xr = shoulder_right_position.Point.x
+    yr = shoulder_right_position.Point.z
+    right_y1 = np.sign(yr - yi) * isd * abs((yr - yi) / (isd - xr - xi)) + yr_margin
 
     logging.info('Left shoulder jaw position on lateral arcs should be {}'.format(left_y1))
+    logging.info('Right shoulder jaw position on lateral arcs should be {}'.format(right_y1))
+
 
     # Setting beam limits
     #
@@ -268,7 +289,7 @@ def main():
             logging.info('Beam {} enters through the shoulder and will have jaw locked to less than y1 = {}'.format(
                 b.ForBeam.Name, y1_limit))
 
-            if b.ForBeam.InitialJawPositions is not None:
+            if b.BeamAperatureLimit is not None:
                 init_y1 = b.InitialJawPositions[2]
                 if init_y1 < y1_limit:
                     b.EditBeamOptimizationSettings(
