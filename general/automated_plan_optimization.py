@@ -99,6 +99,7 @@ import datetime
 import sys
 import math
 import PlanOperations
+import BeamOperations
 
 
 def make_variable_grid_list(n_iterations, variable_dose_grid):
@@ -639,7 +640,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     plan_optimization_parameters.DoseCalculation.ComputeFinalDose = True
 
     # Turn off autoscale
-    # plan.PlanOptimizations[OptIndex].AutoScaleToPrescription = False
+    plan.PlanOptimizations[OptIndex].AutoScaleToPrescription = False
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
@@ -729,11 +730,14 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     machine_ref = beamset.MachineReference.MachineName
                     if machine_ref == 'TrueBeamSTx':
                         logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
-                        x1_stx = -20
-                        x2_stx = 20
-                        y1_stx = -10.9
-                        y2_stx = 10.9
-                        if mu > 0 and beams.BeamAperatureLimit is None:
+                        limit = [-20, 20, -10.9, 10.9]
+                        # x1_stx = -20
+                        # x2_stx = 20
+                        # y1_stx = -10.9
+                        # y2_stx = 10.9
+                        success = BeamOperations.check_beam_limits(beams.ForBeam.Name, plan=plan, beamset=beamset,
+                                                                   limit=limit, change=True)
+                        if not success:
                             # If there are MU then this field has already been optimized with the wrong jaw limits
                             # For Shame....
                             logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
@@ -742,31 +746,42 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                                      ' on next attempt at this script')
                             status.finish('Restart required')
                             sys.exit('Restart Required: Select reset beams on next run of script.')
-                        else:
-                            try:
-                                if beams.BeamAperatureLimit is not None and \
-                                        beams.ForBeam.InitialJawPositions is not None:
-                                    x1 = beams.ForBeam.InitialJawPositions[0]
-                                    x2 = beams.ForBeam.InitialJawPositions[1]
-                                    y1 = beams.ForBeam.InitialJawPositions[2]
-                                    y2 = beams.ForBeam.InitialJawPositions[3]
-                                    limits = [max(x1, x1_stx),
-                                              min(x2, x2_stx),
-                                              ]
-                                    change_jaw_limits = abs()
-                                else:
-                                    # Uncomment to automatically set jaw limits
-                                    beams.EditBeamOptimizationSettings(
-                                     JawMotion='Use limits as max',
-                                     LeftJaw=x1limit,
-                                     RightJaw=x2limit,
-                                     TopJaw=y1limit,
-                                     BottomJaw=y2limit,
-                                     SelectCollimatorAngle='False',
-                                     AllowBeamSplit='False',
-                                     OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-                            except:
-                                logging.debug('Failed to set limits for TrueBeamStx')
+
+
+                       # if mu > 0 and beams.BeamAperatureLimit is None:
+                       #     # If there are MU then this field has already been optimized with the wrong jaw limits
+                       #     # For Shame....
+                       #     logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
+                       #     UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
+                       #                              'jaws failed - check reset beams' +
+                       #                              ' on next attempt at this script')
+                       #     status.finish('Restart required')
+                       #     sys.exit('Restart Required: Select reset beams on next run of script.')
+                       # else:
+                       #     try:
+                       #         if beams.BeamAperatureLimit is not None and \
+                       #                 beams.ForBeam.InitialJawPositions is not None:
+                       #             x1 = beams.ForBeam.InitialJawPositions[0]
+                       #             x2 = beams.ForBeam.InitialJawPositions[1]
+                       #             y1 = beams.ForBeam.InitialJawPositions[2]
+                       #             y2 = beams.ForBeam.InitialJawPositions[3]
+                       #             limits = [max(x1, x1_stx),
+                       #                       min(x2, x2_stx),
+                       #                       ]
+                       #             change_jaw_limits = abs()
+                       #         else:
+                       #             # Uncomment to automatically set jaw limits
+                       #             beams.EditBeamOptimizationSettings(
+                       #              JawMotion='Use limits as max',
+                       #              LeftJaw=x1limit,
+                       #              RightJaw=x2limit,
+                       #              TopJaw=y1limit,
+                       #              BottomJaw=y2limit,
+                       #              SelectCollimatorAngle='False',
+                       #              AllowBeamSplit='False',
+                       #              OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                       #     except:
+                       #         logging.debug('Failed to set limits for TrueBeamStx')
                 num_beams += 1
             if ts.ForTreatmentSetup.DeliveryTechnique == 'SMLC':
                 if mu > 0:

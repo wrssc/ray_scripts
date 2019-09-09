@@ -1330,78 +1330,86 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False):
 
     if not beam_found:
         logging.debug('Beam {} not found in beam list from {}'.format(
-            beam_name, beamset.DicomPlanLabel
-        ))
+            beam_name, beamset.DicomPlanLabel))
         sys.exit('Could not find a beam match for setting aperture limits')
 
-    # Check if aperature limit exist.
+    # Check if aperture limit exist.
     if current_beam.ForBeam.BeamMU > 0:
         logging.debug('Beam has MU. Changing jaw limit with an optimized beam is not possible without reset')
         return False
     else:
         # Check for existing aperture limit
         try:
-            current_limits = current_beam.BeamAperatureLimit
-            logging.debug(('aperture limits found on beam {} of initial jaw positions to x1 = {}, ' +
-                           'x2 = {}, y1 = {}, y2 = {}')
-                          .format(beam_name,
-                                  current_beam.ForBeam.InitialJawPositions[0],
-                                  current_beam.ForBeam.InitialJawPositions[1],
-                                  current_beam.ForBeam.InitialJawPositions[2],
-                                  current_beam.ForBeam.InitialJawPositions[3]))
+            current_limits = current_beam.BeamApertureLimit
+            if current_limits != 'NoLimit':
+                logging.debug(('aperture limits found on beam {} of initial jaw positions: x1 = {}, ' +
+                               'x2 = {}, y1 = {}, y2 = {}')
+                              .format(beam_name,
+                                      current_beam.ForBeam.InitialJawPositions[0],
+                                      current_beam.ForBeam.InitialJawPositions[1],
+                                      current_beam.ForBeam.InitialJawPositions[2],
+                                      current_beam.ForBeam.InitialJawPositions[3]))
         except AttributeError:
             logging.debug('no existing aperture limits on beam {}'.format(beam_name))
             current_limits = None
 
-        if current_limits is None:
+        if current_limits == 'NoLimit':
             modified_limit = limit
             logging.info(('No jaw limits found on Beam {}: Jaw limits should be '
-                          'x1 = {}, x2 = {}, y1 = {}, y2 = {} to ')
-                     .format(beam_name,
-                             modified_limit[0],
-                             modified_limit[1],
-                             modified_limit[2],
-                             modified_limit[3]))
+                          'x1 = {}, x2 = {}, y1 = {}, y2 = {}')
+                         .format(beam_name,
+                                 modified_limit[0],
+                                 modified_limit[1],
+                                 modified_limit[2],
+                                 modified_limit[3]))
 
         else:
             x1 = current_beam.ForBeam.InitialJawPositions[0]
             x2 = current_beam.ForBeam.InitialJawPositions[1]
             y1 = current_beam.ForBeam.InitialJawPositions[2]
             y2 = current_beam.ForBeam.InitialJawPositions[3]
-            modified_limit = [max(x1, limit[0]),
-                              min(x2, limit[1]),
-                              min(y1, limit[2]),
-                              max(y2, limit[3])]
-            logging.info(('Jaw limits found on Beam {}: Jaw limits should be changed '
-                          'x1: {} => {}, x2: {} => {}, y1: {} => {}, y2: {} => {}')
-                         .format(beam_name,
-                                 limit[0], modified_limit[0],
-                                 limit[1], modified_limit[1],
-                                 limit[2], modified_limit[2],
-                                 limit[3], modified_limit[3]))
+            if all([limit[0] <= x1, limit[1] >= x2, limit[2] <= y1, limit[3] >= y2]):
+                limits_met = True
+            else:
+                limits_met = False
+                modified_limit = [max(x1, limit[0]),
+                                  min(x2, limit[1]),
+                                  max(y1, limit[2]),
+                                  min(y2, limit[3])]
+                logging.info(('Jaw limits found on Beam {}: Jaw limits should be changed '
+                              'x1: {} => {}, x2: {} => {}, y1: {} => {}, y2: {} => {}')
+                             .format(beam_name,
+                                     limit[0], modified_limit[0],
+                                     limit[1], modified_limit[1],
+                                     limit[2], modified_limit[2],
+                                     limit[3], modified_limit[3]))
 
-        if change:
-            current_beam.EditBeamOptimizationSettings(
-                JawMotion='Use limit as max',
-                LeftJaw=modified_limit[0],
-                RightJaw=modified_limit[1],
-                TopJaw=modified_limit[2],
-                BottomJaw=modified_limit[3],
-                SelectCollimatorAngle='False',
-                AllowBeamSplit='False',
-                OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-            logging.info('Beam {}: Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'
-                         .format(beam_name,
-                                 current_beam.ForBeam.InitialJawPositions[0],
-                                 current_beam.ForBeam.InitialJawPositions[1],
-                                 current_beam.ForBeam.InitialJawPositions[2],
-                                 current_beam.ForBeam.InitialJawPositions[3]))
+        if not limits_met:
+            if change:
+                current_beam.EditBeamOptimizationSettings(
+                    JawMotion='Use limits as max',
+                    LeftJaw=modified_limit[0],
+                    RightJaw=modified_limit[1],
+                    TopJaw=modified_limit[2],
+                    BottomJaw=modified_limit[3],
+                    SelectCollimatorAngle='False',
+                    AllowBeamSplit='False',
+                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                logging.info('Beam {}: Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'
+                             .format(beam_name,
+                                     current_beam.ForBeam.InitialJawPositions[0],
+                                     current_beam.ForBeam.InitialJawPositions[1],
+                                     current_beam.ForBeam.InitialJawPositions[2],
+                                     current_beam.ForBeam.InitialJawPositions[3]))
+                return True
+            else:
+                logging.info(('Aperture check shows that limit on {} are not current. Limits should be '
+                              'x1 = {}, x2 = {}, y1 = {}, y2 = {}').format(beam_name,
+                                                                           modified_limit[0],
+                                                                           modified_limit[1],
+                                                                           modified_limit[2],
+                                                                           modified_limit[3]))
+                return False
         else:
-            logging.info(('Aperture check shows that limit on {} are not current. Limits should be '
-                          'x1 = {}, x2 = {}, y1 = {}, y2 = {}').format(beam_name,
-                                                                       modified_limit[0],
-                                                                       modified_limit[1],
-                                                                       modified_limit[2],
-                                                                       modified_limit[3]))
-            return False
-
+            logging.debug('Limits met, no changes in aperture needed')
+            return True
