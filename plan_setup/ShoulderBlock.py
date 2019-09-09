@@ -289,41 +289,44 @@ def main():
             logging.info('Beam {} enters through the shoulder and will have jaw locked to less than y1 = {}'.format(
                 b.ForBeam.Name, y1_limit))
 
-            if b.BeamAperatureLimit is not None:
-                init_y1 = b.InitialJawPositions[2]
-                if init_y1 < y1_limit:
-                    b.EditBeamOptimizationSettings(
-                        JawMotion='Use limits as max',
-                        LeftJaw=b.ForBeam.InitialJawPositions[0],
-                        RightJaw=b.ForBeam.InitialJawPositions[1],
-                        TopJaw=y1_limit,
-                        BottomJaw=b.ForBeam.InitialJawPositions[2],
-                        SelectCollimatorAngle='False',
-                        AllowBeamSplit='False',
-                        OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-                    logging.info('Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'.format(
-                        b.ForBeam.InitialJawPositions[0],
-                        b.ForBeam.InitialJawPositions[1],
-                        b.ForBeam.InitialJawPositions[2],
-                        b.ForBeam.InitialJawPositions[3]))
-                else:
-                    logging.debug('Initial y1 limit more conservative than required by shoulder block.'
-                                  ' Position unchanged')
-            else:
-                b.EditBeamOptimizationSettings(
-                    JawMotion='Use limits as max',
-                    LeftJaw=x1limit,
-                    RightJaw=x2limit,
-                    TopJaw=y1_limit,
-                    BottomJaw=y2limit,
-                    SelectCollimatorAngle='False',
-                    AllowBeamSplit='False',
-                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-                logging.info('Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'.format(
-                    b.ForBeam.InitialJawPositions[0],
-                    b.ForBeam.InitialJawPositions[1],
-                    b.ForBeam.InitialJawPositions[2],
-                    b.ForBeam.InitialJawPositions[3]))
+            success = BeamOperations.check_beam_limits(b.ForBeam.Name, plan=plan, beamset=beamset,
+                                                       limit=[x1limit, x2limit, y1_limit, y2limit],
+                                                       change=True)
+            # if b.BeamAperatureLimit is not None:
+            #     init_y1 = b.InitialJawPositions[2]
+            #     if init_y1 < y1_limit:
+            #         b.EditBeamOptimizationSettings(
+            #             JawMotion='Use limits as max',
+            #             LeftJaw=b.ForBeam.InitialJawPositions[0],
+            #             RightJaw=b.ForBeam.InitialJawPositions[1],
+            #             TopJaw=y1_limit,
+            #             BottomJaw=b.ForBeam.InitialJawPositions[2],
+            #             SelectCollimatorAngle='False',
+            #             AllowBeamSplit='False',
+            #             OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+            #         logging.info('Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'.format(
+            #             b.ForBeam.InitialJawPositions[0],
+            #             b.ForBeam.InitialJawPositions[1],
+            #             b.ForBeam.InitialJawPositions[2],
+            #             b.ForBeam.InitialJawPositions[3]))
+            #     else:
+            #         logging.debug('Initial y1 limit more conservative than required by shoulder block.'
+            #                       ' Position unchanged')
+            # else:
+            #     b.EditBeamOptimizationSettings(
+            #         JawMotion='Use limits as max',
+            #         LeftJaw=x1limit,
+            #         RightJaw=x2limit,
+            #         TopJaw=y1_limit,
+            #         BottomJaw=y2limit,
+            #         SelectCollimatorAngle='False',
+            #         AllowBeamSplit='False',
+            #         OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+            #     logging.info('Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'.format(
+            #         b.ForBeam.InitialJawPositions[0],
+            #         b.ForBeam.InitialJawPositions[1],
+            #         b.ForBeam.InitialJawPositions[2],
+            #         b.ForBeam.InitialJawPositions[3]))
 
     PlanOperations.check_localization(case=case, exam=exam, create=True, confirm=False)
 

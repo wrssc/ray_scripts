@@ -65,6 +65,7 @@ import clr
 import connect
 import UserInterface
 import StructureOperations
+import PlanOperations
 import Beams
 
 clr.AddReference('System')
@@ -1293,3 +1294,73 @@ def load_beams_xml(filename, beamset_name, path):
             beam.couch_angle = float(b.find('CouchAngle').text)
             beams.append(beam)
     return beams
+
+
+def check_beam_limits(beam_name, plan, beamset, limit, change=False):
+    """
+    Check the current locked limit on the beams and modify the optimization limit
+    :param beam_name: name of beam to be modified
+    :param plan: current plan
+    :param beamset: current beamset
+    :param limit: list of four limit [x1, x2, y1, y2]
+    :param change: change the beam limit True/False
+    :return: modified_limits: new limit [x1, x2, y1, y2] or None if unsuccessful.
+    """
+    # Find the optimization index corresponding to this beamset
+    opt_index = PlanOperations.find_optimization_index(plan=plan, beamset=beamset)
+    plan_optimization_parameters = plan.PlanOptimizations[opt_index].OptimizationParameters
+    ts_settings = plan_optimization_parameters.TreatmentSetupSettings
+
+    # Track whether the input beam_name is found in the list of beams belonging to this optimization.
+    beam_found = False
+    for b in ts_settings.BeamSettings:
+
+        if b.ForBeam.Name == beam_name:
+            beam_found = True
+            logging.debug('Beam {} not found in beam list from {}'.format(
+                beam_name, beamset.DicomPlanLabel))
+
+            # Check if aperature limit exist.
+            if b.ForBeam.BeamMU > 0:
+                logging.debug('Beam has MU. Changing jaw limit with an optimized beam is not possible without reset')
+                return None
+            else:
+                # Check for existing aperature limit
+                if b.BeamAperatureLimit is None:
+                    return limit
+                else:
+                    x1 = b.ForBeam.InitialJawPositions[0]
+                    x2 = b.ForBeam.InitialJawPositions[1]
+                    y1 = b.ForBeam.InitialJawPositions[2]
+                    y2 = b.ForBeam.InitialJawPositions[3]
+                    modified_limit = [max(x1, limit[0]),
+                             min(x2, limit[1]),
+                             min(y1, limit[2]),
+                             max(y2, limit[3]),
+                             ]
+                    if change:
+                        b.EditBeamOptimizationSettings(
+                            JawMotion='Use limit as max',
+                            LeftJaw=modified_limit[0],
+                            RightJaw=modified_limit[1],
+                            TopJaw=modified_limit[2],
+                            BottomJaw=modified_limit[3],
+                            SelectCollimatorAngle='False',
+                            AllowBeamSplit='False',
+                            OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                        logging.info('Beam {}: Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'
+                                     .format(beam_name,
+                                             b.ForBeam.InitialJawPositions[0],
+                                             b.ForBeam.InitialJawPositions[1],
+                                             b.ForBeam.InitialJawPositions[2],
+                                             b.ForBeam.InitialJawPositions[3]))
+                    else:
+                        return modified_limit
+        else:
+            continue
+
+    if not beam_found:
+        logging.debug('Beam {} not found in beam list from {}'.format(
+            beam_name, beamset.DicomPlanLabel
+        ))
+        return None
