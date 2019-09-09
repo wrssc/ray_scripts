@@ -289,9 +289,11 @@ def main():
             logging.info('Beam {} enters through the shoulder and will have jaw locked to less than y1 = {}'.format(
                 b.ForBeam.Name, y1_limit))
 
-            success = BeamOperations.check_beam_limits(b.ForBeam.Name, plan=plan, beamset=beamset,
+            success = BeamOperations.check_beam_limits(b.ForBeam.Name, plan=plan, beamset=new_beamset,
                                                        limit=[x1limit, x2limit, y1_limit, y2limit],
                                                        change=True)
+            if not success:
+                sys.exit('An error occurred setting beam limits')
             # if b.BeamAperatureLimit is not None:
             #     init_y1 = b.InitialJawPositions[2]
             #     if init_y1 < y1_limit:
