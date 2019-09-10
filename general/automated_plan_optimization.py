@@ -168,29 +168,29 @@ def check_min_jaws(plan_opt, min_dim):
     # min_dimension * (1 + epsilon) will be used to lock jaws
     epsilon = 0.1
     jaw_change = False
-    n_mlc = 64
-    y_thick_inner = 0.25
-    y_thick_outer = 0.5
+    # n_mlc = 64
+    # y_thick_inner = 0.25
+    # y_thick_outer = 0.5
     for treatsettings in plan_opt.OptimizationParameters.TreatmentSetupSettings:
         for b in treatsettings.BeamSettings:
             logging.debug("Checking beam {} for jaw size limits".format(b.ForBeam.Name))
-            jaw_change = False
-            if b.ForBeam.MachineReference.MachineName == 'TrueBeamSTx':
-                n_mlc = 64
-                y_thick_inner = 0.25
-                y_thick_outer = 0.5
-                mlc_thin_low = 15
-                mlc_thin_high = 47
-            elif b.ForBeam.MachineReference.MachineName == 'TrueBeam':
-                n_mlc = 64
-                y_thick_inner = 0.5
-                y_thick_outer = 1.0
-                mlc_thin_low = 15
-                mlc_thin_high = 47
-            else:
-                logging.debug('Machine type unsupported for this check')
-                jaw_change = False
-                return jaw_change
+            # jaw_change = False
+            # if b.ForBeam.MachineReference.MachineName == 'TrueBeamSTx':
+            #     n_mlc = 64
+            #     y_thick_inner = 0.25
+            #     y_thick_outer = 0.5
+            #     mlc_thin_low = 15
+            #     mlc_thin_high = 47
+            # elif b.ForBeam.MachineReference.MachineName == 'TrueBeam':
+            #     n_mlc = 64
+            #     y_thick_inner = 0.5
+            #     y_thick_outer = 1.0
+            #     mlc_thin_low = 15
+            #     mlc_thin_high = 47
+            # else:
+            #     logging.debug('Machine type unsupported for this check')
+            #     jaw_change = False
+            #     return jaw_change
             # Search for the maximum leaf extend among all positions
             plan_is_optimized = False
             try:
@@ -201,16 +201,16 @@ def check_min_jaws(plan_opt, min_dim):
                     if b.ForBeam.HasValidSegments:
                         plan_is_optimized = True
             except:
-                logging.debug("Plan is not VMAT or SNS, behavior will not be clear for this test")
+                logging.debug("Plan is not VMAT or SNS, behavior will not be clear for check")
 
             if plan_is_optimized:
                 # Find the minimum jaw position, first set to the maximum
                 min_x_aperture = 40
                 min_y_aperture = 40
-                max_mlc_bank_0 = 40
-                max_mlc_bank_1 = -40
-                max_open_posY = 0
-                max_open_negY = 0
+                # max_mlc_bank_0 = 40
+                # max_mlc_bank_1 = -40
+                # max_open_posY = 0
+                # max_open_negY = 0
                 for s in b.ForBeam.Segments:
                     # Find the minimum aperture in each beam
                     # Note: X2 = s.JawPositions[1], X1 = s.JawPositions[0],
@@ -294,7 +294,7 @@ def check_min_jaws(plan_opt, min_dim):
                     logging.info('Jaw size offset unnecessary on beam:{}, X={}, Y={}, with min dimension={}'
                                  .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
             else:
-                logging.debug("Beam {} does not have valid segments".format(b.ForBeam.Name))
+                logging.debug("Beam {} is not optimized".format(b.ForBeam.Name))
     if jaw_change:
         plan_opt.ResetOptimization()
     return jaw_change
@@ -630,9 +630,11 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     if 'PRD' in beamset.DicomPlanLabel:
         min_segment_area = '4'
         min_segment_mu = '6'
+        logging.info('PRDR plan detected, setting minimum area to {} and minimum mu to {}'.format(
+            min_segment_area, min_segment_mu))
 
     # Find current Beamset Number and determine plan optimization
-    OptIndex = PlanOperations.find_optimization_index(plan=plan, beamset=beamset)
+    OptIndex = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
     plan_optimization = plan.PlanOptimizations[OptIndex]
     plan_optimization_parameters = plan.PlanOptimizations[OptIndex].OptimizationParameters
 
@@ -730,13 +732,14 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     machine_ref = beamset.MachineReference.MachineName
                     if machine_ref == 'TrueBeamSTx':
                         logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
+
                         limit = [-20, 20, -10.9, 10.9]
                         # x1_stx = -20
                         # x2_stx = 20
                         # y1_stx = -10.9
                         # y2_stx = 10.9
                         success = BeamOperations.check_beam_limits(beams.ForBeam.Name, plan=plan, beamset=beamset,
-                                                                   limit=limit, change=True)
+                                                                   limit=limit, change=True, verbose_logging=False)
                         if not success:
                             # If there are MU then this field has already been optimized with the wrong jaw limits
                             # For Shame....

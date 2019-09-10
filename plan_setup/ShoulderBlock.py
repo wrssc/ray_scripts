@@ -91,8 +91,10 @@ def main():
 
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
-    beamset_folder = r'beamsets'
-    file = 'UWVMAT_Beamsets.xml'
+    beamset_folder = ''
+    file = 'UWHeadNeck.xml'
+    # beamset_folder = r'beamsets'
+    # file = 'UWVMAT_Beamsets.xml'
     path_protocols = os.path.join(os.path.dirname(__file__),
                                   protocol_folder,
                                   institution_folder, beamset_folder)
@@ -111,25 +113,25 @@ def main():
     BeamSet.protocol_name = '2 Arc VMAT - HN Shoulder'
 
     # Uncomment for a dialog
-    # order_name = None
-    # BeamSet = BeamOperations.beamset_dialog(case=case,
-    #                                         filename=file,
-    #                                         path=path_protocols,
-    #                                         order_name=order_name)
+    order_name = None
+    BeamSet = BeamOperations.beamset_dialog(case=case,
+                                            filename=file,
+                                            path=path_protocols,
+                                            order_name=order_name)
+
     new_beamset = BeamOperations.create_beamset(patient=patient,
                                                 case=case,
                                                 exam=exam,
                                                 plan=plan,
                                                 dialog=False,
                                                 BeamSet=BeamSet)
+
     beams = BeamOperations.load_beams_xml(filename=file,
                                           beamset_name=BeamSet.protocol_name,
                                           path=path_protocols)
 
     logging.debug('Beamset: {} has beams originating from protocol beamset {} in file {} at {}'.format(
         new_beamset.DicomPlanLabel, BeamSet.protocol_name, file, path_protocols))
-
-    logging.debug('now have {} elements in beams'.format(len(beams)))
 
     # Place isocenter
     try:
@@ -196,7 +198,6 @@ def main():
 
     shoulder_right_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_right]
 
-
     machine_ref = new_beamset.MachineReference.MachineName
     if machine_ref == 'TrueBeamSTx':
         logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
@@ -219,23 +220,10 @@ def main():
     isd = 100.
     xi = float(iso_position['x'])
     yi = iso_position['z']
-    # logging.debug('Iso x={}, y={}, z={}'.format(
-    #    iso_position['x'],
-    #   iso_position['y'],
-    #   iso_position['z']))
-    #ogging.debug('Right Shoulder x={}, y={}, z={}'.format(
-    #   shoulder_right_position.Point.x,
-    #   shoulder_right_position.Point.y,
-    #   shoulder_right_position.Point.z))
-    #ogging.debug('Left Shoulder x={}, y={}, z={}'.format(
-    #   shoulder_left_position.Point.x,
-    #   shoulder_left_position.Point.y,
-    #   shoulder_left_position.Point.z))
-
 
     # Add a margin based on the visualization diameter of the point
-    yl_margin = float(case.PatientModel.PointsOfInterest[shoulder_poi_left].VisualizationDiameter)/2.
-    yr_margin = float(case.PatientModel.PointsOfInterest[shoulder_poi_right].VisualizationDiameter)/2.
+    yl_margin = float(case.PatientModel.PointsOfInterest[shoulder_poi_left].VisualizationDiameter) / 2.
+    yr_margin = float(case.PatientModel.PointsOfInterest[shoulder_poi_right].VisualizationDiameter) / 2.
 
     xl = shoulder_left_position.Point.x
     yl = shoulder_left_position.Point.z
@@ -247,7 +235,6 @@ def main():
 
     logging.info('Left shoulder jaw position on lateral arcs should be {}'.format(left_y1))
     logging.info('Right shoulder jaw position on lateral arcs should be {}'.format(right_y1))
-
 
     # Setting beam limits
     #
@@ -291,44 +278,9 @@ def main():
 
             success = BeamOperations.check_beam_limits(b.ForBeam.Name, plan=plan, beamset=new_beamset,
                                                        limit=[x1limit, x2limit, y1_limit, y2limit],
-                                                       change=True)
+                                                       change=True, verbose_logging=False)
             if not success:
                 sys.exit('An error occurred setting beam limits')
-            # if b.BeamAperatureLimit is not None:
-            #     init_y1 = b.InitialJawPositions[2]
-            #     if init_y1 < y1_limit:
-            #         b.EditBeamOptimizationSettings(
-            #             JawMotion='Use limits as max',
-            #             LeftJaw=b.ForBeam.InitialJawPositions[0],
-            #             RightJaw=b.ForBeam.InitialJawPositions[1],
-            #             TopJaw=y1_limit,
-            #             BottomJaw=b.ForBeam.InitialJawPositions[2],
-            #             SelectCollimatorAngle='False',
-            #             AllowBeamSplit='False',
-            #             OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-            #         logging.info('Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'.format(
-            #             b.ForBeam.InitialJawPositions[0],
-            #             b.ForBeam.InitialJawPositions[1],
-            #             b.ForBeam.InitialJawPositions[2],
-            #             b.ForBeam.InitialJawPositions[3]))
-            #     else:
-            #         logging.debug('Initial y1 limit more conservative than required by shoulder block.'
-            #                       ' Position unchanged')
-            # else:
-            #     b.EditBeamOptimizationSettings(
-            #         JawMotion='Use limits as max',
-            #         LeftJaw=x1limit,
-            #         RightJaw=x2limit,
-            #         TopJaw=y1_limit,
-            #         BottomJaw=y2limit,
-            #         SelectCollimatorAngle='False',
-            #         AllowBeamSplit='False',
-            #         OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-            #     logging.info('Changed initial jaw positions to x1 = {}, x2 = {}, y1 = {}, y2 = {}'.format(
-            #         b.ForBeam.InitialJawPositions[0],
-            #         b.ForBeam.InitialJawPositions[1],
-            #         b.ForBeam.InitialJawPositions[2],
-            #         b.ForBeam.InitialJawPositions[3]))
 
     PlanOperations.check_localization(case=case, exam=exam, create=True, confirm=False)
 

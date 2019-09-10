@@ -32,7 +32,7 @@ def check_localization(case, exam, create=False, confirm=False):
             return False
 
 
-def find_optimization_index(plan, beamset):
+def find_optimization_index(plan, beamset, verbose_logging=True):
     # Find current Beamset Number and determine plan optimization
     opt_index = 0
     index_not_found = True
@@ -54,9 +54,9 @@ def find_optimization_index(plan, beamset):
     else:
         # Found our index.  We will use a shorthand for the remainder of the code
         plan_optimization = plan.PlanOptimizations[opt_index]
-        logging.info(
-            'Optimization found, proceeding with plan.PlanOptimization[{}] for beamset {}'.format(
-                opt_index, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
-            ))
+        if verbose_logging:
+            logging.debug(
+                'Optimization found, proceeding with plan.PlanOptimization[{}] for beamset {}'.format(
+                    opt_index, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
+                ))
         return opt_index
-
