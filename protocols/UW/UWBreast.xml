@@ -130,6 +130,18 @@
             </roi>
             <roi>
                 <name>PTV_p_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
@@ -495,6 +507,18 @@
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
+                <priority>2</priority>
+            </roi>
+              <roi>
+                <name>PTV_p_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -871,6 +895,18 @@
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Eval">90</dose>
+                <priority>2</priority>
+            </roi>
+              <roi>
+                <name>PTV_p_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1387,6 +1423,18 @@
                 <dose units="%" roi="PTV_p_Chestwall">90</dose>
                 <priority>2</priority>
             </roi>
+              <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">115</dose>
+                <priority>2</priority>
+            </roi>
             <roi>
                 <name>PTV_p_Chestwall</name>
                 <type dir="le">DX</type>
@@ -1896,6 +1944,18 @@
                 <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
+             <roi>
+                <name>PTV_p_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
+                <priority>2</priority>
+            </roi>
             <roi>
                 <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
@@ -2371,6 +2431,18 @@
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_Chestwall">90</dose>
+                <priority>2</priority>
+            </roi>
+             <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
