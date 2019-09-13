@@ -329,16 +329,16 @@ def reduce_oar_dose(plan_optimization):
     if composite_objectives:
         connect.await_user_input("ReduceOAR with composite optimization is not supported " +
                                  "by RaySearch at this time")
-        logging.warning("automated_plan_optimization.py: reduce_oar_dose: " +
+        logging.warning("reduce_oar_dose: " +
                         "RunReduceOARDoseOptimization not executed due to the presence of" +
                         "CompositeDose objectives")
-        logging.debug("automated_plan_optimization.py: reduce_oar_dose: composite" +
+        logging.debug("reduce_oar_dose: composite" +
                       "objectives found in iterations {}".format(composite_objectives))
         return False
     else:
         # Construct the currently-used targets and regions at risk as lists targets and oars
         # respectively
-        logging.info("automated_plan_optimization.py: reduce_oar_dose: no composite" +
+        logging.info("reduce_oar_dose: no composite" +
                      "objectives found, proceeding with ReduceOARDose")
         for objective in plan_optimization.Objective.ConstituentFunctions:
             objective_organ_type = objective.OfDoseGridRoi.OfRoiGeometry.OfRoi.OrganData.OrganType
@@ -355,7 +355,7 @@ def reduce_oar_dose(plan_optimization):
                 # Add only unique elements to oars
                 if objective_roi_name not in oars:
                     oars.append(objective_roi_name)
-        sorted_structure_message = "automated_plan_optimization.py: reduce_oar_dose: " + \
+        sorted_structure_message = "reduce_oar_dose: " + \
                                    "Reduce OAR dose executing with targets: " + ', '.join(targets)
         sorted_structure_message += " and oars: " + ', '.join(oars)
         logging.info(sorted_structure_message)
@@ -367,7 +367,6 @@ def reduce_oar_dose(plan_optimization):
                 OrgansAtRiskToImprove=oars,
                 TargetsToMaintain=targets,
                 OrgansAtRiskToMaintain=oars)
-            print test_success
             return True
         except:
             return False
@@ -387,12 +386,12 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
 
     :todo: add the functional values for each iteration
     """
-    logging.info("automated_plan_optimization.py: optimization report: Post-optimization report:\n" +
+    logging.info("optimization report: Post-optimization report:\n" +
                  " Desired steps were:")
     for step in report_inputs.get('status_steps'):
         logging.info('{}'.format(step))
 
-    logging.info("automated_plan_optimization.py: optimization report: Optimization Time Information:")
+    logging.info("optimization report: Optimization Time Information:")
     on_screen_message = 'Optimization Time information \n'
     # Output the total time for the script to run
     try:

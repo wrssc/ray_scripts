@@ -202,17 +202,19 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     machine_list = ['TrueBeam', 'TrueBeamSTx']
 
     # Open the user supplied filename located at folder and return a list of available beamsets
+    # Should be able to eliminate this if after the modifications to select_element are complete
     if filename is not None:
         dialog_beamset.origin_file = filename
         dialog_beamset.origin_folder = path
         logging.debug('looking in {} at {} for a {}'.format(filename, path, 'beamset'))
         available_beamsets = Beams.select_element(
-            set_level='plan',
-            set_type='beamset',
+            set_level='beamset',
+            set_type=None,
             set_elements='beam',
             filename=filename,
             dialog=False,
-            folder=path)
+            folder=path,
+            verbose_logging=False)
 
     targets = StructureOperations.find_targets(case=case)
 
@@ -1274,7 +1276,7 @@ def load_beams_xml(filename, beamset_name, path):
     beam_elements = Beams.select_element(set_level='plan',
                                          set_type='beamset',
                                          set_elements='beam',
-                                         set_name=beamset_name,
+                                         set_type_name=beamset_name,
                                          filename=filename,
                                          folder=path)
 
