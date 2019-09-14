@@ -123,6 +123,26 @@ def test_select_element(patient, case, exam, plan):
                                           beamset_name=BeamSet.protocol_name,
                                           path=path_protocols)
 
+    # Test to load objectives
+    protocol_folder = r'../protocols'
+    institution_folder = r'UW'
+    beamset_folder = ''
+    file = 'UWProstate.xml'
+    path_protocols = os.path.join(os.path.dirname(__file__),
+                              protocol_folder,
+                              institution_folder, beamset_folder)
+    order_name = 'Prostate Only-Hypo [28Fx 7000cGy]'
+    objective_elements = Beams.select_element(
+        set_level='order',
+        set_type=None,
+        set_elements='objectives',
+        set_level_name=order_name,
+        filename=file,
+        dialog=False,
+        folder=path_protocols,
+        verbose_logging=False)
+    logging.debug('Objectives are {}'.format(objective_elements))
+
 
 def main():
     # Get current patient, case, exam, and plan
