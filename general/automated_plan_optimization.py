@@ -60,6 +60,8 @@
     2.0.2 Bug fix, remind user that gantry 4 degrees cannot be changed without a reset.
           Inclusion of TomoTherapy Optimization methods
     2.0.3 Adding Jaw locking, including support for lock-to-jaw max for TrueBeamStX
+    2.0.4 Added calls to BeamOperations for checking jaw limits. I wanted to avoid causing jaws to be set larger
+          than allowed. Currently, the jaws will be the maximum X1, Y1 (least negative) and minimum X2, Y2
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -174,23 +176,6 @@ def check_min_jaws(plan_opt, min_dim):
     for treatsettings in plan_opt.OptimizationParameters.TreatmentSetupSettings:
         for b in treatsettings.BeamSettings:
             logging.debug("Checking beam {} for jaw size limits".format(b.ForBeam.Name))
-            # jaw_change = False
-            # if b.ForBeam.MachineReference.MachineName == 'TrueBeamSTx':
-            #     n_mlc = 64
-            #     y_thick_inner = 0.25
-            #     y_thick_outer = 0.5
-            #     mlc_thin_low = 15
-            #     mlc_thin_high = 47
-            # elif b.ForBeam.MachineReference.MachineName == 'TrueBeam':
-            #     n_mlc = 64
-            #     y_thick_inner = 0.5
-            #     y_thick_outer = 1.0
-            #     mlc_thin_low = 15
-            #     mlc_thin_high = 47
-            # else:
-            #     logging.debug('Machine type unsupported for this check')
-            #     jaw_change = False
-            #     return jaw_change
             # Search for the maximum leaf extend among all positions
             plan_is_optimized = False
             try:
@@ -207,14 +192,8 @@ def check_min_jaws(plan_opt, min_dim):
                 # Find the minimum jaw position, first set to the maximum
                 min_x_aperture = 40
                 min_y_aperture = 40
-                # max_mlc_bank_0 = 40
-                # max_mlc_bank_1 = -40
-                # max_open_posY = 0
-                # max_open_negY = 0
                 for s in b.ForBeam.Segments:
                     # Find the minimum aperture in each beam
-                    # Note: X2 = s.JawPositions[1], X1 = s.JawPositions[0],
-                    #       Y2 = s.JawPositions[3], Y1 = s.JawPositions[2],
                     if s.JawPositions[1] - s.JawPositions[0] <= min_x_aperture:
                         min_x1 = s.JawPositions[0]
                         min_x2 = s.JawPositions[1]
@@ -223,28 +202,6 @@ def check_min_jaws(plan_opt, min_dim):
                         min_y1 = s.JawPositions[2]
                         min_y2 = s.JawPositions[3]
                         min_y_aperture = min_y2 - min_y1
-
-                    # Uncomment for development of MLC-based jaw offset
-                    # Find max of mlc bank positions
-                    # for m in s.LeafPositions[0]:
-                    #     if m < max_mlc_bank_0:
-                    #         max_mlc_bank_0 = m
-                    # for m in s.LeafPositions[1]:
-                    #     if m > max_mlc_bank_1:
-                    #         max_mlc_bank_1 = m
-                    # logging.debug('Segment: {}, MaxBank 0: {}, MaxBank 1: {},'.format(s.SegmentNumber,
-                    #                                                               max_mlc_bank_0, max_mlc_bank_1))
-                    # Searching from the lowest MLC number find the first open MLC
-                    # for i in range(0, n_mlc-2):
-                    #     logging.debug('tracking string indexing {}',i)
-                    #     if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
-                    #         max_open_posY = i
-                    # Searching from the highest number, find the first open MLC
-                    # for i in range(n_mlc-1, 0, -1):
-                    #     if s.LeafPositions[0][i] > 0 or s.LeafPositions[1][i] > 0:
-                    #         max_open_negY = i
-                    # logging.debug('Segment: {}, MaxYpos:{}, MaxYneg:{},'.format(s.SegmentNumber,
-                    #             max_open_posY, max_open_negY))
 
                 # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
                 # Use floor and ceil functions to ensure rounding to the nearest mm
@@ -733,10 +690,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
 
                         limit = [-20, 20, -10.9, 10.9]
-                        # x1_stx = -20
-                        # x2_stx = 20
-                        # y1_stx = -10.9
-                        # y2_stx = 10.9
                         success = BeamOperations.check_beam_limits(beams.ForBeam.Name, plan=plan, beamset=beamset,
                                                                    limit=limit, change=True, verbose_logging=False)
                         if not success:
@@ -749,41 +702,6 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                             status.finish('Restart required')
                             sys.exit('Restart Required: Select reset beams on next run of script.')
 
-
-                       # if mu > 0 and beams.BeamAperatureLimit is None:
-                       #     # If there are MU then this field has already been optimized with the wrong jaw limits
-                       #     # For Shame....
-                       #     logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
-                       #     UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
-                       #                              'jaws failed - check reset beams' +
-                       #                              ' on next attempt at this script')
-                       #     status.finish('Restart required')
-                       #     sys.exit('Restart Required: Select reset beams on next run of script.')
-                       # else:
-                       #     try:
-                       #         if beams.BeamAperatureLimit is not None and \
-                       #                 beams.ForBeam.InitialJawPositions is not None:
-                       #             x1 = beams.ForBeam.InitialJawPositions[0]
-                       #             x2 = beams.ForBeam.InitialJawPositions[1]
-                       #             y1 = beams.ForBeam.InitialJawPositions[2]
-                       #             y2 = beams.ForBeam.InitialJawPositions[3]
-                       #             limits = [max(x1, x1_stx),
-                       #                       min(x2, x2_stx),
-                       #                       ]
-                       #             change_jaw_limits = abs()
-                       #         else:
-                       #             # Uncomment to automatically set jaw limits
-                       #             beams.EditBeamOptimizationSettings(
-                       #              JawMotion='Use limits as max',
-                       #              LeftJaw=x1limit,
-                       #              RightJaw=x2limit,
-                       #              TopJaw=y1limit,
-                       #              BottomJaw=y2limit,
-                       #              SelectCollimatorAngle='False',
-                       #              AllowBeamSplit='False',
-                       #              OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-                       #     except:
-                       #         logging.debug('Failed to set limits for TrueBeamStx')
                 num_beams += 1
             if ts.ForTreatmentSetup.DeliveryTechnique == 'SMLC':
                 if mu > 0:
@@ -796,17 +714,13 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     ts.SegmentConversion.MinLeafEndSeparation = min_leaf_end_separation
                     ts.SegmentConversion.MaxNumberOfSegments = str(maximum_segments)
 
-
         while Optimization_Iteration != maximum_iteration:
             # Check for small targets by evaluating the jaw size
-
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 0
             else:
                 previous_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
-
-
 
             # If the change_dose_grid list has a non-zero element change the dose grid
             if vary_grid:

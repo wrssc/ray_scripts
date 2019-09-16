@@ -33,7 +33,7 @@ __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/Shoulder-Block'
+__help__ = 'https://github.com/wrssc/ray_scripts/wiki/Shoulder-Block'
 __credits__ = []
 
 import sys
@@ -50,6 +50,7 @@ import PlanOperations
 
 
 def main():
+    debugging = True
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
     try:
@@ -81,13 +82,15 @@ def main():
     # Script will run through the following steps.  We have a logical inconsistency here with making a plan
     # this is likely an optional step
     status = UserInterface.ScriptStatus(
-        steps=['SimFiducials point declaration',
-               'isocenter Declaration',
+        steps=[
+               'Isocenter Declaration',
                'Left shoulder POI',
                'Right shoulder POI',
                'Add Beams'],
         docstring=__doc__,
         help=__help__)
+
+    status.next_step('Initial dialog for setting BeamSet parameters')
 
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
@@ -100,55 +103,57 @@ def main():
                                   institution_folder, beamset_folder)
 
     # For debugging we can bypass the dialog by uncommenting the below lines
-    BeamSet = BeamOperations.BeamSet()
-    BeamSet.name = '2 Arc VMAT - HN Shoulder'
-    BeamSet.DicomName = '_____VMA_R_A_'
-    BeamSet.technique = 'VMAT'
-    BeamSet.machine = 'TrueBeam'
-    BeamSet.rx_target = 'PTV_7000'
-    BeamSet.iso_target = 'PTV_7000'
-    BeamSet.modality = 'Photons'
-    BeamSet.total_dose = 7000.
-    BeamSet.number_of_fractions = 33
-    BeamSet.protocol_name = '2 Arc VMAT - HN Shoulder'
+    if debugging:
+        par_beam_set = BeamOperations.BeamSet()
+        par_beam_set.name = '2 Arc VMAT - HN Shoulder'
+        par_beam_set.DicomName = '_____VMA_R_A_'
+        par_beam_set.technique = 'VMAT'
+        par_beam_set.machine = 'TrueBeam'
+        par_beam_set.rx_target = 'PTV_7000'
+        par_beam_set.iso_target = 'PTV_7000'
+        par_beam_set.modality = 'Photons'
+        par_beam_set.total_dose = 7000.
+        par_beam_set.number_of_fractions = 33
+        par_beam_set.protocol_name = '2 Arc VMAT - HN Shoulder'
+    else:
+        order_name = None
+        par_beam_set = BeamOperations.beamset_dialog(case=case,
+                                                     filename=file,
+                                                     path=path_protocols,
+                                                     order_name=order_name)
 
-    # Uncomment for a dialog
-    order_name = None
-    BeamSet = BeamOperations.beamset_dialog(case=case,
-                                            filename=file,
-                                            path=path_protocols,
-                                            order_name=order_name)
-
-    new_beamset = BeamOperations.create_beamset(patient=patient,
+    rs_beam_set = BeamOperations.create_beamset(patient=patient,
                                                 case=case,
                                                 exam=exam,
                                                 plan=plan,
                                                 dialog=False,
-                                                BeamSet=BeamSet)
+                                                BeamSet=par_beam_set)
 
     beams = BeamOperations.load_beams_xml(filename=file,
-                                          beamset_name=BeamSet.protocol_name,
+                                          beamset_name=par_beam_set.protocol_name,
                                           path=path_protocols)
 
     logging.debug('Beamset: {} has beams originating from protocol beamset {} in file {} at {}'.format(
-        new_beamset.DicomPlanLabel, BeamSet.protocol_name, file, path_protocols))
+        rs_beam_set.DicomPlanLabel, par_beam_set.protocol_name, file, path_protocols))
 
     # Place isocenter
     try:
-        BeamSet.iso = BeamOperations.find_isocenter_parameters(
+        par_beam_set.iso = BeamOperations.find_isocenter_parameters(
             case=case,
             exam=exam,
-            beamset=new_beamset,
-            iso_target=BeamSet.iso_target)
+            beamset=rs_beam_set,
+            iso_target=par_beam_set.iso_target)
 
     except Exception:
-        logging.warning('Aborting, could not locate center of {}'.format(BeamSet.iso_target))
+        logging.warning('Aborting, could not locate center of {}'.format(par_beam_set.iso_target))
         sys.exit('Failed to place isocenter')
 
-    BeamOperations.place_beams_in_beamset(iso=BeamSet.iso, beamset=new_beamset, beams=beams)
+    BeamOperations.place_beams_in_beamset(iso=par_beam_set.iso, beamset=rs_beam_set, beams=beams)
 
     patient.Save()
-    new_beamset.SetCurrent()
+    rs_beam_set.SetCurrent()
+
+    status.next_step('Placing left shoulder blocking point')
 
     try:
         ui = connect.get_current('ui')
@@ -167,7 +172,7 @@ def main():
                                   ' and continue script.').format(shoulder_poi_left))
     else:
         case.PatientModel.CreatePoi(Examination=exam,
-                                    Point=BeamSet.iso['Position'],
+                                    Point=par_beam_set.iso['Position'],
                                     Volume=0,
                                     Name=shoulder_poi_left,
                                     Color='Green',
@@ -182,12 +187,13 @@ def main():
         shoulder_left_position.Point.y,
         shoulder_left_position.Point.z))
 
+    status.next_step('Placing right shoulder blocking point')
     if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_right)):
         connect.await_user_input(('Ensure the point {} is at the right acromial-clavicular joint' +
                                   ' and continue script.').format(shoulder_poi_right))
     else:
         case.PatientModel.CreatePoi(Examination=exam,
-                                    Point=BeamSet.iso['Position'],
+                                    Point=par_beam_set.iso['Position'],
                                     Volume=0,
                                     Name=shoulder_poi_right,
                                     Color='Yellow',
@@ -198,7 +204,7 @@ def main():
 
     shoulder_right_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_right]
 
-    machine_ref = new_beamset.MachineReference.MachineName
+    machine_ref = rs_beam_set.MachineReference.MachineName
     if machine_ref == 'TrueBeamSTx':
         logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
         x1limit = -20
@@ -216,7 +222,7 @@ def main():
     # (assuming y increases as we move inferior)
     # we will also use the visualization diameter of the point to capture the superior margin we should give the point
     # TODO replace this with a comprehensive blocking solution - jaw based if 9 doesn't have blocking
-    iso_position = BeamSet.iso['Position']
+    iso_position = par_beam_set.iso['Position']
     isd = 100.
     xi = float(iso_position['x'])
     yi = iso_position['z']
@@ -237,22 +243,22 @@ def main():
     logging.info('Right shoulder jaw position on lateral arcs should be {}'.format(right_y1))
 
     # Setting beam limits
-    #
-    opt_index = PlanOperations.find_optimization_index(plan=plan, beamset=new_beamset)
+    opt_index = PlanOperations.find_optimization_index(plan=plan, beamset=rs_beam_set)
     i = 0
     while i is not None:
         try:
             opt_setup = plan.PlanOptimizations[opt_index].OptimizationParameters.TreatmentSetupSettings[i]
-            if opt_setup.ForTreatmentSetup.DicomPlanLabel == new_beamset.DicomPlanLabel:
+            if opt_setup.ForTreatmentSetup.DicomPlanLabel == rs_beam_set.DicomPlanLabel:
                 i = None
             else:
                 i += 1
         except:
             logging.debug('Could not find the TreatmentSetupSettings corresponding to {}'.format(
-                new_beamset.DicomPlanLabel))
+                rs_beam_set.DicomPlanLabel))
             sys.exit('Could not find the TreatmentSetupSettings corresponding to {}'.format(
-                new_beamset.DicomPlanLabel))
+                rs_beam_set.DicomPlanLabel))
 
+    status.next_step('Finalizing beam configuration')
     for b in opt_setup.BeamSettings:
         start = b.ForBeam.GantryAngle
         stop = b.ForBeam.ArcStopGantryAngle
@@ -276,13 +282,14 @@ def main():
             logging.info('Beam {} enters through the shoulder and will have jaw locked to less than y1 = {}'.format(
                 b.ForBeam.Name, y1_limit))
 
-            success = BeamOperations.check_beam_limits(b.ForBeam.Name, plan=plan, beamset=new_beamset,
+            success = BeamOperations.check_beam_limits(b.ForBeam.Name, plan=plan, beamset=rs_beam_set,
                                                        limit=[x1limit, x2limit, y1_limit, y2limit],
                                                        change=True, verbose_logging=False)
             if not success:
                 sys.exit('An error occurred setting beam limits')
 
     PlanOperations.check_localization(case=case, exam=exam, create=True, confirm=False)
+    status.finish('Script complete. Optimize normally.')
 
 
 if __name__ == '__main__':
