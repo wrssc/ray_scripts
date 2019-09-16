@@ -49,6 +49,7 @@ import sys
 import clr
 clr.AddReference('System.Drawing')
 import System.Drawing
+import numpy as np
 
 
 def exists_roi(case, rois):
@@ -249,6 +250,17 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check'):
     else:
         logging.info(structure_name + 'not found')
         return False
+
+
+def convert_poi(poi1):
+    """
+    Return a poi as a numpy array
+    :param poi1:
+    :return: poi_arr
+    """
+
+    poi_arr = np.array([poi1.Point.x, poi1.Point.y, poi1.Point.z])
+    return poi_arr
 
 
 

@@ -1,7 +1,7 @@
 """Add Shoulder Blocking VMAT Beams
-Script to add shoulder blocking using user driven info
 
-
+This script uses two user defined points placed at the superior acromial-clavicular joint to create a new beamset
+with an arc-avoidance region. The lower boundary of the blocked region is set by a margin around the point placement.
 
 Version Notes: 1.0.0 Original
 1.0.1 Hot Fix to apparent error in version 7 (related to connect being used instead of a
@@ -42,9 +42,7 @@ import logging
 import connect
 import numpy as np
 import UserInterface
-import Beams
 import BeamOperations
-import PlanOperations
 import StructureOperations
 import PlanOperations
 
@@ -84,8 +82,8 @@ def main():
     status = UserInterface.ScriptStatus(
         steps=[
                'Isocenter Declaration',
-               'Left shoulder POI',
-               'Right shoulder POI',
+               'Left shoulder POI placement',
+               'Right shoulder POI placement',
                'Add Beams'],
         docstring=__doc__,
         help=__help__)
@@ -204,6 +202,14 @@ def main():
 
     shoulder_right_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_right]
 
+    # Test if right is more negative than left
+    left = StructureOperations.convert_poi(shoulder_left_position)
+    right = StructureOperations.convert_poi(shoulder_right_position)
+    if left[0] < right[0]:
+        UserInterface.WarningBox('Script aborted, left and right shoulder points appear to be flipped')
+        status.finish('Script aborted, left and right shoulder points appear to be flipped')
+        sys.exit('Script aborted, left and right shoulder points appear to be flipped')
+
     machine_ref = rs_beam_set.MachineReference.MachineName
     if machine_ref == 'TrueBeamSTx':
         logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
@@ -221,7 +227,6 @@ def main():
     # y1 = xi * (yi - yo)/(xi - xo) = 100 * (yi - yo)/(xi - xo) - note the sign is < 0 if yi < yl
     # (assuming y increases as we move inferior)
     # we will also use the visualization diameter of the point to capture the superior margin we should give the point
-    # TODO replace this with a comprehensive blocking solution - jaw based if 9 doesn't have blocking
     iso_position = par_beam_set.iso['Position']
     isd = 100.
     xi = float(iso_position['x'])

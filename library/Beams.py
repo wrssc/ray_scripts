@@ -92,32 +92,32 @@ def select_element(set_level, set_type, set_elements,
     if filename is not None:
         # User directly supplied the filename of the protocol or file containing the set
         path_to_sets = folder
-#        if set_type_name is not None:
+        #        if set_type_name is not None:
         if folder is None:
             path_to_sets = os.path.join(os.path.dirname(__file__),
                                         protocol_folder,
                                         institution_folder)
             if verbose_logging:
                 logging.debug('Using a default path of {}'.format(path_to_sets))
-#
-        #    if filename.endswith('.xml'):
-        #        # Parse the xml file
-        #        tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
-        #        if verbose_logging:
-        #            logging.debug('tree root is {}'.format(tree.getroot().tag))
-        #        # Search first for a top level set
-        #        sets = tree.findall('./' + set_type)
-        #        if verbose_logging:
-        #            logging.debug('sets is {}'.format(sets))
-        #        for s in sets:
-        #            if verbose_logging:
-        #                logging.debug('set name is {}'.format(set_type_name))
-        #            if s.find('name').text == set_type_name:
-        #                et_list.append(s)
-        #                return et_list
-        #            else:
-        #                logging.warning('No matching {} found with name {}'.format(set_type, set_type_name))
-#        else:
+        #
+        # if filename.endswith('.xml'):
+        #     # Parse the xml file
+        #     tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
+        #     if verbose_logging:
+        #         logging.debug('tree root is {}'.format(tree.getroot().tag))
+        #     # Search first for a top level set
+        #     sets = tree.findall('./' + set_type)
+        #     if verbose_logging:
+        #         logging.debug('sets is {}'.format(sets))
+        #     for s in sets:
+        #         if verbose_logging:
+        #             logging.debug('set name is {}'.format(set_type_name))
+        #             if s.find('name').text == set_type_name:
+        #                 et_list.append(s)
+        #                 return et_list
+        #             else:
+        #                 logging.warning('No matching {} found with name {}'.format(set_type, set_type_name))
+        #        else:
         file_list = [filename]
 
     elif folder and not filename:
@@ -185,7 +185,7 @@ def select_element(set_level, set_type, set_elements,
                     else:
                         logging.debug('The parent is levels and the children are sets, return sets')
                         types = l.findall('./' + set_type)
-                        logging.debug('Found types is {} for set_type {}'.format(types,set_type))
+                        logging.debug('Found types is {} for set_type {}'.format(types, set_type))
                         for t in types:
                             if verbose_logging:
                                 logging.debug('Examining set type {}: {}'.format(set_type, t.find('name').text))
