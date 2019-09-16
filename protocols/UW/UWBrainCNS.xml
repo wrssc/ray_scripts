@@ -300,7 +300,7 @@
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">10</dose>
@@ -367,7 +367,7 @@
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">54</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>OpticNrv_L_PRV03</name>
@@ -395,7 +395,7 @@
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">54</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>OpticNrv_R_PRV03</name>
@@ -442,7 +442,7 @@
             <roi>
                 <name>SpinalCord_PRV05</name>
                 <volume units="%">1</volume>
-                <type>Max</type>
+                <type>VX</type>
                 <dose units="Gy">54</dose>
                 <priority>1</priority>
             </roi>
@@ -584,7 +584,7 @@
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">9.7</dose>
@@ -676,7 +676,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <volume units="%">1</volume>
                 <dose units="%" roi="PTV_p">2</dose>
                 <priority>3</priority>
@@ -748,7 +748,7 @@
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="%">2</volume>
                 <dose units="Gy">7</dose>

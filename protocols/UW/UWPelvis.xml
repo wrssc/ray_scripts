@@ -64,7 +64,7 @@
             </roi>
             <roi>
                 <name>Bag_Bowel</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">52</dose>
                 <priority>1</priority>
@@ -265,7 +265,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <volume units="%">2</volume>
                 <dose units="Gy">50</dose>
                 <priority>5</priority>
@@ -327,7 +327,7 @@
             </roi>
             <roi>
                 <name>Bag_Bowel</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">52</dose>
                 <priority>1</priority>
@@ -528,7 +528,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <volume units="%">2</volume>
                 <dose units="Gy">50</dose>
                 <priority>5</priority>
@@ -591,7 +591,7 @@
             </roi>
             <roi>
                 <name>Bag_Bowel</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">58</dose>
                 <priority>1</priority>
@@ -820,7 +820,7 @@
             </roi>
             <roi>
                 <name>SpinalCord_PRV05</name>
-                <type>Max</type>
+                <type>VX</type>
                 <volume units="%">2</volume>
                 <dose units="Gy">50</dose>
                 <priority>5</priority>
@@ -854,7 +854,7 @@
         <goals>
             <roi>
                 <name>Bag_Bowel</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">52</dose>
                 <priority>1</priority>
@@ -981,29 +981,29 @@
             </roi>
             <roi>
                 <name>SpinalCord</name>
-                <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <type>DX</type>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>SpinalCord</name>
-                <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <type>DX</type>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>CaudaEquina</name>
-                <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <type>DX</type>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>CaudaEquina</name>
-                <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <type>DX</type>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
@@ -1089,7 +1089,7 @@
         <goals>
             <roi>
                 <name>Bag_Bowel</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">52</dose>
                 <priority>1</priority>
@@ -1216,29 +1216,29 @@
             </roi>
             <roi>
                 <name>SpinalCord</name>
-                <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <type>DX</type>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>SpinalCord</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>CaudaEquina</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>CaudaEquina</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
@@ -1324,7 +1324,7 @@
         <goals>
             <roi>
                 <name>Bag_Bowel</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">52</dose>
                 <priority>1</priority>
@@ -1452,28 +1452,28 @@
             <roi>
                 <name>SpinalCord</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>SpinalCord</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>CaudaEquina</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>CaudaEquina</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
@@ -1559,7 +1559,7 @@
         <goals>
             <roi>
                 <name>Bag_Bowel</name>
-                <type>Max</type>
+                <type>DX</type>
                 <volume units="cc">1</volume>
                 <dose units="Gy">52</dose>
                 <priority>1</priority>
@@ -1687,28 +1687,28 @@
             <roi>
                 <name>SpinalCord</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>SpinalCord</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>CaudaEquina</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>CaudaEquina</name>
                 <type>Max</type>
-                <volume units="cc">0.01</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>

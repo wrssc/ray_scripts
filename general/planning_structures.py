@@ -791,14 +791,14 @@ def main():
 
     if generate_skin:
         make_wall(
-            wall="Skin_PRV05",
+            wall="Skin_PRV03",
             sources=["ExternalClean"],
             delta=skin_contraction,
             patient=patient,
             case=case,
             examination=examination,
             inner=True)
-        newly_generated_rois.append('Skin_PRV05')
+        newly_generated_rois.append('Skin_PRV03')
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
     if generate_underdose:
@@ -983,7 +983,7 @@ def main():
     # Generate a rough field of view contour.  It should really be put in with the dependent structures
     if generate_field_of_view:
         # Automated build of the Air contour
-        fov_name = 'Field-of-View'
+        fov_name = 'FieldOfView'
         try:
             patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
@@ -1003,7 +1003,7 @@ def main():
             )
             patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
-            StructureOperations.exclude_from_export(case=case, rois='FieldOfView')
+            StructureOperations.exclude_from_export(case=case, rois=fov_name)
             newly_generated_rois.append(fov_name)
 
     # Make the PTVEZ objects now
@@ -1041,7 +1041,7 @@ def main():
     # We will subtract the adjoining air, skin, or Priority 1 ROI that overlaps the target
     if generate_ptv_evals:
         if generate_underdose:
-            eval_subtract = ['Skin_PRV05', 'InnerAir', 'UnderDose']
+            eval_subtract = ['Skin_PRV03', 'InnerAir', 'UnderDose']
             logging.debug("Removing the following from eval structures"
                           .format(eval_subtract))
             if not any(StructureOperations.exists_roi(case=case, rois=eval_subtract)):
@@ -1051,7 +1051,7 @@ def main():
                     eval_subtract))
 
         else:
-            eval_subtract = ['Skin_PRV05', 'InnerAir']
+            eval_subtract = ['Skin_PRV03', 'InnerAir']
             logging.debug("Removing the following from eval structures"
                           .format(eval_subtract))
             if not any(StructureOperations.exists_roi(case=case, rois=eval_subtract)):
@@ -1094,9 +1094,9 @@ def main():
     if generate_otvs:
         otv_intersect = []
         if generate_underdose:
-            otv_subtract = ['Skin_PRV05', 'InnerAir', 'UnderDose_Exp']
+            otv_subtract = ['Skin_PRV03', 'InnerAir', 'UnderDose_Exp']
         else:
-            otv_subtract = ['Skin_PRV05', 'InnerAir']
+            otv_subtract = ['Skin_PRV03', 'InnerAir']
         logging.debug("otvs will not include {}"
                       .format(otv_subtract))
 
