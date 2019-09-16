@@ -84,9 +84,6 @@ def select_element(set_level, set_type, set_elements,
     institution_folder = r'UW'
     objectives_folder = r'objectives'
 
-    et_level = './' + set_level
-    # et_type = './' + set_type
-    et_element = './' + set_elements
     et_list = []
     sets = {}
 
@@ -95,34 +92,33 @@ def select_element(set_level, set_type, set_elements,
     if filename is not None:
         # User directly supplied the filename of the protocol or file containing the set
         path_to_sets = folder
-        if set_type_name is not None:
-            if folder is None:
-                path_to_sets = os.path.join(os.path.dirname(__file__),
-                                            protocol_folder,
-                                            institution_folder)
-                if verbose_logging:
-                    logging.debug('Using a default path of {}'.format(path_to_sets))
-
-            if filename.endswith('.xml'):
-                # Parse the xml file
-                tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
-                if verbose_logging:
-                    logging.debug('tree root is {}'.format(tree.getroot().tag))
-                # Search first for a top level set
-                sets = tree.findall('./' + set_type)
-                if verbose_logging:
-                    logging.debug('sets is {}'.format(sets))
-                for s in sets:
-                    if verbose_logging:
-                        logging.debug('set name is {}'.format(set_type_name))
-                    if s.find('name').text == set_type_name:
-                        et_list.append(s)
-                        return et_list
-                    else:
-                        logging.warning('No matching {} found with name {}'.format(set_type, set_type_name))
-        else:
-            file_list = [filename]
-
+#        if set_type_name is not None:
+        if folder is None:
+            path_to_sets = os.path.join(os.path.dirname(__file__),
+                                        protocol_folder,
+                                        institution_folder)
+            if verbose_logging:
+                logging.debug('Using a default path of {}'.format(path_to_sets))
+#
+        #    if filename.endswith('.xml'):
+        #        # Parse the xml file
+        #        tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
+        #        if verbose_logging:
+        #            logging.debug('tree root is {}'.format(tree.getroot().tag))
+        #        # Search first for a top level set
+        #        sets = tree.findall('./' + set_type)
+        #        if verbose_logging:
+        #            logging.debug('sets is {}'.format(sets))
+        #        for s in sets:
+        #            if verbose_logging:
+        #                logging.debug('set name is {}'.format(set_type_name))
+        #            if s.find('name').text == set_type_name:
+        #                et_list.append(s)
+        #                return et_list
+        #            else:
+        #                logging.warning('No matching {} found with name {}'.format(set_type, set_type_name))
+#        else:
+        file_list = [filename]
 
     elif folder and not filename:
         # User wants to select the protocol or objectiveset from a list of xml files
@@ -143,14 +139,14 @@ def select_element(set_level, set_type, set_elements,
         # Search first for a top level objectiveset
         # Find the objectivesets:
         # These get loaded for protocols regardless of orders
-        protocol_set = protocol.findall(et_type)
+        protocol_set = protocol.findall('./' + set_type)
         for p in protocol_set:
             et_list.append(p)
-        levels = protocol.findall(et_level)
+        levels = protocol.findall('./' + set_level)
         # Search the orders to find those with objectives and return the candidates
         # for the selectable objectives
         for l in levels:
-            elements = l.findall(et_element)
+            elements = l.findall('./' + set_elements)
             if elements:
                 n = l.find('name').text
                 sets[n] = l
