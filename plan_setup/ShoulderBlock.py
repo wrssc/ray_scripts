@@ -112,7 +112,7 @@ def main():
         par_beam_set.modality = 'Photons'
         par_beam_set.total_dose = 7000.
         par_beam_set.number_of_fractions = 33
-        par_beam_set.protocol_name = '2 Arc VMAT - HN Shoulder'
+        par_beam_set.protocol_name = '2 Arc VMAT - HN Shoulder Block'
     else:
         order_name = None
         par_beam_set = BeamOperations.beamset_dialog(case=case,

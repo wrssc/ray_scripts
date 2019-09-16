@@ -226,7 +226,8 @@ def select_element(set_level, set_type, set_elements,
             # Pass an empty entry
             if verbose_logging:
                 logging.debug(
-                    'Level: {} has no {}.'.format(set_level_name, set_elements))
+                    'Set level name: {} was not found in the list of {} containing {}'.format(
+                        set_level_name, set_level, set_elements))
             selected_order = None
     elif dialog:
         input_dialog = UserInterface.InputDialog(
