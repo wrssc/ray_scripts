@@ -1276,9 +1276,9 @@ def load_beams_xml(filename, beamset_name, path):
     beam_elements = Beams.select_element(set_level='beam_set',
                                          set_type=None,
                                          set_elements='beam',
-                                         set_type_name=beamset_name,
+                                         set_level_name=beamset_name,
                                          filename=filename,
-                                         folder=path)
+                                         folder=path,verbose_logging=True)
 
     beams = []
     for et_beamsets in beam_elements:
