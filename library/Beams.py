@@ -216,7 +216,7 @@ def select_element(set_level, set_type, set_elements,
             # Pass an empty entry
             if verbose_logging:
                 logging.debug(
-                    'Level: {} has no {}. Protocol {} being used'.format(set_type_name, set_elements, set_elements))
+                    'Type: {} has no {}. Protocol {} being used'.format(set_type_name, set_elements, set_elements))
             selected_order = None
     elif set_level_name is not None:
         try:
@@ -226,7 +226,7 @@ def select_element(set_level, set_type, set_elements,
             # Pass an empty entry
             if verbose_logging:
                 logging.debug(
-                    'Level: {} has no {}. Protocol {} being used'.format(set_type_name, set_elements, set_elements))
+                    'Level: {} has no {}.'.format(set_level_name, set_elements))
             selected_order = None
     elif dialog:
         input_dialog = UserInterface.InputDialog(

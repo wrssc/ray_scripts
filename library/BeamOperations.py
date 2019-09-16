@@ -1273,7 +1273,7 @@ def load_beams_xml(filename, beamset_name, path):
     :param path: path to the xml file
     :return beams: a list of objects of type Beam"""
 
-    beam_elements = Beams.select_element(set_level='beam_set',
+    beam_elements = Beams.select_element(set_level='beamset',
                                          set_type=None,
                                          set_elements='beam',
                                          set_level_name=beamset_name,
