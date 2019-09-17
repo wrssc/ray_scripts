@@ -48,7 +48,7 @@ import PlanOperations
 
 
 def main():
-    debugging = True
+    debugging = False
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
     try:
@@ -81,10 +81,10 @@ def main():
     # this is likely an optional step
     status = UserInterface.ScriptStatus(
         steps=[
-               'Isocenter Declaration',
+               'Loading Beamset and Isocenter Declaration',
                'Left shoulder POI placement',
                'Right shoulder POI placement',
-               'Add Beams'],
+               'Adjusting Beam limits'],
         docstring=__doc__,
         help=__help__)
 
