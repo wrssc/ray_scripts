@@ -225,7 +225,6 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
             '2': 'Enter the number of fractions',
             '3': 'Enter total dose in cGy',
             '4': 'Choose Treatment Machine',
-            '5': 'Choose a Modality',
             '6': 'Choose a Technique',
             '7': 'Choose a Target for Isocenter Placement',
             '8': 'Choose a Beamset to load'
@@ -234,19 +233,18 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
         datatype={
             '0': 'combo',
             '4': 'combo',
-            '5': 'combo',
             '6': 'combo',
             '7': 'combo',
             '8': 'combo'
         },
         initial={
             '1': 'XXXX_VMA_R0A0',
+            '4': 'VMAT',
             '8': available_beamsets[0]
         },
         options={
             '0': targets,
             '4': machine_list,
-            '5': available_modality,
             '6': available_technique,
             '7': targets,
             '8': available_beamsets
@@ -255,7 +253,6 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
                   '2',
                   '3',
                   '4',
-                  '5',
                   '6',
                   '7',
                   '8'])
@@ -271,7 +268,7 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     dialog_beamset.number_of_fractions = float(dialog.values['2'])
     dialog_beamset.total_dose = float(dialog.values['3'])
     dialog_beamset.machine = dialog.values['4']
-    dialog_beamset.modality = dialog.values['5']
+    dialog_beamset.modality = 'Photons'
     dialog_beamset.technique = dialog.values['6']
     dialog_beamset.iso_target = dialog.values['7']
     dialog_beamset.protocol_name = dialog.values['8']

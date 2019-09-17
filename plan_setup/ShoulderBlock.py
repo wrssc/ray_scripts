@@ -280,6 +280,7 @@ def main():
                 sys.exit('An error occurred setting beam limits')
 
     PlanOperations.check_localization(case=case, exam=exam, create=True, confirm=False)
+    ui.TitleBar.MenuItem['Plan Optimization'].Button_Plan_Optimization.Click()
     status.finish('Script complete. Optimize normally.')
 
 
