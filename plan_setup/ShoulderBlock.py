@@ -48,7 +48,6 @@ import PlanOperations
 
 
 def main():
-    debugging = False
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
     try:
@@ -81,10 +80,10 @@ def main():
     # this is likely an optional step
     status = UserInterface.ScriptStatus(
         steps=[
-               'Loading Beamset and Isocenter Declaration',
-               'Left shoulder POI placement',
-               'Right shoulder POI placement',
-               'Adjusting Beam limits'],
+            'Loading Beamset and Isocenter Declaration',
+            'Left shoulder POI placement',
+            'Right shoulder POI placement',
+            'Adjusting Beam limits'],
         docstring=__doc__,
         help=__help__)
 
@@ -101,24 +100,11 @@ def main():
                                   institution_folder, beamset_folder)
 
     # For debugging we can bypass the dialog by uncommenting the below lines
-    if debugging:
-        par_beam_set = BeamOperations.BeamSet()
-        par_beam_set.name = '2 Arc VMAT - HN Shoulder'
-        par_beam_set.DicomName = '_____VMA_R_A_'
-        par_beam_set.technique = 'VMAT'
-        par_beam_set.machine = 'TrueBeam'
-        par_beam_set.rx_target = 'PTV_7000'
-        par_beam_set.iso_target = 'PTV_7000'
-        par_beam_set.modality = 'Photons'
-        par_beam_set.total_dose = 7000.
-        par_beam_set.number_of_fractions = 33
-        par_beam_set.protocol_name = '2 Arc VMAT - HN Shoulder Block'
-    else:
-        order_name = None
-        par_beam_set = BeamOperations.beamset_dialog(case=case,
-                                                     filename=file,
-                                                     path=path_protocols,
-                                                     order_name=order_name)
+    order_name = None
+    par_beam_set = BeamOperations.beamset_dialog(case=case,
+                                                 filename=file,
+                                                 path=path_protocols,
+                                                 order_name=order_name)
 
     rs_beam_set = BeamOperations.create_beamset(patient=patient,
                                                 case=case,
