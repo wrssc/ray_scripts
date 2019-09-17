@@ -1531,7 +1531,7 @@
                 <name>PTV_n1</name>
                 <type dir="le">VX</type>
                 <volume units="%">10</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV_n">105</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1539,6 +1539,13 @@
                 <type dir="lt">VX</type>
                 <dose units="Gy">30</dose>
                 <volume units="%">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bag_Bowel</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">175</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1578,16 +1585,9 @@
             </roi>
             <roi>
                 <name>Femur_Head_L_PRV05</name>
-                <type dir="lt">Max</type>
-                <dose units="Gy">35</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Femur_Head_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">35</dose>
-                <volume units="cc">0.1</volume>
+                <volume units="%">2</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1606,16 +1606,9 @@
             </roi>
             <roi>
                 <name>Femur_Head_R_PRV05</name>
-                <type dir="lt">Max</type>
-                <dose units="Gy">35</dose>
-                <volume units="cc">0.1</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Femur_Head_R_PRV05</name>
                 <type dir="lt">VX</type>
                 <dose units="Gy">35</dose>
-                <volume units="cc">0.1</volume>
+                <volume units="%">2</volume>
                 <priority>3</priority>
             </roi>
         </goals>

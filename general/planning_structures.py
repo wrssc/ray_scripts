@@ -983,7 +983,7 @@ def main():
     # Generate a rough field of view contour.  It should really be put in with the dependent structures
     if generate_field_of_view:
         # Automated build of the Air contour
-        fov_name = 'Field-of-View'
+        fov_name = 'FieldOfView'
         try:
             patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
@@ -1003,7 +1003,7 @@ def main():
             )
             patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
-            StructureOperations.exclude_from_export(case=case, rois='FieldOfView')
+            StructureOperations.exclude_from_export(case=case, rois=fov_name)
             newly_generated_rois.append(fov_name)
 
     # Make the PTVEZ objects now

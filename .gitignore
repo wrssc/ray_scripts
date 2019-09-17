@@ -3,3 +3,16 @@
 *_tmp_*
 *.swp
 *.pyc
+certificates.xml
+colors.scheme.xml
+debugger.xml
+editor.*
+filetypes.xml
+find.xml
+vim*
+markdown.xml
+vcs.xml
+ui.lnf.xml
+github.xml
+_windows/
+codestyles/
