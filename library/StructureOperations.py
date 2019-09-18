@@ -312,6 +312,8 @@ def find_normal_structures_match(rois):
     for r in roi263:
         standard_names.append(r.find('name').text)
 
+    logging.debug('Found {} TG-263 rois'.format(len(standard_names)))
+
     matched_rois = {}
     for r in rois:
         [match, dist] = levenshtein_match(r, standard_names)
