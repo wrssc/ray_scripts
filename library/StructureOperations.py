@@ -266,7 +266,7 @@ def convert_poi(poi1):
     return poi_arr
 
 
-def __levenshtein_match(self, item, arr):
+def levenshtein_match(item, arr):
     """[match,dist]=__levenshtein_match(item,arr)"""
 
     # Initialize return args
@@ -308,12 +308,13 @@ def find_normal_structures_match(rois):
     tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
     roi263 = tree.findall('./' + 'roi')
     standard_names = []
+    logging.debug('found {} in {}'.format(len(roi263),filename))
     for r in roi263:
         standard_names.append(r.find('name').text)
 
     matched_rois = {}
     for r in rois:
-        [match, dist] = __levenshtein_match(r, standard_names)
+        [match, dist] = levenshtein_match(r, standard_names)
         if match is not None and dist < len(r) * match_threshold:
             matched_rois[r] = match
             logging.debug('matched {} with {}'.format(r,match))
