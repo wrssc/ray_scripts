@@ -264,7 +264,7 @@ def main():
     logging.debug('Correct matches using identical structures {} / {}'.format(correct, len(rois)))
 
     rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
-    matches = StructureOperations.find_normal_structures_match(rois=rois)
+    matches = StructureOperations.find_normal_structures_match(rois=rois, num_matches=5)
     logging.debug('Del: matches are {}'.format(matches))
     correct = 0
 
