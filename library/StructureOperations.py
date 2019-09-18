@@ -44,12 +44,15 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
-import connect
+import os
 import sys
+import connect
 import clr
+
 clr.AddReference('System.Drawing')
 import System.Drawing
 import numpy as np
+import xml
 
 
 def exists_roi(case, rois):
@@ -263,4 +266,59 @@ def convert_poi(poi1):
     return poi_arr
 
 
+def __levenshtein_match(self, item, arr):
+    """[match,dist]=__levenshtein_match(item,arr)"""
 
+    # Initialize return args
+    dist = max(len(item), min(map(len, arr)))
+    match = None
+
+    # Loop through array of options
+    for a in arr:
+        v0 = range(len(a) + 1) + [0]
+        v1 = [0] * len(v0)
+        for b in range(len(item)):
+            v1[0] = b + 1
+            for c in range(len(a)):
+                if item[b].lower() == a[c].lower():
+                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c])
+
+                else:
+                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c] + 1)
+
+            v0, v1 = v1, v0
+
+        if v0[len(a)] < dist:
+            dist = v0[len(a)]
+            match = a
+
+    return match, dist
+
+
+def find_normal_structures_match(rois):
+    """Return a unique structure list from supplied element tree"""
+    target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
+    protocol_folder = r'../protocols'
+    filename = r'TG-263.xml'
+    match_threshold = 0.6
+
+    path_to_sets = os.path.join(os.path.dirname(__file__),
+                                protocol_folder)
+
+    tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
+    roi263 = tree.findall('./' + 'roi')
+    standard_names = []
+    for r in roi263:
+        standard_names.append(r.find('name').text)
+
+    matched_rois = {}
+    for r in rois:
+        [match, dist] = __levenshtein_match(r, standard_names)
+        if match is not None and dist < len(r) * match_threshold:
+            matched_rois[r] = match
+            logging.debug('matched {} with {}'.format(r,match))
+        else:
+            matched_rois[r] = None
+            logging.debug('no match found for {}'.format(r))
+
+    return matched_rois

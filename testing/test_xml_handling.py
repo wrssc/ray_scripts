@@ -36,13 +36,15 @@ __credits__ = []
 import os
 import sys
 import logging
+import random
 import connect
 import BeamOperations
+import Objectives
 import Beams
-import random
+import StructureOperations
 
 
-def test_select_element(patient, case, exam, plan):
+def test_select_element(patient, case, exam, plan, beamset):
     """Testing for the selection of elements from different levels in a protocol xml file"""
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
@@ -77,9 +79,9 @@ def test_select_element(patient, case, exam, plan):
     # Uncomment for a dialog
     order_name = None
     BeamSet = BeamOperations.beamset_dialog(case=case,
-                                             filename=file,
-                                             path=path_protocols,
-                                             order_name=order_name)
+                                            filename=file,
+                                            path=path_protocols,
+                                            order_name=order_name)
 
     # new_beamset = BeamOperations.create_beamset(patient=patient,
     #                                             case=case,
@@ -102,7 +104,7 @@ def test_select_element(patient, case, exam, plan):
     # For debugging we can bypass the dialog by uncommenting the below lines
     BeamSet = BeamOperations.BeamSet()
     BeamSet.name = '2 Arc VMAT - HN Shoulder'
-    BeamSet.DicomName = 'Test'+str(random.randint(1, 100))
+    BeamSet.DicomName = 'Test' + str(random.randint(1, 100))
     BeamSet.technique = 'VMAT'
     BeamSet.machine = 'TrueBeam'
     BeamSet.rx_target = 'PTV_7000'
@@ -129,8 +131,8 @@ def test_select_element(patient, case, exam, plan):
     beamset_folder = ''
     file = 'UWProstate.xml'
     path_protocols = os.path.join(os.path.dirname(__file__),
-                              protocol_folder,
-                              institution_folder, beamset_folder)
+                                  protocol_folder,
+                                  institution_folder, beamset_folder)
     order_name = 'Prostate Only-Hypo [28Fx 7000cGy]'
     objective_elements = Beams.select_element(
         set_level='order',
@@ -142,6 +144,58 @@ def test_select_element(patient, case, exam, plan):
         folder=path_protocols,
         verbose_logging=False)
     logging.debug('Objectives are {}'.format(objective_elements))
+
+    plan_targets = StructureOperations.find_targets(case=case)
+    translation_map = {plan_targets[0]: '1000'}
+    for objsets in objective_elements:
+        objectives = objsets.findall('./objectives/roi')
+        for o in objectives:
+            o_n = o.find('name').text
+            o_t = o.find('type').text
+            o_d = o.find('dose').text
+            if o_n in translation_map:
+                s_roi = translation_map[o_n][0]
+            else:
+                s_roi = None
+
+            if "%" in o.find('dose').attrib['units']:
+                # Define the unmatched and unmodified protocol name and dose
+                o_r = o.find('dose').attrib['roi']
+                # See if the goal is on a matched target and change the % dose of the attributed ROI
+                # to match the user input target and dose level for that named structure
+                # Correct the relative dose to the user-specified dose levels for this structure
+                if o_r in translation_map:
+
+                    s_dose = float(translation_map[o_r][1])  # * float(o_d) / 100
+                    Objectives.add_objective(o,
+                                             exam=exam,
+                                             case=case,
+                                             plan=plan,
+                                             beamset=beamset,
+                                             s_roi=s_roi,
+                                             s_dose=s_dose,
+                                             s_weight=None,
+                                             restrict_beamset=None,
+                                             checking=True)
+                else:
+                    logging.debug('No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
+                                  .format(o_n, o_r))
+                    s_dose = 0
+                    pass
+            else:
+                s_dose = None
+                Objectives.add_objective(o,
+                                         exam=exam,
+                                         case=case,
+                                         plan=plan,
+                                         beamset=beamset,
+                                         s_roi=s_roi,
+                                         s_dose=s_dose,
+                                         s_weight=None,
+                                         restrict_beamset=None,
+                                         checking=True)
+
+    # Test to activate the dialog and select in select_element function
 
 
 def main():
@@ -173,7 +227,34 @@ def main():
         raise IOError("No plan loaded. Load patient and plan.")
         sys.exit('This script requires a Beam Set to be loaded')
 
-    test_select_element(patient=patient, case=case, plan=plan, exam=exam)
+    # test_select_element(patient=patient, case=case, plan=plan, beamset=beamset, exam=exam)
+    rois = [
+        'A_Carotid',
+        'A_Carotid_L',
+        'A_Carotid_R',
+        'A_Coronary',
+        'A_Hypophyseal_I',
+        'A_Hypophyseal_S',
+        'Arytenoid',
+        'Arytenoid_L',
+        'Arytenoid_R',
+        'Bone_Ethmoid',
+        'Bone_Frontal',
+        'Bone_Hyoid',
+        'Bone_Incus',
+        'Bone_Incus_L',
+        'Bone_Incus_R',
+        'Bone_Lacrimal',
+        'Bone_Lacrimal_L',
+        'Bone_Lacrimal_R',
+        'Bone_Mandible',
+        'Bone_Mastoid',
+        'Bone_Mastoid_L',
+        'Bone_Mastoid_R',
+        'Bone_Nasal',
+        'Bone_Nasal_L',
+        'Bone_Nasal_R']
+    matches = StructureOperations.find_normal_structures_match(rois=rois)
 
 
 if __name__ == '__main__':

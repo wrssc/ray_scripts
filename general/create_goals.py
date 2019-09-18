@@ -39,6 +39,7 @@ import Objectives
 import connect
 import UserInterface
 import Goals
+import StructureOperations
 
 
 def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
@@ -214,6 +215,10 @@ def knowledge_based_goal(structure_name, goal_type, case, exam,
     return know_analysis
 
 
+
+
+
+
 def main():
     """
     Function will take the optional input of the protocol file name
@@ -328,21 +333,24 @@ def main():
             logging.debug('No orders in protocol')
             use_orders = False
 
+        # Match the list of structures found in the objective protocols and protocols
+
         # Find RS targets
-        plan_targets = []
-        for r in case.PatientModel.RegionsOfInterest:
-            if r.OrganData.OrganType == 'Target':
-                plan_targets.append(r.Name)
-        # Add user threat: empty PTV list.
-        if not plan_targets:
-            connect.await_user_input("The target list is empty." +
-                                     " Please apply type PTV to the targets and continue.")
-            for r in case.PatientModel.RegionsOfInterest:
-                if r.OrganData.OrganType == 'Target':
-                    plan_targets.append(r.Name)
-        if not plan_targets:
-            status.finish('Script cancelled, inputs were not supplied')
-            sys.exit('Script cancelled')
+        plan_targets = StructureOperations.find_targets(case=case)
+        # plan_targets = []
+        # for r in case.PatientModel.RegionsOfInterest:
+        #     if r.OrganData.OrganType == 'Target':
+        #         plan_targets.append(r.Name)
+        # # Add user threat: empty PTV list.
+        # if not plan_targets:
+        #     connect.await_user_input("The target list is empty." +
+        #                              " Please apply type PTV to the targets and continue.")
+        #     for r in case.PatientModel.RegionsOfInterest:
+        #         if r.OrganData.OrganType == 'Target':
+        #             plan_targets.append(r.Name)
+        # if not plan_targets:
+        #     status.finish('Script cancelled, inputs were not supplied')
+        #     sys.exit('Script cancelled')
 
         status.next_step(text="Matching all structures to the current list.", num=1)
 
