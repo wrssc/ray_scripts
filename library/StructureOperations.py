@@ -297,6 +297,7 @@ def levenshtein_match(item, arr, num_matches=None):
                 dist.pop()
                 match.insert(i, a)
                 match.pop()
+                break
 
     return match, dist
 
