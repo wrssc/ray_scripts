@@ -265,6 +265,7 @@ def main():
 
     rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
     matches = StructureOperations.find_normal_structures_match(rois=rois)
+    logging.debug('Del: matches are {}'.format(matches))
     correct = 0
 
     for r in rois:
