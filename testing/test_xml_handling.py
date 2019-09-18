@@ -261,8 +261,17 @@ def main():
         if r == matches[r]:
             correct += 1
 
-    logging.debug('Number of correct matches {} / {}'.format(correct, len(rois)))
+    logging.debug('Correct matches using identical structures {} / {}'.format(correct, len(rois)))
 
+    rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
+    matches = StructureOperations.find_normal_structures_match(rois=rois)
+    correct = 0
+
+    for r in rois:
+        if r == matches[r]:
+            correct += 1
+
+    logging.debug('Correct matches on test set {} / {}'.format(correct, len(rois)))
 
 
 if __name__ == '__main__':
