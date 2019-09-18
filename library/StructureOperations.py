@@ -266,12 +266,15 @@ def convert_poi(poi1):
     return poi_arr
 
 
-def levenshtein_match(item, arr):
+def levenshtein_match(item, arr, num_matches=None):
     """[match,dist]=__levenshtein_match(item,arr)"""
 
     # Initialize return args
-    dist = max(len(item), min(map(len, arr)))
-    match = None
+    if num_matches is None:
+        num_matches = 1
+
+    dist = [max(len(item), min(map(len, arr)))] * num_matches
+    match = [None] * num_matches
 
     # Loop through array of options
     for a in arr:
@@ -288,9 +291,12 @@ def levenshtein_match(item, arr):
 
             v0, v1 = v1, v0
 
-        if v0[len(a)] < dist:
-            dist = v0[len(a)]
-            match = a
+        for i, d in enumerate(dist):
+            if v0[len(a)] < d:
+                dist.insert(i, v0[len(a)])
+                dist.pop()
+                match.insert(i, a)
+                match.pop()
 
     return match, dist
 
@@ -317,9 +323,10 @@ def find_normal_structures_match(rois):
     matched_rois = {}
     for r in rois:
         [match, dist] = levenshtein_match(r, standard_names)
+        logging.debug('used {} and returned {}'.format(r,match))
         if match is not None and dist < len(r) * match_threshold:
             matched_rois[r] = match
-            logging.debug('matched {} with {}'.format(r,match))
+            logging.debug('matched {} with {}'.format(r, match))
         else:
             matched_rois[r] = None
             logging.debug('no match found for {}'.format(r))
