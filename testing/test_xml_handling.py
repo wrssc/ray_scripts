@@ -256,7 +256,7 @@ def main():
         'Bone_Nasal_R']
     matches = StructureOperations.find_normal_structures_match(rois=rois)
     correct = 0
-    for i, r in enumerate(rois):
+    for r in rois:
         if r == matches[r]:
             correct += 1
     logging.debug('Number of correct matches {} / {}'.format(correct, len(rois)))
