@@ -301,12 +301,14 @@ def levenshtein_match(item, arr, num_matches=None):
     return match, dist
 
 
-def find_normal_structures_match(rois):
+def find_normal_structures_match(rois, num_matches=None):
     """Return a unique structure list from supplied element tree"""
     target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
     protocol_folder = r'../protocols'
     filename = r'TG-263.xml'
     match_threshold = 0.6
+    if num_matches is None:
+        num_matches = 1
 
     path_to_sets = os.path.join(os.path.dirname(__file__),
                                 protocol_folder)
@@ -322,7 +324,7 @@ def find_normal_structures_match(rois):
 
     matched_rois = {}
     for r in rois:
-        [match, dist] = levenshtein_match(r, standard_names)
+        [match, dist] = levenshtein_match(r, standard_names, num_matches)
         logging.debug('used {} and returned {}'.format(r,match))
         if match is not None and dist < len(r) * match_threshold:
             matched_rois[r] = match
