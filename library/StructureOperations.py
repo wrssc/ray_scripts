@@ -308,7 +308,7 @@ def find_normal_structures_match(rois):
     tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
     roi263 = tree.findall('./' + 'roi')
     standard_names = []
-    logging.debug('found {} in {}'.format(len(roi263),filename))
+    logging.debug('found {} in {}'.format(len(roi263), filename))
     for r in roi263:
         standard_names.append(r.find('name').text)
 
