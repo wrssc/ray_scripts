@@ -44,12 +44,15 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
-import connect
+import os
 import sys
+import connect
 import clr
+
 clr.AddReference('System.Drawing')
 import System.Drawing
 import numpy as np
+import xml
 
 
 def exists_roi(case, rois):
@@ -263,4 +266,72 @@ def convert_poi(poi1):
     return poi_arr
 
 
+def levenshtein_match(item, arr, num_matches=None):
+    """[match,dist]=__levenshtein_match(item,arr)"""
 
+    # Initialize return args
+    if num_matches is None:
+        num_matches = 1
+
+    dist = [max(len(item), min(map(len, arr)))] * num_matches
+    match = [None] * num_matches
+
+    # Loop through array of options
+    for a in arr:
+        v0 = range(len(a) + 1) + [0]
+        v1 = [0] * len(v0)
+        for b in range(len(item)):
+            v1[0] = b + 1
+            for c in range(len(a)):
+                if item[b].lower() == a[c].lower():
+                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c])
+
+                else:
+                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c] + 1)
+
+            v0, v1 = v1, v0
+
+        for i, d in enumerate(dist):
+            if v0[len(a)] < d:
+                dist.insert(i, v0[len(a)])
+                dist.pop()
+                match.insert(i, a)
+                match.pop()
+                break
+
+    return match, dist
+
+
+def find_normal_structures_match(rois, num_matches=None):
+    """Return a unique structure list from supplied element tree"""
+    target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
+    protocol_folder = r'../protocols'
+    filename = r'TG-263.xml'
+    match_threshold = 0.6
+    if num_matches is None:
+        num_matches = 1
+
+    path_to_sets = os.path.join(os.path.dirname(__file__),
+                                protocol_folder)
+
+    tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
+    roi263 = tree.findall('./' + 'roi')
+    standard_names = []
+    logging.debug('found {} in {}'.format(len(roi263), filename))
+    for r in roi263:
+        standard_names.append(r.find('name').text)
+
+    logging.debug('Found {} TG-263 rois'.format(len(standard_names)))
+
+    matched_rois = {}
+    for r in rois:
+        [match, dist] = levenshtein_match(r, standard_names, num_matches)
+        logging.debug('used {} and returned {}'.format(r,match))
+        if match is not None and dist < len(r) * match_threshold:
+            matched_rois[r] = match
+            logging.debug('matched {} with {}'.format(r, match))
+        else:
+            matched_rois[r] = None
+            logging.debug('no match found for {}'.format(r))
+
+    return matched_rois

@@ -230,8 +230,13 @@ def select_element(set_level, set_type, set_elements,
                         set_level_name, set_level, set_elements))
             selected_order = None
     elif dialog:
+        if set_type is not None:
+            input_string = 'Select {}'.format(set_type)
+        else:
+            input_string = 'Select {}'.format(set_level)
+
         input_dialog = UserInterface.InputDialog(
-            inputs={'i': 'Select Objective Set'},
+            inputs={'i': input_string},
             title='Objective Selection',
             datatype={'i': 'combo'},
             initial={},
