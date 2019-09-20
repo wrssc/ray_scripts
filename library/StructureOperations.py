@@ -302,7 +302,7 @@ def levenshtein_match(item, arr, num_matches=None):
     return match, dist
 
 
-def find_normal_structures_match(rois, num_matches=None):
+def find_normal_structures_match(rois, site=None, num_matches=None, protocol_file=None):
     """Return a unique structure list from supplied element tree"""
     target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
     protocol_folder = r'../protocols'
