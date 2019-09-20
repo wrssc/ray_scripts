@@ -215,7 +215,7 @@
             <roi>
                 <name>SpinalCord</name>
                 <type>Max</type>
-                <volume units="cc">1</volume>
+                <volume units="cc">0.03</volume>
                 <dose units="Gy">42.3</dose>
                 <priority>1</priority>
             </roi>

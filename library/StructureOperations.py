@@ -305,19 +305,38 @@ def levenshtein_match(item, arr, num_matches=None):
 def find_normal_structures_match(rois, site=None, num_matches=None, protocol_file=None):
     """Return a unique structure list from supplied element tree"""
     target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
-    protocol_folder = r'../protocols'
-    filename = r'TG-263.xml'
+    protocol_folders = [r'../protocols']
+    institution_folders = [r'']
+    files = [[r'../protocols', r'', r'TG-263.xml'],
+             [r'../protocols', r'UW', r'']]
+    paths = []
+    for i, f in enumerate(files):
+        secondary_protocol_folder = f[0]
+        institution_folder = f[1]
+        paths.append(os.path.join(os.path.dirname(__file__),
+                                  secondary_protocol_folder,
+                                  institution_folder))
+    # secondary_protocol_folder = r'../protocols'
+    # secondary_filename = r'TG-263.xml'
+    # path_to_secondary_sets = os.path.join(os.path.dirname(__file__),
+    #                                      secondary_protocol_folder)
+    logging.debug('Searching folder {} for rois'.format(paths[1]))
+    standard_names = []
+    for f in os.listdir(paths[1]):
+        if f.endswith('.xml'):
+            tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
+            prot_rois = tree.findall('.//roi')
+            for r in prot_rois:
+                if r.find('name').text not in any(standard_names):
+                    standard_names.append(r.find('name').text)
+    logging.debug('Found standard names {}'.format(standard_names))
     match_threshold = 0.6
     if num_matches is None:
         num_matches = 1
 
-    path_to_sets = os.path.join(os.path.dirname(__file__),
-                                protocol_folder)
-
-    tree = xml.etree.ElementTree.parse(os.path.join(path_to_sets, filename))
+    tree = xml.etree.ElementTree.parse(os.path.join(paths[0],files[0][2]))
     roi263 = tree.findall('./' + 'roi')
-    standard_names = []
-    logging.debug('found {} in {}'.format(len(roi263), filename))
+    logging.debug('found {} in {}'.format(len(roi263), files[0][2]))
     for r in roi263:
         standard_names.append(r.find('name').text)
 
@@ -326,12 +345,14 @@ def find_normal_structures_match(rois, site=None, num_matches=None, protocol_fil
     matched_rois = {}
     for r in rois:
         [match, dist] = levenshtein_match(r, standard_names, num_matches)
-        logging.debug('used {} and returned {}'.format(r,match))
-        if match is not None and dist < len(r) * match_threshold:
-            matched_rois[r] = match
-            logging.debug('matched {} with {}'.format(r, match))
-        else:
-            matched_rois[r] = None
-            logging.debug('no match found for {}'.format(r))
+        logging.debug('used {} and returned {} with dist {}'.format(r, match, dist))
+        matched_rois[r] = []
+        for i, d in enumerate(dist):
+            if d < len(r) * match_threshold:
+                matched_rois[r].append(match[i])
+                logging.debug('matched {} with {}'.format(r, match[i]))
+            else:
+                logging.debug('Lev threshold not met for roi {} using m {} with d {}'.format(
+                    r, match[i], d))
 
     return matched_rois
