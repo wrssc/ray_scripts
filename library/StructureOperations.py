@@ -53,6 +53,7 @@ clr.AddReference('System.Drawing')
 import System.Drawing
 import numpy as np
 import xml
+import textdistance
 
 
 def exists_roi(case, rois):
@@ -327,9 +328,8 @@ def find_normal_structures_match(rois, site=None, num_matches=None, protocol_fil
             tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
             prot_rois = tree.findall('.//roi')
             for r in prot_rois:
-                if r.find('name').text not in any(standard_names):
+                if not any(i in r.find('name').text for i in standard_names):
                     standard_names.append(r.find('name').text)
-    logging.debug('Found standard names {}'.format(standard_names))
     match_threshold = 0.6
     if num_matches is None:
         num_matches = 1
