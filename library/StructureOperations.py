@@ -53,7 +53,6 @@ clr.AddReference('System.Drawing')
 import System.Drawing
 import numpy as np
 import xml
-import textdistance
 
 
 def exists_roi(case, rois):
