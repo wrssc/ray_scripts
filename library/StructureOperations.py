@@ -322,18 +322,19 @@ def find_normal_structures_match(rois, site=None, num_matches=None, protocol_fil
     # path_to_secondary_sets = os.path.join(os.path.dirname(__file__),
     #                                      secondary_protocol_folder)
     logging.debug('Searching folder {} for rois'.format(paths[1]))
-    standard_names = []
+    protocol_names = []
     for f in os.listdir(paths[1]):
         if f.endswith('.xml'):
             tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
             prot_rois = tree.findall('.//roi')
             for r in prot_rois:
-                if not any(i in r.find('name').text for i in standard_names):
-                    standard_names.append(r.find('name').text)
+                if not any(i in r.find('name').text for i in protocol_names):
+                    protocol_names.append(r.find('name').text)
     match_threshold = 0.6
     if num_matches is None:
         num_matches = 1
 
+    standard_names = []
     tree = xml.etree.ElementTree.parse(os.path.join(paths[0],files[0][2]))
     roi263 = tree.findall('./' + 'roi')
     logging.debug('found {} in {}'.format(len(roi263), files[0][2]))
@@ -344,9 +345,21 @@ def find_normal_structures_match(rois, site=None, num_matches=None, protocol_fil
 
     matched_rois = {}
     for r in rois:
-        [match, dist] = levenshtein_match(r, standard_names, num_matches)
-        logging.debug('used {} and returned {} with dist {}'.format(r, match, dist))
+        [match, dist] = levenshtein_match(r, protocol_names, num_matches)
+        logging.debug('Protocol matches: {} and returned {} with dist {}'.format(r, match, dist))
         matched_rois[r] = []
+        for i, d in enumerate(dist):
+            if d < len(r) * match_threshold:
+                matched_rois[r].append(match[i])
+                logging.debug('matched {} with {}'.format(r, match[i]))
+            else:
+                logging.debug('Lev threshold not met for roi {} using m {} with d {}'.format(
+                    r, match[i], d))
+
+    for r in rois:
+        [match, dist] = levenshtein_match(r, standard_names, num_matches)
+        logging.debug('Standard names: {} and returned {} with dist {}'.format(r, match, dist))
+        # matched_rois[r] = []
         for i, d in enumerate(dist):
             if d < len(r) * match_threshold:
                 matched_rois[r].append(match[i])
