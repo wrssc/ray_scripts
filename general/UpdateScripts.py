@@ -23,12 +23,21 @@ __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/Local-Repository-Setup'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+# Specify import statements for global scope
+import os
+
+
+def readonly_handler(func, path, execinfo):
+    """ A function to handle windows file errors relating to directories being incorrectly
+    assigned readonly status by windoze. Apparently this issue is to be resolved by python
+    3.5 """
+    os.chmod(path, 128) #or os.chmod(path, stat.S_IWRITE) from "stat" module
+    func(path)
 
 def main():
 
     # Specify import statements
     import requests
-    import os
     import sys
     import importlib
     import shutil
@@ -41,6 +50,7 @@ def main():
 
     # Specify branch to download
     branch = 'master'
+    print('user name {}'.format(os.getenv('username')))
 
     # Get branch content
     try:
@@ -59,18 +69,29 @@ def main():
     # If local is empty, prompt user to select the location
     if selector.local == '':
         browser = UserInterface.CommonDialog()
-        local = browser.folder_browser('Select folder to export CT to:')
+        local = browser.folder_browser('Select folder location for scripts:')
     else:
         local = selector.local
 
     # Clear directory
     if os.path.exists(local):
-        shutil.rmtree(local, ignore_errors=True)
+        try:
+            if os.path.isfile(local):
+                os.unlink(local)
+            elif os.path.isdir(local):
+                shutil.rmtree(local, onerror=readonly_handler)
+                os.mkdir(local)
+        except Exception as e:
+            logging.warning(e)
     else:
         os.mkdir(local)
 
-    logging.info('Local directory is: {}'.format(local))
-    sys.exit('Exiting')
+    if os.path.exists(local):
+        logging.info('Local directory is: {}'.format(local))
+    else:
+        logging.warning('Local directory failed to create: {}'.format(local))
+        sys.exit('Exiting')
+
 
     # Loop through folders in branch, creating folders and pulling content
     for l in file_list:

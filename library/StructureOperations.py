@@ -44,11 +44,16 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
-import connect
+import os
 import sys
+import connect
 import clr
+
 clr.AddReference('System.Drawing')
 import System.Drawing
+import numpy as np
+import xml
+import re
 
 
 def exists_roi(case, rois):
@@ -69,6 +74,36 @@ def exists_roi(case, rois):
             roi_exists.append(False)
 
     return roi_exists
+
+
+def exists_poi(case, pois):
+    """See if rois is in the list"""
+    if type(pois) is not list:
+        pois = [pois]
+
+    defined_pois = []
+    for p in case.PatientModel.PointsOfInterest:
+        defined_pois.append(p.Name)
+
+    poi_exists = []
+
+    for p in pois:
+        i = 0
+        exact_match = False
+        if p in defined_pois:
+            while i < len(defined_pois):
+                if p == defined_pois[i]:
+                    logging.debug('{} is an exact match to {}'.format(p, defined_pois[i]))
+                    exact_match = True
+                i += 1
+            if exact_match:
+                poi_exists.append(True)
+            else:
+                poi_exists.append(False)
+        else:
+            poi_exists.append(False)
+
+    return poi_exists
 
 
 def check_roi(case, exam, rois):
@@ -221,4 +256,118 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check'):
         return False
 
 
+def convert_poi(poi1):
+    """
+    Return a poi as a numpy array
+    :param poi1:
+    :return: poi_arr
+    """
 
+    poi_arr = np.array([poi1.Point.x, poi1.Point.y, poi1.Point.z])
+    return poi_arr
+
+
+def levenshtein_match(item, arr, num_matches=None):
+    """[match,dist]=__levenshtein_match(item,arr)"""
+
+    # Initialize return args
+    if num_matches is None:
+        num_matches = 1
+
+    dist = [max(len(item), min(map(len, arr)))] * num_matches
+    match = [None] * num_matches
+
+    # Loop through array of options
+    for a in arr:
+        v0 = range(len(a) + 1) + [0]
+        v1 = [0] * len(v0)
+        for b in range(len(item)):
+            v1[0] = b + 1
+            for c in range(len(a)):
+                if item[b].lower() == a[c].lower():
+                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c])
+
+                else:
+                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c] + 1)
+
+            v0, v1 = v1, v0
+
+        for i, d in enumerate(dist):
+            if v0[len(a)] < d:
+                dist.insert(i, v0[len(a)])
+                dist.pop()
+                match.insert(i, a)
+                match.pop()
+                break
+
+    return match, dist
+
+
+def find_normal_structures_match(rois, site=None, num_matches=None, protocol_file=None):
+    """Return a unique structure dictionary from supplied element tree"""
+    target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
+    protocol_folders = [r'../protocols']
+    institution_folders = [r'']
+    files = [[r'../protocols', r'', r'TG-263.xml'],
+             [r'../protocols', r'UW', r'']]
+    paths = []
+    for i, f in enumerate(files):
+        secondary_protocol_folder = f[0]
+        institution_folder = f[1]
+        paths.append(os.path.join(os.path.dirname(__file__),
+                                  secondary_protocol_folder,
+                                  institution_folder))
+    # secondary_protocol_folder = r'../protocols'
+    # secondary_filename = r'TG-263.xml'
+    # path_to_secondary_sets = os.path.join(os.path.dirname(__file__),
+    #                                      secondary_protocol_folder)
+    logging.debug('Searching folder {} for rois'.format(paths[1]))
+    standard_names = []
+    for f in os.listdir(paths[1]):
+        if f.endswith('.xml'):
+            tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
+            prot_rois = tree.findall('.//roi')
+            for r in prot_rois:
+                if not any(i in r.find('name').text for i in standard_names):
+                    standard_names.append(r.find('name').text)
+    match_threshold = 0.6
+    if num_matches is None:
+        num_matches = 1
+
+    tree = xml.etree.ElementTree.parse(os.path.join(paths[0],files[0][2]))
+    roi263 = tree.findall('./' + 'roi')
+    # Check aliases first (look in TG-263 to see if an alias is there).
+    aliases = {}
+    matched_rois = {}
+    for r in roi263:
+        if r.find('Alias').text is not None:
+            alias = r.find('Alias').text
+            aliases[r.find('name').text] = alias.split(',')
+
+    for r in roi263:
+        standard_names.append(r.find('name').text)
+
+    # beg_left = re.compile('L_*'.re.IGNORECASE)
+    # end_left = re.compile('*_L')
+
+    for r in rois:
+        [match, dist] = levenshtein_match(r, standard_names, num_matches)
+        matched_rois[r] = []
+        for a_key, a_val in aliases.iteritems():
+            for v in a_val:
+                if r in v:
+                    matched_rois[r].append(a_key)
+        for i, d in enumerate(dist):
+            if d < len(r) * match_threshold:
+                # Return Criteria
+                if match[i] not in matched_rois[r]:
+                    if '_L' in match[i] and ('_R' in r or 'R_' in r):
+                        logging.debug('Roi {}: Leven. Match {} not added to avoid L/R mismatch'.format(
+                            r, match[i]))
+                    elif '_R' in match[i] and ('_L' in r or 'L_' in r):
+                        logging.debug('Roi {}: Leven. Match {} not added to avoid R/L mismatch'.format(
+                            r, match[i]))
+                    else:
+                        matched_rois[r].append(match[i])
+
+    return matched_rois

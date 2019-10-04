@@ -57,20 +57,338 @@ __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-
-import clr
 import math
 import numpy as np
-import connect
-import logging
-import UserInterface
 import logging
 import sys
+import clr
+import connect
+import UserInterface
+import StructureOperations
+import PlanOperations
+import Beams
 
 clr.AddReference('System')
 
-def rename_beams():
 
+class Beam(object):
+
+    def __init__(self):
+        self.number = None
+        self.technique = None
+        self.name = None
+        self.energy = None
+        self.gantry_start_angle = None
+        self.gantry_stop_angle = None
+        self.rotation_dir = None
+        self.collimator_angle = None
+        self.iso = {}
+        self.couch_angle = None
+        self.dsp = None
+
+    def __eq__(self, other):
+        return other and \
+               self.iso == other.iso \
+               and self.gantry_start_angle == other.gantry_start_angle \
+               and self.gantry_stop_angle == other.gantry_stop_angle \
+               and self.energy == other.energy \
+               and self.dsp == other.dsp \
+               and self.couch_angle == other.couch_angle \
+               and self.collimator_angle == other.collimator_angle \
+               and self.rotation_dir == other.rotation_dir \
+               and self.technique == other.technique
+
+    def __hash__(self):
+        return hash((
+            frozenset(self.iso.items()),
+            self.gantry_start_angle,
+            self.gantry_stop_angle,
+            self.energy,
+            self.dsp,
+            self.couch_angle,
+        ))
+
+
+class BeamSet(object):
+
+    def __init__(self):
+        self.name = None
+        self.DicomName = None
+        self.iso = {}
+        self.number_of_fractions = None
+        self.total_dose = None
+        self.machine = None
+        self.modality = None
+        self.technique = None
+        self.rx_target = None
+        self.iso_target = None
+        self.protocol_name = None
+        self.origin_file = None
+        self.origin_folder = None
+
+    def __eq__(self, other):
+        return other and self.iso == other.iso and self.number_of_fractions \
+               == other.number_of_fractions and self.total_dose == other.total_dose \
+               and self.machine == other.machine and self.modality == other.modality \
+               and self.technique == other.technique and self.rx_target == other.rx_target
+
+    def __hash__(self):
+        return hash((
+            frozenset(self.iso.items()),
+            self.number_of_fractions,
+            self.total_dose,
+            self.machine,
+            self.modality,
+            self.technique,
+        ))
+
+
+class DSP(object):
+
+    def __init__(self):
+        self.name = None
+        self.coords = {}
+
+    def __eq__(self, other):
+        return other and self.coords == other.coords
+
+    def __hash__(self):
+        return hash(frozenset(self.coords.items()))
+
+
+# Return a patient position in the expected format for beamset definition
+def patient_position_map(exam_position):
+    if exam_position == 'HFP':
+        return 'HeadFirstProne'
+    elif exam_position == 'HFS':
+        return 'HeadFirstSupine'
+    elif exam_position == 'FFP':
+        return 'FeetFirstProne'
+    elif exam_position == 'FFS':
+        return 'FeetFirstSupine'
+    elif exam_position == 'HFDL':
+        return 'HeadFirstDecubitusLeft'
+    elif exam_position == 'HFDR':
+        return 'HeadFirstDecubitusRight'
+    elif exam_position == 'FFDL':
+        return 'FeetFirstDecubitusLeft'
+    elif exam_position == 'FFDR':
+        return 'FeetFirstDecubitusRight'
+
+
+def beamset_dialog(case, filename=None, path=None, order_name=None):
+    """
+    Ask user for information required to load a beamset including the desired protocol beamset to load.
+
+    :param case: current case from RS
+    :param folder: folder name of the location of the protocol files
+    :param filename: filename housing the order
+    :param order_name: optional specification of the order to use
+    :return: dialog_beamset: an object of type BeamSet with values set by the user dialog
+    """
+    # Define an empty BeamSet object that will be the returned object
+    dialog_beamset = BeamSet()
+    # TODO: Uncomment in version 9 to load the available machine inputs from current commissioned list
+    # machine_db = connect.get_current('MachineDB')
+    # machines = machine_db.QueryCommissionedMachineInfo(Filter={})
+    # machine_list = []
+    # for i, m in enumerate(machines):
+    #     if m['IsCommissioned']:
+    #         machine_list.append(m['Name'])
+    # TODO Test gating option
+    # TODO Load all available beamsets found in a file
+    available_modality = ['Photons', 'Electrons']
+    available_technique = ['Conformal', 'SMLC', 'VMAT', 'DMLC', 'ConformalArc', 'TomoHelical', 'TomoDirect']
+    machine_list = ['TrueBeam', 'TrueBeamSTx']
+
+    # Open the user supplied filename located at folder and return a list of available beamsets
+    # Should be able to eliminate this if after the modifications to select_element are complete
+    if filename is not None:
+        dialog_beamset.origin_file = filename
+        dialog_beamset.origin_folder = path
+        logging.debug('looking in {} at {} for a {}'.format(filename, path, 'beamset'))
+        available_beamsets = Beams.select_element(
+            set_level='beamset',
+            set_type=None,
+            set_elements='beam',
+            filename=filename,
+            dialog=False,
+            folder=path,
+            verbose_logging=False)
+
+    targets = StructureOperations.find_targets(case=case)
+
+    dialog = UserInterface.InputDialog(
+        inputs={
+            '0': 'Choose the Rx target',
+            '1': 'Enter the Beamset Name, typically <Site>_VMA_R0A0',
+            '2': 'Enter the number of fractions',
+            '3': 'Enter total dose in cGy',
+            '4': 'Choose Treatment Machine',
+            '6': 'Choose a Technique',
+            '7': 'Choose a Target for Isocenter Placement',
+            '8': 'Choose a Beamset to load'
+        },
+        title='Beamset Inputs',
+        datatype={
+            '0': 'combo',
+            '4': 'combo',
+            '6': 'combo',
+            '7': 'combo',
+            '8': 'combo'
+        },
+        initial={
+            '1': 'XXXX_VMA_R0A0',
+            '4': 'VMAT',
+            '8': available_beamsets[0]
+        },
+        options={
+            '0': targets,
+            '4': machine_list,
+            '6': available_technique,
+            '7': targets,
+            '8': available_beamsets
+        },
+        required=['0',
+                  '2',
+                  '3',
+                  '4',
+                  '6',
+                  '7',
+                  '8'])
+
+    # Launch the dialog
+    response = dialog.show()
+    if response == {}:
+        sys.exit('Beamset loading was cancelled')
+
+    dialog_beamset.rx_target = dialog.values['0']
+    dialog_beamset.name = dialog.values['1']
+    dialog_beamset.DicomName = dialog.values['1']
+    dialog_beamset.number_of_fractions = float(dialog.values['2'])
+    dialog_beamset.total_dose = float(dialog.values['3'])
+    dialog_beamset.machine = dialog.values['4']
+    dialog_beamset.modality = 'Photons'
+    dialog_beamset.technique = dialog.values['6']
+    dialog_beamset.iso_target = dialog.values['7']
+    dialog_beamset.protocol_name = dialog.values['8']
+
+    return dialog_beamset
+
+
+def find_isocenter_parameters(case, exam, beamset, iso_target):
+    """Function to return the dict object needed for isocenter placement from the center of a supplied
+    name of a structure"""
+
+    try:
+        isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
+            RoiGeometries[iso_target].GetCenterOfRoi()
+    except Exception:
+        logging.warning('Aborting, could not locate center of {}'.format(iso_target))
+        sys.exit('Failed to place isocenter')
+
+    # Place isocenter
+    # TODO Add a check on laterality at this point (if -7< x < 7 ) put out a warning
+    ptv_center = {'x': isocenter_position.x,
+                  'y': isocenter_position.y,
+                  'z': isocenter_position.z}
+    isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
+    isocenter_parameters['Name'] = "iso_" + beamset.DicomPlanLabel
+    isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + beamset.DicomPlanLabel
+    logging.info('Isocenter chosen based on center of {}.'.format(iso_target) +
+                 'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
+                     ptv_center['x'],
+                     ptv_center['y'],
+                     ptv_center['z'],
+                     isocenter_parameters['Name']))
+
+    return isocenter_parameters
+
+
+def create_beamset(patient, case, exam, plan,
+                   BeamSet=None,
+                   dialog=True,
+                   filename=None,
+                   path=None,
+                   order_name=None):
+    """ Create a beamset by opening a dialog with user or loading from scratch
+    Currently relies on finding out information via a dialog. I would like it to optionally take the elements
+    from the BeamSet class and return the result
+
+    Running as a dialog:
+    BeamOperations.create_beamset(patient=patient, case=case, exam=exam, plan=plan, dialog=True)
+
+    Running using the BeamSet class
+
+       """
+    if dialog:
+        b = beamset_dialog(case=case, filename=filename, path=path, order_name=order_name)
+    elif BeamSet is not None:
+        b = BeamSet
+    else:
+        logging.warning('Cannot load beamset due to incorrect argument list')
+
+    plan.AddNewBeamSet(
+        Name=b.DicomName,
+        ExaminationName=exam.Name,
+        MachineName=b.machine,
+        Modality=b.modality,
+        TreatmentTechnique=b.technique,
+        PatientPosition=patient_position_map(exam.PatientPosition),
+        NumberOfFractions=b.number_of_fractions,
+        CreateSetupBeams=True,
+        UseLocalizationPointAsSetupIsocenter=False,
+        Comment="",
+        RbeModelReference=None,
+        EnableDynamicTrackingForVero=False,
+        NewDoseSpecificationPointNames=[],
+        NewDoseSpecificationPoints=[],
+        RespiratoryMotionCompensationTechnique="Disabled",
+        RespiratorySignalSource="Disabled")
+
+    beamset = plan.BeamSets[b.DicomName]
+    patient.Save()
+
+    try:
+        beamset.AddDosePrescriptionToRoi(RoiName=b.rx_target,
+                                         DoseVolume=80,
+                                         PrescriptionType='DoseAtVolume',
+                                         DoseValue=b.total_dose,
+                                         RelativePrescriptionLevel=1,
+                                         AutoScaleDose=True)
+    except Exception:
+        logging.warning('Unable to set prescription')
+    return beamset
+
+
+def place_beams_in_beamset(iso, beamset, beams):
+    """
+    Put beams in place based on a list of Beam objects
+    :param iso: isocenter data dictionary
+    :param beamset: beamset to which to add beams
+    :param beams: list of Beam objects
+    :return:
+    """
+    for b in beams:
+        logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
+                      'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
+            b.number, b.technique, b.name,
+            b.energy, b.gantry_start_angle,
+            b.gantry_stop_angle, b.rotation_dir,
+            b.collimator_angle, b.couch_angle))
+
+        beamset.CreateArcBeam(ArcStopGantryAngle=b.gantry_stop_angle,
+                              ArcRotationDirection=b.rotation_dir,
+                              Energy=b.energy,
+                              IsocenterData=iso,
+                              Name=b.name,
+                              Description=b.name,
+                              GantryAngle=b.gantry_start_angle,
+                              CouchAngle=b.couch_angle,
+                              CollimatorAngle=b.collimator_angle)
+
+
+def rename_beams():
     # These are the techniques associated with billing codes in the clinic
     # they will be imported
     available_techniques = [
@@ -93,7 +411,6 @@ def rename_beams():
         'DynamicArc',
         'TomoHelical']
 
-
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
@@ -115,7 +432,8 @@ def rename_beams():
                                        options={'Technique': available_techniques},
                                        required=['Site', 'Technique'])
     # Show the dialog
-    print dialog.show()
+    print
+    dialog.show()
 
     site_name = dialog.values['Site']
     input_technique = dialog.values['Technique']
@@ -210,7 +528,7 @@ def rename_beams():
                 UserInterface.WarningBox('Error occurred in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
 
-    # Set-Up Fields
+        # Set-Up Fields
         # HFS Setup
         # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
         set_up = {0: ['SetUp AP', 'SetUp AP', 0.0, '5'],
@@ -222,7 +540,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -295,7 +614,7 @@ def rename_beams():
                 UserInterface.WarningBox('Error occurred in setting names of beams')
                 sys.exit('Error occurred in setting names of beams')
 
-    # Set-Up Fields
+        # Set-Up Fields
         # HFLDR Setup
         # set_up: [ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
         set_up = {0: ['SetUp LtLat', 'SetUp LtLat', 0.0, '5'],
@@ -307,7 +626,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -392,7 +712,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -637,7 +958,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -722,7 +1044,8 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print "v2={}".format(v[2])
+            print
+            "v2={}".format(v[2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -868,8 +1191,10 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     zsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.z
 
     if np.amax(pd_np) < rx:
-        print 'max = ', str(max(pd))
-        print 'target = ', str(rx)
+        print
+        'max = ', str(max(pd))
+        print
+        'target = ', str(rx)
         raise ValueError('max beam dose is too low')
 
     # rx_points = np.empty((0, 3), dtype=np.int)
@@ -898,13 +1223,14 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
         # Numpy does evaluation of advanced indicies column wise:
         # pd[sheets, columns, rows]
         matches += abs(pd[rx_points[:, 0], rx_points[:, 1], rx_points[:, 2]] / rx -
-            b.ForBeam.BeamMU / tot)
+                       b.ForBeam.BeamMU / tot)
 
     min_i = np.argmin(matches)
     xpos = rx_points[min_i, 0] * xsize + xcorner + xsize / 2
     ypos = rx_points[min_i, 1] * ysize + ycorner + ysize / 2
     zpos = rx_points[min_i, 2] * zsize + zcorner + zsize / 2
-    print 'x, y, z positions = {0}, {1}, {2}'.format(xpos, ypos, zpos)
+    print
+    'x, y, z positions = {0}, {1}, {2}'.format(xpos, ypos, zpos)
     return [xpos, ypos, zpos]
 
 
@@ -935,3 +1261,168 @@ def set_dsp(plan, beam_set):
     algorithm = beam_set.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm
     # print "\n\nComputing Dose..."
     beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
+
+
+def load_beams_xml(filename, beamset_name, path):
+    """Load a beamset from the file located in the path in the filename:
+    :param filename: The name of the xml file housing the beamset to be loaded
+    :param beamset_name: name of the beamset (element) to load
+    :param path: path to the xml file
+    :return beams: a list of objects of type Beam"""
+
+    beam_elements = Beams.select_element(set_level='beamset',
+                                         set_type=None,
+                                         set_elements='beam',
+                                         set_level_name=beamset_name,
+                                         filename=filename,
+                                         folder=path,verbose_logging=True)
+
+    beams = []
+    for et_beamsets in beam_elements:
+        beam_nodes = et_beamsets.findall('./beam')
+        for b in beam_nodes:
+            beam = Beam()
+            beam.number = int(b.find('BeamNumber').text)
+            beam.name = str(b.find('Name').text)
+            beam.technique = str(b.find('DeliveryTechnique').text)
+            beam.energy = int(b.find('Energy').text)
+            beam.gantry_start_angle = float(b.find('GantryAngle').text)
+            beam.gantry_stop_angle = float(b.find('GantryStopAngle').text)
+            beam.rotation_dir = str(b.find('ArcRotationDirection').text)
+            beam.collimator_angle = float(b.find('CollimatorAngle').text)
+            beam.couch_angle = float(b.find('CouchAngle').text)
+            beams.append(beam)
+    return beams
+
+
+def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_logging=True):
+    """
+    Check the current locked limit on the beams and modify the optimization limit
+    :param beam_name: name of beam to be modified
+    :param plan: current plan
+    :param beamset: current beamset
+    :param limit: list of four limit [x1, x2, y1, y2]
+    :param change: change the beam limit True/False
+    :param verbose_logging: turn on (True) or off (False) extensive debugging messages
+    :return: success: True if limits changed or limit is satisfied by current beam limits
+    """
+    # Find the optimization index corresponding to this beamset
+    opt_index = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=verbose_logging)
+    plan_optimization_parameters = plan.PlanOptimizations[opt_index].OptimizationParameters
+    for tss in plan_optimization_parameters.TreatmentSetupSettings:
+        if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
+            ts_settings = tss
+            if verbose_logging:
+                logging.debug('TreatmentSettings matching {} found'.format(beamset.DicomPlanLabel))
+            break
+        else:
+            continue
+
+    # Track whether the input beam_name is found in the list of beams belonging to this optimization.
+    beam_found = False
+    for b in ts_settings.BeamSettings:
+
+        if b.ForBeam.Name == beam_name:
+            beam_found = True
+            current_beam = b
+
+        else:
+            continue
+
+    if not beam_found:
+        logging.warning('Beam {} not found in beam list from {}'.format(
+            beam_name, beamset.DicomPlanLabel))
+        sys.exit('Could not find a beam match for setting aperture limits')
+
+    # Check if aperture limit exist.
+    if current_beam.ForBeam.BeamMU > 0:
+        if verbose_logging:
+            logging.debug('Beam has MU. Changing jaw limit with an optimized beam is not possible without reset')
+        return False
+    else:
+        # Check for existing aperture limit
+        try:
+            current_limits = current_beam.BeamApertureLimit
+            if current_limits != 'NoLimit':
+                existing_limits = [current_beam.ForBeam.InitialJawPositions[0],
+                                   current_beam.ForBeam.InitialJawPositions[1],
+                                   current_beam.ForBeam.InitialJawPositions[2],
+                                   current_beam.ForBeam.InitialJawPositions[3]]
+                if verbose_logging:
+                    logging.debug(('aperture limits found on beam {} of initial jaw positions: x1 = {}, ' +
+                                   'x2 = {}, y1 = {}, y2 = {}')
+                                  .format(beam_name, existing_limits[0], existing_limits[1],
+                                          existing_limits[2], existing_limits[3]))
+            else:
+                existing_limits = [None]*4
+                if verbose_logging:
+                    logging.debug('No limits currently exist on beam {}'.format(beam_name))
+
+        except AttributeError:
+            logging.debug('no existing aperture limits on beam {}'.format(beam_name))
+            current_limits = None
+            existing_limits = [None] * 4
+
+        if current_limits == 'NoLimit':
+            modified_limit = limit
+            limits_met = False
+            if verbose_logging:
+                logging.info(('No jaw limits found on Beam {}: Jaw limits should be '
+                              'x1 = {}, x2 = {}, y1 = {}, y2 = {}')
+                             .format(beam_name,
+                                     modified_limit[0],
+                                     modified_limit[1],
+                                     modified_limit[2],
+                                     modified_limit[3]))
+
+        else:
+            x1 = existing_limits[0]
+            x2 = existing_limits[1]
+            y1 = existing_limits[2]
+            y2 = existing_limits[3]
+            if all([limit[0] <= x1, limit[1] >= x2, limit[2] <= y1, limit[3] >= y2]):
+                limits_met = True
+            else:
+                limits_met = False
+                modified_limit = [max(x1, limit[0]),
+                                  min(x2, limit[1]),
+                                  max(y1, limit[2]),
+                                  min(y2, limit[3])]
+                if verbose_logging:
+                    logging.info(('Jaw limits found on Beam {}: Jaw limits should be changed '
+                                  'x1: {} => {}, x2: {} => {}, y1: {} => {}, y2: {} => {}')
+                                 .format(beam_name,
+                                         limit[0], modified_limit[0],
+                                         limit[1], modified_limit[1],
+                                         limit[2], modified_limit[2],
+                                         limit[3], modified_limit[3]))
+
+        if not limits_met:
+            if change:
+                current_beam.EditBeamOptimizationSettings(
+                    JawMotion='Use limits as max',
+                    LeftJaw=modified_limit[0],
+                    RightJaw=modified_limit[1],
+                    TopJaw=modified_limit[2],
+                    BottomJaw=modified_limit[3],
+                    SelectCollimatorAngle='False',
+                    AllowBeamSplit='False',
+                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                logging.info('Beam {}: Changed jaw limits x1: {} => {}, x2: {} = {}, y1: {} => {}, y2: {} => {}'
+                             .format(beam_name,
+                                     existing_limits[0], current_beam.ForBeam.InitialJawPositions[0],
+                                     existing_limits[1], current_beam.ForBeam.InitialJawPositions[1],
+                                     existing_limits[2], current_beam.ForBeam.InitialJawPositions[2],
+                                     existing_limits[3], current_beam.ForBeam.InitialJawPositions[3]))
+                return True
+            else:
+                logging.info(('Aperture check shows that limit on {} are not current. Limits should be '
+                              'x1 = {}, x2 = {}, y1 = {}, y2 = {}').format(beam_name,
+                                                                           modified_limit[0],
+                                                                           modified_limit[1],
+                                                                           modified_limit[2],
+                                                                           modified_limit[3]))
+                return False
+        else:
+            logging.debug('Limits met, no changes in aperture needed')
+            return True
