@@ -1,6 +1,5 @@
 """Testing xml handling
-
-
+Test scripts for matching
 
 Version Notes: 1.0.0 Original
 
@@ -42,6 +41,7 @@ import BeamOperations
 import Objectives
 import Beams
 import StructureOperations
+import UserInterface
 
 
 def test_select_element(patient, case, exam, plan, beamset):
@@ -265,14 +265,41 @@ def main():
 
     rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
     matches = StructureOperations.find_normal_structures_match(rois=rois, num_matches=5)
-    logging.debug('Del: matches are {}'.format(matches))
+    logging.debug('Del: matches are {} {}'.format(matches.keys(), matches.values()))
+    # Make dialog inputs
+    inputs = {}
+    datatype = {}
+    options = {}
+    for k, v in matches.iteritems():
+        inputs[k] = k
+        datatype[k] = 'combo'
+        options[k] = v
+
+    matchy_dialog = UserInterface.InputDialog(
+        inputs=inputs,
+        title='Matchy Matchy',
+        datatype=datatype,
+        initial={},
+        options=matches,
+        required=matches.keys())
+    # Launch the dialog
+    response = matchy_dialog.show()
+    # Link root to selected protocol ElementTree
+    logging.info("Matches selected: {}".format(
+        matchy_dialog))
+
     correct = 0
 
+    m_logs = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\RayScripts\logs'
+    with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
+        match_file.write('Patient entry\n')
     for r in rois:
         if r == matches[r]:
             correct += 1
-
+            with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
+                match_file.write('{}\t{}\n'.format(r, matches[r]))
     logging.debug('Correct matches on test set {} / {}'.format(correct, len(rois)))
+
 
 
 if __name__ == '__main__':

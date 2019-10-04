@@ -53,7 +53,7 @@ clr.AddReference('System.Drawing')
 import System.Drawing
 import numpy as np
 import xml
-import textdistance
+import re
 
 
 def exists_roi(case, rois):
@@ -304,7 +304,7 @@ def levenshtein_match(item, arr, num_matches=None):
 
 
 def find_normal_structures_match(rois, site=None, num_matches=None, protocol_file=None):
-    """Return a unique structure list from supplied element tree"""
+    """Return a unique structure dictionary from supplied element tree"""
     target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
     protocol_folders = [r'../protocols']
     institution_folders = [r'']
@@ -336,23 +336,38 @@ def find_normal_structures_match(rois, site=None, num_matches=None, protocol_fil
 
     tree = xml.etree.ElementTree.parse(os.path.join(paths[0],files[0][2]))
     roi263 = tree.findall('./' + 'roi')
-    logging.debug('found {} in {}'.format(len(roi263), files[0][2]))
+    # Check aliases first (look in TG-263 to see if an alias is there).
+    aliases = {}
+    matched_rois = {}
+    for r in roi263:
+        if r.find('Alias').text is not None:
+            alias = r.find('Alias').text
+            aliases[r.find('name').text] = alias.split(',')
+
     for r in roi263:
         standard_names.append(r.find('name').text)
 
-    logging.debug('Found {} TG-263 rois'.format(len(standard_names)))
+    # beg_left = re.compile('L_*'.re.IGNORECASE)
+    # end_left = re.compile('*_L')
 
-    matched_rois = {}
     for r in rois:
         [match, dist] = levenshtein_match(r, standard_names, num_matches)
-        logging.debug('used {} and returned {} with dist {}'.format(r, match, dist))
         matched_rois[r] = []
+        for a_key, a_val in aliases.iteritems():
+            for v in a_val:
+                if r in v:
+                    matched_rois[r].append(a_key)
         for i, d in enumerate(dist):
             if d < len(r) * match_threshold:
-                matched_rois[r].append(match[i])
-                logging.debug('matched {} with {}'.format(r, match[i]))
-            else:
-                logging.debug('Lev threshold not met for roi {} using m {} with d {}'.format(
-                    r, match[i], d))
+                # Return Criteria
+                if match[i] not in matched_rois[r]:
+                    if '_L' in match[i] and ('_R' in r or 'R_' in r):
+                        logging.debug('Roi {}: Leven. Match {} not added to avoid L/R mismatch'.format(
+                            r, match[i]))
+                    elif '_R' in match[i] and ('_L' in r or 'L_' in r):
+                        logging.debug('Roi {}: Leven. Match {} not added to avoid R/L mismatch'.format(
+                            r, match[i]))
+                    else:
+                        matched_rois[r].append(match[i])
 
     return matched_rois

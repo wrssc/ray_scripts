@@ -337,21 +337,6 @@ def main():
 
         # Find RS targets
         plan_targets = StructureOperations.find_targets(case=case)
-        # plan_targets = []
-        # for r in case.PatientModel.RegionsOfInterest:
-        #     if r.OrganData.OrganType == 'Target':
-        #         plan_targets.append(r.Name)
-        # # Add user threat: empty PTV list.
-        # if not plan_targets:
-        #     connect.await_user_input("The target list is empty." +
-        #                              " Please apply type PTV to the targets and continue.")
-        #     for r in case.PatientModel.RegionsOfInterest:
-        #         if r.OrganData.OrganType == 'Target':
-        #             plan_targets.append(r.Name)
-        # if not plan_targets:
-        #     status.finish('Script cancelled, inputs were not supplied')
-        #     sys.exit('Script cancelled')
-
         status.next_step(text="Matching all structures to the current list.", num=1)
 
         protocol_targets = []
