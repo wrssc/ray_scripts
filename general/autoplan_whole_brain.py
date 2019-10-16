@@ -706,7 +706,7 @@ def main():
                                      Name='1_Brai_g270c355',
                                      Description='1 3DC: MLC Static Field',
                                      GantryAngle=270.0,
-                                     CouchAngle=355,
+                                     CouchAngle=0,
                                      CollimatorAngle=0)
 
             beamset.CreatePhotonBeam(Energy=6,
@@ -714,7 +714,7 @@ def main():
                                      Name='2_Brai_g090c005',
                                      Description='2 3DC: MLC Static Field',
                                      GantryAngle=90,
-                                     CouchAngle=5,
+                                     CouchAngle=0,
                                      CollimatorAngle=0)
             for beam in beamset.Beams:
                 beam.SetTreatOrProtectRoi(RoiName='BTV')
