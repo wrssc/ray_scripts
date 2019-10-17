@@ -262,7 +262,7 @@ def send(case,
             if raygateway_args is None and filters is not None and 'tomo_dqa' in filters:
                 # Save to the file destination for filtering
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
-                        'QaPlanIdentity': 'Patient',
+                        'QaPlanIdentity': 'Phantom',
                         'ExportFolderPath': original,
                         'ExportExamination': False,
                         'ExportExaminationStructureSet': False,
