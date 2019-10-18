@@ -129,7 +129,7 @@ def main():
 
     # Define filter descriptions
     if 'Tomo' in beamset.DeliveryTechnique:
-        filters = []
+        filters = ['Create Transfer Plan']
     else:
         filters = ['Convert machine name',
                    'Convert machine energy (FFF)',
@@ -187,10 +187,13 @@ def main():
 
         # Disable filtering for Tomo and RayGateway
         if 'Tomo' in beamset.DeliveryTechnique:
-            t = None
-            f = None
+            if filters[0] in response['e']:
+                f.append('duplicate')
+            else:
+                f = None
             filters = ['x'] * 6
             response['e'] = [False] * 6
+            t = None
             response['c'] = None
 
         else:
@@ -229,6 +232,8 @@ def main():
                                block_accessory=filters[5] in response['e'],
                                block_tray_id=filters[5] in response['e'],
                                bar=True)
+
+
 
     # Finish up
     if success:
