@@ -34,26 +34,26 @@ def main():
         parent_beamset = None
 
     if 'Tomo' in parent_beamset.DeliveryTechnique:
-        success = DicomExport.send(case=case,
-                                   destination='RayGateway',
-                                   exam=exam,
-                                   beamset=parent_beamset,
-                                   ct=True,
-                                   structures=True,
-                                   plan=True,
-                                   plan_dose=True,
-                                   beam_dose=False,
-                                   ignore_warnings=True,
-                                   ignore_errors=False,
-                                   rename=None,
-                                   filters=None,
-                                   machine=None,
-                                   table=None,
-                                   round_jaws=False,
-                                   prescription=False,
-                                   block_accessory=False,
-                                   block_tray_id=False,
-                                   bar=True)
+        # success = DicomExport.send(case=case,
+        #                            destination='RayGateway',
+        #                            exam=exam,
+        #                            beamset=parent_beamset,
+        #                            ct=True,
+        #                            structures=True,
+        #                            plan=True,
+        #                            plan_dose=True,
+        #                            beam_dose=False,
+        #                            ignore_warnings=True,
+        #                            ignore_errors=False,
+        #                            rename=None,
+        #                            filters=None,
+        #                            machine=None,
+        #                            table=None,
+        #                            round_jaws=False,
+        #                            prescription=False,
+        #                            block_accessory=False,
+        #                            block_tray_id=False,
+        #                            bar=True)
 
         logging.debug('Status of sending parent plan: {}'.format(success))
         machine_1 = 'HDA0488'
@@ -80,7 +80,6 @@ def main():
         daughter_beamset = PlanOperations.find_beamset(plan=daughter_plan,
                                                        beamset_name=parent_beamset_name,
                                                        exact=False)
-        patient.Save()
         daughter_plan.SetCurrent()
         connect.get_current('Plan')
         daughter_beamset.SetCurrent()
@@ -89,6 +88,7 @@ def main():
             ComputeBeamDoses=True,
             DoseAlgorithm="CCDose",
             ForceRecompute=False)
+        patient.Save()
         success = DicomExport.send(case=case,
                                    destination='RayGateway',
                                    parent_plan=parent_plan.Name+':'+parent_beamset_name,
