@@ -10,6 +10,10 @@ import PlanOperations
 
 
 def main():
+    # Script will, determine the current machine set for which this beamset is planned
+    # Submit the first plan via export method
+    # Copy the beamset using the RS CopyAndAdjust method
+    # Recompute dose on Copied plan.
     # Get current patient, case, exam, plan, and beamset
     try:
         patient = connect.get_current('Patient')
@@ -30,6 +34,28 @@ def main():
         beamset = None
 
     if 'Tomo' in beamset.DeliveryTechnique:
+        success = DicomExport.send(case=case,
+                                   destination='RayGateway',
+                                   exam=exam,
+                                   beamset=beamset,
+                                   ct=True,
+                                   structures=True,
+                                   plan=True,
+                                   plan_dose=True,
+                                   beam_dose=False,
+                                   ignore_warnings=True,
+                                   ignore_errors=False,
+                                   rename=None,
+                                   filters=None,
+                                   machine=None,
+                                   table=None,
+                                   round_jaws=False,
+                                   prescription=False,
+                                   block_accessory=False,
+                                   block_tray_id=False,
+                                   bar=True)
+
+        logging.debug('Status of sending parent plan: {}'.format(success))
         machine_1 = 'HDA0488'
         machine_2 = 'HDA0477'
         if machine_1 in beamset.MachineReference['MachineName']:

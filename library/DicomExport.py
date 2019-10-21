@@ -173,8 +173,7 @@ def send(case,
                 raygateway_args = info['aet']
             else:
                 # TODO: Export Patient plan delete the following to enable export
-                sys.exit('RayGateway Export is not supported at this time')
-
+                # sys.exit('RayGateway Export is not supported at this time')
                 logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
                 raygateway_args = info['aet']
 
