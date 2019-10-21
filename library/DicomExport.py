@@ -107,6 +107,7 @@ def send(case,
          round_jaws=False,
          block_accessory=False,
          block_tray_id=False,
+         parent_plan=None,
          bar=True):
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
@@ -257,6 +258,7 @@ def send(case,
             bar.update(text='Exporting DICOM files to temporary folder')
 
     try:
+        # Flag set for Tomo DQA
         if qa_plan is not None:
             if raygateway_args is None and filters is not None and 'tomo_dqa' in filters:
                 # Save to the file destination for filtering
@@ -275,20 +277,6 @@ def send(case,
 
             elif raygateway_args is not None:
 
-                # TODO: QA RayGateway - when supported these commands must be tested
-                # Try to export to RayGateway
-                # args = {'IgnorePreConditionWarnings': ignore_warnings,
-                #         'QaPlanIdentity': 'Phantom',
-                #         'AEHostname': host,
-                #         'AEPort': port,
-                #         'CallingAETitle': 'RayStation',
-                #         'CalledAETitle': aet,
-                #         'ExportFolderPath': '',
-                #         'ExportExamination': True,
-                #         'ExportExaminationStructureSet': True,
-                #         'ExportBeamSet': True,
-                #         'ExportBeamSetDose': True,
-                #         'ExportBeamSetBeamDose': True}
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
                         'QaPlanIdentity': 'Phantom',
                         'RayGatewayTitle': raygateway_args,
@@ -315,8 +303,13 @@ def send(case,
             del rg_args['ExportFolderPath']
 
             try:
-                case.ScriptableDicomExport(**args)
-                logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
+                if parent_plan is None:
+                    case.ScriptableDicomExport(**args)
+                    logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
+                else:
+                    beamset.SendTransferredPlanToRayGateway(RayGatewayTitle='RAYGATEWAY',
+                                                            PreviousBeamSet=parent_plan,
+                                                            OriginalBeamSet=parent_plan)
 
                 if isinstance(bar, UserInterface.ProgressBar):
                     bar.close()

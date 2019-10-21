@@ -25,19 +25,19 @@ def main():
         sys.exit('This script requires a patient to be loaded')
 
     try:
-        plan = connect.get_current('Plan')
-        beamset = connect.get_current('BeamSet')
+        parent_plan = connect.get_current('Plan')
+        parent_beamset = connect.get_current('BeamSet')
 
     except Exception:
         logging.debug('A plan and/or beamset is not loaded; plan export options will be disabled')
-        plan = None
-        beamset = None
+        parent_plan = None
+        parent_beamset = None
 
-    if 'Tomo' in beamset.DeliveryTechnique:
+    if 'Tomo' in parent_beamset.DeliveryTechnique:
         success = DicomExport.send(case=case,
                                    destination='RayGateway',
                                    exam=exam,
-                                   beamset=beamset,
+                                   beamset=parent_beamset,
                                    ct=True,
                                    structures=True,
                                    plan=True,
@@ -58,23 +58,23 @@ def main():
         logging.debug('Status of sending parent plan: {}'.format(success))
         machine_1 = 'HDA0488'
         machine_2 = 'HDA0477'
-        if machine_1 in beamset.MachineReference['MachineName']:
+        if machine_1 in parent_beamset.MachineReference['MachineName']:
             parent_machine = machine_1
             daughter_machine = machine_2
-        elif machine_2 in beamset.MachineReference['MachineName']:
+        elif machine_2 in parent_beamset.MachineReference['MachineName']:
             parent_machine = machine_2
             daughter_machine = machine_1
         else:
             logging.error('Unknown Tomo System, Aborting')
-            sys.exit('Unknown Tomo System: {} Aborting'.format(beamset.MachineReference['MachineName']))
+            sys.exit('Unknown Tomo System: {} Aborting'.format(parent_beamset.MachineReference['MachineName']))
 
         case.CopyAndAdjustTomoPlanToNewMachine(
-                PlanName=plan.Name,
+                PlanName=parent_plan.Name,
                 NewMachineName=daughter_machine,
                 OnlyCopyAndChangeMachine=False)
 
-        parent_beamset_name = beamset.DicomPlanLabel
-        daughter_plan_name = plan.Name + '_Transferred'
+        parent_beamset_name = parent_beamset.DicomPlanLabel
+        daughter_plan_name = parent_plan.Name + '_Transferred'
         daughter_plan = case.TreatmentPlans[daughter_plan_name]
 
         daughter_beamset = PlanOperations.find_beamset(plan=daughter_plan,
@@ -89,6 +89,27 @@ def main():
             ComputeBeamDoses=True,
             DoseAlgorithm="CCDose",
             ForceRecompute=False)
+        success = DicomExport.send(case=case,
+                                   destination='RayGateway',
+                                   parent_plan=parent_plan.Name+':'+parent_beamset_name,
+                                   exam=exam,
+                                   beamset=daughter_beamset,
+                                   ct=True,
+                                   structures=True,
+                                   plan=True,
+                                   plan_dose=True,
+                                   beam_dose=False,
+                                   ignore_warnings=True,
+                                   ignore_errors=False,
+                                   rename=None,
+                                   filters=None,
+                                   machine=None,
+                                   table=None,
+                                   round_jaws=False,
+                                   prescription=False,
+                                   block_accessory=False,
+                                   block_tray_id=False,
+                                   bar=True)
 
 
 
