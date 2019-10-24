@@ -265,10 +265,10 @@ def send(case,
                 # TODO: resolve the RS phantom bug to allow the appropriate export of the
                 #       phantom based plan.
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
-                        'QaPlanIdentity': 'Patient',
+                        'QaPlanIdentity': 'Phantom',
                         'ExportFolderPath': original,
                         'ExportExamination': False,
-                        'ExportExaminationStructureSet': False,
+                        'ExportExaminationStructureSet': True,
                         'ExportBeamSet': True,
                         'ExportBeamSetDose': True,
                         'ExportBeamSetBeamDose': True}
@@ -307,9 +307,11 @@ def send(case,
                     case.ScriptableDicomExport(**args)
                     logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
                 else:
+
                     beamset.SendTransferredPlanToRayGateway(RayGatewayTitle='RAYGATEWAY',
                                                             PreviousBeamSet=parent_plan,
-                                                            OriginalBeamSet=parent_plan)
+                                                            OriginalBeamSet=parent_plan,
+                                                            IgnorePreConditionWarnings=ignore_warnings)
 
                 if isinstance(bar, UserInterface.ProgressBar):
                     bar.close()
