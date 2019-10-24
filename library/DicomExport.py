@@ -265,7 +265,7 @@ def send(case,
                 # TODO: resolve the RS phantom bug to allow the appropriate export of the
                 #       phantom based plan.
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
-                        'QAPlanIdentityPhantom': 'Patient',
+                        'QAPlanIdentity': 'Patient',
                         'ExportFolderPath': original,
                         'ExportExamination': False,
                         'ExportExaminationStructureSet': False,
