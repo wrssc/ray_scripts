@@ -33,6 +33,7 @@ import time
 import connect
 import UserInterface
 import DicomExport
+import TomoExport
 
 
 def main():
@@ -89,7 +90,7 @@ def main():
                 ui = connect.get_current('ui')
                 ui.TitleBar.MenuItem['Plan Evaluation'].Click()
                 ui.TitleBar.MenuItem['Plan Evaluation'].Popup.MenuItem['Plan Evaluation'].Click()
-                ui.TabControl_ToolBar.Approval.Select()
+                ui.TabControl_ToolBar.TabItem._Approval.Select()
                 connect.await_user_input('Approve the plan now, then continue the script')
 
             else:
@@ -121,6 +122,17 @@ def main():
                 ignore = True
     for b in DicomExport.machines(beamset):
         logging.debug('list of machines is {}'.format(b))
+
+    # At this point we'll diverge from the two strategies for export
+    if 'Tomo' in beamset.DeliveryTechnique:
+        status.aborted()
+        TomoExport.export_tomo_plan(patient=patient,
+                                    exam=exam,
+                                    case=case,
+                                    parent_plan=plan,
+                                    parent_beamset=beamset,
+                                    script_status=status)
+
 
     # Prompt user for DICOM export details
     status.next_step(text='In the dialog window that appears, check each DICOM destination that you would like to ' +
@@ -232,8 +244,6 @@ def main():
                                block_accessory=filters[5] in response['e'],
                                block_tray_id=filters[5] in response['e'],
                                bar=True)
-
-
 
     # Finish up
     if success:

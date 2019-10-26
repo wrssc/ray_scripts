@@ -59,32 +59,49 @@ def main():
 
     except Exception:
         logging.debug('A plan and/or beamset is not loaded; plan export options will be disabled')
-        plan = None
-        beamset = None
+        UserInterface.WarningBox('This script requires a plan and beamset to be loaded')
+        sys.exit('This script requires a plan and beamset to be loaded')
 
     # Find the correct verification plan for this beamset
-    try:
-        indx = 0
-        for vp in plan.VerificationPlans:
-            for bs in vp.ForTreatmentPlan.BeamSets:
-                if vp.ForTreatmentPlan.Name == plan.Name and \
-                        bs.DicomPlanLabel == beamset.DicomPlanLabel:
-                    index_not_found = False
-                else:
-                    indx += 1
+    logging.debug('Looking through verifications plans for plan {} and beamset {}'.format(
+        plan.Name, beamset.DicomPlanLabel))
 
-    except IndexError:
-        logging.debug('All plans searched through indx = {}'.format(indx))
-        index_not_found = True
+    verification_plans = plan.VerificationPlans
+    qa_plan = None
+    # TODO: Extend for multiple verification plans
+    for vp in verification_plans:
+        logging.debug('vp is {}'.format(vp.BeamSet.DicomPlanLabel))
+        if vp.OfRadiationSet.DicomPlanLabel == beamset.DicomPlanLabel:
+            qa_plan = vp
+            break
 
-    if index_not_found:
+    # indx = 0
+    # index_not_found = True
+    # try:
+    #     for vbs in plan.VerificationPlans[str(indx)].ForTreatmentPlan.BeamSets:
+    #         while index_not_found:
+    #             vp_plan_name = plan.VerificationPlans[str(indx)].ForTreatmentPlan.Name
+    #             vp_beamset_name = vbs.DicomPlanLabel
+    #             logging.debug('Current verif plan is {} and beamset {}'.format(vp_plan_name,vp_beamset_name))
+    #             if vp_beamset_name == beamset.DicomPlanLabel and vp_plan_name == plan.Name:
+    #                 index_not_found = False
+    #                 logging.debug('Verification index found {}'.format(indx))
+    #                 break
+    #             else:
+    #                 indx += 1
+
+    # except KeyError:
+    #     logging.debug('All plans searched through indx = {}'.format(indx))
+    #     index_not_found = True
+
+    if qa_plan is None:
         logging.warning("verification plan for {} could not be found.".format(beamset.DicomPlanLabel))
         sys.exit("Could not find beamset optimization")
 
-    else:
-        qa_plan = plan.VerificationPlans[indx]
-        logging.info('verification plan found, exporting {} for beamset {}'.format(
-            plan.VerificationPlans[indx].BeamSet.DicomPlanLabel, beamset.DicomPlanLabel))
+    # else:
+    #     qa_plan = plan.VerificationPlans[indx]
+    #     logging.info('verification plan found, exporting {} for beamset {}'.format(
+    #         plan.VerificationPlans[indx].BeamSet.DicomPlanLabel, beamset.DicomPlanLabel))
 
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'a': 'Enter the Gantry period as [ss.ff]:',
@@ -107,6 +124,9 @@ def main():
     logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
         response['a']))
 
+    daughter_beamset = qa_plan.BeamSet
+    # daughter_beamset.SetCurrent()
+    # connect.get_current('BeamSet')
     success = DicomExport.send(case=case,
                                destination=response['b'],
                                qa_plan=qa_plan,

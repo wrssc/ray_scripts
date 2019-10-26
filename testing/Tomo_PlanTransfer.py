@@ -1,4 +1,41 @@
-'''Tomo Export Test'''
+""" Tomo Plan transfer
+
+    A temporary plan transfer module that will unfortunately not allow for DQA plans to be properly exported
+    due to a plan name conflict. Main purpose is to allow an existing patient plan to be copied as a transfer
+    (daughter - nonPrimary plan in iDMS).
+
+    Version:
+    1.0
+
+
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
+    """
+
+__author__ = 'Adam Bayliss and Patrick Hill'
+__contact__ = 'rabayliss@wisc.edu'
+__date__ = '29-Jul-2019'
+__version__ = '1.0.0'
+__status__ = 'Production'
+__deprecated__ = False
+__reviewer__ = ''
+__reviewed__ = ''
+__raystation__ = '8b.SP2'
+__maintainer__ = 'One maintainer'
+__email__ = 'rabayliss@wisc.edu'
+__license__ = 'GPLv3'
+__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__help__ = ''
+__credits__ = []
 
 import sys
 import logging
@@ -37,26 +74,6 @@ def main():
         parent_beamset = None
 
     if 'Tomo' in parent_beamset.DeliveryTechnique:
-        # success = DicomExport.send(case=case,
-        #                            destination='RayGateway',
-        #                            exam=exam,
-        #                            beamset=parent_beamset,
-        #                            ct=True,
-        #                            structures=True,
-        #                            plan=True,
-        #                            plan_dose=True,
-        #                            beam_dose=False,
-        #                            ignore_warnings=True,
-        #                            ignore_errors=False,
-        #                            rename=None,
-        #                            filters=None,
-        #                            machine=None,
-        #                            table=None,
-        #                            round_jaws=False,
-        #                            prescription=False,
-        #                            block_accessory=False,
-        #                            block_tray_id=False,
-        #                            bar=False)
         success = True
 
         logging.debug('Status of sending parent plan: {}'.format(success))
@@ -110,9 +127,6 @@ def main():
             'Then continue script')
         parent_plan_iDMS_name = parent_plan.Name + ':' + parent_beamset_name
         # daughter_beamset.SendTransferredPlanToRayGateway(RayGatewayTitle='RAYGATEWAY',PreviousBeamSet=parent_plan_iDMS_name,OriginalBeamSet=parent_plan_iDMS_name,IgnorePreConditionWarnings=True)
-
-
-
 
         success = DicomExport.send(case=case,
                                    destination='RayGateway',

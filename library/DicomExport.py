@@ -170,12 +170,15 @@ def send(case,
             if qa_plan:
                 # TODO: QA RayGateway delete the sys exit when QA Plans are supported
                 sys.exit('RayGateway Export is not supported at this time')
-                logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
+                logging.debug('RayGateway to be used in {} to export QA plan, association unsupported.'
+                              .format(info['host']))
                 raygateway_args = info['aet']
+                logging.debug('Incorrect argument sent RayGateWay Title: {}, should be {}'.format(raygateway_args,d))
             else:
                 # TODO: Export Patient plan delete the following to enable export
                 # sys.exit('RayGateway Export is not supported at this time')
-                logging.debug('RayGateway to be used in {}, association unsupported.'.format(info['host']))
+                logging.debug('RayGateway to be used in {} to export patient plan, association unsupported.'
+                              .format(info['host']))
                 raygateway_args = info['aet']
 
         elif len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
@@ -265,7 +268,7 @@ def send(case,
                 # TODO: resolve the RS phantom bug to allow the appropriate export of the
                 #       phantom based plan.
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
-                        'QAPlanIdentity': 'Patient',
+                        'QaPlanIdentity': 'Patient',
                         'ExportFolderPath': original,
                         'ExportExamination': False,
                         'ExportExaminationStructureSet': False,
@@ -278,7 +281,7 @@ def send(case,
             elif raygateway_args is not None:
 
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
-                        'QaPlanIdentity': 'Phantom',
+                        'QaPlanIdentity': 'Patient',
                         'RayGatewayTitle': raygateway_args,
                         'ExportFolderPath': '',
                         'ExportExamination': True,
@@ -287,7 +290,7 @@ def send(case,
                         'ExportBeamSetDose': True,
                         'ExportBeamSetBeamDose': False}
 
-                qa_plan.ScriptableQADicomExport(**args)
+                qa_plan.ScriptableDicomExport(**args)
 
         elif raygateway_args is not None and len(destination) == 1:
             if 'anonymize' in info and info['anonymize']:
