@@ -66,8 +66,12 @@ def find_beamset(plan, beamset_name, exact=True):
     # Search the current plan for the provided beamset name, and return the beamset object
     beamset_not_found = True
     if exact:
-        if beamset_name in plan.BeamSets:
-            beamset = plan.BeamSets[beamset_name]
+        beamset = None
+        for b in plan.BeamSets:
+            if beamset_name == b.DicomPlanLabel:
+                beamset = plan.BeamSets[beamset_name]
+
+        if beamset is not None:
             return beamset
         else:
             logging.info('No beamset with name exactly matching {} found in {}'.format(

@@ -132,6 +132,8 @@ def main():
                                     parent_plan=plan,
                                     parent_beamset=beamset,
                                     script_status=status)
+        quit()
+
 
 
     # Prompt user for DICOM export details
