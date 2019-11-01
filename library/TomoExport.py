@@ -172,7 +172,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
         parent_beamset_name = b.DicomPlanLabel
 
         p_name = parent_plan.Name[:14] if len(parent_plan.Name) > 14 else parent_plan.Name
-        new_bs_name = p_name.rjust(14, '_') + '_' + str(indx)
+        new_bs_name = p_name.ljust(14, '_') + '_' + str(indx)
 
         daughter_beamset = PlanOperations.find_beamset(plan=daughter_plan,
                                                        beamset_name=new_bs_name,
