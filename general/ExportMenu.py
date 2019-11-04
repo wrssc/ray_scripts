@@ -132,8 +132,8 @@ def main():
                                     parent_plan=plan,
                                     parent_beamset=beamset,
                                     script_status=status,
-                                    rs_test_only=False)
-        quit()
+                                    rs_test_only=True)
+        return
 
 
 

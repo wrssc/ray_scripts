@@ -198,6 +198,9 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
             logging.error('No daughter beamset {} found in {}, exiting'.format(
                 parent_beamset_name, daughter_plan.Name))
             sys.exit('Could not find transferred beamset for export')
+        elif daughter_beamset.FractionationPattern.NumberOfFractions != b.FractionationPattern.NumberOfFractions:
+            logging.error('Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
+            sys.exit('Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
 
         daughter_plan.SetCurrent()
         connect.get_current('Plan')
