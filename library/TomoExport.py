@@ -55,7 +55,7 @@ import DicomExport
 import PlanOperations
 
 
-def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_status):
+def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_status, rs_test_only=False):
     # Script will, determine the current machine set for which this beamset is planned
     # Submit the first plan via export method
     # Copy the beamset using the RS CopyAndAdjust method
@@ -79,9 +79,6 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
                                         docstring=__doc__,
                                         help=__help__)
 
-
-
-
     if parent_beamset.Review.ApprovalStatus == 'Approved':
         logging.debug('Plan status is approved.')
         status.next_step(text='Plan is approved, proceeding with sending the plan')
@@ -94,26 +91,29 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
     exported_plans = []
     for b in parent_plan.BeamSets:
         parent_beamset = b
-        success = DicomExport.send(case=case,
-                                   destination='RayGateway',
-                                   exam=exam,
-                                   beamset=parent_beamset,
-                                   ct=True,
-                                   structures=True,
-                                   plan=True,
-                                   plan_dose=True,
-                                   beam_dose=False,
-                                   ignore_warnings=True,
-                                   ignore_errors=False,
-                                   rename=None,
-                                   filters=None,
-                                   machine=None,
-                                   table=None,
-                                   round_jaws=False,
-                                   prescription=False,
-                                   block_accessory=False,
-                                   block_tray_id=False,
-                                   bar=True)
+        if rs_test_only:
+            success = True
+        else:
+            success = DicomExport.send(case=case,
+                                       destination='RayGateway',
+                                       exam=exam,
+                                       beamset=parent_beamset,
+                                       ct=True,
+                                       structures=True,
+                                       plan=True,
+                                       plan_dose=True,
+                                       beam_dose=False,
+                                       ignore_warnings=True,
+                                       ignore_errors=False,
+                                       rename=None,
+                                       filters=None,
+                                       machine=None,
+                                       table=None,
+                                       round_jaws=False,
+                                       prescription=False,
+                                       block_accessory=False,
+                                       block_tray_id=False,
+                                       bar=True)
 
         logging.debug('Status of sending parent plan {}_{}: {}'.format(
             parent_plan.Name, parent_beamset.DicomPlanLabel, success))
@@ -156,9 +156,19 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
         PlanName=parent_plan.Name,
         NewMachineName=daughter_machine,
         OnlyCopyAndChangeMachine=False)
+    logging.info('Transfer plan generated for {}: moving {} to {}'.format(
+        parent_plan.Name, parent_machine, daughter_machine))
     status.next_step(text='Transfer plan finished, computing dose.')
     patient.Save()
 
+    # Nutty way of naming plans in RS:
+    # Transfer Plan Name = Original Plan Name + '_Transferred'
+    # For Beamsets:
+    # If the number of characters in the Transfer plan name exceeds 14 char:
+    #   Take Transfer Plan Name, crop to 14 chars  and add _1
+    # Else If less than 14:
+    #   If the number of beamsets is 1 don't add the _1
+    #   If the number of beamsets is > 1 add the index, e.g. '_2'
     indx = 0
 
     daughter_plan_name = parent_plan.Name + '_Transferred'
@@ -171,8 +181,15 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
         indx += 1
         parent_beamset_name = b.DicomPlanLabel
 
-        p_name = parent_plan.Name[:14] if len(parent_plan.Name) > 14 else parent_plan.Name
-        new_bs_name = p_name.ljust(14, '_') + '_' + str(indx)
+        if len(daughter_plan_name) >= 14:
+            new_bs_name = daughter_plan_name[:13] + '_' + str(indx)
+        else:
+            if indx == 1:
+                new_bs_name = daughter_plan_name
+            else:
+                new_bs_name = daughter_plan_name + '_' + str(indx)
+        # p_name = parent_plan.Name[:14] if len(parent_plan.Name) > 14 else parent_plan.Name
+        # new_bs_name = p_name.ljust(14, '_') + '_' + str(indx)
 
         daughter_beamset = PlanOperations.find_beamset(plan=daughter_plan,
                                                        beamset_name=new_bs_name,
@@ -212,27 +229,30 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
         # Sending report
         status.next_step('Transfer plan approved. Creating transfer plan report')
 
-        success = DicomExport.send(case=case,
-                                   destination='RayGateway',
-                                   parent_plan=parent_plan_iDMS_name,
-                                   exam=exam,
-                                   beamset=daughter_beamset,
-                                   ct=True,
-                                   structures=True,
-                                   plan=True,
-                                   plan_dose=True,
-                                   beam_dose=False,
-                                   ignore_warnings=True,
-                                   ignore_errors=False,
-                                   rename=None,
-                                   filters=None,
-                                   machine=None,
-                                   table=None,
-                                   round_jaws=False,
-                                   prescription=False,
-                                   block_accessory=False,
-                                   block_tray_id=False,
-                                   bar=True)
+        if rs_test_only:
+            success = True
+        else:
+            success = DicomExport.send(case=case,
+                                       destination='RayGateway',
+                                       parent_plan=parent_plan_iDMS_name,
+                                       exam=exam,
+                                       beamset=daughter_beamset,
+                                       ct=True,
+                                       structures=True,
+                                       plan=True,
+                                       plan_dose=True,
+                                       beam_dose=False,
+                                       ignore_warnings=True,
+                                       ignore_errors=False,
+                                       rename=None,
+                                       filters=None,
+                                       machine=None,
+                                       table=None,
+                                       round_jaws=False,
+                                       prescription=False,
+                                       block_accessory=False,
+                                       block_tray_id=False,
+                                       bar=True)
         status.next_step('Sent transfer plan to iDMS')
 
     if success:

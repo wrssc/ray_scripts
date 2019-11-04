@@ -131,7 +131,8 @@ def main():
                                     case=case,
                                     parent_plan=plan,
                                     parent_beamset=beamset,
-                                    script_status=status)
+                                    script_status=status,
+                                    rs_test_only=False)
         quit()
 
 
