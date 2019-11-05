@@ -568,11 +568,25 @@
                 <priority>1</priority>
             </roi>
             <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
@@ -1027,11 +1041,25 @@
                 <priority>1</priority>
             </roi>
             <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
@@ -1486,11 +1514,25 @@
                 <priority>1</priority>
             </roi>
             <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
@@ -1945,11 +1987,25 @@
                 <priority>1</priority>
             </roi>
             <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
@@ -2404,11 +2460,25 @@
                 <priority>1</priority>
             </roi>
             <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
@@ -2863,11 +2933,25 @@
                 <priority>1</priority>
             </roi>
             <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
@@ -3322,11 +3406,25 @@
                 <priority>1</priority>
             </roi>
             <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
@@ -3784,11 +3882,25 @@
                 <priority>1</priority>
             </roi>
             <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
@@ -4267,11 +4379,25 @@
                 <priority>1</priority>
             </roi>
             <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">35</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>SpinalCord_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50</dose>
                 <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">40</dose>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
