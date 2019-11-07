@@ -137,10 +137,11 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
 
     status.next_step(text='Go to iDMS and approve parent plan(s): \n{}'.format(export_names))
 
-    connect.await_user_input(
-        'Please go to the iDMS workstation and approve plan(s): \n{} '.format(
-            export_names) +
-        'and continue this script, while I make a transfer plan.')
+    # Uncomment if users struggle with iDMS approval.
+    # connect.await_user_input(
+    #     'Please go to the iDMS workstation and approve plan(s): \n{} '.format(
+    #         export_names) +
+    #     'and continue this script, while I make a transfer plan.')
 
     # Hard coded machine names
     machine_1 = 'HDA0488'
