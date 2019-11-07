@@ -77,7 +77,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
         steps.append('Compute transfer plan dose for {}'.format(b.DicomPlanLabel))
         steps.append('Approve the transfer plan for {}'.format(b.DicomPlanLabel))
     for b in parent_plan.BeamSets:
-        steps.append('Export {} to iDMS'.format(b.DicomPlanLabel))
+        steps.append('Export transfer version of {} to iDMS'.format(b.DicomPlanLabel))
 
     status = UserInterface.ScriptStatus(steps=steps,
                                         docstring=__doc__,
@@ -137,6 +137,9 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
 
     status.next_step(text='Go to iDMS and approve parent plan(s): \n{}'.format(export_names))
 
+    UserInterface.MessageBox(
+        'Please go to the iDMS workstation and approve plan(s): \n{} '.format(export_names) +
+        'while transfer plans are made.')
     # Uncomment if users struggle with iDMS approval.
     # connect.await_user_input(
     #     'Please go to the iDMS workstation and approve plan(s): \n{} '.format(

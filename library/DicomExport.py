@@ -85,6 +85,10 @@ local_port = 105
 personal_tags = ['PatientName', 'PatientID', 'OtherPatientIDs', 'OtherPatientIDsSequence', 'PatientBirthDate']
 
 
+class InvalidOperationException(Exception):
+    pass
+
+
 def send(case,
          destination,
          exam=None,
@@ -173,7 +177,7 @@ def send(case,
                 logging.debug('RayGateway to be used in {} to export QA plan, association unsupported.'
                               .format(info['host']))
                 raygateway_args = info['aet']
-                logging.debug('Incorrect argument sent RayGateWay Title: {}, should be {}'.format(raygateway_args,d))
+                logging.debug('Incorrect argument sent RayGateWay Title: {}, should be {}'.format(raygateway_args, d))
             else:
                 # TODO: Export Patient plan delete the following to enable export
                 # sys.exit('RayGateway Export is not supported at this time')
@@ -310,7 +314,6 @@ def send(case,
                     case.ScriptableDicomExport(**args)
                     logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
                 else:
-
                     beamset.SendTransferredPlanToRayGateway(RayGatewayTitle='RAYGATEWAY',
                                                             PreviousBeamSet=parent_plan,
                                                             OriginalBeamSet=parent_plan,
@@ -320,18 +323,26 @@ def send(case,
                     bar.close()
 
                 UserInterface.MessageBox('DICOM export was successful', 'Export Success')
-
+#            except InvalidOperationException as error:
+#                if 'already exist' in error.message:
+#                    logging.debug('This plan {} has already been sent'.format(parent_plan.Name))
+#                    status = True
+#                else:
+#                    status = False
+#                    logging.error('DicomExport failed {}'.format(error.message))
+#                    UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
+#                    raise
             except Exception as error:
-                status = False
                 if hasattr(error, 'message'):
+                    status = False
                     logging.error('DicomExport failed {}'.format(error.message))
                     UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
-
+                    raise
                 else:
+                    status = False
                     logging.error('DicomExport failed {}'.format(error))
                     UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
-
-                raise
+                    raise
 
             return status
 
