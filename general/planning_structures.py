@@ -35,6 +35,7 @@
             the required method.
     1.0.4b Save the user mapping for this structure set as an xml file to be loaded by create_goals
     1.0.5 Exclude InnerAir and FOV from Export, add IGRT Alignment Structure
+    1.0.6 Added the Normal_1cm structure to the list
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -301,6 +302,15 @@ def main():
 
     # Keep track of all rois that are created
     newly_generated_rois = []
+
+    # If a Brain structure exists, make a Normal_1cm
+    # TODO: Move this to a protocol creation
+    StructureName = 'Brain'
+    roi_check = all(StructureOperations.check_roi(case=case, exam=examination, rois=StructureName))
+    if roi_check:
+        generate_normal_1cm = True
+    else:
+        generate_normal_1cm = False
 
     # Redraw the clean external volume if necessary
     StructureName = 'ExternalClean'
@@ -1359,6 +1369,30 @@ def main():
                                examination=examination,
                                **Normal_2cm_defs)
         newly_generated_rois.append(Normal_2cm_defs.get("StructureName"))
+
+    if generate_normal_1cm:
+        Normal_1cm_defs = {
+            "StructureName": "Normal_1cm",
+            "ExcludeFromExport": True,
+            "VisualizeStructure": False,
+            "StructColor": " 255, 0, 255",
+            "SourcesA": ["ExternalClean"],
+            "MarginTypeA": "Expand",
+            "ExpA": [0] * 6,
+            "OperationA": "Union",
+            "SourcesB": PTVList,
+            "MarginTypeB": "Expand",
+            "ExpB": [1] * 6,
+            "OperationB": "Union",
+            "MarginTypeR": "Expand",
+            "ExpR": [0] * 6,
+            "OperationResult": "Subtraction",
+            "StructType": "Avoidance"}
+        make_boolean_structure(patient=patient,
+                               case=case,
+                               examination=examination,
+                               **Normal_2cm_defs)
+        newly_generated_rois.append(Normal_1cm_defs.get("StructureName"))
 
     # if dialogresponse == {}:
     #    status.finish('Script cancelled, inputs were not supplied')
