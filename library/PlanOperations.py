@@ -60,3 +60,26 @@ def find_optimization_index(plan, beamset, verbose_logging=True):
                     opt_index, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
                 ))
         return opt_index
+
+
+def find_beamset(plan, beamset_name, exact=True):
+    # Search the current plan for the provided beamset name, and return the beamset object
+    beamset_not_found = True
+    if exact:
+        beamset = None
+        for b in plan.BeamSets:
+            if beamset_name == b.DicomPlanLabel:
+                beamset = plan.BeamSets[beamset_name]
+
+        if beamset is not None:
+            return beamset
+        else:
+            logging.info('No beamset with name exactly matching {} found in {}'.format(
+                beamset_name,plan.Name))
+            return None
+    else:
+        for b in plan.BeamSets:
+            if beamset_name in b.DicomPlanLabel:
+                return b
+        logging.info('No beamset with name {} found in {}'.format(beamset_name,plan.Name))
+

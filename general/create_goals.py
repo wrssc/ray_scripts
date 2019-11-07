@@ -97,7 +97,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     v = prot_vol[0]
     i = 0
     # Find first volume exceeding target volume or find the end of the list
-    while v <= vol and i <= len(prot_vol)-1:
+    while v <= vol and i <= len(prot_vol) - 1:
         i += 1
         v = prot_vol[i]
     # Exceptions for target volumes exceeding or smaller than the minimum volume
@@ -213,10 +213,6 @@ def knowledge_based_goal(structure_name, goal_type, case, exam,
         logging.warning('knowledge_based_goal: Unsupported knowledge-based goal')
 
     return know_analysis
-
-
-
-
 
 
 def main():
@@ -432,7 +428,8 @@ def main():
             initial=target_initial,
             options=target_options,
             required=[])
-        print target_dialog.show()
+        print
+        target_dialog.show()
 
         # Process inputs
         # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
@@ -566,14 +563,14 @@ def main():
     # TODO: Go back to planning structs and generate a mapping to be used for OTVs, etc
     #  but for now, we'll match to the closest suffix
 
-    gen_obj_targets = ['OTV1_','sOTVu1_','OTV1_EZ_',
-                   'OTV2_','sOTVu2_','OTV2_EZ_',
-                   'OTV3_','sOTVu3_','OTV3_EZ_',
-                   'OTV4_','sOTVu4_','OTV4_EZ_',
-                   'OTV5_','sOTVu5_','OTV5_EZ_',
-                   'sOTVu1','sOTVu2','sOTVu3',
-                   'sOTVu4','sOTVu5',
-                   'ring1_','ring2_','ring3_','ring4_','ring5_']
+    gen_obj_targets = ['OTV1_', 'sOTVu1_', 'OTV1_EZ_',
+                       'OTV2_', 'sOTVu2_', 'OTV2_EZ_',
+                       'OTV3_', 'sOTVu3_', 'OTV3_EZ_',
+                       'OTV4_', 'sOTVu4_', 'OTV4_EZ_',
+                       'OTV5_', 'sOTVu5_', 'OTV5_EZ_',
+                       'sOTVu1', 'sOTVu2', 'sOTVu3',
+                       'sOTVu4', 'sOTVu5',
+                       'ring1_', 'ring2_', 'ring3_', 'ring4_', 'ring5_']
     obj_targets = []
     for r in rois:
         for g in gen_obj_targets:
@@ -606,7 +603,7 @@ def main():
                 # Correct the relative dose to the user-specified dose levels for this structure
                 if o_r in translation_map:
 
-                    s_dose = float(translation_map[o_r][1])# * float(o_d) / 100
+                    s_dose = float(translation_map[o_r][1])  # * float(o_d) / 100
                     Objectives.add_objective(o,
                                              exam=exam,
                                              case=case,
@@ -619,7 +616,7 @@ def main():
                                              checking=True)
                 else:
                     logging.debug('No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
-                        .format(o_n, o_r))
+                                  .format(o_n, o_r))
                     s_dose = 0
                     pass
             else:
@@ -634,8 +631,6 @@ def main():
                                          s_weight=None,
                                          restrict_beamset=None,
                                          checking=True)
-
-
 
 
 if __name__ == '__main__':
