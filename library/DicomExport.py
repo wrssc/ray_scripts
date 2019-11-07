@@ -261,6 +261,8 @@ def send(case,
         if qa_plan is not None:
             if raygateway_args is None and filters is not None and 'tomo_dqa' in filters:
                 # Save to the file destination for filtering
+                # TODO: resolve the RS phantom bug to allow the appropriate export of the
+                #       phantom based plan.
                 args = {'IgnorePreConditionWarnings': ignore_warnings,
                         'QaPlanIdentity': 'Patient',
                         'ExportFolderPath': original,

@@ -351,7 +351,7 @@ def create_beamset(patient, case, exam, plan,
 
     try:
         beamset.AddDosePrescriptionToRoi(RoiName=b.rx_target,
-                                         DoseVolume=80,
+                                         DoseVolume=95,
                                          PrescriptionType='DoseAtVolume',
                                          DoseValue=b.total_dose,
                                          RelativePrescriptionLevel=1,
