@@ -33,6 +33,7 @@ import time
 import connect
 import UserInterface
 import DicomExport
+import TomoExport
 
 
 def main():
@@ -89,7 +90,7 @@ def main():
                 ui = connect.get_current('ui')
                 ui.TitleBar.MenuItem['Plan Evaluation'].Click()
                 ui.TitleBar.MenuItem['Plan Evaluation'].Popup.MenuItem['Plan Evaluation'].Click()
-                ui.TabControl_ToolBar.Approval.Select()
+                ui.TabControl_ToolBar.TabItem._Approval.Select()
                 connect.await_user_input('Approve the plan now, then continue the script')
 
             else:
@@ -122,6 +123,20 @@ def main():
     for b in DicomExport.machines(beamset):
         logging.debug('list of machines is {}'.format(b))
 
+    # At this point we'll diverge from the two strategies for export
+    if 'Tomo' in beamset.DeliveryTechnique:
+        status.aborted()
+        TomoExport.export_tomo_plan(patient=patient,
+                                    exam=exam,
+                                    case=case,
+                                    parent_plan=plan,
+                                    parent_beamset=beamset,
+                                    script_status=status,
+                                    rs_test_only=False)
+        return
+
+
+
     # Prompt user for DICOM export details
     status.next_step(text='In the dialog window that appears, check each DICOM destination that you would like to ' +
                           'export to, what should be exported, and if a beamset is loaded, what treatment delivery ' +
@@ -129,7 +144,7 @@ def main():
 
     # Define filter descriptions
     if 'Tomo' in beamset.DeliveryTechnique:
-        filters = []
+        filters = ['Create Transfer Plan']
     else:
         filters = ['Convert machine name',
                    'Convert machine energy (FFF)',
@@ -187,10 +202,13 @@ def main():
 
         # Disable filtering for Tomo and RayGateway
         if 'Tomo' in beamset.DeliveryTechnique:
-            t = None
-            f = None
+            if filters[0] in response['e']:
+                f.append('duplicate')
+            else:
+                f = None
             filters = ['x'] * 6
             response['e'] = [False] * 6
+            t = None
             response['c'] = None
 
         else:

@@ -174,8 +174,8 @@
         </roi>
         <roi>
             <name>Liver-GTV</name>
-            <type dir="lt">DX</type>
-            <volume units="cc" type="residual">700</volume>
+            <type dir="lt" know="resid_vol">DX</type>
+            <volume units="cc">700</volume>
             <dose units="Gy">15</dose>
             <priority>3</priority>
         </roi>
