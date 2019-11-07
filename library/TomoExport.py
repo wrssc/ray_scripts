@@ -15,8 +15,12 @@
     -Send the daughter plan to RayGateway
 
     Version:
-    1.0
+    1.0 Support for multiple beamsets (all assumed to be sent at once).
 
+    TODO: Eliminate the hokey dismissal of the script status as an input. (add delete steps
+       to existing script status method?)
+    TODO: Support single beamset (partial total plan) export
+    TODO: Error catching from raygateway, existing plan error? Try to send anyway
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -33,7 +37,7 @@
 
 __author__ = 'Adam Bayliss and Patrick Hill'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '29-Jul-2019'
+__date__ = '07-Nov-2019'
 __version__ = '1.0.0'
 __status__ = 'Production'
 __deprecated__ = False
@@ -64,15 +68,14 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
     script_status.close()
 
     steps = ['Approve and save structures/plan']
-    b_indx = 0
+    # Set up the workflow steps.
     for b in parent_plan.BeamSets:
         steps.append('Export beamset: {} '.format(b.DicomPlanLabel))
-
     steps.append('Go to iDMS and approve all primary plans')
     steps.append('Create transfer plan')
     for b in parent_plan.BeamSets:
-        steps.append('Approve the transfer plan for {}'.format(b.DicomPlanLabel))
         steps.append('Compute transfer plan dose for {}'.format(b.DicomPlanLabel))
+        steps.append('Approve the transfer plan for {}'.format(b.DicomPlanLabel))
     for b in parent_plan.BeamSets:
         steps.append('Export {} to iDMS'.format(b.DicomPlanLabel))
 
@@ -171,7 +174,6 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
     #   If the number of beamsets is 1 don't add the _1
     #   If the number of beamsets is > 1 add the index, e.g. '_2'
     indx = 0
-
     daughter_plan_name = parent_plan.Name + '_Transferred'
     daughter_plan = case.TreatmentPlans[daughter_plan_name]
     parent_plan_name = parent_plan.Name
@@ -179,6 +181,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
     patient.Save()
 
     transfer_export_plans = []
+    # Loop through beamsets in the plan
     for b in parent_plan.BeamSets:
         indx += 1
         parent_beamset_name = b.DicomPlanLabel
@@ -217,21 +220,18 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
 
         status.next_step(text='Transfer plan dose computed, setting up dose comparison.')
 
-        parent_plan_iDMS_name = parent_plan.Name + ':' + parent_beamset_name
-
         ui = connect.get_current('ui')
         ui.TitleBar.MenuItem['Plan Evaluation'].Click()
         ui.TitleBar.MenuItem['Plan Evaluation'].Popup.MenuItem['Plan Evaluation'].Click()
-        # ui.TabControl_ToolBar.ToolBarGroup['_0'].RayPanelDropDownItem.DropDownButton_Select_layout.Click()
+        ui.TabControl_ToolBar.TabItem._Approval.Select()
+        ui.ToolPanel.TabItem['Scripting'].Select()
         connect.await_user_input(
             'Compare the transfer beamset: {} and parent beamset {}'
             .format(daughter_beamset.DicomPlanLabel, parent_beamset_name)
             + ' dose distributions and continue, if acceptable approve this beamset.')
-        ui.TabControl_ToolBar.TabItem._Approval.Select()
-        ui.ToolPanel.TabItem['Scripting'].Select()
+        status.next_step(text='Transfer plan accepted')
 
         # Sending report
-        status.next_step('Transfer plan approved. Exporting {}'.format(daughter_beamset.DicomPlanLabel))
 
     # For multiple beamsets, RayStation will not send a beamset to the raygateway for a transferred plan
     # when a single beamset is approved but the plan is not. Thus, we loop though the beamsets again now that
@@ -256,7 +256,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
         connect.get_current('Plan')
         daughter_beamset.SetCurrent()
         connect.get_current('BeamSet')
-
+        status.next_step('Exporting {}'.format(daughter_beamset.DicomPlanLabel))
         if rs_test_only:
             success = True
         else:
