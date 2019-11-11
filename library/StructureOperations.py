@@ -106,6 +106,29 @@ def exists_poi(case, pois):
     return poi_exists
 
 
+def has_coordinates_poi(case, exam, poi):
+    """See if pois have locations
+    Currently this script will simply look to see if the coordinates are finite.
+
+    :param case: desired RS case object from connect
+    :param exam: desired RS exam object from connect
+    :param poi: type(str) of an existing point of interest name
+
+    TODO Accept an optional ROI as an input, if we have one, then
+        Add a bounding box check using:
+            case.PatientModel.StructureSets[exam.Name].RoiGeometries['External'].GetBoundingBox
+    Usage:
+        import StructureOperations
+        test = StructureOperations.has_coordinates_poi(case=case, exam=exam, poi='SimFiducials')"""
+
+    poi_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[poi]
+    test_points = [abs(poi_position.Point.x) < 1e5 , abs(poi_position.Point.y) < 1e5, abs(poi_position.Point.z < 1e5)]
+    if all(test_points):
+        return True
+    else:
+        return False
+
+
 def check_roi(case, exam, rois):
     """ See if the provided rois has contours, later check for contiguous"""
     if type(rois) is not list:

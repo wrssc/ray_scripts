@@ -1138,6 +1138,36 @@ def rename_beams():
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
 
 
+def exists_dsp(beamset, dsps):
+    """See if rois is in the list"""
+    if type(dsps) is not list:
+        dsps = [dsps]
+
+    defined_dsps = []
+    for p in beamset.DoseSpecificationPoints:
+        defined_dsps.append(p.Name)
+
+    dsp_exists = []
+
+    for p in dsps:
+        i = 0
+        exact_match = False
+        if p in defined_dsps:
+            while i < len(defined_dsps):
+                if p == defined_dsps[i]:
+                    logging.debug('{} is an exact match to {}'.format(p, defined_dsps[i]))
+                    exact_match = True
+                i += 1
+            if exact_match:
+                dsp_exists.append(True)
+            else:
+                dsp_exists.append(False)
+        else:
+            dsp_exists.append(False)
+
+    return dsp_exists
+
+
 def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     """
     :param plan: current plan
@@ -1174,12 +1204,10 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     else:
         rx = dose_per_fraction
 
-    logging.debug('rx = '.format(rx))
+    logging.debug('rx = {}'.format(rx))
 
     xpos = None
-    tolerance = 5.0e-2
-    # beam_set = get_current('BeamSet')
-    # plan = connect.get_current('Plan')
+    tolerance = 1e-2
 
     xmax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.x
     ymax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.y
@@ -1191,28 +1219,17 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     zsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.z
 
     if np.amax(pd_np) < rx:
-        print
-        'max = ', str(max(pd))
-        print
-        'target = ', str(rx)
+        logging.debug('max = {}'.format(max(pd)))
+        logging.debug('target = {}'.format(rx))
         raise ValueError('max beam dose is too low')
 
-    # rx_points = np.empty((0, 3), dtype=np.int)
-    rx_points = np.argwhere(abs(rx - pd_np) <= tolerance)
-    print("Shape of rx_points {}".format(rx_points.shape))
-
-    # for (x, y, z), value in np.ndenumerate(pd_np):
-    #    if rx - tolerance < value < rx + tolerance:
-    #        rx_points = np.append(rx_points, np.array([[x, y, z]]), axis=0)
-    #        print('dose = {}'.format(value))
-    #        xpos = x * xsize + xcorner + xsize/2
-    #        ypos = y * ysize + ycorner + ysize/2
-    #        zpos = z * zsize + zcorner + zsize/2
-    #        print 'corner = {0}, {1}, {2}'.format(xcorner,ycorner,zcorner)
-    #        print 'x, y, z = {0}, {1}, {2}'.format(x * xsize, y * ysize, z * zsize)
-    #        print 'x, y, z positions = {0}, {1}, {2}'.format(xpos,ypos,zpos)
-    #        # return [xpos, ypos, zpos]
-    # break
+    rx_points = np.array([])
+    while rx_points.size == 0:
+        t_init = tolerance
+        rx_points = np.argwhere(abs(rx - pd_np) <= tolerance)
+        tolerance = t_init * 1.1
+    logging.info('Tolerance used for rx agreement was +/- {} Gy'.format(t_init))
+    logging.debug("Shape of rx_points {}".format(rx_points.shape))
 
     matches = np.empty(np.size(rx_points, 0))
 
@@ -1225,12 +1242,13 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
         matches += abs(pd[rx_points[:, 0], rx_points[:, 1], rx_points[:, 2]] / rx -
                        b.ForBeam.BeamMU / tot)
 
+    logging.debug('size of the matching point arrays is {}'.format(matches.shape))
     min_i = np.argmin(matches)
     xpos = rx_points[min_i, 0] * xsize + xcorner + xsize / 2
     ypos = rx_points[min_i, 1] * ysize + ycorner + ysize / 2
     zpos = rx_points[min_i, 2] * zsize + zcorner + zsize / 2
-    print
-    'x, y, z positions = {0}, {1}, {2}'.format(xpos, ypos, zpos)
+    logging.debug('x, y, z positions = {0}, {1}, {2}'.format(xpos, ypos, zpos))
+
     return [xpos, ypos, zpos]
 
 
@@ -1245,7 +1263,13 @@ def set_dsp(plan, beam_set):
     dsp_pos = find_dsp(plan=plan, beam_set=beam_set, dose_per_fraction=rx)
 
     if dsp_pos:
+        i = 0
         dsp_name = beam_set.DicomPlanLabel
+
+        while any(exists_dsp(beamset=beam_set, dsps=dsp_name)):
+            i += 1
+            dsp_name = beam_set.DicomPlanLabel + '_' + str(i)
+
         beam_set.CreateDoseSpecificationPoint(Name=dsp_name,
                                               Coordinates={'x': dsp_pos[0],
                                                            'y': dsp_pos[1],

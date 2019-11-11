@@ -35,6 +35,11 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import BeamOperations
 import connect
+import PlanQualityAssuranceTests
+import PlanOperations
+import logging
+import UserInterface
+import sys
 
 
 def main():
@@ -64,6 +69,30 @@ def main():
         beamset = connect.get_current("BeamSet")
     except Exception:
         raise IOError("No plan loaded. Load patient and plan.")
+
+    # Report Examination information
+    # patient.Cases['Case 1'].Examinations['CT 1'].GetStoredDicomTagValueForVerification
+    # series_number = exam.GetStoredDicomTagValueForVerification(Group=0x020, Element=0x011)
+    # slice_thickness = exam.GetStoredDicomTagValueForVerification(Group=0x018,Element=0x050)
+    # gantry_tilt = exam.GetStoredDicomTagValueForVerification(Group=0x018,Element=1120)
+    # ct_info = {}
+    # logging.critical('Series Name: {}'.format(series_number['Series Number']))
+
+    # Put a check on SBRT in here. If SBR is part of plan name, and slice_thickness is wrong ....
+
+    # Localization point test
+    fiducial_point = 'SimFiducials'
+    fiducial_error = True
+    while fiducial_error:
+        error = PlanQualityAssuranceTests.simfiducial_test(case=case, exam=exam, poi=fiducial_point)
+        if len(error) != 0:
+            connect.await_user_input('Error in localization point: ' + '{}\n'.format(error))
+        else:
+            fiducial_error = False
+
+    cps_error = PlanQualityAssuranceTests.cps_test(beamset, nominal_cps=2)
+    if len(cps_error) != 0:
+        sys.exit(cps_error)
 
     BeamOperations.rename_beams()
     BeamOperations.set_dsp(plan=plan, beam_set=beamset)

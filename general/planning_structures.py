@@ -279,7 +279,7 @@ def main():
     generate_combined_ptv = True
 
     # Contraction in cm to be used in the definition of the skin contour
-    skin_contraction = 0.5
+    skin_contraction = 0.3
 
     # InnerAir Parameters
     # Upper Bound on the air volume to be removed from target coverage considerations
@@ -597,7 +597,7 @@ def main():
                                **all_ptv_defs)
         newly_generated_rois.append('All_PTVs')
 
-
+    logging.log('Exam Name: {} Target List: [%s]' % ', '.join(map(str, input_source_list)))
     logging.debug('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
     logging.debug('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
 
