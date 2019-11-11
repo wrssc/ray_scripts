@@ -43,6 +43,7 @@ import BeamOperations
 import StructureOperations
 import PlanOperations
 
+
 def simfiducial_test(case, exam, poi=None):
     """Does the sim fiducial point exist, and does it have coordinates?"""
     error = ''
@@ -86,3 +87,30 @@ def cps_test(beamset, nominal_cps=2):
                 error += 'Beam {} has a control point with spacing exceeding {}\n'.format(b.Name, nominal_cps)
 
     return error
+
+
+def sbrt_validation(beamset, plan_string, nominal_grid_size=0.1):
+    """
+
+    :param beamset: RS Beamset
+    :param plan_string: string used to indicate a correct grid
+    :param nominal_grid_size: nominal grid size
+    :return: error: a message
+    """
+
+    error = ''
+    grid_size = [0, 0, 0]
+    for doses in beamset.FractionDose.BeamDoses:
+        current_grid = doses.InDoseGrid.VoxelSize
+        grid_size = [max(grid_size[0], current_grid.x),
+                     max(grid_size[1], current_grid.y),
+                     max(grid_size[2], current_grid.z)]
+    logging.debug('Dose grid is currently: {} cm'.format(grid_size))
+
+    if max(grid_size) > nominal_grid_size and plan_string in beamset.DicomPlanLabel:
+        error += 'The dose grid is too large for a plan of type {}, it should be {}'.format(
+            plan_string, nominal_grid_size)
+
+    return error
+
+

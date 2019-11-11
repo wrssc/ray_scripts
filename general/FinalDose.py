@@ -90,9 +90,18 @@ def main():
         else:
             fiducial_error = False
 
+
     cps_error = PlanQualityAssuranceTests.cps_test(beamset, nominal_cps=2)
     if len(cps_error) != 0:
         sys.exit(cps_error)
+
+    sbrt_grid_size = 0.1
+    sbrt_error = PlanQualityAssuranceTests.sbrt_validation(beamset=beamset,
+                                                           plan_string='_SBR_',
+                                                           nominal_grid_size=sbrt_grid_size)
+    if len(sbrt_error) != 0:
+        logging.info('Grid size was changed for SBRT-type plan')
+        plan.SetDefaultDoseGrid(VoxelSize={'x': sbrt_grid_size, 'y': sbrt_grid_size, 'z': sbrt_grid_size})
 
     BeamOperations.rename_beams()
     BeamOperations.set_dsp(plan=plan, beam_set=beamset)
