@@ -1,8 +1,11 @@
 """ Final Dose
 
-    Currently this simply is a wrapper for the rename_beams function. In future versions
-    gantry angles, collimator angles, and couch angles may be slightly rounded to create
-    an exact match to ARIA.
+    1.0.4 Currently this simply is a wrapper for the rename_beams function. In future versions
+        gantry angles, collimator angles, and couch angles may be slightly rounded to create
+        an exact match to ARIA.
+
+    1.0.5 Added rounding for jaw positions, MU, checks on overlap of external, dose grid,
+        control point spacing, and sim fiducial point
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -18,93 +21,117 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2018-09-05'
+__date__ = '2019-09-05'
 
-__version__ = '1.0.4'
+__version__ = '1.0.5'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 
-__reviewed__ = '2018-Sep-05'
-__raystation__ = '7.0.0.19'
+__reviewed__ = '2019-Nov-12'
+__raystation__ = '8.0 SP B'
 __maintainer__ = 'Adam Bayliss'
 
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-import BeamOperations
-import connect
-import PlanQualityAssuranceTests
-import PlanOperations
 import logging
-import UserInterface
 import sys
+import connect
+import BeamOperations
+import PlanQualityAssuranceTests
+import GeneralOperations
+from GeneralOperations import logcrit as logcrit
+
+
+class InvalidOperationException(Exception): pass
 
 
 def main():
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
-    try:
-        patient = connect.get_current("Patient")
-    except SystemError:
-        raise IOError("No Patient loaded. Load patient case and plan.")
+    patient = GeneralOperations.find_scope(level='Patient')
+    case = GeneralOperations.find_scope(level='Case')
+    exam = GeneralOperations.find_scope(level='Examination')
+    plan = GeneralOperations.find_scope(level='Plan')
+    beamset = GeneralOperations.find_scope(level='BeamSet')
 
-    try:
-        case = connect.get_current("Case")
-    except SystemError:
-        raise IOError("No Case loaded. Load patient case and plan.")
+    cps_test = False
+    simfid_test = False
+    external_test = False
+    grid_test = False
 
-    try:
-        exam = connect.get_current("Examination")
-    except SystemError:
-        raise IOError("No examination loaded. Load patient ct and plan.")
+    # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
+    if external_test:
+        external_error = False
+        while external_error:
+            error = PlanQualityAssuranceTests.external_overlap_test(patient, case, exam)
+            if len(error) != 0:
+                connect.await_user_input('Eliminate overlap of patient external with support structures')
+            else:
+                external_error = False
 
+    # SIMFIDUCIAL TEST
+    if simfid_test:
+        fiducial_point = 'SimFiducials'
+        fiducial_error = False
+        while fiducial_error:
+            error = PlanQualityAssuranceTests.simfiducial_test(case=case, exam=exam, poi=fiducial_point)
+            if len(error) != 0:
+                connect.await_user_input('Error in localization point: ' + '{}\n'.format(error))
+            else:
+                fiducial_error = False
+
+    # GRID SIZE TEST
+    if grid_test:
+        fine_grid_names = ['_SBR_', '_SRS_']
+        fine_grid_size = 0.1
+        coarse_grid_names = ['_THI_', '_VMA_', '_3DC_', '_BST_', '_DCA_']
+        coarse_grid_size = 0.2
+        fine_grid_error = PlanQualityAssuranceTests.gridsize_test(beamset=beamset,
+                                                                  plan_string=fine_grid_names,
+                                                                  nominal_grid_size=fine_grid_size)
+        coarse_grid_error = PlanQualityAssuranceTests.gridsize_test(beamset=beamset,
+                                                                    plan_string=coarse_grid_names,
+                                                                    nominal_grid_size=coarse_grid_size)
+        if len(fine_grid_error) != 0:
+            logging.warning('Dose grid check returned an error {}'.format(fine_grid_error))
+            plan.SetDefaultDoseGrid(VoxelSize={'x': fine_grid_size, 'y': fine_grid_size, 'z': fine_grid_size})
+            logging.info('Grid size was changed for SBRT-type plan')
+        elif len(coarse_grid_error) != 0:
+            logging.warning('Dose grid check returned an error {}'.format(coarse_grid_error))
+            plan.SetDefaultDoseGrid(VoxelSize={'x': coarse_grid_size, 'y': coarse_grid_size, 'z': coarse_grid_size})
+            logging.info('Grid size was changed for Normal-type plan')
+
+    # CONTROL POINT SPACING TEST
+    if cps_test:
+        cps_error = PlanQualityAssuranceTests.cps_test(beamset, nominal_cps=2)
+        if len(cps_error) != 0:
+            sys.exit(cps_error)
+
+    if 'Tomo' not in beamset.DeliveryTechnique:
+        # Round jaws to nearest mm
+        BeamOperations.round_jaws(beamset=beamset)
+        # Rename the beams
+        BeamOperations.rename_beams()
+        # Round MU
+        BeamOperations.round_mu(beamset)
+
+    # Compute dose if need be
+    # TODO: Better exception handling here.
     try:
-        plan = connect.get_current("Plan")
+        beamset.ComputeDose(
+            ComputeBeamDoses=True,
+            DoseAlgorithm="CCDose",
+            ForceRecompute=False)
     except Exception:
-        raise IOError("No plan loaded. Load patient and plan.")
-
-    try:
-        beamset = connect.get_current("BeamSet")
-    except Exception:
-        raise IOError("No plan loaded. Load patient and plan.")
-
-    # Report Examination information
-    # patient.Cases['Case 1'].Examinations['CT 1'].GetStoredDicomTagValueForVerification
-    # series_number = exam.GetStoredDicomTagValueForVerification(Group=0x020, Element=0x011)
-    # slice_thickness = exam.GetStoredDicomTagValueForVerification(Group=0x018,Element=0x050)
-    # gantry_tilt = exam.GetStoredDicomTagValueForVerification(Group=0x018,Element=1120)
-    # ct_info = {}
-    # logging.critical('Series Name: {}'.format(series_number['Series Number']))
-
-    # Put a check on SBRT in here. If SBR is part of plan name, and slice_thickness is wrong ....
-
-    # Localization point test
-    fiducial_point = 'SimFiducials'
-    fiducial_error = True
-    while fiducial_error:
-        error = PlanQualityAssuranceTests.simfiducial_test(case=case, exam=exam, poi=fiducial_point)
-        if len(error) != 0:
-            connect.await_user_input('Error in localization point: ' + '{}\n'.format(error))
-        else:
-            fiducial_error = False
+        logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
 
 
-    cps_error = PlanQualityAssuranceTests.cps_test(beamset, nominal_cps=2)
-    if len(cps_error) != 0:
-        sys.exit(cps_error)
-
-    sbrt_grid_size = 0.1
-    sbrt_error = PlanQualityAssuranceTests.sbrt_validation(beamset=beamset,
-                                                           plan_string='_SBR_',
-                                                           nominal_grid_size=sbrt_grid_size)
-    if len(sbrt_error) != 0:
-        logging.info('Grid size was changed for SBRT-type plan')
-        plan.SetDefaultDoseGrid(VoxelSize={'x': sbrt_grid_size, 'y': sbrt_grid_size, 'z': sbrt_grid_size})
-
-    BeamOperations.rename_beams()
+    # Set the DSP for the plan
     BeamOperations.set_dsp(plan=plan, beam_set=beamset)
+    logcrit('Final Dose Script Run Successfully')
 
 
 if __name__ == '__main__':

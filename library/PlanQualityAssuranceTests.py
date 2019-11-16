@@ -36,12 +36,8 @@ __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
-
-import connect
 import logging
-import BeamOperations
 import StructureOperations
-import PlanOperations
 
 
 def simfiducial_test(case, exam, poi=None):
@@ -89,11 +85,12 @@ def cps_test(beamset, nominal_cps=2):
     return error
 
 
-def sbrt_validation(beamset, plan_string, nominal_grid_size=0.1):
+def gridsize_test(beamset, plan_string, nominal_grid_size=0.1):
     """
-
+    Determines if the grid size for the beamset, given the plan type, is correctly set. Returns an error message
+    otherwise.
     :param beamset: RS Beamset
-    :param plan_string: string used to indicate a correct grid
+    :param plan_string: string (or list) used to indicate a correct grid
     :param nominal_grid_size: nominal grid size
     :return: error: a message
     """
@@ -107,10 +104,37 @@ def sbrt_validation(beamset, plan_string, nominal_grid_size=0.1):
                      max(grid_size[2], current_grid.z)]
     logging.debug('Dose grid is currently: {} cm'.format(grid_size))
 
-    if max(grid_size) > nominal_grid_size and plan_string in beamset.DicomPlanLabel:
-        error += 'The dose grid is too large for a plan of type {}, it should be {}'.format(
-            plan_string, nominal_grid_size)
+    # Convert input to list
+    if type(plan_string) is not list:
+        plan_string = [plan_string]
+
+    # If the grid_size is less than nominal and the beamset name contains the plan type, return an error
+    if max(grid_size) > nominal_grid_size:
+        for p in plan_string:
+            if p in beamset.DicomPlanLabel:
+                error += 'The dose grid is too large for a plan of type {}, it should be {}'.format(
+                    p, nominal_grid_size)
 
     return error
 
 
+def external_overlap_test(patient, case, exam):
+    """
+    Evaluates the overlap with the External type structure and any support structures
+    :param patient: RS patient
+    :param case: RS case
+    :param exam: Rs exam
+    :return: error: string message of any overlap
+    """
+    structure = StructureOperations.find_types(case, 'External')
+    supports = StructureOperations.find_types(case, 'Support')
+    overlap_volume = StructureOperations.check_overlap(patient=patient,
+                                                       case=case,
+                                                       exam=exam,
+                                                       structure=structure,
+                                                       rois=supports)
+    error = ''
+    if overlap_volume > 1:
+        error += 'Significant overlap exists between {} and {}'.format(structure, supports)
+
+    return error

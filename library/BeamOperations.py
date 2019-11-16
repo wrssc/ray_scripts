@@ -59,6 +59,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import math
 import numpy as np
+import math
 import logging
 import sys
 import clr
@@ -1138,6 +1139,134 @@ def rename_beams():
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
 
 
+def rounded_jaw_positions(segment):
+    """
+    compute the jaw positions that would result from rounding to nearest mm
+    :param segment: Beam setment
+    :return: {X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)}
+    """
+    l_jaw = math.floor(10 * segment.JawPositions[0]) / 10
+    r_jaw = math.ceil(10 * segment.JawPositions[1]) / 10
+    t_jaw = math.floor(10 * segment.JawPositions[2]) / 10
+    b_jaw = math.ceil(10 * segment.JawPositions[3]) / 10
+    jaws = {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
+    return jaws
+
+
+def jaws_rounded(beam):
+    """
+    Checks a beam to see if it has been rounded.
+    :param beam: RS beam scriptable object
+    :return: True if jaws are already rounded. False otherwise.
+    """
+    rounded = True
+
+    s0 = beam.Segments[0]
+    j0 = rounded_jaw_positions(s0)
+    for s in beam.Segments:
+        if (s.JawPositions[0] != j0['X1'] or
+                s.JawPositions[1] != j0['X2'] or
+                s.JawPositions[2] != j0['Y1'] or
+                s.JawPositions[3] != j0['Y2']):
+            rounded = False
+
+    return rounded
+
+
+def round_jaws(beamset):
+    """
+    Rounds the jaws. X1/Y1 will be rounded down to nearest mm, X2/Y2 rounded up
+        note X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)
+    :param beamset: RS beamset
+    :return: success: boolean indicating adjustments were successful
+    """
+    try:
+        for b in beamset.Beams:
+            # First jaw position chosen.
+            if not jaws_rounded(beam=b):
+                s0 = b.Segments[0]
+                j0 = rounded_jaw_positions(s0)
+                for s in b.Segments:
+                    if (s.JawPositions[0] != j0['X1'] or
+                            s.JawPositions[1] != j0['X2'] or
+                            s.JawPositions[2] != j0['Y1'] or
+                            s.JawPositions[3] != j0['Y2']):
+                        round_needed = True
+                    else:
+                        round_needed = False
+                    if round_needed:
+                        s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
+            else:
+                round_needed = False
+            if round_needed:
+                logging.info('Beam {}: jaw positions changed '.format(b.Name) +
+                             'X1: {} to {}'.format(j0['X1'], s.JawPositions[0]) +
+                             'X2: {} to {}'.format(j0['X2'], s.JawPositions[1]) +
+                             'Y1: {} to {}'.format(j0['Y1'], s.JawPositions[2]) +
+                             'Y2: {} to {}'.format(j0['Y2'], s.JawPositions[3]))
+            else:
+                logging.info('Beam {}: jaw positions do not need rounding:'+
+                             'X1: {}'.format(s.JawPositions[0]) +
+                             'X2: {}'.format(s.JawPositions[1]) +
+                             'Y1: {}'.format(s.JawPositions[2]) +
+                             'Y2: {}'.format(s.JawPositions[3]))
+        success = True
+    except:
+        success = False
+
+    return success
+
+
+def mu_rounded(beam):
+    """
+    Compute the monitor units for the raystation beam to the nearest MU using the Round_Half_Up strategy
+    :param beam:
+    :return: a rounded float of the beam MU
+    """
+    from decimal import Decimal, ROUND_HALF_UP
+
+    init_mu = beam.BeamMU
+    dec_mu = Decimal(init_mu).quantize(0, rounding=ROUND_HALF_UP)
+    return float(dec_mu)
+
+
+def mu_is_rounded(beam):
+    """
+    Determine if supplied beam has MU rounded to nearest whole MU
+    :param beam: raystation beam object
+    :return:
+    """
+    tolerance = 1e-6
+    rounded = True
+    init_mu = beam.BeamMU
+    rounded_mu = mu_rounded(beam)
+    if abs(init_mu - rounded_mu) > tolerance:
+        rounded = False
+
+    return rounded
+
+
+def round_mu(beamset):
+    """
+    Rounds to the nearest MU
+    :param beamset:
+    :return: success: logical
+    """
+    if 'Tomo' in beamset.DeliveryTechnique:
+        logging.debug('Round MU is not a good idea on a Tomo plan.')
+        success = False
+        return success
+
+    for b in beamset.Beams:
+        if mu_is_rounded(b):
+            logging.debug('Beam {} already has rounded MU {}'.format(b.Name, b.BeamMU))
+        else:
+            mu_i = b.BeamMU
+            b.BeamMU = mu_rounded(b)
+            logging.info('Beam {} MU changed from {} to {}'.format(b.Name, mu_i, b.BeamMU))
+    return True
+
+
 def exists_dsp(beamset, dsps):
     """See if rois is in the list"""
     if type(dsps) is not list:
@@ -1155,7 +1284,6 @@ def exists_dsp(beamset, dsps):
         if p in defined_dsps:
             while i < len(defined_dsps):
                 if p == defined_dsps[i]:
-                    logging.debug('{} is an exact match to {}'.format(p, defined_dsps[i]))
                     exact_match = True
                 i += 1
             if exact_match:
@@ -1166,6 +1294,32 @@ def exists_dsp(beamset, dsps):
             dsp_exists.append(False)
 
     return dsp_exists
+
+
+def dsp_matches_rx(beamset, dsp):
+    """
+
+    :param beamset: raystation beamset
+    :param dsp: Dose specification point name (string)
+    :param rx_dose: prescription dose
+    :return: True if total dose match
+    """
+    tolerance = 0.001
+    number_of_fractions = beamset.FractionationPattern.NumberOfFractions
+    rx_dose = beamset.Prescription.PrimaryDosePrescription.DoseValue / number_of_fractions
+    if exists_dsp(beamset, dsps=dsp):
+        total_dose = 0
+        for bd in beamset.FractionDose.BeamDoses:
+            if bd.UserSetBeamDoseSpecificationPoint.Name == dsp:
+                total_dose += bd.DoseAtPoint.DoseValue
+        if abs(total_dose - rx_dose) > tolerance:
+            logging.debug('Dose specification point {} does not match fractional rx dose {}'.format(
+                dsp, rx_dose))
+            return False
+        else:
+            return True
+    else:
+        logging.warning('Dsp point {} does not exist'.format(dsp))
 
 
 def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
@@ -1237,7 +1391,7 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
         pd = np.array(b.DoseValues.DoseData)
         # The dose grid is stored [z: I/S, y: P/A, x: R/L]
         pd = pd.swapaxes(0, 2)
-        # Numpy does evaluation of advanced indicies column wise:
+        # Numpy does evaluation of advanced indices column wise:
         # pd[sheets, columns, rows]
         matches += abs(pd[rx_points[:, 0], rx_points[:, 1], rx_points[:, 2]] / rx -
                        b.ForBeam.BeamMU / tot)
@@ -1259,6 +1413,18 @@ def set_dsp(plan, beam_set):
         raise ValueError('A Prescription must be set.')
     else:
         rx = rx / fractions
+
+    # Look for an existing suitable already assigned DSP
+    try:
+        existing_dsp = beam_set.FractionDose.BeamDoses[0].UserSetBeamDoseSpecificationPoint.Name
+        logging.debug('Found existing DSP {} for this beamset {}'.format(
+            existing_dsp, beam_set.DicomPlanLabel))
+        if dsp_matches_rx(beamset=beam_set, dsp=existing_dsp):
+            logging.debug('Existing DSP {} satisfies prescription for this beamset {}'.format(
+                existing_dsp, beam_set.DicomPlanLabel))
+            return True
+    except AttributeError:
+        logging.debug('No dsp in current beamset {}'.format(beam_set.DicomPlanLabel))
 
     dsp_pos = find_dsp(plan=plan, beam_set=beam_set, dose_per_fraction=rx)
 
@@ -1299,7 +1465,7 @@ def load_beams_xml(filename, beamset_name, path):
                                          set_elements='beam',
                                          set_level_name=beamset_name,
                                          filename=filename,
-                                         folder=path,verbose_logging=True)
+                                         folder=path, verbose_logging=True)
 
     beams = []
     for et_beamsets in beam_elements:
@@ -1378,7 +1544,7 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
                                   .format(beam_name, existing_limits[0], existing_limits[1],
                                           existing_limits[2], existing_limits[3]))
             else:
-                existing_limits = [None]*4
+                existing_limits = [None] * 4
                 if verbose_logging:
                     logging.debug('No limits currently exist on beam {}'.format(beam_name))
 

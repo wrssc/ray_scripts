@@ -48,12 +48,174 @@ import os
 import sys
 import connect
 import clr
-
 clr.AddReference('System.Drawing')
 import System.Drawing
 import numpy as np
 import xml
 import re
+
+def exclude_from_export(case, rois):
+    """Toggle export
+    :param case: current case
+    :param rois: name of structure to exclude"""
+
+    if type(rois) is not list:
+        rois = [rois]
+
+    try:
+        case.PatientModel.ToggleExcludeFromExport(
+            ExcludeFromExport=True,
+            RegionOfInterests=rois,
+            PointsOfInterests=[])
+
+    except Exception:
+        logging.warning('Unable to exclude {} from export'.format(rois))
+
+def include_in_export(case, rois):
+    """Toggle export to true
+    :param case: current case
+    :param rois: name of structure to exclude"""
+
+    if type(rois) is not list:
+        rois = [rois]
+
+    defined_rois = []
+    for r in case.PatientModel.RegionsOfInterest:
+        defined_rois.append(r.Name)
+
+    for r in defined_rois:
+        if r in rois:
+            try:
+                case.PatientModel.ToggleExcludeFromExport(
+                    ExcludeFromExport=False,
+                    RegionOfInterests=r,
+                    PointsOfInterests=[])
+
+            except Exception:
+                logging.warning('Unable to include {} in export'.format(rois))
+        else:
+            try:
+                case.PatientModel.ToggleExcludeFromExport(
+                    ExcludeFromExport=True,
+                    RegionOfInterests=r,
+                    PointsOfInterests=[])
+
+            except Exception:
+                logging.warning('Unable to exclude {} from export'.format(rois))
+
+
+def make_boolean_structure(patient, case, examination, **kwargs):
+    StructureName = kwargs.get("StructureName")
+    ExcludeFromExport = kwargs.get("ExcludeFromExport")
+    VisualizeStructure = kwargs.get("VisualizeStructure")
+    StructColor = kwargs.get("StructColor")
+    SourcesA = kwargs.get("SourcesA")
+    MarginTypeA = kwargs.get("MarginTypeA")
+    ExpA = kwargs.get("ExpA")
+    OperationA = kwargs.get("OperationA")
+    SourcesB = kwargs.get("SourcesB")
+    MarginTypeB = kwargs.get("MarginTypeB")
+    ExpB = kwargs.get("ExpB")
+    OperationB = kwargs.get("OperationB")
+    MarginTypeR = kwargs.get("MarginTypeR")
+    ExpR = kwargs.get("ExpR")
+    OperationResult = kwargs.get("OperationResult")
+    StructType = kwargs.get("StructType")
+    if 'VisualizationType' in kwargs:
+        VisualizationType = kwargs.get("VisualizationType")
+    else:
+        VisualizationType = 'contour'
+
+    try:
+        case.PatientModel.RegionsOfInterest[StructureName]
+        logging.warning("make_boolean_structure: Structure " + StructureName +
+                        " exists.  This will be overwritten in this examination")
+    except:
+        case.PatientModel.CreateRoi(Name=StructureName,
+                                    Color=StructColor,
+                                    Type=StructType,
+                                    TissueName=None,
+                                    RbeCellTypeName=None,
+                                    RoiMaterial=None)
+
+    case.PatientModel.RegionsOfInterest[StructureName].SetAlgebraExpression(
+        ExpressionA={'Operation': OperationA, 'SourceRoiNames': SourcesA,
+                     'MarginSettings': {'Type': MarginTypeA,
+                                        'Superior': ExpA[0],
+                                        'Inferior': ExpA[1],
+                                        'Anterior': ExpA[2],
+                                        'Posterior': ExpA[3],
+                                        'Right': ExpA[4],
+                                        'Left': ExpA[5]
+                                        }},
+        ExpressionB={'Operation': OperationB, 'SourceRoiNames': SourcesB,
+                     'MarginSettings': {'Type': MarginTypeB,
+                                        'Superior': ExpB[0],
+                                        'Inferior': ExpB[1],
+                                        'Anterior': ExpB[2],
+                                        'Posterior': ExpB[3],
+                                        'Right': ExpB[4],
+                                        'Left': ExpB[5]}},
+        ResultOperation=OperationResult,
+        ResultMarginSettings={'Type': MarginTypeR,
+                              'Superior': ExpR[0],
+                              'Inferior': ExpR[1],
+                              'Anterior': ExpR[2],
+                              'Posterior': ExpR[3],
+                              'Right': ExpR[4],
+                              'Left': ExpR[5]})
+    if ExcludeFromExport:
+        exclude_from_export(case=case, rois=StructureName)
+
+    case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
+        Examination=examination, Algorithm="Auto")
+    patient.SetRoiVisibility(RoiName=StructureName,
+                             IsVisible=VisualizeStructure)
+    patient.Set2DvisualizationForRoi(RoiName=StructureName,
+                                     Mode=VisualizationType)
+
+
+def make_wall(wall, sources, delta, patient, case, examination, inner=True):
+    """
+
+    :param wall: Name of wall contour
+    :param sources: List of source structures
+    :param delta: contraction
+    :param patient: current patient
+    :param case: current case
+    :param inner: logical create an inner wall (true) or ring
+    :param examination: current exam
+    :return:
+    """
+
+    if inner:
+        a = [0] * 6
+        b = [delta] * 6
+    else:
+        a = [delta] * 6
+        b = [0] * 6
+
+    wall_defs = {
+        "StructureName": wall,
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": " Blue",
+        "OperationA": "Union",
+        "SourcesA": sources,
+        "MarginTypeA": "Expand",
+        "ExpA": a,
+        "OperationB": "Union",
+        "SourcesB": sources,
+        "MarginTypeB": "Contract",
+        "ExpB": b,
+        "OperationResult": "Subtraction",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Undefined"}
+    make_boolean_structure(patient=patient,
+                           case=case,
+                           examination=examination,
+                           **wall_defs)
 
 
 def exists_roi(case, rois):
@@ -193,24 +355,6 @@ def max_coordinates(case, exam, rois):
                       'min_z': min(z),
                       'max_z': max(z)}
         return max_roi
-
-
-def exclude_from_export(case, rois):
-    """Toggle export
-    :param case: current case
-    :param rois: name of structure to exclude"""
-
-    if type(rois) is not list:
-        rois = [rois]
-
-    try:
-        case.PatientModel.ToggleExcludeFromExport(
-            ExcludeFromExport=True,
-            RegionOfInterests=rois,
-            PointsOfInterests=[])
-
-    except Exception:
-        logging.warning('Unable to exclude {} from export'.format(rois))
 
 
 def define_sys_color(rgb):
@@ -394,3 +538,78 @@ def find_normal_structures_match(rois, site=None, num_matches=None, protocol_fil
                         matched_rois[r].append(match[i])
 
     return matched_rois
+
+
+def check_overlap(patient, case, exam, structure, rois):
+    """
+    Checks the overlap of strucure with the roi list defined in rois.
+    Returns the volume of overlap
+    :param exam:
+    :param case: RS Case
+    :param structure: List of target structures for overlap
+    :param rois: List of structures which will be checked for overlap with structure
+    :return: vol
+    """
+    exist_list = exists_roi(case, rois)
+    roi_index = 0
+    rois_verif = []
+    # Check all incoming rois to see if they exist in the list
+    for r in exist_list:
+        if r:
+            rois_verif.append(rois[roi_index])
+        roi_index += 1
+    logging.debug('Found the following in evaluation of overlap with {}: '.format(
+        structure, rois_verif))
+
+    overlap_name = 'z_overlap'
+    for r in structure:
+        overlap_name += '_' + r
+
+    overlap_defs = {
+        "StructureName": overlap_name,
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": " 192, 192, 192",
+        "OperationA": "Union",
+        "SourcesA": structure,
+        "MarginTypeA": "Expand",
+        "ExpA": [0] * 6,
+        "OperationB": "Union",
+        "SourcesB": rois_verif,
+        "MarginTypeB": "Expand",
+        "ExpB": [0] * 6,
+        "OperationResult": "Intersection",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Undefined"}
+    make_boolean_structure(patient=patient, case=case, examination=exam,
+                                               **overlap_defs)
+    try:
+        t = case.PatientModel.StructureSets[exam.Name]. \
+            RoiGeometries[overlap_name]
+        if t.HasContours():
+            vol = t.GetRoiVolume()
+        else:
+            logging.info('{} has no contours, index undefined'.format(overlap_name))
+    except:
+        logging.warning('Error getting volume for {}, volume => 0.0'.format(overlap_name))
+
+    logging.debug('Calculated volume of overlap of {} is {}'.format(overlap_name, vol))
+    case.PatientModel.RegionsOfInterest[overlap_name].DeleteRoi()
+    return vol
+
+
+def find_types(case, roi_type):
+    """
+    Return a list of all structures that in exist in the roi list with type roi_type
+    :param patient:
+    :param case:
+    :param exam:
+    :param type:
+    :return: found_roi
+    """
+    found_roi = []
+    for r in case.PatientModel.RegionsOfInterest:
+        if r.Type == roi_type:
+            found_roi.append(r.Name)
+    return found_roi

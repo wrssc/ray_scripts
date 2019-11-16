@@ -177,7 +177,7 @@ def make_wall(wall, sources, delta, patient, case, examination, inner=True):
         "MarginTypeR": "Expand",
         "ExpR": [0] * 6,
         "StructType": "Undefined"}
-    make_boolean_structure(patient=patient,
+    StructureOperations.make_boolean_structure(patient=patient,
                            case=case,
                            examination=examination,
                            **wall_defs)
@@ -234,7 +234,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         "MarginTypeR": "Expand",
         "ExpR": [0] * 6,
         "StructType": "Undefined"}
-    make_boolean_structure(patient=patient,
+    StructureOperations.make_boolean_structure(patient=patient,
                            case=case,
                            examination=examination,
                            **inner_air_defs)
@@ -591,7 +591,7 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
             "StructType": "Ptv"}
-        make_boolean_structure(patient=patient,
+        StructureOperations.make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
                                **all_ptv_defs)
@@ -800,7 +800,7 @@ def main():
 
 
     if generate_skin:
-        make_wall(
+        StructureOperations.make_wall(
             wall="Skin_PRV03",
             sources=["ExternalClean"],
             delta=skin_contraction,
@@ -832,7 +832,7 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
             "StructType": "Undefined"}
-        make_boolean_structure(patient=patient,
+        StructureOperations.make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
                                **underdose_defs)
@@ -854,7 +854,8 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
             "StructType": "Undefined"}
-        make_boolean_structure(patient=patient, case=case, examination=examination, **UnderDoseExp_defs)
+        StructureOperations.make_boolean_structure(patient=patient, case=case, examination=examination,
+                                                   **UnderDoseExp_defs)
         newly_generated_rois.append('UnderDose_Exp')
 
     # Generate the UniformDose structure
@@ -898,7 +899,7 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "StructType": "Undefined"}
-        make_boolean_structure(patient=patient,
+        StructureOperations.make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
                                **uniformdose_defs)
@@ -954,7 +955,7 @@ def main():
                     "StructType": "Undefined"}
             logging.debug("Creating main target {}: {}"
                           .format(i, PTVList[i]))
-            make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
+            StructureOperations.make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
             newly_generated_rois.append(ptv_definitions.get("StructureName"))
             subtract_targets.append(PTVList[i])
 
@@ -1041,7 +1042,7 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "StructType": "Undefined"}
-            make_boolean_structure(
+            StructureOperations.make_boolean_structure(
                 patient=patient,
                 case=case,
                 examination=examination,
@@ -1091,7 +1092,7 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "StructType": "Ptv"}
-            make_boolean_structure(patient=patient,
+            StructureOperations.make_boolean_structure(patient=patient,
                                    case=case,
                                    examination=examination,
                                    **PTVEval_defs)
@@ -1127,7 +1128,7 @@ def main():
             "MarginTypeR": "Expand",
             "ExpR": [0] * 6,
             "StructType": "Undefined"}
-        make_boolean_structure(patient=patient,
+        StructureOperations.make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
                                **not_otv_definitions)
@@ -1160,7 +1161,7 @@ def main():
                 OTV_defs['OperationResult'] = "Subtraction"
                 OTV_defs['ExpB'] = [otv_standoff] * 6
 
-            make_boolean_structure(patient=patient,
+            StructureOperations.make_boolean_structure(patient=patient,
                                    case=case,
                                    examination=examination,
                                    **OTV_defs)
@@ -1191,7 +1192,7 @@ def main():
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
                     "StructType": "Undefined"}
-                make_boolean_structure(
+                StructureOperations.make_boolean_structure(
                     patient=patient,
                     case=case,
                     examination=examination,
@@ -1223,7 +1224,7 @@ def main():
         "ExpR": [0] * 6,
         "OperationResult": "Subtraction",
         "StructType": "Undefined"}
-    make_boolean_structure(patient=patient,
+    StructureOperations.make_boolean_structure(patient=patient,
                            case=case,
                            examination=examination,
                            **z_derived_exp_ext_defs)
@@ -1247,7 +1248,7 @@ def main():
         "ExpR": [0] * 6,
         "OperationResult": "None",
         "StructType": "Undefined"}
-    make_boolean_structure(patient=patient,
+    StructureOperations.make_boolean_structure(patient=patient,
                            case=case,
                            examination=examination,
                            **z_derived_targets_plus_standoff_ring_defs)
@@ -1282,7 +1283,7 @@ def main():
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
                 "StructType": "Avoidance"}
-            make_boolean_structure(patient=patient,
+            StructureOperations.make_boolean_structure(patient=patient,
                                    case=case,
                                    examination=examination,
                                    **target_ring_defs)
@@ -1311,7 +1312,7 @@ def main():
                 "ExpR": [0] * 6,
                 "OperationResult": "Subtraction",
                 "StructType": "Avoidance"}
-            make_boolean_structure(patient=patient,
+            StructureOperations.make_boolean_structure(patient=patient,
                                    case=case,
                                    examination=examination,
                                    **ring_hd_defs)
@@ -1339,7 +1340,7 @@ def main():
             "ExpR": [0] * 6,
             "OperationResult": "Subtraction",
             "StructType": "Avoidance"}
-        make_boolean_structure(patient=patient,
+        StructureOperations.make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
                                **ring_ld_defs)
@@ -1364,7 +1365,7 @@ def main():
             "ExpR": [0] * 6,
             "OperationResult": "Subtraction",
             "StructType": "Avoidance"}
-        make_boolean_structure(patient=patient,
+        StructureOperations.make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
                                **Normal_2cm_defs)
@@ -1388,7 +1389,7 @@ def main():
             "ExpR": [0] * 6,
             "OperationResult": "Subtraction",
             "StructType": "Avoidance"}
-        make_boolean_structure(patient=patient,
+        StructureOperations.make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
                                **Normal_2cm_defs)
