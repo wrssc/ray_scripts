@@ -59,6 +59,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import math
 import numpy as np
+import math
 import logging
 import sys
 import clr
@@ -1138,6 +1139,191 @@ def rename_beams():
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
 
 
+def rounded_jaw_positions(segment):
+    """
+    compute the jaw positions that would result from rounding to nearest mm
+    :param segment: Beam setment
+    :return: {X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)}
+    """
+    l_jaw = math.floor(10 * segment.JawPositions[0]) / 10
+    r_jaw = math.ceil(10 * segment.JawPositions[1]) / 10
+    t_jaw = math.floor(10 * segment.JawPositions[2]) / 10
+    b_jaw = math.ceil(10 * segment.JawPositions[3]) / 10
+    jaws = {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
+    return jaws
+
+
+def jaws_rounded(beam):
+    """
+    Checks a beam to see if it has been rounded.
+    :param beam: RS beam scriptable object
+    :return: True if jaws are already rounded. False otherwise.
+    """
+    rounded = True
+
+    s0 = beam.Segments[0]
+    j0 = rounded_jaw_positions(s0)
+    for s in beam.Segments:
+        if (s.JawPositions[0] != j0['X1'] or
+                s.JawPositions[1] != j0['X2'] or
+                s.JawPositions[2] != j0['Y1'] or
+                s.JawPositions[3] != j0['Y2']):
+            rounded = False
+
+    return rounded
+
+
+def round_jaws(beamset):
+    """
+    Rounds the jaws. X1/Y1 will be rounded down to nearest mm, X2/Y2 rounded up
+        note X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)
+    :param beamset: RS beamset
+    :return: success: boolean indicating adjustments were successful
+    """
+    # try:
+    for b in beamset.Beams:
+        # First jaw position chosen.
+        if not jaws_rounded(beam=b):
+            s0 = b.Segments[0]
+            j0 = rounded_jaw_positions(s0)
+            init_positions = [s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3]]
+            if (s0.JawPositions[0] != j0['X1'] or
+                    s0.JawPositions[1] != j0['X2'] or
+                    s0.JawPositions[2] != j0['Y1'] or
+                    s0.JawPositions[3] != j0['Y2']):
+                for s in b.Segments:
+                    # Tracking jaws are not engaged at TrueBeam, if the first segment is wrong,
+                    # all segments need adjusting
+                    # if (s.JawPositions[0] != j0['X1'] or
+                    #     s.JawPositions[1] != j0['X2'] or
+                    #     s.JawPositions[2] != j0['Y1'] or
+                    #     s.JawPositions[3] != j0['Y2']):
+                    #     round_needed = True
+                    # else:
+                    #     round_needed = False
+                    # if round_needed:
+                    s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
+            logging.info('Beam {}: jaw positions changed '.format(b.Name) +
+                         '<X1: {0:.2f}->{1:.2f}>, '.format(init_positions[0], s.JawPositions[0]) +
+                         '<X2: {0:.2f}->{1:.2f}>, '.format(init_positions[1], s.JawPositions[1]) +
+                         '<Y1: {0:.2f}->{1:.2f}>, '.format(init_positions[2], s.JawPositions[2]) +
+                         '<Y2: {0:.2f}->{1:.2f}>'.format(init_positions[3], s.JawPositions[3]))
+        else:
+            logging.info('Beam {}: jaw positions do not need rounding.'.format(b.Name))
+    success = True
+    # except:
+    #     success = False
+    return success
+
+
+def mu_rounded(beam):
+    """
+    Compute the monitor units for the raystation beam to the nearest MU using the Round_Half_Up strategy
+    :param beam:
+    :return: a rounded float of the beam MU
+    """
+    from decimal import Decimal, ROUND_HALF_UP
+
+    init_mu = beam.BeamMU
+    dec_mu = Decimal(init_mu).quantize(0, rounding=ROUND_HALF_UP)
+    return float(dec_mu)
+
+
+def mu_is_rounded(beam):
+    """
+    Determine if supplied beam has MU rounded to nearest whole MU
+    :param beam: raystation beam object
+    :return:
+    """
+    tolerance = 1e-6
+    rounded = True
+    init_mu = beam.BeamMU
+    rounded_mu = mu_rounded(beam)
+    if abs(init_mu - rounded_mu) > tolerance:
+        rounded = False
+
+    return rounded
+
+
+def round_mu(beamset):
+    """
+    Rounds to the nearest MU
+    :param beamset:
+    :return: success: logical
+    """
+    if 'Tomo' in beamset.DeliveryTechnique:
+        logging.debug('Round MU is not a good idea on a Tomo plan.')
+        success = False
+        return success
+
+    for b in beamset.Beams:
+        if mu_is_rounded(b):
+            logging.debug('Beam {} already has rounded MU {}'.format(b.Name, b.BeamMU))
+        else:
+            mu_i = b.BeamMU
+            b.BeamMU = mu_rounded(b)
+            logging.info('Beam {0} MU changed from {1:.2f} to {2}'.format(b.Name, mu_i, b.BeamMU))
+    return True
+
+
+def exists_dsp(beamset, dsps):
+    """See if rois is in the list"""
+    if type(dsps) is not list:
+        dsps = [dsps]
+
+    defined_dsps = []
+    for p in beamset.DoseSpecificationPoints:
+        defined_dsps.append(p.Name)
+
+    dsp_exists = []
+
+    for p in dsps:
+        i = 0
+        exact_match = False
+        if p in defined_dsps:
+            while i < len(defined_dsps):
+                if p == defined_dsps[i]:
+                    exact_match = True
+                i += 1
+            if exact_match:
+                dsp_exists.append(True)
+            else:
+                dsp_exists.append(False)
+        else:
+            dsp_exists.append(False)
+
+    return dsp_exists
+
+
+def dsp_matches_rx(beamset, dsp):
+    """
+
+    :param beamset: raystation beamset
+    :param dsp: Dose specification point name (string)
+    :param rx_dose: prescription dose
+    :return: True if total dose match
+    """
+    tolerance = 0.01
+    number_of_fractions = beamset.FractionationPattern.NumberOfFractions
+    rx_dose = beamset.Prescription.PrimaryDosePrescription.DoseValue / number_of_fractions
+    if exists_dsp(beamset, dsps=dsp):
+        total_dose = 0
+        for bd in beamset.FractionDose.BeamDoses:
+            if bd.UserSetBeamDoseSpecificationPoint.Name == dsp:
+                if bd.DoseAtPoint.DoseValue is not None:
+                    total_dose += bd.DoseAtPoint.DoseValue
+                else:
+                    return False
+        if abs(total_dose - rx_dose) > tolerance:
+            logging.debug('Dose specification point {} does not match fractional rx dose {}'.format(
+                dsp, rx_dose))
+            return False
+        else:
+            return True
+    else:
+        logging.warning('Dsp point {} does not exist'.format(dsp))
+
+
 def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     """
     :param plan: current plan
@@ -1174,12 +1360,10 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     else:
         rx = dose_per_fraction
 
-    logging.debug('rx = '.format(rx))
+    logging.debug('rx = {}'.format(rx))
 
     xpos = None
-    tolerance = 5.0e-2
-    # beam_set = get_current('BeamSet')
-    # plan = connect.get_current('Plan')
+    tolerance = 1e-2
 
     xmax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.x
     ymax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.y
@@ -1191,37 +1375,28 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     zsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.z
 
     if np.amax(pd_np) < rx:
-        print
-        'max = ', str(max(pd))
-        print
-        'target = ', str(rx)
+        logging.debug('max = {}'.format(max(pd)))
+        logging.debug('target = {}'.format(rx))
         raise ValueError('max beam dose is too low')
 
-    # rx_points = np.empty((0, 3), dtype=np.int)
-    rx_points = np.argwhere(abs(rx - pd_np) <= tolerance)
-    print("Shape of rx_points {}".format(rx_points.shape))
-
-    # for (x, y, z), value in np.ndenumerate(pd_np):
-    #    if rx - tolerance < value < rx + tolerance:
-    #        rx_points = np.append(rx_points, np.array([[x, y, z]]), axis=0)
-    #        print('dose = {}'.format(value))
-    #        xpos = x * xsize + xcorner + xsize/2
-    #        ypos = y * ysize + ycorner + ysize/2
-    #        zpos = z * zsize + zcorner + zsize/2
-    #        print 'corner = {0}, {1}, {2}'.format(xcorner,ycorner,zcorner)
-    #        print 'x, y, z = {0}, {1}, {2}'.format(x * xsize, y * ysize, z * zsize)
-    #        print 'x, y, z positions = {0}, {1}, {2}'.format(xpos,ypos,zpos)
-    #        # return [xpos, ypos, zpos]
-    # break
+    rx_points = np.array([])
+    while rx_points.size == 0:
+        t_init = tolerance
+        rx_points = np.argwhere(abs(rx - pd_np) <= tolerance)
+        tolerance = t_init * 1.1
+    logging.info('Tolerance used for rx agreement was +/- {} Gy'.format(t_init))
 
     matches = np.empty(np.size(rx_points, 0))
 
     for b in beam_set.FractionDose.BeamDoses:
         pd = np.array(b.DoseValues.DoseData)
-        # The dose grid is stored [z: I/S, y: P/A, x: R/L]
+        # The dose grid is stored [z: I/S, y: P/A, x: R/L], so swap x and z
         pd = pd.swapaxes(0, 2)
-        # Numpy does evaluation of advanced indicies column wise:
+        # Numpy does evaluation of advanced indices column wise:
         # pd[sheets, columns, rows]
+        # Calculation organizes points by the MU contributed by each beam. The point
+        # which has the closest dose from each beam to the MU used by the beam will be used
+        # below
         matches += abs(pd[rx_points[:, 0], rx_points[:, 1], rx_points[:, 2]] / rx -
                        b.ForBeam.BeamMU / tot)
 
@@ -1229,23 +1404,99 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     xpos = rx_points[min_i, 0] * xsize + xcorner + xsize / 2
     ypos = rx_points[min_i, 1] * ysize + ycorner + ysize / 2
     zpos = rx_points[min_i, 2] * zsize + zcorner + zsize / 2
-    print
-    'x, y, z positions = {0}, {1}, {2}'.format(xpos, ypos, zpos)
+
     return [xpos, ypos, zpos]
 
 
-def set_dsp(plan, beam_set):
-    rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue
+def find_dsp_centroid(plan, beam_set, percent_max=None):
+    """
+    Find the centroid of points at or above 98% or percent_max of the maximum dose in the grid
+    :param plan: current plan
+    :param beam_set: current beamset
+    :param percent_max: percentage of maximum dose, above which points will be included
+    :return: a list of [x, y, z] coordinates on the dose grid
+    """
+    # Get the MU weights of each beam
+    tot = 0.
+    for b in beam_set.Beams:
+        tot += b.BeamMU
+
+    # Search the fractional dose grid
+    # The dose grid is stored by RS as a numpy array
+    pd = beam_set.FractionDose.DoseValues.DoseData
+
+    # The dose grid is stored [z: I/S, y: P/A, x: R/L]
+    pd = pd.swapaxes(0, 2)
+
+    if percent_max is None:
+        rx = np.amax(pd) * 98. / 100.
+    else:
+        rx = np.amax(pd) * percent_max / 100.
+
+    tolerance = 1e-2
+
+    xcorner = plan.TreatmentCourse.TotalDose.InDoseGrid.Corner.x
+    ycorner = plan.TreatmentCourse.TotalDose.InDoseGrid.Corner.y
+    zcorner = plan.TreatmentCourse.TotalDose.InDoseGrid.Corner.z
+    xsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.x
+    ysize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.y
+    zsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.z
+
+    rx_points = np.array([])
+    # Find the an array of points with dose > rx
+    # if there are no points with this dose, look for points with a lower percentage
+    t = 1
+    while rx_points.size == 0:
+        t_init = t
+        rx_points = np.argwhere(pd >= rx * t)
+        t = t_init - tolerance
+    logging.info('Tolerance used for the supplied dose {} agreement was > {} Gy'.format(rx, rx * t_init))
+
+    logging.debug('Finding centroid of matching dose points')
+    length = rx_points.shape[0]  # total number of points
+    n_x_pos = rx_points[:, 0] * xsize + xcorner + xsize / 2  # points in RS coordinates
+    n_y_pos = rx_points[:, 1] * ysize + ycorner + ysize / 2
+    n_z_pos = rx_points[:, 2] * zsize + zcorner + zsize / 2
+    xpos = np.sum(n_x_pos) / length  # average position
+    ypos = np.sum(n_y_pos) / length
+    zpos = np.sum(n_z_pos) / length
+
+    return [xpos, ypos, zpos]
+
+
+def set_dsp(plan, beam_set, percent_rx=100., method='MU'):
+    rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue * percent_rx / 100.
     fractions = beam_set.FractionationPattern.NumberOfFractions
     if rx is None:
         raise ValueError('A Prescription must be set.')
     else:
         rx = rx / fractions
 
-    dsp_pos = find_dsp(plan=plan, beam_set=beam_set, dose_per_fraction=rx)
+    # Look for an existing suitable already assigned DSP
+    try:
+        existing_dsp = beam_set.FractionDose.BeamDoses[0].UserSetBeamDoseSpecificationPoint.Name
+        logging.debug('Found existing DSP {} for this beamset {}'.format(
+            existing_dsp, beam_set.DicomPlanLabel))
+        if dsp_matches_rx(beamset=beam_set, dsp=existing_dsp):
+            logging.debug('Existing DSP {} satisfies prescription for this beamset {}'.format(
+                existing_dsp, beam_set.DicomPlanLabel))
+            return True
+    except AttributeError:
+        logging.debug('No dsp in current beamset {}'.format(beam_set.DicomPlanLabel))
+
+    if method == 'MU':
+        dsp_pos = find_dsp(plan=plan, beam_set=beam_set, dose_per_fraction=rx)
+    elif method == 'Centroid':
+        dsp_pos = find_dsp_centroid(plan=plan, beam_set=beam_set, percent_max=98)
 
     if dsp_pos:
+        i = 0
         dsp_name = beam_set.DicomPlanLabel
+
+        while any(exists_dsp(beamset=beam_set, dsps=dsp_name)):
+            i += 1
+            dsp_name = beam_set.DicomPlanLabel + '_' + str(i)
+
         beam_set.CreateDoseSpecificationPoint(Name=dsp_name,
                                               Coordinates={'x': dsp_pos[0],
                                                            'y': dsp_pos[1],
@@ -1258,9 +1509,9 @@ def set_dsp(plan, beam_set):
     for i, beam in enumerate(beam_set.Beams):
         beam.SetDoseSpecificationPoint(Name=dsp_name)
 
-    algorithm = beam_set.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm
+    # algorithm = beam_set.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm
     # print "\n\nComputing Dose..."
-    beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
+    # beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
 
 
 def load_beams_xml(filename, beamset_name, path):
@@ -1275,7 +1526,7 @@ def load_beams_xml(filename, beamset_name, path):
                                          set_elements='beam',
                                          set_level_name=beamset_name,
                                          filename=filename,
-                                         folder=path,verbose_logging=True)
+                                         folder=path, verbose_logging=True)
 
     beams = []
     for et_beamsets in beam_elements:
@@ -1354,7 +1605,7 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
                                   .format(beam_name, existing_limits[0], existing_limits[1],
                                           existing_limits[2], existing_limits[3]))
             else:
-                existing_limits = [None]*4
+                existing_limits = [None] * 4
                 if verbose_logging:
                     logging.debug('No limits currently exist on beam {}'.format(beam_name))
 
@@ -1426,3 +1677,54 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
         else:
             logging.debug('Limits met, no changes in aperture needed')
             return True
+
+
+def emc_calc_params(beamset):
+    """
+    For each beam, go through the beam doses, and return the statistical uncertainty and the
+    MC histories used in beam beam dose. Return the maximum uncertainty and minimum MC histories.
+    :param beamset: RS beamset
+    :return: NormUnc (the maximum normalized uncertainty) and number of histories used in calc
+    """
+    max_uncertainty = 0
+    min_histories = 1e10
+    # Return electron monte carlo computational parameters
+    for bd in beamset.FractionDose.BeamDoses:
+        max_uncertainty = max(max_uncertainty, bd.DoseValues.RelativeStatisticalUncertainty)
+        min_histories = min(min_histories, bd.DoseValues.AlgorithmProperties.MonteCarloHistoriesPerAreaFluence)
+
+    return {'NormUnc': max_uncertainty, 'MinHist': min_histories}
+
+
+class EmcTest:
+    # Class used in output of the EMC test, where bool will be T/F depending on clinical uncertainties met
+    # and hist will return the number of suggested histories if the calculation of dose needs to be rerun
+    def __init__(self):
+        self.bool = True
+        self.hist = None
+
+
+def check_emc(beamset, stat_limit=0.01, histories=5e5):
+    """
+    Checks the electron monte carlo accuracy to ensure statistical limit is met
+    :param beamset: RS beamset
+    :param stat_limit: limit on the maximum uncertainty normalized to the maximum dose
+    :param histories: number of e mc histories
+    :return: EmcTest: True if meeting both standard clinical goals, otherwise a new recommended number of histories
+    """
+    eval_current_emc = emc_calc_params(beamset)
+    if eval_current_emc['MinHist'] < histories or eval_current_emc['NormUnc'] > stat_limit:
+        EmcTest.bool = False
+        stat_limit_hist = int(eval_current_emc['MinHist'] * (eval_current_emc['NormUnc'] / stat_limit) ** 2.)
+        EmcTest.hist = max(histories, stat_limit_hist)
+        logging.info('Electron MC check showed an uncertainty of {} recommend increasing histories from {} to {}'
+                     .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist'], EmcTest.hist))
+    else:
+        EmcTest.bool = True
+        logging.info('Electron MC check showed clinically-acceptable uncertainty {} and histories {}'
+                     .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
+
+    return EmcTest
+
+
+

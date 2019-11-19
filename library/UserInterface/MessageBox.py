@@ -71,3 +71,58 @@ class QuestionBox:
         else:
             self.yes = False
             self.no = True
+
+class RichTextBox:
+
+
+    def __init__(self, text, title='RT Box', form=None):
+
+        # Link .NET assemblies
+        clr.AddReference('System.Windows.Forms')
+        import System
+
+        """box = UserInterface.MessageBox('text', 'title')"""
+        if form is None:
+            self.form = System.Windows.Forms.Form()
+            self.form.AutoSize = True
+            self.form.MaximumSize = System.Drawing.Size(1200,
+                                                        System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+            self.form.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+            self.form.Padding = System.Windows.Forms.Padding(0)
+            self.form.Text = title
+            self.form.AutoScroll = True
+            self.form.BackColor = System.Drawing.Color.White
+            self.form.TopMost = True
+
+            # Add table layout
+            self.outer_table = System.Windows.Forms.TableLayoutPanel()
+            self.outer_table.ColumnCount = 1
+            self.outer_table.RowCount = 1
+            self.outer_table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
+            self.outer_table.Padding = System.Windows.Forms.Padding(0, 0, 0, 10)
+            self.outer_table.BackColor = System.Drawing.Color.White
+            self.outer_table.AutoSize = True
+            self.form.Controls.Add(self.outer_table)
+
+            # Add intro text
+            if text != '':
+
+                self.intro = System.Windows.Forms.Label()
+                self.intro.Text = text
+                self.intro.AutoSize = True
+                self.intro.MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 55,
+                                                             System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+                self.intro.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+                self.outer_table.Controls.Add(self.intro)
+
+        else:
+            self.form = form
+
+    def show(self):
+        """results = dialog.show()"""
+        self.values = {}
+        self.form.ShowDialog()
+
+
+
+
