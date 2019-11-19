@@ -273,7 +273,7 @@ def main():
     #  Eventually we may want to convert to accepting a call from a filename
     #  Alternatively, this could all be set up as a function call
     if filename:
-        logging.info("Protocol selected: {}".format(
+        logging.critical("Protocol selected: {}".format(
             filename))
         root = tpo.protocols[tpo.protocols[filename]]
     else:
@@ -311,7 +311,7 @@ def main():
             # Launch the dialog
             response = input_dialog.show()
             # Link root to selected protocol ElementTree
-            logging.info("Order selected: {}".format(
+            logging.critical("Order selected: {}".format(
                 input_dialog.values['i']))
             # Update the order name
 
@@ -418,7 +418,7 @@ def main():
             else:
                 mc_list = ',\n'.join(m_c)
                 missing_message = 'Missing structures remain: ' + mc_list
-                logging.warning(missing_message)
+                logging.warning('Missing contours from this order: {}'.format(m_c))
 
         status.next_step(text="Getting target doses from user.", num=2)
         target_dialog = UserInterface.InputDialog(

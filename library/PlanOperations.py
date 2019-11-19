@@ -83,3 +83,33 @@ def find_beamset(plan, beamset_name, exact=True):
                 return b
         logging.info('No beamset with name {} found in {}'.format(beamset_name,plan.Name))
 
+
+def find_used_structures(case, exam, plan, beamset):
+    """ Search the list of objectives/constraints, goals, and treat/protect to see which are used for this plan
+    Return all the structures
+    :param case:
+    :param exam:
+    :param plan:
+    :param beamset:
+    :return: used_rois
+    """
+    # First find the relevant index
+    used_rois = []
+    indx = find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
+
+    # Search the objective functions
+    for o in plan.PlanOptimizations[indx].Objective.ConstituentFunctions:
+        used_rois.append(o.ForRegionOfInterest.Name)
+
+    # Search the constraints
+    for c in plan.PlanOptimizations[indx].Constraints:
+        used_rois.append(c.ForRegionOfInterest.Name)
+
+    # Search the plan evaluation functions
+    for e in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
+        used_rois.append(e.ForRegionOfInterest.Name)
+
+
+
+
+

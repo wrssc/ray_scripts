@@ -3,6 +3,7 @@ from CommonDialog import CommonDialog
 from MessageBox import MessageBox
 from MessageBox import WarningBox
 from MessageBox import QuestionBox
+from MessageBox import RichTextBox
 from InputDialog import InputDialog
 from MatchDialog import MatchDialog
 from ScriptStatus import ScriptStatus

@@ -10,6 +10,7 @@ import logging
 import xml.etree.ElementTree
 import UserInterface
 import StructureOperations
+import GeneralOperations as logcrit
 
 
 def find_optimization_index(plan, beamset):
@@ -201,7 +202,7 @@ def select_objective_protocol(folder=None, filename=None, order_name=None, proto
 
     if et_list is not None:
         for e in et_list:
-            logging.info('Objective list to be loaded {}'.format(
+            logcrit('Objective list to be loaded {}'.format(
                 e.find('name').text))
     else:
         logging.warning('objective files were not found')

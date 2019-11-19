@@ -394,6 +394,8 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                         iteration + 1, time_iteration_delta.total_seconds())
                 logging.info("Time: Total Aperture-based optimization (seconds): {}".format(
                     time_iteration_total.total_seconds()))
+                logging.log("Time: Total Aperture-based optimization (seconds): {}".format(
+                    time_iteration_total.total_seconds()))
                 on_screen_message += "Total time spent in aperture-based optimization was: {} s\n".format(
                     time_iteration_total.total_seconds())
             except KeyError:
@@ -559,6 +561,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     status_steps.append('Provide Optimization Report')
 
     report_inputs['status_steps'] = status_steps
+
+    logging.critical('{} automated optimization started with reset beams {}, {} warmstarts'.format(
+        beamset.DicomPlanLabel, reset_beams, maximum_iteration
+    ))
 
     # Change the status steps to indicate each iteration
     status = UserInterface.ScriptStatus(
@@ -839,6 +845,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         reduce_oar=reduce_oar_success,
         segment_weight=segment_weight,
         **report_inputs)
+    logging.critical('{} finished at {}'.format(beamset.DicomPlanLabel, datetime.datetime.now()))
 
     status.next_step('Optimization summary')
     status.finish(on_screen_message)
