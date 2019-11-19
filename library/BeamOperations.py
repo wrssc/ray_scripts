@@ -1180,40 +1180,39 @@ def round_jaws(beamset):
     :param beamset: RS beamset
     :return: success: boolean indicating adjustments were successful
     """
-    try:
-        for b in beamset.Beams:
-            # First jaw position chosen.
-            if not jaws_rounded(beam=b):
-                s0 = b.Segments[0]
-                j0 = rounded_jaw_positions(s0)
+    # try:
+    for b in beamset.Beams:
+        # First jaw position chosen.
+        if not jaws_rounded(beam=b):
+            s0 = b.Segments[0]
+            j0 = rounded_jaw_positions(s0)
+            init_positions = [s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3]]
+            if (s0.JawPositions[0] != j0['X1'] or
+                    s0.JawPositions[1] != j0['X2'] or
+                    s0.JawPositions[2] != j0['Y1'] or
+                    s0.JawPositions[3] != j0['Y2']):
                 for s in b.Segments:
-                    if (s.JawPositions[0] != j0['X1'] or
-                            s.JawPositions[1] != j0['X2'] or
-                            s.JawPositions[2] != j0['Y1'] or
-                            s.JawPositions[3] != j0['Y2']):
-                        round_needed = True
-                    else:
-                        round_needed = False
-                    if round_needed:
-                        s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
-            else:
-                round_needed = False
-            if round_needed:
-                logging.info('Beam {}: jaw positions changed '.format(b.Name) +
-                             'X1: {} to {}'.format(j0['X1'], s.JawPositions[0]) +
-                             'X2: {} to {}'.format(j0['X2'], s.JawPositions[1]) +
-                             'Y1: {} to {}'.format(j0['Y1'], s.JawPositions[2]) +
-                             'Y2: {} to {}'.format(j0['Y2'], s.JawPositions[3]))
-            else:
-                logging.info('Beam {}: jaw positions do not need rounding:'+
-                             'X1: {}'.format(s.JawPositions[0]) +
-                             'X2: {}'.format(s.JawPositions[1]) +
-                             'Y1: {}'.format(s.JawPositions[2]) +
-                             'Y2: {}'.format(s.JawPositions[3]))
-        success = True
-    except:
-        success = False
-
+                    # Tracking jaws are not engaged at TrueBeam, if the first segment is wrong,
+                    # all segments need adjusting
+                    # if (s.JawPositions[0] != j0['X1'] or
+                    #     s.JawPositions[1] != j0['X2'] or
+                    #     s.JawPositions[2] != j0['Y1'] or
+                    #     s.JawPositions[3] != j0['Y2']):
+                    #     round_needed = True
+                    # else:
+                    #     round_needed = False
+                    # if round_needed:
+                    s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
+            logging.info('Beam {}: jaw positions changed '.format(b.Name) +
+                         '<X1: {0:.2f}->{1:.2f}>, '.format(init_positions[0], s.JawPositions[0]) +
+                         '<X2: {0:.2f}->{1:.2f}>, '.format(init_positions[1], s.JawPositions[1]) +
+                         '<Y1: {0:.2f}->{1:.2f}>, '.format(init_positions[2], s.JawPositions[2]) +
+                         '<Y2: {0:.2f}->{1:.2f}>'.format(init_positions[3], s.JawPositions[3]))
+        else:
+            logging.info('Beam {}: jaw positions do not need rounding.'.format(b.Name))
+    success = True
+    # except:
+    #     success = False
     return success
 
 
@@ -1263,7 +1262,7 @@ def round_mu(beamset):
         else:
             mu_i = b.BeamMU
             b.BeamMU = mu_rounded(b)
-            logging.info('Beam {} MU changed from {} to {}'.format(b.Name, mu_i, b.BeamMU))
+            logging.info('Beam {0} MU changed from {1:.2f} to {2}'.format(b.Name, mu_i, b.BeamMU))
     return True
 
 
@@ -1304,14 +1303,17 @@ def dsp_matches_rx(beamset, dsp):
     :param rx_dose: prescription dose
     :return: True if total dose match
     """
-    tolerance = 0.001
+    tolerance = 0.01
     number_of_fractions = beamset.FractionationPattern.NumberOfFractions
     rx_dose = beamset.Prescription.PrimaryDosePrescription.DoseValue / number_of_fractions
     if exists_dsp(beamset, dsps=dsp):
         total_dose = 0
         for bd in beamset.FractionDose.BeamDoses:
             if bd.UserSetBeamDoseSpecificationPoint.Name == dsp:
-                total_dose += bd.DoseAtPoint.DoseValue
+                if bd.DoseAtPoint.DoseValue is not None:
+                    total_dose += bd.DoseAtPoint.DoseValue
+                else:
+                    return False
         if abs(total_dose - rx_dose) > tolerance:
             logging.debug('Dose specification point {} does not match fractional rx dose {}'.format(
                 dsp, rx_dose))
@@ -1383,31 +1385,87 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
         rx_points = np.argwhere(abs(rx - pd_np) <= tolerance)
         tolerance = t_init * 1.1
     logging.info('Tolerance used for rx agreement was +/- {} Gy'.format(t_init))
-    logging.debug("Shape of rx_points {}".format(rx_points.shape))
 
     matches = np.empty(np.size(rx_points, 0))
 
     for b in beam_set.FractionDose.BeamDoses:
         pd = np.array(b.DoseValues.DoseData)
-        # The dose grid is stored [z: I/S, y: P/A, x: R/L]
+        # The dose grid is stored [z: I/S, y: P/A, x: R/L], so swap x and z
         pd = pd.swapaxes(0, 2)
         # Numpy does evaluation of advanced indices column wise:
         # pd[sheets, columns, rows]
+        # Calculation organizes points by the MU contributed by each beam. The point
+        # which has the closest dose from each beam to the MU used by the beam will be used
+        # below
         matches += abs(pd[rx_points[:, 0], rx_points[:, 1], rx_points[:, 2]] / rx -
                        b.ForBeam.BeamMU / tot)
 
-    logging.debug('size of the matching point arrays is {}'.format(matches.shape))
     min_i = np.argmin(matches)
     xpos = rx_points[min_i, 0] * xsize + xcorner + xsize / 2
     ypos = rx_points[min_i, 1] * ysize + ycorner + ysize / 2
     zpos = rx_points[min_i, 2] * zsize + zcorner + zsize / 2
-    logging.debug('x, y, z positions = {0}, {1}, {2}'.format(xpos, ypos, zpos))
 
     return [xpos, ypos, zpos]
 
 
-def set_dsp(plan, beam_set):
-    rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue
+def find_dsp_centroid(plan, beam_set, percent_max=None):
+    """
+    Find the centroid of points at or above 98% or percent_max of the maximum dose in the grid
+    :param plan: current plan
+    :param beam_set: current beamset
+    :param percent_max: percentage of maximum dose, above which points will be included
+    :return: a list of [x, y, z] coordinates on the dose grid
+    """
+    # Get the MU weights of each beam
+    tot = 0.
+    for b in beam_set.Beams:
+        tot += b.BeamMU
+
+    # Search the fractional dose grid
+    # The dose grid is stored by RS as a numpy array
+    pd = beam_set.FractionDose.DoseValues.DoseData
+
+    # The dose grid is stored [z: I/S, y: P/A, x: R/L]
+    pd = pd.swapaxes(0, 2)
+
+    if percent_max is None:
+        rx = np.amax(pd) * 98. / 100.
+    else:
+        rx = np.amax(pd) * percent_max / 100.
+
+    tolerance = 1e-2
+
+    xcorner = plan.TreatmentCourse.TotalDose.InDoseGrid.Corner.x
+    ycorner = plan.TreatmentCourse.TotalDose.InDoseGrid.Corner.y
+    zcorner = plan.TreatmentCourse.TotalDose.InDoseGrid.Corner.z
+    xsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.x
+    ysize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.y
+    zsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.z
+
+    rx_points = np.array([])
+    # Find the an array of points with dose > rx
+    # if there are no points with this dose, look for points with a lower percentage
+    t = 1
+    while rx_points.size == 0:
+        t_init = t
+        rx_points = np.argwhere(pd >= rx * t)
+        t = t_init - tolerance
+    logging.info('Tolerance used for the supplied dose {} agreement was > {} Gy'.format(rx, rx * t_init))
+
+    logging.debug('Finding centroid of matching dose points')
+    length = rx_points.shape[0]  # total number of points
+    n_x_pos = rx_points[:, 0] * xsize + xcorner + xsize / 2  # points in RS coordinates
+    n_y_pos = rx_points[:, 1] * ysize + ycorner + ysize / 2
+    n_z_pos = rx_points[:, 2] * zsize + zcorner + zsize / 2
+    xpos = np.sum(n_x_pos) / length  # average position
+    ypos = np.sum(n_y_pos) / length
+    zpos = np.sum(n_z_pos) / length
+
+    return [xpos, ypos, zpos]
+
+
+def set_dsp(plan, beam_set, percent_rx=100., method='MU'):
+    rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue * percent_rx / 100.
     fractions = beam_set.FractionationPattern.NumberOfFractions
     if rx is None:
         raise ValueError('A Prescription must be set.')
@@ -1426,7 +1484,10 @@ def set_dsp(plan, beam_set):
     except AttributeError:
         logging.debug('No dsp in current beamset {}'.format(beam_set.DicomPlanLabel))
 
-    dsp_pos = find_dsp(plan=plan, beam_set=beam_set, dose_per_fraction=rx)
+    if method == 'MU':
+        dsp_pos = find_dsp(plan=plan, beam_set=beam_set, dose_per_fraction=rx)
+    elif method == 'Centroid':
+        dsp_pos = find_dsp_centroid(plan=plan, beam_set=beam_set, percent_max=98)
 
     if dsp_pos:
         i = 0
@@ -1448,9 +1509,9 @@ def set_dsp(plan, beam_set):
     for i, beam in enumerate(beam_set.Beams):
         beam.SetDoseSpecificationPoint(Name=dsp_name)
 
-    algorithm = beam_set.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm
+    # algorithm = beam_set.FractionDose.DoseValues.AlgorithmProperties.DoseAlgorithm
     # print "\n\nComputing Dose..."
-    beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
+    # beam_set.ComputeDose(DoseAlgorithm=algorithm, ForceRecompute='TRUE')
 
 
 def load_beams_xml(filename, beamset_name, path):
@@ -1616,3 +1677,51 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
         else:
             logging.debug('Limits met, no changes in aperture needed')
             return True
+
+
+def emc_calc_params(beamset):
+    """
+    For each beam, go through the beam doses, and return the statistical uncertainty and the
+    MC histories used in beam beam dose. Return the maximum uncertainty and minimum MC histories.
+    :param beamset: RS beamset
+    :return: NormUnc (the maximum normalized uncertainty) and number of histories used in calc
+    """
+    max_uncertainty = 0
+    min_histories = 1e10
+    # Return electron monte carlo computational parameters
+    for bd in beamset.FractionDose.BeamDoses:
+        max_uncertainty = max(max_uncertainty, bd.DoseValues.RelativeStatisticalUncertainty)
+        min_histories = min(min_histories, bd.DoseValues.AlgorithmProperties.MonteCarloHistoriesPerAreaFluence)
+
+    return {'NormUnc': max_uncertainty, 'MinHist': min_histories}
+
+
+class EmcTest:
+    # Class used in output of the EMC test, where bool will be T/F depending on clinical uncertainties met
+    # and hist will return the number of suggested histories if the calculation of dose needs to be rerun
+    def __init__(self):
+        self.bool = True
+        self.hist = None
+
+
+def check_emc(beamset, stat_limit=0.01, histories=5e5):
+    """
+    Checks the electron monte carlo accuracy to ensure statistical limit is met
+    :param beamset: RS beamset
+    :param stat_limit: limit on the maximum uncertainty normalized to the maximum dose
+    :param histories: number of e mc histories
+    :return: EmcTest: True if meeting both standard clinical goals, otherwise a new recommended number of histories
+    """
+    eval_current_emc = emc_calc_params(beamset)
+    if eval_current_emc['MinHist'] < histories or eval_current_emc['NormUnc'] > stat_limit:
+        EmcTest.bool = False
+        stat_limit_hist = int(eval_current_emc['MinHist'] * (eval_current_emc['NormUnc'] / stat_limit) ** 2.)
+        EmcTest.hist = max(histories, stat_limit_hist)
+        logging.info('Electron MC check showed an uncertainty of {} recommend increasing histories from {} to {}'
+                     .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist'], EmcTest.hist))
+    else:
+        EmcTest.bool = True
+        logging.info('Electron MC check showed clinically-acceptable uncertainty {} and histories {}'
+                     .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
+
+    return EmcTest
