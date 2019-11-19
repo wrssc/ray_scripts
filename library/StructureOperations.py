@@ -54,6 +54,7 @@ import numpy as np
 import xml
 import re
 
+
 def exclude_from_export(case, rois):
     """Toggle export
     :param case: current case
@@ -70,6 +71,7 @@ def exclude_from_export(case, rois):
 
     except Exception:
         logging.warning('Unable to exclude {} from export'.format(rois))
+
 
 def include_in_export(case, rois):
     """Toggle export to true
@@ -613,3 +615,27 @@ def find_types(case, roi_type):
         if r.Type == roi_type:
             found_roi.append(r.Name)
     return found_roi
+
+
+def translate_roi(case, exam, roi, shifts):
+    """
+    Translate (only) an roi according to the shifts
+    :param case:
+    :param exam:
+    :param roi:
+    :param shifts: a dictionary containing shifts, e.g.
+        shifts = {'x': 1.0, 'y':1.0, 'z':1.0} would shift in each direction 1 cm
+    :return: centroid of shifted roi
+    """
+    x = shifts['x']
+    y = shifts['y']
+    z = shifts['z']
+    transform_matrix = {'M11':1, 'M12':0, 'M13':0, 'M14':x,
+                        'M21':0, 'M22':1, 'M23':0, 'M24':y,
+                        'M31':0, 'M32':0, 'M33':1, 'M34':z,
+                        'M41':0, 'M42':0, 'M43':0, 'M44':1}
+    case.PatientModel.RegionsOfInterest['TomoCouch'].TransformROI3D(
+        Examination=exam,TransformationMatrix=transform_matrix)
+    # case.PatientModel.StructureSets[exam].RoiGeometries[roi].TransformROI3D(
+    #    Examination=exam,TransformationMatrix=transform_matrix)
+

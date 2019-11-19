@@ -46,7 +46,7 @@ def find_scope(level=None, find_scope=False):
 
     # Find the deepest available scope and return a dict with available names
     scope = {}
-    scope_levels = ['Patient', 'Case', 'Examination', 'Plan', 'BeamSet']
+    scope_levels = ['ui', 'Patient', 'Case', 'Examination', 'Plan', 'BeamSet']
 
     for l in scope_levels:
         try:

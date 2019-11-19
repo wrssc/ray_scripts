@@ -46,6 +46,7 @@ import PlanOperations
 import PlanQualityAssuranceTests
 import GeneralOperations
 from GeneralOperations import logcrit as logcrit
+import StructureOperations
 
 
 class InvalidOperationException(Exception): pass
@@ -59,7 +60,14 @@ def main():
     exam = GeneralOperations.find_scope(level='Examination')
     plan = GeneralOperations.find_scope(level='Plan')
     beamset = GeneralOperations.find_scope(level='BeamSet')
+    ui = GeneralOperations.find_scope(level='ui')
+    ui.TitleBar.MenuItem['Plan Optimization'].Button_Plan_Optimization.Click()
 
+    # Institution specific plan names and dose grid settings
+    fine_grid_names = ['_SBR_']
+    fine_grid_size = 0.15
+    coarse_grid_names = ['_THI_', '_VMA_', '_3DC_', '_BST_', '_DCA_']
+    coarse_grid_size = 0.2
     # Set up the workflow steps.
     steps = []
     if 'Tomo' not in beamset.DeliveryTechnique and beamset.Modality != 'Electrons':
@@ -78,10 +86,12 @@ def main():
         simfid_test = True
         external_test = True
         grid_test = True
+        tomo_couch_test = False
 
     if 'Tomo' in beamset.DeliveryTechnique:
         steps.append('Rename Beams')
         steps.append('Check for external structure integrity')
+        steps.append('Check Tomo Couch position relative to isocenter')
         steps.append('Check SimFiducials have coordinates')
         steps.append('Check the dose grid size')
         steps.append('Compute Dose if neccessary')
@@ -91,6 +101,7 @@ def main():
         external_test = True
         grid_test = True
         cps_test = False
+        tomo_couch_test = True
 
     if beamset.Modality == 'Electrons':
         steps.append('Rename Beams')
@@ -104,6 +115,7 @@ def main():
         external_test = True
         grid_test = True
         cps_test = False
+        tomo_couch_test = False
 
     status = UserInterface.ScriptStatus(steps=steps,
                                         docstring=__doc__,
@@ -126,6 +138,33 @@ def main():
                 external_error = False
         status.next_step('Reviewed external')
 
+    # TOMO COUCH TEST
+    if tomo_couch_test:
+        tomo_couch_error = False
+        couch_name = 'TomoCouch'
+        couch = PlanQualityAssuranceTests.tomo_couch_check(case=case,
+                                                           exam=exam,
+                                                           beamset=beamset,
+                                                           tomo_couch_name=couch_name,
+                                                           limit=2.0,
+                                                           shift=True)
+        if not couch.valid:
+            tomo_couch_error = True
+            connect.await_user_input(couch.error)
+            if not couch.valid:
+                x_shift = couch.calculated_lateral_shift()
+                logging.info('Moving {} by {}'.format(couch_name, x_shift))
+                StructureOperations.translate_roi(case=case,
+                                              exam=exam,
+                                              roi=couch_name,
+                                              shifts={'x': x_shift, 'y': 0, 'z': 0})
+            plan.SetDefaultDoseGrid(
+                VoxelSize={'x': coarse_grid_size,'y': coarse_grid_size, 'z': coarse_grid_size})
+        else:
+            tomo_couch_error = False
+        status.next_step('TomoTherapy couch checked for correct lateral positioning')
+
+
     # SIMFIDUCIAL TEST
     if simfid_test:
         fiducial_point = 'SimFiducials'
@@ -140,10 +179,6 @@ def main():
 
     # GRID SIZE TEST
     if grid_test:
-        fine_grid_names = ['_SBR_']
-        fine_grid_size = 0.15
-        coarse_grid_names = ['_THI_', '_VMA_', '_3DC_', '_BST_', '_DCA_']
-        coarse_grid_size = 0.2
         fine_grid_error = PlanQualityAssuranceTests.gridsize_test(beamset=beamset,
                                                                   plan_string=fine_grid_names,
                                                                   nominal_grid_size=fine_grid_size)

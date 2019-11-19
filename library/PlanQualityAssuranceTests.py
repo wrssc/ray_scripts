@@ -140,7 +140,22 @@ def external_overlap_test(patient, case, exam):
     return error
 
 
-def tomo_couch_check(case, exam, beamset, tomo_couch_name='TomoCouch', limit=2.0):
+class Tomo_Couch_Valid:
+    # Class used for tomotherapy couch position validation
+    # valid: True if correctly placed (i.e. within 2 cm of isocenter lateral)
+    # centroid: centroid of coordinates
+    # shifts: None if valid, x, y, z otherwise
+    def __init__(self, valid, error, cent_x, iso_x):
+        self.valid = valid
+        self.error = error
+        self.cent_x = cent_x
+        self.iso_x = iso_x
+
+    def calculated_lateral_shift(self):
+        return self.iso_x - self.cent_x
+
+
+def tomo_couch_check(case, exam, beamset, tomo_couch_name='TomoCouch', limit=2.0, shift=False):
     """
     Test of the couch centering relative to isocenter
     :param case: RS Case
@@ -164,10 +179,19 @@ def tomo_couch_check(case, exam, beamset, tomo_couch_name='TomoCouch', limit=2.0
     # Get the center coordinate of the couch
     couch_center = case.PatientModel.StructureSets[exam.Name].RoiGeometries['TomoCouch'].GetCenterOfRoi()
     shift = iso_center.x - couch_center.x
-    if abs(shift) > limit:
-        error = 'Isocenter lateral shift is {0:.2f} cm. '.format(shift) + \
+    if abs(iso_center.x) > limit:
+        error = 'Isocenter lateral shift is {0:.2f} cm. '.format(iso_center.x) + \
                 'Patient indexing will need to be eliminated for shifts > {}. '.format(limit) + \
-                'Put an alert in R&V'
+                'Put an alert in R&V that the patient will be moved outside what is acheivable mechanically. \n'
+    if abs(shift) > limit:
+        couch_valid = False
+        error += 'The center of the couch differs from the isocenter by {0:.2f} cm. Couch will be moved'.format(shift)
     else:
-        return True
-    return error
+        couch_valid = True
+
+    if shift:
+        return Tomo_Couch_Valid(couch_valid, error, couch_center.x, iso_center.x)
+    else:
+        return error
+
+

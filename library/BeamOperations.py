@@ -1725,3 +1725,6 @@ def check_emc(beamset, stat_limit=0.01, histories=5e5):
                      .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
 
     return EmcTest
+
+
+
