@@ -10,7 +10,7 @@ import logging
 import xml.etree.ElementTree
 import UserInterface
 import StructureOperations
-import GeneralOperations as logcrit
+from GeneralOperations import logcrit as logcrit
 
 
 def find_optimization_index(plan, beamset):

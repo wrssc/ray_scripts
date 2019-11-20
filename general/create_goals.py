@@ -40,6 +40,7 @@ import connect
 import UserInterface
 import Goals
 import StructureOperations
+from GeneralOperations import logcrit as logcrit
 
 
 def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
@@ -273,7 +274,7 @@ def main():
     #  Eventually we may want to convert to accepting a call from a filename
     #  Alternatively, this could all be set up as a function call
     if filename:
-        logging.critical("Protocol selected: {}".format(
+        logcrit("Protocol selected: {}".format(
             filename))
         root = tpo.protocols[tpo.protocols[filename]]
     else:
