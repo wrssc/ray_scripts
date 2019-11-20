@@ -102,6 +102,7 @@ import sys
 import math
 import PlanOperations
 import BeamOperations
+from GeneralOperations import logcrit as logcrit
 
 
 def make_variable_grid_list(n_iterations, variable_dose_grid):
@@ -394,7 +395,7 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                         iteration + 1, time_iteration_delta.total_seconds())
                 logging.info("Time: Total Aperture-based optimization (seconds): {}".format(
                     time_iteration_total.total_seconds()))
-                logging.log("Time: Total Aperture-based optimization (seconds): {}".format(
+                logcrit("Time: Total Aperture-based optimization (seconds): {}".format(
                     time_iteration_total.total_seconds()))
                 on_screen_message += "Total time spent in aperture-based optimization was: {} s\n".format(
                     time_iteration_total.total_seconds())
