@@ -65,6 +65,7 @@ import logging
 import UserInterface
 import Xml_Out
 import StructureOperations
+from GeneralOperations import logcrit as logcrit
 import time
 import sys
 
@@ -597,7 +598,7 @@ def main():
                                **all_ptv_defs)
         newly_generated_rois.append('All_PTVs')
 
-    logging.log('Exam Name: {} Target List: [%s]' % ', '.join(map(str, input_source_list)))
+    logcrit('Exam Name: {} Target List: [%s]' % ', '.join(map(str, input_source_list)))
     logging.debug('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
     logging.debug('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
 
