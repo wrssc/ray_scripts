@@ -598,9 +598,9 @@ def main():
                                **all_ptv_defs)
         newly_generated_rois.append('All_PTVs')
 
-    logcrit('Exam Name: {} Target List: [%s]' % ', '.join(map(str, input_source_list)))
-    logging.debug('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
-    logging.debug('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
+    logcrit('Target List: [%s]' % ', '.join(map(str, input_source_list)))
+    logcrit('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
+    logcrit('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
 
     # Underdose dialog call
     if generate_underdose:

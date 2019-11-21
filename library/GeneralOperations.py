@@ -30,6 +30,9 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 
+class InvalidDataException(Exception):
+    pass
+
 def find_scope(level=None, find_scope=False):
     """
     Find the current available scope in RS at the level of level.
@@ -51,7 +54,7 @@ def find_scope(level=None, find_scope=False):
     for l in scope_levels:
         try:
             rs_obj = connect.get_current(l)
-        except SystemError:
+        except:
             rs_obj = None
         if l == level:
             if rs_obj is None:

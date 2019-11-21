@@ -8,6 +8,9 @@ import logging
 import os
 import webbrowser
 import GeneralOperations
+from GeneralOperations import logcrit
+import sys
+
 
 def main():
     patient = GeneralOperations.find_scope(level='Patient')
@@ -30,7 +33,8 @@ def main():
     # slice_thickness = exam.GetStoredDicomTagValueForVerification(Group=0x018,Element=0x050)
     # gantry_tilt = exam.GetStoredDicomTagValueForVerification(Group=0x018,Element=1120)
     # ct_info = {}
-    # logging.critical('Series Name: {}'.format(series_number['Series Number']))
+    logcrit('Testing logcrit')
+    sys.exit()
 
     grid_test = True
     simfid_test = True
@@ -88,6 +92,7 @@ def main():
     dialog.show()
     # webbrowser.open(infile)
     # connect.await_user_input('Check it out')
+
 
 
 if __name__ == '__main__':

@@ -221,7 +221,8 @@ def main():
             try:
                 beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=False)
                 status.next_step('Recomputed Dose, finding DSP')
-            except Exception:
+            except Exception as e:
+                logging.debug('exception produced was {}. type{}'.format(e,type(e)))
                 status.next_step('Dose re-computation unnecessary, finding DSP')
                 logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
 
@@ -243,7 +244,10 @@ def main():
             # Recompute dose
             status.next_step('Recomputing Dose')
             # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
-            beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+            try:
+                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+            except Exception as e:
+                logging.debug(' error type is {}, with e = {}'.format(type(e), e))
             status.next_step('Script Complete')
 
     if beamset.Modality == 'Electrons':
