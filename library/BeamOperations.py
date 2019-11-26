@@ -1139,6 +1139,49 @@ def rename_beams():
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
 
 
+def maximum_leaf_extent(beam):
+    """
+
+    :param beam: RayStation beam object
+    :return: numpy array of maximum (most open) leaf position over all control points
+    """
+    if not beam.HasValidSegments:
+        return None
+
+    # Find the number of leaves in the first segment to initialize the array
+    s0 = beam.Segments[0]
+    bank_a = np.transpose(s0.LeafPositions[0])
+    bank_b = np.transpose(s0.LeafPositions[1])
+    num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
+    logging.debug('Number of mlcs in a bank is {}'.format(num_leaves_per_bank))
+    # num_banks = 2
+    banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
+    logging.debug('Shape of leaves is {}'.format(banks.shape))
+    # Combine the segments into a single ndarray of size:
+    # number of MLCs x number of banks x number of segments
+    for s in beam.Segments:
+        bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
+        banks = np.dstack((banks, bank))
+    logging.debug('leaf positions on A bank {}'.format(banks.shape))
+
+    # Determine the maximum of any leaf position for all segments
+    # completely irradiated area outline
+    cp01 = banks[:,:,0:1]
+    max_leaf_a, max_leaf_b = np.amax(cp01, axis=0)
+    logging.debug('max index {} {} '.format(max_leaf_a,max_leaf_b))
+    ciao = np.empty(shape=(num_leaves_per_bank,2))
+    ciao[:,0] = np.amax(banks[:,0,:], axis=1)
+    ciao[:,1] = np.amin(banks[:,1,:], axis=1)
+    logging.debug('Format of ciao should be {}'.format(ciao.shape))
+    logging.debug('Max of leaves 0 and 9 {} {}'.format(ciao[0,0], ciao[9,0]))
+
+    sys.exit()
+
+
+
+
+
+
 def rounded_jaw_positions(segment):
     """
     compute the jaw positions that would result from rounding to nearest mm

@@ -29,6 +29,8 @@ __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+import logging
+
 
 class InvalidDataException(Exception):
     pass
@@ -45,7 +47,6 @@ def find_scope(level=None, find_scope=False):
         If find_scope, then a dict of plan variables is used
     """
     import connect
-    import logging
 
     # Find the deepest available scope and return a dict with available names
     scope = {}
@@ -69,7 +70,6 @@ def find_scope(level=None, find_scope=False):
 
 
 def logcrit(message):
-    import logging
     # Determine deepest scope
     current_scope = find_scope(find_scope=True)
     level = ''
