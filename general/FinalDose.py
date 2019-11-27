@@ -67,13 +67,6 @@ def main():
     ui = GeneralOperations.find_scope(level='ui')
     ui.TitleBar.MenuItem['Plan Optimization'].Button_Plan_Optimization.Click()
 
-    try:
-        b = beamset.Beams[0]
-        BeamOperations.maximum_leaf_extent(b)
-
-    except System.InvalidOperationException as e:
-        logging.debug('Did it! {}'.format(e))
-        raise(e)
     # Institution specific plan names and dose grid settings
     fine_grid_names = ['_SBR_']
     fine_grid_size = 0.15
