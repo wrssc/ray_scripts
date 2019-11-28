@@ -1175,32 +1175,30 @@ def maximum_segment_leaf_test(seg):
     """
 
 
-
-
-
-
-def rounded_jaw_positions(segment):
+def rounded_jaw_positions(beam):
     """
     compute the jaw positions that would result from rounding to nearest mm
-    :param segment: Beam setment
+    :param beam: RS beam
     :return: {X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)}
     """
     # Find the number of leaves in the first segment to initialize the array
     maximum_leaf_out_of_carriage = 15  # 15 cm is the TrueBeam Limit. TODO, find this from machine params
 
     # Find the result of setting the jaws open
-    round_open_l_jaw = math.ceil(10 * segment.JawPositions[0]) / 10
-    round_open_r_jaw = math.floor(10 * segment.JawPositions[1]) / 10
-    # create a numpy array of the two mlc banks [ Leaf Positions, bank #]
-    banks = np.column_stack((segment.LeafPositions[0], segment.LeafPositions[1]))
-    # Find the maximally extended MLC in each bank
-    max_a = np.amax(banks[:, 0], axis=0)
-    min_b = np.amin(banks[:, 1], axis=0)
+    s0 = beam.Segments[0]
+    round_open_l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
+    round_open_r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
 
+    # get the ciao for this beam
+    ciao = maximum_beam_leaf_extent(beam=beam)
+
+    # Find the maximally extended MLC in each bank
+    max_a = np.amax(ciao[:, 0], axis=0)
+    min_b = np.amin(ciao[:, 1], axis=0)
+
+    # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
     delta_x1 = round_open_l_jaw - max_a
     delta_x2 = round_open_r_jaw - min_b
-    # logging.debug('Delete: x1: {}, MLC_A {}, D_x1 {}'.format(round_open_l_jaw, max_a, delta_x1))
-    # logging.debug('Delete: x2: {}, MLC_B {}, D_x2 {}'.format(round_open_r_jaw, min_b, delta_x2))
 
     if abs(delta_x1) >= maximum_leaf_out_of_carriage or abs(delta_x2) >= maximum_leaf_out_of_carriage:
         round_open = False
@@ -1208,13 +1206,13 @@ def rounded_jaw_positions(segment):
         round_open = True
 
     if not round_open:
-        l_jaw = math.floor(10 * segment.JawPositions[0]) / 10
-        r_jaw = math.ceil(10 * segment.JawPositions[1]) / 10
+        l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
+        r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
     else:
-        l_jaw = math.ceil(10 * segment.JawPositions[0]) / 10
-        r_jaw = math.floor(10 * segment.JawPositions[1]) / 10
-    t_jaw = math.floor(10 * segment.JawPositions[2]) / 10
-    b_jaw = math.ceil(10 * segment.JawPositions[3]) / 10
+        l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
+        r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
+    t_jaw = math.floor(10 * s0.JawPositions[2]) / 10
+    b_jaw = math.ceil(10 * s0.JawPositions[3]) / 10
     jaws = {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
     return jaws
 
@@ -1234,47 +1232,29 @@ def jaws_rounded(beam):
             s0.JawPositions[2] != j0['Y1'] or
             s0.JawPositions[3] != j0['Y2']):
         rounded = False
-    # JAW TRACKING
-    # for s in beam.Segments:
-    #     if (s.JawPositions[0] != j0['X1'] or
-    #             s.JawPositions[1] != j0['X2'] or
-    #             s.JawPositions[2] != j0['Y1'] or
-    #             s.JawPositions[3] != j0['Y2']):
-    #         rounded = False
 
     return rounded
 
 
 def round_jaws(beamset):
     """
-    Rounds the jaws. X1/Y1 will be rounded down to nearest mm, X2/Y2 rounded up
+    Rounds the jaws.
+    For each beam, the first segment is examined for appropriate rounding.
+    Rounding is by default, to round open. However, if insufficient MLC travel is available, the X jaws will be
+    rounded closed.
+    Open: X1/Y1 will be rounded down to nearest mm, X2/Y2 rounded up
+    Closed: X2/Y1 will be rounded down to nearest mm, X1/Y2 rounded up
         note X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)
     :param beamset: RS beamset
     :return: success: boolean indicating adjustments were successful
     """
-    # try:
     for b in beamset.Beams:
-        # First jaw position chosen.
         if not jaws_rounded(beam=b):
             s0 = b.Segments[0]
-            j0 = rounded_jaw_positions(s0)
             init_positions = [s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3]]
-            if (s0.JawPositions[0] != j0['X1'] or
-                    s0.JawPositions[1] != j0['X2'] or
-                    s0.JawPositions[2] != j0['Y1'] or
-                    s0.JawPositions[3] != j0['Y2']):
-                for s in b.Segments:
-                    # Tracking jaws are not engaged at TrueBeam, if the first segment is wrong,
-                    # all segments need adjusting
-                    # if (s.JawPositions[0] != j0['X1'] or
-                    #     s.JawPositions[1] != j0['X2'] or
-                    #     s.JawPositions[2] != j0['Y1'] or
-                    #     s.JawPositions[3] != j0['Y2']):
-                    #     round_needed = True
-                    # else:
-                    #     round_needed = False
-                    # if round_needed:
-                    s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
+            j0 = rounded_jaw_positions(b)
+            for s in b.Segments:
+                s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
             logging.info('Beam {}: jaw positions changed '.format(b.Name) +
                          '<X1: {0:.2f}->{1:.2f}>, '.format(init_positions[0], s.JawPositions[0]) +
                          '<X2: {0:.2f}->{1:.2f}>, '.format(init_positions[1], s.JawPositions[1]) +
@@ -1795,6 +1775,3 @@ def check_emc(beamset, stat_limit=0.01, histories=5e5):
                      .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
 
     return EmcTest
-
-
-
