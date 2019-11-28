@@ -1192,6 +1192,8 @@ def rounded_jaw_positions(beam):
     # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
     delta_x1 = round_open_l_jaw - max_a
     delta_x2 = round_open_r_jaw - min_b
+    logging.debug('Maximum A MLC = {}: '.format(abs(delta_x1)) +
+                  'Maximum B MLC = {}'.format(abs(delta_x2)))
 
     if abs(delta_x1) >= maximum_leaf_out_of_carriage or abs(delta_x2) >= maximum_leaf_out_of_carriage:
         round_open = False
