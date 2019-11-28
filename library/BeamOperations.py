@@ -1192,6 +1192,10 @@ def rounded_jaw_positions(beam):
     # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
     delta_x1 = round_open_l_jaw - max_a
     delta_x2 = round_open_r_jaw - min_b
+    logging.debug('Rounded left jaw = {}: '.format(round_open_l_jaw) +
+                  'Rounded right jaw = {}'.format(round_open_r_jaw))
+    logging.debug('Max MLC Coord A = {}: '.format(max_a) +
+                  'Min MLC Coord B = {}'.format(min_b))
     logging.debug('Maximum A MLC = {}: '.format(abs(delta_x1)) +
                   'Maximum B MLC = {}'.format(abs(delta_x2)))
 
