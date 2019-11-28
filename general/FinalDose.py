@@ -153,20 +153,25 @@ def main():
                                                            limit=2.0,
                                                            shift=True)
         if not couch.valid:
-            tomo_couch_error = True
-            connect.await_user_input(couch.error)
-            if not couch.valid:
-                x_shift = couch.calculated_lateral_shift()
-                logging.info('Moving {} by {}'.format(couch_name, x_shift))
-                StructureOperations.translate_roi(case=case,
-                                              exam=exam,
-                                              roi=couch_name,
-                                              shifts={'x': x_shift, 'y': 0, 'z': 0})
-            plan.SetDefaultDoseGrid(
-                VoxelSize={'x': coarse_grid_size,'y': coarse_grid_size, 'z': coarse_grid_size})
+            try:
+                connect.await_user_input(couch.error)
+                if not couch.valid:
+                    x_shift = couch.calculated_lateral_shift()
+                    logging.info('Moving {} by {}'.format(couch_name, x_shift))
+                    StructureOperations.translate_roi(case=case,
+                                                  exam=exam,
+                                                  roi=couch_name,
+                                                  shifts={'x': x_shift, 'y': 0, 'z': 0})
+                plan.SetDefaultDoseGrid(
+                    VoxelSize={'x': coarse_grid_size,'y': coarse_grid_size, 'z': coarse_grid_size})
+                status.next_step('TomoTherapy couch corrected for lateral shift')
+            except:
+                tomo_couch_error = True
+                status.next_step('TomoTherapy couch could not be corrected, likely due to approved structures.')
+
         else:
             tomo_couch_error = False
-        status.next_step('TomoTherapy couch checked for correct lateral positioning')
+            status.next_step('TomoTherapy couch checked for correct lateral positioning')
 
 
     # SIMFIDUCIAL TEST
@@ -211,19 +216,26 @@ def main():
         if 'Tomo' in beamset.DeliveryTechnique:
             # TODO: Better exception handling here.
             try:
-                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=False)
+                beamset.ComputeDose(ComputeBeamDoses=True,
+                                    DoseAlgorithm=dose_algorithm,
+                                    ForceRecompute=False)
                 status.next_step('Recomputed Dose, finding DSP')
             except Exception:
                 status.next_step('Dose recomputation unneccessary, finding DSP')
                 logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
             # Set the DSP for the plan and recompute dose to force an update of the DSP
-            BeamOperations.set_dsp(plan=plan, beam_set=beamset)
-            beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+            BeamOperations.set_dsp(plan=plan,
+                                   beam_set=beamset)
+            beamset.ComputeDose(ComputeBeamDoses=True,
+                                DoseAlgorithm=dose_algorithm,
+                                ForceRecompute=True)
             status.next_step('DSP set. Script complete')
         else:
             # TODO: Better exception handling here.
             try:
-                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=False)
+                beamset.ComputeDose(ComputeBeamDoses=True,
+                                    DoseAlgorithm=dose_algorithm,
+                                    ForceRecompute=False)
                 status.next_step('Recomputed Dose, finding DSP')
             except Exception as e:
                 logging.debug('exception produced was {}. type{}'.format(e,type(e)))
