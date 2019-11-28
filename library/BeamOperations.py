@@ -1179,8 +1179,8 @@ def rounded_jaw_positions(beam):
 
     # Find the result of setting the jaws open
     s0 = beam.Segments[0]
-    round_open_l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
-    round_open_r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
+    round_open_l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
+    round_open_r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
 
     # get the ciao for this beam
     ciao = maximum_beam_leaf_extent(beam=beam)
