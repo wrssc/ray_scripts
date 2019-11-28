@@ -1150,15 +1150,12 @@ def maximum_beam_leaf_extent(beam):
     # Find the number of leaves in the first segment to initialize the array
     s0 = beam.Segments[0]
     num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
-    logging.debug('Number of mlcs in a bank is {}'.format(num_leaves_per_bank))
     banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
-    logging.debug('Shape of leaves is {}'.format(banks.shape))
     # Combine the segments into a single ndarray of size:
     # number of MLCs x number of banks x number of segments
     for s in beam.Segments:
         bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
         banks = np.dstack((banks, bank))
-    logging.debug('leaf positions on A bank {}'.format(banks.shape))
 
     # Determine the maximum of any leaf position for all segments
     # completely irradiated area outline
@@ -1192,12 +1189,6 @@ def rounded_jaw_positions(beam):
     # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
     delta_x1 = round_open_l_jaw - max_a
     delta_x2 = round_open_r_jaw - min_b
-    logging.debug('Rounded left jaw = {}: '.format(round_open_l_jaw) +
-                  'Rounded right jaw = {}'.format(round_open_r_jaw))
-    logging.debug('Max MLC Coord A = {}: '.format(max_a) +
-                  'Min MLC Coord B = {}'.format(min_b))
-    logging.debug('Maximum A MLC = {}: '.format(abs(delta_x1)) +
-                  'Maximum B MLC = {}'.format(abs(delta_x2)))
 
     if abs(delta_x1) >= maximum_leaf_out_of_carriage or abs(delta_x2) >= maximum_leaf_out_of_carriage:
         round_open = False

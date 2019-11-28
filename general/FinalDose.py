@@ -67,9 +67,6 @@ def main():
     ui = GeneralOperations.find_scope(level='ui')
     ui.TitleBar.MenuItem['Plan Optimization'].Button_Plan_Optimization.Click()
 
-    BeamOperations.round_jaws(beamset=beamset)
-    sys.exit('Done!')
-
     # Institution specific plan names and dose grid settings
     fine_grid_names = ['_SBR_']
     fine_grid_size = 0.15
