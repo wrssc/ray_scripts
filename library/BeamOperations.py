@@ -1168,13 +1168,6 @@ def maximum_beam_leaf_extent(beam):
     return ciao
 
 
-def maximum_segment_leaf_test(seg):
-    """
-    :param seg: RayStation segment object
-    :return: max_mlc: list of max opening of the given segment
-    """
-
-
 def rounded_jaw_positions(beam):
     """
     compute the jaw positions that would result from rounding to nearest mm
