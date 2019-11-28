@@ -1226,7 +1226,7 @@ def jaws_rounded(beam):
     rounded = True
 
     s0 = beam.Segments[0]
-    j0 = rounded_jaw_positions(s0)
+    j0 = rounded_jaw_positions(beam)
     if (s0.JawPositions[0] != j0['X1'] or
             s0.JawPositions[1] != j0['X2'] or
             s0.JawPositions[2] != j0['Y1'] or
