@@ -1198,15 +1198,17 @@ def rounded_jaw_positions(beam):
     else:
         round_open = True
 
-    if not round_open:
+    if round_open:
         l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
         r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
+        logging.info('Beam: {}, Jaws rounded open'.format(beam.Name))
     else:
         l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
         r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
-        logging.debug('MLC Out of Carriage limit reached:' +
-                      'Maximum A MLC = {}, X1 = {}'.format(abs(delta_x1), l_jaw) +
+        logging.debug('MLC Out of Carriage limit reached: ' +
+                      'Maximum A MLC = {}, X1 = {}: '.format(abs(delta_x1), l_jaw) +
                       'Maximum B MLC = {}, X2 = {}'.format(abs(delta_x2), r_jaw))
+        logging.info('Beam: {}, Jaws rounded closed'.format(beam.Name))
     t_jaw = math.floor(10 * s0.JawPositions[2]) / 10
     b_jaw = math.ceil(10 * s0.JawPositions[3]) / 10
     jaws = {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
