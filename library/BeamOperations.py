@@ -1220,6 +1220,7 @@ def rounded_jaw_positions(beam):
 def jaws_rounded(beam):
     """
     Checks a beam to see if it has been rounded.
+    Note, we presume only the first segment needs to be checked.
     :param beam: RS beam scriptable object
     :return: True if jaws are already rounded. False otherwise.
     """
