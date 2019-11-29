@@ -1144,11 +1144,14 @@ def maximum_beam_leaf_extent(beam):
     :param beam: RayStation beam object
     :return: numpy array of maximum (most open) leaf position over all control points
     """
-    if not beam.HasValidSegments:
+    try:
+        # Find the number of leaves in the first segment to initialize the array
+        s0 = beam.Segments[0]
+    except:
+        logging.debug('Beam {} does not have segments for a ciao.'.format(beam.Name))
         return None
 
-    # Find the number of leaves in the first segment to initialize the array
-    s0 = beam.Segments[0]
+
     num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
     banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
     # Combine the segments into a single ndarray of size:
@@ -1182,13 +1185,18 @@ def rounded_jaw_positions(beam):
     # get the ciao for this beam
     ciao = maximum_beam_leaf_extent(beam=beam)
 
-    # Find the maximally extended MLC in each bank
-    max_a = np.amax(ciao[:, 0], axis=0)
-    min_b = np.amin(ciao[:, 1], axis=0)
-
-    # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
-    delta_x1 = round_open_l_jaw - max_a
-    delta_x2 = round_open_r_jaw - min_b
+    if ciao is not None:
+        # Find the maximally extended MLC in each bank
+        max_a = np.amax(ciao[:, 0], axis=0)
+        min_b = np.amin(ciao[:, 1], axis=0)
+        # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
+        delta_x1 = round_open_l_jaw - max_a
+        delta_x2 = round_open_r_jaw - min_b
+    else:
+        # The beam has no segments, jaws only. Set these variables to something that does not influence calc
+        # i.e. round open
+        delta_x1 = 0
+        delta_x2 = 0
 
     if abs(delta_x1) >= maximum_leaf_out_of_carriage or abs(delta_x2) >= maximum_leaf_out_of_carriage:
         round_open = False
