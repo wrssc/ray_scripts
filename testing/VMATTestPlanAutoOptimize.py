@@ -26,7 +26,7 @@ __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
 __raystation__ = '6.0.0'
 __maintainer__ = 'One maintainer'
-__email__ =  'maintainer@wisc.edu'
+__email__ = 'maintainer@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['This friend', 'That friend', 'etc']
@@ -37,7 +37,7 @@ def main():
 
     import sys
     import csv
-    from connect import *
+    import connect
     from OptimizePlan import OptimizePlan
     from collections import namedtuple
     import UserInterface
@@ -45,48 +45,49 @@ def main():
     # Plan optimization parameters
 
     OptimizationParameters = {
-        "InitialMaxIt"	:	50,
-        "InitialIntIt"	:	10,
-        "SecondMaxIt"		:	30,
-        "SecondIntIt"		:	15,
-        "DoseDim1"		:	0.5,
-        "DoseDim2"		:	0.4,
-        "DoseDim3"		:	0.3,
-        "DoseDim4"		:	0.2,
-        "NIterations"		:	12}
+        "InitialMaxIt": 50,
+        "InitialIntIt": 10,
+        "SecondMaxIt": 30,
+        "SecondIntIt": 15,
+        "DoseDim1": 0.5,
+        "DoseDim2": 0.4,
+        "DoseDim3": 0.3,
+        "DoseDim4": 0.2,
+        "NIterations": 12}
 
     # Open the csv delimited file containing the list of patients to be reoptimized
     # Ensure that the first row is a header for the columns
-    Row = namedtuple('Row',('FirstName','LastName','PatientID','Case','PlanName','BeamsetName'))
+    Row = namedtuple('Row', ('FirstName', 'LastName', 'PatientID', 'Case', 'PlanName', 'BeamsetName'))
     browser = UserInterface.CommonDialog()
     filecsv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
     if filecsv != '':
-        with open(filecsv,'r') as f:
+        with open(filecsv, 'r') as f:
             r = csv.reader(f, delimiter=',')
-            r.next() # Skip header
+            r.next()  # Skip header
             rows = [Row(*l) for l in r]
 
-        file_object = open("output.txt",'w')
-        output_message = "PatientID"  + "\tPlan Name" + "\tBeamSet Name" + "\tStatus\n"
+        file_object = open("output.txt", 'w')
+        output_message = "PatientID" + "\tPlan Name" + "\tBeamSet Name" + "\tStatus\n"
         file_object.write(output_message)
         file_object.close()
 
         # Header was skipped.  Start with rows[0], the first data line in the csv
         i = 0
-        db = get_current("PatientDB")
+        db = connect.get_current("PatientDB")
         for Row in rows:
-        #for i in range(1,10):
+            # for i in range(1,10):
             last_name = rows[i].LastName
             first_name = rows[i].FirstName
             patient_id = rows[i].PatientID
             plan_name = rows[i].PlanName
             beamset_name = rows[i].BeamsetName
             case_name = rows[i].Case
-            print "Beamset = ",beamset_name
+            print "Beamset = ", beamset_name
             # Select patient based on name
             patient_info = db.QueryPatientInfo(Filter={
-                'FirstName':'^{0}$'.format(first_name), 'LastName':'^{0}$'.format(last_name),'PatientID':'^{0}$'.format(patient_id)})
-            if len(patient_info) != 1: # If no (or more than one) patient matches the criteria, exit the script
+                'FirstName': '^{0}$'.format(first_name), 'LastName': '^{0}$'.format(last_name),
+                'PatientID': '^{0}$'.format(patient_id)})
+            if len(patient_info) != 1:  # If no (or more than one) patient matches the criteria, exit the script
                 print "No patient named {0} {1} found in the database".format(first_name, last_name)
                 sys.exit()
             try:
@@ -99,16 +100,17 @@ def main():
                 beamset.SetCurrent()
                 OptimizePlan(patient, case, plan, beamset, OptimizationParameters)
                 patient.Save()
-                file_object = open("output.txt",'a')
+                file_object = open("output.txt", 'a')
                 output_message = patient_id + "\t" + plan_name + "\t" + beamset_name + "\tsuccess\n"
                 file_object.write(output_message)
                 file_object.close()
             except:
-                file_object = open("output.txt",'a')
+                file_object = open("output.txt", 'a')
                 output_message = patient_id + "\t" + plan_name + "\t" + beamset_name + "\tFAIL\n"
                 file_object.write(output_message)
                 file_object.close()
             i += 1
+
 
 if __name__ == '__main__':
     main()
