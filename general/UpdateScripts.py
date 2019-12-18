@@ -80,13 +80,16 @@ def main():
         if os.path.isfile(local):
             os.unlink(local)
         elif os.path.isdir(local):
+            os.chdir('..')
             temp_local = 'local_hmmm'
+            cwd = os.getcwd()
+            tempdir = os.path.join(cwd, temp_local)
             logging.debug('the local path is {}'.format(local))
-            logging.debug('the temp local path is {}'.format(temp_local))
-            os.mkdir(temp_local)
-            os.rename(local, temp_local)
+            logging.debug('the temp local path is {}'.format(tempdir))
+            os.mkdir(tempdir)
+            os.rename(local, tempdir)
             #os.rmdir(temp_local)
-            shutil.rmtree(temp_local, onerror=readonly_handler)
+            shutil.rmtree(tempdir, onerror=readonly_handler)
             while True:
                 try:
                     os.mkdir(local)
