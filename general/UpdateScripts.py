@@ -80,7 +80,7 @@ def main():
         if os.path.isfile(local):
             os.unlink(local)
         elif os.path.isdir(local):
-            os.chdir('..')
+            os.chdir('../..')
             cwd = os.getcwd()
             temp_local = 'local_hmmm'
             logging.debug('New working directory is {}'.format(cwd))
