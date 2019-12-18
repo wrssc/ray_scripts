@@ -79,6 +79,8 @@ def main():
             os.unlink(local)
         elif os.path.isdir(local):
             temp_local = 'local_hmmm'
+            logging.debug('the local path is {}'.format(local))
+            logging.debug('the temp local path is {}'.format(temp_local))
             os.mkdir(temp_local)
             os.rename(local, temp_local)
             #os.rmdir(temp_local)
