@@ -75,20 +75,17 @@ def main():
 
     # Clear directory
     if os.path.exists(local):
-        try:
-            if os.path.isfile(local):
-                os.unlink(local)
-            elif os.path.isdir(local):
-                shutil.rmtree(local, onerror=readonly_handler)
-                while True:
-                    try:
-                        os.mkdir(local)
-                        break
-                    except:
-                        logging.debug('Dumb windows permission error')
-                        continue
-        except Exception as e:
-            logging.warning(e)
+        if os.path.isfile(local):
+            os.unlink(local)
+        elif os.path.isdir(local):
+            shutil.rmtree(local, onerror=readonly_handler)
+            while True:
+                try:
+                    os.mkdir(local)
+                    break
+                except:
+                    logging.debug('Dumb windows permission error')
+                    continue
     else:
         os.mkdir(local)
 
