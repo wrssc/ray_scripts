@@ -51,6 +51,8 @@ def main():
     # Specify branch to download
     branch = 'master'
     logging.debug('user name {}'.format(os.getenv('username')))
+    os.chdir(os.path.dirname(__file__))
+    logging.debug('current directory is {}'.format(os.getcwd()))
 
     # Get branch content
     try:
