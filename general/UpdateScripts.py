@@ -81,8 +81,9 @@ def main():
             os.unlink(local)
         elif os.path.isdir(local):
             os.chdir('..')
-            temp_local = 'local_hmmm'
             cwd = os.getcwd()
+            temp_local = 'local_hmmm'
+            logging.debug('New working directory is {}'.format(cwd))
             tempdir = os.path.join(cwd, temp_local)
             logging.debug('the local path is {}'.format(local))
             logging.debug('the temp local path is {}'.format(tempdir))
