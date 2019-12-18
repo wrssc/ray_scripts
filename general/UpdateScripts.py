@@ -78,7 +78,11 @@ def main():
         if os.path.isfile(local):
             os.unlink(local)
         elif os.path.isdir(local):
-            shutil.rmtree(local, onerror=readonly_handler)
+            temp_local = 'local_hmmm'
+            os.mkdir(temp_local)
+            os.rename(local, temp_local)
+            #os.rmdir(temp_local)
+            shutil.rmtree(temp_local, onerror=readonly_handler)
             while True:
                 try:
                     os.mkdir(local)
