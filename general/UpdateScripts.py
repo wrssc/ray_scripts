@@ -50,7 +50,7 @@ def main():
 
     # Specify branch to download
     branch = 'master'
-    print('user name {}'.format(os.getenv('username')))
+    logging.debug('user name {}'.format(os.getenv('username')))
 
     # Get branch content
     try:
@@ -80,7 +80,13 @@ def main():
                 os.unlink(local)
             elif os.path.isdir(local):
                 shutil.rmtree(local, onerror=readonly_handler)
-                os.mkdir(local)
+                while True:
+                    try:
+                        os.mkdir(local)
+                        break
+                    except:
+                        logging.debug('Dumb windows permission error')
+                        continue
         except Exception as e:
             logging.warning(e)
     else:
