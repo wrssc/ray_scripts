@@ -37,6 +37,7 @@ def main():
     import logging
     import hashlib
     import UserInterface
+    import time
 
     # Retrieve variables from invoking function
     selector = importlib.import_module(os.path.basename(sys.modules['__main__'].__file__).split('.')[0])
@@ -74,15 +75,19 @@ def main():
             logging.error('This is a file, not directory {}'.format(local))
         elif os.path.isdir(local):
             # Leave the master directory in place, and remove the contents
-            for filename in os.listdir(local):
-                file_path = os.path.join(local, filename)
-                try:
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.unlink(file_path)
-                    elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path, ignore_errors=True)
-                except Exception as e:
-                    logging.debug('Failed to delete %s. Reason: %s' % (file_path, e))
+            os.chdir('../..')
+            while os.listdir(local):
+                for filename in os.listdir(local):
+                    file_path = os.path.join(local, filename)
+                    try:
+                        if os.path.isfile(file_path) or os.path.islink(file_path):
+                            os.unlink(file_path)
+                            time.sleep(0.001)
+                        elif os.path.isdir(file_path):
+                            shutil.rmtree(file_path, ignore_errors=True)
+                            time.sleep(0.001)
+                    except Exception as e:
+                        logging.debug('Failed to delete %s. Reason: %s' % (file_path, e))
     else:
         os.mkdir(local)
 
