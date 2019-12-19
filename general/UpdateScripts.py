@@ -27,13 +27,6 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import os
 
 
-def readonly_handler(func, path, execinfo):
-    """ A function to handle windows file errors relating to directories being incorrectly
-    assigned readonly status by windoze. Apparently this issue is to be resolved by python
-    3.5 """
-    os.chmod(path, 128) #or os.chmod(path, stat.S_IWRITE) from "stat" module
-    func(path)
-
 def main():
 
     # Specify import statements
@@ -78,26 +71,18 @@ def main():
     # Clear directory
     if os.path.exists(local):
         if os.path.isfile(local):
-            os.unlink(local)
+            logging.error('This is a file, not directory {}'.format(local))
         elif os.path.isdir(local):
-            os.chdir('../..')
-            cwd = os.getcwd()
-            temp_local = 'local_hmmm'
-            logging.debug('New working directory is {}'.format(cwd))
-            tempdir = os.path.join(cwd, temp_local)
-            logging.debug('the local path is {}'.format(local))
-            logging.debug('the temp local path is {}'.format(tempdir))
-            os.mkdir(tempdir)
-            os.rename(local, tempdir)
-            #os.rmdir(temp_local)
-            shutil.rmtree(tempdir, onerror=readonly_handler)
-            while True:
+            # Leave the master directory in place, and remove the contents
+            for filename in os.listdir(local):
+                file_path = os.path.join(local, filename)
                 try:
-                    os.mkdir(local)
-                    break
-                except:
-                    logging.debug('Dumb windows permission error')
-                    continue
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    logging.debug('Failed to delete %s. Reason: %s' % (file_path, e))
     else:
         os.mkdir(local)
 
