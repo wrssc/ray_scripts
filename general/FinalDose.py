@@ -133,7 +133,7 @@ def main():
 
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
     if external_test:
-        external_error = False
+        external_error = True
         while external_error:
             error = PlanQualityAssuranceTests.external_overlap_test(patient, case, exam)
             if len(error) != 0:
@@ -177,7 +177,7 @@ def main():
     # SIMFIDUCIAL TEST
     if simfid_test:
         fiducial_point = 'SimFiducials'
-        fiducial_error = False
+        fiducial_error = True
         while fiducial_error:
             error = PlanQualityAssuranceTests.simfiducial_test(case=case, exam=exam, poi=fiducial_point)
             if len(error) != 0:
