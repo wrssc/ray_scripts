@@ -39,6 +39,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
 import sys
+import unicodedata
 import connect
 import UserInterface
 import BeamOperations
@@ -50,6 +51,7 @@ import StructureOperations
 import clr
 clr.AddReference("System.Xml")
 import System
+import inspect
 
 
 class MyException(Exception):
@@ -136,7 +138,11 @@ def main():
         external_error = True
         while external_error:
             error = PlanQualityAssuranceTests.external_overlap_test(patient, case, exam)
-            if len(error) != 0:
+            if error == 'No support structures':
+                logging.critical('Evaluation of overlap with External and Support Structures not possible ' +
+                                 'due to no structures having type Support')
+                external_error = False
+            elif len(error) != 0:
                 connect.await_user_input('Eliminate overlap of patient external with support structures')
             else:
                 external_error = False
@@ -238,9 +244,19 @@ def main():
                                     ForceRecompute=False)
                 status.next_step('Recomputed Dose, finding DSP')
             except Exception as e:
-                logging.debug('exception produced was {}. type{}'.format(e,type(e)))
-                status.next_step('Dose re-computation unnecessary, finding DSP')
-                logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+                logging.debug(u'Message is {}'.format(e.Message))
+                try:
+                    if 'Dose has already been computed (with the current parameters)' in e.Message:
+                        status.next_step('Dose re-computation unnecessary, finding DSP')
+                        logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+                    else:
+                        logging.exception(u'{}'.format(e.Message))
+                        sys.exit(u'{}'.format(e.Message))
+                except:
+                    logging.exception(u'{}'.format(e.Message))
+                    sys.exit(u'{}'.format(e.Message))
+
+
 
             # Set the DSP for the plan
             BeamOperations.set_dsp(plan=plan, beam_set=beamset)

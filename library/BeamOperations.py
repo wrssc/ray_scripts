@@ -21,6 +21,7 @@
     01.00.04 RAB Modified to include isocenter renaming.
     01.00.05 RAB Modified to automatically add the 4th set-up field and clean up creation
     01.00.06 RAB Modified to round the gantry and couch angle first then convert to integer
+    01.00.07 RAB Modified to handle errors produced in setting a DSP where no primary Rx is defines
 
     Known Issues:
 
@@ -1151,7 +1152,6 @@ def maximum_beam_leaf_extent(beam):
         logging.debug('Beam {} does not have segments for a ciao.'.format(beam.Name))
         return None
 
-
     num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
     banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
     # Combine the segments into a single ndarray of size:
@@ -1168,56 +1168,235 @@ def maximum_beam_leaf_extent(beam):
     return ciao
 
 
+def check_mlc_jaw_positions(jaw_positions, beam, ciao=None):
+    """
+    Check the incoming jaw positions against machine constraints
+    :param jaw_positions: {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
+    :param beam: RS beam object
+    :param ciao: a numpy array with dimensions [num_leaves, 2] where the first column is the
+        maximum leaf opening from the central axis for all control points in the beam
+    :return: error
+    """
+    maximum_leaf_out_of_carriage = 15  # Maximum a single leaf can extend from the carriage (jaw)
+    # 15 cm is the TrueBeam Limit. TODO, find this from machine params
+    error = ''
+    if ciao is not None:
+        ciao = maximum_beam_leaf_extent(beam=beam)
+    # Find the maximally extended MLC in each bank
+    max_a = np.amax(ciao[:, 0], axis=0)
+    min_b = np.amin(ciao[:, 1], axis=0)
+
+    # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
+    if ciao is not None:
+        delta_x1 = jaw_positions['X1'] - max_a
+        delta_x2 = jaw_positions['X2'] - min_b
+    else:
+        # The beam has no segments, jaws only. Set these variables to something that does not influence calc
+        # i.e. return no violation
+        delta_x1 = delta_x2 = 0
+
+    if abs(delta_x1) >= maximum_leaf_out_of_carriage:
+        error = 'Maximum leaf limit violated for X1. '
+    if abs(delta_x2) > maximum_leaf_out_of_carriage:
+        error += 'Maximum leaf limit violated for X2'
+    if error:
+        logging.debug('MLC Out of Carriage limit reached with proposed jaw positions: ' +
+                      'Maximum A MLC = {}, X1 = {}: '.format(abs(delta_x1), jaw_positions['X1']) +
+                      'Maximum B MLC = {}, X2 = {}'.format(abs(delta_x2), jaw_positions['X2']))
+    return error
+
+
+def check_y_jaw_positions(jaw_positions, beam):
+    """
+    Make sure setting the jaw positions to the proposed limits does not open past available MLC or
+    past jaw overtravel limits
+    :param jaw_positions:
+    :param beam: RS beam object
+    :return: error, if error is None, then no error is detected
+    """
+
+    error = ''
+    current_machine_name = beam.MachineReference.MachineName
+    machine_db = connect.get_current('MachineDB')
+    current_machine = machine_db.GetTreatmentMachine(machineName=current_machine_name,
+                                                     lockMode=None)
+    # Maximum jaw overtravel (minimum) position
+    min_y2_jaw_limit = current_machine.Physics.JawPhysics.MinBottomJawPos
+    min_y1_jaw_limit = - min_y2_jaw_limit
+
+    if beam.DeliveryTechnique == 'TomoHelical':
+        error = 'Tomotherapy helical jaw checking is not supported.'
+        return error
+
+    # Make sure beam has control points
+    try:
+        s0 = beam.Segments[0]
+    except AttributeError:
+        logging.debug('beam: {} is a jaw-only field, without segments'.format(beam.Name))
+        return error
+
+    # Maximum MLC defined positions: Leaf Center + 0.5 Leaf_Width
+    max_y1_jaw_limit = beam.UpperLayer.LeafCenterPositions[0] - \
+        0.5 * beam.UpperLayer.LeafWidths[0]
+    n_leaves = len(beam.UpperLayer.LeafCenterPositions)
+    max_y2_jaw_limit = beam.UpperLayer.LeafCenterPositions[n_leaves - 1] + \
+        0.5 * beam.UpperLayer.LeafWidths[n_leaves - 1]
+
+    # Check jaws
+    if jaw_positions['Y1'] > min_y1_jaw_limit:
+        error += 'Beam {}: Y1 jaw overtravel will be violated at Y1 = {}'.format(
+            beam.Name, jaw_positions['Y1'])
+    if jaw_positions['Y1'] < max_y1_jaw_limit:
+        error += 'Beam {}: Y1 jaw position exceeds MLC-delineated boundary at Y1 = {}'.format(
+            beam.Name, jaw_positions['Y1'])
+    if jaw_positions['Y2'] < min_y2_jaw_limit:
+        error += 'Beam {}: Y2 jaw overtravel will be violated at Y2 = {}'.format(
+            beam.Name, jaw_positions['Y2'])
+    if jaw_positions['Y2'] > max_y2_jaw_limit:
+        error += 'Beam {}: Y2 jaw position exceeds MLC-delineated boundary at Y2 = {}'.format(
+            beam.Name, jaw_positions['Y2'])
+
+    # if 'TrueBeamSTx' in beam.MachineReference.MachineName:
+    #     if abs(jaw_positions['Y1']) > 10.9:
+    #         logging.debug('Maximum Y1 jaw limit exceeded for proposed setting on Beam {}'.format(
+    #             beam.Name))
+    #         error = 'Beam {}: Proposed Y1 Setting exceeds machine limits. '.format(beam.Name)
+    #     if abs(jaw_positions['Y2']) < 10.9:
+    #         logging.debug('Maximum Y2 jaw limit exceeded for proposed setting on Beam {}'.format(
+    #             beam.Name))
+    #         error += 'Beam {}: Proposed Y2 Setting exceeds machine limits'.format(beam.Name)
+    return error
+
+
 def rounded_jaw_positions(beam):
     """
     compute the jaw positions that would result from rounding to nearest mm
     :param beam: RS beam
     :return: {X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)}
     """
-    # Find the number of leaves in the first segment to initialize the array
-    maximum_leaf_out_of_carriage = 15  # 15 cm is the TrueBeam Limit. TODO, find this from machine params
+    x_jaw_offset = 0.8
+    y_jaw_offset = 0.1
+    jaw_positions = {}
 
-    # Find the result of setting the jaws open
     s0 = beam.Segments[0]
+    # Find the result of setting the jaws open
     round_open_l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
     round_open_r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
+    round_open_t_jaw = math.floor(10 * s0.JawPositions[2]) / 10
+    round_open_b_jaw = math.ceil(10 * s0.JawPositions[3]) / 10
+    # Compute closed jaw positions
+    round_closed_l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
+    round_closed_r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
+    round_closed_t_jaw = math.ceil(10 * s0.JawPositions[2]) / 10
+    round_closed_b_jaw = math.floor(10 * s0.JawPositions[3]) / 10
 
     # get the ciao for this beam
     ciao = maximum_beam_leaf_extent(beam=beam)
-
     if ciao is not None:
-        # Find the maximally extended MLC in each bank
+        # Now find the maximum Top and Bottom MLC positions
+        # Raystation starts moving leaves to the midplane, so we want to find the first open, and
+        # last open MLC leaf pair.
+        leaf_index_lower = np.min(np.nonzero(ciao[:, 1] - ciao[:, 0]))
+        leaf_index_upper = np.max(np.nonzero(ciao[:, 1] - ciao[:, 0]))
+        logging.debug('Beam: {} has top leaf opening at {}, '.format(beam.Name, leaf_index_upper+1) +
+                      'bottom leaf opening at {}'.format(leaf_index_lower+1))
         max_a = np.amax(ciao[:, 0], axis=0)
         min_b = np.amin(ciao[:, 1], axis=0)
-        # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
-        delta_x1 = round_open_l_jaw - max_a
-        delta_x2 = round_open_r_jaw - min_b
+        x1_eclipse = math.floor(10 * (max_a - x_jaw_offset)) / 10
+        x2_eclipse = math.ceil(10 * (min_b + x_jaw_offset)) / 10
+        # min_a = np.amin(ciao[:, 0], axis=0)
+        # max_b = np.amax(ciao[:, 1], axis=0)
+        # x1_eclipse = math.floor(10 * (min_a - x_jaw_offset)) / 10
+        # x2_eclipse = math.ceil(10 * (max_b + x_jaw_offset)) / 10
+        y1_min = beam.UpperLayer.LeafCenterPositions[leaf_index_lower] \
+            - 0.5 * beam.UpperLayer.LeafWidths[leaf_index_lower]
+        y2_max = beam.UpperLayer.LeafCenterPositions[leaf_index_upper] \
+            + 0.5 * beam.UpperLayer.LeafWidths[leaf_index_upper]
+        y1_eclipse = math.floor(10 * (y1_min - y_jaw_offset)) / 10
+        y2_eclipse = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
+        logging.debug('Beam: {} Eclipse offsets would be: '.format(beam.Name) +
+                      'X1:Floor[{} - {} cm] = {}, '.format(min_a, x_jaw_offset, x1_eclipse) +
+                      'X2:Ceil[{} + {} cm] = {}, '.format(max_b, x_jaw_offset, x2_eclipse) +
+                      'Y1:Floor[{} - {} cm] = {}, '.format(y1_min, y_jaw_offset, y1_eclipse) +
+                      'Y2:Ceil[{} + {} cm] = {}'.format(y2_max, y_jaw_offset, y2_eclipse))
     else:
-        # The beam has no segments, jaws only. Set these variables to something that does not influence calc
-        # i.e. round open
-        delta_x1 = 0
-        delta_x2 = 0
+        # There's no segments. This is a jaw-only field. Use open settings
+        x1_eclipse = round_open_l_jaw
+        x2_eclipse = round_open_r_jaw
+        y1_eclipse = round_open_t_jaw
+        y2_eclipse = round_open_b_jaw
 
-    if abs(delta_x1) >= maximum_leaf_out_of_carriage or abs(delta_x2) >= maximum_leaf_out_of_carriage:
-        round_open = False
-    else:
-        round_open = True
+    # Check the y-jaws
+    # Try to use Eclipse jaw offsets first. Then, if that violates a machine constraint
+    # Try to set the jaws based on rounding open, if that still violates the machine constraints
+    # Round the jaws closed.
+    jaw_violation = True
+    i = 0
+    while jaw_violation:
+        if i == 0:
+            jaw_positions['Y1'] = y1_eclipse
+            jaw_positions['Y2'] = y2_eclipse
+            debug_msg = 'Beam: {}: Y-Jaws: Eclipse offsets used'.format(beam.Name)
+        elif i == 1:
+            jaw_positions['Y1'] = round_open_t_jaw
+            jaw_positions['Y2'] = round_open_b_jaw
+            debug_msg = error_msg + ' Y-Jaws: rounded open'.format(beam.Name)
+        elif i == 2:
+            jaw_positions['Y1'] = round_closed_t_jaw
+            jaw_positions['Y2'] = round_closed_b_jaw
+            debug_msg = error_msg + ' Y-Jaws: Rounded closed'.format(beam.Name)
+        else:
+            logging.debug(error_msg + ' Y-Jaws: could not be rounded')
+            break
+        i += 1
+        error_msg = check_y_jaw_positions(jaw_positions, beam)
+        if not error_msg:
+            jaw_violation = False
+            logging.debug(debug_msg)
 
-    if round_open:
-        l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
-        r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
-        logging.info('Beam: {}, Jaws rounded open'.format(beam.Name))
-    else:
-        l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
-        r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
-        logging.debug('MLC Out of Carriage limit reached: ' +
-                      'Maximum A MLC = {}, X1 = {}: '.format(abs(delta_x1), l_jaw) +
-                      'Maximum B MLC = {}, X2 = {}'.format(abs(delta_x2), r_jaw))
-        logging.info('Beam: {}, Jaws rounded closed'.format(beam.Name))
-    t_jaw = math.floor(10 * s0.JawPositions[2]) / 10
-    b_jaw = math.ceil(10 * s0.JawPositions[3]) / 10
-    jaws = {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
-    return jaws
+    # Try to use Eclipse jaw offsets first. Then, if that violates a machine constraint
+    # Try to set the jaws based on rounding open, if that still violates the machine constraints
+    # Round the jaws closed.
+    i = 0
+    jaw_violation = True
+    while jaw_violation:
+        if i == 0:
+            # Check eclipse positions
+            jaw_positions['X1'] = x1_eclipse
+            jaw_positions['X2'] = x2_eclipse
+            debug_msg = 'Beam: {}: X-Jaws: Eclipse offsets used'.format(beam.Name)
+        elif i == 1:
+            # The proposed jaw position violates MLC/carriage limits, attempt a simple open round
+            jaw_positions['X1'] = round_open_l_jaw
+            jaw_positions['X2'] = round_open_r_jaw
+            debug_msg = error_msg + ' X-Jaws: Rounded open'.format(beam.Name)
+        elif i == 2:
+            jaw_positions['X1'] = round_closed_l_jaw,
+            jaw_positions['X2'] = round_closed_r_jaw
+            debug_msg = error_msg + ' X-Jaws: Rounded closed'.format(beam.Name)
+        else:
+            logging.debug(error_msg + ' X-Jaws: could not be rounded')
+            break
+        i += 1
+        error_msg = check_mlc_jaw_positions(jaw_positions, beam, ciao=ciao)
+        if not error_msg:
+            jaw_violation = False
+            logging.debug(debug_msg)
+
+    #     if abs(delta_x1) >= maximum_leaf_out_of_carriage or abs(delta_x2) >= maximum_leaf_out_of_carriage:
+    #         round_open = False
+    #     else:
+    #         round_open = True
+
+    #     if round_open:
+    #         l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
+    #         r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
+    #     else:
+    #         l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
+    #         r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
+    #     t_jaw = math.floor(10 * s0.JawPositions[2]) / 10
+    #     b_jaw = math.ceil(10 * s0.JawPositions[3]) / 10
+    return jaw_positions
 
 
 def jaws_rounded(beam):
@@ -1519,7 +1698,23 @@ def find_dsp_centroid(plan, beam_set, percent_max=None):
 
 
 def set_dsp(plan, beam_set, percent_rx=100., method='MU'):
-    rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue * percent_rx / 100.
+    """
+    Set a dose specification point using the current beamset prescription.
+    :param plan: RS plan object
+    :param beam_set: Rs beam_set object
+    :param percent_rx: The percentage of the prescription value to use in calculating the desired
+        DSP dose, e.g. 100% of Rx is the prescription dose exactly.
+    :param method: the method to use in selecting the DSP point to use
+        MU chooses the DSP that most closely matches the MU_Beam/MU_TOTAL
+        Centroid chooses the point that is in the centroid of all DSP points
+    :return:
+    """
+    try:
+        rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue * percent_rx / 100.
+    except AttributeError:
+        logging.debug('Beamset does not have a prescription')
+        raise ValueError('A prescription must be set')
+
     fractions = beam_set.FractionationPattern.NumberOfFractions
     if rx is None:
         raise ValueError('A Prescription must be set.')

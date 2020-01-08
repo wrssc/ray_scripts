@@ -71,8 +71,9 @@ def main():
             logging.info('Grid size was changed for Normal-type plan')
 
     important = []
-    keep_phrases = ["CRITICAL", "WARNING"]
-    log_dir = r"\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\RayScripts\logs"
+#    keep_phrases = ["CRITICAL", "WARNING"]
+    keep_phrases = ["CRITICAL"]
+    log_dir = r"Q:\\RadOnc\RayStation\RayScripts\logs"
     log_file = patient.PatientID + '.txt'
     infile = os.path.join(log_dir, patient.PatientID, log_file)
 

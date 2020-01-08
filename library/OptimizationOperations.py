@@ -840,6 +840,11 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 Optimization_Iteration, plan_optimization.Objective.FunctionValue))
 
     report_inputs['time_total_final'] = datetime.datetime.now()
+    try:
+        patient.Save()
+    except:
+        logging.debug('Could not save patient plan')
+
     on_screen_message = optimization_report(
         fluence_only=fluence_only,
         vary_grid=vary_grid,
