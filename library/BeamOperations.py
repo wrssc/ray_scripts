@@ -1315,8 +1315,8 @@ def rounded_jaw_positions(beam):
         y1_eclipse = math.floor(10 * (y1_min - y_jaw_offset)) / 10
         y2_eclipse = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
         logging.debug('Beam: {} Eclipse offsets would be: '.format(beam.Name) +
-                      'X1:Floor[{} - {} cm] = {}, '.format(min_a, x_jaw_offset, x1_eclipse) +
-                      'X2:Ceil[{} + {} cm] = {}, '.format(max_b, x_jaw_offset, x2_eclipse) +
+                      'X1:Floor[{} - {} cm] = {}, '.format(max_a, x_jaw_offset, x1_eclipse) +
+                      'X2:Ceil[{} + {} cm] = {}, '.format(min_b, x_jaw_offset, x2_eclipse) +
                       'Y1:Floor[{} - {} cm] = {}, '.format(y1_min, y_jaw_offset, y1_eclipse) +
                       'Y2:Ceil[{} + {} cm] = {}'.format(y2_max, y_jaw_offset, y2_eclipse))
     else:
