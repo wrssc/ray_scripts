@@ -1157,6 +1157,7 @@ def maximum_beam_leaf_extent(beam):
     # Combine the segments into a single ndarray of size:
     # number of MLCs x number of banks x number of segments
     for s in beam.Segments:
+        # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
         bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
         banks = np.dstack((banks, bank))
 
@@ -1183,13 +1184,13 @@ def check_mlc_jaw_positions(jaw_positions, beam, ciao=None):
     if ciao is not None:
         ciao = maximum_beam_leaf_extent(beam=beam)
     # Find the maximally extended MLC in each bank
-    max_a = np.amax(ciao[:, 0], axis=0)
-    min_b = np.amin(ciao[:, 1], axis=0)
+    max_x1_bank = np.amax(ciao[:, 0], axis=0)
+    min_x2_bank = np.amin(ciao[:, 1], axis=0)
 
     # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
     if ciao is not None:
-        delta_x1 = jaw_positions['X1'] - max_a
-        delta_x2 = jaw_positions['X2'] - min_b
+        delta_x1 = jaw_positions['X1'] - max_x1_bank
+        delta_x2 = jaw_positions['X2'] - min_x2_bank
     else:
         # The beam has no segments, jaws only. Set these variables to something that does not influence calc
         # i.e. return no violation
@@ -1300,10 +1301,11 @@ def rounded_jaw_positions(beam):
         leaf_index_upper = np.max(np.nonzero(ciao[:, 1] - ciao[:, 0]))
         logging.debug('Beam: {} has top leaf opening at {}, '.format(beam.Name, leaf_index_upper+1) +
                       'bottom leaf opening at {}'.format(leaf_index_lower+1))
-        max_a = np.amax(ciao[:, 0], axis=0)
-        min_b = np.amin(ciao[:, 1], axis=0)
-        x1_eclipse = math.floor(10 * (max_a - x_jaw_offset)) / 10
-        x2_eclipse = math.ceil(10 * (min_b + x_jaw_offset)) / 10
+        logging.debug('Min X1: {}'.format(ciao[i, 0] for i in ciao[:, 0]))
+        min_x1_bank = np.amin(ciao[:, 0], axis=0)
+        max_x2_bank = np.amax(ciao[:, 1], axis=0)
+        x1_eclipse = math.floor(10 * (min_x1_bank - x_jaw_offset)) / 10
+        x2_eclipse = math.ceil(10 * (max_x2_bank + x_jaw_offset)) / 10
         # min_a = np.amin(ciao[:, 0], axis=0)
         # max_b = np.amax(ciao[:, 1], axis=0)
         # x1_eclipse = math.floor(10 * (min_a - x_jaw_offset)) / 10
@@ -1315,8 +1317,8 @@ def rounded_jaw_positions(beam):
         y1_eclipse = math.floor(10 * (y1_min - y_jaw_offset)) / 10
         y2_eclipse = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
         logging.debug('Beam: {} Eclipse offsets would be: '.format(beam.Name) +
-                      'X1:Floor[{} - {} cm] = {}, '.format(max_a, x_jaw_offset, x1_eclipse) +
-                      'X2:Ceil[{} + {} cm] = {}, '.format(min_b, x_jaw_offset, x2_eclipse) +
+                      'X1:Floor[{} - {} cm] = {}, '.format(min_x1_bank, x_jaw_offset, x1_eclipse) +
+                      'X2:Ceil[{} + {} cm] = {}, '.format(max_x2_bank, x_jaw_offset, x2_eclipse) +
                       'Y1:Floor[{} - {} cm] = {}, '.format(y1_min, y_jaw_offset, y1_eclipse) +
                       'Y2:Ceil[{} + {} cm] = {}'.format(y2_max, y_jaw_offset, y2_eclipse))
     else:
