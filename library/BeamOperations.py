@@ -1187,11 +1187,11 @@ class mlc_properties:
                 self.banks = np.dstack((self.banks, bank))
 
             # Determine if leaves are in retracted position
-            if all(self.banks[:, 0, :] <= - self.max_tip):
+            if np.all(self.banks[:, 0, :] <= - self.max_tip):
                 x1_bank_retracted = True
             else:
                 x1_bank_retracted = False
-            if all(self.banks[:, 1, :] >= self.max_tip):
+            if np.all(self.banks[:, 1, :] >= self.max_tip):
                 x2_bank_retracted = True
             else:
                 x2_bank_retracted = False
