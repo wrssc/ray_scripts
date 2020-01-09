@@ -1312,13 +1312,13 @@ def check_mlc_jaw_positions(jaw_positions, mlc_positions):
     error = ''
     # if ciao is not None:
     #     ciao = maximum_leaf_carriage_extent(beam=beam)
-    ciao = mlc_properties.ciao()
+    mlc_ciao = mlc_positions.ciao()
     # Find the maximally extended MLC in each bank
-    max_x1_bank = np.amax(ciao[:, 0], axis=0)
-    min_x2_bank = np.amin(ciao[:, 1], axis=0)
+    max_x1_bank = np.amax(mlc_ciao[:, 0], axis=0)
+    min_x2_bank = np.amin(mlc_ciao[:, 1], axis=0)
 
     # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
-    if ciao is not None:
+    if mlc_ciao is not None:
         delta_x1 = jaw_positions['X1'] - max_x1_bank
         delta_x2 = jaw_positions['X2'] - min_x2_bank
     else:
