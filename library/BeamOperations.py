@@ -1312,13 +1312,13 @@ def check_mlc_jaw_positions(jaw_positions, mlc_positions):
     error = ''
     # if ciao is not None:
     #     ciao = maximum_leaf_carriage_extent(beam=beam)
-    mlc_ciao = mlc_positions.ciao()
+    max_travel = mlc_positions.max_travel()
     # Find the maximally extended MLC in each bank
-    max_x1_bank = np.amax(mlc_ciao[:, 0], axis=0)
-    min_x2_bank = np.amin(mlc_ciao[:, 1], axis=0)
+    max_x1_bank = np.amax(max_travel[:, 0], axis=0)
+    min_x2_bank = np.amin(max_travel[:, 1], axis=0)
 
     # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
-    if mlc_ciao is not None:
+    if max_travel is not None and not mlc_positions.mlc_retracted:
         delta_x1 = jaw_positions['X1'] - max_x1_bank
         delta_x2 = jaw_positions['X2'] - min_x2_bank
     else:
@@ -1419,7 +1419,7 @@ def rounded_jaw_positions(beam):
 
     ciao = beam_mlc.ciao()
 
-    if not beam_mlc.mlc_retracted:
+    if not beam_mlc.mlc_retracted or ciao is None:
         # Now find the maximum Top and Bottom MLC positions
         # Raystation starts moving leaves to the midplane, so we want to find the first open, and
         # last open MLC leaf pair.
@@ -1446,6 +1446,9 @@ def rounded_jaw_positions(beam):
                       'Y2:Ceil[{} + {} cm] = {}'.format(y2_max, y_jaw_offset, y2_eclipse))
     else:
         # There's no segments. This is a jaw-only field. Use open settings
+        if beam_mlc.mlc_retracted:
+            logging.debug('MLC is retracted. Proceeding with jaw-only field settings')
+
         x1_eclipse = round_open_l_jaw
         x2_eclipse = round_open_r_jaw
         y1_eclipse = round_open_t_jaw
