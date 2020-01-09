@@ -1308,7 +1308,7 @@ def check_mlc_jaw_positions(jaw_positions, mlc_positions):
     """
 
     # Maximum a single leaf can extend from the carriage (jaw)
-    maximum_leaf_out_of_carriage = mlc_properties.max_leaf_carriage
+    maximum_leaf_out_of_carriage = mlc_positions.max_leaf_carriage
     error = ''
     # if ciao is not None:
     #     ciao = maximum_leaf_carriage_extent(beam=beam)
