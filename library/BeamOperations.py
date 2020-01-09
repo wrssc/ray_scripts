@@ -1236,12 +1236,13 @@ def check_y_jaw_positions(jaw_positions, beam):
         logging.debug('beam: {} is a jaw-only field, without segments'.format(beam.Name))
         return error
 
-    # Maximum MLC defined positions: Leaf Center + 0.5 Leaf_Width
+    # Maximum MLC defined positions: Leaf Center + 0.2 Leaf_Width this ensures at least a full millimeter
+    # of cushion for jaw inaccuracies on a 5 mm leaf and 2 mm on a 1 cm leaf
     max_y1_jaw_limit = beam.UpperLayer.LeafCenterPositions[0] - \
-        0.5 * beam.UpperLayer.LeafWidths[0]
+        0.2 * beam.UpperLayer.LeafWidths[0]
     n_leaves = len(beam.UpperLayer.LeafCenterPositions)
     max_y2_jaw_limit = beam.UpperLayer.LeafCenterPositions[n_leaves - 1] + \
-        0.5 * beam.UpperLayer.LeafWidths[n_leaves - 1]
+        0.2 * beam.UpperLayer.LeafWidths[n_leaves - 1]
 
     # Check jaws
     if jaw_positions['Y1'] > min_y1_jaw_limit:
@@ -1257,15 +1258,6 @@ def check_y_jaw_positions(jaw_positions, beam):
         error += 'Beam {}: Y2 jaw position exceeds MLC-delineated boundary at Y2 = {}'.format(
             beam.Name, jaw_positions['Y2'])
 
-    # if 'TrueBeamSTx' in beam.MachineReference.MachineName:
-    #     if abs(jaw_positions['Y1']) > 10.9:
-    #         logging.debug('Maximum Y1 jaw limit exceeded for proposed setting on Beam {}'.format(
-    #             beam.Name))
-    #         error = 'Beam {}: Proposed Y1 Setting exceeds machine limits. '.format(beam.Name)
-    #     if abs(jaw_positions['Y2']) < 10.9:
-    #         logging.debug('Maximum Y2 jaw limit exceeded for proposed setting on Beam {}'.format(
-    #             beam.Name))
-    #         error += 'Beam {}: Proposed Y2 Setting exceeds machine limits'.format(beam.Name)
     return error
 
 
@@ -1301,7 +1293,7 @@ def rounded_jaw_positions(beam):
         leaf_index_upper = np.max(np.nonzero(ciao[:, 1] - ciao[:, 0]))
         logging.debug('Beam: {} has top leaf opening at {}, '.format(beam.Name, leaf_index_upper+1) +
                       'bottom leaf opening at {}'.format(leaf_index_lower+1))
-        logging.debug('Min X1: {}'.format(ciao[i, 0] for i in ciao[:, 0]))
+        logging.debug('Min X1: {}'.format(np.array2string(ciao[:, 0], precision=2, separator=',',suppress_small=True)))
         min_x1_bank = np.amin(ciao[:, 0], axis=0)
         max_x2_bank = np.amax(ciao[:, 1], axis=0)
         x1_eclipse = math.floor(10 * (min_x1_bank - x_jaw_offset)) / 10
