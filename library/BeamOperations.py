@@ -28,6 +28,8 @@
     Multi-isocenter treatment will be incorrect in the naming conventions for set up
     fields. The script will rename the first four fields regardless of which isocenter
     to which they belong.
+    TODO Consider making the input argument to the jaw checking the mlc_properties class
+        Move the mlc properties class to a globally accessible class?
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -1141,6 +1143,88 @@ def rename_beams():
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
 
 
+class mlc_properties:
+    """
+    Class of mlc_properties:
+    using an RS beam object a number of parameters of the MLC bank, and the specific segments are evaluated
+
+    has_segments: determines whether segments have been defined for this field (electron fields don't have segments)
+    beam: the original beam RS object- arguable as to whether another copy of this is needed
+    max_tip: if the beam has an MLC, this will determine the maximum position the MLC can extend from the CAX
+    num_leaves_per_bank: the number of MLC leaves in a bank
+    banks: a numpy array of MLC segment positions
+
+    """
+    # Initialize with a RS beam object
+    def __init__(self, beam):
+        self.beam = beam  # A Raystation beam object that has segments
+        try:
+            s0 = self.beam.Segments[0]
+            self.has_segments = True
+        except:
+            self.has_segments = False
+
+        if self.has_segments:
+            current_machine_name = self.beam.MachineReference.MachineName
+            machine_db = connect.get_current('MachineDB')
+            current_machine = machine_db.GetTreatmentMachine(machineName=current_machine_name,
+                                                             lockMode=None)
+            # Maximum motion of a leaf on its own side of the origin
+            self.max_tip = current_machine.Physics.MlcPhysics.MaxTipPosition
+            # Maximum leaf out of carriage distance [cm]
+            self.max_leaf_carriage = current_machine.Physics.MlcPhysics.MaxLeafOutOfCarriageDistance
+
+            # Compute the number of leaves in the bank based on the first segment
+            self.num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
+
+            # Set up a numpy array that will be a combine segments
+            # into a single ndarray of size:
+            # MLC leaf number x number of banks x number of segments
+            self.banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
+            for s in beam.Segments:
+                # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
+                bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
+                self.banks = np.dstack((self.banks, bank))
+
+            # Determine if leaves are in retracted position
+            if all(self.banks[:, 0, :] <= - self.max_tip):
+                x1_bank_retracted = True
+            else:
+                x1_bank_retracted = False
+            if all(self.banks[:, 1, :] >= self.max_tip):
+                x2_bank_retracted = True
+            else:
+                x2_bank_retracted = False
+            if x1_bank_retracted and x2_bank_retracted:
+                self.mlc_retracted = True
+            else:
+                self.mlc_retracted = False
+
+    # MLC methods:
+    def ciao(self):
+        # Determine the maximum of any leaf position for all segments
+        # completely irradiated area outline
+        # return a numpy array of maximum (most open) leaf position over all control points
+        if self.has_segments:
+            ciao_array = np.empty(shape=(self.num_leaves_per_bank, 2))
+            ciao_array[:, 0] = np.amin(self.banks[:, 0, :], axis=1)
+            ciao_array[:, 1] = np.amax(self.banks[:, 1, :], axis=1)
+            return ciao_array
+        else:
+            return None
+
+    def max_travel(self):
+        # For all segments: determine the maximum distance each leaf is from the jaw (carriage)
+        # return a numpy array of maximum (most open) leaf position over all control points
+        if self.has_segments:
+            max_travel_array = np.empty(shape=(self.num_leaves_per_bank, 2))
+            max_travel_array[:, 0] = np.amax(self.banks[:, 0, :], axis=1)
+            max_travel_array[:, 1] = np.amin(self.banks[:, 1, :], axis=1)
+            return max_travel_array
+        else:
+            return None
+
+
 def maximum_beam_leaf_extent(beam):
     """
     :param beam: RayStation beam object
@@ -1203,20 +1287,32 @@ def maximum_leaf_carriage_extent(beam):
     return max_travel
 
 
-def check_mlc_jaw_positions(jaw_positions, beam, ciao=None):
+def check_mlc_jaw_positions(jaw_positions, mlc_positions):
     """
     Check the incoming jaw positions against machine constraints
     :param jaw_positions: {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
-    :param beam: RS beam object
-    :param ciao: a numpy array with dimensions [num_leaves, 2] where the first column is the
-        maximum leaf opening from the central axis for all control points in the beam
+    :param mlc_data: mlc_positions class object
     :return: error
+
+    Sample code:
+    # For a current beamset called 'beamset'
+    for b in beamset.Beams
+        mlc_positions = mlc_properties(b)
+        jaw_positions = {
+            'X1': b.Segments[0].JawPositions[0],
+            'X2': b.Segments[0].JawPositions[1],
+            'Y1': b.Segments[0].JawPositions[2],
+            'Y2': b.Segments[0].JawPositions[3]}
+        error = check_mlc_jaw_positions(jaw_positions, mlc_positions)
+
     """
-    maximum_leaf_out_of_carriage = 15  # Maximum a single leaf can extend from the carriage (jaw)
-    # 15 cm is the TrueBeam Limit. TODO, find this from machine params
+
+    # Maximum a single leaf can extend from the carriage (jaw)
+    maximum_leaf_out_of_carriage = mlc_properties.max_leaf_carriage
     error = ''
-    if ciao is not None:
-        ciao = maximum_leaf_carriage_extent(beam=beam)
+    # if ciao is not None:
+    #     ciao = maximum_leaf_carriage_extent(beam=beam)
+    ciao = mlc_properties.ciao()
     # Find the maximally extended MLC in each bank
     max_x1_bank = np.amax(ciao[:, 0], axis=0)
     min_x2_bank = np.amin(ciao[:, 1], axis=0)
@@ -1304,6 +1400,8 @@ def rounded_jaw_positions(beam):
     x_jaw_offset = 0.8
     y_jaw_offset = 0.1
     jaw_positions = {}
+    # Initialize the mlc_properties class
+    beam_mlc = mlc_properties(beam)
 
     s0 = beam.Segments[0]
     # Find the result of setting the jaws open
@@ -1318,8 +1416,10 @@ def rounded_jaw_positions(beam):
     round_closed_b_jaw = math.floor(10 * s0.JawPositions[3]) / 10
 
     # get the ciao for this beam
-    ciao = maximum_beam_leaf_extent(beam=beam)
-    if ciao is not None:
+
+    ciao = beam_mlc.ciao()
+
+    if not beam_mlc.mlc_retracted:
         # Now find the maximum Top and Bottom MLC positions
         # Raystation starts moving leaves to the midplane, so we want to find the first open, and
         # last open MLC leaf pair.
@@ -1327,15 +1427,12 @@ def rounded_jaw_positions(beam):
         leaf_index_upper = np.max(np.nonzero(ciao[:, 1] - ciao[:, 0]))
         logging.debug('Beam: {} has top leaf opening at {}, '.format(beam.Name, leaf_index_upper+1) +
                       'bottom leaf opening at {}'.format(leaf_index_lower+1))
-        logging.debug('Min X1: {}'.format(np.array2string(ciao[:, 0], precision=2, separator=',',suppress_small=True)))
+        # logging.debug('Min X1: {}'.format(np.array2string(ciao[:, 0], precision=2, separator=',',suppress_small=True)))
         min_x1_bank = np.amin(ciao[:, 0], axis=0)
         max_x2_bank = np.amax(ciao[:, 1], axis=0)
         x1_eclipse = math.floor(10 * (min_x1_bank - x_jaw_offset)) / 10
         x2_eclipse = math.ceil(10 * (max_x2_bank + x_jaw_offset)) / 10
-        # min_a = np.amin(ciao[:, 0], axis=0)
-        # max_b = np.amax(ciao[:, 1], axis=0)
-        # x1_eclipse = math.floor(10 * (min_a - x_jaw_offset)) / 10
-        # x2_eclipse = math.ceil(10 * (max_b + x_jaw_offset)) / 10
+
         y1_min = beam.UpperLayer.LeafCenterPositions[leaf_index_lower] \
             - 0.5 * beam.UpperLayer.LeafWidths[leaf_index_lower]
         y2_max = beam.UpperLayer.LeafCenterPositions[leaf_index_upper] \
@@ -1406,24 +1503,11 @@ def rounded_jaw_positions(beam):
             logging.debug(error_msg + ' X-Jaws: could not be rounded')
             break
         i += 1
-        error_msg = check_mlc_jaw_positions(jaw_positions, beam, ciao=ciao)
+        error_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
         if not error_msg:
             jaw_violation = False
             logging.debug(debug_msg)
 
-    #     if abs(delta_x1) >= maximum_leaf_out_of_carriage or abs(delta_x2) >= maximum_leaf_out_of_carriage:
-    #         round_open = False
-    #     else:
-    #         round_open = True
-
-    #     if round_open:
-    #         l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
-    #         r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
-    #     else:
-    #         l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
-    #         r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
-    #     t_jaw = math.floor(10 * s0.JawPositions[2]) / 10
-    #     b_jaw = math.ceil(10 * s0.JawPositions[3]) / 10
     return jaw_positions
 
 
