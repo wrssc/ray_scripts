@@ -69,6 +69,7 @@ import UserInterface
 import StructureOperations
 import PlanOperations
 import Beams
+import datetime
 
 clr.AddReference('System')
 
@@ -1164,9 +1165,42 @@ def maximum_beam_leaf_extent(beam):
     # Determine the maximum of any leaf position for all segments
     # completely irradiated area outline
     ciao = np.empty(shape=(num_leaves_per_bank, 2))
-    ciao[:, 0] = np.amax(banks[:, 0, :], axis=1)
-    ciao[:, 1] = np.amin(banks[:, 1, :], axis=1)
+    ciao[:, 0] = np.amin(banks[:, 0, :], axis=1)
+    ciao[:, 1] = np.amax(banks[:, 1, :], axis=1)
     return ciao
+
+
+def maximum_leaf_carriage_extent(beam):
+    """
+    Find the leaf that is farthest from the current jaw position
+    :param beam: RayStation beam object
+    :return: numpy array of maximum (most open) leaf position over all control points
+    """
+    try:
+        # Find the number of leaves in the first segment to initialize the array
+        s0 = beam.Segments[0]
+    except:
+        logging.debug('Beam {} does not have segments for a ciao.'.format(beam.Name))
+        return None
+    t_init = datetime.datetime.now()
+    num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
+    banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
+    # Combine the segments into a single ndarray of size:
+    # number of MLCs x number of banks x number of segments
+    for s in beam.Segments:
+        # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
+        bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
+        banks = np.dstack((banks, bank))
+
+    # Determine the maximum travel of any leaf on the bank
+    max_travel = np.empty(shape=(num_leaves_per_bank, 2))
+    max_travel[:, 0] = np.amax(banks[:, 0, :], axis=1)
+    max_travel[:, 1] = np.amin(banks[:, 1, :], axis=1)
+    # Stop the clock
+    t_fine = datetime.datetime.now()
+    delta = t_fine - t_init
+    logging.debug('Max Carriage Operation required {} seconds'.format(delta.total_seconds()))
+    return max_travel
 
 
 def check_mlc_jaw_positions(jaw_positions, beam, ciao=None):
@@ -1182,7 +1216,7 @@ def check_mlc_jaw_positions(jaw_positions, beam, ciao=None):
     # 15 cm is the TrueBeam Limit. TODO, find this from machine params
     error = ''
     if ciao is not None:
-        ciao = maximum_beam_leaf_extent(beam=beam)
+        ciao = maximum_leaf_carriage_extent(beam=beam)
     # Find the maximally extended MLC in each bank
     max_x1_bank = np.amax(ciao[:, 0], axis=0)
     min_x2_bank = np.amin(ciao[:, 1], axis=0)
