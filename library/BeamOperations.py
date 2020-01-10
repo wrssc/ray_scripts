@@ -1155,6 +1155,7 @@ class mlc_properties:
     banks: a numpy array of MLC segment positions
 
     """
+
     # Initialize with a RS beam object
     def __init__(self, beam):
         self.beam = beam  # A Raystation beam object that has segments
@@ -1369,10 +1370,10 @@ def check_y_jaw_positions(jaw_positions, beam):
     # Maximum MLC defined positions: Leaf Center + 0.2 Leaf_Width this ensures at least a full millimeter
     # of cushion for jaw inaccuracies on a 5 mm leaf and 2 mm on a 1 cm leaf
     max_y1_jaw_limit = beam.UpperLayer.LeafCenterPositions[0] - \
-        0.2 * beam.UpperLayer.LeafWidths[0]
+                       0.2 * beam.UpperLayer.LeafWidths[0]
     n_leaves = len(beam.UpperLayer.LeafCenterPositions)
     max_y2_jaw_limit = beam.UpperLayer.LeafCenterPositions[n_leaves - 1] + \
-        0.2 * beam.UpperLayer.LeafWidths[n_leaves - 1]
+                       0.2 * beam.UpperLayer.LeafWidths[n_leaves - 1]
 
     # Check jaws
     if jaw_positions['Y1'] > min_y1_jaw_limit:
@@ -1425,8 +1426,8 @@ def rounded_jaw_positions(beam):
         # last open MLC leaf pair.
         leaf_index_lower = np.min(np.nonzero(ciao[:, 1] - ciao[:, 0]))
         leaf_index_upper = np.max(np.nonzero(ciao[:, 1] - ciao[:, 0]))
-        logging.debug('Beam: {} has top leaf opening at {}, '.format(beam.Name, leaf_index_upper+1) +
-                      'bottom leaf opening at {}'.format(leaf_index_lower+1))
+        logging.debug('Beam: {} has top leaf opening at {}, '.format(beam.Name, leaf_index_upper + 1) +
+                      'bottom leaf opening at {}'.format(leaf_index_lower + 1))
         # logging.debug('Min X1: {}'.format(np.array2string(ciao[:, 0], precision=2, separator=',',suppress_small=True)))
         min_x1_bank = np.amin(ciao[:, 0], axis=0)
         max_x2_bank = np.amax(ciao[:, 1], axis=0)
@@ -1434,9 +1435,9 @@ def rounded_jaw_positions(beam):
         x2_eclipse = math.ceil(10 * (max_x2_bank + x_jaw_offset)) / 10
 
         y1_min = beam.UpperLayer.LeafCenterPositions[leaf_index_lower] \
-            - 0.5 * beam.UpperLayer.LeafWidths[leaf_index_lower]
+                 - 0.5 * beam.UpperLayer.LeafWidths[leaf_index_lower]
         y2_max = beam.UpperLayer.LeafCenterPositions[leaf_index_upper] \
-            + 0.5 * beam.UpperLayer.LeafWidths[leaf_index_upper]
+                 + 0.5 * beam.UpperLayer.LeafWidths[leaf_index_upper]
         y1_eclipse = math.floor(10 * (y1_min - y_jaw_offset)) / 10
         y2_eclipse = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
         logging.debug('Beam: {} Eclipse offsets would be: '.format(beam.Name) +
@@ -1923,27 +1924,31 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
     :return: success: True if limits changed or limit is satisfied by current beam limits
     """
     # Find the optimization index corresponding to this beamset
-    opt_index = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=verbose_logging)
+    opt_index = PlanOperations.find_optimization_index(plan=plan,
+                                                       beamset=beamset,
+                                                       verbose_logging=verbose_logging)
     plan_optimization_parameters = plan.PlanOptimizations[opt_index].OptimizationParameters
+    ts_settings = None
+    beam_found = False
     for tss in plan_optimization_parameters.TreatmentSetupSettings:
         if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
             ts_settings = tss
             if verbose_logging:
-                logging.debug('TreatmentSettings matching {} found'.format(beamset.DicomPlanLabel))
-            break
+                logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam_name))
+            for bs in ts_settings.BeamSettings:
+                if bs.ForBeam.Name == beam_name:
+                    beam_found = True
+                    current_beam = bs
+                    break
+                else:
+                    continue
         else:
             continue
 
-    # Track whether the input beam_name is found in the list of beams belonging to this optimization.
-    beam_found = False
-    for b in ts_settings.BeamSettings:
-
-        if b.ForBeam.Name == beam_name:
-            beam_found = True
-            current_beam = b
-
-        else:
-            continue
+    if ts_settings is None:
+        logging.exception('No treatment set up settings could be found for beamset {}'.format(
+            beamset.DicomPlanLabel) + 'Contact script administrator')
 
     if not beam_found:
         logging.warning('Beam {} not found in beam list from {}'.format(

@@ -455,6 +455,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     :param plan: current plan
     :param beamset: current beamset, note composite optimization is supported
     :param optimization_inputs:
+    TODO: Fill in all possible inputs
     :return:
     """
     # For the supplied beamset compute the jaw-defined equivalent square
@@ -497,7 +498,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     maximum_iteration = optimization_inputs.get('n_iterations', 12)
     fluence_only = optimization_inputs.get('fluence_only', False)
     reset_beams = optimization_inputs.get('reset_beams', True)
-    small_target = optimization_inputs.get('small_target', True)
+    # Small target
+    # small_target = optimization_inputs.get('small_target', True)
     reduce_oar = optimization_inputs.get('reduce_oar', True)
     segment_weight = optimization_inputs.get('segment_weight', False)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
@@ -538,6 +540,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                               int(maximum_iteration - 1)]}
             change_dose_grid = make_variable_grid_list(maximum_iteration, variable_dose_grid)
 
+    save_at_complete = optimization_inputs.get('save', False)
     # Making the variable status script, arguably move to main()
     status_steps = ['Initialize optimization']
     if reset_beams:
@@ -551,14 +554,18 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             if vary_grid:
                 if change_dose_grid[i] != 0:
                     status_steps.append('Change dose grid to: {} cm'.format(change_dose_grid[i]))
-            if small_target and i == 0:
-                status_steps.append('Test iteration for jaw offset.')
+            # Small target
+            # if small_target and i == 0:
+            #     status_steps.append('Test iteration for jaw offset.')
             ith_step = 'Complete Iteration:' + str(i + 1)
             status_steps.append(ith_step)
         if segment_weight:
             status_steps.append('Complete Segment weight optimization')
         if reduce_oar:
             status_steps.append('Reduce OAR Dose')
+    if save_at_complete:
+        status_steps.append('Save Patient')
+
     status_steps.append('Provide Optimization Report')
 
     report_inputs['status_steps'] = status_steps
@@ -697,8 +704,13 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
 
                         limit = [-20, 20, -10.9, 10.9]
-                        success = BeamOperations.check_beam_limits(beams.ForBeam.Name, plan=plan, beamset=beamset,
-                                                                   limit=limit, change=True, verbose_logging=False)
+                        # Reference the beamset by the subobject in ForTreatmentSetup
+                        success = BeamOperations.check_beam_limits(beams.ForBeam.Name,
+                                                                   plan=plan,
+                                                                   beamset=ts.ForTreatmentSetup,
+                                                                   limit=limit,
+                                                                   change=True,
+                                                                   verbose_logging=True)
                         if not success:
                             # If there are MU then this field has already been optimized with the wrong jaw limits
                             # For Shame....
@@ -722,6 +734,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     ts.SegmentConversion.MaxNumberOfSegments = str(maximum_segments)
 
         while Optimization_Iteration != maximum_iteration:
+            # Small target
             # Check for small targets by evaluating the jaw size
             # Record the previous total objective function value
             if plan_optimization.Objective.FunctionValue is None:
@@ -750,34 +763,35 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     report_inputs.setdefault('time_dose_grid_final', []).append(datetime.datetime.now())
             # Start the clock
             report_inputs.setdefault('time_iteration_initial', []).append(datetime.datetime.now())
-            if small_target:
-                if Optimization_Iteration == 0:
-                    plan_optimization_parameters.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
-                    plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = \
-                        initial_intermediate_iteration
-
-                    status.next_step(
-                        text='Running test iteration for small target size')
-                    plan.PlanOptimizations[OptIndex].RunOptimization()
-                    plan.PlanOptimizations[OptIndex].RunOptimization()
-                    restart = check_min_jaws(plan_optimization, min_dim)
-                    if restart:
-                        Optimization_Iteration = 0
-                    else:
-                        Optimization_Iteration = 1
-                        status.next_step('Iteration 1 completed during small target test - advancing')
-                else:
-                    restart = check_min_jaws(plan_optimization, min_dim)
-                    if restart:
-                        # Reset the optimization count
-                        logging.info('Jaw sizes still appear to be smaller than their nomimal minimum')
-            else:
-                restart = check_min_jaws(plan_optimization, min_dim)
-                if restart:
-                    # Stop the calculation, and warn the user to run small target for this case.
-                    logging.warning("User is running calculation for small target without jaw-locking")
-                    status.finish('Restart required select small-target')
-                    sys.exit("Restart the optimization with small-target selected")
+            # We are now using JawSet-Backs, not need for small-target evaluation
+            # Small target
+            # if small_target:
+            #    if Optimization_Iteration == 0:
+            #        plan_optimization_parameters.Algorithm.MaxNumberOfIterations = initial_maximum_iteration
+            #        plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = \
+            #            initial_intermediate_iteration
+            #        status.next_step(
+            #            text='Running test iteration for small target size')
+            #        plan.PlanOptimizations[OptIndex].RunOptimization()
+            #        plan.PlanOptimizations[OptIndex].RunOptimization()
+            #        restart = check_min_jaws(plan_optimization, min_dim)
+            #        if restart:
+            #            Optimization_Iteration = 0
+            #        else:
+            #            Optimization_Iteration = 1
+            #            status.next_step('Iteration 1 completed during small target test - advancing')
+            #    else:
+            #        restart = check_min_jaws(plan_optimization, min_dim)
+            #        if restart:
+            #            # Reset the optimization count
+            #            logging.info('Jaw sizes still appear to be smaller than their nomimal minimum')
+            #else:
+            #    restart = check_min_jaws(plan_optimization, min_dim)
+            #    if restart:
+            #        # Stop the calculation, and warn the user to run small target for this case.
+            #        logging.warning("User is running calculation for small target without jaw-locking")
+            #        status.finish('Restart required select small-target')
+            #        sys.exit("Restart the optimization with small-target selected")
             status.next_step(
                 text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
             logging.info(
@@ -840,10 +854,12 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 Optimization_Iteration, plan_optimization.Objective.FunctionValue))
 
     report_inputs['time_total_final'] = datetime.datetime.now()
-    try:
-        patient.Save()
-    except:
-        logging.debug('Could not save patient plan')
+    if save_at_complete:
+        try:
+            patient.Save()
+            status.next_step('Save Complete')
+        except:
+            logging.debug('Could not save patient plan')
 
     on_screen_message = optimization_report(
         fluence_only=fluence_only,
