@@ -1,11 +1,3 @@
-""" PMH Sub 5ms constant
-
-Subtracts leaf time based on a constant -5 ms
-
-Leaves less than 60 ms after sampled perturbation are set to minimum LOT of 60 ms
-
-"""
-
 import connect
 import logging
 
