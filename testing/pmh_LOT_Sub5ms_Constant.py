@@ -1,4 +1,4 @@
-""" PMH All NZL Sub 5ms constant
+""" PMH Sub 5ms constant
 
 Subtracts leaf time based on a constant -5 ms
 
