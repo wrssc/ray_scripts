@@ -151,7 +151,7 @@
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
@@ -174,7 +174,7 @@
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -373,7 +373,7 @@
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Trachea</name>
@@ -527,7 +527,7 @@
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
@@ -550,7 +550,7 @@
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -748,7 +748,7 @@
                 <ref>RTOG 0813</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">18</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Trachea</name>
@@ -1489,7 +1489,7 @@
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">16</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Trachea</name>
@@ -1640,7 +1640,7 @@
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
@@ -1663,7 +1663,7 @@
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -1862,7 +1862,7 @@
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Trachea</name>
@@ -2011,7 +2011,7 @@
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_L_PRV05</name>
@@ -2034,7 +2034,7 @@
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -2233,7 +2233,7 @@
                 <ref>RTOG 0813 BED a/b=3</ref>
                 <volume units="cc">4</volume>
                 <dose units="Gy">14</dose>
-                <priority>1</priority>
+                <priority>3</priority>
             </roi>
             <roi>
                 <name>Trachea</name>

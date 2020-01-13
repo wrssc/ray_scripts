@@ -1369,11 +1369,12 @@ def check_y_jaw_positions(jaw_positions, beam):
 
     # Maximum MLC defined positions: Leaf Center + 0.2 Leaf_Width this ensures at least a full millimeter
     # of cushion for jaw inaccuracies on a 5 mm leaf and 2 mm on a 1 cm leaf
-    max_y1_jaw_limit = beam.UpperLayer.LeafCenterPositions[0] - \
-                       0.2 * beam.UpperLayer.LeafWidths[0]
-    n_leaves = len(beam.UpperLayer.LeafCenterPositions)
-    max_y2_jaw_limit = beam.UpperLayer.LeafCenterPositions[n_leaves - 1] + \
-                       0.2 * beam.UpperLayer.LeafWidths[n_leaves - 1]
+    current_mlc_physics = current_machine.Physics.MlcPhysics
+    max_y1_jaw_limit = current_mlc_physics.UpperLayer.LeafCenterPositions[0] - \
+                       0.2 * current_mlc_physics.UpperLayer.LeafWidths[0]
+    n_leaves = len(current_mlc_physics.UpperLayer.LeafCenterPositions)
+    max_y2_jaw_limit = current_mlc_physics.UpperLayer.LeafCenterPositions[n_leaves - 1] + \
+                       0.2 * current_mlc_physics.UpperLayer.LeafWidths[n_leaves - 1]
 
     # Check jaws
     if jaw_positions['Y1'] > min_y1_jaw_limit:
@@ -1420,6 +1421,15 @@ def rounded_jaw_positions(beam):
 
     ciao = beam_mlc.ciao()
 
+    # For some bizzare reason, the __init__ method of beam does not pull the data from
+    # the MLC MachineReference physics. So we are searching for the machine directly here.
+    current_machine_name = beam.MachineReference.MachineName
+    machine_db = connect.get_current('MachineDB')
+    current_machine = machine_db.GetTreatmentMachine(machineName=current_machine_name,
+                                                     lockMode=None)
+    # Maximum jaw overtravel (minimum) position
+    current_mlc_physics = current_machine.Physics.MlcPhysics
+
     if not beam_mlc.mlc_retracted or ciao is None:
         # Now find the maximum Top and Bottom MLC positions
         # Raystation starts moving leaves to the midplane, so we want to find the first open, and
@@ -1434,10 +1444,10 @@ def rounded_jaw_positions(beam):
         x1_eclipse = math.floor(10 * (min_x1_bank - x_jaw_offset)) / 10
         x2_eclipse = math.ceil(10 * (max_x2_bank + x_jaw_offset)) / 10
 
-        y1_min = beam.UpperLayer.LeafCenterPositions[leaf_index_lower] \
-                 - 0.5 * beam.UpperLayer.LeafWidths[leaf_index_lower]
-        y2_max = beam.UpperLayer.LeafCenterPositions[leaf_index_upper] \
-                 + 0.5 * beam.UpperLayer.LeafWidths[leaf_index_upper]
+        y1_min = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_lower] \
+                 -0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_lower]
+        y2_max = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_upper] \
+                 +0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_upper]
         y1_eclipse = math.floor(10 * (y1_min - y_jaw_offset)) / 10
         y2_eclipse = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
         logging.debug('Beam: {} Eclipse offsets would be: '.format(beam.Name) +
