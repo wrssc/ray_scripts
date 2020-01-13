@@ -10,7 +10,7 @@ import connect
 import random
 import logging
 
-logging.info('executing sinogram perterbation')
+logging.info('executing sinogram perturbation')
 logging.info('reducing non-zero leaves by uniformly sampled distribution from -5 to 0 ms')
 
 # get current patient, beam set, and beam
@@ -68,4 +68,4 @@ for ii in range(0,len(lots)):
     beam.Segments[nseg-1].LeafOpenFraction[ii] = 0
 
 
-logging.info('sinogram perterbation complete')
+logging.info('sinogram perturbation complete')
