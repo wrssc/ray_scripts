@@ -393,6 +393,56 @@ def place_beams_in_beamset(iso, beamset, beams):
                               CollimatorAngle=b.collimator_angle)
 
 
+def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
+    """
+    Put beams in place based on a list of Beam objects
+    :param iso: isocenter data dictionary
+    :param beamset: beamset to which to add beams
+    :param beams: list of Beam objects
+    :return:
+    """
+    logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
+                  'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
+        beam.number, beam.technique, beam.name,
+        beam.energy))
+
+    beamset.CreatePhotonBeam(Name=beam.Name,
+                             Energy=beam.energy,
+                             IsocenterData=iso,
+                             Description=beam.name,
+                             )
+    opt_index = PlanOperations.find_optimization_index(plan=plan,
+                                                       beamset=beamset,
+                                                       verbose_logging=False)
+    plan_optimization_parameters=plan.PlanOptimizations[opt_index]
+    for tss in plan_optimization_parameters.TreatmentSetupSettings:
+        if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
+            ts_settings = tss
+            if verbose_logging:
+                logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam_name))
+            for bs in ts_settings.BeamSettings:
+                if bs.ForBeam.Name == beam_name:
+                    beam_found = True
+                    current_beam = bs
+                    break
+                else:
+                    continue
+        else:
+            continue
+
+    if ts_settings is None:
+        logging.exception('No treatment set up settings could be found for beamset {}'.format(
+            beamset.DicomPlanLabel) + 'Contact script administrator')
+
+    if not beam_found:
+        logging.warning('Beam {} not found in beam list from {}'.format(
+            beam_name, beamset.DicomPlanLabel))
+        sys.exit('Could not find a beam match for setting aperture limits')
+    plan.PlanOptimizations[opt_index].OptimizationParameters.
+
+
+
 def rename_beams():
     # These are the techniques associated with billing codes in the clinic
     # they will be imported
@@ -1400,7 +1450,7 @@ def rounded_jaw_positions(beam):
     :return: {X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)}
     """
     x_jaw_offset = 0.8
-    y_jaw_offset = 0.1
+    y_jaw_offset = 0.2
     jaw_positions = {}
     # Initialize the mlc_properties class
     beam_mlc = mlc_properties(beam)
@@ -1445,16 +1495,16 @@ def rounded_jaw_positions(beam):
         x2_eclipse = math.ceil(10 * (max_x2_bank + x_jaw_offset)) / 10
 
         y1_min = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_lower] \
-                 -0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_lower]
+                 - 0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_lower]
         y2_max = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_upper] \
-                 +0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_upper]
-        y1_eclipse = math.floor(10 * (y1_min - y_jaw_offset)) / 10
-        y2_eclipse = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
-        # logging.debug('Beam: {} Eclipse offsets would be: '.format(beam.Name) +
+                 + 0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_upper]
+        y1_jaw_standoff = math.floor(10 * (y1_min - y_jaw_offset)) / 10
+        y2_jaw_standoff = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
+        # logging.debug('Beam: {} Jaw Standoff offsets would be: '.format(beam.Name) +
         #               'X1:Floor[{} - {} cm] = {}, '.format(min_x1_bank, x_jaw_offset, x1_eclipse) +
         #               'X2:Ceil[{} + {} cm] = {}, '.format(max_x2_bank, x_jaw_offset, x2_eclipse) +
-        #               'Y1:Floor[{} - {} cm] = {}, '.format(y1_min, y_jaw_offset, y1_eclipse) +
-        #               'Y2:Ceil[{} + {} cm] = {}'.format(y2_max, y_jaw_offset, y2_eclipse))
+        #               'Y1:Floor[{} - {} cm] = {}, '.format(y1_min, y_jaw_offset, y1_jaw_standoff) +
+        #               'Y2:Ceil[{} + {} cm] = {}'.format(y2_max, y_jaw_offset, y2_jaw_standoff))
     else:
         # There's no segments. This is a jaw-only field. Use open settings
         if beam_mlc.mlc_retracted:
@@ -1462,20 +1512,20 @@ def rounded_jaw_positions(beam):
 
         x1_eclipse = round_open_l_jaw
         x2_eclipse = round_open_r_jaw
-        y1_eclipse = round_open_t_jaw
-        y2_eclipse = round_open_b_jaw
+        y1_jaw_standoff = round_open_t_jaw
+        y2_jaw_standoff = round_open_b_jaw
 
     # Check the y-jaws
-    # Try to use Eclipse jaw offsets first. Then, if that violates a machine constraint
+    # Try to use Jaw Standoff jaw offsets first. Then, if that violates a machine constraint
     # Try to set the jaws based on rounding open, if that still violates the machine constraints
     # Round the jaws closed.
     jaw_violation = True
     i = 0
     while jaw_violation:
         if i == 0:
-            jaw_positions['Y1'] = y1_eclipse
-            jaw_positions['Y2'] = y2_eclipse
-            debug_msg = 'Beam: {}: Y-Jaws: Eclipse offsets used'.format(beam.Name)
+            jaw_positions['Y1'] = y1_jaw_standoff
+            jaw_positions['Y2'] = y2_jaw_standoff
+            debug_msg = 'Beam: {}: Y-Jaws: Jaw Standoff offsets used'.format(beam.Name)
         elif i == 1:
             jaw_positions['Y1'] = round_open_t_jaw
             jaw_positions['Y2'] = round_open_b_jaw
@@ -1493,7 +1543,7 @@ def rounded_jaw_positions(beam):
             jaw_violation = False
             logging.debug(debug_msg)
 
-    # Try to use Eclipse jaw offsets first. Then, if that violates a machine constraint
+    # Try to use Jaw Standoff jaw offsets first. Then, if that violates a machine constraint
     # Try to set the jaws based on rounding open, if that still violates the machine constraints
     # Round the jaws closed.
     i = 0
@@ -1503,7 +1553,7 @@ def rounded_jaw_positions(beam):
             # Check eclipse positions
             jaw_positions['X1'] = x1_eclipse
             jaw_positions['X2'] = x2_eclipse
-            debug_msg = 'Beam: {}: X-Jaws: Eclipse offsets used'.format(beam.Name)
+            debug_msg = 'Beam: {}: X-Jaws: Jaw Standoff offsets used'.format(beam.Name)
         elif i == 1:
             # The proposed jaw position violates MLC/carriage limits, attempt a simple open round
             jaw_positions['X1'] = round_open_l_jaw

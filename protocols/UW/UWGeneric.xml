@@ -372,6 +372,7 @@
             <Name>1_SITE_THI</Name>
             <FieldWidth>2.5</FieldWidth>
             <Energy>6</Energy>
+            <Pitch>0.287</Pitch>
         </beam>
     </beamset>
 </protocol>
