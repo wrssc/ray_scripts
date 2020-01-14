@@ -143,7 +143,8 @@ def main():
                                  'due to no structures having type Support')
                 external_error = False
             elif len(error) != 0:
-                connect.await_user_input('Eliminate overlap of patient external with support structures')
+                connect.await_user_input('Eliminate overlap of patient external with support structures' +
+                                         ' (hint: use the Couch Removal tool on the external)')
             else:
                 external_error = False
         status.next_step('Reviewed external')
