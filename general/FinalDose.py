@@ -39,7 +39,6 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
 import sys
-import unicodedata
 import connect
 import UserInterface
 import BeamOperations
@@ -51,7 +50,6 @@ import StructureOperations
 import clr
 clr.AddReference("System.Xml")
 import System
-import inspect
 
 
 class MyException(Exception):

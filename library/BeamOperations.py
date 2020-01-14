@@ -401,12 +401,13 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
     :param beams: list of Beam objects
     :return:
     """
+    verbose_logging = False
     logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
                   'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
-        beam.number, beam.technique, beam.name,
+        beam.number, beam.technique, beam.Name,
         beam.energy))
 
-    beamset.CreatePhotonBeam(Name=beam.Name,
+    beamset.CreatePhotonBeam(Name=beam.name,
                              Energy=beam.energy,
                              IsocenterData=iso,
                              Description=beam.name,
@@ -420,9 +421,9 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             ts_settings = tss
             if verbose_logging:
                 logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
-                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam_name))
+                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam.name))
             for bs in ts_settings.BeamSettings:
-                if bs.ForBeam.Name == beam_name:
+                if bs.ForBeam.Name == beam.name:
                     beam_found = True
                     current_beam = bs
                     break
@@ -437,9 +438,9 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
 
     if not beam_found:
         logging.warning('Beam {} not found in beam list from {}'.format(
-            beam_name, beamset.DicomPlanLabel))
+            beam.name, beamset.DicomPlanLabel))
         sys.exit('Could not find a beam match for setting aperture limits')
-    plan.PlanOptimizations[opt_index].OptimizationParameters.
+   # plan.PlanOptimizations[opt_index].OptimizationParameters.
 
 
 
