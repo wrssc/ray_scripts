@@ -668,7 +668,7 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
 
     matchy_dialog = UserInterface.InputDialog(
         inputs=inputs,
-        title='Matchy Matchy',
+        title='Matchy Matchy Dialog',
         datatype=datatype,
         initial={},
         options=matches,
