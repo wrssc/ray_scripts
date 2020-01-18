@@ -681,7 +681,7 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
 
     correct = 0
 
-    m_logs = r'Q:\\RadOnc\ShareAll\RayStation\RayScripts\dev_logs'
+    m_logs = r'Q:\\RadOnc\RayStation\RayScripts\dev_logs'
     with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
         match_file.write('Patient entry\n')
     for r in rois:
