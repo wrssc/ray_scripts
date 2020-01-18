@@ -21,12 +21,15 @@
     01.00.04 RAB Modified to include isocenter renaming.
     01.00.05 RAB Modified to automatically add the 4th set-up field and clean up creation
     01.00.06 RAB Modified to round the gantry and couch angle first then convert to integer
+    01.00.07 RAB Modified to handle errors produced in setting a DSP where no primary Rx is defines
 
     Known Issues:
 
     Multi-isocenter treatment will be incorrect in the naming conventions for set up
     fields. The script will rename the first four fields regardless of which isocenter
     to which they belong.
+    TODO Consider making the input argument to the jaw checking the mlc_properties class
+        Move the mlc properties class to a globally accessible class?
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -68,6 +71,7 @@ import UserInterface
 import StructureOperations
 import PlanOperations
 import Beams
+import datetime
 
 clr.AddReference('System')
 
@@ -387,6 +391,57 @@ def place_beams_in_beamset(iso, beamset, beams):
                               GantryAngle=b.gantry_start_angle,
                               CouchAngle=b.couch_angle,
                               CollimatorAngle=b.collimator_angle)
+
+
+def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
+    """
+    Put beams in place based on a list of Beam objects
+    :param iso: isocenter data dictionary
+    :param beamset: beamset to which to add beams
+    :param beams: list of Beam objects
+    :return:
+    """
+    verbose_logging = False
+    logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
+                  'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
+        beam.number, beam.technique, beam.Name,
+        beam.energy))
+
+    beamset.CreatePhotonBeam(Name=beam.name,
+                             Energy=beam.energy,
+                             IsocenterData=iso,
+                             Description=beam.name,
+                             )
+    opt_index = PlanOperations.find_optimization_index(plan=plan,
+                                                       beamset=beamset,
+                                                       verbose_logging=False)
+    plan_optimization_parameters=plan.PlanOptimizations[opt_index]
+    for tss in plan_optimization_parameters.TreatmentSetupSettings:
+        if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
+            ts_settings = tss
+            if verbose_logging:
+                logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam.name))
+            for bs in ts_settings.BeamSettings:
+                if bs.ForBeam.Name == beam.name:
+                    beam_found = True
+                    current_beam = bs
+                    break
+                else:
+                    continue
+        else:
+            continue
+
+    if ts_settings is None:
+        logging.exception('No treatment set up settings could be found for beamset {}'.format(
+            beamset.DicomPlanLabel) + 'Contact script administrator')
+
+    if not beam_found:
+        logging.warning('Beam {} not found in beam list from {}'.format(
+            beam.name, beamset.DicomPlanLabel))
+        sys.exit('Could not find a beam match for setting aperture limits')
+   # plan.PlanOptimizations[opt_index].OptimizationParameters.
+
 
 
 def rename_beams():
@@ -1139,6 +1194,89 @@ def rename_beams():
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
 
 
+class mlc_properties:
+    """
+    Class of mlc_properties:
+    using an RS beam object a number of parameters of the MLC bank, and the specific segments are evaluated
+
+    has_segments: determines whether segments have been defined for this field (electron fields don't have segments)
+    beam: the original beam RS object- arguable as to whether another copy of this is needed
+    max_tip: if the beam has an MLC, this will determine the maximum position the MLC can extend from the CAX
+    num_leaves_per_bank: the number of MLC leaves in a bank
+    banks: a numpy array of MLC segment positions
+
+    """
+
+    # Initialize with a RS beam object
+    def __init__(self, beam):
+        self.beam = beam  # A Raystation beam object that has segments
+        try:
+            s0 = self.beam.Segments[0]
+            self.has_segments = True
+        except:
+            self.has_segments = False
+
+        if self.has_segments:
+            current_machine_name = self.beam.MachineReference.MachineName
+            machine_db = connect.get_current('MachineDB')
+            current_machine = machine_db.GetTreatmentMachine(machineName=current_machine_name,
+                                                             lockMode=None)
+            # Maximum motion of a leaf on its own side of the origin
+            self.max_tip = current_machine.Physics.MlcPhysics.MaxTipPosition
+            # Maximum leaf out of carriage distance [cm]
+            self.max_leaf_carriage = current_machine.Physics.MlcPhysics.MaxLeafOutOfCarriageDistance
+
+            # Compute the number of leaves in the bank based on the first segment
+            self.num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
+
+            # Set up a numpy array that will be a combine segments
+            # into a single ndarray of size:
+            # MLC leaf number x number of banks x number of segments
+            self.banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
+            for s in beam.Segments:
+                # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
+                bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
+                self.banks = np.dstack((self.banks, bank))
+
+            # Determine if leaves are in retracted position
+            if np.all(self.banks[:, 0, :] <= - self.max_tip):
+                x1_bank_retracted = True
+            else:
+                x1_bank_retracted = False
+            if np.all(self.banks[:, 1, :] >= self.max_tip):
+                x2_bank_retracted = True
+            else:
+                x2_bank_retracted = False
+            if x1_bank_retracted and x2_bank_retracted:
+                self.mlc_retracted = True
+            else:
+                self.mlc_retracted = False
+
+    # MLC methods:
+    def ciao(self):
+        # Determine the maximum of any leaf position for all segments
+        # completely irradiated area outline
+        # return a numpy array of maximum (most open) leaf position over all control points
+        if self.has_segments:
+            ciao_array = np.empty(shape=(self.num_leaves_per_bank, 2))
+            ciao_array[:, 0] = np.amin(self.banks[:, 0, :], axis=1)
+            ciao_array[:, 1] = np.amax(self.banks[:, 1, :], axis=1)
+            return ciao_array
+        else:
+            return None
+
+    def max_travel(self):
+        # For all segments: determine the maximum distance each leaf is from the jaw (carriage)
+        # return a numpy array of maximum (most open) leaf position over all control points
+        if self.has_segments:
+            max_travel_array = np.empty(shape=(self.num_leaves_per_bank, 2))
+            max_travel_array[:, 0] = np.amax(self.banks[:, 0, :], axis=1)
+            max_travel_array[:, 1] = np.amin(self.banks[:, 1, :], axis=1)
+            return max_travel_array
+        else:
+            return None
+
+
 def maximum_beam_leaf_extent(beam):
     """
     :param beam: RayStation beam object
@@ -1151,21 +1289,159 @@ def maximum_beam_leaf_extent(beam):
         logging.debug('Beam {} does not have segments for a ciao.'.format(beam.Name))
         return None
 
-
     num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
     banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
     # Combine the segments into a single ndarray of size:
     # number of MLCs x number of banks x number of segments
     for s in beam.Segments:
+        # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
         bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
         banks = np.dstack((banks, bank))
 
     # Determine the maximum of any leaf position for all segments
     # completely irradiated area outline
     ciao = np.empty(shape=(num_leaves_per_bank, 2))
-    ciao[:, 0] = np.amax(banks[:, 0, :], axis=1)
-    ciao[:, 1] = np.amin(banks[:, 1, :], axis=1)
+    ciao[:, 0] = np.amin(banks[:, 0, :], axis=1)
+    ciao[:, 1] = np.amax(banks[:, 1, :], axis=1)
     return ciao
+
+
+def maximum_leaf_carriage_extent(beam):
+    """
+    Find the leaf that is farthest from the current jaw position
+    :param beam: RayStation beam object
+    :return: numpy array of maximum (most open) leaf position over all control points
+    """
+    try:
+        # Find the number of leaves in the first segment to initialize the array
+        s0 = beam.Segments[0]
+    except:
+        logging.debug('Beam {} does not have segments for a ciao.'.format(beam.Name))
+        return None
+    t_init = datetime.datetime.now()
+    num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
+    banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
+    # Combine the segments into a single ndarray of size:
+    # number of MLCs x number of banks x number of segments
+    for s in beam.Segments:
+        # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
+        bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
+        banks = np.dstack((banks, bank))
+
+    # Determine the maximum travel of any leaf on the bank
+    max_travel = np.empty(shape=(num_leaves_per_bank, 2))
+    max_travel[:, 0] = np.amax(banks[:, 0, :], axis=1)
+    max_travel[:, 1] = np.amin(banks[:, 1, :], axis=1)
+    # Stop the clock
+    t_fine = datetime.datetime.now()
+    delta = t_fine - t_init
+    logging.debug('Max Carriage Operation required {} seconds'.format(delta.total_seconds()))
+    return max_travel
+
+
+def check_mlc_jaw_positions(jaw_positions, mlc_positions):
+    """
+    Check the incoming jaw positions against machine constraints
+    :param jaw_positions: {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
+    :param mlc_data: mlc_positions class object
+    :return: error
+
+    Sample code:
+    # For a current beamset called 'beamset'
+    for b in beamset.Beams
+        mlc_positions = mlc_properties(b)
+        jaw_positions = {
+            'X1': b.Segments[0].JawPositions[0],
+            'X2': b.Segments[0].JawPositions[1],
+            'Y1': b.Segments[0].JawPositions[2],
+            'Y2': b.Segments[0].JawPositions[3]}
+        error = check_mlc_jaw_positions(jaw_positions, mlc_positions)
+
+    """
+
+    # Maximum a single leaf can extend from the carriage (jaw)
+    maximum_leaf_out_of_carriage = mlc_positions.max_leaf_carriage
+    error = ''
+    # if ciao is not None:
+    #     ciao = maximum_leaf_carriage_extent(beam=beam)
+    max_travel = mlc_positions.max_travel()
+    # Find the maximally extended MLC in each bank
+    max_x1_bank = np.amax(max_travel[:, 0], axis=0)
+    min_x2_bank = np.amin(max_travel[:, 1], axis=0)
+
+    # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
+    if max_travel is not None and not mlc_positions.mlc_retracted:
+        delta_x1 = jaw_positions['X1'] - max_x1_bank
+        delta_x2 = jaw_positions['X2'] - min_x2_bank
+    else:
+        # The beam has no segments, jaws only. Set these variables to something that does not influence calc
+        # i.e. return no violation
+        delta_x1 = delta_x2 = 0
+
+    if abs(delta_x1) >= maximum_leaf_out_of_carriage:
+        error = 'Maximum leaf limit violated for X1. '
+    if abs(delta_x2) > maximum_leaf_out_of_carriage:
+        error += 'Maximum leaf limit violated for X2'
+    if error:
+        logging.debug('MLC Out of Carriage limit reached with proposed jaw positions: ' +
+                      'Maximum A MLC = {}, X1 = {}: '.format(abs(delta_x1), jaw_positions['X1']) +
+                      'Maximum B MLC = {}, X2 = {}'.format(abs(delta_x2), jaw_positions['X2']))
+    return error
+
+
+def check_y_jaw_positions(jaw_positions, beam):
+    """
+    Make sure setting the jaw positions to the proposed limits does not open past available MLC or
+    past jaw overtravel limits
+    :param jaw_positions:
+    :param beam: RS beam object
+    :return: error, if error is None, then no error is detected
+    """
+
+    error = ''
+    current_machine_name = beam.MachineReference.MachineName
+    machine_db = connect.get_current('MachineDB')
+    current_machine = machine_db.GetTreatmentMachine(machineName=current_machine_name,
+                                                     lockMode=None)
+    # Maximum jaw overtravel (minimum) position
+    min_y2_jaw_limit = current_machine.Physics.JawPhysics.MinBottomJawPos
+    min_y1_jaw_limit = - min_y2_jaw_limit
+
+    if beam.DeliveryTechnique == 'TomoHelical':
+        error = 'Tomotherapy helical jaw checking is not supported.'
+        return error
+
+    # Make sure beam has control points
+    try:
+        s0 = beam.Segments[0]
+    except AttributeError:
+        logging.debug('beam: {} is a jaw-only field, without segments'.format(beam.Name))
+        return error
+
+    # Maximum MLC defined positions: Leaf Center + 0.2 Leaf_Width this ensures at least a full millimeter
+    # of cushion for jaw inaccuracies on a 5 mm leaf and 2 mm on a 1 cm leaf
+    current_mlc_physics = current_machine.Physics.MlcPhysics
+    max_y1_jaw_limit = current_mlc_physics.UpperLayer.LeafCenterPositions[0] - \
+                       0.2 * current_mlc_physics.UpperLayer.LeafWidths[0]
+    n_leaves = len(current_mlc_physics.UpperLayer.LeafCenterPositions)
+    max_y2_jaw_limit = current_mlc_physics.UpperLayer.LeafCenterPositions[n_leaves - 1] + \
+                       0.2 * current_mlc_physics.UpperLayer.LeafWidths[n_leaves - 1]
+
+    # Check jaws
+    if jaw_positions['Y1'] > min_y1_jaw_limit:
+        error += 'Beam {}: Y1 jaw overtravel will be violated at Y1 = {}'.format(
+            beam.Name, jaw_positions['Y1'])
+    if jaw_positions['Y1'] < max_y1_jaw_limit:
+        error += 'Beam {}: Y1 jaw position exceeds MLC-delineated boundary at Y1 = {}'.format(
+            beam.Name, jaw_positions['Y1'])
+    if jaw_positions['Y2'] < min_y2_jaw_limit:
+        error += 'Beam {}: Y2 jaw overtravel will be violated at Y2 = {}'.format(
+            beam.Name, jaw_positions['Y2'])
+    if jaw_positions['Y2'] > max_y2_jaw_limit:
+        error += 'Beam {}: Y2 jaw position exceeds MLC-delineated boundary at Y2 = {}'.format(
+            beam.Name, jaw_positions['Y2'])
+
+    return error
 
 
 def rounded_jaw_positions(beam):
@@ -1174,50 +1450,130 @@ def rounded_jaw_positions(beam):
     :param beam: RS beam
     :return: {X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)}
     """
-    # Find the number of leaves in the first segment to initialize the array
-    maximum_leaf_out_of_carriage = 15  # 15 cm is the TrueBeam Limit. TODO, find this from machine params
+    x_jaw_offset = 0.8
+    y_jaw_offset = 0.2
+    jaw_positions = {}
+    # Initialize the mlc_properties class
+    beam_mlc = mlc_properties(beam)
 
-    # Find the result of setting the jaws open
     s0 = beam.Segments[0]
+    # Find the result of setting the jaws open
     round_open_l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
     round_open_r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
+    round_open_t_jaw = math.floor(10 * s0.JawPositions[2]) / 10
+    round_open_b_jaw = math.ceil(10 * s0.JawPositions[3]) / 10
+    # Compute closed jaw positions
+    round_closed_l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
+    round_closed_r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
+    round_closed_t_jaw = math.ceil(10 * s0.JawPositions[2]) / 10
+    round_closed_b_jaw = math.floor(10 * s0.JawPositions[3]) / 10
 
     # get the ciao for this beam
-    ciao = maximum_beam_leaf_extent(beam=beam)
 
-    if ciao is not None:
-        # Find the maximally extended MLC in each bank
-        max_a = np.amax(ciao[:, 0], axis=0)
-        min_b = np.amin(ciao[:, 1], axis=0)
-        # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
-        delta_x1 = round_open_l_jaw - max_a
-        delta_x2 = round_open_r_jaw - min_b
-    else:
-        # The beam has no segments, jaws only. Set these variables to something that does not influence calc
-        # i.e. round open
-        delta_x1 = 0
-        delta_x2 = 0
+    ciao = beam_mlc.ciao()
 
-    if abs(delta_x1) >= maximum_leaf_out_of_carriage or abs(delta_x2) >= maximum_leaf_out_of_carriage:
-        round_open = False
-    else:
-        round_open = True
+    # For some bizzare reason, the __init__ method of beam does not pull the data from
+    # the MLC MachineReference physics. So we are searching for the machine directly here.
+    current_machine_name = beam.MachineReference.MachineName
+    machine_db = connect.get_current('MachineDB')
+    current_machine = machine_db.GetTreatmentMachine(machineName=current_machine_name,
+                                                     lockMode=None)
+    # Maximum jaw overtravel (minimum) position
+    current_mlc_physics = current_machine.Physics.MlcPhysics
 
-    if round_open:
-        l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
-        r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
-        logging.info('Beam: {}, Jaws rounded open'.format(beam.Name))
+    if not beam_mlc.mlc_retracted or ciao is None:
+        # Now find the maximum Top and Bottom MLC positions
+        # Raystation starts moving leaves to the midplane, so we want to find the first open, and
+        # last open MLC leaf pair.
+        leaf_index_lower = np.min(np.nonzero(ciao[:, 1] - ciao[:, 0]))
+        leaf_index_upper = np.max(np.nonzero(ciao[:, 1] - ciao[:, 0]))
+        logging.debug('Beam: {} has top leaf opening at {}, '.format(beam.Name, leaf_index_upper + 1) +
+                      'bottom leaf opening at {}'.format(leaf_index_lower + 1))
+        # logging.debug('Min X1: {}'.format(np.array2string(ciao[:, 0], precision=2, separator=',',suppress_small=True)))
+        min_x1_bank = np.amin(ciao[:, 0], axis=0)
+        max_x2_bank = np.amax(ciao[:, 1], axis=0)
+        x1_eclipse = math.floor(10 * (min_x1_bank - x_jaw_offset)) / 10
+        x2_eclipse = math.ceil(10 * (max_x2_bank + x_jaw_offset)) / 10
+
+        y1_min = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_lower] \
+                 - 0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_lower]
+        y2_max = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_upper] \
+                 + 0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_upper]
+        y1_jaw_standoff = math.floor(10 * (y1_min - y_jaw_offset)) / 10
+        y2_jaw_standoff = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
+        # logging.debug('Beam: {} Jaw Standoff offsets would be: '.format(beam.Name) +
+        #               'X1:Floor[{} - {} cm] = {}, '.format(min_x1_bank, x_jaw_offset, x1_eclipse) +
+        #               'X2:Ceil[{} + {} cm] = {}, '.format(max_x2_bank, x_jaw_offset, x2_eclipse) +
+        #               'Y1:Floor[{} - {} cm] = {}, '.format(y1_min, y_jaw_offset, y1_jaw_standoff) +
+        #               'Y2:Ceil[{} + {} cm] = {}'.format(y2_max, y_jaw_offset, y2_jaw_standoff))
     else:
-        l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
-        r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
-        logging.debug('MLC Out of Carriage limit reached: ' +
-                      'Maximum A MLC = {}, X1 = {}: '.format(abs(delta_x1), l_jaw) +
-                      'Maximum B MLC = {}, X2 = {}'.format(abs(delta_x2), r_jaw))
-        logging.info('Beam: {}, Jaws rounded closed'.format(beam.Name))
-    t_jaw = math.floor(10 * s0.JawPositions[2]) / 10
-    b_jaw = math.ceil(10 * s0.JawPositions[3]) / 10
-    jaws = {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
-    return jaws
+        # There's no segments. This is a jaw-only field. Use open settings
+        if beam_mlc.mlc_retracted:
+            logging.debug('MLC is retracted. Proceeding with jaw-only field settings')
+
+        x1_eclipse = round_open_l_jaw
+        x2_eclipse = round_open_r_jaw
+        y1_jaw_standoff = round_open_t_jaw
+        y2_jaw_standoff = round_open_b_jaw
+
+    # Check the y-jaws
+    # Try to use Jaw Standoff jaw offsets first. Then, if that violates a machine constraint
+    # Try to set the jaws based on rounding open, if that still violates the machine constraints
+    # Round the jaws closed.
+    jaw_violation = True
+    i = 0
+    while jaw_violation:
+        if i == 0:
+            jaw_positions['Y1'] = y1_jaw_standoff
+            jaw_positions['Y2'] = y2_jaw_standoff
+            debug_msg = 'Beam: {}: Y-Jaws: Jaw Standoff offsets used'.format(beam.Name)
+        elif i == 1:
+            jaw_positions['Y1'] = round_open_t_jaw
+            jaw_positions['Y2'] = round_open_b_jaw
+            debug_msg = error_msg + ' Y-Jaws: rounded open'.format(beam.Name)
+        elif i == 2:
+            jaw_positions['Y1'] = round_closed_t_jaw
+            jaw_positions['Y2'] = round_closed_b_jaw
+            debug_msg = error_msg + ' Y-Jaws: Rounded closed'.format(beam.Name)
+        else:
+            logging.debug(error_msg + ' Y-Jaws: could not be rounded')
+            break
+        i += 1
+        error_msg = check_y_jaw_positions(jaw_positions, beam)
+        if not error_msg:
+            jaw_violation = False
+            logging.debug(debug_msg)
+
+    # Try to use Jaw Standoff jaw offsets first. Then, if that violates a machine constraint
+    # Try to set the jaws based on rounding open, if that still violates the machine constraints
+    # Round the jaws closed.
+    i = 0
+    jaw_violation = True
+    while jaw_violation:
+        if i == 0:
+            # Check eclipse positions
+            jaw_positions['X1'] = x1_eclipse
+            jaw_positions['X2'] = x2_eclipse
+            debug_msg = 'Beam: {}: X-Jaws: Jaw Standoff offsets used'.format(beam.Name)
+        elif i == 1:
+            # The proposed jaw position violates MLC/carriage limits, attempt a simple open round
+            jaw_positions['X1'] = round_open_l_jaw
+            jaw_positions['X2'] = round_open_r_jaw
+            debug_msg = error_msg + ' X-Jaws: Rounded open'.format(beam.Name)
+        elif i == 2:
+            jaw_positions['X1'] = round_closed_l_jaw
+            jaw_positions['X2'] = round_closed_r_jaw
+            debug_msg = error_msg + ' X-Jaws: Rounded closed'.format(beam.Name)
+        else:
+            logging.debug(error_msg + ' X-Jaws: could not be rounded')
+            break
+        i += 1
+        error_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
+        if not error_msg:
+            jaw_violation = False
+            logging.debug(debug_msg)
+
+    return jaw_positions
 
 
 def jaws_rounded(beam):
@@ -1429,9 +1785,10 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     zsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.z
 
     if np.amax(pd_np) < rx:
-        logging.debug('max = {}'.format(max(pd)))
+        logging.debug('max = {}'.format(np.amax(pd_np)))
         logging.debug('target = {}'.format(rx))
-        raise ValueError('max beam dose is too low')
+        raise ValueError('Max beam dose is too low. Cannot find a DSP. Max Dose in Beamset is {}, for Rx {}'.format(
+            np.amax(pd_np), rx))
 
     rx_points = np.array([])
     while rx_points.size == 0:
@@ -1519,7 +1876,23 @@ def find_dsp_centroid(plan, beam_set, percent_max=None):
 
 
 def set_dsp(plan, beam_set, percent_rx=100., method='MU'):
-    rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue * percent_rx / 100.
+    """
+    Set a dose specification point using the current beamset prescription.
+    :param plan: RS plan object
+    :param beam_set: Rs beam_set object
+    :param percent_rx: The percentage of the prescription value to use in calculating the desired
+        DSP dose, e.g. 100% of Rx is the prescription dose exactly.
+    :param method: the method to use in selecting the DSP point to use
+        MU chooses the DSP that most closely matches the MU_Beam/MU_TOTAL
+        Centroid chooses the point that is in the centroid of all DSP points
+    :return:
+    """
+    try:
+        rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue * percent_rx / 100.
+    except AttributeError:
+        logging.debug('Beamset does not have a prescription')
+        raise ValueError('A prescription must be set')
+
     fractions = beam_set.FractionationPattern.NumberOfFractions
     if rx is None:
         raise ValueError('A Prescription must be set.')
@@ -1612,125 +1985,127 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
     :return: success: True if limits changed or limit is satisfied by current beam limits
     """
     # Find the optimization index corresponding to this beamset
-    opt_index = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=verbose_logging)
+    opt_index = PlanOperations.find_optimization_index(plan=plan,
+                                                       beamset=beamset,
+                                                       verbose_logging=verbose_logging)
     plan_optimization_parameters = plan.PlanOptimizations[opt_index].OptimizationParameters
+    ts_settings = None
+    beam_found = False
     for tss in plan_optimization_parameters.TreatmentSetupSettings:
         if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
             ts_settings = tss
             if verbose_logging:
-                logging.debug('TreatmentSettings matching {} found'.format(beamset.DicomPlanLabel))
-            break
+                logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam_name))
+            for bs in ts_settings.BeamSettings:
+                if bs.ForBeam.Name == beam_name:
+                    beam_found = True
+                    current_beam = bs
+                    break
+                else:
+                    continue
         else:
             continue
 
-    # Track whether the input beam_name is found in the list of beams belonging to this optimization.
-    beam_found = False
-    for b in ts_settings.BeamSettings:
-
-        if b.ForBeam.Name == beam_name:
-            beam_found = True
-            current_beam = b
-
-        else:
-            continue
+    if ts_settings is None:
+        logging.exception('No treatment set up settings could be found for beamset {}'.format(
+            beamset.DicomPlanLabel) + 'Contact script administrator')
 
     if not beam_found:
         logging.warning('Beam {} not found in beam list from {}'.format(
             beam_name, beamset.DicomPlanLabel))
         sys.exit('Could not find a beam match for setting aperture limits')
 
-    # Check if aperture limit exist.
-    if current_beam.ForBeam.BeamMU > 0:
-        if verbose_logging:
-            logging.debug('Beam has MU. Changing jaw limit with an optimized beam is not possible without reset')
-        return False
-    else:
-        # Check for existing aperture limit
-        try:
-            current_limits = current_beam.BeamApertureLimit
-            if current_limits != 'NoLimit':
-                existing_limits = [current_beam.ForBeam.InitialJawPositions[0],
-                                   current_beam.ForBeam.InitialJawPositions[1],
-                                   current_beam.ForBeam.InitialJawPositions[2],
-                                   current_beam.ForBeam.InitialJawPositions[3]]
-                if verbose_logging:
-                    logging.debug(('aperture limits found on beam {} of initial jaw positions: x1 = {}, ' +
-                                   'x2 = {}, y1 = {}, y2 = {}')
-                                  .format(beam_name, existing_limits[0], existing_limits[1],
-                                          existing_limits[2], existing_limits[3]))
-            else:
-                existing_limits = [None] * 4
-                if verbose_logging:
-                    logging.debug('No limits currently exist on beam {}'.format(beam_name))
-
-        except AttributeError:
-            logging.debug('no existing aperture limits on beam {}'.format(beam_name))
-            current_limits = None
-            existing_limits = [None] * 4
-
-        if current_limits == 'NoLimit':
-            modified_limit = limit
-            limits_met = False
+    # Check for existing aperture limit
+    try:
+        current_limits = current_beam.BeamApertureLimit
+        if current_limits != 'NoLimit':
+            existing_limits = [current_beam.ForBeam.InitialJawPositions[0],
+                               current_beam.ForBeam.InitialJawPositions[1],
+                               current_beam.ForBeam.InitialJawPositions[2],
+                               current_beam.ForBeam.InitialJawPositions[3]]
             if verbose_logging:
-                logging.info(('No jaw limits found on Beam {}: Jaw limits should be '
-                              'x1 = {}, x2 = {}, y1 = {}, y2 = {}')
-                             .format(beam_name,
-                                     modified_limit[0],
-                                     modified_limit[1],
-                                     modified_limit[2],
-                                     modified_limit[3]))
-
+                logging.debug(('aperture limits found on beam {} of initial jaw positions: x1 = {}, ' +
+                               'x2 = {}, y1 = {}, y2 = {}')
+                              .format(beam_name, existing_limits[0], existing_limits[1],
+                                      existing_limits[2], existing_limits[3]))
         else:
-            x1 = existing_limits[0]
-            x2 = existing_limits[1]
-            y1 = existing_limits[2]
-            y2 = existing_limits[3]
-            if all([limit[0] <= x1, limit[1] >= x2, limit[2] <= y1, limit[3] >= y2]):
-                limits_met = True
-            else:
-                limits_met = False
-                modified_limit = [max(x1, limit[0]),
-                                  min(x2, limit[1]),
-                                  max(y1, limit[2]),
-                                  min(y2, limit[3])]
-                if verbose_logging:
-                    logging.info(('Jaw limits found on Beam {}: Jaw limits should be changed '
-                                  'x1: {} => {}, x2: {} => {}, y1: {} => {}, y2: {} => {}')
-                                 .format(beam_name,
-                                         limit[0], modified_limit[0],
-                                         limit[1], modified_limit[1],
-                                         limit[2], modified_limit[2],
-                                         limit[3], modified_limit[3]))
+            existing_limits = [None] * 4
+            if verbose_logging:
+                logging.debug('No limits currently exist on beam {}'.format(beam_name))
 
-        if not limits_met:
-            if change:
-                current_beam.EditBeamOptimizationSettings(
-                    JawMotion='Use limits as max',
-                    LeftJaw=modified_limit[0],
-                    RightJaw=modified_limit[1],
-                    TopJaw=modified_limit[2],
-                    BottomJaw=modified_limit[3],
-                    SelectCollimatorAngle='False',
-                    AllowBeamSplit='False',
-                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-                logging.info('Beam {}: Changed jaw limits x1: {} => {}, x2: {} = {}, y1: {} => {}, y2: {} => {}'
-                             .format(beam_name,
-                                     existing_limits[0], current_beam.ForBeam.InitialJawPositions[0],
-                                     existing_limits[1], current_beam.ForBeam.InitialJawPositions[1],
-                                     existing_limits[2], current_beam.ForBeam.InitialJawPositions[2],
-                                     existing_limits[3], current_beam.ForBeam.InitialJawPositions[3]))
-                return True
-            else:
-                logging.info(('Aperture check shows that limit on {} are not current. Limits should be '
-                              'x1 = {}, x2 = {}, y1 = {}, y2 = {}').format(beam_name,
-                                                                           modified_limit[0],
-                                                                           modified_limit[1],
-                                                                           modified_limit[2],
-                                                                           modified_limit[3]))
-                return False
+    except AttributeError:
+        logging.debug('no existing aperture limits on beam {}'.format(beam_name))
+        current_limits = None
+        existing_limits = [None] * 4
+
+    if current_limits == 'NoLimit':
+        modified_limit = limit
+        limits_met = False
+        if verbose_logging:
+            logging.info(('No jaw limits found on Beam {}: Jaw limits should be '
+                          'x1 = {}, x2 = {}, y1 = {}, y2 = {}')
+                         .format(beam_name,
+                                 modified_limit[0],
+                                 modified_limit[1],
+                                 modified_limit[2],
+                                 modified_limit[3]))
+
+    else:
+        x1 = existing_limits[0]
+        x2 = existing_limits[1]
+        y1 = existing_limits[2]
+        y2 = existing_limits[3]
+        if all([limit[0] <= x1, limit[1] >= x2, limit[2] <= y1, limit[3] >= y2]):
+            limits_met = True
         else:
-            logging.debug('Limits met, no changes in aperture needed')
+            limits_met = False
+            modified_limit = [max(x1, limit[0]),
+                              min(x2, limit[1]),
+                              max(y1, limit[2]),
+                              min(y2, limit[3])]
+            if verbose_logging:
+                logging.info(('Jaw limits found on Beam {}: Jaw limits should be changed '
+                              'x1: {} => {}, x2: {} => {}, y1: {} => {}, y2: {} => {}')
+                             .format(beam_name,
+                                     limit[0], modified_limit[0],
+                                     limit[1], modified_limit[1],
+                                     limit[2], modified_limit[2],
+                                     limit[3], modified_limit[3]))
+
+    if not limits_met:
+        if current_beam.ForBeam.BeamMU > 0:
+            if verbose_logging:
+                logging.debug('Beam has MU. Changing jaw limit with an optimized beam is not possible without reset')
+            return False
+        if change:
+            current_beam.EditBeamOptimizationSettings(
+                JawMotion='Use limits as max',
+                LeftJaw=modified_limit[0],
+                RightJaw=modified_limit[1],
+                TopJaw=modified_limit[2],
+                BottomJaw=modified_limit[3],
+                SelectCollimatorAngle='False',
+                AllowBeamSplit='False',
+                OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+            logging.info('Beam {}: Changed jaw limits x1: {} => {}, x2: {} = {}, y1: {} => {}, y2: {} => {}'
+                         .format(beam_name,
+                                 existing_limits[0], current_beam.ForBeam.InitialJawPositions[0],
+                                 existing_limits[1], current_beam.ForBeam.InitialJawPositions[1],
+                                 existing_limits[2], current_beam.ForBeam.InitialJawPositions[2],
+                                 existing_limits[3], current_beam.ForBeam.InitialJawPositions[3]))
             return True
+        else:
+            logging.info(('Aperture check shows that limit on {} are not current. Limits should be '
+                          'x1 = {}, x2 = {}, y1 = {}, y2 = {}').format(beam_name,
+                                                                       modified_limit[0],
+                                                                       modified_limit[1],
+                                                                       modified_limit[2],
+                                                                       modified_limit[3]))
+            return False
+    else:
+        logging.debug('Limits met, no changes in aperture needed')
+        return True
 
 
 def emc_calc_params(beamset):

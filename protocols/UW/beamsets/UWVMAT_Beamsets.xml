@@ -1168,6 +1168,22 @@
         </beamset>
     </beam_template>
     <beam_template>
+        <name>TomoHelical</name>
+        <beamset>
+            <name>TomoHelical3D</name>
+            <technique>TomoHelical</technique>
+            <DicomName>XXXX_THI_R_A_</DicomName>
+            <description>XXXX
+            </description>
+            <beam>
+                <BeamNumber>1</BeamNumber>
+                <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+                <Name>1_SITE_THI</Name>
+                <Energy>6</Energy>
+            </beam>
+        </beamset>
+    </beam_template>
+    <beam_template>
         <name>Blank Template</name>
         <beamset>
             <name>VMAT TemplateName</name>

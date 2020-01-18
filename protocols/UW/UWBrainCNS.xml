@@ -65,8 +65,8 @@
             <roi>
                 <name>PTV_p</name>
                 <type dir="ge">VX</type>
-                <volume units="%">99</volume>
-                <dose units="%" roi="PTV_p">95</dose>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>

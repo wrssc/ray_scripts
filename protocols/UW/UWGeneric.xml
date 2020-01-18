@@ -346,4 +346,33 @@
             <priority>5</priority>
         </goalset>
     </goals>
+    <beamset>
+        <name>Tomo3D-FW5</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>5</FieldWidth>
+            <Energy>6</Energy>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo3D-FW2.5</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.5</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.287</Pitch>
+        </beam>
+    </beamset>
 </protocol>

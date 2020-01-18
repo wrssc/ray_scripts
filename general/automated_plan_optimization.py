@@ -72,6 +72,7 @@ import connect
 import UserInterface
 import OptimizationOperations
 
+
 def main():
     try:
         Patient = connect.get_current("Patient")
@@ -111,14 +112,17 @@ def main():
             'input08_n_iterations': 'Number of Iterations',
             'input09_segment_weight': 'Segment weight calculation',
             'input10_reduce_oar': 'Reduce OAR Dose',
-            'input11_small_target': 'Target size < 3 cm'},
+            # Small Target
+            # 'input11_small_target': 'Target size < 3 cm'
+        },
         datatype={
             'input07_vary_dose_grid': 'check',
             'input01_fluence_only': 'check',
             'input02_cold_start': 'check',
             'input09_segment_weight': 'check',
             'input10_reduce_oar': 'check',
-            'input11_small_target': 'check'},
+            # 'input11_small_target': 'check'
+        },
         initial={'input03_cold_max_iteration': '50',
                  'input04_cold_interm_iteration': '10',
                  'input05_ws_max_iteration': '35',
@@ -126,14 +130,18 @@ def main():
                  'input08_n_iterations': '4',
                  'input09_segment_weight': ['Perform Segment Weighted optimization'],
                  'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
-                 'input11_small_target': ['Target size < 3 cm - limit jaws']},
+                 # Small Target
+                 # 'input11_small_target': ['Target size < 3 cm - limit jaws']
+                 },
         options={
             'input01_fluence_only': ['Fluence calc'],
             'input02_cold_start': ['Reset Beams'],
             'input07_vary_dose_grid': ['Variable Dose Grid'],
             'input09_segment_weight': ['Perform Segment Weighted optimization'],
             'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
-            'input11_small_target': ['Target size < 3 cm - limit jaws']},
+            # Small Target
+            # 'input11_small_target': ['Target size < 3 cm - limit jaws']
+        },
         required=[])
     optimization_dialog.show()
 
@@ -183,13 +191,14 @@ def main():
     except KeyError:
         reduce_oar = False
     # Despite a calculated beam, reset and start over
-    try:
-        if 'Target size < 3 cm - limit jaws' in optimization_dialog.values['input11_small_target']:
-            small_target = True
-        else:
-            small_target = False
-    except KeyError:
-        small_target = False
+    # Small Target
+    # try:
+    #     if 'Target size < 3 cm - limit jaws' in optimization_dialog.values['input11_small_target']:
+    #         small_target = True
+    #     else:
+    #         small_target = False
+    # except KeyError:
+    #     small_target = False
     optimization_inputs = {
         'initial_max_it': int(optimization_dialog.values['input03_cold_max_iteration']),
         'initial_int_it': int(optimization_dialog.values['input04_cold_interm_iteration']),
@@ -204,14 +213,16 @@ def main():
         'reset_beams': reset_beams,
         'segment_weight': segment_weight,
         'reduce_oar': reduce_oar,
-        'small_target': small_target,
+        'save': True,
+        # Small Target
+        # 'small_target': small_target,
         'n_iterations': int(optimization_dialog.values['input08_n_iterations'])}
 
     OptimizationOperations.optimize_plan(patient=Patient,
-                  case=case,
-                  plan=plan,
-                  beamset=beamset,
-                  **optimization_inputs)
+                                         case=case,
+                                         plan=plan,
+                                         beamset=beamset,
+                                         **optimization_inputs)
 
 
 if __name__ == '__main__':

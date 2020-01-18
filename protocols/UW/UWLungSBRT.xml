@@ -146,14 +146,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bronchus_L</name>
-                <type>DX</type>
-                <ref>RTOG 0813</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">18</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
                 <name>Bronchus_L_PRV05</name>
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
@@ -167,14 +159,6 @@
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">37</dose>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Bronchus_R</name>
-                <type>DX</type>
-                <ref>RTOG 0813</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">18</dose>
-                <priority>1</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -366,14 +350,6 @@
                 <volume units="%">2</volume>
                 <dose units="Gy">24</dose>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Trachea</name>
-                <type>DX</type>
-                <ref>RTOG 0813</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">18</dose>
-                <priority>1</priority>
             </roi>
             <roi>
                 <name>Trachea</name>
@@ -522,14 +498,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bronchus_L</name>
-                <type>DX</type>
-                <ref>RTOG 0813</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">18</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
                 <name>Bronchus_L_PRV05</name>
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
@@ -543,14 +511,6 @@
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">37</dose>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Bronchus_R</name>
-                <type>DX</type>
-                <ref>RTOG 0813</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">18</dose>
-                <priority>1</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -745,14 +705,6 @@
             <roi>
                 <name>Trachea</name>
                 <type>DX</type>
-                <ref>RTOG 0813</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">18</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Trachea</name>
-                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">37</dose>
                 <priority>3</priority>
@@ -894,13 +846,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bronchus_L</name>
-                <type>DX</type>
-                <volume units="cc">4</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
                 <name>Bronchus_L_PRV05</name>
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
@@ -914,13 +859,6 @@
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">34</dose>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Bronchus_R</name>
-                <type>DX</type>
-                <volume units="cc">4</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -1112,13 +1050,6 @@
                 <volume units="%">2</volume>
                 <dose units="Gy">22</dose>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Trachea</name>
-                <type>DX</type>
-                <volume units="cc">4</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
             </roi>
             <roi>
                 <name>Trachea</name>
@@ -1264,13 +1195,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bronchus_L</name>
-                <type>DX</type>
-                <volume units="cc">4</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
                 <name>Bronchus_L_PRV05</name>
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
@@ -1284,13 +1208,6 @@
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">34</dose>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Bronchus_R</name>
-                <type>DX</type>
-                <volume units="cc">4</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -1486,14 +1403,6 @@
             <roi>
                 <name>Trachea</name>
                 <type>DX</type>
-                <ref>RTOG 0813 BED a/b=3</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Trachea</name>
-                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">34</dose>
                 <priority>3</priority>
@@ -1635,14 +1544,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bronchus_L</name>
-                <type>DX</type>
-                <ref>RTOG 0813 BED a/b=3</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">14</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
                 <name>Bronchus_L_PRV05</name>
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
@@ -1656,14 +1557,6 @@
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Bronchus_R</name>
-                <type>DX</type>
-                <ref>RTOG 0813 BED a/b=3</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">14</dose>
-                <priority>1</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -1859,14 +1752,6 @@
             <roi>
                 <name>Trachea</name>
                 <type>DX</type>
-                <ref>RTOG 0813 BED a/b=3</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">14</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Trachea</name>
-                <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
@@ -2006,14 +1891,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bronchus_L</name>
-                <type>DX</type>
-                <ref>RTOG 0813 BED a/b=3</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">14</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
                 <name>Bronchus_L_PRV05</name>
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
@@ -2027,14 +1904,6 @@
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">30</dose>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Bronchus_R</name>
-                <type>DX</type>
-                <ref>RTOG 0813 BED a/b=3</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">14</dose>
-                <priority>1</priority>
             </roi>
             <roi>
                 <name>Bronchus_R_PRV05</name>
@@ -2226,14 +2095,6 @@
                 <volume units="%">2</volume>
                 <dose units="Gy">18</dose>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Trachea</name>
-                <type>DX</type>
-                <ref>RTOG 0813 BED a/b=3</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">14</dose>
-                <priority>1</priority>
             </roi>
             <roi>
                 <name>Trachea</name>
@@ -2385,14 +2246,6 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Bronchus_L</name>
-                <type>DX</type>
-                <ref>RTOG 0813</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">20</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
                 <name>Bronchus_L_PRV05</name>
                 <type>VX</type>
                 <ref>TPO Update to ICRU Recommendation Nov2018</ref>
@@ -2412,14 +2265,6 @@
                 <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">44</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Bronchus_R</name>
-                <type>DX</type>
-                <ref>RTOG 0813</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2695,14 +2540,6 @@
                 <type>DX</type>
                 <volume units="cc">0.1</volume>
                 <dose units="Gy">44</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Trachea</name>
-                <type>DX</type>
-                <ref>RTOG 0813</ref>
-                <volume units="cc">4</volume>
-                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
             <roi>

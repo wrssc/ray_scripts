@@ -586,6 +586,7 @@ def check_overlap(patient, case, exam, structure, rois):
         "StructType": "Undefined"}
     make_boolean_structure(patient=patient, case=case, examination=exam,
                                                **overlap_defs)
+    vol = None
     try:
         t = case.PatientModel.StructureSets[exam.Name]. \
             RoiGeometries[overlap_name]
