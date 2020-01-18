@@ -36,6 +36,7 @@ import connect
 class InvalidDataException(Exception):
     pass
 
+
 def find_scope(level=None, find_scope=False):
     """
     Find the current available scope in RS at the level of level.

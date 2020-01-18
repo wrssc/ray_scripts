@@ -640,3 +640,53 @@ def translate_roi(case, exam, roi, shifts):
     # case.PatientModel.StructureSets[exam].RoiGeometries[roi].TransformROI3D(
     #    Examination=exam,TransformationMatrix=transform_matrix)
 
+
+def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
+    import UserInterface
+    # test_select_element(patient=patient, case=case, plan=plan, beamset=beamset, exam=exam)
+
+    matches = find_normal_structures_match(rois=protocol_rois)
+    correct = 0
+
+    for r in protocol_rois:
+        if r == matches[r]:
+            correct += 1
+
+    logging.debug('Correct matches using identical structures {} / {}'.format(correct, len(plan_rois)))
+
+    rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
+    matches = find_normal_structures_match(rois=rois, num_matches=5)
+    logging.debug('Del: matches are {} {}'.format(matches.keys(), matches.values()))
+    # Make dialog inputs
+    inputs = {}
+    datatype = {}
+    options = {}
+    for k, v in matches.iteritems():
+        inputs[k] = k
+        datatype[k] = 'combo'
+        options[k] = v
+
+    matchy_dialog = UserInterface.InputDialog(
+        inputs=inputs,
+        title='Matchy Matchy',
+        datatype=datatype,
+        initial={},
+        options=matches,
+        required=matches.keys())
+    # Launch the dialog
+    response = matchy_dialog.show()
+    # Link root to selected protocol ElementTree
+    logging.info("Matches selected: {}".format(
+        matchy_dialog))
+
+    correct = 0
+
+    m_logs = r'Q:\\RadOnc\ShareAll\RayStation\RayScripts\dev_logs'
+    with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
+        match_file.write('Patient entry\n')
+    for r in rois:
+        if r == matches[r]:
+            correct += 1
+            with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
+                match_file.write('{}\t{}\n'.format(r, matches[r]))
+    logging.debug('Correct matches on test set {} / {}'.format(correct, len(rois)))

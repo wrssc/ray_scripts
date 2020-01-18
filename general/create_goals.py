@@ -41,6 +41,7 @@ import UserInterface
 import Goals
 import StructureOperations
 from GeneralOperations import logcrit as logcrit
+from GeneralOperations import find_scope as find_scope
 
 
 def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
@@ -238,31 +239,11 @@ def main():
                                   institution_folder)
 
     # Get current patient, case, exam, and plan
-    # note that the interpreter handles a missing plan as an Exception
-    try:
-        patient = connect.get_current("Patient")
-    except SystemError:
-        raise IOError("No Patient loaded. Load patient case and plan.")
-
-    try:
-        case = connect.get_current("Case")
-    except SystemError:
-        raise IOError("No Case loaded. Load patient case and plan.")
-
-    try:
-        exam = connect.get_current("Examination")
-    except SystemError:
-        raise IOError("No examination loaded. Load patient ct and plan.")
-
-    try:
-        plan = connect.get_current("Plan")
-    except Exception:
-        raise IOError("No plan loaded. Load patient and plan.")
-
-    try:
-        beamset = connect.get_current("BeamSet")
-    except Exception:
-        raise IOError("No plan loaded. Load patient and plan.")
+    patient = find_scope(level='Patient')
+    case = find_scope(level='Case')
+    exam = find_scope(level='Examination')
+    plan = find_scope(level='Plan')
+    beamset = find_scope(level='BeamSet')
 
     tpo = UserInterface.TpoDialog()
     tpo.load_protocols(path_protocols)
@@ -378,19 +359,26 @@ def main():
                             target_initial[k_name] = t
 
         # Warn the user they are missing organs at risk specified in the order
-        rois = []
+        rois = []  # List of contours in plan
+        protocol_rois = []  # List of all the regions of interest specified in the protocol
+
         for r in case.PatientModel.RegionsOfInterest:
             # Maybe extend, can't remember
             rois.append(r.Name)
         for s in goal_locations:
             for g in s:
                 g_name = g.find('name').text
+                if g_name not in protocol_rois: protocol_rois.append(g_name)
                 # Add a quick check if the contour exists in RS
                 # This step is slow, we may want to gather all rois into a list and look for it
                 if int(g.find('priority').text) % 2:
                     if not any(r == g_name for r in rois) and g_name not in missing_contours:
                         #       case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
                         missing_contours.append(g_name)
+
+        # Launch the matching script here. Then check for any missing that remain. Supply function with rois and
+        # protocol_rois
+
 
         if missing_contours:
             mc_list = ',\n'.join(missing_contours)
