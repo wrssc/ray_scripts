@@ -646,6 +646,7 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
     # test_select_element(patient=patient, case=case, plan=plan, beamset=beamset, exam=exam)
 
     matches = find_normal_structures_match(rois=protocol_rois)
+    # Track correct matches
     correct = 0
 
     for r in protocol_rois:
