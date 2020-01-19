@@ -677,6 +677,8 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
     # Launch the dialog
     response = matchy_dialog.show()
     # Link root to selected protocol ElementTree
+    for k, v in response.iteritems():
+        logging.debug('Match key {k} and response {v}'.format(k=k, v=v))
     logging.info("Matches selected: {}".format(
         matchy_dialog))
 
