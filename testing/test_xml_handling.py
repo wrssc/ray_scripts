@@ -235,7 +235,8 @@ def main():
         'Bone_Nasal',
         'Bone_Nasal_L',
         'Bone_Nasal_R']
-    plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
+    # plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
+    plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
 
     StructureOperations.match_roi(case, exam, plan, beamset, plan_rois=plan_rois, protocol_rois=protocol_rois)
 
