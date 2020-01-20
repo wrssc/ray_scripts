@@ -657,6 +657,9 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
 
     # rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
     matches = find_normal_structures_match(rois=plan_rois, num_matches=5)
+    for k, v in response.iteritems():
+        logging.debug('Match key {k} and response {v}'.format(k=k, v=v))
+
     logging.debug('Del: matches are {} {}'.format(matches.keys(), matches.values()))
     # Make dialog inputs
     inputs = {}
@@ -676,21 +679,22 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
         required=matches.keys())
     # Launch the dialog
     response = matchy_dialog.show()
-    # Link root to selected protocol ElementTree
-    for k, v in response.iteritems():
-        logging.debug('Match key {k} and response {v}'.format(k=k, v=v))
-    logging.info("Matches selected: {}".format(
-        matchy_dialog))
-
-    correct = 0
-
-    m_logs = r'Q:\\RadOnc\RayStation\RayScripts\dev_logs'
-    with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
-        match_file.write('PlanName: {pn}, '.format(pn=beamset.DicomPlanLabel))
-    # for r in rois:
-    #    if r == matches[r]:
-    #        correct += 1
-    with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
+    if response is not None:
+        # Link root to selected protocol ElementTree
         for k, v in response.iteritems():
-            match_file.write('{v}: {k}, '.format(k=k, v=v))
-    logging.debug('Correct matches on test set {} / {}'.format(correct, len(plan_rois)))
+            logging.debug('Match key {k} and response {v}'.format(k=k, v=v))
+        logging.info("Matches selected: {}".format(
+            matchy_dialog))
+
+        correct = 0
+
+        m_logs = r'Q:\\RadOnc\RayStation\RayScripts\dev_logs'
+        with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
+            match_file.write('PlanName: {pn}, '.format(pn=beamset.DicomPlanLabel))
+        # for r in rois:
+        #    if r == matches[r]:
+        #        correct += 1
+        with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
+            for k, v in response.iteritems():
+                match_file.write('{v}: {k}, '.format(k=k, v=v))
+        logging.debug('Correct matches on test set {} / {}'.format(correct, len(plan_rois)))
