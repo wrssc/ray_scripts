@@ -655,7 +655,6 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
 
     logging.debug('Correct matches using identical structures {} / {}'.format(correct, len(plan_rois)))
 
-    # rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
     matches = find_normal_structures_match(rois=plan_rois, num_matches=5)
     for k, v in matches.iteritems():
         logging.debug('Match key {k} and response {v}'.format(k=k, v=v))
