@@ -663,16 +663,21 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
     inputs = {}
     datatype = {}
     options = {}
+    initial = {}
     for k, v in matches.iteritems():
         inputs[k] = k
         datatype[k] = 'combo'
         options[k] = v
+        for item in v:
+            if item == k:
+                initial[k] = item
+                break
 
     matchy_dialog = UserInterface.InputDialog(
         inputs=inputs,
         title='Matchy Matchy Dialog',
         datatype=datatype,
-        initial={},
+        initial=initial,
         options=matches,
         required=matches.keys())
     # Launch the dialog
