@@ -679,7 +679,7 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
         datatype=datatype,
         initial=initial,
         options=matches,
-        required=matches.keys())
+        required={})
     # Launch the dialog
     response = matchy_dialog.show()
     if response is not None:
