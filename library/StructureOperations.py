@@ -660,7 +660,6 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
     for k, v in matches.iteritems():
         logging.debug('Match key {k} and response {v}'.format(k=k, v=v))
 
-    logging.debug('Del: matches are {} {}'.format(matches.keys(), matches.values()))
     # Make dialog inputs
     inputs = {}
     datatype = {}
