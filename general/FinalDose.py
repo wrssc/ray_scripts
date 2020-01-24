@@ -51,9 +51,6 @@ import clr
 clr.AddReference("System.Xml")
 import System
 
-
-
-
 def main():
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
