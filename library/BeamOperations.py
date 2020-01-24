@@ -70,6 +70,7 @@ import connect
 import UserInterface
 import StructureOperations
 import PlanOperations
+import GeneralOperations
 import Beams
 import datetime
 
@@ -415,7 +416,7 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
     opt_index = PlanOperations.find_optimization_index(plan=plan,
                                                        beamset=beamset,
                                                        verbose_logging=False)
-    plan_optimization_parameters=plan.PlanOptimizations[opt_index]
+    plan_optimization_parameters = plan.PlanOptimizations[opt_index]
     for tss in plan_optimization_parameters.TreatmentSetupSettings:
         if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
             ts_settings = tss
@@ -440,8 +441,9 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
         logging.warning('Beam {} not found in beam list from {}'.format(
             beam.name, beamset.DicomPlanLabel))
         sys.exit('Could not find a beam match for setting aperture limits')
-   # plan.PlanOptimizations[opt_index].OptimizationParameters.
 
+
+# plan.PlanOptimizations[opt_index].OptimizationParameters.
 
 
 def rename_beams():
@@ -1339,6 +1341,78 @@ def maximum_leaf_carriage_extent(beam):
     return max_travel
 
 
+def filter_leaves(beam):
+    s0 = beam.Segments[0]
+    a = s0.JawPositions[1] - s0.JawPositions[0]
+    b = s0.JawPositions[3] - s0.JawPositions[2]
+    sq_area = a * b / (2. * (a + b))
+    if sq_area < 3.:
+        mlc_filter = True
+    else:
+        mlc_filter = False
+
+    if not mlc_filter:
+        error = "MLC filtering unnecessary, field size is larger than 3 cm^2"
+        return error
+    # For some bizzare reason, the __init__ method of beam does not pull the data from
+    # the MLC MachineReference physics. So we are searching for the machine directly here.
+    current_machine = GeneralOperations.get_machine(machine_name=beam.MachineReference.MachineName)
+    # Maximum jaw overtravel (minimum) position
+    current_mlc_physics = current_machine.Physics.MlcPhysics
+    beam_mlc = mlc_properties(beam)
+
+    if beam_mlc.mlc_retracted:
+        error = "MLC filtering failed. MLC retracted"
+        return error
+    if not beam_mlc.has_segments:
+        error = "MLC filtering failed. No segments"
+        return error
+
+    # Find the first and last leaf that is not covered by the jaw
+    # The indexing on the MLC goes from 0, (at the x1) jaw to the maximum at the y1 jaw
+    # minimum gap retrieved from physics
+    # minimum_moving_gap = current_mlc_physics.MinGapMoving
+    right_jaw = s0.JawPositions[3]
+    left_jaw = s0.JawPositions[2]
+    top_jaw = s0.JawPositions[1]
+    bottom_jaw = s0.JawPositions[0]
+    # Find index of MLC leaf at this jaw position
+    leaf_centers = current_mlc_physics.UpperLayer.LeafCenterPositions
+    leaf_widths = current_mlc_physics.UpperLayer.LeafWidths
+    top_difference = 1000
+    bottom_difference = 1000
+    # Determine the mlc index which most closely matches the jaw boundary
+    for indx in range(len(leaf_centers)):
+        if abs(top_jaw - leaf_centers[indx]) < top_difference:
+            top_indx = indx
+            top_difference = abs(top_jaw - leaf_centers[indx])
+        if abs(bottom_jaw - leaf_centers[indx]) < bottom_difference:
+            bottom_indx = indx
+            bottom_difference = abs(bottom_jaw - leaf_centers[indx])
+    logging.debug('Top indx match is {} and bottom indx match is {}'.format(top_indx,bottom_indx))
+    # Every leaf pair less than the bottom_indx should be zero, and every leaf pair greater than top_indx should
+    # be zero
+    beam_mlc.banks[:bottom_indx, :, :] = 0
+    beam_mlc.banks[top_indx+1:, :, :] = 0
+    # deal with boundary cases, if an opening is past where raystation thinks the jaws can go, then zero it
+    # if bank 0,1 position is larger than right jaw and larger or equal to index zero it
+    bottom_leaves = beam_mlc.banks[bottom_indx, :, :]
+    top_leaves = beam_mlc.banks[top_indx, :, :]
+    bottom_leaves[bottom_leaves - right_jaw > 0] = 0
+    bottom_leaves[-bottom_leaves + left_jaw > 0] = 0
+    top_leaves[top_leaves - right_jaw > 0] = 0
+    top_leaves[-top_leaves + left_jaw > 0] = 0
+    beam_mlc.banks[bottom_indx, :, :] = bottom_leaves
+    beam_mlc.banks[top_indx, :, :] = top_leaves
+
+    for i in range(len(beam.Segments)):
+        lp = beam.Segments[i].LeafPositions
+        for j in range(len(lp[0])):
+            lp[0][j] = beam_mlc.banks[j, 0, i]
+            lp[1][j] = beam_mlc.banks[j, 1, i]
+        beam.Segments[i].LeafPositions = lp
+
+
 def check_mlc_jaw_positions(jaw_positions, mlc_positions):
     """
     Check the incoming jaw positions against machine constraints
@@ -1446,15 +1520,19 @@ def check_y_jaw_positions(jaw_positions, beam):
 
 def rounded_jaw_positions(beam):
     """
-    compute the jaw positions that would result from rounding to nearest mm
+    compute the jaw positions that will satisfy machine constraints and:
+    -For small fields:
+        Use jaw setbacks of 0.8 mm (X) and 0.2 mm (Y)
+        *This will allow the full MLC leaf end to be defining the field
+        *Avoid fields being defined by less accurate jaw positions in Y
+    -For non-small fields:
+        Try to round the jaws to the nearest open millimeter. If this would open the bank past
+        the MLC-defined region, leave a leaf too far from the carriage, or cause a jaw overtravel
+        then round the jaws closed.
     :param beam: RS beam
     :return: {X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)}
     """
-    x_jaw_offset = 0.8
-    y_jaw_offset = 0.2
     jaw_positions = {}
-    # Initialize the mlc_properties class
-    beam_mlc = mlc_properties(beam)
 
     s0 = beam.Segments[0]
     # Find the result of setting the jaws open
@@ -1468,111 +1546,102 @@ def rounded_jaw_positions(beam):
     round_closed_t_jaw = math.ceil(10 * s0.JawPositions[2]) / 10
     round_closed_b_jaw = math.floor(10 * s0.JawPositions[3]) / 10
 
+    # Potential options
+    use_jaw_offset = False
+    use_round_open = False
+    use_round_closed = False
+    # Check for the equivalent square area, and do not use jaw offsets if the limit is larger than 3 cm^2
     # get the ciao for this beam
-
-    ciao = beam_mlc.ciao()
-
+    a = s0.JawPositions[1] - s0.JawPositions[0]
+    b = s0.JawPositions[3] - s0.JawPositions[2]
+    sq_area = a * b / (2. * (a + b))
+    if sq_area < 3.:
+        use_jaw_offset = True
+    else:
+        use_round_open = True
     # For some bizzare reason, the __init__ method of beam does not pull the data from
     # the MLC MachineReference physics. So we are searching for the machine directly here.
-    current_machine_name = beam.MachineReference.MachineName
-    machine_db = connect.get_current('MachineDB')
-    current_machine = machine_db.GetTreatmentMachine(machineName=current_machine_name,
-                                                     lockMode=None)
+    current_machine = GeneralOperations.get_machine(machine_name=beam.MachineReference.MachineName)
     # Maximum jaw overtravel (minimum) position
     current_mlc_physics = current_machine.Physics.MlcPhysics
 
-    if not beam_mlc.mlc_retracted or ciao is None:
-        # Now find the maximum Top and Bottom MLC positions
-        # Raystation starts moving leaves to the midplane, so we want to find the first open, and
-        # last open MLC leaf pair.
-        leaf_index_lower = np.min(np.nonzero(ciao[:, 1] - ciao[:, 0]))
-        leaf_index_upper = np.max(np.nonzero(ciao[:, 1] - ciao[:, 0]))
-        logging.debug('Beam: {} has top leaf opening at {}, '.format(beam.Name, leaf_index_upper + 1) +
-                      'bottom leaf opening at {}'.format(leaf_index_lower + 1))
-        # logging.debug('Min X1: {}'.format(np.array2string(ciao[:, 0], precision=2, separator=',',suppress_small=True)))
-        min_x1_bank = np.amin(ciao[:, 0], axis=0)
-        max_x2_bank = np.amax(ciao[:, 1], axis=0)
-        x1_eclipse = math.floor(10 * (min_x1_bank - x_jaw_offset)) / 10
-        x2_eclipse = math.ceil(10 * (max_x2_bank + x_jaw_offset)) / 10
+    # If the target is small, try to use jaw offsets.
+    if use_jaw_offset:
+        x_jaw_offset = 0.8
+        y_jaw_offset = 0.2
+        # Initialize the mlc_properties class
+        beam_mlc = mlc_properties(beam)
+        ciao = beam_mlc.ciao()
+        # If we can't compute a ciao, or the MLC is retracted, just use open settings.
+        if beam_mlc.mlc_retracted or ciao is None:
+            if beam_mlc.mlc_retracted:
+                logging.debug('MLC is retracted. Proceeding with jaw-only field settings')
+            use_round_open = True
+            use_jaw_offset = False
+        else:
+            # Now find the maximum Top and Bottom MLC positions
+            # Raystation starts moving leaves to the midplane, so we want to find the first open, and
+            # last open MLC leaf pair.
+            leaf_index_lower = np.min(np.nonzero(ciao[:, 1] - ciao[:, 0]))
+            leaf_index_upper = np.max(np.nonzero(ciao[:, 1] - ciao[:, 0]))
+            logging.debug('Beam: {} has top leaf opening at {}, '.format(beam.Name, leaf_index_upper + 1) +
+                          'bottom leaf opening at {}'.format(leaf_index_lower + 1))
+            min_x1_bank = np.amin(ciao[:, 0], axis=0)
+            max_x2_bank = np.amax(ciao[:, 1], axis=0)
+            x1_jaw_standoff = math.floor(10 * (min_x1_bank - x_jaw_offset)) / 10
+            x2_jaw_standoff = math.ceil(10 * (max_x2_bank + x_jaw_offset)) / 10
 
-        y1_min = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_lower] \
-                 - 0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_lower]
-        y2_max = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_upper] \
-                 + 0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_upper]
-        y1_jaw_standoff = math.floor(10 * (y1_min - y_jaw_offset)) / 10
-        y2_jaw_standoff = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
-        # logging.debug('Beam: {} Jaw Standoff offsets would be: '.format(beam.Name) +
-        #               'X1:Floor[{} - {} cm] = {}, '.format(min_x1_bank, x_jaw_offset, x1_eclipse) +
-        #               'X2:Ceil[{} + {} cm] = {}, '.format(max_x2_bank, x_jaw_offset, x2_eclipse) +
-        #               'Y1:Floor[{} - {} cm] = {}, '.format(y1_min, y_jaw_offset, y1_jaw_standoff) +
-        #               'Y2:Ceil[{} + {} cm] = {}'.format(y2_max, y_jaw_offset, y2_jaw_standoff))
+            y1_min = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_lower] \
+                     - 0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_lower]
+            y2_max = current_mlc_physics.UpperLayer.LeafCenterPositions[leaf_index_upper] \
+                     + 0.5 * current_mlc_physics.UpperLayer.LeafWidths[leaf_index_upper]
+            y1_jaw_standoff = math.floor(10 * (y1_min - y_jaw_offset)) / 10
+            y2_jaw_standoff = math.ceil(10 * (y2_max + y_jaw_offset)) / 10
     else:
-        # There's no segments. This is a jaw-only field. Use open settings
-        if beam_mlc.mlc_retracted:
-            logging.debug('MLC is retracted. Proceeding with jaw-only field settings')
-
-        x1_eclipse = round_open_l_jaw
-        x2_eclipse = round_open_r_jaw
-        y1_jaw_standoff = round_open_t_jaw
-        y2_jaw_standoff = round_open_b_jaw
-
-    # Check the y-jaws
+        logging.debug('Beam {}: X1:{}, X2:{}, Y1:{}, Y2:{}; Calculated Eq Square Field {}'.format(
+            beam.Name, s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3], sq_area
+        ))
+    # Check jaws
     # Try to use Jaw Standoff jaw offsets first. Then, if that violates a machine constraint
     # Try to set the jaws based on rounding open, if that still violates the machine constraints
     # Round the jaws closed.
-    jaw_violation = True
-    i = 0
-    while jaw_violation:
-        if i == 0:
-            jaw_positions['Y1'] = y1_jaw_standoff
-            jaw_positions['Y2'] = y2_jaw_standoff
-            debug_msg = 'Beam: {}: Y-Jaws: Jaw Standoff offsets used'.format(beam.Name)
-        elif i == 1:
-            jaw_positions['Y1'] = round_open_t_jaw
-            jaw_positions['Y2'] = round_open_b_jaw
-            debug_msg = error_msg + ' Y-Jaws: rounded open'.format(beam.Name)
-        elif i == 2:
-            jaw_positions['Y1'] = round_closed_t_jaw
-            jaw_positions['Y2'] = round_closed_b_jaw
-            debug_msg = error_msg + ' Y-Jaws: Rounded closed'.format(beam.Name)
+    if use_jaw_offset:
+        jaw_positions['Y1'] = y1_jaw_standoff
+        jaw_positions['Y2'] = y2_jaw_standoff
+        jaw_positions['X1'] = x1_jaw_standoff
+        jaw_positions['X2'] = x2_jaw_standoff
+        error_y_msg = check_y_jaw_positions(jaw_positions, beam)
+        error_x_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
+        if error_x_msg or error_y_msg:
+            # Default then to round open
+            use_round_open = True
         else:
-            logging.debug(error_msg + ' Y-Jaws: could not be rounded')
-            break
-        i += 1
-        error_msg = check_y_jaw_positions(jaw_positions, beam)
-        if not error_msg:
-            jaw_violation = False
-            logging.debug(debug_msg)
-
-    # Try to use Jaw Standoff jaw offsets first. Then, if that violates a machine constraint
-    # Try to set the jaws based on rounding open, if that still violates the machine constraints
-    # Round the jaws closed.
-    i = 0
-    jaw_violation = True
-    while jaw_violation:
-        if i == 0:
-            # Check eclipse positions
-            jaw_positions['X1'] = x1_eclipse
-            jaw_positions['X2'] = x2_eclipse
-            debug_msg = 'Beam: {}: X-Jaws: Jaw Standoff offsets used'.format(beam.Name)
-        elif i == 1:
-            # The proposed jaw position violates MLC/carriage limits, attempt a simple open round
-            jaw_positions['X1'] = round_open_l_jaw
-            jaw_positions['X2'] = round_open_r_jaw
-            debug_msg = error_msg + ' X-Jaws: Rounded open'.format(beam.Name)
-        elif i == 2:
-            jaw_positions['X1'] = round_closed_l_jaw
-            jaw_positions['X2'] = round_closed_r_jaw
-            debug_msg = error_msg + ' X-Jaws: Rounded closed'.format(beam.Name)
+            logging.debug('Beam: {}: Equivalent Sq. Field Size is {}, Jaw Standoff offsets used'.format(
+                beam.Name, sq_area))
+    if use_round_open:
+        jaw_positions['Y1'] = round_open_t_jaw
+        jaw_positions['Y2'] = round_open_b_jaw
+        jaw_positions['X1'] = round_open_l_jaw
+        jaw_positions['X2'] = round_open_r_jaw
+        error_y_msg = check_y_jaw_positions(jaw_positions, beam)
+        error_x_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
+        if error_x_msg or error_y_msg:
+            # Default then to rounding both jaws closed
+            use_round_closed = True
         else:
-            logging.debug(error_msg + ' X-Jaws: could not be rounded')
-            break
-        i += 1
-        error_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
-        if not error_msg:
-            jaw_violation = False
-            logging.debug(debug_msg)
-
+            logging.debug('Beam: {}: could not be rounded-open. X jaw check yielded {}, Y jaw check yielded{}'.format(
+                beam.Name, error_x_msg, error_y_msg))
+    if use_round_closed:
+        jaw_positions['Y1'] = round_closed_t_jaw
+        jaw_positions['Y2'] = round_closed_b_jaw
+        jaw_positions['X1'] = round_closed_l_jaw
+        jaw_positions['X2'] = round_closed_r_jaw
+        error_y_msg = check_y_jaw_positions(jaw_positions, beam)
+        error_x_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
+        if error_y_msg:
+            logging.debug('Beam {} Y-Jaws: could not be rounded, error {}'.format(beam.Name, error_y_msg))
+        if error_x_msg:
+            logging.debug('Beam {} X-Jaws: could not be rounded, error {}'.format(beam.Name, error_x_msg))
     return jaw_positions
 
 
@@ -1609,6 +1678,12 @@ def round_jaws(beamset):
     :return: success: boolean indicating adjustments were successful
     """
     for b in beamset.Beams:
+        error = filter_leaves(b)
+        if error is not None:
+            logging.debug(error)
+        else:
+            logging.debug('Beam {} filtered'.format(b.Name))
+
         if not jaws_rounded(beam=b):
             s0 = b.Segments[0]
             init_positions = [s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3]]

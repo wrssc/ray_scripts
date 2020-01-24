@@ -52,8 +52,6 @@ clr.AddReference("System.Xml")
 import System
 
 
-class MyException(Exception):
-    pass
 
 
 def main():
@@ -125,6 +123,7 @@ def main():
                                         docstring=__doc__,
                                         help=__help__)
     status.next_step('Checking beam names')
+
 
     if rename_beams:
         # Rename the beams
