@@ -51,11 +51,6 @@ import clr
 clr.AddReference("System.Xml")
 import System
 
-
-class MyException(Exception):
-    pass
-
-
 def main():
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
@@ -82,8 +77,8 @@ def main():
         steps.append('Check for control Point Spacing')
         steps.append('Compute Dose if neccessary')
         steps.append('Set DSP')
-        steps.append('Round Jaws')
         steps.append('Round MU')
+        steps.append('Round Jaws')
         steps.append('Recompute Dose')
         rename_beams = True
         cps_test = True
@@ -125,6 +120,7 @@ def main():
                                         docstring=__doc__,
                                         help=__help__)
     status.next_step('Checking beam names')
+
 
     if rename_beams:
         # Rename the beams
@@ -255,22 +251,22 @@ def main():
                     logging.exception(u'{}'.format(e.Message))
                     sys.exit(u'{}'.format(e.Message))
 
-
-
             # Set the DSP for the plan
             BeamOperations.set_dsp(plan=plan, beam_set=beamset)
-            status.next_step('DSP set. Rounding jaws')
-
-            # Round jaws to nearest mm
-            logging.debug('Checking for jaw rounding')
-            BeamOperations.round_jaws(beamset=beamset)
+            status.next_step('Set DSP, rounding MU')
 
             # Round MU
-            status.next_step('Jaws Rounded. Rounding MU')
             # The Autoscale hides in the plan optimization hierarchy. Find the correct index.
             indx = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
             plan.PlanOptimizations[indx].AutoScaleToPrescription = False
             BeamOperations.round_mu(beamset)
+            status.next_step('Rounded MU, Rounding jaws')
+
+            # Round jaws to nearest mm
+            logging.debug('Checking for jaw rounding')
+            BeamOperations.round_jaws(beamset=beamset)
+            status.next_step('Jaws Rounded.')
+
 
             # Recompute dose
             status.next_step('Recomputing Dose')
