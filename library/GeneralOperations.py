@@ -30,6 +30,7 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import logging
+import connect
 
 
 class InvalidDataException(Exception):
@@ -47,7 +48,6 @@ def find_scope(level=None, find_scope=False):
     :return: if level is specified the RS object is returned.
         If find_scope, then a dict of plan variables is used
     """
-    import connect
 
     # Find the deepest available scope and return a dict with available names
     scope = {}
@@ -68,6 +68,16 @@ def find_scope(level=None, find_scope=False):
 
     if find_scope:
         return scope
+
+
+def get_machine(machine_name):
+    """Finds the current machine name from the list of currently commissioned machines
+    :param: machine_name (name of the machine in raystation,
+    usually this is machine_name = beamset.MachineReference.MachineName
+    return: machine (RS object)"""
+    machine_db = connect.get_current('MachineDB')
+    machine = machine_db.GetTreatmentMachine(machineName=machine_name, lockMode=None)
+    return machine
 
 
 def logcrit(message):

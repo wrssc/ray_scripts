@@ -177,7 +177,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                                      Mode=VisualizationType)
 
 
-def make_wall(wall, sources, delta, patient, case, examination, inner=True):
+def make_wall(wall, sources, delta, patient, case, examination, inner=True, struct_type="Undefined"):
     """
 
     :param wall: Name of wall contour
@@ -213,7 +213,7 @@ def make_wall(wall, sources, delta, patient, case, examination, inner=True):
         "OperationResult": "Subtraction",
         "MarginTypeR": "Expand",
         "ExpR": [0] * 6,
-        "StructType": "Undefined"}
+        "StructType": struct_type}
     make_boolean_structure(patient=patient,
                            case=case,
                            examination=examination,
