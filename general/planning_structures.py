@@ -808,7 +808,8 @@ def main():
             patient=patient,
             case=case,
             examination=examination,
-            inner=True)
+            inner=True,
+            struct_type="Organ")
         newly_generated_rois.append('Skin_PRV03')
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
@@ -934,7 +935,7 @@ def main():
                     "OperationResult": "None",
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
-                    "StructType": "Undefined"}
+                    "StructType": "Ptv"}
             else:
                 ptv_definitions = {
                     "StructureName": PTVList[i],
@@ -953,7 +954,7 @@ def main():
                     "OperationResult": "Subtraction",
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
-                    "StructType": "Undefined"}
+                    "StructType": "Ptv"}
             logging.debug("Creating main target {}: {}"
                           .format(i, PTVList[i]))
             StructureOperations.make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
@@ -1042,7 +1043,7 @@ def main():
                 "OperationResult": "Intersection",
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
-                "StructType": "Undefined"}
+                "StructType": "Ptv"}
             StructureOperations.make_boolean_structure(
                 patient=patient,
                 case=case,
@@ -1152,7 +1153,7 @@ def main():
                 "MarginTypeB": "Expand",
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
-                "StructType": "Undefined"}
+                "StructType": "Ptv"}
             if index == 0:
                 OTV_defs['SourcesB'] = []
                 OTV_defs['OperationResult'] = "None"
@@ -1192,7 +1193,7 @@ def main():
                     "OperationResult": "Intersection",
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
-                    "StructType": "Undefined"}
+                    "StructType": "Ptv"}
                 StructureOperations.make_boolean_structure(
                     patient=patient,
                     case=case,

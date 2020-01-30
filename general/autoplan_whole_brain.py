@@ -66,6 +66,7 @@ import UserInterface
 import random
 import sys
 import BeamOperations
+import PlanOperations
 
 
 def check_external(roi_list):
@@ -714,7 +715,7 @@ def main():
 
             beamset.CreatePhotonBeam(Energy=6,
                                      IsocenterData=isocenter_parameters,
-                                     Name='1_Brai_g270c355',
+                                     Name='1_Brai_RLat',
                                      Description='1 3DC: MLC Static Field',
                                      GantryAngle=270.0,
                                      CouchAngle=0,
@@ -722,7 +723,7 @@ def main():
 
             beamset.CreatePhotonBeam(Energy=6,
                                      IsocenterData=isocenter_parameters,
-                                     Name='2_Brai_g090c005',
+                                     Name='2_Brai_LLat',
                                      Description='2 3DC: MLC Static Field',
                                      GantryAngle=90,
                                      CouchAngle=0,
@@ -756,7 +757,25 @@ def main():
         logging.debug('error reported {}'.format(e))
         logging.debug('cannot do name change')
 
+    patient.Save()
+    plan = case.TreatmentPlans[plan_name]
+    plan.SetCurrent()
+    connect.get_current('Plan')
+    beamset = plan.BeamSets[plan_name]
+    patient.Save()
+    beamset.SetCurrent()
+    connect.get_current('BeamSet')
     BeamOperations.rename_beams()
+    # Set the DSP for the plan
+    BeamOperations.set_dsp(plan=plan, beam_set=beamset)
+    # Round MU
+    # The Autoscale hides in the plan optimization hierarchy. Find the correct index.
+    indx = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
+    plan.PlanOptimizations[indx].AutoScaleToPrescription = False
+    BeamOperations.round_mu(beamset)
+    # Round jaws to nearest mm
+    logging.debug('Checking for jaw rounding')
+    BeamOperations.round_jaws(beamset=beamset)
 
 
 if __name__ == '__main__':
