@@ -1394,12 +1394,9 @@ def main():
         StructureOperations.make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
-                               **Normal_2cm_defs)
+                               **Normal_1cm_defs)
         newly_generated_rois.append(Normal_1cm_defs.get("StructureName"))
 
-    # if dialogresponse == {}:
-    #    status.finish('Script cancelled, inputs were not supplied')
-    #    sys.exit('Script cancelled')
     status.finish(text='The script executed successfully')
 
 
