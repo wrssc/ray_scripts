@@ -905,6 +905,9 @@ class PlanDialog:
         self.beamsets_number = System.Windows.Forms.ComboBox()
         self.beamsets_number.Width = 50
         self.beamsets_number.Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
+        sorted_beamsets_number = [1, 2, 3, 4, 5]
+        sorted_beamsets_number.sort()
+        self.beamsets_number.Items.AddRange(sorted_beamsets_number)
         self.beamsets_number.SelectedIndexChanged += update_left
         self.beamsets_number.Visible = True
         self.plan_table.Controls.Add(self.beamsets_number)
@@ -919,7 +922,7 @@ class PlanDialog:
         self.targets_number = System.Windows.Forms.ComboBox()
         self.targets_number.Width = 50
         self.targets_number.Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
-        self.targets_number.Visible = True
+        self.targets_number.Visible = False
         self.plan_table.Controls.Add(self.targets_number)
 
         # self.fractions = []
