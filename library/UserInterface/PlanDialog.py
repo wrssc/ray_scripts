@@ -913,7 +913,7 @@ class PlanDialog:
         self.targets_label.Text = 'Number of targets:'
         self.targets_label.Width = 165
         self.targets_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
-        self.targets_label.Visible = True
+        self.targets_label.Visible = False
         self.plan_table.Controls.Add(self.targets_label)
 
         self.targets_number = System.Windows.Forms.ComboBox()
