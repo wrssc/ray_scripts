@@ -8,5 +8,6 @@ from InputDialog import InputDialog
 from MatchDialog import MatchDialog
 from ScriptStatus import ScriptStatus
 from TpoDialog import TpoDialog
+from PlanDialog import PlanDialog
 from PSInputDialog import PSInputDialog
 from ButtonList import ButtonList

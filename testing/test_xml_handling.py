@@ -199,36 +199,17 @@ def test_select_element(patient, case, exam, plan, beamset):
 
 
 def main():
+    import StructureOperations
+    from GeneralOperations import find_scope
+
     # Get current patient, case, exam, and plan
-    # note that the interpreter handles a missing plan as an Exception
-    try:
-        patient = connect.get_current("Patient")
-    except SystemError:
-        raise IOError("No Patient loaded. Load patient case and plan.")
+    patient = find_scope(level='Patient')
+    case = find_scope(level='Case')
+    exam = find_scope(level='Examination')
+    plan = find_scope(level='Plan')
+    beamset = find_scope(level='BeamSet')
 
-    try:
-        case = connect.get_current("Case")
-    except SystemError:
-        raise IOError("No Case loaded. Load patient case and plan.")
-
-    try:
-        exam = connect.get_current("Examination")
-    except SystemError:
-        raise IOError("No examination loaded. Load patient ct and plan.")
-
-    try:
-        plan = connect.get_current("Plan")
-    except Exception:
-        raise IOError("No plan loaded. Load patient and plan.")
-
-    try:
-        beamset = connect.get_current("BeamSet")
-    except Exception:
-        raise IOError("No plan loaded. Load patient and plan.")
-        sys.exit('This script requires a Beam Set to be loaded')
-
-    # test_select_element(patient=patient, case=case, plan=plan, beamset=beamset, exam=exam)
-    rois = [
+    protocol_rois = [
         'A_Carotid',
         'A_Carotid_L',
         'A_Carotid_R',
@@ -254,52 +235,10 @@ def main():
         'Bone_Nasal',
         'Bone_Nasal_L',
         'Bone_Nasal_R']
-    matches = StructureOperations.find_normal_structures_match(rois=rois)
-    correct = 0
+    # plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
+    plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
 
-    for r in rois:
-        if r == matches[r]:
-            correct += 1
-
-    logging.debug('Correct matches using identical structures {} / {}'.format(correct, len(rois)))
-
-    rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
-    matches = StructureOperations.find_normal_structures_match(rois=rois, num_matches=5)
-    logging.debug('Del: matches are {} {}'.format(matches.keys(), matches.values()))
-    # Make dialog inputs
-    inputs = {}
-    datatype = {}
-    options = {}
-    for k, v in matches.iteritems():
-        inputs[k] = k
-        datatype[k] = 'combo'
-        options[k] = v
-
-    matchy_dialog = UserInterface.InputDialog(
-        inputs=inputs,
-        title='Matchy Matchy',
-        datatype=datatype,
-        initial={},
-        options=matches,
-        required=matches.keys())
-    # Launch the dialog
-    response = matchy_dialog.show()
-    # Link root to selected protocol ElementTree
-    logging.info("Matches selected: {}".format(
-        matchy_dialog))
-
-    correct = 0
-
-    m_logs = r'\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\RayScripts\logs'
-    with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
-        match_file.write('Patient entry\n')
-    for r in rois:
-        if r == matches[r]:
-            correct += 1
-            with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
-                match_file.write('{}\t{}\n'.format(r, matches[r]))
-    logging.debug('Correct matches on test set {} / {}'.format(correct, len(rois)))
-
+    StructureOperations.match_roi(case, exam, plan, beamset, plan_rois=plan_rois, protocol_rois=protocol_rois)
 
 
 if __name__ == '__main__':
