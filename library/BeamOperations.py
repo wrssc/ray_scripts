@@ -1417,8 +1417,8 @@ def filter_leaves(beam):
     s0 = beam.Segments[0]
     a = s0.JawPositions[1] - s0.JawPositions[0]
     b = s0.JawPositions[3] - s0.JawPositions[2]
-    sq_area = a * b / (2. * (a + b))
-    if sq_area < 3.:
+    equivalent_square_field_size = 2 * a * b / (a + b)
+    if equivalent_square_field_size < 3.:
         mlc_filter = True
     else:
         mlc_filter = False
@@ -1601,8 +1601,8 @@ def rounded_jaw_positions(beam):
     # get the ciao for this beam
     a = s0.JawPositions[1] - s0.JawPositions[0]
     b = s0.JawPositions[3] - s0.JawPositions[2]
-    sq_area = a * b / (2. * (a + b))
-    if sq_area < 3.:
+    equivalent_square_field_size = 2 * a * b / (a + b)
+    if equivalent_square_field_size < 3.:
         use_jaw_offset = True
     else:
         use_round_open = True
@@ -1638,7 +1638,7 @@ def rounded_jaw_positions(beam):
             y2_jaw_standoff = math.ceil(10 * (max_open_y2 + y_jaw_offset)) / 10
     else:
         logging.debug('Beam {}: X1:{}, X2:{}, Y1:{}, Y2:{}; Calculated Eq Square Field {}'.format(
-            beam.Name, s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3], sq_area
+            beam.Name, s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3], equivalent_square_field_size
         ))
     # Check jaws
     # Try to use Jaw Standoff jaw offsets first. Then, if that violates a machine constraint
@@ -1656,7 +1656,7 @@ def rounded_jaw_positions(beam):
             use_round_open = True
         else:
             logging.debug('Beam: {}: Equivalent Sq. Field Size is {}, Jaw Standoff offsets used'.format(
-                beam.Name, sq_area))
+                beam.Name, equivalent_square_field_size))
     if use_round_open:
         jaw_positions['Y1'] = round_open_t_jaw
         jaw_positions['Y2'] = round_open_b_jaw
