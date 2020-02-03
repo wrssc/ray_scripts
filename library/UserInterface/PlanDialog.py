@@ -905,12 +905,20 @@ class PlanDialog:
         self.beamsets_number = System.Windows.Forms.ComboBox()
         self.beamsets_number.Width = 50
         self.beamsets_number.Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
-        sorted_beamsets_number = [1, 2, 3, 4, 5]
+        sorted_beamsets_number = [1, 2, 3]
         sorted_beamsets_number.sort()
         self.beamsets_number.Items.AddRange(sorted_beamsets_number)
         self.beamsets_number.SelectedIndexChanged += update_left
         self.beamsets_number.Visible = True
         self.plan_table.Controls.Add(self.beamsets_number)
+
+        self.fractions = []
+        for n in range(self.beamsets_number):
+            self.fractions.append(System.Windows.Forms.TextBox())
+            self.fractions[n].Width = 50
+            self.fractions[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
+            self.fractions[n].Visible = False
+            self.plan_table.Controls.Add(self.fractions[n])
 
         self.targets_label = System.Windows.Forms.Label()
         self.targets_label.Text = 'Number of targets:'
@@ -1475,11 +1483,6 @@ class PlanDialog:
         """tpo.select_order('Order Name')"""
         if order in self.order_list:
             self.order.SelectedItem = order
-
-    def select_beamset_number(self, beamsets_number):
-        """tpo.select_beamset_number('Number of Beamsets in Plan')"""
-        if beamsets_number in self.beamset_number_list:
-            self.beamsets_number.SelectedItem = beamsets_number
 
     def __levenshtein_match(self, item, arr):
         """[match,dist]=__levenshtein_match(item,arr)"""
