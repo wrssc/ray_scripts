@@ -77,6 +77,7 @@ def main():
         # Header was skipped.  Start with rows[0], the first data line in the csv
         i = 0
         db = connect.get_current("PatientDB")
+        # TODO : look for existing, then add a beamset.
         for r in rows:
             # for i in range(1,10):
             last_name = r.LastName
