@@ -1450,7 +1450,7 @@ def filter_leaves(beam):
     # Find the leaves needing adjustment
     closed_leaves = beam_mlc.closed_leaf_gaps(stationary_only=True)
     # Find the b-bank leaves closest to the X1 jaw
-    # stationary_leaf_pairs = beam_mlc[closed_leaves]
+    initial_beam_mlc = np.copy(beam_mlc.banks)
     # Loop over leaves
     for i in range(beam_mlc.banks.shape[0]):
         # Loop over control points
@@ -1466,15 +1466,16 @@ def filter_leaves(beam):
                     # This leaf should close behind the x1_jaw
                     beam_mlc.banks[i, 0, j] = x2_jaw + offset
                     beam_mlc.banks[i, 1, j] = x2_jaw + offset + beam_mlc.min_gap_moving
-    # Adjust out of field gaps only to move behind the right jaw
-    # beam_mlc.banks[closed_leaves] = beam_mlc.banks[closed_leaves] + x1_jaw + offset
-    # Set the leaf positions to the np array (one-by-one...ugh)
-    for i in range(len(beam.Segments)):
-        lp = beam.Segments[i].LeafPositions
-        for j in range(len(lp[0])):
-            lp[0][j] = beam_mlc.banks[j, 0, i]
-            lp[1][j] = beam_mlc.banks[j, 1, i]
-        beam.Segments[i].LeafPositions = lp
+    if np.all(np.equal(initial_beam_mlc, beam_mlc.banks)):
+        logging.debug('iBeam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
+    else:
+        # Set the leaf positions to the np array (one-by-one...ugh)
+        for i in range(len(beam.Segments)):
+            lp = beam.Segments[i].LeafPositions
+            for j in range(len(lp[0])):
+                lp[0][j] = beam_mlc.banks[j, 0, i]
+                lp[1][j] = beam_mlc.banks[j, 1, i]
+            beam.Segments[i].LeafPositions = lp
 
 
 def check_mlc_jaw_positions(jaw_positions, mlc_positions):
