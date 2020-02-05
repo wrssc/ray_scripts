@@ -204,8 +204,101 @@ class PlanDialog:
                         # Update target dose table
                 logging.debug('Updating target dose table')
 
-            elif s.Name == 'beamsets_number' and s.SelectedItem in self.beamsets_number:
+            elif s.Name == 'beamsets_number':
                 logging.debug('Number of beamsets set to {}'.format(s.SelectedItem))
+                self.num_rx = s.SelectedItem
+
+                if len(self.num_rx) > 0:
+                    self.bs_label = System.Windows.Forms.Label()
+                    self.bs_label.Text = 'Beamset Name, e.g. LunL_SBR_R0A0]:'
+                    self.bs_label.Width = 165
+                    self.bs_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+                    self.bs_label.Visible = False
+                    self.plan_table.Controls.Add(self.bs_label)
+
+                    self.beamsets = []
+                    for b in range(self.num_rx):
+                        self.beamsets.append(System.Windows.Forms.TextBox())
+                        self.beamsets[b].Width = 50
+                        self.beamsets[b].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
+                        self.beamsets[b].Visible = False
+                        self.plan_table.Controls.Add(self.beamsets[b])
+                    self.beamsets_label.Visible = True
+                    self.beamsets_table.Controls.Clear()
+                    self.beamsets_table.RowStyles.Clear()
+
+                    self.beamset_name = System.Windows.Forms.Label()
+                    self.beamset_name.Text = 'Use'
+                    self.beamset_name.AutoSize = True
+                    self.beamset_name.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+                    self.beamset_table.Controls.Add(self.beamset_name)
+
+                    self.beamsets_name = System.Windows.Forms.Label()
+                    self.beamsets_name.Text = 'Beamset Name, e.g. LuLU_SBR_R0A0'
+                    self.beamsets_name.AutoSize = True
+                    self.beamsets_name.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+                    self.beamsets_table.Controls.Add(self.target_roi)
+
+                    self.beamsets_number_targets = System.Windows.Forms.Label()
+                    self.beamsets_number_targets.Text = 'Number of Targets'
+                    self.beamsets_number_targets.AutoSize = True
+                    self.beamsets_number_targets.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+                    self.beamsets_table.Controls.Add(self.target_dose)
+
+                    # for t in sorted(self.targets.iterkeys()):
+                    #     self.targets[t]['name'] = System.Windows.Forms.CheckBox()
+                    #     self.targets[t]['name'].Checked = True
+                    #     self.targets[t]['name'].Width = 150
+                    #     self.targets[t]['name'].Text = t
+                    #     self.targets[t]['name'].Margin = System.Windows.Forms.Padding(5, 8, 10, 0)
+                    #     self.target_table.Controls.Add(self.targets[t]['name'])
+                    #
+                    #     self.targets[t]['structure'] = System.Windows.Forms.ComboBox()
+                    #     self.targets[t]['structure'].Width = 150
+                    #     self.targets[t]['structure'].Margin = System.Windows.Forms.Padding(10, 8, 10, 0)
+                    #     self.targets[t]['structure'].Items.AddRange(self.structures)
+                    #     self.target_table.Controls.Add(self.targets[t]['structure'])
+                    #     m, d = self.__levenshtein_match(t, self.structures)
+                    #     if m is not None and d < len(t) * self.match_threshold:
+                    #         self.targets[t]['structure'].SelectedItem = m
+                    #
+                    #     self.targets[t]['dosetable'] = System.Windows.Forms.TableLayoutPanel()
+                    #     self.targets[t]['dosetable'].ColumnCount = len(self.targets[t]['element'])
+                    #     self.targets[t]['dosetable'].RowCount = 1
+                    #     self.targets[t]['dosetable'].Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
+                    #     self.targets[t]['dosetable'].BackColor = System.Drawing.Color.White
+                    #     self.targets[t]['dosetable'].AutoSize = True
+                    #     self.target_table.Controls.Add(self.targets[t]['dosetable'])
+                    #
+                    #     self.targets[t]['dose'] = []
+                    #     for n in range(len(self.targets[t]['element'])):
+                    #         self.targets[t]['dose'].append(System.Windows.Forms.TextBox())
+                    #         self.targets[t]['dose'][n].Text = self.targets[t]['element'][n].find('dose').text
+                    #         self.targets[t]['dose'][n].AccessibleDescription = \
+                    #             self.targets[t]['element'][n].find('volume').text
+                    #         self.targets[t]['dose'][n].Width = 50
+                    #         self.targets[t]['dose'][n].Margin = System.Windows.Forms.Padding(10, 5, 10, 0)
+                    #         self.targets[t]['dosetable'].Controls.Add(self.targets[t]['dose'][n])
+
+                else:
+                    self.target_label.Visible = False
+                    self.target_table.Controls.Clear()
+                    self.target_table.RowStyles.Clear()
+
+            elif s.Name == 'targets_number':
+                self.targets_label = System.Windows.Forms.Label()
+                self.targets_label.Text = 'Number of targets:'
+                self.targets_label.Width = 165
+                self.targets_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
+                self.targets_label.Visible = False
+                self.plan_table.Controls.Add(self.targets_label)
+
+                self.targets_number = System.Windows.Forms.ComboBox()
+                self.targets_number.Width = 50
+                self.targets_number.Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
+                self.targets_number.Visible = False
+                self.plan_table.Controls.Add(self.targets_number)
+                self.plan_table.Show()
 
             # Otherwise, if an order was changed
             elif s.Name == 'order' and s.SelectedItem in self.order_list:
@@ -884,25 +977,30 @@ class PlanDialog:
         self.diagnosis.Items.AddRange(sorted_diagnoses)
         self.left.Controls.Add(self.diagnosis)
 
-        # Table to determine the number of targets in the plan
-        self.plan_table = System.Windows.Forms.TableLayoutPanel()
-        self.plan_table.ColumnCount = 2
-        self.plan_table.RowCount = 2
-        self.plan_table.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddRows
-        self.plan_table.Padding = System.Windows.Forms.Padding(0, 0, 0, 0)
-        self.plan_table.BackColor = System.Drawing.Color.White
-        self.plan_table.AutoSize = True
-        self.left.Controls.Add(self.plan_table)
+        self.pacemaker = System.Windows.Forms.CheckBox()
+        self.pacemaker.Text = 'CEID/Pacemaker'
+        self.pacemaker.AutoSize = True
+        self.pacemaker.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        self.left.Controls.Add(self.pacemaker)
+
+        # Table to determine the number of beamsets, targets per beamset, and dose levels of each target
         # Determine number of beamsets and update a table for the number of targets in each
-        # TODO UPDATE table
+        # Get the number of beamsets and try to update num_rx in the update_left method
+        self.beamset_number_table = System.Windows.Forms.TableLayoutPanel()
+        self.beamset_number_table.ColumnCount = 2
+        self.beamset_number_table.RowCount = 1
+        self.beamset_number_table.AutoSize = True
+        self.left.Controls.Add(self.beamset_number_table)
+
         self.beamsets_label = System.Windows.Forms.Label()
         self.beamsets_label.Text = 'Number of Beamsets:'
         self.beamsets_label.Width = 165
         self.beamsets_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
         self.beamsets_label.Visible = True
-        self.plan_table.Controls.Add(self.beamsets_label)
+        self.beamset_number_table.Controls.Add(self.beamsets_label)
 
         self.beamsets_number = System.Windows.Forms.ComboBox()
+        self.beamsets_number.Name = 'beamsets_number'
         self.beamsets_number.Width = 50
         self.beamsets_number.Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
         sorted_beamsets_number = [1, 2, 3]
@@ -910,28 +1008,20 @@ class PlanDialog:
         self.beamsets_number.Items.AddRange(sorted_beamsets_number)
         self.beamsets_number.SelectedIndexChanged += update_left
         self.beamsets_number.Visible = True
-        self.plan_table.Controls.Add(self.beamsets_number)
+        self.beamset_number_table.Controls.Add(self.beamsets_number)
+        # This guy probably has to go in the update left
+        # Build the table which will accept the beamset name and number of targets
+        self.plan_table = System.Windows.Forms.TableLayoutPanel()
+        self.plan_table.ColumnCount = 4
+        self.plan_table.RowCount = 1 + self.num_rx
+        self.plan_table.BackColor = System.Drawing.Color.White
+        self.plan_table.AutoSize = True
+        self.plan_table.Visible = False
+        self.left.Controls.Add(self.plan_table)
 
-        self.fractions = []
-        for n in range(self.beamsets_number):
-            self.fractions.append(System.Windows.Forms.TextBox())
-            self.fractions[n].Width = 50
-            self.fractions[n].Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
-            self.fractions[n].Visible = False
-            self.plan_table.Controls.Add(self.fractions[n])
 
-        self.targets_label = System.Windows.Forms.Label()
-        self.targets_label.Text = 'Number of targets:'
-        self.targets_label.Width = 165
-        self.targets_label.Margin = System.Windows.Forms.Padding(0, 10, 10, 0)
-        self.targets_label.Visible = False
-        self.plan_table.Controls.Add(self.targets_label)
 
-        self.targets_number = System.Windows.Forms.ComboBox()
-        self.targets_number.Width = 50
-        self.targets_number.Margin = System.Windows.Forms.Padding(0, 8, 10, 0)
-        self.targets_number.Visible = False
-        self.plan_table.Controls.Add(self.targets_number)
+
 
         # self.fractions = []
         # for n in range(self.num_rx):
@@ -941,51 +1031,46 @@ class PlanDialog:
         #     self.fractions[n].Visible = True
         #     self.right_table.Controls.Add(self.fractions[n])
 
-        self.options_label = System.Windows.Forms.Label()
-        self.options_label.Text = 'Select other TPO options, as needed:'
-        self.options_label.AutoSize = True
-        self.options_label.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        self.left.Controls.Add(self.options_label)
+        # self.options_label = System.Windows.Forms.Label()
+        # self.options_label.Text = 'Select other TPO options, as needed:'
+        # self.options_label.AutoSize = True
+        # self.options_label.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        # self.left.Controls.Add(self.options_label)
 
-        self.previous_xrt = System.Windows.Forms.CheckBox()
-        self.previous_xrt.Text = 'Previous radiation therapy'
-        self.previous_xrt.AutoSize = True
-        self.previous_xrt.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        self.left.Controls.Add(self.previous_xrt)
+        # self.previous_xrt = System.Windows.Forms.CheckBox()
+        # self.previous_xrt.Text = 'Previous radiation therapy'
+        # self.previous_xrt.AutoSize = True
+        # self.previous_xrt.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        # self.left.Controls.Add(self.previous_xrt)
 
-        self.chemo = System.Windows.Forms.CheckBox()
-        self.chemo.Text = 'Coordinate start with chemotherapy'
-        self.chemo.AutoSize = True
-        self.chemo.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        self.left.Controls.Add(self.chemo)
+        # self.chemo = System.Windows.Forms.CheckBox()
+        # self.chemo.Text = 'Coordinate start with chemotherapy'
+        # self.chemo.AutoSize = True
+        # self.chemo.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        # self.left.Controls.Add(self.chemo)
 
-        self.pacemaker = System.Windows.Forms.CheckBox()
-        self.pacemaker.Text = 'CEID/Pacemaker'
-        self.pacemaker.AutoSize = True
-        self.pacemaker.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        self.left.Controls.Add(self.pacemaker)
 
-        self.weekly_qa = System.Windows.Forms.CheckBox()
-        self.weekly_qa.Text = 'Weekly physics QA check'
-        self.weekly_qa.AutoSize = True
-        self.weekly_qa.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        self.weekly_qa.Checked = True
-        self.weekly_qa.Visible = False
-        self.left.Controls.Add(self.weekly_qa)
+        # self.weekly_qa = System.Windows.Forms.CheckBox()
+        # self.weekly_qa.Text = 'Weekly physics QA check'
+        # self.weekly_qa.AutoSize = True
+        # self.weekly_qa.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        # self.weekly_qa.Checked = True
+        # self.weekly_qa.Visible = False
+        # self.left.Controls.Add(self.weekly_qa)
 
-        self.verification = System.Windows.Forms.CheckBox()
-        self.verification.Text = 'Verification simulation on first day of treatment'
-        self.verification.AutoSize = True
-        self.verification.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        self.verification.Checked = True
-        self.verification.Visible = False
-        self.left.Controls.Add(self.verification)
+        # self.verification = System.Windows.Forms.CheckBox()
+        # self.verification.Text = 'Verification simulation on first day of treatment'
+        # self.verification.AutoSize = True
+        # self.verification.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        # self.verification.Checked = True
+        # self.verification.Visible = False
+        # self.left.Controls.Add(self.verification)
 
-        self.accelerated = System.Windows.Forms.CheckBox()
-        self.accelerated.Text = 'Accelerated planning requested'
-        self.accelerated.AutoSize = True
-        self.accelerated.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        self.left.Controls.Add(self.accelerated)
+        # self.accelerated = System.Windows.Forms.CheckBox()
+        # self.accelerated.Text = 'Accelerated planning requested'
+        # self.accelerated.AutoSize = True
+        # self.accelerated.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
+        # self.left.Controls.Add(self.accelerated)
 
         # Add right panel placeholders
         self.prescription_label = System.Windows.Forms.Label()

@@ -1274,7 +1274,7 @@ class mlc_properties:
             for cp in range(closed_leaf_gaps.shape[2]):
                 for l in range(0, closed_leaf_gaps.shape[0]):
                     diff = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
-                    if self.banks[l, 0, cp] == 0  and  self.banks[l, 1, cp] == 0:
+                    if self.banks[l, 0, cp] == 0 and self.banks[l, 1, cp] == 0:
                         ignore_leaf_pair = True
                     elif diff > (1 + threshold) * self.min_gap_moving:
                         ignore_leaf_pair = True
@@ -1442,14 +1442,32 @@ def filter_leaves(beam):
     # Find the first and last leaf that is not covered by the jaw if the jaw was set exactly to the leaf boundaries
     # The indexing on the MLC goes from 0, (at the x1) jaw to the maximum at the y1 jaw
     max_open = beam_mlc.max_opening()
-    right_jaw = max_open['max_open_x1']
+    x1_jaw = max_open['max_open_x1']
+    x2_jaw = max_open['max_open_x2']
     # Leaves that are outside the y-jaw positions and outside left and right jaw positions are moved to
     # the RS endorsed distance behind the jaws
     offset = beam_mlc.leaf_jaw_overlap + 0.8
-    # Find the bottom leaves needing adjustment
+    # Find the leaves needing adjustment
     closed_leaves = beam_mlc.closed_leaf_gaps(stationary_only=True)
+    # Find the b-bank leaves closest to the X1 jaw
+    # stationary_leaf_pairs = beam_mlc[closed_leaves]
+    # Loop over leaves
+    for i in range(beam_mlc.banks.shape[0]):
+        # Loop over control points
+        for j in range(beam_mlc.banks.shape[2]):
+            if closed_leaves[i, 0, j]:
+                x1_diff = abs(beam_mlc.banks[i, 0, j] - x1_jaw)
+                x2_diff = abs(beam_mlc.banks[i, 0, j] - x2_jaw)
+                if x1_diff <= x2_diff:
+                    # This leaf should close behind the x1_jaw
+                    beam_mlc.banks[i, 0, j] = x1_jaw - offset - beam_mlc.min_gap_moving
+                    beam_mlc.banks[i, 1, j] = x1_jaw + offset
+                elif x1_diff > x2_diff:
+                    # This leaf should close behind the x1_jaw
+                    beam_mlc.banks[i, 0, j] = x2_jaw + offset
+                    beam_mlc.banks[i, 1, j] = x2_jaw + offset + beam_mlc.min_gap_moving
     # Adjust out of field gaps only to move behind the right jaw
-    beam_mlc.banks[closed_leaves] = beam_mlc.banks[closed_leaves] + right_jaw + offset
+    # beam_mlc.banks[closed_leaves] = beam_mlc.banks[closed_leaves] + x1_jaw + offset
     # Set the leaf positions to the np array (one-by-one...ugh)
     for i in range(len(beam.Segments)):
         lp = beam.Segments[i].LeafPositions
