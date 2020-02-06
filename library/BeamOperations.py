@@ -1413,7 +1413,12 @@ def maximum_leaf_carriage_extent(beam):
 
 
 def filter_leaves(beam):
-    # Currently not used.
+    """ Examine all leaves that are currently set to be at a minimum leaf gap. If those leaves
+        are not moving from control point to control point, then place them such that they will
+        be behind the jaw once the set-back is in place. Note that the actual calculation here is
+        to place the leaf-pair at: Original Gap position + 0.8 mm + RS Minimum Leaf Jaw Overlap
+        :param beam: A beam class object
+        :return error: A string documenting success or failure"""
     s0 = beam.Segments[0]
     a = s0.JawPositions[1] - s0.JawPositions[0]
     b = s0.JawPositions[3] - s0.JawPositions[2]
@@ -1428,9 +1433,6 @@ def filter_leaves(beam):
         return error
     # For some bizzare reason, the __init__ method of beam does not pull the data from
     # the MLC MachineReference physics. So we are searching for the machine directly here.
-    current_machine = GeneralOperations.get_machine(machine_name=beam.MachineReference.MachineName)
-    # Maximum jaw overtravel (minimum) position
-    current_mlc_physics = current_machine.Physics.MlcPhysics
     beam_mlc = mlc_properties(beam)
 
     if beam_mlc.mlc_retracted:
@@ -1449,12 +1451,13 @@ def filter_leaves(beam):
     offset = beam_mlc.leaf_jaw_overlap + 0.8
     # Find the leaves needing adjustment
     closed_leaves = beam_mlc.closed_leaf_gaps(stationary_only=True)
-    # Find the b-bank leaves closest to the X1 jaw
+    # Store the initial position of the leaves to see if filtering will be neccessary
     initial_beam_mlc = np.copy(beam_mlc.banks)
     # Loop over leaves
     for i in range(beam_mlc.banks.shape[0]):
         # Loop over control points
         for j in range(beam_mlc.banks.shape[2]):
+            # If this is part of the closed leaf range, then evaluate which jaw it is closest to.
             if closed_leaves[i, 0, j]:
                 x1_diff = abs(beam_mlc.banks[i, 0, j] - x1_jaw)
                 x2_diff = abs(beam_mlc.banks[i, 0, j] - x2_jaw)
@@ -1467,7 +1470,7 @@ def filter_leaves(beam):
                     beam_mlc.banks[i, 0, j] = x2_jaw + offset
                     beam_mlc.banks[i, 1, j] = x2_jaw + offset + beam_mlc.min_gap_moving
     if np.all(np.equal(initial_beam_mlc, beam_mlc.banks)):
-        logging.debug('iBeam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
+        logging.debug('Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
     else:
         # Set the leaf positions to the np array (one-by-one...ugh)
         for i in range(len(beam.Segments)):
@@ -1476,6 +1479,8 @@ def filter_leaves(beam):
                 lp[0][j] = beam_mlc.banks[j, 0, i]
                 lp[1][j] = beam_mlc.banks[j, 1, i]
             beam.Segments[i].LeafPositions = lp
+        error = None
+        return error
 
 
 def check_mlc_jaw_positions(jaw_positions, mlc_positions):
