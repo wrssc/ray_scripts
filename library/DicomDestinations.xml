@@ -48,6 +48,12 @@
         <port type="int">106</port>
     </destination>
     <destination type="scp">
+        <name type="text">ARIA-Preprod</name>
+        <host type="text">aria.uwhealth.wisc.edu</host>
+        <aet type="text">ARIA</aet>
+        <port type="int">104</port>
+    </destination>
+    <destination type="scp">
         <name type="text">Delta4</name>
         <host type="text">delta4.uwhis.hosp.wisc.edu</host>
         <aet type="text">Delta4</aet>
