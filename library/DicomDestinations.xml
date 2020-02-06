@@ -50,7 +50,7 @@
     <destination type="scp">
         <name type="text">ARIA-Preprod</name>
         <host type="text">aria.uwhealth.wisc.edu</host>
-        <aet type="text">ARIA</aet>
+        <aet type="text">VMSDBD</aet>
         <port type="int">104</port>
     </destination>
     <destination type="scp">
