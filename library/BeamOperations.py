@@ -1274,7 +1274,7 @@ class mlc_properties:
             for cp in range(closed_leaf_gaps.shape[2]):
                 for l in range(0, closed_leaf_gaps.shape[0]):
                     diff = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
-                    if self.banks[l, 0, cp] == 0  and  self.banks[l, 1, cp] == 0:
+                    if self.banks[l, 0, cp] == 0 and self.banks[l, 1, cp] == 0:
                         ignore_leaf_pair = True
                     elif diff > (1 + threshold) * self.min_gap_moving:
                         ignore_leaf_pair = True
@@ -1413,7 +1413,12 @@ def maximum_leaf_carriage_extent(beam):
 
 
 def filter_leaves(beam):
-    # Currently not used.
+    """ Examine all leaves that are currently set to be at a minimum leaf gap. If those leaves
+        are not moving from control point to control point, then place them such that they will
+        be behind the jaw once the set-back is in place. Note that the actual calculation here is
+        to place the leaf-pair at: Original Gap position + 0.8 mm + RS Minimum Leaf Jaw Overlap
+        :param beam: A beam class object
+        :return error: A string documenting success or failure"""
     s0 = beam.Segments[0]
     a = s0.JawPositions[1] - s0.JawPositions[0]
     b = s0.JawPositions[3] - s0.JawPositions[2]
@@ -1428,9 +1433,6 @@ def filter_leaves(beam):
         return error
     # For some bizzare reason, the __init__ method of beam does not pull the data from
     # the MLC MachineReference physics. So we are searching for the machine directly here.
-    current_machine = GeneralOperations.get_machine(machine_name=beam.MachineReference.MachineName)
-    # Maximum jaw overtravel (minimum) position
-    current_mlc_physics = current_machine.Physics.MlcPhysics
     beam_mlc = mlc_properties(beam)
 
     if beam_mlc.mlc_retracted:
@@ -1442,21 +1444,43 @@ def filter_leaves(beam):
     # Find the first and last leaf that is not covered by the jaw if the jaw was set exactly to the leaf boundaries
     # The indexing on the MLC goes from 0, (at the x1) jaw to the maximum at the y1 jaw
     max_open = beam_mlc.max_opening()
-    right_jaw = max_open['max_open_x1']
+    x1_jaw = max_open['max_open_x1']
+    x2_jaw = max_open['max_open_x2']
     # Leaves that are outside the y-jaw positions and outside left and right jaw positions are moved to
     # the RS endorsed distance behind the jaws
     offset = beam_mlc.leaf_jaw_overlap + 0.8
-    # Find the bottom leaves needing adjustment
+    # Find the leaves needing adjustment
     closed_leaves = beam_mlc.closed_leaf_gaps(stationary_only=True)
-    # Adjust out of field gaps only to move behind the right jaw
-    beam_mlc.banks[closed_leaves] = beam_mlc.banks[closed_leaves] + right_jaw + offset
-    # Set the leaf positions to the np array (one-by-one...ugh)
-    for i in range(len(beam.Segments)):
-        lp = beam.Segments[i].LeafPositions
-        for j in range(len(lp[0])):
-            lp[0][j] = beam_mlc.banks[j, 0, i]
-            lp[1][j] = beam_mlc.banks[j, 1, i]
-        beam.Segments[i].LeafPositions = lp
+    # Store the initial position of the leaves to see if filtering will be neccessary
+    initial_beam_mlc = np.copy(beam_mlc.banks)
+    # Loop over leaves
+    for i in range(beam_mlc.banks.shape[0]):
+        # Loop over control points
+        for j in range(beam_mlc.banks.shape[2]):
+            # If this is part of the closed leaf range, then evaluate which jaw it is closest to.
+            if closed_leaves[i, 0, j]:
+                x1_diff = abs(beam_mlc.banks[i, 0, j] - x1_jaw)
+                x2_diff = abs(beam_mlc.banks[i, 0, j] - x2_jaw)
+                if x1_diff <= x2_diff:
+                    # This leaf should close behind the x1_jaw
+                    beam_mlc.banks[i, 0, j] = x1_jaw - offset - beam_mlc.min_gap_moving
+                    beam_mlc.banks[i, 1, j] = x1_jaw + offset
+                elif x1_diff > x2_diff:
+                    # This leaf should close behind the x1_jaw
+                    beam_mlc.banks[i, 0, j] = x2_jaw + offset
+                    beam_mlc.banks[i, 1, j] = x2_jaw + offset + beam_mlc.min_gap_moving
+    if np.all(np.equal(initial_beam_mlc, beam_mlc.banks)):
+        logging.debug('Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
+    else:
+        # Set the leaf positions to the np array (one-by-one...ugh)
+        for i in range(len(beam.Segments)):
+            lp = beam.Segments[i].LeafPositions
+            for j in range(len(lp[0])):
+                lp[0][j] = beam_mlc.banks[j, 0, i]
+                lp[1][j] = beam_mlc.banks[j, 1, i]
+            beam.Segments[i].LeafPositions = lp
+        error = None
+        return error
 
 
 def check_mlc_jaw_positions(jaw_positions, mlc_positions):
@@ -1828,7 +1852,7 @@ def dsp_matches_rx(beamset, dsp):
     :param rx_dose: prescription dose
     :return: True if total dose match
     """
-    tolerance = 0.01
+    tolerance = 0.001
     number_of_fractions = beamset.FractionationPattern.NumberOfFractions
     rx_dose = beamset.Prescription.PrimaryDosePrescription.DoseValue / number_of_fractions
     if exists_dsp(beamset, dsps=dsp):
@@ -1888,7 +1912,7 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     logging.debug('rx = {}'.format(rx))
 
     xpos = None
-    tolerance = 1e-2
+    tolerance = 1e-4
 
     xmax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.x
     ymax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.y
