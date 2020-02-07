@@ -1852,7 +1852,7 @@ def dsp_matches_rx(beamset, dsp):
     :param rx_dose: prescription dose
     :return: True if total dose match
     """
-    tolerance = 0.01
+    tolerance = 0.001
     number_of_fractions = beamset.FractionationPattern.NumberOfFractions
     rx_dose = beamset.Prescription.PrimaryDosePrescription.DoseValue / number_of_fractions
     if exists_dsp(beamset, dsps=dsp):
@@ -1912,7 +1912,7 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     logging.debug('rx = {}'.format(rx))
 
     xpos = None
-    tolerance = 1e-2
+    tolerance = 1e-4
 
     xmax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.x
     ymax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.y
