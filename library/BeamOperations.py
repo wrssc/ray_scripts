@@ -90,6 +90,8 @@ class Beam(object):
         self.collimator_angle = None
         self.iso = {}
         self.couch_angle = None
+        self.field_width = None
+        self.pitch = None
         self.dsp = None
 
     def __eq__(self, other):
@@ -102,7 +104,9 @@ class Beam(object):
                and self.couch_angle == other.couch_angle \
                and self.collimator_angle == other.collimator_angle \
                and self.rotation_dir == other.rotation_dir \
-               and self.technique == other.technique
+               and self.technique == other.technique \
+               and self.field_width == other.field_width \
+               and self.pitch == other.pitch
 
     def __hash__(self):
         return hash((
@@ -195,17 +199,21 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     # Define an empty BeamSet object that will be the returned object
     dialog_beamset = BeamSet()
     # TODO: Uncomment in version 9 to load the available machine inputs from current commissioned list
-    # machine_db = connect.get_current('MachineDB')
-    # machines = machine_db.QueryCommissionedMachineInfo(Filter={})
-    # machine_list = []
-    # for i, m in enumerate(machines):
-    #     if m['IsCommissioned']:
-    #         machine_list.append(m['Name'])
+    machine_db = connect.get_current('MachineDB')
+    #try:
+    #    machines = machine_db.QueryCommissionedMachineInfo(Filter={'IsLinac': True})
+    #    machine_list = []
+    #    for i, m in enumerate(machines):
+    #        if m['IsCommissioned']:
+    #            machine_list.append(m['Name'])
+    #except:
+    #    logging.debug('Unable to find machine list still...')
+    machine_list = ['TrueBeam', 'TrueBeamSTx', 'HDA0477', 'HDA0488']
     # TODO Test gating option
     # TODO Load all available beamsets found in a file
     available_modality = ['Photons', 'Electrons']
     available_technique = ['Conformal', 'SMLC', 'VMAT', 'DMLC', 'ConformalArc', 'TomoHelical', 'TomoDirect']
-    machine_list = ['TrueBeam', 'TrueBeamSTx']
+    # machine_list = ['TrueBeam', 'TrueBeamSTx']
 
     # Open the user supplied filename located at folder and return a list of available beamsets
     # Should be able to eliminate this if after the modifications to select_element are complete
@@ -282,7 +290,7 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     return dialog_beamset
 
 
-def find_isocenter_parameters(case, exam, beamset, iso_target):
+def find_isocenter_parameters(case, exam, beamset, iso_target, lateral_zero=False):
     """Function to return the dict object needed for isocenter placement from the center of a supplied
     name of a structure"""
 
@@ -295,9 +303,14 @@ def find_isocenter_parameters(case, exam, beamset, iso_target):
 
     # Place isocenter
     # TODO Add a check on laterality at this point (if -7< x < 7 ) put out a warning
-    ptv_center = {'x': isocenter_position.x,
-                  'y': isocenter_position.y,
-                  'z': isocenter_position.z}
+    if lateral_zero:
+        ptv_center = {'x': 0.,
+                      'y': isocenter_position.y,
+                      'z': isocenter_position.z}
+    else:
+        ptv_center = {'x': isocenter_position.x,
+                      'y': isocenter_position.y,
+                      'z': isocenter_position.z}
     isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
     isocenter_parameters['Name'] = "iso_" + beamset.DicomPlanLabel
     isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + beamset.DicomPlanLabel
@@ -2103,11 +2116,47 @@ def load_beams_xml(filename, beamset_name, path):
             beam.name = str(b.find('Name').text)
             beam.technique = str(b.find('DeliveryTechnique').text)
             beam.energy = int(b.find('Energy').text)
-            beam.gantry_start_angle = float(b.find('GantryAngle').text)
-            beam.gantry_stop_angle = float(b.find('GantryStopAngle').text)
-            beam.rotation_dir = str(b.find('ArcRotationDirection').text)
-            beam.collimator_angle = float(b.find('CollimatorAngle').text)
-            beam.couch_angle = float(b.find('CouchAngle').text)
+
+            if b.find('GantryAngle') is None:
+                beam.gantry_start_angle = None
+            else:
+                beam.gantry_start_angle = float(b.find('GantryAngle').text)
+
+            if b.find('GantryStopAngle') is None:
+                beam.gantry_stop_angle = None
+            else:
+                beam.gantry_stop_angle = float(b.find('GantryStopAngle').text)
+
+            if b.find('ArcRotationDirection') is None:
+                beam.rotation_dir = None
+            else:
+                beam.rotation_dir = str(b.find('ArcRotationDirection').text)
+
+            if b.find('CollimatorAngle') is None:
+                beam.collimator_angle = None
+            else:
+                beam.collimator_angle = float(b.find('CollimatorAngle').text)
+
+            if b.find('CouchAngle') is None:
+                beam.couch_angle = None
+            else:
+                beam.couch_angle = float(b.find('CouchAngle').text)
+
+            if b.find('CouchAngle') is None:
+                beam.couch_angle = None
+            else:
+                beam.couch_angle = float(b.find('CouchAngle').text)
+
+            if b.find('FieldWidth') is None:
+                beam.field_width = None
+            else:
+                beam.field_width = float(b.find('FieldWidth').text)
+
+            if b.find('Pitch') is None:
+                beam.pitch = None
+            else:
+                beam.pitch = float(b.find('Pitch').text)
+
             beams.append(beam)
     return beams
 

@@ -93,6 +93,6 @@ def logcrit(message):
     if current_scope['Plan'] is not None:
         level += 'Plan: ' + current_scope['Plan'].Name + ':'
     if current_scope['BeamSet'] is not None:
-        level += 'Beamset: ' + current_scope['BeamSet'].DicomPlanLabel + '::'
+        level += 'Beamset: ' + current_scope['BeamSet'].DicomPlanLabel + ':'
     message = level + message
     logging.critical(message)
