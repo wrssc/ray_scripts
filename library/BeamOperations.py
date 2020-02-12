@@ -92,6 +92,9 @@ class Beam(object):
         self.couch_angle = None
         self.field_width = None
         self.pitch = None
+        self.jaw_mode = None
+        self.back_jaw_position = None
+        self.front_jaw_position = None
         self.dsp = None
 
     def __eq__(self, other):
@@ -106,7 +109,10 @@ class Beam(object):
                and self.rotation_dir == other.rotation_dir \
                and self.technique == other.technique \
                and self.field_width == other.field_width \
-               and self.pitch == other.pitch
+               and self.pitch == other.pitch \
+               and self.jaw_mode == other.jaw_mode \
+               and self.back_jaw_position == other.back_jaw_position \
+               and self.front_jaw_position == other.front_jaw_position
 
     def __hash__(self):
         return hash((
@@ -329,7 +335,8 @@ def create_beamset(patient, case, exam, plan,
                    dialog=True,
                    filename=None,
                    path=None,
-                   order_name=None):
+                   order_name=None,
+                   create_setup_beams=True):
     """ Create a beamset by opening a dialog with user or loading from scratch
     Currently relies on finding out information via a dialog. I would like it to optionally take the elements
     from the BeamSet class and return the result
@@ -355,7 +362,7 @@ def create_beamset(patient, case, exam, plan,
         TreatmentTechnique=b.technique,
         PatientPosition=patient_position_map(exam.PatientPosition),
         NumberOfFractions=b.number_of_fractions,
-        CreateSetupBeams=True,
+        CreateSetupBeams=create_setup_beams,
         UseLocalizationPointAsSetupIsocenter=False,
         Comment="",
         RbeModelReference=None,
@@ -416,10 +423,10 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
     :return:
     """
     verbose_logging = False
-    logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
-                  'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
-        beam.number, beam.technique, beam.Name,
-        beam.energy))
+    logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, ' +
+                  'Field Width {}, Pitch {}').format(
+        beam.number, beam.technique, beam.name,
+        beam.energy, beam.field_width, beam.pitch))
 
     beamset.CreatePhotonBeam(Name=beam.name,
                              Energy=beam.energy,
@@ -429,7 +436,7 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
     opt_index = PlanOperations.find_optimization_index(plan=plan,
                                                        beamset=beamset,
                                                        verbose_logging=False)
-    plan_optimization_parameters = plan.PlanOptimizations[opt_index]
+    plan_optimization_parameters = plan.PlanOptimizations[opt_index].OptimizationParameters
     for tss in plan_optimization_parameters.TreatmentSetupSettings:
         if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
             ts_settings = tss
@@ -439,7 +446,7 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             for bs in ts_settings.BeamSettings:
                 if bs.ForBeam.Name == beam.name:
                     beam_found = True
-                    current_beam = bs
+                    current_beam_settings = bs
                     break
                 else:
                     continue
@@ -454,6 +461,18 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
         logging.warning('Beam {} not found in beam list from {}'.format(
             beam.name, beamset.DicomPlanLabel))
         sys.exit('Could not find a beam match for setting aperture limits')
+
+    if ts_settings is not None and current_beam_settings is not None:
+        current_beam_settings.TomoPropertiesPerBeam.EditTomoBasedBeamOptimizationSettings(
+            JawMode=beam.jaw_mode,
+            PitchTomoHelical=beam.pitch,
+            # PitchTomoDirect=,
+            BackJawPosition=beam.back_jaw_position,
+            FrontJawPosition=beam.front_jaw_position,
+            MaxDeliveryTime=None,
+            MaxGantryPeriod=None,
+            MaxDeliveryTimeFactor=None)
+
 
 
 # plan.PlanOptimizations[opt_index].OptimizationParameters.
@@ -1218,6 +1237,7 @@ class mlc_properties:
     beam: the original beam RS object- arguable as to whether another copy of this is needed
     max_tip: if the beam has an MLC, this will determine the maximum position the MLC can extend from the CAX
     num_leaves_per_bank: the number of MLC leaves in a bank
+
     banks: a numpy array of MLC segment positions
 
     """
