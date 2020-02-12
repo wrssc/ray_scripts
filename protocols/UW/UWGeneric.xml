@@ -357,6 +357,7 @@
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
             <Name>1_SITE_THI</Name>
             <FieldWidth>5</FieldWidth>
+            <Pitch>0.287</Pitch>
             <Energy>6</Energy>
         </beam>
     </beamset>

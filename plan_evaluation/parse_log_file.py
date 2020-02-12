@@ -1,4 +1,4 @@
-""" Test log parsing
+""" Parse script log for this patient
 
 """
 import UserInterface
@@ -10,6 +10,7 @@ import webbrowser
 import GeneralOperations
 from GeneralOperations import logcrit
 import sys
+import re
 
 
 def main():
@@ -83,6 +84,9 @@ def main():
     for line in f:
         for phrase in keep_phrases:
             if phrase in line:
+                #CRITICAL.*\.py
+                line = re.sub('CRITICAL.*\.py', ' ', line)
+                # line = line.replace('CRITICAL', '\t')
                 split = line.split("::")
                 important.append(split)
                 message += line + '\n'
