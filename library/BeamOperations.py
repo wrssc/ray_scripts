@@ -206,13 +206,13 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     dialog_beamset = BeamSet()
     # TODO: Uncomment in version 9 to load the available machine inputs from current commissioned list
     machine_db = connect.get_current('MachineDB')
-    #try:
+    # try:
     #    machines = machine_db.QueryCommissionedMachineInfo(Filter={'IsLinac': True})
     #    machine_list = []
     #    for i, m in enumerate(machines):
     #        if m['IsCommissioned']:
     #            machine_list.append(m['Name'])
-    #except:
+    # except:
     #    logging.debug('Unable to find machine list still...')
     machine_list = ['TrueBeam', 'TrueBeamSTx', 'HDA0477', 'HDA0488']
     # TODO Test gating option
@@ -472,7 +472,6 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             MaxDeliveryTime=None,
             MaxGantryPeriod=None,
             MaxDeliveryTimeFactor=None)
-
 
 
 # plan.PlanOptimizations[opt_index].OptimizationParameters.
@@ -1316,12 +1315,12 @@ class mlc_properties:
                     # Check if the leaf gap is a "closed leaf gap"
                     # First control point only
                     if cp == 0:
-                        x1_diff = abs(self.banks[l, 0, cp+1] - self.banks[l, 0, cp])
-                        x2_diff = abs(self.banks[l, 1, cp+1] - self.banks[l, 1, cp])
+                        x1_diff = abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
+                        x2_diff = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
                     else:
                         # Check if the previous closed leaf pair was in a different position
-                        x1_diff = abs(self.banks[l, 0, cp] - self.banks[l, 0, cp-1])
-                        x2_diff = abs(self.banks[l, 1, cp] - self.banks[l, 1, cp-1])
+                        x1_diff = abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
+                        x2_diff = abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
 
                     if x1_diff <= threshold and x2_diff <= threshold and not ignore_leaf_pair:
                         closed_leaf_gaps[l, :, cp] = True
@@ -1695,7 +1694,8 @@ def rounded_jaw_positions(beam):
             y2_jaw_standoff = math.ceil(10 * (max_open_y2 + y_jaw_offset)) / 10
     else:
         logging.debug('Beam {}: X1:{}, X2:{}, Y1:{}, Y2:{}; Calculated Eq Square Field {}'.format(
-            beam.Name, s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3], equivalent_square_field_size
+            beam.Name, s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3],
+            equivalent_square_field_size
         ))
     # Check jaws
     # Try to use Jaw Standoff jaw offsets first. Then, if that violates a machine constraint
@@ -1787,13 +1787,13 @@ def round_jaws(beamset):
             j0 = rounded_jaw_positions(b)
             for s in b.Segments:
                 s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
-            logging.info('Beam {}: jaw positions changed '.format(b.Name) +
-                         '<X1: {0:.2f}->{1:.2f}>, '.format(init_positions[0], s.JawPositions[0]) +
-                         '<X2: {0:.2f}->{1:.2f}>, '.format(init_positions[1], s.JawPositions[1]) +
-                         '<Y1: {0:.2f}->{1:.2f}>, '.format(init_positions[2], s.JawPositions[2]) +
-                         '<Y2: {0:.2f}->{1:.2f}>'.format(init_positions[3], s.JawPositions[3]))
+            GeneralOperations.logcrit('Beam {}: jaw positions changed '.format(b.Name) +
+                                      '<X1: {0:.2f}->{1:.2f}>, '.format(init_positions[0], s.JawPositions[0]) +
+                                      '<X2: {0:.2f}->{1:.2f}>, '.format(init_positions[1], s.JawPositions[1]) +
+                                      '<Y1: {0:.2f}->{1:.2f}>, '.format(init_positions[2], s.JawPositions[2]) +
+                                      '<Y2: {0:.2f}->{1:.2f}>'.format(init_positions[3], s.JawPositions[3]))
         else:
-            logging.info('Beam {}: jaw positions do not need rounding.'.format(b.Name))
+            GeneralOperations.logcrit('Beam {}: jaw positions do not need rounding.'.format(b.Name))
     success = True
     return success
 
@@ -1840,11 +1840,11 @@ def round_mu(beamset):
 
     for b in beamset.Beams:
         if mu_is_rounded(b):
-            logging.debug('Beam {} already has rounded MU {}'.format(b.Name, b.BeamMU))
+            GeneralOperations.logcrit('Beam {} already has rounded MU {}'.format(b.Name, b.BeamMU))
         else:
             mu_i = b.BeamMU
             b.BeamMU = mu_rounded(b)
-            logging.info('Beam {0} MU changed from {1:.2f} to {2}'.format(b.Name, mu_i, b.BeamMU))
+            GeneralOperations.logcrit('Beam {0} MU changed from {1:.2f} to {2}'.format(b.Name, mu_i, b.BeamMU))
     return True
 
 
@@ -2176,6 +2176,16 @@ def load_beams_xml(filename, beamset_name, path):
                 beam.pitch = None
             else:
                 beam.pitch = float(b.find('Pitch').text)
+
+            if b.find('JawMode') is None:
+                beam.jaw_mode = None
+            else:
+                beam.jaw_mode = float(b.find('JawMode').text)
+
+            if b.find('BackJawPosition') is None:
+                beam.back_jaw_position = None
+            else:
+                beam.back_jaw_position = float(b.find('BackJawPosition').text)
 
             beams.append(beam)
     return beams

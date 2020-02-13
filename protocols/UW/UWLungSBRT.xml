@@ -2578,7 +2578,7 @@
             <roi>
                 <name>OTV1_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">123</dose>
+                <dose units="%" roi="PTV_p">140</dose>
                 <weight>50</weight>
             </roi>
             <roi>
@@ -2626,7 +2626,7 @@
             <roi>
                 <name>OTV2_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p2">123</dose>
+                <dose units="%" roi="PTV_p2">140</dose>
                 <weight>50</weight>
             </roi>
             <roi>
@@ -2674,7 +2674,7 @@
             <roi>
                 <name>OTV3_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p3">123</dose>
+                <dose units="%" roi="PTV_p3">140</dose>
                 <weight>50</weight>
             </roi>
             <roi>
@@ -2728,7 +2728,7 @@
             <roi>
                 <name>PTV_p4</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p4">102.5</dose>
+                <dose units="%" roi="PTV_p4">140</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
@@ -2770,7 +2770,7 @@
             <roi>
                 <name>OTV5_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p5">123</dose>
+                <dose units="%" roi="PTV_p5">140</dose>
                 <weight>50</weight>
             </roi>
             <roi>
