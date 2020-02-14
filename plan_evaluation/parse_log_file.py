@@ -87,6 +87,7 @@ def main():
                 #CRITICAL.*\.py
                 line = re.sub('CRITICAL.*\.py', ' ', line)
                 # line = line.replace('CRITICAL', '\t')
+                re.split(r'\t+', line.rstrip('\t'))
                 split = line.split("::")
                 important.append(split)
                 message += line + '\n'
