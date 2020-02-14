@@ -1293,7 +1293,7 @@ class mlc_properties:
 
     # MLC methods:
     def closed_leaf_gaps(self, stationary_only=False):
-        threshold = 1e-3
+        threshold = 1e-6
         # Find the MLC gaps that are closed (set to the minimum moving leaf opening) and return them
         # If stationary_only is True, return only leaf gaps that are closed to minimum and do not move in the next
         # control point
@@ -1305,7 +1305,9 @@ class mlc_properties:
             # Solve only for gaps that do not move in the next control point
             for cp in range(closed_leaf_gaps.shape[2]):
                 for l in range(0, closed_leaf_gaps.shape[0]):
+                    # Only flag leaves that have a difference in position equal to the minumum moving leaf gap
                     diff = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
+                    # If the leaf is defined as non-dynamic (0, 0) then ignore it.
                     if self.banks[l, 0, cp] == 0 and self.banks[l, 1, cp] == 0:
                         ignore_leaf_pair = True
                     elif diff > (1 + threshold) * self.min_gap_moving:
@@ -1314,6 +1316,7 @@ class mlc_properties:
                         ignore_leaf_pair = False
                     # Check if the leaf gap is a "closed leaf gap"
                     # First control point only
+                    # See if leaf pair moves from one iteration to the next
                     if cp == 0:
                         x1_diff = abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
                         x2_diff = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
