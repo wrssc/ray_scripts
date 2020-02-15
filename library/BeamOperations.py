@@ -1330,12 +1330,15 @@ class mlc_properties:
                         x2_diff = abs(self.banks[l, 1, cp - 1] - self.banks[l, 1, cp])
                     else:
                         # Check if the previous closed leaf pair was in a different position
-                        x1_diff_0 = abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
-                        x2_diff_0 = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
-                        x1_diff_1 = abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
-                        x2_diff_1 = abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
+                        x1_diff_0 = abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
+                        x2_diff_0 = abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
+                        x1_diff_1 = abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
+                        x2_diff_1 = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
                         x1_diff = [x1_diff_0, x1_diff_1]
                         x2_diff = [x2_diff_0, x2_diff_1]
+                    logging.debug('Beam {}: CP {}: Leaf {}:: MLC1 {}, MLC2 {} '.format(
+                        self.beam.Name,cp,l,self.banks[l,0,cp], self.banks[l,1,cp]
+                    ))
                     logging.debug('CP {}, Leaf {}: x1diff {} :: x2diff {}'.format(cp, l, x1_diff, x2_diff))
                     if np.all(x1_diff <= threshold) and np.all(x2_diff <= threshold) and not ignore_leaf_pair:
                         closed_leaf_gaps[l, :, cp] = True
