@@ -1303,7 +1303,7 @@ class mlc_properties:
             return None
         closed_leaf_gaps = np.empty_like(self.banks, dtype=bool)
         logging.debug('Beam {}: banks shape is {}, {}, {}'.format(
-            self.beam.name, closed_leaf_gaps.shape[0], closed_leaf_gaps.shape[1],
+            self.beam.Name, closed_leaf_gaps.shape[0], closed_leaf_gaps.shape[1],
                                                          closed_leaf_gaps.shape[2]))
         if stationary_only:
             number_cp = closed_leaf_gaps.shape[2]
