@@ -1268,6 +1268,7 @@ class mlc_properties:
             self.leaf_jaw_overlap = current_machine.Physics.MlcPhysics.LeafJawOverlap
             # Grab the minimum gap allowed for a dynamic leaf
             self.min_gap_moving = current_machine.Physics.MlcPhysics.MinGapMoving
+            #
             # Set up a numpy array that will be a combine segments
             # into a single ndarray of size:
             # MLC leaf number x number of banks x number of segments
@@ -1301,8 +1302,9 @@ class mlc_properties:
         if not self.has_segments:
             return None
         closed_leaf_gaps = np.empty_like(self.banks, dtype=bool)
-        logging.debug('Banks shape is {}, {}, {}'.format(closed_leaf_gaps.shape[0], closed_leaf_gaps.shape[1],
-                                                 closed_leaf_gaps.shape[2]))
+        logging.debug('Beam {}: banks shape is {}, {}, {}'.format(
+            self.beam.name, closed_leaf_gaps.shape[0], closed_leaf_gaps.shape[1],
+                                                         closed_leaf_gaps.shape[2]))
         if stationary_only:
             number_cp = closed_leaf_gaps.shape[2]
             # Solve only for gaps that do not move in the next control point
@@ -1323,7 +1325,7 @@ class mlc_properties:
                     if cp == 0:
                         x1_diff = abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
                         x2_diff = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
-                    elif cp == number_cp-1:
+                    elif cp == number_cp - 1:
                         x1_diff = abs(self.banks[l, 0, cp - 1] - self.banks[l, 0, cp])
                         x2_diff = abs(self.banks[l, 1, cp - 1] - self.banks[l, 1, cp])
                     else:
@@ -1339,8 +1341,8 @@ class mlc_properties:
                         closed_leaf_gaps[l, :, cp] = True
                     else:
                         closed_leaf_gaps[l, :, cp] = False
-                    logging.debug('CP{}, Leaf0 {}: {}'.format(cp, l, closed_leaf_gaps[1,0,cp]))
-                    logging.debug('CP{}, Leaf1 {}: {}'.format(cp, l, closed_leaf_gaps[1,1,cp]))
+                    logging.debug('CP{}, Leaf0 {}: {}'.format(cp, l, closed_leaf_gaps[1, 0, cp]))
+                    logging.debug('CP{}, Leaf1 {}: {}'.format(cp, l, closed_leaf_gaps[1, 1, cp]))
             return closed_leaf_gaps
         else:
             closed_leaf_gaps[:, 0, :] = abs(self.banks[:, 0, :] - self.banks[:, 1, :]) < \
