@@ -1310,7 +1310,7 @@ class mlc_properties:
             # Solve only for gaps that do not move in the next control point
             for cp in range(number_cp):
                 for l in range(0, closed_leaf_gaps.shape[0]):
-                    # Only flag leaves that have a difference in position equal to the minumum moving leaf gap
+                    # Only flag leaves that have a difference in position equal to the minimum moving leaf gap
                     diff = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
                     # If the leaf is defined as non-dynamic (0, 0) then ignore it.
                     if self.banks[l, 0, cp] == 0 and self.banks[l, 1, cp] == 0:
