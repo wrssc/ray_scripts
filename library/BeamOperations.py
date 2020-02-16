@@ -1345,7 +1345,6 @@ class mlc_properties:
                             x2_diff_0 = np.abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
                             x1_diff_1 = np.abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
                             x2_diff_1 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
-
                         x1_diff = [x1_diff_0, x1_diff_1]
                         x2_diff = [x2_diff_0, x2_diff_1]
                         if all(x1 <= threshold for x1 in x1_diff) and \
