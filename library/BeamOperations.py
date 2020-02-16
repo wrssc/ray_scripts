@@ -1342,9 +1342,9 @@ class mlc_properties:
                         x1_diff_1 = np.abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
                         x2_diff_1 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
 
-                    x1_diff = [x1_diff_0.astype(float), x1_diff_1.astype(float)]
-                    x2_diff = [x2_diff_0.astype(float), x2_diff_1.astype(float)]
-                    if all(x1_diff <= 2*[threshold]) and all(x2_diff <= 2*[threshold]) and not ignore_leaf_pair:
+                    x1_diff = [x1_diff_0 <= threshold, x1_diff_1 <= threshold]
+                    x2_diff = [x2_diff_0 <= threshold, x2_diff_1 <= threshold]
+                    if all(i for i in x1_diff) and all(j for j in x2_diff) and not ignore_leaf_pair:
                         closed_leaf_gaps[l, :, cp] = True
                     else:
                         closed_leaf_gaps[l, :, cp] = False
