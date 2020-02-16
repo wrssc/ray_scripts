@@ -1344,7 +1344,7 @@ class mlc_properties:
 
                     x1_diff = [x1_diff_0, x1_diff_1]
                     x2_diff = [x2_diff_0, x2_diff_1]
-                    logging.debug('Type x1_diff {}, x1_diff_0 {}'.format(x1_diff,x1_diff_0))
+                    logging.debug('Type x1_diff {}, x1_diff_0 {}'.format(type(x1_diff),type(x1_diff_0)))
                     if np.all(x1_diff <= 2*[threshold]) and np.all(x2_diff <= 2*[threshold]) and not ignore_leaf_pair:
                         closed_leaf_gaps[l, :, cp] = True
                     else:
