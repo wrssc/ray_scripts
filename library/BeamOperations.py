@@ -1303,12 +1303,9 @@ class mlc_properties:
             return None
         closed_leaf_gaps = np.empty_like(self.banks, dtype=bool)
         if stationary_only:
-            logging.debug('Beam {}: banks shape is {}, {}, {}'.format(
-                self.beam.Name, closed_leaf_gaps.shape[0], closed_leaf_gaps.shape[1],
-                closed_leaf_gaps.shape[2]))
-            number_cp = closed_leaf_gaps.shape[2]
             # Solve only for gaps that do not move in the next control point
-            for cp in range(number_cp):
+            number_of_control_points = closed_leaf_gaps.shape[2]
+            for cp in range(number_of_control_points):
                 for l in range(closed_leaf_gaps.shape[0]):
                     # Only flag leaves that have a difference in position equal to the minimum moving leaf gap
                     diff = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
@@ -1334,7 +1331,7 @@ class mlc_properties:
                             x2_diff_0 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
                             x2_diff_1 = np.abs(self.banks[l, 1, cp + 2] - self.banks[l, 1, cp + 1])
                         # Last control point only
-                        elif cp == number_cp - 1:
+                        elif cp == number_of_control_points - 1:
                             x1_diff_0 = np.abs(self.banks[l, 0, cp - 1] - self.banks[l, 0, cp])
                             x1_diff_1 = np.abs(self.banks[l, 0, cp - 2] - self.banks[l, 0, cp - 1])
                             x2_diff_0 = np.abs(self.banks[l, 1, cp - 1] - self.banks[l, 1, cp])
@@ -1347,8 +1344,8 @@ class mlc_properties:
                             x2_diff_1 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
                         x1_diff = [x1_diff_0, x1_diff_1]
                         x2_diff = [x2_diff_0, x2_diff_1]
-                        if all(x1 <= threshold for x1 in x1_diff) and \
-                                all(x2 <= threshold for x2 in x2_diff):
+                        # Evaluate each control point difference to see if it is less than the threshold for equivalence
+                        if all(x1 <= threshold for x1 in x1_diff) and all(x2 <= threshold for x2 in x2_diff):
                             closed_leaf_gaps[l, :, cp] = True
                         else:
                             closed_leaf_gaps[l, :, cp] = False
