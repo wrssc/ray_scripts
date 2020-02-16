@@ -1349,7 +1349,8 @@ class mlc_properties:
                             leaf_gaps[l, :, cp] = True
                         else:
                             leaf_gaps[l, :, cp] = False
-                        if cp == 0 or cp == 1:
+                        if cp == 0 or cp == 1 or cp == 3 or cp == number_of_control_points -1 or \
+                                cp == number_of_control_points - 2:
                             logging.debug('Beam {}: CP {}: Leaf {}:: MLC1 {}, MLC2 {}, '.format(
                                 self.beam.Name, cp, l, self.banks[l, 0, cp], self.banks[l, 1, cp]) +
                                           'x1_diff {}, x2_diff {}, closed_leaf 0 {}, closed_leaf 1 {}'.format(
