@@ -1524,8 +1524,9 @@ def filter_leaves(beam):
         # Loop over control points
         for j in range(beam_mlc.banks.shape[2]):
             # If this is part of the closed leaf range, then evaluate which jaw it is closest to.
-            logging.debug('Value of closed is {} for bank0 {}'.format(closed_leaves[i, 0, j], beam_mlc.banks[i, 0, j]))
-            if closed_leaves[i, 0, j]:
+            logging.debug('LP {}, CP {}, Value of closed is {} for bank0 {}'.format(
+                i, j, closed_leaves[i, 0, j], beam_mlc.banks[i, 0, j]))
+            if np.all(closed_leaves[i, 0, j]):
                 x1_diff = abs(beam_mlc.banks[i, 0, j] - x1_jaw)
                 x2_diff = abs(beam_mlc.banks[i, 0, j] - x2_jaw)
                 if x1_diff <= x2_diff:
