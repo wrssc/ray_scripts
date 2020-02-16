@@ -1326,22 +1326,22 @@ class mlc_properties:
                         #
                         # First control point only evaluate ahead two control points for changes
                         if cp == 0:
-                            x1_diff_0 = np.abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
-                            x1_diff_1 = np.abs(self.banks[l, 0, cp + 2] - self.banks[l, 0, cp + 1])
-                            x2_diff_0 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
-                            x2_diff_1 = np.abs(self.banks[l, 1, cp + 2] - self.banks[l, 1, cp + 1])
+                            x1_diff_0 = abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
+                            x1_diff_1 = abs(self.banks[l, 0, cp + 2] - self.banks[l, 0, cp + 1])
+                            x2_diff_0 = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
+                            x2_diff_1 = abs(self.banks[l, 1, cp + 2] - self.banks[l, 1, cp + 1])
                         # Last control point only evaluate last two control points for changes
                         elif cp == number_of_control_points - 1:
-                            x1_diff_0 = np.abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
-                            x1_diff_1 = np.abs(self.banks[l, 0, cp - 1] - self.banks[l, 0, cp - 2])
-                            x2_diff_0 = np.abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
-                            x2_diff_1 = np.abs(self.banks[l, 1, cp - 1] - self.banks[l, 1, cp - 2])
+                            x1_diff_0 = abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
+                            x1_diff_1 = abs(self.banks[l, 0, cp - 1] - self.banks[l, 0, cp - 2])
+                            x2_diff_0 = abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
+                            x2_diff_1 = abs(self.banks[l, 1, cp - 1] - self.banks[l, 1, cp - 2])
                         else:
                             # Check if the previous closed leaf pair was in a different position
-                            x1_diff_0 = np.abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
-                            x1_diff_1 = np.abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
-                            x2_diff_0 = np.abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
-                            x2_diff_1 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
+                            x1_diff_0 = abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
+                            x1_diff_1 = abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
+                            x2_diff_0 = abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
+                            x2_diff_1 = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
                         x1_diff = [x1_diff_0, x1_diff_1]
                         x2_diff = [x2_diff_0, x2_diff_1]
                         # Evaluate each control point difference to see if it is less than the threshold for equivalence
