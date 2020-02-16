@@ -1302,10 +1302,10 @@ class mlc_properties:
         if not self.has_segments:
             return None
         closed_leaf_gaps = np.empty_like(self.banks, dtype=bool)
-        logging.debug('Beam {}: banks shape is {}, {}, {}'.format(
-            self.beam.Name, closed_leaf_gaps.shape[0], closed_leaf_gaps.shape[1],
-            closed_leaf_gaps.shape[2]))
         if stationary_only:
+            logging.debug('Beam {}: banks shape is {}, {}, {}'.format(
+                self.beam.Name, closed_leaf_gaps.shape[0], closed_leaf_gaps.shape[1],
+                closed_leaf_gaps.shape[2]))
             number_cp = closed_leaf_gaps.shape[2]
             # Solve only for gaps that do not move in the next control point
             for cp in range(number_cp):
@@ -1342,10 +1342,9 @@ class mlc_properties:
                         x1_diff_1 = np.abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
                         x2_diff_1 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
 
-                    x1_diff = [x1_diff_0, x1_diff_1]
-                    x2_diff = [x2_diff_0, x2_diff_1]
-                    logging.debug('Type x1_diff {}, x1_diff_0 {}'.format(type(x1_diff),type(x1_diff_0)))
-                    if np.all(x1_diff <= 2*[threshold]) and np.all(x2_diff <= 2*[threshold]) and not ignore_leaf_pair:
+                    x1_diff = [x1_diff_0.astype(float), x1_diff_1.astype(float)]
+                    x2_diff = [x2_diff_0.astype(float), x2_diff_1.astype(float)]
+                    if all(x1_diff <= 2*[threshold]) and all(x2_diff <= 2*[threshold]) and not ignore_leaf_pair:
                         closed_leaf_gaps[l, :, cp] = True
                     else:
                         closed_leaf_gaps[l, :, cp] = False
