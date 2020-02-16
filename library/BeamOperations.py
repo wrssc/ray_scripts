@@ -1320,40 +1320,45 @@ class mlc_properties:
                     else:
                         ignore_leaf_pair = False
                     #
-                    # Check if the leaf gap is a "closed leaf gap" that is not moving in adjacent control points
-                    # See if leaf pair moves from one iteration to the next
-                    #
-                    # First control point only
-                    if cp == 0:
-                        x1_diff_0 = np.abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
-                        x2_diff_0 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
-                        x1_diff_1 = np.abs(self.banks[l, 0, cp + 2] - self.banks[l, 0, cp + 1])
-                        x2_diff_1 = np.abs(self.banks[l, 1, cp + 2] - self.banks[l, 1, cp + 1])
-                    # Last control point only
-                    elif cp == number_cp - 1:
-                        x1_diff_0 = np.abs(self.banks[l, 0, cp - 1] - self.banks[l, 0, cp])
-                        x2_diff_0 = np.abs(self.banks[l, 1, cp - 1] - self.banks[l, 1, cp])
-                        x1_diff_1 = np.abs(self.banks[l, 0, cp - 2] - self.banks[l, 0, cp - 1])
-                        x2_diff_1 = np.abs(self.banks[l, 1, cp - 2] - self.banks[l, 1, cp - 1])
-                    else:
-                        # Check if the previous closed leaf pair was in a different position
-                        x1_diff_0 = np.abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
-                        x2_diff_0 = np.abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
-                        x1_diff_1 = np.abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
-                        x2_diff_1 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
-
-                    x1_diff = [x1_diff_0 <= threshold, x1_diff_1 <= threshold]
-                    x2_diff = [x2_diff_0 <= threshold, x2_diff_1 <= threshold]
-                    if all(i for i in x1_diff) and all(j for j in x2_diff) and not ignore_leaf_pair:
-                        closed_leaf_gaps[l, :, cp] = True
-                    else:
+                    if ignore_leaf_pair:
                         closed_leaf_gaps[l, :, cp] = False
+                    else:
+                        #
+                        # Check if the leaf gap is a "closed leaf gap" that is not moving in adjacent control points
+                        # See if leaf pair moves from one iteration to the next
+                        #
+                        # First control point only
+                        if cp == 0:
+                            x1_diff_0 = np.abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
+                            x2_diff_0 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
+                            x1_diff_1 = np.abs(self.banks[l, 0, cp + 2] - self.banks[l, 0, cp + 1])
+                            x2_diff_1 = np.abs(self.banks[l, 1, cp + 2] - self.banks[l, 1, cp + 1])
+                        # Last control point only
+                        elif cp == number_cp - 1:
+                            x1_diff_0 = np.abs(self.banks[l, 0, cp - 1] - self.banks[l, 0, cp])
+                            x2_diff_0 = np.abs(self.banks[l, 1, cp - 1] - self.banks[l, 1, cp])
+                            x1_diff_1 = np.abs(self.banks[l, 0, cp - 2] - self.banks[l, 0, cp - 1])
+                            x2_diff_1 = np.abs(self.banks[l, 1, cp - 2] - self.banks[l, 1, cp - 1])
+                        else:
+                            # Check if the previous closed leaf pair was in a different position
+                            x1_diff_0 = np.abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
+                            x2_diff_0 = np.abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
+                            x1_diff_1 = np.abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
+                            x2_diff_1 = np.abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
+
+                        x1_diff = [x1_diff_0, x1_diff_1]
+                        x2_diff = [x2_diff_0, x2_diff_1]
+                        if all(x1 <= threshold for x1 in x1_diff) and \
+                                all(x2 <= threshold for x2 in x2_diff):
+                            closed_leaf_gaps[l, :, cp] = True
+                        else:
+                            closed_leaf_gaps[l, :, cp] = False
                     if cp == 0 or cp == 1:
                         logging.debug(
                             'Beam {}: CP {}: Leaf {}:: MLC1 {}, MLC2 {}, x1diff {}, x2diff {}, gap {}, ignore {} '
-                            .format(self.beam.Name, cp, l, self.banks[l, 0, cp], self.banks[l, 1, cp],
-                                    x1_diff, x2_diff,
-                                    closed_leaf_gaps[l, 0, cp], ignore_leaf_pair))
+                                .format(self.beam.Name, cp, l, self.banks[l, 0, cp], self.banks[l, 1, cp],
+                                        x1_diff, x2_diff,
+                                        closed_leaf_gaps[l, 0, cp], ignore_leaf_pair))
             return closed_leaf_gaps
         else:
             closed_leaf_gaps[:, 0, :] = abs(self.banks[:, 0, :] - self.banks[:, 1, :]) < \
