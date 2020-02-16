@@ -1353,12 +1353,12 @@ class mlc_properties:
                             closed_leaf_gaps[l, :, cp] = True
                         else:
                             closed_leaf_gaps[l, :, cp] = False
-                    if cp == 0 or cp == 1:
-                        logging.debug(
-                            'Beam {}: CP {}: Leaf {}:: MLC1 {}, MLC2 {}, x1diff {}, x2diff {}, gap {}, ignore {} '
-                                .format(self.beam.Name, cp, l, self.banks[l, 0, cp], self.banks[l, 1, cp],
-                                        x1_diff, x2_diff,
-                                        closed_leaf_gaps[l, 0, cp], ignore_leaf_pair))
+                        if cp == 0 or cp == 1:
+                            logging.debug(
+                               'Beam {}: CP {}: Leaf {}:: MLC1 {}, MLC2 {}, x1diff {}, x2diff {}, closedgap {} '
+                                   .format(self.beam.Name, cp, l, self.banks[l, 0, cp], self.banks[l, 1, cp],
+                                            x1_diff, x2_diff,
+                                            closed_leaf_gaps[l, 0, cp], ignore_leaf_pair))
             return closed_leaf_gaps
         else:
             closed_leaf_gaps[:, 0, :] = abs(self.banks[:, 0, :] - self.banks[:, 1, :]) < \
