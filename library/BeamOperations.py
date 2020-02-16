@@ -1301,12 +1301,12 @@ class mlc_properties:
         # closed leaf gaps: [# MLC, # Banks, #Control points]
         if not self.has_segments:
             return None
-        closed_leaf_gaps = np.empty_like(self.banks, dtype=bool)
+        leaf_gaps = np.empty_like(self.banks, dtype=bool)
         if stationary_only:
             # Solve only for gaps that do not move in the next control point
-            number_of_control_points = closed_leaf_gaps.shape[2]
+            number_of_control_points = leaf_gaps.shape[2]
             for cp in range(number_of_control_points):
-                for l in range(closed_leaf_gaps.shape[0]):
+                for l in range(leaf_gaps.shape[0]):
                     # Only flag leaves that have a difference in position equal to the minimum moving leaf gap
                     diff = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
                     # If the leaf is defined as non-dynamic (0, 0) then ignore it.
@@ -1318,7 +1318,7 @@ class mlc_properties:
                         ignore_leaf_pair = False
                     #
                     if ignore_leaf_pair:
-                        closed_leaf_gaps[l, :, cp] = False
+                        leaf_gaps[l, :, cp] = False
                     else:
                         #
                         # Check if the leaf gap is a "closed leaf gap" that is not moving in adjacent control points
@@ -1346,21 +1346,21 @@ class mlc_properties:
                         x2_diff = [x2_diff_0, x2_diff_1]
                         # Evaluate each control point difference to see if it is less than the threshold for equivalence
                         if all(x1 <= threshold for x1 in x1_diff) and all(x2 <= threshold for x2 in x2_diff):
-                            closed_leaf_gaps[l, :, cp] = True
+                            leaf_gaps[l, :, cp] = True
                         else:
-                            closed_leaf_gaps[l, :, cp] = False
+                            leaf_gaps[l, :, cp] = False
                         if cp == 0 or cp == 1:
                             logging.debug('Beam {}: CP {}: Leaf {}:: MLC1 {}, MLC2 {}, '.format(
                                 self.beam.Name, cp, l, self.banks[l, 0, cp], self.banks[l, 1, cp]) +
                                           'x1_diff {}, x2_diff {}, closed_leaf 0 {}, closed_leaf 1 {}'.format(
-                                              x1_diff, x2_diff, closed_leaf_gaps[l, 0, cp], closed_leaf_gaps[l, 1, cp]))
+                                              x1_diff, x2_diff, leaf_gaps[l, 0, cp], leaf_gaps[l, 1, cp]))
 
-            return closed_leaf_gaps
+            return leaf_gaps
         else:
-            closed_leaf_gaps[:, 0, :] = abs(self.banks[:, 0, :] - self.banks[:, 1, :]) < \
+            leaf_gaps[:, 0, :] = abs(self.banks[:, 0, :] - self.banks[:, 1, :]) < \
                                         (1 + threshold) * self.min_gap_moving
-            closed_leaf_gaps[:, 1, :] = closed_leaf_gaps[:, 0, :]
-            return closed_leaf_gaps
+            leaf_gaps[:, 1, :] = leaf_gaps[:, 0, :]
+            return leaf_gaps
 
     def max_opening(self):
         # Find the maximum open top and bottom leaf and maximum opening in x1 and x2 directions ignoring
@@ -1525,7 +1525,7 @@ def filter_leaves(beam):
                 if x1_diff <= x2_diff:
                     # This leaf should close behind the x1_jaw
                     beam_mlc.banks[i, 0, j] = x1_jaw - offset - beam_mlc.min_gap_moving
-                    beam_mlc.banks[i, 1, j] = x1_jaw + offset
+                    beam_mlc.banks[i, 1, j] = x1_jaw - offset
                 elif x1_diff > x2_diff:
                     # This leaf should close behind the x1_jaw
                     beam_mlc.banks[i, 0, j] = x2_jaw + offset
