@@ -87,12 +87,12 @@ def logcrit(message):
     # if current_scope['Patient'] is not None:
     #    level += 'PatientID: ' + current_scope['Patient'].PatientID + ':'
     if current_scope['Case'] is not None:
-        level += 'Case: ' + current_scope['Case'].CaseName + ':'
+        level += 'Case: ' + current_scope['Case'].CaseName + '\t'
     if current_scope['Examination'] is not None:
-        level += 'Exam: ' + current_scope['Examination'].Name + ':'
+        level += 'Exam: ' + current_scope['Examination'].Name + '\t'
     if current_scope['Plan'] is not None:
-        level += 'Plan: ' + current_scope['Plan'].Name + ':'
+        level += 'Plan: ' + current_scope['Plan'].Name + '\t'
     if current_scope['BeamSet'] is not None:
-        level += 'Beamset: ' + current_scope['BeamSet'].DicomPlanLabel + '::'
+        level += 'Beamset: ' + current_scope['BeamSet'].DicomPlanLabel + '\t'
     message = level + message
     logging.critical(message)
