@@ -1273,8 +1273,8 @@ class mlc_properties:
             # into a single ndarray of size:
             # MLC leaf number x number of banks x number of segments
             self.banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
-            for cp in range(1,len(beam.Segments)):
-            #for s in beam.Segments:
+            for cp in range(1, len(beam.Segments)):
+                # for s in beam.Segments:
                 s = beam.Segments[cp]
                 # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
                 bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
@@ -1350,12 +1350,6 @@ class mlc_properties:
                         leaf_gaps[l, :, cp] = True
                     else:
                         leaf_gaps[l, :, cp] = False
-                    # if cp == 0 or cp == 1 or cp == 2 or cp ==3 or cp==4 or cp == number_of_control_points -1 or \
-                    #         cp == number_of_control_points - 2:
-                    #     logging.debug('Beam {}: CP {}: Leaf {}:: MLC1 {}, MLC2 {}, '.format(
-                    #         self.beam.Name, cp, l, self.banks[l, 0, cp], self.banks[l, 1, cp]) +
-                    #                   'x1_diff {}, x2_diff {}, closed_leaf 0 {}, closed_leaf 1 {}'.format(
-                    #                       x1_diff, x2_diff, leaf_gaps[l, 0, cp], leaf_gaps[l, 1, cp]))
 
         return leaf_gaps
 
@@ -1365,7 +1359,7 @@ class mlc_properties:
             return None
         leaf_gaps = np.empty_like(self.banks, dtype=bool)
         leaf_gaps[:, 0, :] = abs(self.banks[:, 0, :] - self.banks[:, 1, :]) < \
-                                (1 + threshold) * self.min_gap_moving
+                             (1 + threshold) * self.min_gap_moving
         leaf_gaps[:, 1, :] = leaf_gaps[:, 0, :]
         return leaf_gaps
 
@@ -1533,17 +1527,25 @@ def filter_leaves(beam):
                     # This leaf should close behind the x1_jaw
                     beam_mlc.banks[i, 0, j] = x1_jaw - offset - beam_mlc.min_gap_moving
                     beam_mlc.banks[i, 1, j] = x1_jaw - offset
+                    logging.debug(
+                        'Beam {}, leaf pair {}, control point {}: Dynamic closed pair '
+                        .format(beam.Name, j + 1, i + 1) +
+                        'should be moved from {} to {}'
+                        .format(initial_beam_mlc[i, 1, j], beam_mlc.banks[i, 1, j]))
                 elif x1_diff > x2_diff:
                     # This leaf should close behind the x1_jaw
                     beam_mlc.banks[i, 0, j] = x2_jaw + offset
                     beam_mlc.banks[i, 1, j] = x2_jaw + offset + beam_mlc.min_gap_moving
+                    logging.debug(
+                        'Beam {}, leaf pair {}, control point {}: Dynamic closed pair '
+                        .format(beam.Name, j + 1, i + 1) +
+                        'should be moved from {} to {}'
+                        .format(initial_beam_mlc[i, 0, j], beam_mlc.banks[i, 0, j]))
+
     if np.all(np.equal(initial_beam_mlc, beam_mlc.banks)):
         logging.debug('Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
     else:
         # Set the leaf positions to the np array (one-by-one...ugh)
-        logging.debug('len segments is {} and len of lp[0] is {}'.format(len(beam.Segments),
-                                                                         len(beam.Segments[0].LeafPositions[0])))
-        logging.debug('shape of banks {}'.format(beam_mlc.banks.shape))
         for cp in range(len(beam.Segments)):
             lp = beam.Segments[cp].LeafPositions
             for l in range(len(lp[0])):
