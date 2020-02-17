@@ -1273,7 +1273,9 @@ class mlc_properties:
             # into a single ndarray of size:
             # MLC leaf number x number of banks x number of segments
             self.banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
-            for s in beam.Segments:
+            for cp in range(1,len(beam.Segments)):
+            #for s in beam.Segments:
+                s = beam.Segments[cp]
                 # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
                 bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
                 self.banks = np.dstack((self.banks, bank))
@@ -1547,7 +1549,7 @@ def filter_leaves(beam):
             for l in range(len(lp[0])):
                 lp[0][l] = beam_mlc.banks[l, 0, cp]
                 lp[1][l] = beam_mlc.banks[l, 1, cp]
-            beam.Segments[i].LeafPositions = lp
+            beam.Segments[cp].LeafPositions = lp
         error = None
         return error
 
