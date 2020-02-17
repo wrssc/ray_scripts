@@ -48,10 +48,10 @@
         <port type="int">106</port>
     </destination>
     <destination type="scp">
-        <name type="text">Aria-preprod</name>
+        <name type="text">Aria-Pre15.5</name>
         <host type="text">10.151.28.94</host>
-        <aet type="text">VMSFSD</aet>
-        <port type="int">104</port>
+        <aet type="text">ARIA</aet>
+        <port type="int">106</port>
     </destination>
     <destination type="scp">
         <name type="text">Delta4</name>
