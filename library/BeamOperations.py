@@ -1525,8 +1525,6 @@ def filter_leaves(beam):
         for j in range(beam_mlc.banks.shape[2]):
             # If this is part of the closed leaf range, then evaluate which jaw it is closest to.
             if np.all(closed_leaves[i, 0, j]):
-                logging.debug('LP {}, CP {}, Value of closed is {} for bank0 {}'.format(
-                    i, j, closed_leaves[i, 0, j], beam_mlc.banks[i, 0, j]))
                 x1_diff = abs(beam_mlc.banks[i, 0, j] - x1_jaw)
                 x2_diff = abs(beam_mlc.banks[i, 0, j] - x2_jaw)
                 if x1_diff <= x2_diff:
@@ -1541,11 +1539,14 @@ def filter_leaves(beam):
         logging.debug('Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
     else:
         # Set the leaf positions to the np array (one-by-one...ugh)
-        for i in range(len(beam.Segments)):
-            lp = beam.Segments[i].LeafPositions
-            for j in range(len(lp[0])):
-                lp[0][j] = beam_mlc.banks[j, 0, i]
-                lp[1][j] = beam_mlc.banks[j, 1, i]
+        logging.debug('len segments is {} and len of lp[0] is {}'.format(len(beam.Segments),
+                                                                         len(beam.Segments[0].LeafPositions[0])))
+        logging.debug('shape of banks {}'.format(beam_mlc.banks.shape))
+        for cp in range(len(beam.Segments)):
+            lp = beam.Segments[cp].LeafPositions
+            for l in range(len(lp[0])):
+                lp[0][l] = beam_mlc.banks[l, 0, cp]
+                lp[1][l] = beam_mlc.banks[l, 1, cp]
             beam.Segments[i].LeafPositions = lp
         error = None
         return error
