@@ -3252,6 +3252,162 @@
             </roi>
         </goals>
     </order>
+    <order>
+        <name>Left Breast SBRT</name>
+        <prefix>BreL_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <fractions>5</fractions>
+            <motion>Free breathing</motion>
+            <motion default="true">RPM MIBH gating</motion>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">100</volume>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Lump_Eval">93.33</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Lump_Eval">105</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">3</dose>
+                <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Uninvolved Breast</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">15</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">10</dose>
+                <volume units="%">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">5</dose>
+                <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">2.64</dose>
+                <priority>1</priority>
+            </roi>
+        </goals>
+    </order>
+    <order>
+        <name>Right Breast SBRT</name>
+        <prefix>BreR_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <fractions>5</fractions>
+            <motion>Free breathing</motion>
+            <motion default="true">RPM MIBH gating</motion>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">100</volume>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Lump_Eval">93.33</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Lump_Eval">105</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">3</dose>
+                <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Uninvolved Breast</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">15</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">10</dose>
+                <volume units="%">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">5</dose>
+                <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">2.64</dose>
+                <priority>1</priority>
+            </roi>
+        </goals>
+    </order>
     <objectiveset>
         <name>Standard Fractionation Breast</name>
         <objectives>
