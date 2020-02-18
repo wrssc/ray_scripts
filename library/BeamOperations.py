@@ -1388,6 +1388,7 @@ class mlc_properties:
             min_x1_bank = np.amin(filtered_banks[:, 0, :], axis=1)
             max_x2_bank = np.amax(filtered_banks[:, 1, :], axis=1)
         else:
+            # If there is only one control point then just give back the bank data
             min_x1_bank = filtered_banks[:, 0]
             max_x2_bank = filtered_banks[:, 1]
         max_open_x1 = np.amin(min_x1_bank)
@@ -1429,6 +1430,7 @@ class mlc_properties:
                 max_travel_array[:, 0] = np.amax(self.banks[:, 0, :], axis=1)
                 max_travel_array[:, 1] = np.amin(self.banks[:, 1, :], axis=1)
             else:
+                # If there is only one control point then just give back the bank data
                 max_travel_array[:, 0] = self.banks[:, 0]
                 max_travel_array[:, 1] = self.banks[:, 1]
             return max_travel_array
