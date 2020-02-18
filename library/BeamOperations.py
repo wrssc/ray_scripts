@@ -1273,22 +1273,34 @@ class mlc_properties:
             # into a single ndarray of size:
             # MLC leaf number x number of banks x number of segments
             self.banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
-            for cp in range(1, len(beam.Segments)):
-                # for s in beam.Segments:
-                s = beam.Segments[cp]
-                # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
-                bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
-                self.banks = np.dstack((self.banks, bank))
+            self.number_segments = len(beam.Segments)
+            if self.number_segments > 1:
+                for cp in range(1, self.number_segments):
+                    # for s in beam.Segments:
+                    s = beam.Segments[cp]
+                    # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
+                    bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
+                    self.banks = np.dstack((self.banks, bank))
+                # Determine if leaves are in retracted position
+                if np.all(self.banks[:, 0, :] <= - self.max_tip):
+                    x1_bank_retracted = True
+                else:
+                    x1_bank_retracted = False
+                if np.all(self.banks[:, 1, :] >= self.max_tip):
+                    x2_bank_retracted = True
+                else:
+                    x2_bank_retracted = False
+            else:
+                # Determine if leaves are in retracted position
+                if np.all(self.banks[:, 0] <= - self.max_tip):
+                    x1_bank_retracted = True
+                else:
+                    x1_bank_retracted = False
+                if np.all(self.banks[:, 1] >= self.max_tip):
+                    x2_bank_retracted = True
+                else:
+                    x2_bank_retracted = False
 
-            # Determine if leaves are in retracted position
-            if np.all(self.banks[:, 0, :] <= - self.max_tip):
-                x1_bank_retracted = True
-            else:
-                x1_bank_retracted = False
-            if np.all(self.banks[:, 1, :] >= self.max_tip):
-                x2_bank_retracted = True
-            else:
-                x2_bank_retracted = False
             if x1_bank_retracted and x2_bank_retracted:
                 self.mlc_retracted = True
             else:
@@ -1372,8 +1384,12 @@ class mlc_properties:
         closed_gap = self.closed_leaf_gaps()
         filtered_banks[closed_gap] = 0
         # Along all control points solve for the most open mlc position on bank x1 and bank x2
-        min_x1_bank = np.amin(filtered_banks[:, 0, :], axis=1)
-        max_x2_bank = np.amax(filtered_banks[:, 1, :], axis=1)
+        if self.number_segments > 1:
+            min_x1_bank = np.amin(filtered_banks[:, 0, :], axis=1)
+            max_x2_bank = np.amax(filtered_banks[:, 1, :], axis=1)
+        else:
+            min_x1_bank = filtered_banks[:, 0]
+            max_x2_bank = filtered_banks[:, 1]
         max_open_x1 = np.amin(min_x1_bank)
         right_leaf_number = np.argmin(max_open_x1)
         max_open_x2 = np.amax(max_x2_bank)
@@ -1394,8 +1410,12 @@ class mlc_properties:
         # return a numpy array of maximum (most open) leaf position over all control points
         if self.has_segments:
             ciao_array = np.empty(shape=(self.num_leaves_per_bank, 2))
-            ciao_array[:, 0] = np.amin(self.banks[:, 0, :], axis=1)
-            ciao_array[:, 1] = np.amax(self.banks[:, 1, :], axis=1)
+            if self.number_segments > 1:
+                ciao_array[:, 0] = np.amin(self.banks[:, 0, :], axis=1)
+                ciao_array[:, 1] = np.amax(self.banks[:, 1, :], axis=1)
+            else:
+                ciao_array[:, 0] = self.banks[:, 0]
+                ciao_array[:, 1] = self.banks[:, 1]
             return ciao_array
         else:
             return None
@@ -1405,8 +1425,12 @@ class mlc_properties:
         # return a numpy array of maximum (most open) leaf position over all control points
         if self.has_segments:
             max_travel_array = np.empty(shape=(self.num_leaves_per_bank, 2))
-            max_travel_array[:, 0] = np.amax(self.banks[:, 0, :], axis=1)
-            max_travel_array[:, 1] = np.amin(self.banks[:, 1, :], axis=1)
+            if self.number_segments > 1:
+                max_travel_array[:, 0] = np.amax(self.banks[:, 0, :], axis=1)
+                max_travel_array[:, 1] = np.amin(self.banks[:, 1, :], axis=1)
+            else:
+                max_travel_array[:, 0] = self.banks[:, 0]
+                max_travel_array[:, 1] = self.banks[:, 1]
             return max_travel_array
         else:
             return None
