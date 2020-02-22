@@ -36,34 +36,47 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
+import StructureOperations
+
 
 def main():
+    # Define planning structures
+    dialog1_response = {'number_of_targets': 3,
+                        'generate_underdose': False,
+                        'generate_uniformdose': True,
+                        'generate_inner_air': False}
+    dialog2_response = {'PTV_6300': 6300, 'PTV_6000': 6000, 'PTV_5400': 5400}
+    dialog3_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
+                        'standoff': 0.4}
+    dialog4_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
+                        'standoff': 0.4}
+    dialog5_response = {'target_skin': False,
+                        'ring_hd': True,
+                        'target_rings': True,
+                        'thick_hd_ring': 2,
+                        'thick_ld_ring': 5,
+                        'ring_standoff': 0.2,
+                        'otv_standoff': 0.4}
+    StructureOperations.planning_structures(
+        generate_ptvs=True,
+        generate_ptv_evals = True,
+        generate_otvs = True,
+        generate_skin = True,
+        generate_inner_air = True,
+        generate_field_of_view = True,
+        generate_ring_hd = True,
+        generate_ring_ld = True,
+        generate_normal_2cm = True,
+        generate_combined_ptv = True,
+        skin_contraction = 0.3,
+        run_status=False,
+        dialog1_response = dialog1_response,
+        dialog2_response = dialog2_response,
+        dialog3_response = dialog3_response,
+        dialog4_response = dialog4_response,
+        dialog5_response = dialog5_response
+    )
 
-    from connect import *
-
-    from CreatePrvs import CreatePrvs
-
-    # Execute the PRV Creation
-    # Note the numbers below are uniform expansions in cm
-    case = get_current("Case")
-    examination = get_current("Examination")
-    HNPRVs = {
-        "BrainStem"        : 0.3,
-        "BrachialPlexus_R" : 0.5,
-        "BrachialPlexus_L" : 0.5,
-        "Chiasm"           : 0.3,
-        "Cochlea_R"        : 0.5,
-        "Cochlea_L"        : 0.5,
-        "Esophagus"        : 0.5,
-        "Lens_R"           : 0.5,
-        "Lens_L"           : 0.5,
-        "OpticNerve_R"     : 0.3,
-        "OpticNerve_L"     : 0.3,
-        "SpinalCord"       : 0.5
-             }
-
-    CreatePrvs(case, examination, **HNPRVs)
-    # Prompt the user for the target doses
 
 if __name__ == '__main__':
     main()

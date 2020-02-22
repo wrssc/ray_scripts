@@ -293,7 +293,7 @@ def main():
             # Launch the dialog
             response = input_dialog.show()
             # Link root to selected protocol ElementTree
-            logging.critical("Order selected: {}".format(
+            logging.critical("Treatment Planning Order selected: {}".format(
                 input_dialog.values['i']))
             # Update the order name
 
