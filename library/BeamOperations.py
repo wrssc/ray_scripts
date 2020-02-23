@@ -646,6 +646,13 @@ def rename_beams():
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
+        # Set the set-up parameter specifics
+        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
+            b.Name = set_up[i][0]
+            b.Description = set_up[i][1]
+            b.GantryAngle = str(set_up[i][2])
+            b.Segments[0].DoseRate = set_up[i][3]
+
         invalid_setup_field = check_ssd_in_setup_fields(beamset=beamset)
         # Pop the invalid beam angles
         angles = []
@@ -655,15 +662,10 @@ def rename_beams():
             else:
                 angles.append(set_up[k][2])
 
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
+
+        beamset.UpdateSetupBeams(ResetSetupBeams=False,
                                  SetupBeamsGantryAngles=angles)
 
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
 
 
     # HFLDR
