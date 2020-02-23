@@ -474,7 +474,22 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             MaxDeliveryTimeFactor=None)
 
 
-# plan.PlanOptimizations[opt_index].OptimizationParameters.
+def check_ssd_in_setup_fields(beamset):
+    """For the current beamset check all SSD's and return a list of any beams with infinite SSD's.
+    :param beamset: RS beamset object
+    :return invalid_gantry_angles: a list of problem setup fields
+    """
+    invalid_gantry_angles = []
+    for setup_beam in beamset.PatientSetup.SetupBeams:
+        try:
+            float(setup_beam.GetSSD())
+            logging.debug('Valid SSD {} detected on setup beam with gantry angle {}'.format(
+               setup_beam.GetSSD(), setup_beam.GantryAngle))
+        except ValueError:
+            logging.debug('Invalid SSD {} detected on setup beam with gantry angle {}'.format(
+               setup_beam.GetSSD(), setup_beam.GantryAngle ))
+            invalid_gantry_angles.append(float(setup_beam.GantryAngle))
+    return invalid_gantry_angles
 
 
 def rename_beams():
@@ -629,7 +644,14 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            logging.debug("v2={}".format(v[2]))
+
+        beamset.UpdateSetupBeams(ResetSetupBeams=True,
+                                 SetupBeamsGantryAngles=angles)
+        invalid_setup_field = check_ssd_in_setup_fields(beamset=beamset)
+        # Pop the invalid beam angles
+        for k, v in set_up.iteritems():
+            if any(v[2] == ga for ga in invalid_setup_field):
+                set_up.pop(k)
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -640,10 +662,8 @@ def rename_beams():
             b.Description = set_up[i][1]
             b.GantryAngle = str(set_up[i][2])
             b.Segments[0].DoseRate = set_up[i][3]
-            b_ssd = b.GetSSD()
-            logging.debug('Setup beam {} added with gantry angle {} and SSD {}'.format(
-                b.Name,b.GantryAngle,b_ssd
-            ))
+
+
     # HFLDR
     elif patient_position == 'HeadFirstDecubitusRight':
         standard_beam_name = 'Naming Error'
