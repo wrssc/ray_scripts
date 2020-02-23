@@ -629,8 +629,7 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-            print
-            "v2={}".format(v[2])
+            logging.debug("v2={}".format(v[2]))
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
@@ -641,6 +640,10 @@ def rename_beams():
             b.Description = set_up[i][1]
             b.GantryAngle = str(set_up[i][2])
             b.Segments[0].DoseRate = set_up[i][3]
+            b_ssd = b.GetSSD()
+            logging.debug('Setup beam {} added with gantry angle {} and SSD {}'.format(
+                b.Name,b.GantryAngle,b_ssd
+            ))
     # HFLDR
     elif patient_position == 'HeadFirstDecubitusRight':
         standard_beam_name = 'Naming Error'
