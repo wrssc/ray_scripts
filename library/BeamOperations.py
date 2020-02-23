@@ -656,7 +656,7 @@ def rename_beams():
             else:
                 angles.append(set_up[k][2])
 
-        beamset.UpdateSetupBeams(ResetSetupBeams=False,
+        beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
         # Set the set-up parameter specifics
         i = 0
