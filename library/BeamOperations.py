@@ -643,16 +643,10 @@ def rename_beams():
         angles = []
         for k, v in set_up.iteritems():
             angles.append(v[2])
-
+        #
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
-
+        #
         invalid_setup_field = check_ssd_in_setup_fields(beamset=beamset)
         # Pop the invalid beam angles
         angles = []
@@ -662,9 +656,21 @@ def rename_beams():
             else:
                 angles.append(set_up[k][2])
 
-
         beamset.UpdateSetupBeams(ResetSetupBeams=False,
                                  SetupBeamsGantryAngles=angles)
+        # Set the set-up parameter specifics
+        i = 0
+        for k in set_up:
+            beamset.PatientSetup.SetupBeams[i].Name = set_up[k][0]
+            beamset.PatientSetup.SetupBeams[i].Description = set_up[i][1]
+            beamset.PatientSetup.SetupBeams[i].GantryAngle = str(set_up[i][2])
+            beamset.PatientSetup.SetupBeams[i].Segments[0].DoseRate = set_up[i][3]
+            i += 1
+        #for i, b in enumerate(beamset.PatientSetup.SetupBeams):
+        #    b.Name = set_up[i][0]
+        #    b.Description = set_up[i][1]
+        #    b.GantryAngle = str(set_up[i][2])
+        #    b.Segments[0].DoseRate = set_up[i][3]
 
 
 
