@@ -662,9 +662,9 @@ def rename_beams():
         i = 0
         for k in set_up:
             beamset.PatientSetup.SetupBeams[i].Name = set_up[k][0]
-            beamset.PatientSetup.SetupBeams[i].Description = set_up[i][1]
-            beamset.PatientSetup.SetupBeams[i].GantryAngle = str(set_up[i][2])
-            beamset.PatientSetup.SetupBeams[i].Segments[0].DoseRate = set_up[i][3]
+            beamset.PatientSetup.SetupBeams[i].Description = set_up[k][1]
+            beamset.PatientSetup.SetupBeams[i].GantryAngle = str(set_up[k][2])
+            beamset.PatientSetup.SetupBeams[i].Segments[0].DoseRate = set_up[k][3]
             i += 1
         #for i, b in enumerate(beamset.PatientSetup.SetupBeams):
         #    b.Name = set_up[i][0]
