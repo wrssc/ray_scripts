@@ -481,11 +481,10 @@ def check_ssd_in_setup_fields(beamset):
     """
     invalid_gantry_angles = []
     for setup_beam in beamset.PatientSetup.SetupBeams:
-        try:
-            float(setup_beam.GetSSD())
+        if setup_beam.GetSSD() != float('inf'):
             logging.debug('Valid SSD {} detected on setup beam with gantry angle {}'.format(
                setup_beam.GetSSD(), setup_beam.GantryAngle))
-        except ValueError:
+        else:
             logging.debug('Invalid SSD {} detected on setup beam with gantry angle {}'.format(
                setup_beam.GetSSD(), setup_beam.GantryAngle ))
             invalid_gantry_angles.append(float(setup_beam.GantryAngle))
