@@ -648,9 +648,12 @@ def rename_beams():
                                  SetupBeamsGantryAngles=angles)
         invalid_setup_field = check_ssd_in_setup_fields(beamset=beamset)
         # Pop the invalid beam angles
-        for k, v in set_up.iteritems():
-            if any(v[2] == ga for ga in invalid_setup_field):
+        angles = []
+        for k in list(set_up):
+            if any(set_up[k][2] == ga for ga in invalid_setup_field):
                 set_up.pop(k)
+            else:
+                angles.append(set_up[k][2])
 
         beamset.UpdateSetupBeams(ResetSetupBeams=True,
                                  SetupBeamsGantryAngles=angles)
