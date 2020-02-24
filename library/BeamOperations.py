@@ -474,7 +474,54 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             MaxDeliveryTimeFactor=None)
 
 
-# plan.PlanOptimizations[opt_index].OptimizationParameters.
+def validate_setup_fields(beamset):
+    """For the current beamset check all SSD's and return a list of any beams with infinite SSD's.
+    :param beamset: RS beamset object
+    :return invalid_gantry_angles: a list of gantry angles of invalid set-up fields
+    """
+    invalid_gantry_angles = []
+    for setup_beam in beamset.PatientSetup.SetupBeams:
+        if setup_beam.GetSSD() != float('inf'):
+            logging.debug('Valid SSD {} detected on setup beam with gantry angle {}'.format(
+               setup_beam.GetSSD(), setup_beam.GantryAngle))
+        else:
+            logging.debug('Invalid SSD {} detected on setup beam with gantry angle {}'.format(
+               setup_beam.GetSSD(), setup_beam.GantryAngle ))
+            invalid_gantry_angles.append(float(setup_beam.GantryAngle))
+    return invalid_gantry_angles
+
+
+def update_set_up(beamset, set_up):
+    """Update the setup fields after checking their validity
+    :param: beamset: RS beamset object
+    :param: set_up: Dict: [i][ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
+    """
+    # Extract the angles
+    angles = []
+    for k, v in set_up.iteritems():
+        angles.append(v[2])
+    # Initialize the Setup Beams
+    beamset.UpdateSetupBeams(ResetSetupBeams=True, SetupBeamsGantryAngles=angles)
+    # Test for valid set-up fields
+    invalid_setup_field = validate_setup_fields(beamset=beamset)
+    if len(invalid_setup_field) > 0:
+        # Pop the invalid beam angles
+        angles = []
+        for k in list(set_up):
+            if any(set_up[k][2] == ga for ga in invalid_setup_field):
+                set_up.pop(k)
+            else:
+                angles.append(set_up[k][2])
+        # Update the setup beams with the valid angles
+        beamset.UpdateSetupBeams(ResetSetupBeams=True, SetupBeamsGantryAngles=angles)
+    # Set the set-up parameter specifics
+    i = 0
+    for k in set_up:
+        beamset.PatientSetup.SetupBeams[i].Name = set_up[k][0]
+        beamset.PatientSetup.SetupBeams[i].Description = set_up[k][1]
+        beamset.PatientSetup.SetupBeams[i].GantryAngle = str(set_up[k][2])
+        beamset.PatientSetup.SetupBeams[i].Segments[0].DoseRate = set_up[k][3]
+        i += 1
 
 
 def rename_beams():
@@ -625,22 +672,8 @@ def rename_beams():
                   2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
+        update_set_up(beamset=beamset, set_up=set_up)
 
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
     # HFLDR
     elif patient_position == 'HeadFirstDecubitusRight':
         standard_beam_name = 'Naming Error'
@@ -711,22 +744,7 @@ def rename_beams():
                   2: ['SetUp PA', 'SetUp PA', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
-
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # HFLDL
     elif patient_position == 'HeadFirstDecubitusLeft':
         standard_beam_name = 'Naming Error'
@@ -797,22 +815,7 @@ def rename_beams():
                   2: ['SetUp AP', 'SetUp AP', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
-
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # HFP
     elif patient_position == 'HeadFirstProne':
         standard_beam_name = 'Naming Error'
@@ -880,18 +883,7 @@ def rename_beams():
                   2: ['SetUp LtLat', 'SetUp LtLat', 270.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # FFS
     elif patient_position == 'FeetFirstSupine':
         standard_beam_name = 'Naming Error'
@@ -959,18 +951,7 @@ def rename_beams():
                   2: ['SetUp LtLat', 'SetUp LtLat', 270.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
 
             # Address the Feet-first prone position
     # FFLDR
@@ -1043,22 +1024,7 @@ def rename_beams():
                   2: ['SetUp AP', 'SetUp AP', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
-
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # FFLDL
     elif patient_position == 'FeetFirstDecubitusLeft':
         standard_beam_name = 'Naming Error'
@@ -1129,22 +1095,7 @@ def rename_beams():
                   2: ['SetUp PA', 'SetUp PA', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
-
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # FFP
     elif patient_position == 'FeetFirstProne':
         for b in beamset.Beams:
@@ -1211,18 +1162,7 @@ def rename_beams():
                   2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     else:
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
 
