@@ -10,10 +10,11 @@
     How To Use: After insertion of S-frame this script is run to generate the blocking 
                 structures for a whole brain plan
 
-    TODO: Add a better module for creating the brain
+    TODO: Add a better module for creating the brain/Globes
     TODO: Get rid of the second plan - it is only for correcting the GUI and can be dumped in
             RS8
     TODO: Add timing measurements to the planning process
+    TODO: Eliminate S-frame use and extend dose grid based on BTV limits
 
     Validation Notes: 
     
@@ -28,7 +29,8 @@
             gui if the first plan is created with a script.
     1.0.4 Changed the export structure settings to reflect the new required method in RS 8.0a
             and up.
-  
+    1.0.5 Repaired local template structures to reflect S-Frame location
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later
@@ -45,12 +47,12 @@
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '01-Feb-2018'
-__version__ = '1.0.2'
+__version__ = '1.0.5'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '7.0.0'
+__raystation__ = '8B.SP2'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
@@ -64,6 +66,7 @@ import UserInterface
 import random
 import sys
 import BeamOperations
+import PlanOperations
 
 
 def check_external(roi_list):
@@ -113,10 +116,10 @@ def main():
     # UW Inputs
     # If machines names change they need to be modified here:
     institution_inputs_machine_name = ['TrueBeamSTx', 'TrueBeam']
-    # The s-frame object currently belongs to an examination on rando named: "CT 1"
+    # The s-frame object currently belongs to an examination on rando named: "Supine Patient"
     # if that changes the s-frame load will fail
-    institution_inputs_support_structures_examination = "CT 1"
-    institution_inputs_support_structure_template = "UW Support Structures"
+    institution_inputs_support_structures_examination = "Supine Patient"
+    institution_inputs_support_structure_template = "UW Support"
     institution_inputs_source_roi_names = ['S-frame']
     try:
         patient = connect.get_current('Patient')
@@ -424,6 +427,9 @@ def main():
     try:
         if check_structure_exists(case=case, roi_list=rois, option='Check', structure_name='S-frame'):
             logging.info('S-frame found, bugging user')
+            connect.await_user_input(
+                'S-frame present. ' +
+                'Ensure placed correctly then continue script')
         else:
             support_template = patient_db.LoadTemplatePatientModel(
                 templateName=institution_inputs_support_structure_template,
@@ -438,6 +444,10 @@ def main():
                 TargetExamination=examination,
                 InitializationOption='AlignImageCenters'
             )
+            connect.await_user_input(
+                'S-frame automatically loaded. ' +
+                'Ensure placed correctly then continue script')
+
         status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
     except Exception:
         logging.warning('Support structure failed to load and was not found')
@@ -679,6 +689,8 @@ def main():
             # Set the BTV type above to allow dose grid to cover
             case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
             case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
+
+
             plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
                                                'y': 0.2,
                                                'z': 0.2})
@@ -703,7 +715,7 @@ def main():
 
             beamset.CreatePhotonBeam(Energy=6,
                                      IsocenterData=isocenter_parameters,
-                                     Name='1_Brai_g270c355',
+                                     Name='1_Brai_RLat',
                                      Description='1 3DC: MLC Static Field',
                                      GantryAngle=270.0,
                                      CouchAngle=0,
@@ -711,7 +723,7 @@ def main():
 
             beamset.CreatePhotonBeam(Energy=6,
                                      IsocenterData=isocenter_parameters,
-                                     Name='2_Brai_g090c005',
+                                     Name='2_Brai_LLat',
                                      Description='2 3DC: MLC Static Field',
                                      GantryAngle=90,
                                      CouchAngle=0,
@@ -745,7 +757,25 @@ def main():
         logging.debug('error reported {}'.format(e))
         logging.debug('cannot do name change')
 
+    patient.Save()
+    plan = case.TreatmentPlans[plan_name]
+    plan.SetCurrent()
+    connect.get_current('Plan')
+    beamset = plan.BeamSets[plan_name]
+    patient.Save()
+    beamset.SetCurrent()
+    connect.get_current('BeamSet')
     BeamOperations.rename_beams()
+    # Set the DSP for the plan
+    BeamOperations.set_dsp(plan=plan, beam_set=beamset)
+    # Round MU
+    # The Autoscale hides in the plan optimization hierarchy. Find the correct index.
+    indx = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
+    plan.PlanOptimizations[indx].AutoScaleToPrescription = False
+    BeamOperations.round_mu(beamset)
+    # Round jaws to nearest mm
+    logging.debug('Checking for jaw rounding')
+    BeamOperations.round_jaws(beamset=beamset)
 
 
 if __name__ == '__main__':

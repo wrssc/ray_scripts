@@ -21,12 +21,15 @@
     01.00.04 RAB Modified to include isocenter renaming.
     01.00.05 RAB Modified to automatically add the 4th set-up field and clean up creation
     01.00.06 RAB Modified to round the gantry and couch angle first then convert to integer
+    01.00.07 RAB Modified to handle errors produced in setting a DSP where no primary Rx is defines
 
     Known Issues:
 
     Multi-isocenter treatment will be incorrect in the naming conventions for set up
     fields. The script will rename the first four fields regardless of which isocenter
     to which they belong.
+    TODO Consider making the input argument to the jaw checking the mlc_properties class
+        Move the mlc properties class to a globally accessible class?
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -67,7 +70,9 @@ import connect
 import UserInterface
 import StructureOperations
 import PlanOperations
+import GeneralOperations
 import Beams
+import datetime
 
 clr.AddReference('System')
 
@@ -85,6 +90,11 @@ class Beam(object):
         self.collimator_angle = None
         self.iso = {}
         self.couch_angle = None
+        self.field_width = None
+        self.pitch = None
+        self.jaw_mode = None
+        self.back_jaw_position = None
+        self.front_jaw_position = None
         self.dsp = None
 
     def __eq__(self, other):
@@ -97,7 +107,12 @@ class Beam(object):
                and self.couch_angle == other.couch_angle \
                and self.collimator_angle == other.collimator_angle \
                and self.rotation_dir == other.rotation_dir \
-               and self.technique == other.technique
+               and self.technique == other.technique \
+               and self.field_width == other.field_width \
+               and self.pitch == other.pitch \
+               and self.jaw_mode == other.jaw_mode \
+               and self.back_jaw_position == other.back_jaw_position \
+               and self.front_jaw_position == other.front_jaw_position
 
     def __hash__(self):
         return hash((
@@ -190,17 +205,21 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     # Define an empty BeamSet object that will be the returned object
     dialog_beamset = BeamSet()
     # TODO: Uncomment in version 9 to load the available machine inputs from current commissioned list
-    # machine_db = connect.get_current('MachineDB')
-    # machines = machine_db.QueryCommissionedMachineInfo(Filter={})
-    # machine_list = []
-    # for i, m in enumerate(machines):
-    #     if m['IsCommissioned']:
-    #         machine_list.append(m['Name'])
+    machine_db = connect.get_current('MachineDB')
+    # try:
+    #    machines = machine_db.QueryCommissionedMachineInfo(Filter={'IsLinac': True})
+    #    machine_list = []
+    #    for i, m in enumerate(machines):
+    #        if m['IsCommissioned']:
+    #            machine_list.append(m['Name'])
+    # except:
+    #    logging.debug('Unable to find machine list still...')
+    machine_list = ['TrueBeam', 'TrueBeamSTx', 'HDA0477', 'HDA0488']
     # TODO Test gating option
     # TODO Load all available beamsets found in a file
     available_modality = ['Photons', 'Electrons']
     available_technique = ['Conformal', 'SMLC', 'VMAT', 'DMLC', 'ConformalArc', 'TomoHelical', 'TomoDirect']
-    machine_list = ['TrueBeam', 'TrueBeamSTx']
+    # machine_list = ['TrueBeam', 'TrueBeamSTx']
 
     # Open the user supplied filename located at folder and return a list of available beamsets
     # Should be able to eliminate this if after the modifications to select_element are complete
@@ -277,7 +296,7 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     return dialog_beamset
 
 
-def find_isocenter_parameters(case, exam, beamset, iso_target):
+def find_isocenter_parameters(case, exam, beamset, iso_target, lateral_zero=False):
     """Function to return the dict object needed for isocenter placement from the center of a supplied
     name of a structure"""
 
@@ -290,9 +309,14 @@ def find_isocenter_parameters(case, exam, beamset, iso_target):
 
     # Place isocenter
     # TODO Add a check on laterality at this point (if -7< x < 7 ) put out a warning
-    ptv_center = {'x': isocenter_position.x,
-                  'y': isocenter_position.y,
-                  'z': isocenter_position.z}
+    if lateral_zero:
+        ptv_center = {'x': 0.,
+                      'y': isocenter_position.y,
+                      'z': isocenter_position.z}
+    else:
+        ptv_center = {'x': isocenter_position.x,
+                      'y': isocenter_position.y,
+                      'z': isocenter_position.z}
     isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
     isocenter_parameters['Name'] = "iso_" + beamset.DicomPlanLabel
     isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + beamset.DicomPlanLabel
@@ -311,7 +335,8 @@ def create_beamset(patient, case, exam, plan,
                    dialog=True,
                    filename=None,
                    path=None,
-                   order_name=None):
+                   order_name=None,
+                   create_setup_beams=True):
     """ Create a beamset by opening a dialog with user or loading from scratch
     Currently relies on finding out information via a dialog. I would like it to optionally take the elements
     from the BeamSet class and return the result
@@ -337,7 +362,7 @@ def create_beamset(patient, case, exam, plan,
         TreatmentTechnique=b.technique,
         PatientPosition=patient_position_map(exam.PatientPosition),
         NumberOfFractions=b.number_of_fractions,
-        CreateSetupBeams=True,
+        CreateSetupBeams=create_setup_beams,
         UseLocalizationPointAsSetupIsocenter=False,
         Comment="",
         RbeModelReference=None,
@@ -387,6 +412,116 @@ def place_beams_in_beamset(iso, beamset, beams):
                               GantryAngle=b.gantry_start_angle,
                               CouchAngle=b.couch_angle,
                               CollimatorAngle=b.collimator_angle)
+
+
+def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
+    """
+    Put beams in place based on a list of Beam objects
+    :param iso: isocenter data dictionary
+    :param beamset: beamset to which to add beams
+    :param beams: list of Beam objects
+    :return:
+    """
+    verbose_logging = False
+    logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, ' +
+                  'Field Width {}, Pitch {}').format(
+        beam.number, beam.technique, beam.name,
+        beam.energy, beam.field_width, beam.pitch))
+
+    beamset.CreatePhotonBeam(Name=beam.name,
+                             Energy=beam.energy,
+                             IsocenterData=iso,
+                             Description=beam.name,
+                             )
+    opt_index = PlanOperations.find_optimization_index(plan=plan,
+                                                       beamset=beamset,
+                                                       verbose_logging=False)
+    plan_optimization_parameters = plan.PlanOptimizations[opt_index].OptimizationParameters
+    for tss in plan_optimization_parameters.TreatmentSetupSettings:
+        if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
+            ts_settings = tss
+            if verbose_logging:
+                logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam.name))
+            for bs in ts_settings.BeamSettings:
+                if bs.ForBeam.Name == beam.name:
+                    beam_found = True
+                    current_beam_settings = bs
+                    break
+                else:
+                    continue
+        else:
+            continue
+
+    if ts_settings is None:
+        logging.exception('No treatment set up settings could be found for beamset {}'.format(
+            beamset.DicomPlanLabel) + 'Contact script administrator')
+
+    if not beam_found:
+        logging.warning('Beam {} not found in beam list from {}'.format(
+            beam.name, beamset.DicomPlanLabel))
+        sys.exit('Could not find a beam match for setting aperture limits')
+
+    if ts_settings is not None and current_beam_settings is not None:
+        current_beam_settings.TomoPropertiesPerBeam.EditTomoBasedBeamOptimizationSettings(
+            JawMode=beam.jaw_mode,
+            PitchTomoHelical=beam.pitch,
+            # PitchTomoDirect=,
+            BackJawPosition=beam.back_jaw_position,
+            FrontJawPosition=beam.front_jaw_position,
+            MaxDeliveryTime=None,
+            MaxGantryPeriod=None,
+            MaxDeliveryTimeFactor=None)
+
+
+def validate_setup_fields(beamset):
+    """For the current beamset check all SSD's and return a list of any beams with infinite SSD's.
+    :param beamset: RS beamset object
+    :return invalid_gantry_angles: a list of gantry angles of invalid set-up fields
+    """
+    invalid_gantry_angles = []
+    for setup_beam in beamset.PatientSetup.SetupBeams:
+        if setup_beam.GetSSD() != float('inf'):
+            logging.debug('Valid SSD {} detected on setup beam with gantry angle {}'.format(
+               setup_beam.GetSSD(), setup_beam.GantryAngle))
+        else:
+            logging.debug('Invalid SSD {} detected on setup beam with gantry angle {}'.format(
+               setup_beam.GetSSD(), setup_beam.GantryAngle ))
+            invalid_gantry_angles.append(float(setup_beam.GantryAngle))
+    return invalid_gantry_angles
+
+
+def update_set_up(beamset, set_up):
+    """Update the setup fields after checking their validity
+    :param: beamset: RS beamset object
+    :param: set_up: Dict: [i][ Set-Up Field Name, Set-Up Field Description, Gantry Angle, Dose Rate]
+    """
+    # Extract the angles
+    angles = []
+    for k, v in set_up.iteritems():
+        angles.append(v[2])
+    # Initialize the Setup Beams
+    beamset.UpdateSetupBeams(ResetSetupBeams=True, SetupBeamsGantryAngles=angles)
+    # Test for valid set-up fields
+    invalid_setup_field = validate_setup_fields(beamset=beamset)
+    if len(invalid_setup_field) > 0:
+        # Pop the invalid beam angles
+        angles = []
+        for k in list(set_up):
+            if any(set_up[k][2] == ga for ga in invalid_setup_field):
+                set_up.pop(k)
+            else:
+                angles.append(set_up[k][2])
+        # Update the setup beams with the valid angles
+        beamset.UpdateSetupBeams(ResetSetupBeams=True, SetupBeamsGantryAngles=angles)
+    # Set the set-up parameter specifics
+    i = 0
+    for k in set_up:
+        beamset.PatientSetup.SetupBeams[i].Name = set_up[k][0]
+        beamset.PatientSetup.SetupBeams[i].Description = set_up[k][1]
+        beamset.PatientSetup.SetupBeams[i].GantryAngle = str(set_up[k][2])
+        beamset.PatientSetup.SetupBeams[i].Segments[0].DoseRate = set_up[k][3]
+        i += 1
 
 
 def rename_beams():
@@ -537,22 +672,8 @@ def rename_beams():
                   2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
+        update_set_up(beamset=beamset, set_up=set_up)
 
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
     # HFLDR
     elif patient_position == 'HeadFirstDecubitusRight':
         standard_beam_name = 'Naming Error'
@@ -623,22 +744,7 @@ def rename_beams():
                   2: ['SetUp PA', 'SetUp PA', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
-
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # HFLDL
     elif patient_position == 'HeadFirstDecubitusLeft':
         standard_beam_name = 'Naming Error'
@@ -709,22 +815,7 @@ def rename_beams():
                   2: ['SetUp AP', 'SetUp AP', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
-
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # HFP
     elif patient_position == 'HeadFirstProne':
         standard_beam_name = 'Naming Error'
@@ -792,18 +883,7 @@ def rename_beams():
                   2: ['SetUp LtLat', 'SetUp LtLat', 270.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # FFS
     elif patient_position == 'FeetFirstSupine':
         standard_beam_name = 'Naming Error'
@@ -871,18 +951,7 @@ def rename_beams():
                   2: ['SetUp LtLat', 'SetUp LtLat', 270.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
 
             # Address the Feet-first prone position
     # FFLDR
@@ -955,22 +1024,7 @@ def rename_beams():
                   2: ['SetUp AP', 'SetUp AP', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
-
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # FFLDL
     elif patient_position == 'FeetFirstDecubitusLeft':
         standard_beam_name = 'Naming Error'
@@ -1041,22 +1095,7 @@ def rename_beams():
                   2: ['SetUp PA', 'SetUp PA', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-            print
-            "v2={}".format(v[2])
-
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        # Set the set-up parameter specifics
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     # FFP
     elif patient_position == 'FeetFirstProne':
         for b in beamset.Beams:
@@ -1123,96 +1162,646 @@ def rename_beams():
                   2: ['SetUp LtLat', 'SetUp LtLat', 90.0, '5'],
                   3: ['SetUp CBCT', 'SetUp CBCT', 0.0, '5']
                   }
-        # Extract the angles
-        angles = []
-        for k, v in set_up.iteritems():
-            angles.append(v[2])
-        beamset.UpdateSetupBeams(ResetSetupBeams=True,
-                                 SetupBeamsGantryAngles=angles)
-
-        for i, b in enumerate(beamset.PatientSetup.SetupBeams):
-            b.Name = set_up[i][0]
-            b.Description = set_up[i][1]
-            b.GantryAngle = str(set_up[i][2])
-            b.Segments[0].DoseRate = set_up[i][3]
+        update_set_up(beamset=beamset, set_up=set_up)
     else:
         raise IOError("Patient Orientation Unsupported.. Manual Beam Naming Required")
 
 
-def rounded_jaw_positions(segment):
+class mlc_properties:
     """
-    compute the jaw positions that would result from rounding to nearest mm
-    :param segment: Beam setment
+    Class of mlc_properties:
+    using an RS beam object a number of parameters of the MLC bank, and the specific segments are evaluated
+
+    has_segments: determines whether segments have been defined for this field (electron fields don't have segments)
+    beam: the original beam RS object- arguable as to whether another copy of this is needed
+    max_tip: if the beam has an MLC, this will determine the maximum position the MLC can extend from the CAX
+    num_leaves_per_bank: the number of MLC leaves in a bank
+
+    banks: a numpy array of MLC segment positions
+
+    """
+
+    # Initialize with a RS beam object
+    def __init__(self, beam):
+        self.beam = beam  # A Raystation beam object that has segments
+        try:
+            s0 = self.beam.Segments[0]
+            self.has_segments = True
+        except:
+            self.has_segments = False
+
+        if self.has_segments:
+            current_machine_name = self.beam.MachineReference.MachineName
+            current_machine = GeneralOperations.get_machine(current_machine_name)
+            # Maximum motion of a leaf on its own side of the origin
+            self.max_tip = current_machine.Physics.MlcPhysics.MaxTipPosition
+            # Maximum leaf out of carriage distance [cm]
+            self.max_leaf_carriage = current_machine.Physics.MlcPhysics.MaxLeafOutOfCarriageDistance
+
+            # Compute the number of leaves in the bank based on the first segment
+            self.num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
+
+            # Grab the leaf centers and widths
+            self.leaf_centers = current_machine.Physics.MlcPhysics.UpperLayer.LeafCenterPositions
+            self.leaf_widths = current_machine.Physics.MlcPhysics.UpperLayer.LeafWidths
+            # Grab the distance behind the x-jaw a dynamic leaf is supposed to be placed
+            self.leaf_jaw_overlap = current_machine.Physics.MlcPhysics.LeafJawOverlap
+            # Grab the minimum gap allowed for a dynamic leaf
+            self.min_gap_moving = current_machine.Physics.MlcPhysics.MinGapMoving
+            #
+            # Set up a numpy array that will be a combine segments
+            # into a single ndarray of size:
+            # MLC leaf number x number of banks x number of segments
+            self.banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
+            self.number_segments = len(beam.Segments)
+            if self.number_segments > 1:
+                for cp in range(1, self.number_segments):
+                    # for s in beam.Segments:
+                    s = beam.Segments[cp]
+                    # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
+                    bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
+                    self.banks = np.dstack((self.banks, bank))
+                # Determine if leaves are in retracted position
+                if np.all(self.banks[:, 0, :] <= - self.max_tip):
+                    x1_bank_retracted = True
+                else:
+                    x1_bank_retracted = False
+                if np.all(self.banks[:, 1, :] >= self.max_tip):
+                    x2_bank_retracted = True
+                else:
+                    x2_bank_retracted = False
+            else:
+                # Determine if leaves are in retracted position
+                if np.all(self.banks[:, 0] <= - self.max_tip):
+                    x1_bank_retracted = True
+                else:
+                    x1_bank_retracted = False
+                if np.all(self.banks[:, 1] >= self.max_tip):
+                    x2_bank_retracted = True
+                else:
+                    x2_bank_retracted = False
+
+            if x1_bank_retracted and x2_bank_retracted:
+                self.mlc_retracted = True
+            else:
+                self.mlc_retracted = False
+
+    # MLC methods:
+    def stationary_leaf_gaps(self):
+        threshold = 1e-6
+        # Find the MLC gaps that are closed (set to the minimum moving leaf opening) and return them
+        # If stationary_only is True, return only leaf gaps that are closed to minimum and do not move in the next
+        # control point
+        # closed leaf gaps: [# MLC, # Banks, #Control points]
+        if not self.has_segments:
+            return None
+        leaf_gaps = np.empty_like(self.banks, dtype=bool)
+        # Solve only for gaps that do not move in the next control point
+        number_of_control_points = leaf_gaps.shape[2]
+        for cp in range(number_of_control_points):
+            for l in range(leaf_gaps.shape[0]):
+                # Only flag leaves that have a difference in position equal to the minimum moving leaf gap
+                diff = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
+                # If the leaf is defined as non-dynamic (0, 0) then ignore it.
+                if self.banks[l, 0, cp] == 0 and self.banks[l, 1, cp] == 0:
+                    ignore_leaf_pair = True
+                elif diff > (1 + threshold) * self.min_gap_moving:
+                    ignore_leaf_pair = True
+                else:
+                    ignore_leaf_pair = False
+                #
+                if ignore_leaf_pair:
+                    leaf_gaps[l, :, cp] = False
+                else:
+                    #
+                    # Check if the leaf gap is a "closed leaf gap" that is not moving in adjacent control points
+                    # See if leaf pair moves from one iteration to the next
+                    #
+                    # First control point only evaluate ahead two control points for changes
+                    if cp == 0:
+                        x1_diff_0 = abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
+                        x1_diff_1 = abs(self.banks[l, 0, cp + 2] - self.banks[l, 0, cp + 1])
+                        x2_diff_0 = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
+                        x2_diff_1 = abs(self.banks[l, 1, cp + 2] - self.banks[l, 1, cp + 1])
+                    # Last control point only evaluate last two control points for changes
+                    elif cp == number_of_control_points - 1:
+                        x1_diff_0 = abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
+                        x1_diff_1 = abs(self.banks[l, 0, cp - 1] - self.banks[l, 0, cp - 2])
+                        x2_diff_0 = abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
+                        x2_diff_1 = abs(self.banks[l, 1, cp - 1] - self.banks[l, 1, cp - 2])
+                    else:
+                        # Check if the previous closed leaf pair was in a different position
+                        x1_diff_0 = abs(self.banks[l, 0, cp] - self.banks[l, 0, cp - 1])
+                        x1_diff_1 = abs(self.banks[l, 0, cp + 1] - self.banks[l, 0, cp])
+                        x2_diff_0 = abs(self.banks[l, 1, cp] - self.banks[l, 1, cp - 1])
+                        x2_diff_1 = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
+                    x1_diff = [x1_diff_0, x1_diff_1]
+                    x2_diff = [x2_diff_0, x2_diff_1]
+                    # Evaluate each control point difference to see if it is less than the threshold for equivalence
+                    if all(x1 <= threshold for x1 in x1_diff) and all(x2 <= threshold for x2 in x2_diff):
+                        leaf_gaps[l, :, cp] = True
+                    else:
+                        leaf_gaps[l, :, cp] = False
+
+        return leaf_gaps
+
+    def closed_leaf_gaps(self):
+        threshold = 1e-6
+        if not self.has_segments:
+            return None
+        leaf_gaps = np.empty_like(self.banks, dtype=bool)
+        leaf_gaps[:, 0, :] = abs(self.banks[:, 0, :] - self.banks[:, 1, :]) < \
+                             (1 + threshold) * self.min_gap_moving
+        leaf_gaps[:, 1, :] = leaf_gaps[:, 0, :]
+        return leaf_gaps
+
+    def max_opening(self):
+        # Find the maximum open top and bottom leaf and maximum opening in x1 and x2 directions ignoring
+        # MLC's that are set to the minimum leaf opening
+        # Determine if a leaf pair separation exceeds the minimum leaf separation if not zero
+        # the gap
+        filtered_banks = np.copy(self.banks)
+        closed_gap = self.closed_leaf_gaps()
+        filtered_banks[closed_gap] = 0
+        # Along all control points solve for the most open mlc position on bank x1 and bank x2
+        if self.number_segments > 1:
+            min_x1_bank = np.amin(filtered_banks[:, 0, :], axis=1)
+            max_x2_bank = np.amax(filtered_banks[:, 1, :], axis=1)
+        else:
+            # If there is only one control point then just give back the bank data
+            min_x1_bank = filtered_banks[:, 0]
+            max_x2_bank = filtered_banks[:, 1]
+        max_open_x1 = np.amin(min_x1_bank)
+        right_leaf_number = np.argmin(max_open_x1)
+        max_open_x2 = np.amax(max_x2_bank)
+        left_leaf_number = np.argmin(max_open_x2)
+        # Solve for the index of the first nonzero element in min_x1_bank and the last non-zero element
+        top_leaf_number = np.max(np.argwhere(min_x1_bank))
+        bottom_leaf_number = np.min(np.argwhere(min_x1_bank))
+        max_open_y1 = self.leaf_centers[bottom_leaf_number] - 0.5 * self.leaf_widths[bottom_leaf_number]
+        max_open_y2 = self.leaf_centers[top_leaf_number] + 0.5 * self.leaf_widths[top_leaf_number]
+        return {'max_open_x1': max_open_x1, 'max_right_leaf': right_leaf_number,
+                'max_open_x2': max_open_x2, 'max_left_leaf': left_leaf_number,
+                'max_open_y1': max_open_y1, 'max_bottom_leaf': bottom_leaf_number,
+                'max_open_y2': max_open_y2, 'max_top_leaf': top_leaf_number}
+
+    def ciao(self):
+        # Determine the maximum of any leaf position for all segments
+        # completely irradiated area outline
+        # return a numpy array of maximum (most open) leaf position over all control points
+        if self.has_segments:
+            ciao_array = np.empty(shape=(self.num_leaves_per_bank, 2))
+            if self.number_segments > 1:
+                ciao_array[:, 0] = np.amin(self.banks[:, 0, :], axis=1)
+                ciao_array[:, 1] = np.amax(self.banks[:, 1, :], axis=1)
+            else:
+                ciao_array[:, 0] = self.banks[:, 0]
+                ciao_array[:, 1] = self.banks[:, 1]
+            return ciao_array
+        else:
+            return None
+
+    def max_travel(self):
+        # For all segments: determine the maximum distance each leaf is from the jaw (carriage)
+        # return a numpy array of maximum (most open) leaf position over all control points
+        if self.has_segments:
+            max_travel_array = np.empty(shape=(self.num_leaves_per_bank, 2))
+            if self.number_segments > 1:
+                max_travel_array[:, 0] = np.amax(self.banks[:, 0, :], axis=1)
+                max_travel_array[:, 1] = np.amin(self.banks[:, 1, :], axis=1)
+            else:
+                # If there is only one control point then just give back the bank data
+                max_travel_array[:, 0] = self.banks[:, 0]
+                max_travel_array[:, 1] = self.banks[:, 1]
+            return max_travel_array
+        else:
+            return None
+
+
+def maximum_beam_leaf_extent(beam):
+    """
+    :param beam: RayStation beam object
+    :return: numpy array of maximum (most open) leaf position over all control points
+    """
+    try:
+        # Find the number of leaves in the first segment to initialize the array
+        s0 = beam.Segments[0]
+    except:
+        logging.debug('Beam {} does not have segments for a ciao.'.format(beam.Name))
+        return None
+
+    num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
+    banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
+    # Combine the segments into a single ndarray of size:
+    # number of MLCs x number of banks x number of segments
+    for s in beam.Segments:
+        # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
+        bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
+        banks = np.dstack((banks, bank))
+
+    # Determine the maximum of any leaf position for all segments
+    # completely irradiated area outline
+    ciao = np.empty(shape=(num_leaves_per_bank, 2))
+    ciao[:, 0] = np.amin(banks[:, 0, :], axis=1)
+    ciao[:, 1] = np.amax(banks[:, 1, :], axis=1)
+    return ciao
+
+
+def maximum_leaf_carriage_extent(beam):
+    """
+    Find the leaf that is farthest from the current jaw position
+    :param beam: RayStation beam object
+    :return: numpy array of maximum (most open) leaf position over all control points
+    """
+    try:
+        # Find the number of leaves in the first segment to initialize the array
+        s0 = beam.Segments[0]
+    except:
+        logging.debug('Beam {} does not have segments for a ciao.'.format(beam.Name))
+        return None
+    t_init = datetime.datetime.now()
+    num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
+    banks = np.column_stack((s0.LeafPositions[0], s0.LeafPositions[1]))
+    # Combine the segments into a single ndarray of size:
+    # number of MLCs x number of banks x number of segments
+    for s in beam.Segments:
+        # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
+        bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
+        banks = np.dstack((banks, bank))
+
+    # Determine the maximum travel of any leaf on the bank
+    max_travel = np.empty(shape=(num_leaves_per_bank, 2))
+    max_travel[:, 0] = np.amax(banks[:, 0, :], axis=1)
+    max_travel[:, 1] = np.amin(banks[:, 1, :], axis=1)
+    # Stop the clock
+    t_fine = datetime.datetime.now()
+    delta = t_fine - t_init
+    logging.debug('Max Carriage Operation required {} seconds'.format(delta.total_seconds()))
+    return max_travel
+
+
+def filter_leaves(beam):
+    """ Examine all leaves that are currently set to be at a minimum leaf gap. If those leaves
+        are not moving from control point to control point, then place them such that they will
+        be behind the jaw once the set-back is in place. Note that the actual calculation here is
+        to place the leaf-pair at: Original Gap position + 0.8 mm + RS Minimum Leaf Jaw Overlap
+        :param beam: A beam class object
+        :return error: A string documenting success or failure"""
+    s0 = beam.Segments[0]
+    a = s0.JawPositions[1] - s0.JawPositions[0]
+    b = s0.JawPositions[3] - s0.JawPositions[2]
+    equivalent_square_field_size = 2 * a * b / (a + b)
+    if equivalent_square_field_size < 3.:
+        mlc_filter = True
+    else:
+        mlc_filter = False
+
+    if not mlc_filter:
+        error = "MLC filtering unnecessary, field size is larger than 3 cm^2"
+        return error
+    # For some bizzare reason, the __init__ method of beam does not pull the data from
+    # the MLC MachineReference physics. So we are searching for the machine directly here.
+    beam_mlc = mlc_properties(beam)
+
+    if beam_mlc.mlc_retracted:
+        error = "MLC filtering failed. MLC retracted"
+        return error
+    if not beam_mlc.has_segments:
+        error = "MLC filtering failed. No segments"
+        return error
+    # Find the first and last leaf that is not covered by the jaw if the jaw was set exactly to the leaf boundaries
+    # The indexing on the MLC goes from 0, (at the x1) jaw to the maximum at the y1 jaw
+    max_open = beam_mlc.max_opening()
+    x1_jaw = max_open['max_open_x1']
+    x2_jaw = max_open['max_open_x2']
+    # Leaves that are outside the y-jaw positions and outside left and right jaw positions are moved to
+    # the RS endorsed distance behind the jaws
+    offset = beam_mlc.leaf_jaw_overlap + 0.8
+    # Find the leaves needing adjustment
+    closed_leaves = beam_mlc.stationary_leaf_gaps()
+    # Store the initial position of the leaves to see if filtering will be neccessary
+    initial_beam_mlc = np.copy(beam_mlc.banks)
+    # Loop over leaves
+    for i in range(beam_mlc.banks.shape[0]):
+        # Loop over control points
+        for j in range(beam_mlc.banks.shape[2]):
+            # If this is part of the closed leaf range, then evaluate which jaw it is closest to.
+            if np.all(closed_leaves[i, 0, j]):
+                x1_diff = abs(beam_mlc.banks[i, 0, j] - x1_jaw)
+                x2_diff = abs(beam_mlc.banks[i, 0, j] - x2_jaw)
+                if x1_diff <= x2_diff:
+                    # This leaf should close behind the x1_jaw
+                    beam_mlc.banks[i, 0, j] = x1_jaw - offset - beam_mlc.min_gap_moving
+                    beam_mlc.banks[i, 1, j] = x1_jaw - offset
+                    logging.debug(
+                        'Beam {}, leaf pair {}, control point {}: Dynamic closed pair '
+                        .format(beam.Name, j + 1, i + 1) +
+                        'should be moved from {} to {}'
+                        .format(initial_beam_mlc[i, 1, j], beam_mlc.banks[i, 1, j]))
+                elif x1_diff > x2_diff:
+                    # This leaf should close behind the x1_jaw
+                    beam_mlc.banks[i, 0, j] = x2_jaw + offset
+                    beam_mlc.banks[i, 1, j] = x2_jaw + offset + beam_mlc.min_gap_moving
+                    logging.debug(
+                        'Beam {}, leaf pair {}, control point {}: Dynamic closed pair '
+                        .format(beam.Name, j + 1, i + 1) +
+                        'should be moved from {} to {}'
+                        .format(initial_beam_mlc[i, 0, j], beam_mlc.banks[i, 0, j]))
+
+    if np.all(np.equal(initial_beam_mlc, beam_mlc.banks)):
+        logging.debug('Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
+    else:
+        # Set the leaf positions to the np array (one-by-one...ugh)
+        for cp in range(len(beam.Segments)):
+            lp = beam.Segments[cp].LeafPositions
+            for l in range(len(lp[0])):
+                lp[0][l] = beam_mlc.banks[l, 0, cp]
+                lp[1][l] = beam_mlc.banks[l, 1, cp]
+            beam.Segments[cp].LeafPositions = lp
+        error = None
+        return error
+
+
+def check_mlc_jaw_positions(jaw_positions, mlc_positions):
+    """
+    Check the incoming jaw positions against machine constraints
+    :param jaw_positions: {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
+    :param mlc_data: mlc_positions class object
+    :return: error
+
+    Sample code:
+    # For a current beamset called 'beamset'
+    for b in beamset.Beams
+        mlc_positions = mlc_properties(b)
+        jaw_positions = {
+            'X1': b.Segments[0].JawPositions[0],
+            'X2': b.Segments[0].JawPositions[1],
+            'Y1': b.Segments[0].JawPositions[2],
+            'Y2': b.Segments[0].JawPositions[3]}
+        error = check_mlc_jaw_positions(jaw_positions, mlc_positions)
+
+    """
+
+    # Maximum a single leaf can extend from the carriage (jaw)
+    maximum_leaf_out_of_carriage = mlc_positions.max_leaf_carriage
+    error = ''
+    # if ciao is not None:
+    #     ciao = maximum_leaf_carriage_extent(beam=beam)
+    max_travel = mlc_positions.max_travel()
+    # Find the maximally extended MLC in each bank
+    max_x1_bank = np.amax(max_travel[:, 0], axis=0)
+    min_x2_bank = np.amin(max_travel[:, 1], axis=0)
+
+    # delta's are the maximum extent of the MLC leaves away from the jaw for this segment
+    if max_travel is not None and not mlc_positions.mlc_retracted:
+        delta_x1 = jaw_positions['X1'] - max_x1_bank
+        delta_x2 = jaw_positions['X2'] - min_x2_bank
+    else:
+        # The beam has no segments, jaws only. Set these variables to something that does not influence calc
+        # i.e. return no violation
+        delta_x1 = delta_x2 = 0
+
+    if abs(delta_x1) >= maximum_leaf_out_of_carriage:
+        error = 'Maximum leaf limit violated for X1. '
+    if abs(delta_x2) > maximum_leaf_out_of_carriage:
+        error += 'Maximum leaf limit violated for X2'
+    if error:
+        logging.debug('MLC Out of Carriage limit reached with proposed jaw positions: ' +
+                      'Maximum A MLC = {}, X1 = {}: '.format(abs(delta_x1), jaw_positions['X1']) +
+                      'Maximum B MLC = {}, X2 = {}'.format(abs(delta_x2), jaw_positions['X2']))
+    return error
+
+
+def check_y_jaw_positions(jaw_positions, beam):
+    """
+    Make sure setting the jaw positions to the proposed limits does not open past available MLC or
+    past jaw overtravel limits
+    :param jaw_positions:
+    :param beam: RS beam object
+    :return: error, if error is None, then no error is detected
+    """
+
+    error = ''
+    current_machine_name = beam.MachineReference.MachineName
+    machine_db = connect.get_current('MachineDB')
+    current_machine = machine_db.GetTreatmentMachine(machineName=current_machine_name,
+                                                     lockMode=None)
+    # Maximum jaw overtravel (minimum) position
+    min_y2_jaw_limit = current_machine.Physics.JawPhysics.MinBottomJawPos
+    min_y1_jaw_limit = - min_y2_jaw_limit
+
+    if beam.DeliveryTechnique == 'TomoHelical':
+        error = 'Tomotherapy helical jaw checking is not supported.'
+        return error
+
+    # Make sure beam has control points
+    try:
+        s0 = beam.Segments[0]
+    except AttributeError:
+        logging.debug('beam: {} is a jaw-only field, without segments'.format(beam.Name))
+        return error
+
+    # Maximum MLC defined positions: Leaf Center + 0.2 Leaf_Width this ensures at least a full millimeter
+    # of cushion for jaw inaccuracies on a 5 mm leaf and 2 mm on a 1 cm leaf
+    current_mlc_physics = current_machine.Physics.MlcPhysics
+    max_y1_jaw_limit = current_mlc_physics.UpperLayer.LeafCenterPositions[0] - \
+                       0.2 * current_mlc_physics.UpperLayer.LeafWidths[0]
+    n_leaves = len(current_mlc_physics.UpperLayer.LeafCenterPositions)
+    max_y2_jaw_limit = current_mlc_physics.UpperLayer.LeafCenterPositions[n_leaves - 1] + \
+                       0.2 * current_mlc_physics.UpperLayer.LeafWidths[n_leaves - 1]
+
+    # Check jaws
+    if jaw_positions['Y1'] > min_y1_jaw_limit:
+        error += 'Beam {}: Y1 jaw overtravel will be violated at Y1 = {}'.format(
+            beam.Name, jaw_positions['Y1'])
+    if jaw_positions['Y1'] < max_y1_jaw_limit:
+        error += 'Beam {}: Y1 jaw position exceeds MLC-delineated boundary at Y1 = {}'.format(
+            beam.Name, jaw_positions['Y1'])
+    if jaw_positions['Y2'] < min_y2_jaw_limit:
+        error += 'Beam {}: Y2 jaw overtravel will be violated at Y2 = {}'.format(
+            beam.Name, jaw_positions['Y2'])
+    if jaw_positions['Y2'] > max_y2_jaw_limit:
+        error += 'Beam {}: Y2 jaw position exceeds MLC-delineated boundary at Y2 = {}'.format(
+            beam.Name, jaw_positions['Y2'])
+
+    return error
+
+
+def rounded_jaw_positions(beam):
+    """
+    compute the jaw positions that will satisfy machine constraints and:
+    -For small fields:
+        Use jaw setbacks of 0.8 mm (X) and 0.2 mm (Y)
+        *This will allow the full MLC leaf end to be defining the field
+        *Avoid fields being defined by less accurate jaw positions in Y
+        * mlc_filtering should be applied before this step to eliminate incorrect dynamic leaves
+    -For non-small fields:
+        Try to round the jaws to the nearest open millimeter. If this would open the bank past
+        the MLC-defined region, leave a leaf too far from the carriage, or cause a jaw overtravel
+        then round the jaws closed.
+    :param beam: RS beam
     :return: {X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)}
     """
-    l_jaw = math.floor(10 * segment.JawPositions[0]) / 10
-    r_jaw = math.ceil(10 * segment.JawPositions[1]) / 10
-    t_jaw = math.floor(10 * segment.JawPositions[2]) / 10
-    b_jaw = math.ceil(10 * segment.JawPositions[3]) / 10
-    jaws = {'X1': l_jaw, 'X2': r_jaw, 'Y1': t_jaw, 'Y2': b_jaw}
-    return jaws
+    jaw_positions = {}
+
+    s0 = beam.Segments[0]
+    # Find the result of setting the jaws open
+    round_open_l_jaw = math.floor(10 * s0.JawPositions[0]) / 10
+    round_open_r_jaw = math.ceil(10 * s0.JawPositions[1]) / 10
+    round_open_t_jaw = math.floor(10 * s0.JawPositions[2]) / 10
+    round_open_b_jaw = math.ceil(10 * s0.JawPositions[3]) / 10
+    # Compute closed jaw positions
+    round_closed_l_jaw = math.ceil(10 * s0.JawPositions[0]) / 10
+    round_closed_r_jaw = math.floor(10 * s0.JawPositions[1]) / 10
+    round_closed_t_jaw = math.ceil(10 * s0.JawPositions[2]) / 10
+    round_closed_b_jaw = math.floor(10 * s0.JawPositions[3]) / 10
+
+    # Potential options
+    use_jaw_offset = False
+    use_round_open = False
+    use_round_closed = False
+    # Check for the equivalent square area, and do not use jaw offsets if the limit is larger than 3 cm^2
+    # get the ciao for this beam
+    a = s0.JawPositions[1] - s0.JawPositions[0]
+    b = s0.JawPositions[3] - s0.JawPositions[2]
+    equivalent_square_field_size = 2 * a * b / (a + b)
+    if equivalent_square_field_size < 3.:
+        use_jaw_offset = True
+    else:
+        use_round_open = True
+    # For some bizzare reason, the __init__ method of beam does not pull the data from
+    # the MLC MachineReference physics. So we are searching for the machine directly here.
+    current_machine = GeneralOperations.get_machine(machine_name=beam.MachineReference.MachineName)
+    # Maximum jaw overtravel (minimum) position
+    current_mlc_physics = current_machine.Physics.MlcPhysics
+
+    # If the target is small, try to use jaw offsets.
+    beam_mlc = mlc_properties(beam)
+    if use_jaw_offset:
+        x_jaw_offset = 0.8
+        y_jaw_offset = 0.2
+        # Initialize the mlc_properties class
+        # If we can't compute a ciao, or the MLC is retracted, just use open settings.
+        if beam_mlc.mlc_retracted or not beam_mlc.has_segments:
+            if beam_mlc.mlc_retracted:
+                logging.debug('MLC is retracted. Proceeding with jaw-only field settings')
+            use_round_open = True
+            use_jaw_offset = False
+        else:
+            # Now find the maximum Top and Bottom MLC positions
+            # Raystation starts moving leaves to the midplane, so we want to find the first open, and
+            # last open MLC leaf pair.
+            # compute leaf difference
+            max_open = beam_mlc.max_opening()
+            [max_open_x1, max_open_x2, max_open_y1, max_open_y2] = max_open['max_open_x1'], max_open['max_open_x2'], \
+                                                                   max_open['max_open_y1'], max_open['max_open_y2']
+            x1_jaw_standoff = math.floor(10 * (max_open_x1 - x_jaw_offset)) / 10
+            x2_jaw_standoff = math.ceil(10 * (max_open_x2 + x_jaw_offset)) / 10
+            y1_jaw_standoff = math.floor(10 * (max_open_y1 - y_jaw_offset)) / 10
+            y2_jaw_standoff = math.ceil(10 * (max_open_y2 + y_jaw_offset)) / 10
+    else:
+        logging.debug('Beam {}: X1:{}, X2:{}, Y1:{}, Y2:{}; Calculated Eq Square Field {}'.format(
+            beam.Name, s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3],
+            equivalent_square_field_size
+        ))
+    # Check jaws
+    # Try to use Jaw Standoff jaw offsets first. Then, if that violates a machine constraint
+    # Try to set the jaws based on rounding open, if that still violates the machine constraints
+    # Round the jaws closed.
+    if use_jaw_offset:
+        jaw_positions['Y1'] = y1_jaw_standoff
+        jaw_positions['Y2'] = y2_jaw_standoff
+        jaw_positions['X1'] = x1_jaw_standoff
+        jaw_positions['X2'] = x2_jaw_standoff
+        error_y_msg = check_y_jaw_positions(jaw_positions, beam)
+        error_x_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
+        if error_x_msg or error_y_msg:
+            # Default then to round open
+            use_round_open = True
+        else:
+            logging.debug('Beam: {}: Equivalent Sq. Field Size is {}, Jaw Standoff offsets used'.format(
+                beam.Name, equivalent_square_field_size))
+    if use_round_open:
+        jaw_positions['Y1'] = round_open_t_jaw
+        jaw_positions['Y2'] = round_open_b_jaw
+        jaw_positions['X1'] = round_open_l_jaw
+        jaw_positions['X2'] = round_open_r_jaw
+        error_y_msg = check_y_jaw_positions(jaw_positions, beam)
+        error_x_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
+        if error_y_msg or error_x_msg:
+            # Default then to rounding both jaws closed
+            use_round_closed = True
+            if error_y_msg:
+                logging.debug('Beam {} Y-Jaws: could not be rounded open, error {}'.format(beam.Name, error_y_msg))
+            if error_x_msg:
+                logging.debug('Beam {} X-Jaws: could not be rounded open, error {}'.format(beam.Name, error_x_msg))
+    if use_round_closed:
+        jaw_positions['Y1'] = round_closed_t_jaw
+        jaw_positions['Y2'] = round_closed_b_jaw
+        jaw_positions['X1'] = round_closed_l_jaw
+        jaw_positions['X2'] = round_closed_r_jaw
+        error_y_msg = check_y_jaw_positions(jaw_positions, beam)
+        error_x_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
+        if error_y_msg:
+            logging.debug('Beam {} Y-Jaws: could not be rounded, error {}'.format(beam.Name, error_y_msg))
+        if error_x_msg:
+            logging.debug('Beam {} X-Jaws: could not be rounded, error {}'.format(beam.Name, error_x_msg))
+    return jaw_positions
 
 
 def jaws_rounded(beam):
     """
     Checks a beam to see if it has been rounded.
+    Note, we presume only the first segment needs to be checked.
     :param beam: RS beam scriptable object
     :return: True if jaws are already rounded. False otherwise.
     """
     rounded = True
 
     s0 = beam.Segments[0]
-    j0 = rounded_jaw_positions(s0)
-    for s in beam.Segments:
-        if (s.JawPositions[0] != j0['X1'] or
-                s.JawPositions[1] != j0['X2'] or
-                s.JawPositions[2] != j0['Y1'] or
-                s.JawPositions[3] != j0['Y2']):
-            rounded = False
+    j0 = rounded_jaw_positions(beam)
+    if (s0.JawPositions[0] != j0['X1'] or
+            s0.JawPositions[1] != j0['X2'] or
+            s0.JawPositions[2] != j0['Y1'] or
+            s0.JawPositions[3] != j0['Y2']):
+        rounded = False
 
     return rounded
 
 
 def round_jaws(beamset):
     """
-    Rounds the jaws. X1/Y1 will be rounded down to nearest mm, X2/Y2 rounded up
+    Rounds the jaws.
+    For each beam, the first segment is examined for appropriate rounding.
+    Rounding is by default, to round open. However, if insufficient MLC travel is available, the X jaws will be
+    rounded closed.
+    Open: X1/Y1 will be rounded down to nearest mm, X2/Y2 rounded up
+    Closed: X2/Y1 will be rounded down to nearest mm, X1/Y2 rounded up
         note X1=l_jaw (left), X2=r_jaw (right), Y1=t_jaw (top), Y2=b_jaw (bottom)
     :param beamset: RS beamset
     :return: success: boolean indicating adjustments were successful
     """
-    # try:
     for b in beamset.Beams:
-        # First jaw position chosen.
+        error = filter_leaves(b)
+        if error is not None:
+            logging.debug(error)
+        else:
+            logging.debug('Beam {} filtered'.format(b.Name))
+
         if not jaws_rounded(beam=b):
             s0 = b.Segments[0]
-            j0 = rounded_jaw_positions(s0)
             init_positions = [s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3]]
-            if (s0.JawPositions[0] != j0['X1'] or
-                    s0.JawPositions[1] != j0['X2'] or
-                    s0.JawPositions[2] != j0['Y1'] or
-                    s0.JawPositions[3] != j0['Y2']):
-                for s in b.Segments:
-                    # Tracking jaws are not engaged at TrueBeam, if the first segment is wrong,
-                    # all segments need adjusting
-                    # if (s.JawPositions[0] != j0['X1'] or
-                    #     s.JawPositions[1] != j0['X2'] or
-                    #     s.JawPositions[2] != j0['Y1'] or
-                    #     s.JawPositions[3] != j0['Y2']):
-                    #     round_needed = True
-                    # else:
-                    #     round_needed = False
-                    # if round_needed:
-                    s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
-            logging.info('Beam {}: jaw positions changed '.format(b.Name) +
-                         '<X1: {0:.2f}->{1:.2f}>, '.format(init_positions[0], s.JawPositions[0]) +
-                         '<X2: {0:.2f}->{1:.2f}>, '.format(init_positions[1], s.JawPositions[1]) +
-                         '<Y1: {0:.2f}->{1:.2f}>, '.format(init_positions[2], s.JawPositions[2]) +
-                         '<Y2: {0:.2f}->{1:.2f}>'.format(init_positions[3], s.JawPositions[3]))
+            j0 = rounded_jaw_positions(b)
+            for s in b.Segments:
+                s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
+            GeneralOperations.logcrit('Beam {}: jaw positions changed '.format(b.Name) +
+                                      '<X1: {0:.2f}->{1:.2f}>, '.format(init_positions[0], s.JawPositions[0]) +
+                                      '<X2: {0:.2f}->{1:.2f}>, '.format(init_positions[1], s.JawPositions[1]) +
+                                      '<Y1: {0:.2f}->{1:.2f}>, '.format(init_positions[2], s.JawPositions[2]) +
+                                      '<Y2: {0:.2f}->{1:.2f}>'.format(init_positions[3], s.JawPositions[3]))
         else:
-            logging.info('Beam {}: jaw positions do not need rounding.'.format(b.Name))
+            GeneralOperations.logcrit('Beam {}: jaw positions do not need rounding.'.format(b.Name))
     success = True
-    # except:
-    #     success = False
     return success
 
 
@@ -1225,7 +1814,7 @@ def mu_rounded(beam):
     from decimal import Decimal, ROUND_HALF_UP
 
     init_mu = beam.BeamMU
-    dec_mu = Decimal(init_mu).quantize(0, rounding=ROUND_HALF_UP)
+    dec_mu = Decimal(init_mu).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
     return float(dec_mu)
 
 
@@ -1258,11 +1847,11 @@ def round_mu(beamset):
 
     for b in beamset.Beams:
         if mu_is_rounded(b):
-            logging.debug('Beam {} already has rounded MU {}'.format(b.Name, b.BeamMU))
+            GeneralOperations.logcrit('Beam {} already has rounded MU {}'.format(b.Name, b.BeamMU))
         else:
             mu_i = b.BeamMU
             b.BeamMU = mu_rounded(b)
-            logging.info('Beam {0} MU changed from {1:.2f} to {2}'.format(b.Name, mu_i, b.BeamMU))
+            GeneralOperations.logcrit('Beam {0} MU changed from {1:.2f} to {2}'.format(b.Name, mu_i, b.BeamMU))
     return True
 
 
@@ -1303,7 +1892,7 @@ def dsp_matches_rx(beamset, dsp):
     :param rx_dose: prescription dose
     :return: True if total dose match
     """
-    tolerance = 0.01
+    tolerance = 0.001
     number_of_fractions = beamset.FractionationPattern.NumberOfFractions
     rx_dose = beamset.Prescription.PrimaryDosePrescription.DoseValue / number_of_fractions
     if exists_dsp(beamset, dsps=dsp):
@@ -1363,7 +1952,7 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     logging.debug('rx = {}'.format(rx))
 
     xpos = None
-    tolerance = 1e-2
+    tolerance = 1e-4
 
     xmax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.x
     ymax = plan.TreatmentCourse.TotalDose.InDoseGrid.NrVoxels.y
@@ -1375,9 +1964,10 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     zsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.z
 
     if np.amax(pd_np) < rx:
-        logging.debug('max = {}'.format(max(pd)))
+        logging.debug('max = {}'.format(np.amax(pd_np)))
         logging.debug('target = {}'.format(rx))
-        raise ValueError('max beam dose is too low')
+        raise ValueError('Max beam dose is too low. Cannot find a DSP. Max Dose in Beamset is {}, for Rx {}'.format(
+            np.amax(pd_np), rx))
 
     rx_points = np.array([])
     while rx_points.size == 0:
@@ -1465,7 +2055,23 @@ def find_dsp_centroid(plan, beam_set, percent_max=None):
 
 
 def set_dsp(plan, beam_set, percent_rx=100., method='MU'):
-    rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue * percent_rx / 100.
+    """
+    Set a dose specification point using the current beamset prescription.
+    :param plan: RS plan object
+    :param beam_set: Rs beam_set object
+    :param percent_rx: The percentage of the prescription value to use in calculating the desired
+        DSP dose, e.g. 100% of Rx is the prescription dose exactly.
+    :param method: the method to use in selecting the DSP point to use
+        MU chooses the DSP that most closely matches the MU_Beam/MU_TOTAL
+        Centroid chooses the point that is in the centroid of all DSP points
+    :return:
+    """
+    try:
+        rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue * percent_rx / 100.
+    except AttributeError:
+        logging.debug('Beamset does not have a prescription')
+        raise ValueError('A prescription must be set')
+
     fractions = beam_set.FractionationPattern.NumberOfFractions
     if rx is None:
         raise ValueError('A Prescription must be set.')
@@ -1537,11 +2143,57 @@ def load_beams_xml(filename, beamset_name, path):
             beam.name = str(b.find('Name').text)
             beam.technique = str(b.find('DeliveryTechnique').text)
             beam.energy = int(b.find('Energy').text)
-            beam.gantry_start_angle = float(b.find('GantryAngle').text)
-            beam.gantry_stop_angle = float(b.find('GantryStopAngle').text)
-            beam.rotation_dir = str(b.find('ArcRotationDirection').text)
-            beam.collimator_angle = float(b.find('CollimatorAngle').text)
-            beam.couch_angle = float(b.find('CouchAngle').text)
+
+            if b.find('GantryAngle') is None:
+                beam.gantry_start_angle = None
+            else:
+                beam.gantry_start_angle = float(b.find('GantryAngle').text)
+
+            if b.find('GantryStopAngle') is None:
+                beam.gantry_stop_angle = None
+            else:
+                beam.gantry_stop_angle = float(b.find('GantryStopAngle').text)
+
+            if b.find('ArcRotationDirection') is None:
+                beam.rotation_dir = None
+            else:
+                beam.rotation_dir = str(b.find('ArcRotationDirection').text)
+
+            if b.find('CollimatorAngle') is None:
+                beam.collimator_angle = None
+            else:
+                beam.collimator_angle = float(b.find('CollimatorAngle').text)
+
+            if b.find('CouchAngle') is None:
+                beam.couch_angle = None
+            else:
+                beam.couch_angle = float(b.find('CouchAngle').text)
+
+            if b.find('CouchAngle') is None:
+                beam.couch_angle = None
+            else:
+                beam.couch_angle = float(b.find('CouchAngle').text)
+
+            if b.find('FieldWidth') is None:
+                beam.field_width = None
+            else:
+                beam.field_width = float(b.find('FieldWidth').text)
+
+            if b.find('Pitch') is None:
+                beam.pitch = None
+            else:
+                beam.pitch = float(b.find('Pitch').text)
+
+            if b.find('JawMode') is None:
+                beam.jaw_mode = None
+            else:
+                beam.jaw_mode = float(b.find('JawMode').text)
+
+            if b.find('BackJawPosition') is None:
+                beam.back_jaw_position = None
+            else:
+                beam.back_jaw_position = float(b.find('BackJawPosition').text)
+
             beams.append(beam)
     return beams
 
@@ -1558,125 +2210,127 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
     :return: success: True if limits changed or limit is satisfied by current beam limits
     """
     # Find the optimization index corresponding to this beamset
-    opt_index = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=verbose_logging)
+    opt_index = PlanOperations.find_optimization_index(plan=plan,
+                                                       beamset=beamset,
+                                                       verbose_logging=verbose_logging)
     plan_optimization_parameters = plan.PlanOptimizations[opt_index].OptimizationParameters
+    ts_settings = None
+    beam_found = False
     for tss in plan_optimization_parameters.TreatmentSetupSettings:
         if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
             ts_settings = tss
             if verbose_logging:
-                logging.debug('TreatmentSettings matching {} found'.format(beamset.DicomPlanLabel))
-            break
+                logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam_name))
+            for bs in ts_settings.BeamSettings:
+                if bs.ForBeam.Name == beam_name:
+                    beam_found = True
+                    current_beam = bs
+                    break
+                else:
+                    continue
         else:
             continue
 
-    # Track whether the input beam_name is found in the list of beams belonging to this optimization.
-    beam_found = False
-    for b in ts_settings.BeamSettings:
-
-        if b.ForBeam.Name == beam_name:
-            beam_found = True
-            current_beam = b
-
-        else:
-            continue
+    if ts_settings is None:
+        logging.exception('No treatment set up settings could be found for beamset {}'.format(
+            beamset.DicomPlanLabel) + 'Contact script administrator')
 
     if not beam_found:
         logging.warning('Beam {} not found in beam list from {}'.format(
             beam_name, beamset.DicomPlanLabel))
         sys.exit('Could not find a beam match for setting aperture limits')
 
-    # Check if aperture limit exist.
-    if current_beam.ForBeam.BeamMU > 0:
-        if verbose_logging:
-            logging.debug('Beam has MU. Changing jaw limit with an optimized beam is not possible without reset')
-        return False
-    else:
-        # Check for existing aperture limit
-        try:
-            current_limits = current_beam.BeamApertureLimit
-            if current_limits != 'NoLimit':
-                existing_limits = [current_beam.ForBeam.InitialJawPositions[0],
-                                   current_beam.ForBeam.InitialJawPositions[1],
-                                   current_beam.ForBeam.InitialJawPositions[2],
-                                   current_beam.ForBeam.InitialJawPositions[3]]
-                if verbose_logging:
-                    logging.debug(('aperture limits found on beam {} of initial jaw positions: x1 = {}, ' +
-                                   'x2 = {}, y1 = {}, y2 = {}')
-                                  .format(beam_name, existing_limits[0], existing_limits[1],
-                                          existing_limits[2], existing_limits[3]))
-            else:
-                existing_limits = [None] * 4
-                if verbose_logging:
-                    logging.debug('No limits currently exist on beam {}'.format(beam_name))
-
-        except AttributeError:
-            logging.debug('no existing aperture limits on beam {}'.format(beam_name))
-            current_limits = None
-            existing_limits = [None] * 4
-
-        if current_limits == 'NoLimit':
-            modified_limit = limit
-            limits_met = False
+    # Check for existing aperture limit
+    try:
+        current_limits = current_beam.BeamApertureLimit
+        if current_limits != 'NoLimit':
+            existing_limits = [current_beam.ForBeam.InitialJawPositions[0],
+                               current_beam.ForBeam.InitialJawPositions[1],
+                               current_beam.ForBeam.InitialJawPositions[2],
+                               current_beam.ForBeam.InitialJawPositions[3]]
             if verbose_logging:
-                logging.info(('No jaw limits found on Beam {}: Jaw limits should be '
-                              'x1 = {}, x2 = {}, y1 = {}, y2 = {}')
-                             .format(beam_name,
-                                     modified_limit[0],
-                                     modified_limit[1],
-                                     modified_limit[2],
-                                     modified_limit[3]))
-
+                logging.debug(('aperture limits found on beam {} of initial jaw positions: x1 = {}, ' +
+                               'x2 = {}, y1 = {}, y2 = {}')
+                              .format(beam_name, existing_limits[0], existing_limits[1],
+                                      existing_limits[2], existing_limits[3]))
         else:
-            x1 = existing_limits[0]
-            x2 = existing_limits[1]
-            y1 = existing_limits[2]
-            y2 = existing_limits[3]
-            if all([limit[0] <= x1, limit[1] >= x2, limit[2] <= y1, limit[3] >= y2]):
-                limits_met = True
-            else:
-                limits_met = False
-                modified_limit = [max(x1, limit[0]),
-                                  min(x2, limit[1]),
-                                  max(y1, limit[2]),
-                                  min(y2, limit[3])]
-                if verbose_logging:
-                    logging.info(('Jaw limits found on Beam {}: Jaw limits should be changed '
-                                  'x1: {} => {}, x2: {} => {}, y1: {} => {}, y2: {} => {}')
-                                 .format(beam_name,
-                                         limit[0], modified_limit[0],
-                                         limit[1], modified_limit[1],
-                                         limit[2], modified_limit[2],
-                                         limit[3], modified_limit[3]))
+            existing_limits = [None] * 4
+            if verbose_logging:
+                logging.debug('No limits currently exist on beam {}'.format(beam_name))
 
-        if not limits_met:
-            if change:
-                current_beam.EditBeamOptimizationSettings(
-                    JawMotion='Use limits as max',
-                    LeftJaw=modified_limit[0],
-                    RightJaw=modified_limit[1],
-                    TopJaw=modified_limit[2],
-                    BottomJaw=modified_limit[3],
-                    SelectCollimatorAngle='False',
-                    AllowBeamSplit='False',
-                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-                logging.info('Beam {}: Changed jaw limits x1: {} => {}, x2: {} = {}, y1: {} => {}, y2: {} => {}'
-                             .format(beam_name,
-                                     existing_limits[0], current_beam.ForBeam.InitialJawPositions[0],
-                                     existing_limits[1], current_beam.ForBeam.InitialJawPositions[1],
-                                     existing_limits[2], current_beam.ForBeam.InitialJawPositions[2],
-                                     existing_limits[3], current_beam.ForBeam.InitialJawPositions[3]))
-                return True
-            else:
-                logging.info(('Aperture check shows that limit on {} are not current. Limits should be '
-                              'x1 = {}, x2 = {}, y1 = {}, y2 = {}').format(beam_name,
-                                                                           modified_limit[0],
-                                                                           modified_limit[1],
-                                                                           modified_limit[2],
-                                                                           modified_limit[3]))
-                return False
+    except AttributeError:
+        logging.debug('no existing aperture limits on beam {}'.format(beam_name))
+        current_limits = None
+        existing_limits = [None] * 4
+
+    if current_limits == 'NoLimit':
+        modified_limit = limit
+        limits_met = False
+        if verbose_logging:
+            logging.info(('No jaw limits found on Beam {}: Jaw limits should be '
+                          'x1 = {}, x2 = {}, y1 = {}, y2 = {}')
+                         .format(beam_name,
+                                 modified_limit[0],
+                                 modified_limit[1],
+                                 modified_limit[2],
+                                 modified_limit[3]))
+
+    else:
+        x1 = existing_limits[0]
+        x2 = existing_limits[1]
+        y1 = existing_limits[2]
+        y2 = existing_limits[3]
+        if all([limit[0] <= x1, limit[1] >= x2, limit[2] <= y1, limit[3] >= y2]):
+            limits_met = True
         else:
-            logging.debug('Limits met, no changes in aperture needed')
+            limits_met = False
+            modified_limit = [max(x1, limit[0]),
+                              min(x2, limit[1]),
+                              max(y1, limit[2]),
+                              min(y2, limit[3])]
+            if verbose_logging:
+                logging.info(('Jaw limits found on Beam {}: Jaw limits should be changed '
+                              'x1: {} => {}, x2: {} => {}, y1: {} => {}, y2: {} => {}')
+                             .format(beam_name,
+                                     limit[0], modified_limit[0],
+                                     limit[1], modified_limit[1],
+                                     limit[2], modified_limit[2],
+                                     limit[3], modified_limit[3]))
+
+    if not limits_met:
+        if current_beam.ForBeam.BeamMU > 0:
+            if verbose_logging:
+                logging.debug('Beam has MU. Changing jaw limit with an optimized beam is not possible without reset')
+            return False
+        if change:
+            current_beam.EditBeamOptimizationSettings(
+                JawMotion='Use limits as max',
+                LeftJaw=modified_limit[0],
+                RightJaw=modified_limit[1],
+                TopJaw=modified_limit[2],
+                BottomJaw=modified_limit[3],
+                SelectCollimatorAngle='False',
+                AllowBeamSplit='False',
+                OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+            logging.info('Beam {}: Changed jaw limits x1: {} => {}, x2: {} = {}, y1: {} => {}, y2: {} => {}'
+                         .format(beam_name,
+                                 existing_limits[0], current_beam.ForBeam.InitialJawPositions[0],
+                                 existing_limits[1], current_beam.ForBeam.InitialJawPositions[1],
+                                 existing_limits[2], current_beam.ForBeam.InitialJawPositions[2],
+                                 existing_limits[3], current_beam.ForBeam.InitialJawPositions[3]))
             return True
+        else:
+            logging.info(('Aperture check shows that limit on {} are not current. Limits should be '
+                          'x1 = {}, x2 = {}, y1 = {}, y2 = {}').format(beam_name,
+                                                                       modified_limit[0],
+                                                                       modified_limit[1],
+                                                                       modified_limit[2],
+                                                                       modified_limit[3]))
+            return False
+    else:
+        logging.debug('Limits met, no changes in aperture needed')
+        return True
 
 
 def emc_calc_params(beamset):
@@ -1725,6 +2379,3 @@ def check_emc(beamset, stat_limit=0.01, histories=5e5):
                      .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
 
     return EmcTest
-
-
-

@@ -29,6 +29,13 @@ __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+import logging
+import connect
+
+
+class InvalidDataException(Exception):
+    pass
+
 
 def find_scope(level=None, find_scope=False):
     """
@@ -41,8 +48,6 @@ def find_scope(level=None, find_scope=False):
     :return: if level is specified the RS object is returned.
         If find_scope, then a dict of plan variables is used
     """
-    import connect
-    import logging
 
     # Find the deepest available scope and return a dict with available names
     scope = {}
@@ -51,7 +56,7 @@ def find_scope(level=None, find_scope=False):
     for l in scope_levels:
         try:
             rs_obj = connect.get_current(l)
-        except SystemError:
+        except:
             rs_obj = None
         if l == level:
             if rs_obj is None:
@@ -65,20 +70,29 @@ def find_scope(level=None, find_scope=False):
         return scope
 
 
+def get_machine(machine_name):
+    """Finds the current machine name from the list of currently commissioned machines
+    :param: machine_name (name of the machine in raystation,
+    usually this is machine_name = beamset.MachineReference.MachineName
+    return: machine (RS object)"""
+    machine_db = connect.get_current('MachineDB')
+    machine = machine_db.GetTreatmentMachine(machineName=machine_name, lockMode=None)
+    return machine
+
+
 def logcrit(message):
-    import logging
     # Determine deepest scope
     current_scope = find_scope(find_scope=True)
     level = ''
     # if current_scope['Patient'] is not None:
     #    level += 'PatientID: ' + current_scope['Patient'].PatientID + ':'
     if current_scope['Case'] is not None:
-        level += 'Case: ' + current_scope['Case'].CaseName + ':'
+        level += 'Case: ' + current_scope['Case'].CaseName + '\t'
     if current_scope['Examination'] is not None:
-        level += 'Exam: ' + current_scope['Examination'].Name + ':'
+        level += 'Exam: ' + current_scope['Examination'].Name + '\t'
     if current_scope['Plan'] is not None:
-        level += 'Plan: ' + current_scope['Plan'].Name + ':'
+        level += 'Plan: ' + current_scope['Plan'].Name + '\t'
     if current_scope['BeamSet'] is not None:
-        level += 'Beamset: ' + current_scope['BeamSet'].DicomPlanLabel + '::'
+        level += 'Beamset: ' + current_scope['BeamSet'].DicomPlanLabel + '\t'
     message = level + message
     logging.critical(message)

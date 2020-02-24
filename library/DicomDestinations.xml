@@ -43,7 +43,7 @@
     </destination>
     <destination type="scp">
         <name type="text">ARIA</name>
-        <host type="text">aria.uwhealth.wisc.edu</host>
+        <host type="text">10.151.28.94</host>
         <aet type="text">ARIA</aet>
         <port type="int">106</port>
     </destination>

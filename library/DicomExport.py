@@ -311,7 +311,27 @@ def send(case,
 
             try:
                 if parent_plan is None:
-                    case.ScriptableDicomExport(**args)
+                    try:
+                        case.ScriptableDicomExport(**args)
+                    except Exception as error:
+                        if hasattr(error, 'Message'):
+                            # This is the error thrown when a plan is already in the iDMS
+                            existing_plan_exception = 'Medical_id_already_exists'
+                            if existing_plan_exception in error.Message:
+                                logging.debug('Parent plan likely in iDMS already. Error is {}'.format(error.Message))
+                                logging.info('Parent Plan is already in IDMS {}'.format(beamset.DicomPlanLabel))
+                                pass
+                            else:
+                                status = False
+                                logging.error('DicomExport failed {}'.format(error))
+                                UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
+                                raise
+                        else:
+                            status = False
+                            logging.error('DicomExport failed {}'.format(error))
+                            UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
+                            raise
+
                     logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
                 else:
                     beamset.SendTransferredPlanToRayGateway(RayGatewayTitle='RAYGATEWAY',

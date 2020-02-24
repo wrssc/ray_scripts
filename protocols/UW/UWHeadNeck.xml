@@ -4743,7 +4743,7 @@
             <Name>3_SITE_Arc</Name>
             <Energy>6</Energy>
             <GantryAngle>290</GantryAngle>
-            <GantryStopAngle>60</GantryStopAngle>
+            <GantryStopAngle>70</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>15</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
@@ -4753,8 +4753,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>4_SITE_Arc</Name>
             <Energy>6</Energy>
-            <GantryAngle>60</GantryAngle>
-            <GantryStopAngle>120</GantryStopAngle>
+            <GantryAngle>70</GantryAngle>
+            <GantryStopAngle>130</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>0</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
@@ -4764,7 +4764,7 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>5_SITE_Arc</Name>
             <Energy>6</Energy>
-            <GantryAngle>120</GantryAngle>
+            <GantryAngle>130</GantryAngle>
             <GantryStopAngle>178</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>15</CollimatorAngle>
@@ -4776,7 +4776,7 @@
             <Name>6_SITE_Arc</Name>
             <Energy>6</Energy>
             <GantryAngle>179</GantryAngle>
-            <GantryStopAngle>120</GantryStopAngle>
+            <GantryStopAngle>130</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>355</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
@@ -4786,8 +4786,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>7_SITE_Arc</Name>
             <Energy>6</Energy>
-            <GantryAngle>120</GantryAngle>
-            <GantryStopAngle>60</GantryStopAngle>
+            <GantryAngle>130</GantryAngle>
+            <GantryStopAngle>70</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>0</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
@@ -4797,7 +4797,7 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>8_SITE_Arc</Name>
             <Energy>6</Energy>
-            <GantryAngle>60</GantryAngle>
+            <GantryAngle>70</GantryAngle>
             <GantryStopAngle>290</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>355</CollimatorAngle>
@@ -4825,6 +4825,5 @@
             <CollimatorAngle>355</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
         </beam>
-
     </beamset>
 </protocol>

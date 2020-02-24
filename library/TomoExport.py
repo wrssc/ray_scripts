@@ -224,11 +224,16 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
 
         status.next_step(text='Transfer plan dose computed, setting up dose comparison.')
 
-        ui = connect.get_current('ui')
-        ui.TitleBar.MenuItem['Plan Evaluation'].Click()
-        ui.TitleBar.MenuItem['Plan Evaluation'].Popup.MenuItem['Plan Evaluation'].Click()
-        ui.TabControl_ToolBar.TabItem._Approval.Select()
-        ui.ToolPanel.TabItem['Scripting'].Select()
+        # This appears to confuse RayStation. Perhaps when the API is a little better integrated with the UI?
+        # ui = connect.get_current('ui')
+        # try:
+        #     ui.TitleBar.MenuItem['Plan Evaluation'].Click()
+        #     ui.TitleBar.MenuItem['Plan Evaluation'].Popup.MenuItem['Plan Evaluation'].Click()
+        #     ui.TabControl_ToolBar.TabItem._Approval.Select()
+        #     ui.ToolPanel.TabItem['Scripting'].Select()
+        # except:
+        #     logging.debug('Failed to operate the user interface through script again. Proceeding')
+
         connect.await_user_input(
             'Compare the transfer beamset: {} and parent beamset {}'
             .format(daughter_beamset.DicomPlanLabel, parent_beamset_name)

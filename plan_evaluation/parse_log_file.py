@@ -1,4 +1,4 @@
-""" Test log parsing
+""" Parse script log for this patient
 
 """
 import UserInterface
@@ -8,6 +8,10 @@ import logging
 import os
 import webbrowser
 import GeneralOperations
+from GeneralOperations import logcrit
+import sys
+import re
+
 
 def main():
     patient = GeneralOperations.find_scope(level='Patient')
@@ -30,7 +34,6 @@ def main():
     # slice_thickness = exam.GetStoredDicomTagValueForVerification(Group=0x018,Element=0x050)
     # gantry_tilt = exam.GetStoredDicomTagValueForVerification(Group=0x018,Element=1120)
     # ct_info = {}
-    # logging.critical('Series Name: {}'.format(series_number['Series Number']))
 
     grid_test = True
     simfid_test = True
@@ -61,16 +64,17 @@ def main():
                                                                     nominal_grid_size=coarse_grid_size)
         if len(fine_grid_error) != 0:
             logging.warning('Dose grid check returned an error {}'.format(fine_grid_error))
-            plan.SetDefaultDoseGrid(VoxelSize={'x': fine_grid_size, 'y': fine_grid_size, 'z': fine_grid_size})
+            # plan.SetDefaultDoseGrid(VoxelSize={'x': fine_grid_size, 'y': fine_grid_size, 'z': fine_grid_size})
             logging.info('Grid size was changed for SBRT-type plan')
         elif len(coarse_grid_error) != 0:
             logging.warning('Dose grid check returned an error {}'.format(coarse_grid_error))
-            plan.SetDefaultDoseGrid(VoxelSize={'x': coarse_grid_size, 'y': coarse_grid_size, 'z': coarse_grid_size})
+            # plan.SetDefaultDoseGrid(VoxelSize={'x': coarse_grid_size, 'y': coarse_grid_size, 'z': coarse_grid_size})
             logging.info('Grid size was changed for Normal-type plan')
 
     important = []
-    keep_phrases = ["CRITICAL", "WARNING"]
-    log_dir = r"\\uwhis.hosp.wisc.edu\ufs\UWHealth\RadOnc\ShareAll\RayScripts\dev_logs"
+#    keep_phrases = ["CRITICAL", "WARNING"]
+    keep_phrases = ["CRITICAL"]
+    log_dir = r"Q:\\RadOnc\RayStation\RayScripts\logs"
     log_file = patient.PatientID + '.txt'
     infile = os.path.join(log_dir, patient.PatientID, log_file)
 
@@ -80,6 +84,10 @@ def main():
     for line in f:
         for phrase in keep_phrases:
             if phrase in line:
+                #CRITICAL.*\.py
+                line = re.sub('CRITICAL.*\.py', ' ', line)
+                # line = line.replace('CRITICAL', '\t')
+                re.split(r'\t+', line.rstrip('\t'))
                 split = line.split("::")
                 important.append(split)
                 message += line + '\n'
@@ -88,6 +96,7 @@ def main():
     dialog.show()
     # webbrowser.open(infile)
     # connect.await_user_input('Check it out')
+
 
 
 if __name__ == '__main__':

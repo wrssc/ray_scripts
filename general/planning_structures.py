@@ -65,6 +65,7 @@ import logging
 import UserInterface
 import Xml_Out
 import StructureOperations
+from GeneralOperations import logcrit as logcrit
 import time
 import sys
 
@@ -597,9 +598,9 @@ def main():
                                **all_ptv_defs)
         newly_generated_rois.append('All_PTVs')
 
-    logging.log('Exam Name: {} Target List: [%s]' % ', '.join(map(str, input_source_list)))
-    logging.debug('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
-    logging.debug('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
+    logcrit('Target List: [%s]' % ', '.join(map(str, input_source_list)))
+    logcrit('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
+    logcrit('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
 
     # Underdose dialog call
     if generate_underdose:
@@ -807,7 +808,8 @@ def main():
             patient=patient,
             case=case,
             examination=examination,
-            inner=True)
+            inner=True,
+            struct_type="Organ")
         newly_generated_rois.append('Skin_PRV03')
 
     # Generate the UnderDose structure and the UnderDose_Exp structure
@@ -933,7 +935,7 @@ def main():
                     "OperationResult": "None",
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
-                    "StructType": "Undefined"}
+                    "StructType": "Ptv"}
             else:
                 ptv_definitions = {
                     "StructureName": PTVList[i],
@@ -952,7 +954,7 @@ def main():
                     "OperationResult": "Subtraction",
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
-                    "StructType": "Undefined"}
+                    "StructType": "Ptv"}
             logging.debug("Creating main target {}: {}"
                           .format(i, PTVList[i]))
             StructureOperations.make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
@@ -1041,7 +1043,7 @@ def main():
                 "OperationResult": "Intersection",
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
-                "StructType": "Undefined"}
+                "StructType": "Ptv"}
             StructureOperations.make_boolean_structure(
                 patient=patient,
                 case=case,
@@ -1151,7 +1153,7 @@ def main():
                 "MarginTypeB": "Expand",
                 "MarginTypeR": "Expand",
                 "ExpR": [0] * 6,
-                "StructType": "Undefined"}
+                "StructType": "Ptv"}
             if index == 0:
                 OTV_defs['SourcesB'] = []
                 OTV_defs['OperationResult'] = "None"
@@ -1191,7 +1193,7 @@ def main():
                     "OperationResult": "Intersection",
                     "MarginTypeR": "Expand",
                     "ExpR": [0] * 6,
-                    "StructType": "Undefined"}
+                    "StructType": "Ptv"}
                 StructureOperations.make_boolean_structure(
                     patient=patient,
                     case=case,
@@ -1392,12 +1394,9 @@ def main():
         StructureOperations.make_boolean_structure(patient=patient,
                                case=case,
                                examination=examination,
-                               **Normal_2cm_defs)
+                               **Normal_1cm_defs)
         newly_generated_rois.append(Normal_1cm_defs.get("StructureName"))
 
-    # if dialogresponse == {}:
-    #    status.finish('Script cancelled, inputs were not supplied')
-    #    sys.exit('Script cancelled')
     status.finish(text='The script executed successfully')
 
 

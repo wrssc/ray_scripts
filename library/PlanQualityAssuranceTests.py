@@ -17,13 +17,16 @@
 
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
+
+    1.0.0 Updated with multiple tests including cps, gridsize and external overlap
+    1.0.1 Bug fix to handle cases with no External or support structures designated
     """
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2018-09-05'
 
-__version__ = '1.0.4'
+__version__ = '1.0.1'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
@@ -124,18 +127,26 @@ def external_overlap_test(patient, case, exam):
     :param patient: RS patient
     :param case: RS case
     :param exam: Rs exam
-    :return: error: string message of any overlap
+    :return: error: string message of any overlap, empty string for No error
     """
+    error = ''
     structure = StructureOperations.find_types(case, 'External')
+    if not structure:
+        logging.exception('There is not structure with type External. Designate an external and re-run script')
+        error = 'No structures with External DICOM type'
+
     supports = StructureOperations.find_types(case, 'Support')
-    overlap_volume = StructureOperations.check_overlap(patient=patient,
+    if supports:
+        overlap_volume = StructureOperations.check_overlap(patient=patient,
                                                        case=case,
                                                        exam=exam,
                                                        structure=structure,
                                                        rois=supports)
-    error = ''
-    if overlap_volume > 1:
-        error += 'Significant overlap exists between {} and {}'.format(structure, supports)
+        if overlap_volume > 1:
+            error += 'Significant overlap exists between {} and {}'.format(structure, supports)
+    else:
+        logging.debug('No support structures exist for evaluation of overlap')
+        error = 'No support structures'
 
     return error
 

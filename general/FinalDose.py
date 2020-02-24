@@ -47,10 +47,9 @@ import PlanQualityAssuranceTests
 import GeneralOperations
 from GeneralOperations import logcrit as logcrit
 import StructureOperations
-
-
-class InvalidOperationException(Exception): pass
-
+import clr
+clr.AddReference("System.Xml")
+import System
 
 def main():
     # Get current patient, case, exam, and plan
@@ -78,8 +77,8 @@ def main():
         steps.append('Check for control Point Spacing')
         steps.append('Compute Dose if neccessary')
         steps.append('Set DSP')
-        steps.append('Round Jaws')
         steps.append('Round MU')
+        steps.append('Round Jaws')
         steps.append('Recompute Dose')
         rename_beams = True
         cps_test = True
@@ -122,6 +121,7 @@ def main():
                                         help=__help__)
     status.next_step('Checking beam names')
 
+
     if rename_beams:
         # Rename the beams
         BeamOperations.rename_beams()
@@ -129,11 +129,16 @@ def main():
 
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
     if external_test:
-        external_error = False
+        external_error = True
         while external_error:
             error = PlanQualityAssuranceTests.external_overlap_test(patient, case, exam)
-            if len(error) != 0:
-                connect.await_user_input('Eliminate overlap of patient external with support structures')
+            if error == 'No support structures':
+                logging.critical('Evaluation of overlap with External and Support Structures not possible ' +
+                                 'due to no structures having type Support')
+                external_error = False
+            elif len(error) != 0:
+                connect.await_user_input('Eliminate overlap of patient external with support structures' +
+                                         ' (hint: use the Couch Removal tool on the external)')
             else:
                 external_error = False
         status.next_step('Reviewed external')
@@ -149,26 +154,31 @@ def main():
                                                            limit=2.0,
                                                            shift=True)
         if not couch.valid:
-            tomo_couch_error = True
-            connect.await_user_input(couch.error)
-            if not couch.valid:
-                x_shift = couch.calculated_lateral_shift()
-                logging.info('Moving {} by {}'.format(couch_name, x_shift))
-                StructureOperations.translate_roi(case=case,
-                                              exam=exam,
-                                              roi=couch_name,
-                                              shifts={'x': x_shift, 'y': 0, 'z': 0})
-            plan.SetDefaultDoseGrid(
-                VoxelSize={'x': coarse_grid_size,'y': coarse_grid_size, 'z': coarse_grid_size})
+            try:
+                connect.await_user_input(couch.error)
+                if not couch.valid:
+                    x_shift = couch.calculated_lateral_shift()
+                    logging.info('Moving {} by {}'.format(couch_name, x_shift))
+                    StructureOperations.translate_roi(case=case,
+                                                  exam=exam,
+                                                  roi=couch_name,
+                                                  shifts={'x': x_shift, 'y': 0, 'z': 0})
+                plan.SetDefaultDoseGrid(
+                    VoxelSize={'x': coarse_grid_size,'y': coarse_grid_size, 'z': coarse_grid_size})
+                status.next_step('TomoTherapy couch corrected for lateral shift')
+            except:
+                tomo_couch_error = True
+                status.next_step('TomoTherapy couch could not be corrected, likely due to approved structures.')
+
         else:
             tomo_couch_error = False
-        status.next_step('TomoTherapy couch checked for correct lateral positioning')
+            status.next_step('TomoTherapy couch checked for correct lateral positioning')
 
 
     # SIMFIDUCIAL TEST
     if simfid_test:
         fiducial_point = 'SimFiducials'
-        fiducial_error = False
+        fiducial_error = True
         while fiducial_error:
             error = PlanQualityAssuranceTests.simfiducial_test(case=case, exam=exam, poi=fiducial_point)
             if len(error) != 0:
@@ -207,43 +217,64 @@ def main():
         if 'Tomo' in beamset.DeliveryTechnique:
             # TODO: Better exception handling here.
             try:
-                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=False)
+                beamset.ComputeDose(ComputeBeamDoses=True,
+                                    DoseAlgorithm=dose_algorithm,
+                                    ForceRecompute=False)
                 status.next_step('Recomputed Dose, finding DSP')
             except Exception:
                 status.next_step('Dose recomputation unneccessary, finding DSP')
                 logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
             # Set the DSP for the plan and recompute dose to force an update of the DSP
-            BeamOperations.set_dsp(plan=plan, beam_set=beamset)
-            beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+            BeamOperations.set_dsp(plan=plan,
+                                   beam_set=beamset)
+            beamset.ComputeDose(ComputeBeamDoses=True,
+                                DoseAlgorithm=dose_algorithm,
+                                ForceRecompute=True)
             status.next_step('DSP set. Script complete')
         else:
             # TODO: Better exception handling here.
             try:
-                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=False)
+                beamset.ComputeDose(ComputeBeamDoses=True,
+                                    DoseAlgorithm=dose_algorithm,
+                                    ForceRecompute=False)
                 status.next_step('Recomputed Dose, finding DSP')
-            except Exception:
-                status.next_step('Dose re-computation unnecessary, finding DSP')
-                logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+            except Exception as e:
+                logging.debug(u'Message is {}'.format(e.Message))
+                try:
+                    if 'Dose has already been computed (with the current parameters)' in e.Message:
+                        status.next_step('Dose re-computation unnecessary, finding DSP')
+                        logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+                    else:
+                        logging.exception(u'{}'.format(e.Message))
+                        sys.exit(u'{}'.format(e.Message))
+                except:
+                    logging.exception(u'{}'.format(e.Message))
+                    sys.exit(u'{}'.format(e.Message))
 
             # Set the DSP for the plan
             BeamOperations.set_dsp(plan=plan, beam_set=beamset)
-            status.next_step('DSP set. Rounding jaws')
-
-            # Round jaws to nearest mm
-            logging.debug('Checking for jaw rounding')
-            BeamOperations.round_jaws(beamset=beamset)
+            status.next_step('Set DSP, rounding MU')
 
             # Round MU
-            status.next_step('Jaws Rounded. Rounding MU')
             # The Autoscale hides in the plan optimization hierarchy. Find the correct index.
             indx = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
             plan.PlanOptimizations[indx].AutoScaleToPrescription = False
             BeamOperations.round_mu(beamset)
+            status.next_step('Rounded MU, Rounding jaws')
+
+            # Round jaws to nearest mm
+            logging.debug('Checking for jaw rounding')
+            BeamOperations.round_jaws(beamset=beamset)
+            status.next_step('Jaws Rounded.')
+
 
             # Recompute dose
             status.next_step('Recomputing Dose')
             # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
-            beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+            try:
+                beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
+            except Exception as e:
+                logging.debug(' error type is {}, with e = {}'.format(type(e), e))
             status.next_step('Script Complete')
 
     if beamset.Modality == 'Electrons':
