@@ -106,6 +106,8 @@ def main():
                                                  path=path_protocols,
                                                  order_name=order_name)
 
+    # Check to see if a beamset with this name exists already. If it does, quit
+
     rs_beam_set = BeamOperations.create_beamset(patient=patient,
                                                 case=case,
                                                 exam=exam,
@@ -258,8 +260,8 @@ def main():
                       ((start >= 230 and stop <= 290 and rot == 'Clockwise') or
                        (start <= 290 and stop >= 230 and rot == 'CounterClockwise'))
         left_sided = (start <= 180 and stop <= 180) and \
-                     ((start <= 60 and stop <= 120 and rot == 'Clockwise') or
-                      (start <= 120 and stop >= 60 and rot == 'CounterClockwise'))
+                     ((start <= 70 and stop <= 130 and rot == 'Clockwise') or
+                      (start <= 130 and stop >= 70 and rot == 'CounterClockwise'))
         logging.debug('Start={}, Stop={}, Dir={}, Right={}, Left={}'.format(
             start, stop, rot, right_sided, left_sided))
 

@@ -151,7 +151,9 @@ def main():
                    'Set couch to (0, 100, 0)',
                    'Round jaw positions to 0.1 mm',
                    'Create reference point',
-                   'Set block tray and slot ID (electrons only)']
+                   'Set block tray and slot ID (electrons only)',
+                   #'180E'
+                    'PRDR Dose Rate']
 
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'a': 'Select which data elements to export:',
@@ -196,6 +198,9 @@ def main():
     status.next_step(text='The DICOM datasets are now being exported to a temporary directory, converted to a ' +
                           'treatment delivery system, and sent to the selected destination. Please be patient, as ' +
                           'this can take several minutes...')
+    if response['d'] == 'Yes':
+        ignore = True
+        logging.debug('User choose to ignore warnings during DICOM export')
 
     if beamset is not None:
         f = []
@@ -206,8 +211,8 @@ def main():
                 f.append('duplicate')
             else:
                 f = None
-            filters = ['x'] * 6
-            response['e'] = [False] * 6
+            filters = ['x'] * 7
+            response['e'] = [False] * 7
             t = None
             response['c'] = None
 
@@ -220,6 +225,16 @@ def main():
 
             if filters[2] in response['e']:
                 t = [0, 1000, 0]
+
+            if filters[6] in response['e']:
+                if '_PRD_' in beamset.DicomPlanLabel:
+                    prdr_dr = True
+                else:
+                    prdr_dr = False
+
+            # if filters[6] in response['e']:
+            pa_threshold = None
+            #else:
 
     else:
         f = None
@@ -246,6 +261,8 @@ def main():
                                prescription=filters[4] in response['e'],
                                block_accessory=filters[5] in response['e'],
                                block_tray_id=filters[5] in response['e'],
+                               pa_threshold=pa_threshold,
+                               prdr_dr=prdr_dr,
                                bar=True)
 
     # Finish up

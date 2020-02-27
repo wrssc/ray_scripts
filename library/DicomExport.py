@@ -112,6 +112,7 @@ def send(case,
          block_accessory=False,
          block_tray_id=False,
          parent_plan=None,
+         prdr_dr=False,
          bar=True):
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
@@ -343,15 +344,15 @@ def send(case,
                     bar.close()
 
                 UserInterface.MessageBox('DICOM export was successful', 'Export Success')
-#            except InvalidOperationException as error:
-#                if 'already exist' in error.message:
-#                    logging.debug('This plan {} has already been sent'.format(parent_plan.Name))
-#                    status = True
-#                else:
-#                    status = False
-#                    logging.error('DicomExport failed {}'.format(error.message))
-#                    UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
-#                    raise
+            #            except InvalidOperationException as error:
+            #                if 'already exist' in error.message:
+            #                    logging.debug('This plan {} has already been sent'.format(parent_plan.Name))
+            #                    status = True
+            #                else:
+            #                    status = False
+            #                    logging.error('DicomExport failed {}'.format(error.message))
+            #                    UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
+            #                    raise
             except Exception as error:
                 if hasattr(error, 'message'):
                     status = False
@@ -403,8 +404,31 @@ def send(case,
                         b.TreatmentMachineName = machine
                         expected.add(b[0x300a00b2], beam=b)
 
-                        # The following lines add a new accessory for the electron block which is unnecessary in ARIA
+                    if 'TreatmentDeliveryType' in b and b.TreatmentDeliveryType == 'SETUP':
+                        # Change Dose rate for set-up fields to 100 MU/min
+                        for c in b.ControlPointSequence:
+                            c.DoseRateSet = 100
+                            expected.add(c[0x300a0115], beam=b, cp=c)
+                            # Change the nominal beam energy
+                            if 'NominalBeamEnergy' in c and c.NominalBeamEnergy != 6:
+                                c.NominalBeamEnergy = 6
+                                expected.add(c[0x300a0114], beam=b, cp=c)
 
+                    # If plan is prdr then set the nominal dose rate to 100 MU/min
+                    if prdr_dr and 'RadiationType' in b and b.RadiationType == 'PHOTON' and \
+                            'ControlPointSequence' in b:
+                        for c in b.ControlPointSequence:
+                            if 'DoseRateSet' in c and c.DoseRateSet != 100:
+                                c.DoseRateSet = 100
+                                expected.add(c[0x300a0115], beam=b, cp=c)
+
+                    # Change Dose rate for electron fields to 1000 MU/min
+                    if 'RadiationType' in b and b.RadiationType == 'ELECTRON' and 'ControlPointSequence' in b:
+                        for c in b.ControlPointSequence:
+                            c.DoseRateSet = 1000
+                            expected.add(c[0x300a0115], beam=b, cp=c)
+
+                        # The following lines add a new accessory for the electron block which is unnecessary in ARIA
                         # If converting electron block into accessory (note, accessory ID tags are currently hard coded
                         # if block_accessory and 'RadiationType' in b and b.RadiationType == 'ELECTRON' and \
                         #         'BlockSequence' in b and 'BlockName' in b.BlockSequence[0] and \
@@ -488,7 +512,7 @@ def send(case,
                         if right_pa:
                             for c in b.ControlPointSequence:
                                 if 'GantryAngle' in c:
-                                    c.GantryAngle = 180.1
+                                    c.GantryAngle = 180.010
                                     expected.add(c[0x300a011e], beam=b, cp=c)
 
                     # If applying an energy filter (note only photon are supported)

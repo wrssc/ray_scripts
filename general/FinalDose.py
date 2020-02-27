@@ -70,6 +70,9 @@ def main():
     # Set up the workflow steps.
     steps = []
     if 'Tomo' not in beamset.DeliveryTechnique and beamset.Modality != 'Electrons':
+        check_lateral_pa = False
+        if check_lateral_pa:
+            steps.append('Check Laterality')
         steps.append('Rename Beams')
         steps.append('Check for external structure integrity')
         steps.append('Check SimFiducials have coordinates')
@@ -121,6 +124,13 @@ def main():
                                         help=__help__)
     status.next_step('Checking beam names')
 
+    if check_lateral_pa:
+        # Check the lateral PA for clearance
+        for b in beamset.Beams:
+            change_gantry = BeamOperations.check_pa(plan=plan, beam=b)
+            logging.debug('Recommended change for {} is {}'.format(b.Name, change_gantry))
+        # BeamOperations.check_clearance(beamset=beamset)
+        status.next_step('Checked field orientations')
 
     if rename_beams:
         # Rename the beams
