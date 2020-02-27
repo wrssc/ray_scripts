@@ -190,6 +190,9 @@ def select_rois_for_treat(plan, beamset, rois=None):
                      roi_name) + ' and is not included in treat settings.')
                     objective_beamset_name = None
 
+            # If not cooptimization the roi is automatically in scope.
+            # Otherwise match the beamset to which this objective is assigned to
+            # the current beamset or label it out of scope.
             if not cooptimization or objective_beamset_name == beamset.DicomPlanLabel:
                 roi_in_scope = True
             else:
@@ -202,7 +205,7 @@ def select_rois_for_treat(plan, beamset, rois=None):
         for r in roi_list:
             beamset.SelectToUseROIasTreatOrProtectForAllBeams(RoiName=r)
             logging.debug('Roi {} added to list for treat margins for beamset {}'.format(
-                r, objective_beamset_name))
+                r, beamset.DicomPlanLabel))
     else:
         for r in rois:
             try:
@@ -231,9 +234,9 @@ def set_treat_margins(beam, rois, margins=None):
     if margins is None:
         margins = {'Y1': 0.8, 'Y2': 0.8, 'X1': 0.8, 'X2': 0.8}
 
-    logging.debug('rois in set_treat margins are {}'.format(rois))
     for r in rois:
-        logging.debug('r in set_treat margins is {}'.format(r))
+        logging.debug('{} treat margins used [X1, X2, Y1, Y2] = [{}, {}, {}, {}]'.format(
+            r, margins['X1'], margins['X2'], margins['Y1'], margins['Y2']))
         beam.SetTreatAndProtectMarginsForBeam(TopMargin=margins['Y2'],
                                               BottomMargin=margins['Y1'],
                                               RightMargin=margins['X2'],

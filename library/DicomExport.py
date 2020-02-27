@@ -416,7 +416,7 @@ def send(case,
 
                     # If plan is prdr then set the nominal dose rate to 100 MU/min
                     if prdr_dr and 'RadiationType' in b and b.RadiationType == 'PHOTON' and \
-                           'ControlPointSequence' in b:
+                            'ControlPointSequence' in b:
                         for c in b.ControlPointSequence:
                             if 'DoseRateSet' in c and c.DoseRateSet != 100:
                                 c.DoseRateSet = 100

@@ -474,6 +474,79 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             MaxDeliveryTimeFactor=None)
 
 
+def check_pa(plan, beam):
+    """Determine if any fields are pa, and return true if the gantry is unlikely to clear from
+    a determined direction
+    :param beam: RS beam object
+    :return None if test passed, suggested gantry angle if failed"""
+    delivery_techiques = ['SMLC']
+    linac_clearance = 35.0
+    if beam.GantryAngle != 180 or beam.DeliveryTechnique not in delivery_techiques:
+        return None
+    else:
+        lateral_iso = beam.Isocenter.Position.x
+        grid = plan.GetDoseGrid()
+        lower_corner = grid.Corner
+        lc_x = lower_corner.x
+        lc_y = lower_corner.y
+        lc_z = lower_corner.z
+
+        uc_x = lc_x + grid.VoxelSize.x * grid.NrVoxels.x
+        uc_y = lc_y + grid.VoxelSize.y * grid.NrVoxels.y
+        uc_z = lc_z + grid.VoxelSize.z * grid.NrVoxels.z
+        # Find the distance of the corners of the dose grid from isocenter
+        corners = np.empty([8, 3])
+        sq_diff = np.zeros([8, 2])
+        # The dose grid corners are going to need to be converted to patient coordinates for this to work...
+        # start at lower left and raster up
+        corners[0, :] = [lc_x, lc_y, lc_z]
+        corners[1, :] = [uc_x, lc_y, lc_z]
+        corners[2, :] = [lc_x, lc_y, uc_z]
+        corners[3, :] = [uc_x, lc_y, uc_z]
+        corners[4, :] = [lc_x, uc_y, lc_z]
+        corners[5, :] = [uc_x, uc_y, lc_z]
+        corners[6, :] = [lc_x, uc_y, uc_z]
+        corners[7, :] = [uc_x, uc_y, uc_z]
+        logging.debug('Corners is \n {}'.format(corners))
+        # np_list = corners.tolist()
+        # np_out = '\n'.join('{}'.format(row) for row in np_list)
+        # logging.debug('Corner is \n{}'.format(np_out))
+        # Evaluate the distance of each corner
+        sq_diff[:, 0] = beam.Isocenter.Position.x - corners[:, 0]
+        sq_diff[:, 1] = beam.Isocenter.Position.z - corners[:, 2]
+        sq_diff = np.square(sq_diff)
+        logging.debug('sq_diff is \n {}'.format(sq_diff))
+        dist = np.sum(sq_diff, axis=1)
+        logging.debug('dist is \n {}'.format(dist))
+        max_corner = np.argmax(dist)
+        logging.debug('Maximum distance is to corner {} at position (x, y, z): ({}, {}, {})'.format(
+            max_corner, corners[max_corner, 0], corners[max_corner, 1], corners[max_corner, 2]))
+        if max_corner % 2 == 0:
+            # Lower (negative) corner, clearance issue is on HFS's left, recommend using beam down the right
+            return 180.1
+        else:
+            # Upper (positive) corner, clearance issue is on HFS's right, recommend using beam down the left
+            return 179.9
+
+        # Find the corner farthest from iso
+
+
+
+
+# def check_clearance(beamset):
+#     """Currently looking only at PA fields for whether the pa function should be flipped
+#     return: dict: {Beam.Name: 'PA_Check': {'No_Collision':True, 'Change_Gantry': 180.1}}"""
+#     beam_status = {}
+#     for b in beamset.Beams:
+#         rec_gantry_angle = check_pa(beam=b)
+#         if rec_gantry_angle is not None:
+#             logging.debug('Beam {} potential gantry clearance issue. Recommend changing gantry angle from {} to {}'
+#                           .format(b.Name, b.GantryAngle, rec_gantry_angle))
+#             if b.Name not in beam_status:
+#                 beam_status[b.Name] = {'PA_Check':}
+#             beam_status[b.Name] = ['PA_Clear']
+
+
 def validate_setup_fields(beamset):
     """For the current beamset check all SSD's and return a list of any beams with infinite SSD's.
     :param beamset: RS beamset object
