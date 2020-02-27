@@ -923,7 +923,7 @@ def planning_structures(generate_ptvs=True,
     # No guarantee can be made that things will work if elements are turned off
     # all dependencies are not really resolved
     # TODO: Move this down to where the translation map gets declared
-    Xml_Out.save_structure_map()
+    # Xml_Out.save_structure_map()
 
     # InnerAir Parameters
     # Upper Bound on the air volume to be removed from target coverage considerations
