@@ -262,7 +262,7 @@ def select_element(set_level, set_type, set_elements,
 
     if et_list is not None:
         for e in et_list:
-            logging.info('Objective list to be loaded {}'.format(
+            logging.info('{} list to be loaded {}'.format(set_level,
                 e.find('name').text))
     else:
         logging.warning('objective files were not found')

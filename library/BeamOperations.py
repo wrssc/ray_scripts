@@ -2260,12 +2260,17 @@ def load_beams_xml(filename, beamset_name, path):
             if b.find('JawMode') is None:
                 beam.jaw_mode = None
             else:
-                beam.jaw_mode = float(b.find('JawMode').text)
+                beam.jaw_mode = b.find('JawMode').text
 
             if b.find('BackJawPosition') is None:
                 beam.back_jaw_position = None
             else:
                 beam.back_jaw_position = float(b.find('BackJawPosition').text)
+
+            if b.find('FrontJawPosition') is None:
+                beam.front_jaw_position = None
+            else:
+                beam.front_jaw_position = float(b.find('FrontJawPosition').text)
 
             beams.append(beam)
     return beams
