@@ -77,12 +77,14 @@ def main():
     planning_struct = True
     if planning_struct:
     # Define planning structures
-        dialog1_response = {'number_of_targets': 3,
-                            'generate_underdose': False,
-                            'generate_uniformdose': True,
-                            'generate_inner_air': False}
-        targets_dose = {target_1: target_1_dose, target_2: target_2_dose, target_3: target_3_dose}
-        dialog2_response = targets_dose
+        # dialog1_response = {'number_of_targets': 3,
+        #                     'generate_underdose': False,
+        #                     'generate_uniformdose': True,
+        #                     'generate_inner_air': False}
+        # targets_dose = {target_1: target_1_dose, target_2: target_2_dose, target_3: target_3_dose}
+        # dialog2_response = targets_dose
+        dialog1_response = None
+        dialog2_response = None
         dialog3_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
                             'standoff': 0.4}
         dialog4_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
