@@ -292,7 +292,7 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
     :param option: desired behavior
         Delete - deletes structure if found
         Check - simply returns true or false if found
-        Wait - prompt user to create structure
+        Wait - prompt user to create structure if not found
     :param exam: Current RS exam, if supplied the script deletes geometry only, otherwise contour is deleted
     :return: Logical - True if structure is present in ROI List, false otherwise
     """
@@ -329,8 +329,14 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
                 logging.info(structure_name + 'found')
             return True
         elif option == 'Wait':
-            connect.await_user_input(
-                'Create the structure {} and continue script.'.format(structure_name))
+            if structure_has_contours_on_exam:
+                logging.info('Structure {} has contours on exam {}'.format(structure_name,exam.Name))
+                return True
+            else:
+                logging.info('Structure {} not found on exam {}, prompted user to create'.format(
+                    structure_name, exam.Name))
+                connect.await_user_input(
+                    'Create the structure {} and continue script.'.format(structure_name))
     else:
         logging.info(structure_name + 'not found')
         return False
