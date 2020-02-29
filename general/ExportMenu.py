@@ -262,7 +262,7 @@ def main():
                                block_accessory=filters[5] in response['e'],
                                block_tray_id=filters[5] in response['e'],
                                pa_threshold=pa_threshold,
-                               prdr_dr=prdr_dr,
+                               prdr_dr=filters[6] in response['e'],
                                bar=True)
 
     # Finish up

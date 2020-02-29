@@ -230,6 +230,10 @@ def send(case,
     if plan and beamset is not None:
         logging.debug('RT Plan {} selected for export'.format(beamset.BeamSetIdentifier()))
         args['BeamSets'] = [beamset.BeamSetIdentifier()]
+        # if prdr_dr and '_PRD_' in beamset.DicomPlanLabel:
+        #     prdr_plan = True
+        # else:
+        #     prdr_plan = False
 
     # Append beamset to export RTSS (if beamset is not present, export RTSS from exam)
     if structures:
@@ -415,7 +419,8 @@ def send(case,
                                 expected.add(c[0x300a0114], beam=b, cp=c)
 
                     # If plan is prdr then set the nominal dose rate to 100 MU/min
-                    if prdr_dr and 'RadiationType' in b and b.RadiationType == 'PHOTON' and \
+                    if prdr_dr and '_PRD_' in beamset.DicomPlanLabel and \
+                            'RadiationType' in b and b.RadiationType == 'PHOTON' and \
                             'ControlPointSequence' in b:
                         for c in b.ControlPointSequence:
                             if 'DoseRateSet' in c and c.DoseRateSet != 100:
