@@ -72,8 +72,9 @@ def main():
     beamset_name = 'Tmplt_20Feb2020'
     number_fractions = 33
     machine = 'HDA0488'
+    iso_target = 'All_PTVs'
     #
-    planning_struct = False
+    planning_struct = True
     if planning_struct:
     # Define planning structures
         dialog1_response = {'number_of_targets': 3,
@@ -114,11 +115,11 @@ def main():
         )
 
     # Dependancies: All_PTVs
-    all_ptvs_exists = StructureOperations.check_structure_exists(
-        case=case,structure_name='All_PTVs',option='Wait', exam=exam)
-    if not all_ptvs_exists:
-        logging.debug('All_PTVs does not exist. It must be defined to make this script work')
-        sys.exit('All_PTVs is a required structure')
+    iso_target_exists = StructureOperations.check_structure_exists(
+        case=case, structure_name=iso_target, option='Wait', exam=exam)
+    if not iso_target_exists:
+        logging.debug('{} does not exist. It must be defined to make this script work'.format(iso_target))
+        sys.exit('{} is a required structure'.format(iso_target))
 
     # TODO: Add a plan based on the xml
     # Go grab the beamset called protocol_beamset
@@ -143,7 +144,7 @@ def main():
     beamset_defs.machine = machine
     beamset_defs.modality = 'Photons'
     beamset_defs.technique = 'TomoHelical'
-    beamset_defs.iso_target = 'All_PTVs'
+    beamset_defs.iso_target = iso_target
     beamset_defs.protocol_name = available_beamsets
 
     order_name = None
@@ -215,6 +216,11 @@ def main():
     beams = BeamOperations.load_beams_xml(filename=file,
                                           beamset_name=par_beam_set.protocol_name,
                                           path=path_protocols)
+
+    # Now add in clinical goals and objectives
+    add_goals_and_structures_from_protocol(patient=patient, case=case, plan=plan, beamset=rs_beam_set, exam=exam,
+                                           filename=None, path_protocols=None, run_status=False)
+
 
 
 
