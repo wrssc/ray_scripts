@@ -119,6 +119,8 @@ def main():
     if not all_ptvs_exists:
         logging.debug('All_PTVs does not exist. It must be defined to make this script work')
         sys.exit('All_PTVs is a required structure')
+
+    # TODO: Add a plan based on the xml
     # Go grab the beamset called protocol_beamset
     # This step is likely not neccessary, just know exact beamset name from protocol
     available_beamsets = BeamOperations.Beams.select_element(
@@ -131,6 +133,7 @@ def main():
         folder=path_protocols,
         verbose_logging=False)
 
+    # TODO: Retrieve these definitions from the planning protocol.
     beamset_defs = BeamOperations.BeamSet()
     beamset_defs.rx_target = rx_target
     beamset_defs.name = beamset_name
