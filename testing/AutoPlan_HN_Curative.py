@@ -115,7 +115,7 @@ def main():
 
     # Dependancies: All_PTVs
     all_ptvs_exists = StructureOperations.check_structure_exists(
-        case=case,structure_name='All_PTVs',option='Check', exam=exam)
+        case=case,structure_name='All_PTVs',option='Wait', exam=exam)
     if not all_ptvs_exists:
         logging.debug('All_PTVs does not exist. It must be defined to make this script work')
         sys.exit('All_PTVs is a required structure')

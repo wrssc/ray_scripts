@@ -301,7 +301,7 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
     if roi_list is None:
         roi_list = []
         for r in case.PatientModel.RegionsOfInterest:
-            roi_list.append(r.Name)
+            roi_list.append(r)
 
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if exam is not None:
