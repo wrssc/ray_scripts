@@ -298,9 +298,12 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
     """
 
     # If no roi_list is given, build it using all roi in the case
+    if roi_list is None and exam is None:
+        logging.warning('Inappropriate call to check_structure_exists. If roi_list = None, then exam must be supplied ')
+        sys.exit()
     if roi_list is None:
         roi_list = []
-        for r in case.PatientModel.RegionsOfInterest:
+        for r in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
             roi_list.append(r)
 
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
