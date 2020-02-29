@@ -52,7 +52,6 @@ def main():
     case = GeneralOperations.find_scope(level='Case')
     exam = GeneralOperations.find_scope(level='Examination')
     plan = GeneralOperations.find_scope(level='Plan')
-
     protocol_folder = r'../protocols'
     institution_folder = r'UW'
     beamset_folder = ''
@@ -114,6 +113,12 @@ def main():
             dialog5_response=dialog5_response
         )
 
+    # Dependancies: All_PTVs
+    all_ptvs_exists = StructureOperations.check_structure_exists(
+        case=case,structure_name='All_PTVs',option='Check', exam=exam)
+    if not all_ptvs_exists:
+        logging.debug('All_PTVs does not exist. It must be defined to make this script work')
+        sys.exit('All_PTVs is a required structure')
     # Go grab the beamset called protocol_beamset
     # This step is likely not neccessary, just know exact beamset name from protocol
     available_beamsets = BeamOperations.Beams.select_element(
@@ -135,7 +140,7 @@ def main():
     beamset_defs.machine = machine
     beamset_defs.modality = 'Photons'
     beamset_defs.technique = 'TomoHelical'
-    beamset_defs.iso_target = target_1
+    beamset_defs.iso_target = 'All_PTVs'
     beamset_defs.protocol_name = available_beamsets
 
     order_name = None
