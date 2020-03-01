@@ -429,6 +429,7 @@ def find_normal_structures_match(rois, site=None, num_matches=None, protocol_fil
         if r.find('Alias').text is not None:
             alias = r.find('Alias').text
             aliases[r.find('name').text] = alias.split(',')
+            logging.debug('Structure is {} with aliases {}'.format(r.find('name').text, aliases))
 
     for r in roi263:
         standard_names.append(r.find('name').text)
@@ -840,6 +841,82 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     return new_structs
 
 
+class planning_structure_preferences:
+    """
+    Class for getting all relevant data for creating planning structures.
+    """
+    def __init__(self):
+        self.protocol_name = None
+        self.origin_file = None
+        self.origin_path = None
+        self.number_of_targets = None
+        self.targets = {}
+        self.use_inner_air = None
+        self.use_uniform_dose = None
+        self.uniform_dose_oar = {}
+        self.use_under_dose = None
+        self.under_dose_oar = {}
+
+
+def dialog_number_of_targets():
+    """
+    Dialog to ascertain the number of target dose levels to be used in defining the planning structures
+
+    :return: planning_structures: an instance of the planning_structure_preferences class with the attributes
+    use_under_dose, use_uniform_dose, use_inner_air, number_of_targets chosen.
+    """
+    # Create an instance of the planning structure class
+    planning_structures = planning_structure_preferences()
+
+    dialog1 = UserInterface.InputDialog(
+        inputs={
+            '1': 'Enter Number of Targets',
+            # Not yet '2': 'Select Plan Intent',
+            '3': 'Priority 1 goals present: Use Underdosing',
+            '4': 'Targets overlap sensitive structures: Use UniformDoses',
+            '5': 'Use InnerAir to avoid high-fluence due to cavities',
+            # '6': 'SBRT'
+        },
+        title='Planning Structures and Goal Selection',
+        datatype={  # Not yet '2': 'combo',
+            '3': 'check',
+            '4': 'check',
+            '5': 'check',
+        },  # '6': 'check'},
+        initial={'1': '0',
+                 '5': ['yes']},
+        options={
+            # Not yet,  Not yet.  '2': ['Single Target/Dose', 'Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
+            '3': ['yes'],
+            '4': ['yes'],
+            '5': ['yes'],
+            # '6': ['yes']
+        },
+        required=['1']  # , Not Yet'2']
+    )
+    dialog1_response = dialog1.show()
+    if dialog1_response == {}:
+        sys.exit('Planning Structures and Goal Selection was cancelled')
+    # Parse number of targets
+    planning_structures.number_of_targets = int(dialog1_response['1'])
+    # User selected that Underdose is required
+    if 'yes' in dialog1_response['3']:
+        planning_structures.use_under_dose = True
+    else:
+        planning_structures.use_under_dose = False
+    # User selected that Uniformdose is required
+    if 'yes' in dialog1_response['4']:
+        planning_structures.use_uniform_dose = True
+    else:
+        planning_structures.use_uniform_dose = False
+    # User selected that InnerAir is required
+    if 'yes' in dialog1_response['5']:
+        planning_structures.use_inner_air = True
+    else:
+        planning_structures.use_inner_air = False
+    return planning_structures
+
+
 def planning_structures(generate_ptvs=True,
                         generate_ptv_evals=True,
                         generate_otvs=True,
@@ -852,7 +929,7 @@ def planning_structures(generate_ptvs=True,
                         generate_combined_ptv=True,
                         skin_contraction=0.3,
                         run_status=True,
-                        dialog1_response=None,
+                        planning_structure_selections=None,
                         dialog2_response=None,
                         dialog3_response=None,
                         dialog4_response=None,
@@ -1094,64 +1171,17 @@ def planning_structures(generate_ptvs=True,
     ]
 
     # Prompt the user for the number of targets, uniform dose needed, sbrt flag, underdose needed
-    if dialog1_response is None:
+    if planning_structure_selections is None:
+        planning_structure_selections = dialog_number_of_targets()
+    number_of_targets = planning_structure_selections.number_of_targets
+    generate_underdose = planning_structure_selections.use_under_dose
+    generate_uniformdose = planning_structure_selections.use_uniform_dose
+    generate_inner_air = planning_structure_selections.use_inner_air
+    logging.debug('Planning structures will use {} targets, UnderDose (Priority 1 Goals) {}, '.format(
+        planning_structure_selections.number_of_targets, planning_structure_selections.use_under_dose) +
+                  'UniformDose {}, Inner volumes of air {}'.format(
+                      planning_structure_selections.use_uniform_dose, planning_structure_selections.use_inner_air))
 
-        dialog1 = UserInterface.InputDialog(
-            inputs={
-                '1': 'Enter Number of Targets',
-                # Not yet '2': 'Select Plan Intent',
-                '3': 'Priority 1 goals present: Use Underdosing',
-                '4': 'Targets overlap sensitive structures: Use UniformDoses',
-                '5': 'Use InnerAir to avoid high-fluence due to cavities',
-                # '6': 'SBRT'
-            },
-            title='Planning Structures and Goal Selection',
-            datatype={  # Not yet '2': 'combo',
-                '3': 'check',
-                '4': 'check',
-                '5': 'check',
-            },  # '6': 'check'},
-            initial={'1': '0',
-                     '5': ['yes']},
-            options={
-                # Not yet,  Not yet.  '2': ['Single Target/Dose', 'Concurrent', 'Primary+Boost', 'Multiple Separate Targets'],
-                '3': ['yes'],
-                '4': ['yes'],
-                '5': ['yes'],
-                # '6': ['yes']
-            },
-            required=['1']  # , Not Yet'2']
-        )
-        dialog1_response = dialog1.show()
-        if dialog1_response == {}:
-            sys.exit('Planning Structures and Goal Selection was cancelled')
-        # Parse number of targets
-        number_of_targets = int(dialog1_response['1'])
-        # User selected that Underdose is required
-        if 'yes' in dialog1_response['3']:
-            generate_underdose = True
-        else:
-            generate_underdose = False
-        # User selected that Uniformdose is required
-        if 'yes' in dialog1_response['4']:
-            generate_uniformdose = True
-        else:
-            generate_uniformdose = False
-        # User selected that InnerAir is required
-        if 'yes' in dialog1_response['5']:
-            generate_inner_air = True
-        else:
-            generate_inner_air = False
-    else:
-        # TODO rename dialog1_response something better like structure scope
-        number_of_targets = dialog1_response['number_of_targets']
-        generate_underdose = dialog1_response['generate_underdose']
-        generate_uniformdose = dialog1_response['generate_uniformdose']
-        generate_inner_air = dialog1_response['generate_inner_air']
-
-    logging.debug('User selected {} for UnderDose'.format(generate_underdose))
-    logging.debug('User selected {} for UniformDose'.format(generate_uniformdose))
-    logging.debug('User selected {} for InnerAir'.format(generate_inner_air))
     # Determine if targets using the skin are in place
 
     # Find all the target names and generate the potential dropdown list for the cases

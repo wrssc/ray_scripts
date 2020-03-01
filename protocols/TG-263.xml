@@ -1731,7 +1731,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Mandible_Bone</TG263ReverseOrderName>
         <FMAID>52748</FMAID>
-        <Alias></Alias>
+        <Alias>Mandible</Alias>
     </roi>
     <roi>
         <name>Bone_Mastoid</name>
@@ -2459,7 +2459,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Oral_Cavity</TG263ReverseOrderName>
         <FMAID>20292</FMAID>
-        <Alias></Alias>
+        <Alias>Oral Cavity, Oral_Cavity</Alias>
     </roi>
     <roi>
         <name>Cerebellum</name>
@@ -2680,7 +2680,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_External_Ear</TG263ReverseOrderName>
         <FMAID>53644</FMAID>
-        <Alias></Alias>
+        <Alias>Ear_L</Alias>
     </roi>
     <roi>
         <name>Ear_External_R</name>
@@ -2693,7 +2693,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_External_Ear</TG263ReverseOrderName>
         <FMAID>53643</FMAID>
-        <Alias></Alias>
+        <Alias>Ear_R</Alias>
     </roi>
     <roi>
         <name>Ear_Externals</name>
@@ -2706,7 +2706,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Externals_Ear</TG263ReverseOrderName>
         <FMAID>52781</FMAID>
-        <Alias></Alias>
+        <Alias>Ears</Alias>
     </roi>
     <roi>
         <name>Ear_Internal_L</name>
@@ -2797,7 +2797,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>L_Eye</TG263ReverseOrderName>
         <FMAID>12515</FMAID>
-        <Alias></Alias>
+        <Alias>Globe_L</Alias>
     </roi>
     <roi>
         <name>Eye_R</name>
@@ -2810,7 +2810,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>R_Eye</TG263ReverseOrderName>
         <FMAID>12514</FMAID>
-        <Alias></Alias>
+        <Alias>Globe_R</Alias>
     </roi>
     <roi>
         <name>Eyes</name>
@@ -2927,7 +2927,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Submand_Glnd</TG263ReverseOrderName>
         <FMAID>59803</FMAID>
-        <Alias></Alias>
+        <Alias>Submandibular_L</Alias>
     </roi>
     <roi>
         <name>Glnd_Submand_R</name>
@@ -2940,7 +2940,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Submand_Glnd</TG263ReverseOrderName>
         <FMAID>59802</FMAID>
-        <Alias></Alias>
+        <Alias>Submandibular_R</Alias>
     </roi>
     <roi>
         <name>Glnd_Submands</name>
@@ -3811,7 +3811,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Constrict_Musc</TG263ReverseOrderName>
         <FMAID>46620</FMAID>
-        <Alias></Alias>
+        <Alias>ConstrMuscle, ConstMusc</Alias>
     </roi>
     <roi>
         <name>Musc_Constrict_I</name>
