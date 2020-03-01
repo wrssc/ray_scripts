@@ -208,7 +208,7 @@ def main():
     exam = find_scope(level='Examination')
     plan = find_scope(level='Plan')
     beamset = find_scope(level='BeamSet')
-
+    target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
     protocol_rois = [
         'A_Carotid',
         'A_Carotid_L',
@@ -237,8 +237,13 @@ def main():
         'Bone_Nasal_R']
     # plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
     plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
+    # filter the structure list
+    filtered_plan_rois= []
+    for r in plan_rois:
+        if r not in target_list:
+            filtered_plan_rois.append(r)
 
-    StructureOperations.match_roi(case, exam, plan, beamset, plan_rois=plan_rois, protocol_rois=protocol_rois)
+    StructureOperations.match_roi(case, exam, plan, beamset, plan_rois=filtered_plan_rois, protocol_rois=protocol_rois)
 
 
 if __name__ == '__main__':
