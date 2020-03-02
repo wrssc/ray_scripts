@@ -48,8 +48,10 @@ import GeneralOperations
 from GeneralOperations import logcrit as logcrit
 import StructureOperations
 import clr
+
 clr.AddReference("System.Xml")
 import System
+
 
 def main():
     # Get current patient, case, exam, and plan
@@ -67,10 +69,17 @@ def main():
     fine_grid_size = 0.15
     coarse_grid_names = ['_THI_', '_VMA_', '_3DC_', '_BST_', '_DCA_']
     coarse_grid_size = 0.2
+    rename_beams = True
+    simfid_test = True
+    external_test = True
+    grid_test = True
+    # Let the statements below change as needed
+    tomo_couch_test = False
+    check_lateral_pa = False
+    cps_test = False
     # Set up the workflow steps.
     steps = []
     if 'Tomo' not in beamset.DeliveryTechnique and beamset.Modality != 'Electrons':
-        check_lateral_pa = False
         if check_lateral_pa:
             steps.append('Check Laterality')
         steps.append('Rename Beams')
@@ -83,15 +92,9 @@ def main():
         steps.append('Round MU')
         steps.append('Round Jaws')
         steps.append('Recompute Dose')
-        rename_beams = True
         cps_test = True
-        simfid_test = True
-        external_test = True
-        grid_test = True
-        tomo_couch_test = False
 
     if 'Tomo' in beamset.DeliveryTechnique:
-        check_lateral_pa = False
         steps.append('Rename Beams')
         steps.append('Check for external structure integrity')
         steps.append('Check Tomo Couch position relative to isocenter')
@@ -99,13 +102,7 @@ def main():
         steps.append('Check the dose grid size')
         steps.append('Compute Dose if neccessary')
         steps.append('Set DSP')
-        rename_beams = True
-        simfid_test = True
-        external_test = True
-        grid_test = True
-        cps_test = False
         tomo_couch_test = True
-        check_lateral_pa = False
 
     if beamset.Modality == 'Electrons':
         steps.append('Rename Beams')
@@ -114,13 +111,6 @@ def main():
         steps.append('Check the dose grid size')
         steps.append('Compute Dose if neccessary')
         steps.append('Set DSP')
-        rename_beams = True
-        simfid_test = True
-        external_test = True
-        grid_test = True
-        cps_test = False
-        tomo_couch_test = False
-        check_lateral_pa = False
 
     status = UserInterface.ScriptStatus(steps=steps,
                                         docstring=__doc__,
@@ -173,11 +163,11 @@ def main():
                     x_shift = couch.calculated_lateral_shift()
                     logging.info('Moving {} by {}'.format(couch_name, x_shift))
                     StructureOperations.translate_roi(case=case,
-                                                  exam=exam,
-                                                  roi=couch_name,
-                                                  shifts={'x': x_shift, 'y': 0, 'z': 0})
+                                                      exam=exam,
+                                                      roi=couch_name,
+                                                      shifts={'x': x_shift, 'y': 0, 'z': 0})
                 plan.SetDefaultDoseGrid(
-                    VoxelSize={'x': coarse_grid_size,'y': coarse_grid_size, 'z': coarse_grid_size})
+                    VoxelSize={'x': coarse_grid_size, 'y': coarse_grid_size, 'z': coarse_grid_size})
                 status.next_step('TomoTherapy couch corrected for lateral shift')
             except:
                 tomo_couch_error = True
@@ -186,7 +176,6 @@ def main():
         else:
             tomo_couch_error = False
             status.next_step('TomoTherapy couch checked for correct lateral positioning')
-
 
     # SIMFIDUCIAL TEST
     if simfid_test:
@@ -280,7 +269,6 @@ def main():
             BeamOperations.round_jaws(beamset=beamset)
             status.next_step('Jaws Rounded.')
 
-
             # Recompute dose
             status.next_step('Recomputing Dose')
             # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
@@ -320,7 +308,6 @@ def main():
         # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
         status.next_step('Script Complete')
-
 
     logcrit('Final Dose Script Run Successfully')
 
