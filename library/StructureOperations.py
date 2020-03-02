@@ -257,6 +257,26 @@ def define_sys_color(rgb):
 
     return System.Drawing.Color.FromArgb(255, rgb[0], rgb[1], rgb[2])
 
+def change_roi_color(case, roi_name, rgb):
+    """
+    Change the color of an roi to a system color
+    :param case: RS case object
+    :param roi_name: string containing name of roi to be checked
+    :param rgb: an rgb color object, e.g. [r, g, b] = [128, 132,256
+    :return error_massage: None for success, or error message for error
+    """
+    if not all(exists_roi(case=case, roi=roi_name)):
+        error_message = 'Structure {} not found on case {}'.format(roi_name,case)
+        return error_message
+    # Convert rgb list to system color
+    sys_rgb = define_sys_color(rgb)
+    try:
+        rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
+        rs_roi.Color = sys_rgb
+    except:
+        error_message = 'Unable to change color on roi {}'.format(roi_name)
+        return error_message
+
 
 def find_targets(case):
     """
@@ -353,119 +373,13 @@ def convert_poi(poi1):
     return poi_arr
 
 
-def levenshtein_match(item, arr, num_matches=None):
-    """[match,dist]=__levenshtein_match(item,arr)"""
-
-    # Initialize return args
-    if num_matches is None:
-        num_matches = 1
-
-    dist = [max(len(item), min(map(len, arr)))] * num_matches
-    match = [None] * num_matches
-
-    # Loop through array of options
-    for a in arr:
-        v0 = range(len(a) + 1) + [0]
-        v1 = [0] * len(v0)
-        for b in range(len(item)):
-            v1[0] = b + 1
-            for c in range(len(a)):
-                if item[b].lower() == a[c].lower():
-                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c])
-
-                else:
-                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c] + 1)
-
-            v0, v1 = v1, v0
-
-        for i, d in enumerate(dist):
-            if v0[len(a)] < d:
-                dist.insert(i, v0[len(a)])
-                dist.pop()
-                match.insert(i, a)
-                match.pop()
-                break
-
-    return match, dist
-
-
-def find_normal_structures_match(rois, site=None, num_matches=None, protocol_file=None):
-    """Return a unique structure dictionary from supplied element tree"""
-    target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
-    protocol_folders = [r'../protocols']
-    institution_folders = [r'']
-    files = [[r'../protocols', r'', r'TG-263.xml'],
-             [r'../protocols', r'UW', r'']]
-    paths = []
-    for i, f in enumerate(files):
-        secondary_protocol_folder = f[0]
-        institution_folder = f[1]
-        paths.append(os.path.join(os.path.dirname(__file__),
-                                  secondary_protocol_folder,
-                                  institution_folder))
-    # secondary_protocol_folder = r'../protocols'
-    # secondary_filename = r'TG-263.xml'
-    # path_to_secondary_sets = os.path.join(os.path.dirname(__file__),
-    #                                      secondary_protocol_folder)
-    logging.debug('Searching folder {} for rois'.format(paths[1]))
-    standard_names = []
-    for f in os.listdir(paths[1]):
-        if f.endswith('.xml'):
-            tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
-            prot_rois = tree.findall('.//roi')
-            for r in prot_rois:
-                if not any(i in r.find('name').text for i in standard_names):
-                    standard_names.append(r.find('name').text)
-    match_threshold = 0.6
-    if num_matches is None:
-        num_matches = 1
-
-    tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
-    roi263 = tree.findall('./' + 'roi')
-    # Check aliases first (look in TG-263 to see if an alias is there).
-    aliases = {}
-    matched_rois = {}
-    for r in roi263:
-        if r.find('Alias').text is not None:
-            alias = r.find('Alias').text
-            aliases[r.find('name').text] = alias.split(',')
-            logging.debug('Structure is {} with aliases {}'.format(r.find('name').text, aliases))
-
-    for r in roi263:
-        standard_names.append(r.find('name').text)
-
-    # beg_left = re.compile('L_*'.re.IGNORECASE)
-    # end_left = re.compile('*_L')
-
-    for r in rois:
-        [match, dist] = levenshtein_match(r, standard_names, num_matches)
-        matched_rois[r] = []
-        for a_key, a_val in aliases.iteritems():
-            for v in a_val:
-                if r in v:
-                    matched_rois[r].append(a_key)
-        for i, d in enumerate(dist):
-            if d < len(r) * match_threshold:
-                # Return Criteria
-                if match[i] not in matched_rois[r]:
-                    if '_L' in match[i] and ('_R' in r or 'R_' in r):
-                        logging.debug('Roi {}: Leven. Match {} not added to avoid L/R mismatch'.format(
-                            r, match[i]))
-                    elif '_R' in match[i] and ('_L' in r or 'L_' in r):
-                        logging.debug('Roi {}: Leven. Match {} not added to avoid R/L mismatch'.format(
-                            r, match[i]))
-                    else:
-                        matched_rois[r].append(match[i])
-
-    return matched_rois
-
-
 def check_overlap(patient, case, exam, structure, rois):
     """
     Checks the overlap of strucure with the roi list defined in rois.
     Returns the volume of overlap
-    :param exam:
-    :param case: RS Case
+    :param: patient: RS patient object
+    :param exam: RS exam object
+    :param case: RS Case object
     :param structure: List of target structures for overlap
     :param rois: List of structures which will be checked for overlap with structure
     :return: vol
@@ -559,6 +473,144 @@ def translate_roi(case, exam, roi, shifts):
     #    Examination=exam,TransformationMatrix=transform_matrix)
 
 
+def levenshtein_match(item, arr, num_matches=None):
+    """[match,dist]=__levenshtein_match(item,arr)"""
+
+    # Initialize return args
+    if num_matches is None:
+        num_matches = 1
+
+    dist = [max(len(item), min(map(len, arr)))] * num_matches
+    match = [None] * num_matches
+
+    # Loop through array of options
+    for a in arr:
+        v0 = range(len(a) + 1) + [0]
+        v1 = [0] * len(v0)
+        for b in range(len(item)):
+            v1[0] = b + 1
+            for c in range(len(a)):
+                if item[b].lower() == a[c].lower():
+                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c])
+
+                else:
+                    v1[c + 1] = min(v0[c + 1] + 1, v1[c] + 1, v0[c] + 1)
+
+            v0, v1 = v1, v0
+
+        for i, d in enumerate(dist):
+            if v0[len(a)] < d:
+                dist.insert(i, v0[len(a)])
+                dist.pop()
+                match.insert(i, a)
+                match.pop()
+                break
+
+    return match, dist
+
+
+def find_normal_structures_match(rois, num_matches=None, standard_rois=None):
+    """
+    Return a unique structure dictionary from supplied element tree
+    :param rois: a list of rois to be matched
+    :param num_matches: the number of matches to return
+    :param standard_rois: a dict keyed by the rois standard name with an unsorted list of aliases
+    :return: matched_rois : a dict of form { Roi1: [Exact match, Close match, ...]
+    """
+    match_threshold = 0.6 # Levenshtein match distance
+    # If the number of matches to return is not specified, then return the best match
+    if num_matches is None:
+        num_matches = 1
+
+    # target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
+    # protocol_folders = [r'../protocols']
+    # institution_folders = [r'']
+    if not standard_rois:
+        files = [[r'../protocols', r'', r'TG-263.xml'],
+                 [r'../protocols', r'UW', r'']]
+        paths = []
+        for i, f in enumerate(files):
+            secondary_protocol_folder = f[0]
+            institution_folder = f[1]
+            paths.append(os.path.join(os.path.dirname(__file__),
+                                      secondary_protocol_folder,
+                                      institution_folder))
+        # secondary_protocol_folder = r'../protocols'
+        # secondary_filename = r'TG-263.xml'
+        # path_to_secondary_sets = os.path.join(os.path.dirname(__file__),
+        #                                      secondary_protocol_folder)
+        logging.debug('Searching folder {} for rois'.format(paths[1]))
+        # Generate a list of all standard names used in both protocols and TG-263
+        standard_names = []
+        for f in os.listdir(paths[1]):
+            if f.endswith('.xml'):
+                tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
+                prot_rois = tree.findall('.//roi')
+                for r in prot_rois:
+                    if not any(i in r.find('name').text for i in standard_names):
+                        standard_names.append(r.find('name').text)
+
+        tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+        roi263 = tree.findall('./' + 'roi')
+        # Check aliases first (look in TG-263 to see if an alias is there).
+        # Currently building a list of all aliases at this point (at little inefficient)
+        aliases = {}
+        for r in roi263:
+            if r.find('Alias').text is not None:
+                alias = r.find('Alias').text
+                aliases[r.find('name').text] = alias.split(',')
+                logging.debug('Structure is {} with aliases {}'.format(r.find('name').text, aliases))
+
+        for r in roi263:
+            standard_names.append(r.find('name').text)
+    else:
+        standard_names = []
+        aliases = {}
+        for n, a in standard_rois.iteritems():
+           standard_names.append(n)
+           aliases[n] = a
+
+    # beg_left = re.compile('L_*'.re.IGNORECASE)
+    # end_left = re.compile('*_L')
+    # Dict object: {Key: [(Match distance, Match name), (Match distance, MatchName2), ... num_matches}
+
+    matched_rois = {}
+    # an arbitrary number < 1 meant to indicate a distance match that is better than the levenshtein because it is an
+    # alias
+    alias_distance = 0.001
+    for r in rois:
+        [match, dist] = levenshtein_match(r, standard_names, num_matches)
+        matched_rois[r] = []
+        unsorted_matches = []
+        # Create an ordered list. If there is an exact match, make the first element in the ordered list that.
+        for a_key, a_val in aliases.iteritems():
+            for v in a_val:
+                if r in v:
+                    unsorted_matches.append((alias_distance, a_key))
+        for i, d in enumerate(dist):
+            if d < len(r) * match_threshold:
+                # Return Criteria
+                lr_mismatch = False
+                if match[i] not in matched_rois[r]:
+                    if '_L' in match[i] and ('_R' in r or 'R_' in r):
+                        lr_mismatch = True
+                    if '_R' in match[i] and ('_L' in r or 'L_' in r):
+                        lr_mismatch = True
+                    if not lr_mismatch:
+                        unsorted_matches.append((d, match[i]))
+        sorted_matches = sorted(unsorted_matches, key=lambda m: m[0])
+        # If the aliasing and matching produced nothing, then add a blank element to the beginning of the
+        # sorted list
+        if not sorted_matches:
+            sorted_matches.append((0, ''))
+        elif sorted_matches[0][0] > alias_distance:
+            sorted_matches.insert(0, (0, ''))
+        matched_rois[r] = sorted_matches
+        logging.debug('{} has list of tuples {}'.format(r, matched_rois[r]))
+
+    return matched_rois
+
+
 def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
     """
     Matches a input list of plan_rois (user-defined) to protocol, outputs data to a log
@@ -571,45 +623,110 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
     :return:
     """
     import UserInterface
+    # target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
+    # protocol_folders = [r'../protocols']
+    # institution_folders = [r'']
+    files = [[r'../protocols', r'', r'TG-263.xml'],
+             [r'../protocols', r'UW', r'']]
+    paths = []
+    for i, f in enumerate(files):
+        secondary_protocol_folder = f[0]
+        institution_folder = f[1]
+        paths.append(os.path.join(os.path.dirname(__file__),
+                                  secondary_protocol_folder,
+                                  institution_folder))
+    # secondary_protocol_folder = r'../protocols'
+    # secondary_filename = r'TG-263.xml'
+    # path_to_secondary_sets = os.path.join(os.path.dirname(__file__),
+    #                                      secondary_protocol_folder)
+    logging.debug('Searching folder {} for rois'.format(paths[1]))
+    # Generate a list of all standard names used in both protocols and TG-263
+    standard_names = []
+    for f in os.listdir(paths[1]):
+        if f.endswith('.xml'):
+            tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
+            prot_rois = tree.findall('.//roi')
+            for r in prot_rois:
+                if not any(i in r.find('name').text for i in standard_names):
+                    standard_names.append(r.find('name').text)
+
+    tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+    roi263 = tree.findall('./' + 'roi')
+    # Check aliases first (look in TG-263 to see if an alias is there).
+    # Currently building a list of all aliases at this point (at little inefficient)
+    standard_names = {}
+    aliases = {}
+    for r in roi263:
+        if r.find('Alias').text is not None:
+            alias = r.find('Alias').text
+            standard_names[r.find('name').text] = alias.split(',')
+        else:
+            standard_names[r.find('name').text] = {}
+
+
+    # for r in roi263:
+    #     standard_names.append(r.find('name').text)
+
     # test_select_element(patient=patient, case=case, plan=plan, beamset=beamset, exam=exam)
 
-    matches = find_normal_structures_match(rois=protocol_rois)
+    # A stub using the protocl rois. Probably delete...
+    # matches = find_normal_structures_match(rois=protocol_rois)
     # Track correct matches
-    correct = 0
+    # correct = 0
+    # for r in protocol_rois:
+    #     if r == matches[r]:
+    #         correct += 1
+    # logging.debug('Correct matches using identical structures {} / {}'.format(correct, len(plan_rois)))
 
-    for r in protocol_rois:
-        if r == matches[r]:
-            correct += 1
-
-    logging.debug('Correct matches using identical structures {} / {}'.format(correct, len(plan_rois)))
-
-    matches = find_normal_structures_match(rois=plan_rois, num_matches=5)
-    for k, v in matches.iteritems():
-        logging.debug('Match key {k} and response {v}'.format(k=k, v=v))
+    matches = find_normal_structures_match(rois=plan_rois, num_matches=5, standard_rois=standard_names)
+    logging.debug('Type of the matches is {}'.format(type(matches)))
+    # Delete
+    # for k, v in matches.iteritems():
+    #     logging.debug('Structure {k} and potential matches type {t}, {v}'.format(k=k,t=type(v), v=v))
 
     # Make dialog inputs
     inputs = {}
+    initial = {}
     datatype = {}
     options = {}
-    initial = {}
+
+    # First element
+    k_copy = '0'
+    inputs[k_copy] = 'Rename structures or Copy'
+    initial[k_copy] = 'Rename all'
+    datatype[k_copy] = 'combo'
+    options[k_copy] = ['Rename all', 'Copy all to new']
     for k, v in matches.iteritems():
         inputs[k] = k
         datatype[k] = 'combo'
-        options[k] = v
-        for item in v:
-            if item == k:
-                initial[k] = item
-                break
+        options[k] = [x[1] for x in v]
+        initial[k] = v[0][1]
 
     matchy_dialog = UserInterface.InputDialog(
         inputs=inputs,
         title='Matchy Matchy',
         datatype=datatype,
         initial=initial,
-        options=matches,
-        required={})
+        options=options,
+        required=inputs[k_copy])
     # Launch the dialog
     response = matchy_dialog.show()
+    if response == {}:
+        logging.info('create_objective cancelled by user')
+        sys.exit('create_objective cancelled by user')
+
+    # Figure out if we are copying or renaming.
+    if response[k_copy] == 'Rename all':
+        rename_all = True
+    else:
+        rename_all = False
+    for r, m in response.iteritems():
+        # Change the name of r to m
+        case.PatientModel.RegionsOfInterest[r].Name = m
+
+
+
+
     if response is not None:
         # Link root to selected protocol ElementTree
         for k, v in response.iteritems():
@@ -636,6 +753,7 @@ def create_roi(patient, case, examination, roi_name, overwrite=True, suffix=None
     """
     Thoughtful creation of strucutures that can determine if the structure exists,
     determine the geometry exists on this examination
+    TODO: Unfinished
     -Create it with a suffix
     :param patient:
     :param case:
@@ -844,6 +962,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 class planning_structure_preferences:
     """
     Class for getting all relevant data for creating planning structures.
+    TODO: Make dialog based and xml-based
     """
     def __init__(self):
         self.protocol_name = None

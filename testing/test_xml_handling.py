@@ -1,7 +1,11 @@
-"""Testing xml handling
+""" Match Dialog
 Test scripts for matching
 
-Version Notes: 1.0.0 Original
+Version Notes:
+0.0.0 Exclude targets doing aTG-263 normal structure matching
+
+Script: Matches all plan rois with TG-263 based normal structures returning a sorted list of
+the most likely matches based on: exact match, previously matched names (aliases) or levenshtein match
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -18,8 +22,8 @@ You should have received a copy of the GNU General Public License along with
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '01-Feb-2018'
-__version__ = '1.0.0'
+__date__ = '02-Feb-2020'
+__version__ = '0.0.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
@@ -238,7 +242,7 @@ def main():
     # plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
     plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
     # filter the structure list
-    filtered_plan_rois= []
+    filtered_plan_rois = []
     for r in plan_rois:
         if r not in target_list:
             filtered_plan_rois.append(r)
