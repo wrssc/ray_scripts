@@ -91,6 +91,7 @@ def main():
         tomo_couch_test = False
 
     if 'Tomo' in beamset.DeliveryTechnique:
+        check_lateral_pa = False
         steps.append('Rename Beams')
         steps.append('Check for external structure integrity')
         steps.append('Check Tomo Couch position relative to isocenter')
@@ -104,6 +105,7 @@ def main():
         grid_test = True
         cps_test = False
         tomo_couch_test = True
+        check_lateral_pa = False
 
     if beamset.Modality == 'Electrons':
         steps.append('Rename Beams')
@@ -118,6 +120,7 @@ def main():
         grid_test = True
         cps_test = False
         tomo_couch_test = False
+        check_lateral_pa = False
 
     status = UserInterface.ScriptStatus(steps=steps,
                                         docstring=__doc__,
