@@ -46,6 +46,7 @@ import Objectives
 import Beams
 import StructureOperations
 import UserInterface
+import csv
 
 
 def test_select_element(patient, case, exam, plan, beamset):
@@ -240,14 +241,61 @@ def main():
         'Bone_Nasal_L',
         'Bone_Nasal_R']
     # plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
-    plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
+    # plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
+    plan_rois = StructureOperations.find_types(case=case)
     # filter the structure list
     filtered_plan_rois = []
     for r in plan_rois:
-        if r not in target_list:
-            filtered_plan_rois.append(r)
+        filtered_plan_rois.append(r)
 
-    StructureOperations.match_roi(case, exam, plan, beamset, plan_rois=filtered_plan_rois, protocol_rois=protocol_rois)
+    results = StructureOperations.match_roi(examination=exam, case=case, plan_rois=plan_rois)
+
+    patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
+    log_directory = patient_log_file_path.split(str(patient.PatientID))[0]
+    logging.debug('Directory is {}'.format(log_directory))
+
+
+    exam_dicom_data = exam.GetAcquisitionDataFromDicom()
+    try:
+        study_description = exam_dicom_data['StudyModule']['StudyDescription']
+    except KeyError:
+        study_description = 'None'
+        logging.debug('Exam {} has no Study Description'.format(exam.Name))
+    try:
+        protocol_name = exam_dicom_data['SeriesModule']['ProtocolName']
+    except KeyError:
+        protocol_name = 'None'
+        logging.debug('Exam {} has no Protocol Name'.format(exam.Name))
+    try:
+        series_description = exam_dicom_data['SeriesModule']['SeriesDescription']
+    except KeyError:
+        series_description = 'None'
+        logging.debug('Exam {} has no Series Description'.format(exam.Name))
+    if beamset is not None:
+        beamset_name = beamset.DicomPlanLabel
+    else:
+        beamset_name = 'None'
+
+
+    with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory), 'a') as match_file:
+        match_file.write('StudyDescription:{},'.format(study_description))
+        match_file.write('ProtocolName:{},'.format(protocol_name))
+        match_file.write('SeriesDescription:{},'.format(series_description))
+        match_file.write('Beamset:{},'.format(beamset_name))
+        i = 0
+        for k, v in results.iteritems():
+            if i == len(results)-1:
+                match_file.write('{v}:{k}}'.format(k=k, v=v))
+            else:
+                match_file.write('{v}:{k},'.format(k=k, v=v))
+            i += 1
+        match_file.write('\n')
+
+    with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory)) as csvfile:
+        label_data = csv.DictReader(csvfile)
+        for row in label_data:
+            logging.debug('Row : {}'.format(row))
+            logging.debug('\n')
 
 
 if __name__ == '__main__':

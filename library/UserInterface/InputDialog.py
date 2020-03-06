@@ -40,6 +40,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 # Import packages
 import clr
+import logging
 
 
 class InputDialog:
@@ -123,7 +124,7 @@ class InputDialog:
             self.labels[i] = System.Windows.Forms.Label()
             self.labels[i].Text = inputs[i]
             self.labels[i].MaximumSize = System.Drawing.Size(self.form.MaximumSize.Width - 55,
-                                                         System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
+                                                             System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Bottom)
             self.labels[i].AutoSize = True
             self.labels[i].Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
             self.table.Controls.Add(self.labels[i])
@@ -173,10 +174,13 @@ class InputDialog:
                 self.inputs[i] = System.Windows.Forms.ComboBox()
                 self.inputs[i].Height = 30
                 self.inputs[i].Width = self.form.MaximumSize.Width - 60
+                self.inputs[i].DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown
                 self.inputs[i].Items.AddRange(options[i])
                 if i in initial and initial[i] in options[i]:
                     self.inputs[i].SelectedItem = initial[i]
 
+                # Try to add the ability to free text to combo
+                # self.inputs[i].Text = initial[i]
                 self.inputs[i].Margin = System.Windows.Forms.Padding(10, 0, 10, 0)
                 self.table.Controls.Add(self.inputs[i])
 
@@ -191,7 +195,6 @@ class InputDialog:
 
         # Executes when OK is pressed
         def ok(_s, _e):
-
             # Validate required inputs
             failed = []
             for r in self.required:
@@ -207,7 +210,8 @@ class InputDialog:
                     if n == 0:
                         failed.append(r)
 
-                elif self.datatype[r] == 'combo' and self.inputs[r].SelectedIndex == -1:
+                elif self.datatype[r] == 'combo' and self.inputs[r].SelectedIndex == -1 and \
+                        self.inputs[r].SelectedText == '':
                     failed.append(r)
 
                 # elif self.datatype[t] == 'list':
@@ -288,8 +292,11 @@ class InputDialog:
                             self.values[t].append(o.encode('ascii', 'ignore'))
 
                 elif self.datatype[t] == 'combo':
+                    # Selected available item or an entered response
                     if self.inputs[t].SelectedIndex >= 0:
                         self.values[t] = self.inputs[t].SelectedItem.encode('ascii', 'ignore')
+                    elif self.inputs[t].SelectedIndex == -1 and self.inputs[t].Text != '':
+                        self.values[t] = self.inputs[t].Text.encode('ascii', 'ignore')
 
                 # elif self.datatype[t] == 'radio':
 
@@ -305,4 +312,3 @@ class InputDialog:
     def __del__(self):
         """InputDialog class destructor"""
         self.form.Dispose()
-

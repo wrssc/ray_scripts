@@ -48,16 +48,15 @@ import os
 import sys
 import connect
 import clr
+import re
+import numpy as np
+import xml
 
 clr.AddReference('System.Drawing')
 import System.Drawing
-import numpy as np
-import xml
-import Xml_Out
+
 import UserInterface
 from GeneralOperations import logcrit as logcrit
-
-import re
 
 
 def exclude_from_export(case, rois):
@@ -257,6 +256,7 @@ def define_sys_color(rgb):
 
     return System.Drawing.Color.FromArgb(255, rgb[0], rgb[1], rgb[2])
 
+
 def change_roi_color(case, roi_name, rgb):
     """
     Change the color of an roi to a system color
@@ -266,7 +266,7 @@ def change_roi_color(case, roi_name, rgb):
     :return error_massage: None for success, or error message for error
     """
     if not all(exists_roi(case=case, roi=roi_name)):
-        error_message = 'Structure {} not found on case {}'.format(roi_name,case)
+        error_message = 'Structure {} not found on case {}'.format(roi_name, case)
         return error_message
     # Convert rgb list to system color
     sys_rgb = define_sys_color(rgb)
@@ -344,13 +344,13 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
                 return True
         elif option == 'Check':
             if structure_has_contours_on_exam:
-                logging.info('Structure {} has contours on exam {}'.format(structure_name,exam.Name))
+                logging.info('Structure {} has contours on exam {}'.format(structure_name, exam.Name))
             else:
                 logging.info(structure_name + 'found')
             return True
         elif option == 'Wait':
             if structure_has_contours_on_exam:
-                logging.info('Structure {} has contours on exam {}'.format(structure_name,exam.Name))
+                logging.info('Structure {} has contours on exam {}'.format(structure_name, exam.Name))
                 return True
             else:
                 logging.info('Structure {} not found on exam {}, prompted user to create'.format(
@@ -434,7 +434,7 @@ def check_overlap(patient, case, exam, structure, rois):
     return vol
 
 
-def find_types(case, roi_type):
+def find_types(case, roi_type=None):
     """
     Return a list of all structures that in exist in the roi list with type roi_type
     :param patient:
@@ -445,7 +445,9 @@ def find_types(case, roi_type):
     """
     found_roi = []
     for r in case.PatientModel.RegionsOfInterest:
-        if r.Type == roi_type:
+        if not roi_type:
+            found_roi.append(r.Name)
+        elif r.Type == roi_type:
             found_roi.append(r.Name)
     return found_roi
 
@@ -509,78 +511,37 @@ def levenshtein_match(item, arr, num_matches=None):
     return match, dist
 
 
-def find_normal_structures_match(rois, num_matches=None, standard_rois=None):
+def find_normal_structures_match(rois, standard_rois, num_matches=None):
     """
     Return a unique structure dictionary from supplied element tree
     :param rois: a list of rois to be matched
-    :param num_matches: the number of matches to return
     :param standard_rois: a dict keyed by the rois standard name with an unsorted list of aliases
-    :return: matched_rois : a dict of form { Roi1: [Exact match, Close match, ...]
+    :param num_matches: the number of matches to return
+    :return: matched_rois : a dict of form { Roi1: [Exact match, Close match, ...], where
+                            exact match and close match are determined by Levenshtein distance or
+                            aliases (previously determined synonyms) for this structure
     """
-    match_threshold = 0.6 # Levenshtein match distance
+    match_threshold = 0.6  # Levenshtein match distance
     # If the number of matches to return is not specified, then return the best match
     if num_matches is None:
         num_matches = 1
 
-    # target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
-    # protocol_folders = [r'../protocols']
-    # institution_folders = [r'']
-    if not standard_rois:
-        files = [[r'../protocols', r'', r'TG-263.xml'],
-                 [r'../protocols', r'UW', r'']]
-        paths = []
-        for i, f in enumerate(files):
-            secondary_protocol_folder = f[0]
-            institution_folder = f[1]
-            paths.append(os.path.join(os.path.dirname(__file__),
-                                      secondary_protocol_folder,
-                                      institution_folder))
-        # secondary_protocol_folder = r'../protocols'
-        # secondary_filename = r'TG-263.xml'
-        # path_to_secondary_sets = os.path.join(os.path.dirname(__file__),
-        #                                      secondary_protocol_folder)
-        logging.debug('Searching folder {} for rois'.format(paths[1]))
-        # Generate a list of all standard names used in both protocols and TG-263
-        standard_names = []
-        for f in os.listdir(paths[1]):
-            if f.endswith('.xml'):
-                tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
-                prot_rois = tree.findall('.//roi')
-                for r in prot_rois:
-                    if not any(i in r.find('name').text for i in standard_names):
-                        standard_names.append(r.find('name').text)
+    standard_names = []
+    aliases = {}
+    for n, a in standard_rois.iteritems():
+        standard_names.append(n)
+        aliases[n] = a
 
-        tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
-        roi263 = tree.findall('./' + 'roi')
-        # Check aliases first (look in TG-263 to see if an alias is there).
-        # Currently building a list of all aliases at this point (at little inefficient)
-        aliases = {}
-        for r in roi263:
-            if r.find('Alias').text is not None:
-                alias = r.find('Alias').text
-                aliases[r.find('name').text] = alias.split(',')
-                logging.debug('Structure is {} with aliases {}'.format(r.find('name').text, aliases))
-
-        for r in roi263:
-            standard_names.append(r.find('name').text)
-    else:
-        standard_names = []
-        aliases = {}
-        for n, a in standard_rois.iteritems():
-           standard_names.append(n)
-           aliases[n] = a
-
-    # beg_left = re.compile('L_*'.re.IGNORECASE)
-    # end_left = re.compile('*_L')
-    # Dict object: {Key: [(Match distance, Match name), (Match distance, MatchName2), ... num_matches}
-
-    matched_rois = {}
-    # an arbitrary number < 1 meant to indicate a distance match that is better than the levenshtein because it is an
-    # alias
+    matched_rois = {}  # return variable described above
+    # alias_distance
+    #   An arbitrary number < 1 meant to indicate a distance match that is better
+    #   than the levenshtein because it is an alias
     alias_distance = 0.001
     for r in rois:
         [match, dist] = levenshtein_match(r, standard_names, num_matches)
         matched_rois[r] = []
+        # unsorted_matches
+        #   Dict object: {Key: [(Match distance, Match name), (Match distance, MatchName2), ... num_matches}
         unsorted_matches = []
         # Create an ordered list. If there is an exact match, make the first element in the ordered list that.
         for a_key, a_val in aliases.iteritems():
@@ -591,7 +552,11 @@ def find_normal_structures_match(rois, num_matches=None, standard_rois=None):
             if d < len(r) * match_threshold:
                 # Return Criteria
                 lr_mismatch = False
+                # Continue checking the current elements in the match list if there is not already
+                # an entry for this organ in our output
                 if match[i] not in matched_rois[r]:
+                    # If the structure has a laterality indication,
+                    #   don't return results that contain the opposite laterality
                     if '_L' in match[i] and ('_R' in r or 'R_' in r):
                         lr_mismatch = True
                     if '_R' in match[i] and ('_L' in r or 'L_' in r):
@@ -606,23 +571,121 @@ def find_normal_structures_match(rois, num_matches=None, standard_rois=None):
         elif sorted_matches[0][0] > alias_distance:
             sorted_matches.insert(0, (0, ''))
         matched_rois[r] = sorted_matches
-        logging.debug('{} has list of tuples {}'.format(r, matched_rois[r]))
 
     return matched_rois
 
 
-def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
+def filter_rois(plan_rois, skip_targets=True, skip_planning=True):
+    """
+    Filters the plan rois for structures that may not need matching and eliminates duplicates
+    :param plan_rois:
+    :param skip_targets:
+    :param skip_planning:
+    :return: filtered_rois
+    """
+    # Regex expressions for targets
+    target_expressions = ['^PTV', '^ITV', '^GTV', '^CTV']
+    # Regex expressions for planning structs
+    planning_expressions = ['^OTV', '^sOTV', '^opt', '^sPTV',
+                            '_EZ_', '^ring', '_PTV[0-9]',
+                            '^Ring', '^Normal', '^OAR_PTV',
+                            '^IGRT', '^AllPTV', '^InnerAir',
+                            ]
+    regex_list = []
+    if skip_targets:
+        regex_list.extend(target_expressions)
+    if skip_planning:
+        regex_list.extend(planning_expressions)
+    # Given the above arguments, filter the list using the regex and return the result
+    filtered_rois = []
+    for r in plan_rois:
+        filter_roi = False
+        for exp in regex_list:
+            if re.match(exp, r):
+                filter_roi = True
+        if r not in filtered_rois and not filter_roi:
+            filtered_rois.append(r)
+    return filtered_rois
+
+
+def match_dialog(matches, elements):
+    """
+    Dialog for matching taking the matches found in the search and pairing them with protocol elements
+    :param matches: matched elements in the form {PlanROI: <Matched_Protocol ROI>}
+    :param elements: Elementtree list of roi elements
+    :return: dialog_result: {'CopyOfReplace':<'Copy' or 'Replace'>, PlanROI: <Matching ROI subelement>, or
+    a string indicating a user-typed input}
+    """
+    # Make dialog inputs
+    inputs = {}
+    initial = {}
+    datatype = {}
+    options = {}
+    # First element
+    k_copy = '0'
+    inputs[k_copy] = 'Rename structures or Copy'
+    initial[k_copy] = 'Rename all'
+    datatype[k_copy] = 'combo'
+    options[k_copy] = ['Rename all', 'Copy all to new']
+    for k, v in matches.iteritems():
+        inputs[k] = k
+        datatype[k] = 'combo'
+        options[k] = [x[1] for x in v]
+        initial[k] = v[0][1]
+
+    matchy_dialog = UserInterface.InputDialog(
+        inputs=inputs,
+        title='Matchy Matchy',
+        datatype=datatype,
+        initial=initial,
+        options=options,
+        required={})
+    # Launch the dialog
+    response = matchy_dialog.show()
+    if response == {}:
+        logging.info('create_objective cancelled by user')
+        sys.exit('create_objective cancelled by user')
+    # Parse the responses
+    dialog_result = {}
+    # Figure out if we are copying or renaming.
+    if response[k_copy] == 'Rename all':
+        dialog_result['CopyOrRename'] = 'Rename'
+    else:
+        dialog_result['CopyOrRename'] = 'Copy'
+    for r, m in response.iteritems():
+        # Manage responses
+        if r != k_copy:
+            # Change the name of r to m
+            if not m:
+                dialog_result[r] = None
+            else:
+                for indx, standard_rois in enumerate(elements):
+                    if standard_rois.find('name').text == m:
+                        found_indx = indx
+                        break
+                    else:
+                        found_indx = None
+                if found_indx:
+                    logging.debug('Found element match {}: returning element {}'.format(
+                        r, elements[found_indx].find('name').text))
+                    dialog_result[r] = elements[found_indx]
+                # Address user supplied contour
+                else:
+                    logging.debug('No element match {}: returning string {}'.format(
+                        r, m))
+                    dialog_result[r] = m
+    return dialog_result
+
+
+def match_roi(case, examination, plan_rois):
     """
     Matches a input list of plan_rois (user-defined) to protocol, outputs data to a log
-    :param case:
-    :param exam:
-    :param plan:
-    :param beamset:
+    :param case: RS Case Object
+    :param examination: RS Examination object
     :param plan_rois:
-    :param protocol_rois:
-    :return:
+    :return: a dictionary with matched elements
     """
-    import UserInterface
+    oar_list = filter_rois(plan_rois)
     # target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
     # protocol_folders = [r'../protocols']
     # institution_folders = [r'']
@@ -662,110 +725,169 @@ def match_roi(case, exam, plan, beamset, plan_rois, protocol_rois):
             standard_names[r.find('name').text] = alias.split(',')
         else:
             standard_names[r.find('name').text] = {}
-
-
-    # for r in roi263:
-    #     standard_names.append(r.find('name').text)
-
-    # test_select_element(patient=patient, case=case, plan=plan, beamset=beamset, exam=exam)
-
-    # A stub using the protocl rois. Probably delete...
-    # matches = find_normal_structures_match(rois=protocol_rois)
-    # Track correct matches
-    # correct = 0
-    # for r in protocol_rois:
-    #     if r == matches[r]:
-    #         correct += 1
-    # logging.debug('Correct matches using identical structures {} / {}'.format(correct, len(plan_rois)))
-
-    matches = find_normal_structures_match(rois=plan_rois, num_matches=5, standard_rois=standard_names)
-    logging.debug('Type of the matches is {}'.format(type(matches)))
-    # Delete
-    # for k, v in matches.iteritems():
-    #     logging.debug('Structure {k} and potential matches type {t}, {v}'.format(k=k,t=type(v), v=v))
-
-    # Make dialog inputs
-    inputs = {}
-    initial = {}
-    datatype = {}
-    options = {}
-
-    # First element
-    k_copy = '0'
-    inputs[k_copy] = 'Rename structures or Copy'
-    initial[k_copy] = 'Rename all'
-    datatype[k_copy] = 'combo'
-    options[k_copy] = ['Rename all', 'Copy all to new']
-    for k, v in matches.iteritems():
-        inputs[k] = k
-        datatype[k] = 'combo'
-        options[k] = [x[1] for x in v]
-        initial[k] = v[0][1]
-
-    matchy_dialog = UserInterface.InputDialog(
-        inputs=inputs,
-        title='Matchy Matchy',
-        datatype=datatype,
-        initial=initial,
-        options=options,
-        required=inputs[k_copy])
-    # Launch the dialog
-    response = matchy_dialog.show()
-    if response == {}:
-        logging.info('create_objective cancelled by user')
-        sys.exit('create_objective cancelled by user')
-
-    # Figure out if we are copying or renaming.
-    if response[k_copy] == 'Rename all':
+    # Comes up with a list of up to 5 matches
+    potential_matches = find_normal_structures_match(rois=oar_list, num_matches=5, standard_rois=standard_names)
+    # Launch the dialog to get the list of matched elements
+    matched_rois = match_dialog(matches=potential_matches, elements=roi263)
+    if matched_rois['CopyOrRename'] == 'Rename':
         rename_all = True
+        copy_all = False
     else:
         rename_all = False
-    for r, m in response.iteritems():
-        # Change the name of r to m
-        case.PatientModel.RegionsOfInterest[r].Name = m
+        copy_all = True
+    matched_rois.pop('CopyOrRename')
+    return_rois = {}
+    # matched_rois now contains:
+    #  the keys as the planning structures, and the elementtree element found to match (or None)
+    for k, v in matched_rois.iteritems():
+        # If no match was made, v will be None otherwise, if there is no match in the protocols, a user-supplied
+        # value can be used for the name. If it was matched then it is an elementree element for roi
+        if v is None:
+            return_rois[k] = None
+            logging.debug('Structure {k} not matched {v}'.format(k=k, v=v))
+        else:
+            if isinstance(v, str):
+                # We can only set name properties as the user has given a structure name with no protocol correlate
+                return_rois[k] = v
+            else:
+                return_rois[k] = v.find('name').text
+            # Does the input structure match the protocol name entirely
+            if k != return_rois[k]:
+                logging.debug('Renaming required for matching {} to {}'.format(k, return_rois[k]))
+                # Try to just change the name of the existing contour, but if it is locked or if the
+                # desired contour already exists, we'll have to replace the geometry
+                # Check to see if return_rois[k] is approved
+                if structure_approved(case=case, roi_name=return_rois[k], examination=examination) or copy_all:
+                    logging.debug('Unable to rename {} to {}, attempting a geometry copy'.format(
+                        k, return_rois[k]))
+                    if rename_all:
+                        roi_geom = create_roi(case=case, examination=examination, roi_name=return_rois[k])
+                    else:
+                        create_roi(case=case, examination=examination,
+                                   roi_name=return_rois[k], delete_existing=False)
+                    roi_geom.OfRoi.CreateMarginGeometry(Examination=examination,
+                                                        SourceRoiName=k,
+                                                        MarginSettings={'Type': "Expand",
+                                                                        'Superior': 0.0,
+                                                                        'Inferior': 0.0,
+                                                                        'Anterior': 0.0,
+                                                                        'Posterior': 0.0,
+                                                                        'Right': 0.0,
+                                                                        'Left': 0.0})
+                else:
+                    logging.debug('Rename {} to {}'.format(k, return_rois[k]))
+                    case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
+    return return_rois
 
 
+def structure_approved(case, roi_name, examination=None):
+    """
+    Check if structure is approved anywhere in this patient
+    :param case: RS case
+    :param roi_name: string containing name of roi
+    :param examination: RS examination object
+    :return: True if structure is approved somewhere
+    """
+    struct_exists = exists_roi(case=case, rois=roi_name)
+    # If the structure is undefined, then is is not approved
+    if not struct_exists:
+        return False
+    else:
+        for s in case.PatientModel.StructureSets:
+            if examination is not None and s.OnExamination.Name != examination.Name:
+                continue
+            else:
+                for a in s.ApprovedStructureSets:
+                    try:
+                        for r in a.ApprovedRoiStructures:
+                            if r.OfRoi.Name == roi_name:
+                                return True
+                    except AttributeError:
+                        # No Approved structures in this exam
+                        pass
+        return False
 
 
-    if response is not None:
-        # Link root to selected protocol ElementTree
-        for k, v in response.iteritems():
-            logging.debug('Match key {k} and response {v}'.format(k=k, v=v))
-        logging.info("Matches selected: {}".format(
-            matchy_dialog))
-
-        correct = 0
-
-        m_logs = r'Q:\\RadOnc\RayStation\RayScripts\dev_logs'
-        with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
-            match_file.write('PlanName: {pn} :: '.format(pn=beamset.DicomPlanLabel))
-        # for r in rois:
-        #    if r == matches[r]:
-        #        correct += 1
-        with open(os.path.normpath('{}/Matched_Structures.txt').format(m_logs), 'a') as match_file:
-            for k, v in response.iteritems():
-                match_file.write('{v}: {k}, '.format(k=k, v=v))
-            match_file.write('\n '.format(k=k, v=v))
-        logging.debug('Correct matches on test set {} / {}'.format(correct, len(plan_rois)))
-
-
-def create_roi(patient, case, examination, roi_name, overwrite=True, suffix=None):
+def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
     """
     Thoughtful creation of strucutures that can determine if the structure exists,
     determine the geometry exists on this examination
-    TODO: Unfinished
     -Create it with a suffix
-    :param patient:
     :param case:
     :param examination:
-    :param overwrite:
+    :param roi_name: string containing name of roi to be created
+    :param delete_existing: delete any existing roi with name roi_name so long as it isn't approved
     :param suffix: append the suffix string to the name of a contour
     :return: new_structure_name: the name of the new-structure created or None for an error
     """
-    if overwrite:
-        check_structure_exists(case=case, structure_name=roi_name, option='Delete')
+    # struct_exists is true if the roi_name is already defined
+    struct_exists = exists_roi(case=case, rois=roi_name)
+    # geometry_exists_in_case is True if any examination in this case has contours for this roi_name
+    geometry_exists_in_case = check_structure_exists(case=case, structure_name=roi_name, option='Check')
+    # geometry_exists is True if this examination has contours
+    geometry_exists = check_structure_exists(case=case, structure_name=roi_name, option='Check', exam=examination)
+    # Look through all structure sets in the patient to see if roi name is approved on an exam in this patient
+    geometry_approved = structure_approved(case=case, roi_name=roi_name, examination=examination)
+
+    if struct_exists:
+        # Does the existing structure have any contours defined
+        if geometry_exists_in_case:
+            # Are the existing contours on this exam?
+            if geometry_exists:
+                # Is the existing geometry approved?
+                if geometry_approved:
+                    #TODO if delete_existing is selected, prompt the user to unapprove or quit
+                    if delete_existing:
+                        # Delete the existing geometry and return the empty geometry on the current exam
+                        logging.debug('Exam {} has an approved geometry for {}, cannot create new roi'.format(
+                            examination.Name,roi_name))
+                        return None
+                    else:
+                        # We can't delete the existing approved geometry, so we'll need to append
+                        if suffix:
+                            i = 0
+                            updated_roi_name = roi_name + suffix
+                        else:
+                            i = 1
+                            suffix = '_A'
+                            updated_roi_name = roi_name + suffix + i
+                        while exists_roi(case=case, rois=updated_roi_name):
+                            i += 1
+                            updated_roi_name = roi_name + suffix + str(i)
+                        # Make a new roi using the updated name
+                        case.PatientModel.RegionsOfInterest.CreateRoi(Name=updated_roi_name)
+                        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[updated_roi_name]
+                else:
+                    # The geometry is not approved on this examination
+                    if delete_existing:
+                        # Delete the existing geometry and return the empty geometry on the current exam
+                        case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name].DeleteGeometry
+                        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name]
+                    else:
+                        # We don't want to delete the existing geometry, so we'll need to append
+                        if suffix:
+                            i = 0
+                            updated_roi_name = roi_name + suffix
+                        else:
+                            i = 1
+                            suffix = '_A'
+                            updated_roi_name = roi_name + suffix + i
+                        while exists_roi(case=case, rois=updated_roi_name):
+                            i += 1
+                            updated_roi_name = roi_name + suffix + str(i)
+                        # Make a new roi using the updated name
+                        case.PatientModel.RegionsOfInterest.CreateRoi(Name=updated_roi_name)
+                        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[updated_roi_name]
+            else:
+                # Geometry exists but not on the current exam, return the empty geometry on the current exam
+                return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name]
+        else:
+            # The existing structure is empty on all exams, return the empty geometry on the current exam
+            return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name]
     else:
-        check_structure_exists(case=case, structure_name=roi_name, option='Check')
+        # The roi does not exist, so make it and return the empty geometry for this exam
+        case.PatientModel.RegionsOfInterest.CreateRoi(Name=roi_name)
+        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name]
 
 
 def make_boolean_structure(patient, case, examination, **kwargs):
@@ -964,6 +1086,7 @@ class planning_structure_preferences:
     Class for getting all relevant data for creating planning structures.
     TODO: Make dialog based and xml-based
     """
+
     def __init__(self):
         self.protocol_name = None
         self.origin_file = None
