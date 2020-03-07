@@ -318,13 +318,15 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
     """
 
     # If no roi_list is given, build it using all roi in the case
-    if roi_list is None and exam is None:
-        logging.warning('Inappropriate call to check_structure_exists. If roi_list = None, then exam must be supplied ')
-        sys.exit()
+    # if roi_list is None and exam is None:
+    #     logging.warning('Inappropriate call to check_structure_exists. If roi_list = None, then exam must be supplied ')
+    #     sys.exit()
     if roi_list is None:
         roi_list = []
-        for r in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
-            roi_list.append(r)
+        for s in case.PatientModel.StructureSets:
+            for r in s.RoiGeometries:
+                if r not in roi_list:
+                    roi_list.append(r)
 
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if exam is not None:
@@ -358,7 +360,7 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
                 connect.await_user_input(
                     'Create the structure {} and continue script.'.format(structure_name))
     else:
-        logging.info(structure_name + 'not found')
+        logging.info(structure_name + ' not found')
         return False
 
 
@@ -757,7 +759,7 @@ def match_roi(case, examination, plan_rois):
                 # Try to just change the name of the existing contour, but if it is locked or if the
                 # desired contour already exists, we'll have to replace the geometry
                 # Check to see if return_rois[k] is approved
-                if structure_approved(case=case, roi_name=return_rois[k], examination=examination) or copy_all:
+                if structure_approved(case=case, roi_name=k, examination=examination) or copy_all:
                     logging.debug('Unable to rename {} to {}, attempting a geometry copy'.format(
                         k, return_rois[k]))
                     if rename_all:
@@ -782,7 +784,8 @@ def match_roi(case, examination, plan_rois):
 
 def structure_approved(case, roi_name, examination=None):
     """
-    Check if structure is approved anywhere in this patient
+    Check if structure is approved anywhere in this patient, if an exam is supplied
+    only the exam supplied is checked for the approved contour
     :param case: RS case
     :param roi_name: string containing name of roi
     :param examination: RS examination object
@@ -803,8 +806,8 @@ def structure_approved(case, roi_name, examination=None):
                             if r.OfRoi.Name == roi_name:
                                 return True
                     except AttributeError:
-                        # No Approved structures in this exam
-                        pass
+                        logging.debug('A is none {}'.format(a))
+                        continue
         return False
 
 

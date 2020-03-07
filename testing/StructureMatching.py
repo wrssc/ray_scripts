@@ -207,6 +207,7 @@ def main():
     import StructureOperations
     from GeneralOperations import find_scope
 
+
     # Get current patient, case, exam, and plan
     patient = find_scope(level='Patient')
     case = find_scope(level='Case')
