@@ -122,7 +122,8 @@ def exists_roi(case, rois):
     roi_exists = []
 
     for r in rois:
-        if r in defined_rois:
+        pattern = r'^'+r+'$'
+        if any(re.match(pattern, current_roi, re.IGNORECASE) for current_roi in defined_rois):
             roi_exists.append(True)
         else:
             roi_exists.append(False)
@@ -303,6 +304,28 @@ def find_targets(case):
         sys.exit('Script cancelled')
 
 
+def case_insensitive_structure_search(case, structure_name, roi_list=None):
+    """
+    Check if a case insensitive match to the structure_name exists and return the name or None
+    :param case: raystation case
+    :param structure_name:structure name to be tested
+    :param roi_list: list of rois to look in, if not specified, use all rois
+    :return: name as defined in RayStation, or None
+    """
+    # If no roi_list is given, build it using all roi in the case
+    if roi_list is None:
+        roi_list = []
+        for s in case.PatientModel.StructureSets:
+            for r in s.RoiGeometries:
+                if r.OfRoi.Name not in roi_list:
+                    roi_list.append(r.OfRoi.Name)
+
+    for current_roi in roi_list:
+        if re.search(structure_name, current_roi, re.IGNORECASE):
+            return current_roi
+    return None
+
+
 def check_structure_exists(case, structure_name, roi_list=None, option='Check', exam=None):
     """
     Verify if a structure with the exact name specified exists or not
@@ -318,9 +341,6 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
     """
 
     # If no roi_list is given, build it using all roi in the case
-    # if roi_list is None and exam is None:
-    #     logging.warning('Inappropriate call to check_structure_exists. If roi_list = None, then exam must be supplied ')
-    #     sys.exit()
     if roi_list is None:
         roi_list = []
         for s in case.PatientModel.StructureSets:
@@ -338,17 +358,17 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
         if option == 'Delete':
             if structure_has_contours_on_exam:
                 case.PatientModel.StructureSets[exam.Name].RoiGeometries[structure_name].DeleteGeometry()
-                logging.warning(structure_name + 'found - deleting geometry')
+                logging.warning(structure_name + ' found - deleting geometry')
                 return False
             else:
                 case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-                logging.warning(structure_name + 'found - deleting and creating')
+                logging.warning(structure_name + ' found - deleting and creating')
                 return True
         elif option == 'Check':
             if structure_has_contours_on_exam:
                 logging.info('Structure {} has contours on exam {}'.format(structure_name, exam.Name))
             else:
-                logging.info(structure_name + 'found')
+                logging.info(structure_name + ' found')
             return True
         elif option == 'Wait':
             if structure_has_contours_on_exam:
@@ -592,6 +612,7 @@ def filter_rois(plan_rois, skip_targets=True, skip_planning=True):
                             '_EZ_', '^ring', '_PTV[0-9]',
                             '^Ring', '^Normal', '^OAR_PTV',
                             '^IGRT', '^AllPTV', '^InnerAir',
+                            'z_derived', 'Uniform', 'Underdose'
                             ]
     regex_list = []
     if skip_targets:
@@ -625,10 +646,9 @@ def match_dialog(matches, elements):
     options = {}
     # First element
     k_copy = '0'
-    inputs[k_copy] = 'Rename structures or Copy'
-    initial[k_copy] = 'Rename all'
-    datatype[k_copy] = 'combo'
-    options[k_copy] = ['Rename all', 'Copy all to new']
+    inputs[k_copy] = 'Structures that cannot be renamed should have suffix, e.g. (_R or _A):'
+    initial[k_copy] = '_R'
+    datatype[k_copy] = 'text'
     for k, v in matches.iteritems():
         inputs[k] = k
         datatype[k] = 'combo'
@@ -641,7 +661,7 @@ def match_dialog(matches, elements):
         datatype=datatype,
         initial=initial,
         options=options,
-        required={})
+        required=[k_copy])
     # Launch the dialog
     response = matchy_dialog.show()
     if response == {}:
@@ -650,10 +670,7 @@ def match_dialog(matches, elements):
     # Parse the responses
     dialog_result = {}
     # Figure out if we are copying or renaming.
-    if response[k_copy] == 'Rename all':
-        dialog_result['CopyOrRename'] = 'Rename'
-    else:
-        dialog_result['CopyOrRename'] = 'Copy'
+    dialog_result['Suffix'] = response[k_copy]
     for r, m in response.iteritems():
         # Manage responses
         if r != k_copy:
@@ -731,13 +748,10 @@ def match_roi(case, examination, plan_rois):
     potential_matches = find_normal_structures_match(rois=oar_list, num_matches=5, standard_rois=standard_names)
     # Launch the dialog to get the list of matched elements
     matched_rois = match_dialog(matches=potential_matches, elements=roi263)
-    if matched_rois['CopyOrRename'] == 'Rename':
-        rename_all = True
-        copy_all = False
-    else:
-        rename_all = False
-        copy_all = True
-    matched_rois.pop('CopyOrRename')
+    suffix = matched_rois['Suffix']
+    rename_all = True
+    copy_all = False
+    matched_rois.pop('Suffix')
     return_rois = {}
     # matched_rois now contains:
     #  the keys as the planning structures, and the elementtree element found to match (or None)
@@ -763,11 +777,14 @@ def match_roi(case, examination, plan_rois):
                     logging.debug('Unable to rename {} to {}, attempting a geometry copy'.format(
                         k, return_rois[k]))
                     if rename_all:
-                        roi_geom = create_roi(case=case, examination=examination, roi_name=return_rois[k])
+                        roi_geom = create_roi(case=case, examination=examination, roi_name=return_rois[k],
+                                              delete_existing=False, suffix=suffix)
                     else:
-                        create_roi(case=case, examination=examination,
-                                   roi_name=return_rois[k], delete_existing=False)
-                    roi_geom.OfRoi.CreateMarginGeometry(Examination=examination,
+                        roi_geom = create_roi(case=case, examination=examination,
+                                   roi_name=return_rois[k], delete_existing=False, suffix=suffix)
+                    if roi_geom is not None:
+                        # Make the geometry and validate the result
+                        roi_geom.OfRoi.CreateMarginGeometry(Examination=examination,
                                                         SourceRoiName=k,
                                                         MarginSettings={'Type': "Expand",
                                                                         'Superior': 0.0,
@@ -776,6 +793,16 @@ def match_roi(case, examination, plan_rois):
                                                                         'Posterior': 0.0,
                                                                         'Right': 0.0,
                                                                         'Left': 0.0})
+                        # Ensure copy did not result in loss of fidelity
+                        geometry_validation = case.PatientModel.StructureSets[examination.Name].ComparisonOfRoiGeometries(
+                         RoiA=k, RoiB=roi_geom.OfRoi.Name)
+                        validation_message = []
+                        for metric, value in geometry_validation.iteritems():
+                            validation_message.append(str(metric)+':'+str(value))
+                        logging.debug('Roi Geometry copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
+                                  'Resulting overlap metrics {}'.format(
+                                      validation_message))
+
                 else:
                     logging.debug('Rename {} to {}'.format(k, return_rois[k]))
                     case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
@@ -824,13 +851,25 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
     :return: new_structure_name: the name of the new-structure created or None for an error
     """
     # struct_exists is true if the roi_name is already defined
-    struct_exists = exists_roi(case=case, rois=roi_name)
-    # geometry_exists_in_case is True if any examination in this case has contours for this roi_name
-    geometry_exists_in_case = check_structure_exists(case=case, structure_name=roi_name, option='Check')
+    struct_exists = all(exists_roi(case=case, rois=roi_name))
+    # First we want to work with the case insensitive match to the structure name supplied
+    roi_name_ci = case_insensitive_structure_search(case=case, structure_name=roi_name)
+    if roi_name_ci is not None:
+        struct_exists = True
+    else:
+        roi_name_ci = roi_name
+        struct_exists = False
+
+    logging.debug('{} is defined somewhere in this case {}'.format(roi_name_ci, struct_exists))
+    # geometry_exists_in_case is True if any examination in this case has contours for this roi_name_ci
+    geometry_exists_in_case = check_structure_exists(case=case, structure_name=roi_name_ci, option='Check')
+    logging.debug('{} geometry exists in case: {}'.format(roi_name_ci, geometry_exists_in_case))
     # geometry_exists is True if this examination has contours
-    geometry_exists = check_structure_exists(case=case, structure_name=roi_name, option='Check', exam=examination)
+    geometry_exists = check_structure_exists(case=case, structure_name=roi_name_ci, option='Check', exam=examination)
+    logging.debug('{} geometry exists in exam {}: {}'.format(roi_name_ci, examination.Name, geometry_exists))
     # Look through all structure sets in the patient to see if roi name is approved on an exam in this patient
-    geometry_approved = structure_approved(case=case, roi_name=roi_name, examination=examination)
+    geometry_approved = structure_approved(case=case, roi_name=roi_name_ci, examination=examination)
+    logging.debug('{} geometry approved in exam {}: {}'.format(roi_name_ci, examination.Name, geometry_approved))
 
     if struct_exists:
         # Does the existing structure have any contours defined
@@ -843,29 +882,26 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
                     if delete_existing:
                         # Delete the existing geometry and return the empty geometry on the current exam
                         logging.debug('Exam {} has an approved geometry for {}, cannot create new roi'.format(
-                            examination.Name,roi_name))
+                            examination.Name, roi_name_ci))
                         return None
                     else:
                         # We can't delete the existing approved geometry, so we'll need to append
-                        if suffix:
-                            i = 0
-                            updated_roi_name = roi_name + suffix
-                        else:
-                            i = 1
-                            suffix = '_A'
-                            updated_roi_name = roi_name + suffix + i
-                        while exists_roi(case=case, rois=updated_roi_name):
+                        i = 0
+                        if suffix is None:
+                            suffix = '_R'
+                        updated_roi_name = roi_name + suffix + str(i)
+                        while any(exists_roi(case=case, rois=updated_roi_name)):
                             i += 1
                             updated_roi_name = roi_name + suffix + str(i)
                         # Make a new roi using the updated name
-                        case.PatientModel.RegionsOfInterest.CreateRoi(Name=updated_roi_name)
+                        case.PatientModel.CreateRoi(Name=updated_roi_name)
                         return case.PatientModel.StructureSets[examination.Name].RoiGeometries[updated_roi_name]
                 else:
                     # The geometry is not approved on this examination
                     if delete_existing:
                         # Delete the existing geometry and return the empty geometry on the current exam
-                        case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name].DeleteGeometry
-                        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name]
+                        case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci].DeleteGeometry
+                        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci]
                     else:
                         # We don't want to delete the existing geometry, so we'll need to append
                         if suffix:
@@ -873,24 +909,26 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
                             updated_roi_name = roi_name + suffix
                         else:
                             i = 1
-                            suffix = '_A'
+                            suffix = '_R'
                             updated_roi_name = roi_name + suffix + i
                         while exists_roi(case=case, rois=updated_roi_name):
                             i += 1
                             updated_roi_name = roi_name + suffix + str(i)
                         # Make a new roi using the updated name
-                        case.PatientModel.RegionsOfInterest.CreateRoi(Name=updated_roi_name)
+                        case.PatientModel.CreateRoi(Name=updated_roi_name)
                         return case.PatientModel.StructureSets[examination.Name].RoiGeometries[updated_roi_name]
             else:
                 # Geometry exists but not on the current exam, return the empty geometry on the current exam
-                return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name]
+                return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci]
         else:
             # The existing structure is empty on all exams, return the empty geometry on the current exam
-            return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name]
+            return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci]
     else:
         # The roi does not exist, so make it and return the empty geometry for this exam
-        case.PatientModel.RegionsOfInterest.CreateRoi(Name=roi_name)
-        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name]
+        case.PatientModel.CreateRoi(Name=roi_name_ci)
+        logging.debug('{} is not in the list. Creating {}'.format(roi_name_ci,
+                      case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci].OfRoi.Name))
+        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci]
 
 
 def make_boolean_structure(patient, case, examination, **kwargs):
@@ -920,6 +958,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
         logging.warning("make_boolean_structure: Structure " + StructureName +
                         " exists.  This will be overwritten in this examination")
     except:
+        #TODO Move to an internal create call
         case.PatientModel.CreateRoi(Name=StructureName,
                                     Color=StructColor,
                                     Type=StructType,
@@ -1023,6 +1062,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     try:
         retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
     except:
+        #TODO Move to an internal create call
         retval_AIR = case.PatientModel.CreateRoi(Name="Air",
                                                  Color="Green",
                                                  Type="Undefined",
@@ -1309,6 +1349,7 @@ def planning_structures(generate_ptvs=True,
 
     else:
         StructureName = 'ExternalClean'
+        #TODO Move to an internal create call
         retval_ExternalClean = case.PatientModel.CreateRoi(Name=StructureName,
                                                            Color="234, 192, 134",
                                                            Type="External",
@@ -1937,6 +1978,7 @@ def planning_structures(generate_ptvs=True,
             logging.warning("Structure " + StructureName + " exists. Geometry will be redefined")
             case.PatientModel.StructureSets[examination.Name]. \
                 RoiGeometries['InnerAir'].DeleteGeometry()
+            #TODO Move to an internal create call
             case.PatientModel.CreateRoi(Name='InnerAir',
                                         Color="SaddleBrown",
                                         Type="Undefined",
@@ -1944,6 +1986,7 @@ def planning_structures(generate_ptvs=True,
                                         RbeCellTypeName=None,
                                         RoiMaterial=None)
         except:
+            #TODO Move to an internal create call
             case.PatientModel.CreateRoi(Name='InnerAir',
                                         Color="SaddleBrown",
                                         Type="Undefined",
@@ -1959,6 +2002,7 @@ def planning_structures(generate_ptvs=True,
             patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
         except:
+            #TODO Move to an internal create call
             case.PatientModel.CreateRoi(Name=fov_name,
                                         Color="192, 192, 192",
                                         Type="FieldOfView",

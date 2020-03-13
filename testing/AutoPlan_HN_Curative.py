@@ -62,29 +62,41 @@ def main():
                                   protocol_folder,
                                   institution_folder, beamset_folder)
     # Targets and dose
-    target_1 = 'PTV_70'
-    target_1_dose = 7000
-    target_2 = 'PTV_60'
-    target_2_dose = 6000
-    target_3 = 'PTV_54'
-    target_3_dose = 5400
+    target_1 = 'PTV_60'
+    target_1_dose = 6000
+    # target_2 = 'PTV_60'
+    # target_2_dose = 6000
+    # target_3 = 'PTV_54'
+    # target_3_dose = 5400
     rx_target = target_1
     beamset_name = 'Tmplt_20Feb2020'
-    number_fractions = 33
+    number_fractions = 30
     machine = 'HDA0488'
     iso_target = 'All_PTVs'
     #
     planning_struct = True
     if planning_struct:
-    # Define planning structures
-        # dialog1_response = {'number_of_targets': 3,
+        # Define planning structures
+        planning_prefs= StructureOperations.planning_structure_preferences()
+        planning_prefs.number_of_targets = 1
+        planning_prefs.use_uniform_dose = True
+        planning_prefs.use_under_dose = False
+        planning_prefs.use_inner_air = False
+
+        dialog1_response = {'number_of_targets': 1,
+                         'generate_underdose': False,
+                         'generate_uniformdose': True,
+                         'generate_inner_air': False}
+        targets_dose = {target_1: target_1_dose}
+        dialog2_response = targets_dose
+        # dialog1_response = {'number_of_targets': 2,
         #                     'generate_underdose': False,
         #                     'generate_uniformdose': True,
         #                     'generate_inner_air': False}
         # targets_dose = {target_1: target_1_dose, target_2: target_2_dose, target_3: target_3_dose}
         # dialog2_response = targets_dose
-        dialog1_response = None
-        dialog2_response = None
+        # dialog1_response = None
+        # dialog2_response = None
         dialog3_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
                             'standoff': 0.4}
         dialog4_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
@@ -109,7 +121,7 @@ def main():
             generate_combined_ptv=True,
             skin_contraction=0.3,
             run_status=False,
-            dialog1_response=dialog1_response,
+            planning_structure_selections=planning_prefs,
             dialog2_response=dialog2_response,
             dialog3_response=dialog3_response,
             dialog4_response=dialog4_response,

@@ -723,15 +723,15 @@ def add_goals_and_structures_from_protocol(patient=None, case=None, plan=None, b
                                       institution_folder)
 
     # Get current patient, case, exam, and plan
-    if patient is not None:
+    if patient is None:
         patient = find_scope(level='Patient')
-    if case is not None:
+    if case is None:
         case = find_scope(level='Case')
-    if exam is not None:
+    if exam is None:
         exam = find_scope(level='Examination')
-    if plan is not None:
+    if plan is None:
         plan = find_scope(level='Plan')
-    if beamset is not None:
+    if beamset is None:
         beamset = find_scope(level='BeamSet')
 
     tpo = UserInterface.TpoDialog()

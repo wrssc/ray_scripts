@@ -253,8 +253,6 @@ def main():
 
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
     log_directory = patient_log_file_path.split(str(patient.PatientID))[0]
-    logging.debug('Directory is {}'.format(log_directory))
-
 
     exam_dicom_data = exam.GetAcquisitionDataFromDicom()
     try:
@@ -277,16 +275,16 @@ def main():
     else:
         beamset_name = 'None'
 
-
     with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory), 'a') as match_file:
         match_file.write('StudyDescription:{},'.format(study_description))
         match_file.write('ProtocolName:{},'.format(protocol_name))
         match_file.write('SeriesDescription:{},'.format(series_description))
         match_file.write('Beamset:{},'.format(beamset_name))
+        match_file.write('{{,')
         i = 0
         for k, v in results.iteritems():
             if i == len(results)-1:
-                match_file.write('{v}:{k}}'.format(k=k, v=v))
+                match_file.write('{v}:{k}}}'.format(k=k, v=v))
             else:
                 match_file.write('{v}:{k},'.format(k=k, v=v))
             i += 1
@@ -295,8 +293,8 @@ def main():
     with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory)) as csvfile:
         label_data = csv.DictReader(csvfile)
         for row in label_data:
-            logging.debug('Row : {}'.format(row))
-            logging.debug('\n')
+            for k, v in row.iteritems():
+                logging.debug('Match {} to user input {}'.format(k,v))
 
 
 if __name__ == '__main__':
