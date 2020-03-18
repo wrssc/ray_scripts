@@ -766,12 +766,12 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             elif ts.ForTreatmentSetup.DeliveryTechnique == 'SMLC':
                 #
                 # Execute treatment margin settings
-                treat_rois = select_rois_for_treat(plan, beamset=ts.ForTreatmentSetup, rois=None)
                 for beams in ts.BeamSettings:
                     mu = beams.ForBeam.BeamMU
                     if mu > 0:
                         logging.debug('This beamset is already optimized. Not applying treat settings to targets')
                     else:
+                        treat_rois = select_rois_for_treat(plan, beamset=ts.ForTreatmentSetup, rois=None)
                         set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
                 #
                 # Set beam splitting preferences
@@ -823,13 +823,13 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
             elif ts.ForTreatmentSetup.DeliveryTechnique == 'DynamicArc':
                 #
                 # Execute treatment margin settings
-                treat_rois = select_rois_for_treat(plan, beamset=ts.ForTreatmentSetup, rois=None)
                 for beams in ts.BeamSettings:
                     mu = beams.ForBeam.BeamMU
                     if mu > 0:
                         logging.debug('This beamset is already optimized.' +
                                       ' Not applying treat settings to Beam {}'.format(beams.ForBeam.Name))
                     else:
+                        treat_rois = select_rois_for_treat(plan, beamset=ts.ForTreatmentSetup, rois=None)
                         set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
                 #
                 # Check the control point spacing on arcs

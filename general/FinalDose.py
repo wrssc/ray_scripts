@@ -62,7 +62,11 @@ def main():
     plan = GeneralOperations.find_scope(level='Plan')
     beamset = GeneralOperations.find_scope(level='BeamSet')
     ui = GeneralOperations.find_scope(level='ui')
-    ui.TitleBar.MenuItem['Plan Optimization'].Button_Plan_Optimization.Click()
+    # TODO put in more sophisticated InvalidOperationException Catch here.
+    try:
+        ui.TitleBar.MenuItem['Plan Optimization'].Button_Plan_Optimization.Click()
+    except:
+        logging.debug('Unable to change viewing windows')
 
     # Institution specific plan names and dose grid settings
     fine_grid_names = ['_SBR_']
