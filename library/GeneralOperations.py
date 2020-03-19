@@ -54,6 +54,7 @@ def find_scope(level=None):
     scope_levels = ['ui', 'Patient', 'Case', 'Examination', 'Plan', 'BeamSet']
 
     for l in scope_levels:
+        logging.debug('current level is {}'.format(l))
         try:
             rs_obj = connect.get_current(l)
         except InvalidDataException:
