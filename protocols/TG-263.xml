@@ -7085,8 +7085,38 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>CaudaEquina</TG263ReverseOrderName>
         <FMAID>52590</FMAID>
-        <Color red="0" green="255" blue="0">#00ff00</Color>
-        <Alias></Alias>
+        <Color red="0" green="153" blue="0">#009900</Color>
+        <Alias>cauda,cauda_equina</Alias>
+    </roi>
+    <roi>
+        <name>CaudaEquina_PRVxx</name>
+        <TG263PrimaryName>CaudaEquina_PRVxx</TG263PrimaryName>
+        <Description>Cauda equina expanded by xx mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>Derived</TargetType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>CaudaEquina</MinorCategory>
+        <AnatomicGroup>Pelvis</AnatomicGroup>
+        <NCharacters>17</NCharacters>
+        <TG263ReverseOrderName>PRVxx_CaudaEquina</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="0" green="51" blue="0">#003300</Color>
+        <Alias>cauda_prv,prv_cauda</Alias>
+    </roi>
+    <roi>
+        <name>CaudaEquina_PRV05</name>
+        <TG263PrimaryName>CaudaEquina_PRV05</TG263PrimaryName>
+        <Description>Cauda equina expanded by 05 mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>Derived</TargetType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>CaudaEquina</MinorCategory>
+        <AnatomicGroup>Pelvis</AnatomicGroup>
+        <NCharacters>17</NCharacters>
+        <TG263ReverseOrderName>PRV05_CaudaEquina</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="0" green="51" blue="0">#003300</Color>
+        <Alias>cauda_prv05,prv05_cauda</Alias>
     </roi>
     <roi>
         <name>Cavernosum</name>
@@ -7821,6 +7851,21 @@
         <TG263ReverseOrderName>Rectal_Wall</TG263ReverseOrderName>
         <FMAID>14626</FMAID>
         <Color red="122" green="31" blue="31">#7a1f1f</Color>
+        <Alias>rectalwall,wall_rectum</Alias>
+    </roi>
+        <roi>
+        <name>Rectum</name>
+        <TG263PrimaryName>Rectum</TG263PrimaryName>
+        <Description>Rectum</Description>
+        <NCIt>The terminal portion of the gastrointestinal tract, extending from the rectosigmoid junction to the anal canal.</NCIt>
+        <TargetType>Anatomic</TargetType>
+        <MajorCategory>Rectum</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Pelvis</AnatomicGroup>
+        <NCharacters>6</NCharacters>
+        <TG263ReverseOrderName>Rectum</TG263ReverseOrderName>
+        <FMAID>14544</FMAID>
+            <Color red="165" green="42" blue="42">#a52a2a</Color>
         <Alias>rectalwall,wall_rectum</Alias>
     </roi>
     <roi>
