@@ -37,14 +37,14 @@ class InvalidDataException(Exception):
     pass
 
 
-def find_scope(level=None, find_scope=False):
+def find_scope(level=None, scope=False):
     """
     Find the current available scope in RS at the level of level.
         If level is used, and the level is not in the current scope, produce a fault
         If find_scope is used, go as deep as possible and return a dictionary of all levels
             with None used for those not in current scope.
     :param level: if specified, return the RS object at level if it exists
-    :param find_scope: if True, return a dict of the available scopes
+    :param scope: if True, return a dict of the available scopes
     :return: if level is specified the RS object is returned.
         If find_scope, then a dict of plan variables is used
     """
@@ -63,7 +63,7 @@ def find_scope(level=None, find_scope=False):
                 raise IOError("No {} loaded, load {}".format(l, l))
             else:
                 return rs_obj
-        elif find_scope:
+        elif scope:
             scope[l] = rs_obj
 
     if find_scope:

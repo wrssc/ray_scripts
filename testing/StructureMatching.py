@@ -212,8 +212,9 @@ def main():
     patient = find_scope(level='Patient')
     case = find_scope(level='Case')
     exam = find_scope(level='Examination')
-    plan = find_scope(level='Plan')
-    beamset = find_scope(level='BeamSet')
+    scope = find_scope(scope=True)
+    plan = scope['Plan']
+    beamset = scope['BeamSet']
     target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
     protocol_rois = [
         'A_Carotid',
