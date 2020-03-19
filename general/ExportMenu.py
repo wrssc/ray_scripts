@@ -198,6 +198,9 @@ def main():
     status.next_step(text='The DICOM datasets are now being exported to a temporary directory, converted to a ' +
                           'treatment delivery system, and sent to the selected destination. Please be patient, as ' +
                           'this can take several minutes...')
+    if response['d'] == 'Yes':
+        ignore = True
+        logging.debug('User choose to ignore warnings during DICOM export')
 
     if beamset is not None:
         f = []
@@ -259,7 +262,7 @@ def main():
                                block_accessory=filters[5] in response['e'],
                                block_tray_id=filters[5] in response['e'],
                                pa_threshold=pa_threshold,
-                               prdr_dr=prdr_dr,
+                               prdr_dr=filters[6] in response['e'],
                                bar=True)
 
     # Finish up
