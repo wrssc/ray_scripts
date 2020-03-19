@@ -122,7 +122,7 @@ def exists_roi(case, rois):
     roi_exists = []
 
     for r in rois:
-        pattern = r'^'+r+'$'
+        pattern = r'^' + r + '$'
         if any(re.match(pattern, current_roi, re.IGNORECASE) for current_roi in defined_rois):
             roi_exists.append(True)
         else:
@@ -783,26 +783,27 @@ def match_roi(case, examination, plan_rois):
                                               delete_existing=False, suffix=suffix)
                     else:
                         roi_geom = create_roi(case=case, examination=examination,
-                                   roi_name=return_rois[k], delete_existing=False, suffix=suffix)
+                                              roi_name=return_rois[k], delete_existing=False, suffix=suffix)
                     if roi_geom is not None:
                         # Make the geometry and validate the result
                         roi_geom.OfRoi.CreateMarginGeometry(Examination=examination,
-                                                        SourceRoiName=k,
-                                                        MarginSettings={'Type': "Expand",
-                                                                        'Superior': 0.0,
-                                                                        'Inferior': 0.0,
-                                                                        'Anterior': 0.0,
-                                                                        'Posterior': 0.0,
-                                                                        'Right': 0.0,
-                                                                        'Left': 0.0})
+                                                            SourceRoiName=k,
+                                                            MarginSettings={'Type': "Expand",
+                                                                            'Superior': 0.0,
+                                                                            'Inferior': 0.0,
+                                                                            'Anterior': 0.0,
+                                                                            'Posterior': 0.0,
+                                                                            'Right': 0.0,
+                                                                            'Left': 0.0})
                         # Ensure copy did not result in loss of fidelity
-                        geometry_validation = case.PatientModel.StructureSets[examination.Name].ComparisonOfRoiGeometries(
-                         RoiA=k, RoiB=roi_geom.OfRoi.Name)
+                        geometry_validation = case.PatientModel.StructureSets[
+                            examination.Name].ComparisonOfRoiGeometries(
+                            RoiA=k, RoiB=roi_geom.OfRoi.Name)
                         validation_message = []
                         for metric, value in geometry_validation.iteritems():
-                            validation_message.append(str(metric)+':'+str(value))
+                            validation_message.append(str(metric) + ':' + str(value))
                         logging.debug('Roi Geometry copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
-                                  'Resulting overlap metrics {}'.format(validation_message))
+                                      'Resulting overlap metrics {}'.format(validation_message))
                 else:
                     logging.debug('Rename {} to {}'.format(k, return_rois[k]))
                     case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
@@ -848,20 +849,28 @@ def structure_approved(case, roi_name, examination=None):
 
 def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
     """
-    Thoughtful creation of strucutures that can determine if the structure exists,
+    Thoughtful creation of structures that can determine if the structure exists,
     determine the geometry exists on this examination
-    -Create it with a suffix
+    -Create it with a suffix if the geometry exists and is locked on the current examination
+    Is the structure name already in use?
+        *<No>  -> Make it and return the RoiGeometry on this examination
+        *<Yes> Are there contours defined for roi_name in this case?
+            **<No> -> return the RoiGeometry on this examination
+            **<Yes> Is the geometry approved somewhere in the case?
+                ***<No> Either delete it (delete_existing), or append a supplied or default suffix
+                ***<Yes> Is the geometry approved on this exam?
+                    ****<No> -> Either delete it (delete_existing), or append a supplied or default suffix
+                    ****<Yes> -> Return None (delete_existing), or append a supplied or default suffix
     :param case:
     :param examination:
     :param roi_name: string containing name of roi to be created
     :param delete_existing: delete any existing roi with name roi_name so long as it isn't approved
     :param suffix: append the suffix string to the name of a contour
-    :return: new_structure_name: the name of the new-structure created or None for an error
+    :return: new_structure_name: the RoiGeometries object of roi_name or its suffix-modified name
     """
-    # struct_exists is true if the roi_name is already defined
-    struct_exists = all(exists_roi(case=case, rois=roi_name))
     # First we want to work with the case insensitive match to the structure name supplied
     roi_name_ci = case_insensitive_structure_search(case=case, structure_name=roi_name)
+    # struct_exists is true if the roi_name is already defined
     if roi_name_ci is not None:
         struct_exists = True
     else:
@@ -886,7 +895,7 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
             if geometry_exists:
                 # Is the existing geometry approved?
                 if geometry_approved:
-                    #TODO if delete_existing is selected, prompt the user to unapprove or quit
+                    # TODO if delete_existing is selected, prompt the user to unapprove or quit
                     if delete_existing:
                         # Delete the existing geometry and return the empty geometry on the current exam
                         logging.debug('Exam {} has an approved geometry for {}, cannot create new roi'.format(
@@ -935,7 +944,9 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
         # The roi does not exist, so make it and return the empty geometry for this exam
         case.PatientModel.CreateRoi(Name=roi_name_ci)
         logging.debug('{} is not in the list. Creating {}'.format(roi_name_ci,
-                      case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci].OfRoi.Name))
+                                                                  case.PatientModel.StructureSets[
+                                                                      examination.Name].RoiGeometries[
+                                                                      roi_name_ci].OfRoi.Name))
         return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci]
 
 
@@ -966,7 +977,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
         logging.warning("make_boolean_structure: Structure " + StructureName +
                         " exists.  This will be overwritten in this examination")
     except:
-        #TODO Move to an internal create call
+        # TODO Move to an internal create call
         case.PatientModel.CreateRoi(Name=StructureName,
                                     Color=StructColor,
                                     Type=StructType,
@@ -1070,7 +1081,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     try:
         retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
     except:
-        #TODO Move to an internal create call
+        # TODO Move to an internal create call
         retval_AIR = case.PatientModel.CreateRoi(Name="Air",
                                                  Color="Green",
                                                  Type="Undefined",
@@ -1130,6 +1141,40 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         logging.debug("make_inner_air: No air contours were found near the targets")
 
     return new_structs
+
+
+def make_externalclean(case, examination, structure_name='ExternalClean', suffix=None):
+    """
+    Makes a cleaned version of the external (body) contour and sets its type appropriately
+    :param case: RS Case object
+    :param examination: RS Examination object
+    :param structure_name: a supplied external structure name
+    :param suffix: optional suffix in the event of locked structures
+    :return: the RoiGeometries object of the cleaned external
+    """
+    # Redraw the ExternalClean structure if neccessary
+    roi_geom = create_roi(case=case, examination=examination, roi_name=structure_name,
+                          delete_existing=False, suffix=suffix)
+    if not roi_geom.HasContours():
+        roi_geom.OfRoi.CreateExternalGeometry(Examination=examination,
+                                              ThresholdLevel=None)
+        roi_geom.OfRoi.VolumeThreshold(InputRoi=roi_geom.OfRoi,
+                                       Examination=examination,
+                                       MinVolume=1,
+                                       MaxVolume=200000)
+    else:
+        logging.warning("Structure " + structure_name +
+                        " exists.  Using predefined structure after removing holes and changing color.")
+    roi_geom.OfRoi.SetAsExternal()
+    case.PatientModel.StructureSets[examination.Name].SimplifyContours(RoiNames=[structure_name],
+                                                                       RemoveHoles3D=True,
+                                                                       RemoveSmallContours=False,
+                                                                       AreaThreshold=None,
+                                                                       ReduceMaxNumberOfPointsInContours=False,
+                                                                       MaxNumberOfPoints=None,
+                                                                       CreateCopyOfRoi=False,
+                                                                       ResolveOverlappingContours=False)
+    return roi_geom
 
 
 class planning_structure_preferences:
@@ -1357,7 +1402,7 @@ def planning_structures(generate_ptvs=True,
 
     else:
         StructureName = 'ExternalClean'
-        #TODO Move to an internal create call
+        # TODO Move to an internal create call
         retval_ExternalClean = case.PatientModel.CreateRoi(Name=StructureName,
                                                            Color="234, 192, 134",
                                                            Type="External",
@@ -1986,7 +2031,7 @@ def planning_structures(generate_ptvs=True,
             logging.warning("Structure " + StructureName + " exists. Geometry will be redefined")
             case.PatientModel.StructureSets[examination.Name]. \
                 RoiGeometries['InnerAir'].DeleteGeometry()
-            #TODO Move to an internal create call
+            # TODO Move to an internal create call
             case.PatientModel.CreateRoi(Name='InnerAir',
                                         Color="SaddleBrown",
                                         Type="Undefined",
@@ -1994,7 +2039,7 @@ def planning_structures(generate_ptvs=True,
                                         RbeCellTypeName=None,
                                         RoiMaterial=None)
         except:
-            #TODO Move to an internal create call
+            # TODO Move to an internal create call
             case.PatientModel.CreateRoi(Name='InnerAir',
                                         Color="SaddleBrown",
                                         Type="Undefined",
@@ -2010,7 +2055,7 @@ def planning_structures(generate_ptvs=True,
             patient.SetRoiVisibility(RoiName=fov_name,
                                      IsVisible=False)
         except:
-            #TODO Move to an internal create call
+            # TODO Move to an internal create call
             case.PatientModel.CreateRoi(Name=fov_name,
                                         Color="192, 192, 192",
                                         Type="FieldOfView",

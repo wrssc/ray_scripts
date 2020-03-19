@@ -243,6 +243,11 @@ def main():
         'Bone_Nasal_L',
         'Bone_Nasal_R']
     # plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
+    # Make ExternalClean
+    ext_clean = StructureOperations.make_externalclean(case=case,
+                                                       examination=exam,
+                                                       structure_name='ExternalClean',
+                                                       suffix=None)
     # plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
     plan_rois = StructureOperations.find_types(case=case)
     # filter the structure list
