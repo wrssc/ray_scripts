@@ -56,7 +56,7 @@ def find_scope(level=None):
     for l in scope_levels:
         try:
             rs_obj = connect.get_current(l)
-        except SystemError:
+        except InvalidDataException:
             rs_obj = None
         if l == level:
             if rs_obj is None:
