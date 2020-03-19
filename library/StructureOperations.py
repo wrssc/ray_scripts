@@ -263,10 +263,10 @@ def change_roi_color(case, roi_name, rgb):
     Change the color of an roi to a system color
     :param case: RS case object
     :param roi_name: string containing name of roi to be checked
-    :param rgb: an rgb color object, e.g. [r, g, b] = [128, 132,256
+    :param rgb: an rgb color object, e.g. [r, g, b] = [128, 132,256]
     :return error_massage: None for success, or error message for error
     """
-    if not all(exists_roi(case=case, roi=roi_name)):
+    if not all(exists_roi(case=case, rois=roi_name)):
         error_message = 'Structure {} not found on case {}'.format(roi_name, case)
         return error_message
     # Convert rgb list to system color
@@ -765,8 +765,10 @@ def match_roi(case, examination, plan_rois):
             if isinstance(v, str):
                 # We can only set name properties as the user has given a structure name with no protocol correlate
                 return_rois[k] = v
+                k_user_defined = True
             else:
                 return_rois[k] = v.find('name').text
+                k_user_defined = False
             # Does the input structure match the protocol name entirely
             if k != return_rois[k]:
                 logging.debug('Renaming required for matching {} to {}'.format(k, return_rois[k]))
@@ -800,12 +802,18 @@ def match_roi(case, examination, plan_rois):
                         for metric, value in geometry_validation.iteritems():
                             validation_message.append(str(metric)+':'+str(value))
                         logging.debug('Roi Geometry copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
-                                  'Resulting overlap metrics {}'.format(
-                                      validation_message))
-
+                                  'Resulting overlap metrics {}'.format(validation_message))
                 else:
                     logging.debug('Rename {} to {}'.format(k, return_rois[k]))
                     case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
+            # Change color if possible
+            if not k_user_defined:
+                if 'red' in v.find('Color').attrib:
+                    color = [int(v.find('Color').attrib['red']),
+                             int(v.find('Color').attrib['green']),
+                             int(v.find('Color').attrib['blue'])]
+                    change_roi_color(case=case, roi_name=return_rois[k], rgb=color)
+                    logging.debug('Color of roi {} changed'.format(return_rois[k]))
     return return_rois
 
 

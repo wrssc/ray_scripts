@@ -81,7 +81,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Bowel_Bag</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color></Color>
+        <Color>238, 130, 283</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -291,8 +291,8 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Kidney-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color></Color>
-        <Alias></Alias>
+        <Color red="130" green="130" blue="238">Soft Blue</Color>
+        <Alias>Kidney-gtv,kidney-gtv</Alias>
     </roi>
     <roi>
         <name>Kidney_Cortex</name>
@@ -389,8 +389,22 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_Kidney</TG263ReverseOrderName>
         <FMAID>7205</FMAID>
-        <Color></Color>
+        <Color red="173" green="216" blue="230">Light Blue</Color>
         <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Kidney_L_PRV05</name>
+        <TG263PrimaryName>Kidney_L_PRV05</TG263PrimaryName>
+        <Description>Left Kidney 5 mm planning risk volume</Description>
+        <TargetType>Derived</TargetType>
+        <MajorCategory>Urinary</MajorCategory>
+        <MinorCategory>Kidney</MinorCategory>
+        <AnatomicGroup>Abdomen</AnatomicGroup>
+        <NCharacters>15</NCharacters>
+        <TG263ReverseOrderName>L_Kidney_PRV05</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="130" green="130" blue="238">Soft Blue</Color>
+        <Alias>lkidney_prv05</Alias>
     </roi>
     <roi>
         <name>Kidney_L-GTV</name>
@@ -445,8 +459,22 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>R_Kidney</TG263ReverseOrderName>
         <FMAID>7204</FMAID>
-        <Color></Color>
+        <Color red="173" green="216" blue="230">Light Blue</Color>
         <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Kidney_R_PRV05</name>
+        <TG263PrimaryName>Kidney_R_PRV05</TG263PrimaryName>
+        <Description>Right Kidney 5 mm planning risk volume</Description>
+        <TargetType>Derived</TargetType>
+        <MajorCategory>Urinary</MajorCategory>
+        <MinorCategory>Kidney</MinorCategory>
+        <AnatomicGroup>Abdomen</AnatomicGroup>
+        <NCharacters>15</NCharacters>
+        <TG263ReverseOrderName>R_Kidney_PRV05</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="130" green="130" blue="238">Soft Blue</Color>
+        <Alias>rkidney_prv05</Alias>
     </roi>
     <roi>
         <name>Kidney_R-GTV</name>
@@ -459,7 +487,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Kidney-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color></Color>
+        <Color red="130" green="130" blue="238">Soft Blue</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -473,7 +501,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Kidneys</TG263ReverseOrderName>
         <FMAID>264815</FMAID>
-        <Color></Color>
+        <Color red="195" green="176" blue="145">Khaki</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -697,7 +725,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Lum_SpinalCord</TG263ReverseOrderName>
         <FMAID>71168</FMAID>
-        <Color></Color>
+        <Color red="0" green="240" blue="0">Green</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1391,6 +1419,20 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>Skin_PRV03</name>
+        <TG263PrimaryName>Skin</TG263PrimaryName>
+        <Description>Skin</Description>
+        <TargetType>Anatomic</TargetType>
+        <MajorCategory>Skin</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>10</NCharacters>
+        <TG263ReverseOrderName>PRV03_Skin</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color></Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>Spc</name>
         <TG263PrimaryName>Spc</TG263PrimaryName>
         <Description>Space</Description>
@@ -1457,7 +1499,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>SpinalCord</TG263ReverseOrderName>
         <FMAID>7647</FMAID>
-        <Color></Color>
+        <Color red="0" green="240" blue="0">Green</Color>
         <Alias>Cord,cord,spinalcord</Alias>
     </roi>
     <roi>
@@ -1470,8 +1512,8 @@
         <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>PRV_SpinalCord</TG263ReverseOrderName>
+        <Color red="34" green="139" blue="34">Dark Green</Color>
         <FMAID></FMAID>
-        <Color></Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1485,7 +1527,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRVxx_SpinalCord</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color></Color>
+        <Color red="34" green="139" blue="34">Dark Green</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1499,7 +1541,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRV05_SpinalCord</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color></Color>
+        <Color red="34" green="139" blue="34">Dark Green</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1863,7 +1905,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Mandible_Bone</TG263ReverseOrderName>
         <FMAID>52748</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias>Mandible</Alias>
     </roi>
     <roi>
@@ -1877,7 +1919,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Mastoid_Bone</TG263ReverseOrderName>
         <FMAID>52872</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1891,7 +1933,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Mastoid_Bone</TG263ReverseOrderName>
         <FMAID>52874</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1905,7 +1947,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Mastoid_Bone</TG263ReverseOrderName>
         <FMAID>52873</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1919,7 +1961,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Nasal_Bone</TG263ReverseOrderName>
         <FMAID>52745</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1933,7 +1975,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Nasal_Bone</TG263ReverseOrderName>
         <FMAID>53648</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1947,7 +1989,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Nasal_Bone</TG263ReverseOrderName>
         <FMAID>53647</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1961,7 +2003,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Occipital_Bone</TG263ReverseOrderName>
         <FMAID>52735</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1975,7 +2017,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Palatine_Bone</TG263ReverseOrderName>
         <FMAID>52746</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2003,7 +2045,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Palatine_Bone</TG263ReverseOrderName>
         <FMAID>53655</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2017,7 +2059,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Parietal_Bone</TG263ReverseOrderName>
         <FMAID>9613</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2031,7 +2073,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Parietal_Bone</TG263ReverseOrderName>
         <FMAID>52789</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2045,7 +2087,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Parietal_Bone</TG263ReverseOrderName>
         <FMAID>52788</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2059,7 +2101,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Sphenoid_Bone</TG263ReverseOrderName>
         <FMAID>52736</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2073,7 +2115,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Temporal_Bone</TG263ReverseOrderName>
         <FMAID>52737</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2087,7 +2129,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Temporal_Bone</TG263ReverseOrderName>
         <FMAID>52739</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2101,7 +2143,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Temporal_Bone</TG263ReverseOrderName>
         <FMAID>52738</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2115,7 +2157,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>L_Zygomatic_Bone</TG263ReverseOrderName>
         <FMAID>52893</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2129,7 +2171,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>R_Zygomatic_Bone</TG263ReverseOrderName>
         <FMAID>52892</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2143,7 +2185,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Zygomatics_Bone</TG263ReverseOrderName>
         <FMAID>52747</FMAID>
-        <Color></Color>
+        <Color red="192" green="255" blue="0">Green-Yellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2200,7 +2242,7 @@
         <TG263ReverseOrderName>Brain-PTV</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color>0, 240, 0</Color>
-        <Alias>brain-ptv,brain-PTV, </Alias>
+        <Alias>brain-ptv,brain-PTV,</Alias>
     </roi>
     <roi>
         <name>Brainstem</name>
@@ -2213,7 +2255,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brainstem</TG263ReverseOrderName>
         <FMAID>79876</FMAID>
-        <Color>218, 165, 32</Color>
+        <Color red="218" green="165" blue="32">Goldenrod</Color>
         <Alias>BrainStem</Alias>
     </roi>
     <roi>
@@ -2227,49 +2269,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Core_Brainstem</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color></Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Brainstem_PRV</name>
-        <TG263PrimaryName>Brainstem_PRV</TG263PrimaryName>
-        <Description>PRV for the Brainstem</Description>
-        <TargetType>PRV</TargetType>
-        <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PRV_Brainstem</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color>154,205,50</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Brainstem_PRVxx</name>
-        <TG263PrimaryName>Brainstem_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on the brain stem that is an xx millimeter expansion</Description>
-        <TargetType>PRV</TargetType>
-        <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Brainstem</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color>154,205,50</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Brainstem_PRV03</name>
-        <TG263PrimaryName>Brainstem_PRV03</TG263PrimaryName>
-        <Description>PRV margin on the brain stem that is an 03 millimeter expansion</Description>
-        <TargetType>PRV</TargetType>
-        <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>PRV03_Brainstem</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color>154,205,50</Color>
+        <Color red="218" green="165" blue="32">Goldenrod</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2283,9 +2283,52 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Surf_Brainstem</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color></Color>
+        <Color red="218" green="165" blue="32">Goldenrod</Color>
         <Alias></Alias>
     </roi>
+    <roi>
+        <name>Brainstem_PRV</name>
+        <TG263PrimaryName>Brainstem_PRV</TG263PrimaryName>
+        <Description>PRV for the Brainstem</Description>
+        <TargetType>PRV</TargetType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>PRV</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>13</NCharacters>
+        <TG263ReverseOrderName>PRV_Brainstem</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="184" green="134" blue="11">Dark Goldenrod</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Brainstem_PRVxx</name>
+        <TG263PrimaryName>Brainstem_PRVxx</TG263PrimaryName>
+        <Description>PRV margin on the brain stem that is an xx millimeter expansion</Description>
+        <TargetType>PRV</TargetType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>PRV</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>15</NCharacters>
+        <TG263ReverseOrderName>PRVxx_Brainstem</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="184" green="134" blue="11">Dark Goldenrod</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Brainstem_PRV03</name>
+        <TG263PrimaryName>Brainstem_PRV03</TG263PrimaryName>
+        <Description>PRV margin on the brain stem that is an 03 millimeter expansion</Description>
+        <TargetType>PRV</TargetType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>PRV</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>15</NCharacters>
+        <TG263ReverseOrderName>PRV03_Brainstem</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="184" green="134" blue="11">Dark Goldenrod</Color>
+        <Alias></Alias>
+    </roi>
+
     <roi>
         <name>CN_III</name>
         <TG263PrimaryName>CN_III</TG263PrimaryName>
@@ -2647,8 +2690,8 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Oral_Cavity</TG263ReverseOrderName>
         <FMAID>20292</FMAID>
-        <Color>165,161,55</Color>
-        <Alias>Oral Cavity,Oral_Cavity,OralCavity</Alias>
+        <Color red="165" green="161" blue="55">Light Olive</Color>
+        <Alias>Oral Cavity,Oral_Cavity,OralCavity,oralcavity</Alias>
     </roi>
     <roi>
         <name>Cerebellum</name>
@@ -2745,7 +2788,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Cochlea</TG263ReverseOrderName>
         <FMAID>60201</FMAID>
-        <Color></Color>
+        <Color red="0" green="0" blue="128">Navy</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2759,7 +2802,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>L_Cochlea</TG263ReverseOrderName>
         <FMAID>60203</FMAID>
-        <Color></Color>
+        <Color red="0" green="0" blue="128">Navy</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2773,7 +2816,35 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>R_Cochlea</TG263ReverseOrderName>
         <FMAID>60202</FMAID>
-        <Color></Color>
+        <Color red="0" green="0" blue="128">Navy</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Cochlea_L_PRV05</name>
+        <TG263PrimaryName>Cochlea_L_PRV05</TG263PrimaryName>
+        <Description>Left Cochlea Planning Risk Volume</Description>
+        <TargetType>Anatomic</TargetType>
+        <MajorCategory>Ear</MajorCategory>
+        <MinorCategory>Cochlea</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>L_Cochlea_PRV05</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="0" green="49" blue="83">Prussian Blue</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Cochlea_R_PRV05</name>
+        <TG263PrimaryName>Cochlea_R_PRV05</TG263PrimaryName>
+        <Description>Right Cochlea Planning Risk Volume</Description>
+        <TargetType>Anatomic</TargetType>
+        <MajorCategory>Ear</MajorCategory>
+        <MinorCategory>Cochlea</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>R_Cochlea_PRV05</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="0" green="49" blue="83">Prussian Blue</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3096,7 +3167,7 @@
         <TG263ReverseOrderName>L_Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59103</FMAID>
         <Color></Color>
-        <Alias></Alias>
+        <Alias>Lacrimal_Gland_L</Alias>
     </roi>
     <roi>
         <name>Glnd_Lacrimal_R</name>
@@ -3110,7 +3181,7 @@
         <TG263ReverseOrderName>R_Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59102</FMAID>
         <Color></Color>
-        <Alias></Alias>
+        <Alias>Lacrimal_Gland_R</Alias>
     </roi>
     <roi>
         <name>Glnd_Subling_R</name>
@@ -4383,7 +4454,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>OpticChiasm</TG263ReverseOrderName>
         <FMAID>62045</FMAID>
-        <Color></Color>
+        <Color red="255" green="140" blue="0">Salmon</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4439,7 +4510,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>OpticNrv</TG263ReverseOrderName>
         <FMAID>50863</FMAID>
-        <Color></Color>
+        <Color red="255" green="140" blue="0">Salmon</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4453,7 +4524,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>L_OpticNrv</TG263ReverseOrderName>
         <FMAID>50878</FMAID>
-        <Color></Color>
+        <Color red="255" green="140" blue="0">Salmon</Color>
         <Alias>OpticNerve_L,opticnerve_l,opticnervel</Alias>
     </roi>
     <roi>
@@ -4527,7 +4598,7 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>OpticNrv_PRV03_L</name>
+        <name>OpticNrv_L_PRV03</name>
         <TG263PrimaryName>OpticNrv_PRV03_L</TG263PrimaryName>
         <Description>PRV expansion of xx millimeters on the right optic nerve</Description>
         <TargetType>PRV</TargetType>
@@ -4541,7 +4612,7 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>OpticNrv_PRV03_R</name>
+        <name>OpticNrv_R_PRV03</name>
         <TG263PrimaryName>OpticNrv_PRV03_R</TG263PrimaryName>
         <Description>PRV created with xx mm expansion on the left optic nerve</Description>
         <TargetType>PRV</TargetType>
@@ -4565,7 +4636,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>R_OpticNrv</TG263ReverseOrderName>
         <FMAID>50875</FMAID>
-        <Color></Color>
+        <Color red="255" green="140" blue="0">Salmon</Color>
         <Alias>OpticNerve_R,opticnerve_R,opticnerver</Alias>
     </roi>
     <roi>
