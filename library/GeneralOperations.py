@@ -57,8 +57,13 @@ def find_scope(level=None):
         logging.debug('current level is {}'.format(l))
         try:
             rs_obj = connect.get_current(l)
-        except InvalidDataException:
-            rs_obj = None
+        except Exception as error:
+            if hasattr(error, 'Message'):
+                no_current = 'Invalid objectHandle'
+                if no_current in error.Message:
+                    rs_obj = None
+                else:
+                    logging.error('{}'.format(error))
         if l == level:
             if rs_obj is None:
                 raise IOError("No {} loaded, load {}".format(l, l))
