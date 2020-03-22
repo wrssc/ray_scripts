@@ -921,13 +921,10 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
                         return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci]
                     else:
                         # We don't want to delete the existing geometry, so we'll need to append
-                        if suffix:
-                            i = 0
-                            updated_roi_name = roi_name + suffix
-                        else:
-                            i = 1
+                        if suffix is None:
                             suffix = '_R'
-                            updated_roi_name = roi_name + suffix + str(i)
+                        i = 1
+                        updated_roi_name = roi_name + suffix + str(i)
                         while exists_roi(case=case, rois=updated_roi_name):
                             i += 1
                             updated_roi_name = roi_name + suffix + str(i)
