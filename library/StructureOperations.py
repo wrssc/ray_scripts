@@ -721,7 +721,7 @@ def match_roi(case, examination, plan_rois):
     # secondary_filename = r'TG-263.xml'
     # path_to_secondary_sets = os.path.join(os.path.dirname(__file__),
     #                                      secondary_protocol_folder)
-    logging.debug('Searching folder {} for rois'.format(paths[1]))
+    # logging.debug('Searching folder {} for rois'.format(paths[1]))
     # Generate a list of all standard names used in both protocols and TG-263
     standard_names = []
     for f in os.listdir(paths[1]):
