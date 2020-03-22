@@ -927,7 +927,7 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
                         else:
                             i = 1
                             suffix = '_R'
-                            updated_roi_name = roi_name + suffix + i
+                            updated_roi_name = roi_name + suffix + str(i)
                         while exists_roi(case=case, rois=updated_roi_name):
                             i += 1
                             updated_roi_name = roi_name + suffix + str(i)
@@ -1143,15 +1143,18 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     return new_structs
 
 
-def make_externalclean(case, examination, structure_name='ExternalClean', suffix=None):
+def make_externalclean(case, examination, structure_name='ExternalClean', suffix=None, delete=False):
     """
     Makes a cleaned version of the external (body) contour and sets its type appropriately
     :param case: RS Case object
     :param examination: RS Examination object
     :param structure_name: a supplied external structure name
     :param suffix: optional suffix in the event of locked structures
+    :param delete: deletes existing External if present
     :return: the RoiGeometries object of the cleaned external
     """
+    if delete:
+        current_external = find_types(case=case, roi_type='External')
     # Redraw the ExternalClean structure if neccessary
     roi_geom = create_roi(case=case, examination=examination, roi_name=structure_name,
                           delete_existing=False, suffix=suffix)
