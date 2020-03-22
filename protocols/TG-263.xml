@@ -3478,7 +3478,7 @@
         <TG263ReverseOrderName>R_Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59102</FMAID>
         <Color></Color>
-        <Alias>Lacrimal_Gland_R</Alias>
+        <Alias>Lacrimal_Gland_R,Glnd_Lacrimal_R,Gland_Lacrimal_R,LacrimalGland_R,LacrimalGlnd_R</Alias>
     </roi>
     <roi>
         <name>Glnd_Subling_R</name>
