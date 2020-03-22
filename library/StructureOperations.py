@@ -708,8 +708,8 @@ def match_roi(case, examination, plan_rois):
     # target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
     # protocol_folders = [r'../protocols']
     # institution_folders = [r'']
-    files = [[r'../protocols', r'', r'TG-263.xml'],
-             [r'../protocols', r'UW', r'']]
+    files = [[r'../protocols', r'', r'TG-263.xml']]
+    #        ,[r'../protocols', r'UW', r'']]
     paths = []
     for i, f in enumerate(files):
         secondary_protocol_folder = f[0]
