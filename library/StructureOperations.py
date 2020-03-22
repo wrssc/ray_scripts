@@ -925,7 +925,8 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
                             suffix = '_R'
                         i = 1
                         updated_roi_name = roi_name + suffix + str(i)
-                        while exists_roi(case=case, rois=updated_roi_name):
+                        while any(exists_roi(case=case, rois=updated_roi_name)):
+                            logging.debug('Roi {} found in list. Checking next available.'.format(updated_roi_name))
                             i += 1
                             updated_roi_name = roi_name + suffix + str(i)
                         # Make a new roi using the updated name
