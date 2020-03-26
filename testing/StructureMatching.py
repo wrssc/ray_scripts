@@ -207,7 +207,6 @@ def main():
     import StructureOperations
     from GeneralOperations import find_scope
 
-
     # Get current patient, case, exam, and plan
     patient = find_scope(level='Patient')
     case = find_scope(level='Case')
@@ -289,7 +288,7 @@ def main():
         match_file.write('{{,')
         i = 0
         for k, v in results.iteritems():
-            if i == len(results)-1:
+            if i == len(results) - 1:
                 match_file.write('{v}:{k}}}'.format(k=k, v=v))
             else:
                 match_file.write('{v}:{k},'.format(k=k, v=v))
@@ -300,7 +299,7 @@ def main():
         label_data = csv.DictReader(csvfile)
         for row in label_data:
             for k, v in row.iteritems():
-                logging.debug('Match {} to user input {}'.format(k,v))
+                logging.debug('Match {} to user input {}'.format(k, v))
 
 
 if __name__ == '__main__':

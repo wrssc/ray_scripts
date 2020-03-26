@@ -782,7 +782,12 @@ def match_roi(case, examination, plan_rois):
                                           delete_existing=False, suffix=suffix)
                     if roi_geom is not None:
                         # Make the geometry and validate the result
-                        roi_geom.OfRoi.CreateMarginGeometry(Examination=examination,
+                        k_geom_exists = check_structure_exists(case=case,
+                                                               structure_name=k,
+                                                               option='Check',
+                                                               exam=examination)
+                        if k_geom_exists:
+                            roi_geom.OfRoi.CreateMarginGeometry(Examination=examination,
                                                             SourceRoiName=k,
                                                             MarginSettings={'Type': "Expand",
                                                                             'Superior': 0.0,
@@ -791,15 +796,18 @@ def match_roi(case, examination, plan_rois):
                                                                             'Posterior': 0.0,
                                                                             'Right': 0.0,
                                                                             'Left': 0.0})
-                        # Ensure copy did not result in loss of fidelity
-                        geometry_validation = case.PatientModel.StructureSets[
-                            examination.Name].ComparisonOfRoiGeometries(
-                            RoiA=k, RoiB=roi_geom.OfRoi.Name)
-                        validation_message = []
-                        for metric, value in geometry_validation.iteritems():
-                            validation_message.append(str(metric) + ':' + str(value))
-                        logging.debug('Roi Geometry copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
-                                      'Resulting overlap metrics {}'.format(validation_message))
+                            # Ensure copy did not result in loss of fidelity
+                            geometry_validation = case.PatientModel.StructureSets[
+                             examination.Name].ComparisonOfRoiGeometries(
+                                RoiA=k, RoiB=roi_geom.OfRoi.Name)
+                            validation_message = []
+                            for metric, value in geometry_validation.iteritems():
+                                validation_message.append(str(metric) + ':' + str(value))
+                            logging.debug('Roi Geometry copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
+                                          'Resulting overlap metrics {}'.format(validation_message))
+                        else:
+                            logging.debug('Roi Geometry not copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
+                                          'since {} does not have contours in exam {}'.format(k, examination.Name))
                 else:
                     logging.debug('Rename {} to {}'.format(k, return_rois[k]))
                     case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
