@@ -4858,7 +4858,7 @@
         <TG263ReverseOrderName>OpticChiasm</TG263ReverseOrderName>
         <FMAID>62045</FMAID>
         <Color red="255" green="140" blue="0">Salmon</Color>
-        <Alias></Alias>
+        <Alias>chiasm,Chiasm</Alias>
     </roi>
     <roi>
         <name>OpticChiasm_PRV</name>
