@@ -717,11 +717,6 @@ def match_roi(case, examination, plan_rois):
         paths.append(os.path.join(os.path.dirname(__file__),
                                   secondary_protocol_folder,
                                   institution_folder))
-    # secondary_protocol_folder = r'../protocols'
-    # secondary_filename = r'TG-263.xml'
-    # path_to_secondary_sets = os.path.join(os.path.dirname(__file__),
-    #                                      secondary_protocol_folder)
-    # logging.debug('Searching folder {} for rois'.format(paths[1]))
     # Generate a list of all standard names used in both protocols and TG-263
     standard_names = []
     for f in os.listdir(paths[1]):
@@ -774,16 +769,13 @@ def match_roi(case, examination, plan_rois):
                 logging.debug('Renaming required for matching {} to {}'.format(k, return_rois[k]))
                 # Try to just change the name of the existing contour, but if it is locked or if the
                 # desired contour already exists, we'll have to replace the geometry
-                # Check to see if return_rois[k] is approved
-                if structure_approved(case=case, roi_name=k, examination=examination) or copy_all:
+                # Check to see if return_rois[k] is approved or evaluate whether the correct structure already exists
+                if structure_approved(case=case, roi_name=k, examination=examination) or \
+                        case_insensitive_structure_search(case=case, structure_name=k) or copy_all:
                     logging.debug('Unable to rename {} to {}, attempting a geometry copy'.format(
                         k, return_rois[k]))
-                    if rename_all:
-                        roi_geom = create_roi(case=case, examination=examination, roi_name=return_rois[k],
-                                              delete_existing=False, suffix=suffix)
-                    else:
-                        roi_geom = create_roi(case=case, examination=examination,
-                                              roi_name=return_rois[k], delete_existing=False, suffix=suffix)
+                    roi_geom = create_roi(case=case, examination=examination, roi_name=return_rois[k],
+                                          delete_existing=False, suffix=suffix)
                     if roi_geom is not None:
                         # Make the geometry and validate the result
                         roi_geom.OfRoi.CreateMarginGeometry(Examination=examination,

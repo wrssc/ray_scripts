@@ -1230,6 +1230,21 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>ExternalClean</name>
+        <TG263PrimaryName>ExternalClean</TG263PrimaryName>
+        <Description>Contour encompassing body plus other external items</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>8</NCharacters>
+        <TG263ReverseOrderName>ExternalClean</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="230" green="115" blue="0">#e67300</Color>
+        <Alias>External_Clean</Alias>
+    </roi>
+    <roi>
         <name>External</name>
         <TG263PrimaryName>External</TG263PrimaryName>
         <Description>Contour encompassing body plus other external items</Description>
@@ -7238,7 +7253,7 @@
         <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
-     <roi>
+    <roi>
         <name>Femur_Head_R_PRVxx</name>
         <TG263PrimaryName>Femur_Head_R_PRVxx</TG263PrimaryName>
         <Description>Femur Head &amp; Neck Right xx mm expanded as a planning risk volume</Description>
@@ -7853,11 +7868,13 @@
         <Color red="122" green="31" blue="31">#7a1f1f</Color>
         <Alias>rectalwall,wall_rectum</Alias>
     </roi>
-        <roi>
+    <roi>
         <name>Rectum</name>
         <TG263PrimaryName>Rectum</TG263PrimaryName>
         <Description>Rectum</Description>
-        <NCIt>The terminal portion of the gastrointestinal tract, extending from the rectosigmoid junction to the anal canal.</NCIt>
+        <NCIt>The terminal portion of the gastrointestinal tract, extending from the rectosigmoid junction to the anal
+            canal.
+        </NCIt>
         <TargetType>Anatomic</TargetType>
         <MajorCategory>Rectum</MajorCategory>
         <MinorCategory></MinorCategory>
@@ -7865,7 +7882,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Rectum</TG263ReverseOrderName>
         <FMAID>14544</FMAID>
-            <Color red="165" green="42" blue="42">#a52a2a</Color>
+        <Color red="165" green="42" blue="42">#a52a2a</Color>
         <Alias>rectalwall,wall_rectum</Alias>
     </roi>
     <roi>
