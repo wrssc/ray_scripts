@@ -365,11 +365,15 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
                 logging.warning(structure_name + ' found - deleting and creating')
                 return True
         elif option == 'Check':
-            if structure_has_contours_on_exam:
+            if exam is not None and structure_has_contours_on_exam:
                 logging.info('Structure {} has contours on exam {}'.format(structure_name, exam.Name))
+                return True
+            elif exam is not None:
+                logging.info('Structure {} has no contours on exam {}'.format(structure_name, exam.Name))
+                return False
             else:
                 logging.info(structure_name + ' found')
-            return True
+                return True
         elif option == 'Wait':
             if structure_has_contours_on_exam:
                 logging.info('Structure {} has contours on exam {}'.format(structure_name, exam.Name))
