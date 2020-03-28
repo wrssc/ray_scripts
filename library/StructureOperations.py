@@ -786,6 +786,28 @@ def match_roi(case, examination, plan_rois):
     # matched_rois now contains:
     #  the keys as the planning structures, and the elementtree element found to match (or None)
     for k, v in matched_rois.iteritems():
+        # Check if k is already approved on this examination
+        k_is_approved = structure_approved(case=case, roi_name=k, examination=examination)
+        # Check if there is a misnamed (case insensitive match) in this patient's case
+        k_case_insensitive_match = case_insensitive_structure_search(case=case, structure_name=k)
+        # Find all the exams which contain k
+        exams_with_k = exams_containing_roi(case=case, structure_name=k)
+        # If exams_with_k is empty, then no examination has contours for k
+        if not exams_with_k:
+            k_contours_multiple_exams = False
+            k_empty = True
+            k_contours_this_exam = False
+        else:
+            k_empty = False
+            if len(exams_with_k) > 1:
+                k_contours_multiple_exams = True
+            # Go through the list of exams which have contours for k and see if any are exact matches
+            for e in exams_with_k:
+                k_contours_this_exam = False
+                if e == examination.Name:
+                    # k has contours on this examination
+                    k_contours_this_exam = True
+                    break
         # If no match was made, v will be None otherwise, if there is no match in the protocols, a user-supplied
         # value can be used for the name. If it was matched then it is an elementree element for roi
         if v is None:
@@ -804,30 +826,13 @@ def match_roi(case, examination, plan_rois):
             # Does the input structure match the protocol name entirely
             if k == return_rois[k]:
                 logging.debug('{} was matched to {}. No changes necessary'.format(k, return_rois[k]))
+            elif not k_contours_this_exam:
+                # TODO: Prefilter the roi list from the match so we dont need to do this.
+                #  there are no contours on this structure. So don't do anything with it
+                logging.debug('{} was matched to {}, but is empty on exam {}'.format(k, return_rois[k],
+                                                                                     examination.Name))
             else:
                 logging.debug('Renaming required for matching {} to {}'.format(k, return_rois[k]))
-                # Check if k is already approved on this examination
-                k_is_approved = structure_approved(case=case, roi_name=k, examination=examination)
-                # Check if there is a misnamed (case insensitive match) in this patient's case
-                k_case_insensitive_match = case_insensitive_structure_search(case=case, structure_name=k)
-                # Find all the exams which contain k
-                exams_with_k = exams_containing_roi(case=case, structure_name=k)
-                # If exams_with_k is empty, then no examination has contours for k
-                if not exams_with_k:
-                    k_contours_multiple_exams = False
-                    k_empty = True
-                    k_contours_this_exam = False
-                else:
-                    k_empty = False
-                    if len(exams_with_k) > 1:
-                        k_contours_multiple_exams = True
-                    # Go through the list of exams which have contours for k and see if any are exact matches
-                    for e in exams_with_k:
-                        k_contours_this_exam = False
-                        if e == examination.Name:
-                            # k has contours on this examination
-                            k_contours_this_exam = True
-                            break
                 # Try to just change the name of the existing contour, but if it is locked or if the
                 # desired contour already exists, we'll have to replace the geometry
                 # Check to see if return_rois[k] is approved or evaluate whether the correct structure already exists
