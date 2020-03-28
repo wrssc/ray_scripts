@@ -326,6 +326,36 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
     return None
 
 
+def exams_containing_roi(case, structure_name, roi_list=None):
+    """
+        See if structure has contours on this exam, if no exam is supplied search all examinations in the case
+        Verify if a structure with the exact name specified exists or not
+        :param case: Current RS case
+        :param structure_name: the name of the structure to be confirmed
+        :param roi_list: a list of available ROI's as RS RoiGeometries to check against
+        :return: list of exam names (keys) in which roi has contours
+        """
+    # If no roi_list is given, build it using all roi in the case
+    if roi_list is None:
+        roi_list = []
+        for s in case.PatientModel.StructureSets:
+            for r in s.RoiGeometries:
+                if r not in roi_list:
+                    roi_list.append(r)
+    # If no exam is supplied build a list of all examination names
+    exam_list = []
+    for e in case.Examinations:
+        exam_list.append(e.Name)
+
+    roi_found = []
+
+    if any(roi.OfRoi.Name == structure_name for roi in roi_list):
+        for e in exam_list:
+            e_has_contours = case.PatientModel.StructureSets[e].RoiGeometries[structure_name].HasContours()
+            if e_has_contours:
+                roi_found.append(e)
+
+
 def check_structure_exists(case, structure_name, roi_list=None, option='Check', exam=None):
     """
     Verify if a structure with the exact name specified exists or not
@@ -708,6 +738,7 @@ def match_roi(case, examination, plan_rois):
     :param plan_rois:
     :return: a dictionary with matched elements
     """
+    epsilon = 1e-6 # tolerance of variation in specificity and precision (Jaccard index)
     oar_list = filter_rois(plan_rois)
     # target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
     # protocol_folders = [r'../protocols']
@@ -761,32 +792,54 @@ def match_roi(case, examination, plan_rois):
             return_rois[k] = None
             logging.debug('Structure {k} not matched {v}'.format(k=k, v=v))
         else:
+            # If the value is a string, then it was manually entered by the user
             if isinstance(v, str):
                 # We can only set name properties as the user has given a structure name with no protocol correlate
                 return_rois[k] = v
                 k_user_defined = True
+            # If the value is not a string, then it is an elementtree. Retrieve its name
             else:
                 return_rois[k] = v.find('name').text
                 k_user_defined = False
             # Does the input structure match the protocol name entirely
-            if k != return_rois[k]:
+            if k == return_rois[k]:
+                logging.debug('{} was matched to {}. No changes necessary'.format(k, return_rois[k]))
+            else:
                 logging.debug('Renaming required for matching {} to {}'.format(k, return_rois[k]))
+                # Check if k is already approved on this examination
+                k_is_approved = structure_approved(case=case, roi_name=k, examination=examination)
+                # Check if there is a misnamed (case insensitive match) in this patient's case
+                k_case_insensitive_match = case_insensitive_structure_search(case=case, structure_name=k)
+                # Find all the exams which contain k
+                exams_with_k = exams_containing_roi(case=case, structure_name=k)
+                # If exams_with_k is empty, then no examination has contours for k
+                if not exams_with_k:
+                    k_contours_multiple_exams = False
+                    k_empty = True
+                    k_contours_this_exam = False
+                else:
+                    k_empty = False
+                    if len(exams_with_k) > 1:
+                        k_contours_multiple_exams = True
+                    # Go through the list of exams which have contours for k and see if any are exact matches
+                    for e in exams_with_k:
+                        k_contours_this_exam = False
+                        if e == examination.Name:
+                            # k has contours on this examination
+                            k_contours_this_exam = True
+                            break
                 # Try to just change the name of the existing contour, but if it is locked or if the
                 # desired contour already exists, we'll have to replace the geometry
                 # Check to see if return_rois[k] is approved or evaluate whether the correct structure already exists
-                if structure_approved(case=case, roi_name=k, examination=examination) or \
-                        case_insensitive_structure_search(case=case, structure_name=k) or copy_all:
+                if k_is_approved or k_case_insensitive_match or copy_all:
                     logging.debug('Unable to rename {} to {}, attempting a geometry copy'.format(
                         k, return_rois[k]))
+                    # Try to create the correct return roi or retrieve its existing geometry
                     roi_geom = create_roi(case=case, examination=examination, roi_name=return_rois[k],
                                           delete_existing=False, suffix=suffix)
                     if roi_geom is not None:
                         # Make the geometry and validate the result
-                        k_geom_exists = check_structure_exists(case=case,
-                                                               structure_name=k,
-                                                               option='Check',
-                                                               exam=examination)
-                        if k_geom_exists:
+                        if k_contours_this_exam:
                             roi_geom.OfRoi.CreateMarginGeometry(Examination=examination,
                                                             SourceRoiName=k,
                                                             MarginSettings={'Type': "Expand",
@@ -805,7 +858,14 @@ def match_roi(case, examination, plan_rois):
                                 validation_message.append(str(metric) + ':' + str(value))
                             logging.debug('Roi Geometry copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
                                           'Resulting overlap metrics {}'.format(validation_message))
+                            # k exists only on this exam, so we've copied its geometry and since its
+                            if not k_contours_multiple_exams and k_contours_this_exam:
+                                if (geometry_validation['Precision'] -1 ) <= epsilon and \
+                                        (geometry_validation['Sensitivity'] - 1) <= epsilon:
+                                    case.PatientModel.RegionsOfInterest[k].DeleteRoi()
                         else:
+                            if k_empty:
+                                case.PatientModel.RegionsOfInterest[k].DeleteRoi()
                             logging.debug('Roi Geometry not copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
                                           'since {} does not have contours in exam {}'.format(k, examination.Name))
                 else:
