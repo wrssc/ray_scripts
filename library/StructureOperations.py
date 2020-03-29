@@ -1,5 +1,8 @@
 """ Perform structure operations on Raystation plans
 
+    exclude_from_export
+    toggles the roi's export status
+
     check_roi
     checks if an ROI has contours
 
@@ -28,7 +31,7 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2019-08-03'
+__date__ = '2020-03-20'
 
 __version__ = '1.0.0'
 __status__ = 'Production'
@@ -733,7 +736,11 @@ def match_dialog(matches, elements):
 
 def match_roi(case, examination, plan_rois):
     """
-    Matches a input list of plan_rois (user-defined) to protocol, outputs data to a log
+    Matches a input list of plan_rois (user-defined) to protocol,
+    if a structure set is approved or a structure already has an existing geometry
+    with the potential matched structure then this will create a copy and copy the geometry
+    if the geometry is copied, then the specicifity and dice coefficients are checked
+    outputs data to a log
     :param case: RS Case Object
     :param examination: RS Examination object
     :param plan_rois:
@@ -780,7 +787,6 @@ def match_roi(case, examination, plan_rois):
     # Launch the dialog to get the list of matched elements
     matched_rois = match_dialog(matches=potential_matches, elements=roi263)
     suffix = matched_rois['Suffix']
-    rename_all = True
     copy_all = False
     matched_rois.pop('Suffix')
     return_rois = {}
