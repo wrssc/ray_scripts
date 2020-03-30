@@ -791,7 +791,7 @@ def match_roi(case, examination, plan_rois):
     matched_rois.pop('Suffix')
     return_rois = {}
     # matched_rois now contains:
-    #  the keys as the planning structures, and the elementtree element found to match (or None)
+    # the keys as the planning structures, and the elementtree element found to match (or None)
     for k, v in matched_rois.iteritems():
         # If no match was made, v will be None otherwise, if there is no match in the protocols, a user-supplied
         # value can be used for the name. If it was matched then it is an elementree element for roi
