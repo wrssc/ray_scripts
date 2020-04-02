@@ -17,16 +17,18 @@
 
     Known Issues:
 
-    This program is free software: you can redistribute it and/or modify it under
-    the terms of the GNU General Public License as published by the Free Software
-    Foundation, either version 3 of the License, or (at your option) any later version.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by the
+    Free Software Foundation, either version 3 of the License, or (at your
+    option) any later version.
 
-    This program is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+    for more details.
 
-    You should have received a copy of the GNU General Public License along with
-    this program. If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License along
+    with this program. If not, see <http://www.gnu.org/licenses/>.
     """
 
 __author__ = 'Adam Bayliss'
@@ -46,6 +48,9 @@ __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+from GeneralOperations import logcrit as logcrit
+import UserInterface
+import System.Drawing
 import logging
 import os
 import sys
@@ -56,10 +61,6 @@ import numpy as np
 import xml
 
 clr.AddReference('System.Drawing')
-import System.Drawing
-
-import UserInterface
-from GeneralOperations import logcrit as logcrit
 
 
 def exclude_from_export(case, rois):
@@ -110,7 +111,8 @@ def include_in_export(case, rois):
                     PointsOfInterests=[])
 
             except Exception:
-                logging.warning('Unable to exclude {} from export'.format(rois))
+                logging.warning(
+                    'Unable to exclude {} from export'.format(rois))
 
 
 def exists_roi(case, rois):
@@ -126,7 +128,8 @@ def exists_roi(case, rois):
 
     for r in rois:
         pattern = r'^' + r + '$'
-        if any(re.match(pattern, current_roi, re.IGNORECASE) for current_roi in defined_rois):
+        if any(re.match(pattern, current_roi, re.IGNORECASE)
+               for current_roi in defined_rois):
             roi_exists.append(True)
         else:
             roi_exists.append(False)
@@ -151,7 +154,9 @@ def exists_poi(case, pois):
         if p in defined_pois:
             while i < len(defined_pois):
                 if p == defined_pois[i]:
-                    logging.debug('{} is an exact match to {}'.format(p, defined_pois[i]))
+                    logging.debug(
+                        '{} is an exact match to {}'
+                        .format(p, defined_pois[i]))
                     exact_match = True
                 i += 1
             if exact_match:
@@ -180,7 +185,8 @@ def has_coordinates_poi(case, exam, poi):
         test = StructureOperations.has_coordinates_poi(case=case, exam=exam, poi='SimFiducials')"""
 
     poi_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[poi]
-    test_points = [abs(poi_position.Point.x) < 1e5, abs(poi_position.Point.y) < 1e5, abs(poi_position.Point.z < 1e5)]
+    test_points = [abs(poi_position.Point.x) < 1e5, abs(
+        poi_position.Point.y) < 1e5, abs(poi_position.Point.z < 1e5)]
     if all(test_points):
         return True
     else:
@@ -197,7 +203,8 @@ def check_roi(case, exam, rois):
     if all(exists_roi(case=case, rois=rois)):
 
         for r in rois:
-            if case.PatientModel.StructureSets[exam.Name].RoiGeometries[r].HasContours():
+            if case.PatientModel.StructureSets[exam.Name].\
+                    RoiGeometries[r].HasContours():
                 roi_passes.append(True)
             else:
                 roi_passes.append(False)
@@ -220,7 +227,8 @@ def max_coordinates(case, exam, rois):
         rois = [rois]
 
     if any(exists_roi(case, rois)):
-        logging.warning('Maximum Coordinates of ROI: {} could NOT be determined. ROI does not exist'.format(rois))
+        logging.warning(
+            'Maximum Coordinates of ROI: {} could NOT be determined. ROI does not exist'.format(rois))
         return None
 
     logging.debug('Determining maximum coordinates of ROI: {}'.format(rois))
@@ -270,7 +278,8 @@ def change_roi_color(case, roi_name, rgb):
     :return error_massage: None for success, or error message for error
     """
     if not all(exists_roi(case=case, rois=roi_name)):
-        error_message = 'Structure {} not found on case {}'.format(roi_name, case)
+        error_message = 'Structure {} not found on case {}'.format(
+            roi_name, case)
         return error_message
     # Convert rgb list to system color
     sys_rgb = define_sys_color(rgb)
@@ -354,7 +363,8 @@ def exams_containing_roi(case, structure_name, roi_list=None):
 
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         for e in exam_list:
-            e_has_contours = case.PatientModel.StructureSets[e].RoiGeometries[structure_name].HasContours()
+            e_has_contours = case.PatientModel.StructureSets[e].RoiGeometries[structure_name].HasContours(
+            )
             if e_has_contours:
                 roi_found.append(e)
     return roi_found
@@ -385,32 +395,38 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if exam is not None:
             structure_has_contours_on_exam = \
-                case.PatientModel.StructureSets[exam.Name].RoiGeometries[structure_name].HasContours()
+                case.PatientModel.StructureSets[exam.Name].RoiGeometries[structure_name].HasContours(
+                )
         else:
             structure_has_contours_on_exam = False
 
         if option == 'Delete':
             if structure_has_contours_on_exam:
-                case.PatientModel.StructureSets[exam.Name].RoiGeometries[structure_name].DeleteGeometry()
+                case.PatientModel.StructureSets[exam.Name].RoiGeometries[structure_name].DeleteGeometry(
+                )
                 logging.warning(structure_name + ' found - deleting geometry')
                 return False
             else:
                 case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-                logging.warning(structure_name + ' found - deleting and creating')
+                logging.warning(structure_name +
+                                ' found - deleting and creating')
                 return True
         elif option == 'Check':
             if exam is not None and structure_has_contours_on_exam:
-                logging.info('Structure {} has contours on exam {}'.format(structure_name, exam.Name))
+                logging.info('Structure {} has contours on exam {}'.format(
+                    structure_name, exam.Name))
                 return True
             elif exam is not None:
-                logging.info('Structure {} has no contours on exam {}'.format(structure_name, exam.Name))
+                logging.info('Structure {} has no contours on exam {}'.format(
+                    structure_name, exam.Name))
                 return False
             else:
                 logging.info(structure_name + ' found')
                 return True
         elif option == 'Wait':
             if structure_has_contours_on_exam:
-                logging.info('Structure {} has contours on exam {}'.format(structure_name, exam.Name))
+                logging.info('Structure {} has contours on exam {}'.format(
+                    structure_name, exam.Name))
                 return True
             else:
                 logging.info('Structure {} not found on exam {}, prompted user to create'.format(
@@ -485,11 +501,14 @@ def check_overlap(patient, case, exam, structure, rois):
         if t.HasContours():
             vol = t.GetRoiVolume()
         else:
-            logging.info('{} has no contours, index undefined'.format(overlap_name))
+            logging.info(
+                '{} has no contours, index undefined'.format(overlap_name))
     except:
-        logging.warning('Error getting volume for {}, volume => 0.0'.format(overlap_name))
+        logging.warning(
+            'Error getting volume for {}, volume => 0.0'.format(overlap_name))
 
-    logging.debug('Calculated volume of overlap of {} is {}'.format(overlap_name, vol))
+    logging.debug(
+        'Calculated volume of overlap of {} is {}'.format(overlap_name, vol))
     case.PatientModel.RegionsOfInterest[overlap_name].DeleteRoi()
     return vol
 
@@ -746,13 +765,13 @@ def match_roi(case, examination, plan_rois):
     :param plan_rois:
     :return: a dictionary with matched elements
     """
-    epsilon = 1e-6 # tolerance of variation in specificity and precision (Jaccard index)
+    epsilon = 1e-6  # tolerance of variation in specificity and precision (Jaccard index)
     oar_list = filter_rois(plan_rois)
     # target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
     # protocol_folders = [r'../protocols']
     # institution_folders = [r'']
-    files = [[r'../protocols', r'', r'TG-263.xml']
-            ,[r'../protocols', r'UW', r'']]
+    files = [[r'../protocols', r'', r'TG-263.xml'],
+             [r'../protocols', r'UW', r'']]
     paths = []
     for i, f in enumerate(files):
         secondary_protocol_folder = f[0]
@@ -783,7 +802,8 @@ def match_roi(case, examination, plan_rois):
         else:
             standard_names[r.find('name').text] = {}
     # Comes up with a list of up to 5 matches
-    potential_matches = find_normal_structures_match(rois=oar_list, num_matches=5, standard_rois=standard_names)
+    potential_matches = find_normal_structures_match(
+        rois=oar_list, num_matches=5, standard_rois=standard_names)
     # Launch the dialog to get the list of matched elements
     matched_rois = match_dialog(matches=potential_matches, elements=roi263)
     suffix = matched_rois['Suffix']
@@ -810,14 +830,18 @@ def match_roi(case, examination, plan_rois):
                 k_user_defined = False
             # Does the input structure match the protocol name entirely
             if k == return_rois[k]:
-                logging.debug('{} was matched to {}. No changes necessary'.format(k, return_rois[k]))
+                logging.debug(
+                    '{} was matched to {}. No changes necessary'.format(k, return_rois[k]))
             else:
                 # Check if k is already approved on this examination
-                k_is_approved = structure_approved(case=case, roi_name=k, examination=examination)
+                k_is_approved = structure_approved(
+                    case=case, roi_name=k, examination=examination)
                 # Check if there is a misnamed (case insensitive match) in this patient's case
-                k_case_insensitive_match = case_insensitive_structure_search(case=case, structure_name=k)
+                k_case_insensitive_match = case_insensitive_structure_search(
+                    case=case, structure_name=k)
                 # Find all the exams which contain k
-                exams_with_k = exams_containing_roi(case=case, structure_name=k)
+                exams_with_k = exams_containing_roi(
+                    case=case, structure_name=k)
                 # If exams_with_k is empty, then no examination has contours for k
                 if not exams_with_k:
                     k_contours_multiple_exams = False
@@ -834,15 +858,16 @@ def match_roi(case, examination, plan_rois):
                             # k has contours on this examination
                             k_contours_this_exam = True
                             break
-                logging.debug('Renaming required for matching {} to {}'.format(k, return_rois[k]))
+                logging.debug(
+                    'Renaming required for matching {} to {}'.format(k, return_rois[k]))
                 # Try to just change the name of the existing contour, but if it is locked or if the
                 # desired contour already exists, we'll have to replace the geometry
                 # Check to see if return_rois[k] is approved or evaluate whether the correct structure already exists
                 if not k_contours_this_exam:
                     # TODO: Prefilter the roi list from the match so we dont need to do this.
                     #  there are no contours on this structure. So don't do anything with it
-                    logging.debug('{} was matched to {}, but is empty on exam {}'.format(k, return_rois[k],
-                                                                                     examination.Name))
+                    logging.debug('{} was matched to {}, but is empty on exam {}'.format(
+                        k, return_rois[k], examination.Name))
                 elif k_is_approved or k_case_insensitive_match or copy_all:
                     logging.debug('Unable to rename {} to {}, attempting a geometry copy'.format(
                         k, return_rois[k]))
@@ -853,31 +878,34 @@ def match_roi(case, examination, plan_rois):
                         # Make the geometry and validate the result
                         if k_contours_this_exam:
                             roi_geom.OfRoi.CreateMarginGeometry(Examination=examination,
-                                                            SourceRoiName=k,
-                                                            MarginSettings={'Type': "Expand",
-                                                                            'Superior': 0.0,
-                                                                            'Inferior': 0.0,
-                                                                            'Anterior': 0.0,
-                                                                            'Posterior': 0.0,
-                                                                            'Right': 0.0,
-                                                                            'Left': 0.0})
+                                                                SourceRoiName=k,
+                                                                MarginSettings={'Type': "Expand",
+                                                                                'Superior': 0.0,
+                                                                                'Inferior': 0.0,
+                                                                                'Anterior': 0.0,
+                                                                                'Posterior': 0.0,
+                                                                                'Right': 0.0,
+                                                                                'Left': 0.0})
                             # Ensure copy did not result in loss of fidelity
                             geometry_validation = case.PatientModel.StructureSets[
-                             examination.Name].ComparisonOfRoiGeometries(
+                                examination.Name].ComparisonOfRoiGeometries(
                                 RoiA=k, RoiB=roi_geom.OfRoi.Name)
                             validation_message = []
                             for metric, value in geometry_validation.iteritems():
-                                validation_message.append(str(metric) + ':' + str(value))
+                                validation_message.append(
+                                    str(metric) + ':' + str(value))
                             logging.debug('Roi Geometry copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
                                           'Resulting overlap metrics {}'.format(validation_message))
                             # k exists only on this exam, so we've copied its geometry and since its
                             if not k_contours_multiple_exams and k_contours_this_exam:
-                                if (geometry_validation['Precision'] -1 ) <= epsilon and \
+                                if (geometry_validation['Precision'] - 1) <= epsilon and \
                                         (geometry_validation['Sensitivity'] - 1) <= epsilon:
-                                    case.PatientModel.RegionsOfInterest[k].DeleteRoi()
+                                    case.PatientModel.RegionsOfInterest[k].DeleteRoi(
+                                    )
                         else:
                             if k_empty:
-                                case.PatientModel.RegionsOfInterest[k].DeleteRoi()
+                                case.PatientModel.RegionsOfInterest[k].DeleteRoi(
+                                )
                             logging.debug('Roi Geometry not copied from {} to {}. '.format(k, roi_geom.OfRoi.Name) +
                                           'since {} does not have contours in exam {}'.format(k, examination.Name))
                 else:
@@ -889,8 +917,10 @@ def match_roi(case, examination, plan_rois):
                     color = [int(v.find('Color').attrib['red']),
                              int(v.find('Color').attrib['green']),
                              int(v.find('Color').attrib['blue'])]
-                    change_roi_color(case=case, roi_name=return_rois[k], rgb=color)
-                    logging.debug('Color of roi {} changed'.format(return_rois[k]))
+                    change_roi_color(
+                        case=case, roi_name=return_rois[k], rgb=color)
+                    logging.debug(
+                        'Color of roi {} changed'.format(return_rois[k]))
     return return_rois
 
 
@@ -945,7 +975,8 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
     :return: new_structure_name: the RoiGeometries object of roi_name or its suffix-modified name
     """
     # First we want to work with the case insensitive match to the structure name supplied
-    roi_name_ci = case_insensitive_structure_search(case=case, structure_name=roi_name)
+    roi_name_ci = case_insensitive_structure_search(
+        case=case, structure_name=roi_name)
     # struct_exists is true if the roi_name is already defined
     if roi_name_ci is not None:
         struct_exists = True
@@ -953,16 +984,23 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
         roi_name_ci = roi_name
         struct_exists = False
 
-    logging.debug('{} is defined somewhere in this case {}'.format(roi_name_ci, struct_exists))
+    logging.debug('{} is defined somewhere in this case {}'.format(
+        roi_name_ci, struct_exists))
     # geometry_exists_in_case is True if any examination in this case has contours for this roi_name_ci
-    geometry_exists_in_case = check_structure_exists(case=case, structure_name=roi_name_ci, option='Check')
-    logging.debug('{} geometry exists in case: {}'.format(roi_name_ci, geometry_exists_in_case))
+    geometry_exists_in_case = check_structure_exists(
+        case=case, structure_name=roi_name_ci, option='Check')
+    logging.debug('{} geometry exists in case: {}'.format(
+        roi_name_ci, geometry_exists_in_case))
     # geometry_exists is True if this examination has contours
-    geometry_exists = check_structure_exists(case=case, structure_name=roi_name_ci, option='Check', exam=examination)
-    logging.debug('{} geometry exists in exam {}: {}'.format(roi_name_ci, examination.Name, geometry_exists))
+    geometry_exists = check_structure_exists(
+        case=case, structure_name=roi_name_ci, option='Check', exam=examination)
+    logging.debug('{} geometry exists in exam {}: {}'.format(
+        roi_name_ci, examination.Name, geometry_exists))
     # Look through all structure sets in the patient to see if roi name is approved on an exam in this patient
-    geometry_approved = structure_approved(case=case, roi_name=roi_name_ci, examination=examination)
-    logging.debug('{} geometry approved in exam {}: {}'.format(roi_name_ci, examination.Name, geometry_approved))
+    geometry_approved = structure_approved(
+        case=case, roi_name=roi_name_ci, examination=examination)
+    logging.debug('{} geometry approved in exam {}: {}'.format(
+        roi_name_ci, examination.Name, geometry_approved))
 
     if struct_exists:
         # Does the existing structure have any contours defined
@@ -1002,7 +1040,8 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
                         i = 1
                         updated_roi_name = roi_name + suffix + str(i)
                         while any(exists_roi(case=case, rois=updated_roi_name)):
-                            logging.debug('Roi {} found in list. Checking next available.'.format(updated_roi_name))
+                            logging.debug(
+                                'Roi {} found in list. Checking next available.'.format(updated_roi_name))
                             i += 1
                             updated_roi_name = roi_name + suffix + str(i)
                         # Make a new roi using the updated name
@@ -1210,9 +1249,11 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
                                      MaxVolume=500)
         # Check for emptied contours
         if not inner_air_ex.HasContours():
-            logging.debug("make_inner_air: Volume Thresholding has eliminated InnerAir contours")
+            logging.debug(
+                "Volume Thresholding has eliminated InnerAir contours")
     else:
-        logging.debug("make_inner_air: No air contours were found near the targets")
+        logging.debug(
+            "No air contours were found near the targets")
 
     return new_structs
 
@@ -1595,8 +1636,8 @@ def planning_structures(generate_ptvs=True,
     generate_inner_air = planning_structure_selections.use_inner_air
     logging.debug('Planning structures will use {} targets, UnderDose (Priority 1 Goals) {}, '.format(
         planning_structure_selections.number_of_targets, planning_structure_selections.use_under_dose) +
-                  'UniformDose {}, Inner volumes of air {}'.format(
-                      planning_structure_selections.use_uniform_dose, planning_structure_selections.use_inner_air))
+        'UniformDose {}, Inner volumes of air {}'.format(
+        planning_structure_selections.use_uniform_dose, planning_structure_selections.use_inner_air))
 
     # Determine if targets using the skin are in place
 
@@ -1675,7 +1716,8 @@ def planning_structures(generate_ptvs=True,
                 if 'dose' in k:
                     source_doses[indx] = v
             else:
-                logging.warning('No dialog elements returned. Script unsuccessful')
+                logging.warning(
+                    'No dialog elements returned. Script unsuccessful')
 
     # Generate Scan Lengths
     if generate_combined_ptv:
@@ -1706,8 +1748,10 @@ def planning_structures(generate_ptvs=True,
         newly_generated_rois.append('All_PTVs')
 
     logcrit('Target List: [%s]' % ', '.join(map(str, input_source_list)))
-    logcrit('Proceeding with target list: [%s]' % ', '.join(map(str, input_source_list)))
-    logcrit('Proceeding with target doses: [%s]' % ', '.join(map(str, source_doses)))
+    logcrit('Proceeding with target list: [%s]' %
+            ', '.join(map(str, input_source_list)))
+    logcrit('Proceeding with target doses: [%s]' %
+            ', '.join(map(str, source_doses)))
 
     # Get a list of underdose objects from the user consisting of up to 3 inputs
     if dialog3_response is not None:
@@ -1738,18 +1782,22 @@ def planning_structures(generate_ptvs=True,
             under_dose_dialog.show()
             underdose_structures = []
             try:
-                underdose_structures.extend(under_dose_dialog.values['input1_underdose'])
+                underdose_structures.extend(
+                    under_dose_dialog.values['input1_underdose'])
             except KeyError:
                 pass
             try:
-                underdose_structures.extend([under_dose_dialog.values['input2_underdose']])
+                underdose_structures.extend(
+                    [under_dose_dialog.values['input2_underdose']])
             except KeyError:
                 pass
             try:
-                underdose_structures.extend([under_dose_dialog.values['input3_underdose']])
+                underdose_structures.extend(
+                    [under_dose_dialog.values['input3_underdose']])
             except KeyError:
                 pass
-            underdose_standoff = float(under_dose_dialog.values['input4_under_standoff'])
+            underdose_standoff = float(
+                under_dose_dialog.values['input4_under_standoff'])
             logging.debug("Underdose list selected: {}"
                           .format(underdose_structures))
 
@@ -1782,18 +1830,22 @@ def planning_structures(generate_ptvs=True,
             uniformdose_dialog.show()
             uniformdose_structures = []
             try:
-                uniformdose_structures.extend(uniformdose_dialog.values['input1_uniform'])
+                uniformdose_structures.extend(
+                    uniformdose_dialog.values['input1_uniform'])
             except KeyError:
                 pass
             try:
-                uniformdose_structures.extend([uniformdose_dialog.values['input2_uniform']])
+                uniformdose_structures.extend(
+                    [uniformdose_dialog.values['input2_uniform']])
             except KeyError:
                 pass
             try:
-                uniformdose_structures.extend([uniformdose_dialog.values['input3_uniform']])
+                uniformdose_structures.extend(
+                    [uniformdose_dialog.values['input3_uniform']])
             except KeyError:
                 pass
-            uniformdose_standoff = float(uniformdose_dialog.values['input4_uniform_standoff'])
+            uniformdose_standoff = float(
+                uniformdose_dialog.values['input4_uniform_standoff'])
             logging.debug("Uniform Dose list selected: {}"
                           .format(uniformdose_structures))
 
@@ -1850,9 +1902,11 @@ def planning_structures(generate_ptvs=True,
         except KeyError:
             generate_target_rings = False
 
-        logging.debug("User Selected Preserve Skin Dose: {}".format(generate_target_skin))
+        logging.debug("User Selected Preserve Skin Dose: {}".format(
+            generate_target_skin))
 
-        logging.debug("User Selected target Rings: {}".format(generate_target_rings))
+        logging.debug("User Selected target Rings: {}".format(
+            generate_target_rings))
 
         # DATA PARSING FOR THE OPTIONS MENU
         # Stand - Off Values - Gaps between structures
@@ -1867,7 +1921,8 @@ def planning_structures(generate_ptvs=True,
         thickness_ld_ring = float(options_response['input6_thick_ld_ring'])
 
     if run_status:
-        status.next_step(text='Support structures used for removing air, skin, and overlap being generated')
+        status.next_step(
+            text='Support structures used for removing air, skin, and overlap being generated')
 
     if generate_ptvs:
         # Build the name list for the targets
@@ -1900,16 +1955,22 @@ def planning_structures(generate_ptvs=True,
                 else:
                     MidTargetNumber = index - 1
                     PTVName = PTVPrefix + "_Mid" + str(MidTargetNumber)
-                    PTVEvalName = PTVPrefix + "_Eval_Mid" + str(MidTargetNumber)
+                    PTVEvalName = PTVPrefix + \
+                        "_Eval_Mid" + str(MidTargetNumber)
                     PTVEZName = PTVPrefix + "_EZ_Mid" + str(MidTargetNumber)
                     OTVName = OTVPrefix + "_Mid" + str(MidTargetNumber)
                     sotvu_name = sotvu_prefix + "_Mid" + str(MidTargetNumber)
             elif numbered_targets:
-                PTVName = PTVPrefix + str(index + 1) + '_' + source_doses[index]
-                PTVEvalName = PTVPrefix + str(index + 1) + '_Eval_' + source_doses[index]
-                PTVEZName = PTVPrefix + str(index + 1) + '_EZ_' + source_doses[index]
-                OTVName = OTVPrefix + str(index + 1) + '_' + source_doses[index]
-                sotvu_name = sotvu_prefix + str(index + 1) + '_' + source_doses[index]
+                PTVName = PTVPrefix + \
+                    str(index + 1) + '_' + source_doses[index]
+                PTVEvalName = PTVPrefix + \
+                    str(index + 1) + '_Eval_' + source_doses[index]
+                PTVEZName = PTVPrefix + \
+                    str(index + 1) + '_EZ_' + source_doses[index]
+                OTVName = OTVPrefix + \
+                    str(index + 1) + '_' + source_doses[index]
+                sotvu_name = sotvu_prefix + \
+                    str(index + 1) + '_' + source_doses[index]
             PTVList.append(PTVName)
             translation_mapping[PTVName] = [input_source_list[index],
                                             str(source_doses[index])]
@@ -1993,7 +2054,8 @@ def planning_structures(generate_ptvs=True,
         logging.debug("Creating UniformDose ROI using Sources: {}"
                       .format(uniformdose_structures))
         if generate_underdose:
-            logging.debug("UnderDose structures required, excluding overlap from UniformDose")
+            logging.debug(
+                "UnderDose structures required, excluding overlap from UniformDose")
             uniformdose_defs = {
                 "StructureName": "UniformDose",
                 "ExcludeFromExport": True,
@@ -2086,7 +2148,8 @@ def planning_structures(generate_ptvs=True,
                     "StructType": "Ptv"}
             logging.debug("Creating main target {}: {}"
                           .format(i, PTVList[i]))
-            make_boolean_structure(patient=patient, case=case, examination=examination, **ptv_definitions)
+            make_boolean_structure(
+                patient=patient, case=case, examination=examination, **ptv_definitions)
             newly_generated_rois.append(ptv_definitions.get("StructureName"))
             subtract_targets.append(PTVList[i])
 
@@ -2105,7 +2168,8 @@ def planning_structures(generate_ptvs=True,
             # If InnerAir is found, it's geometry should be blanked out.
             StructureName = "InnerAir"
             retval_innerair = case.PatientModel.RegionsOfInterest[StructureName]
-            logging.warning("Structure " + StructureName + " exists. Geometry will be redefined")
+            logging.warning("Structure " + StructureName +
+                            " exists. Geometry will be redefined")
             case.PatientModel.StructureSets[examination.Name]. \
                 RoiGeometries['InnerAir'].DeleteGeometry()
             # TODO Move to an internal create call
