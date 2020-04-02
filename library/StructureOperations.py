@@ -1398,7 +1398,11 @@ def make_externalclean(
     """
     if delete:
         current_external = find_types(case=case, roi_type="External")
-    # Redraw the ExternalClean structure if neccessary
+        try:
+            case.RegionsOfInterest[current_external].DeleteRoi()
+        except:
+            logging.warning('Structure {} could not be deleted'.format(current_external))
+    # Redraw the ExternalClean structure if necessary
     roi_geom = create_roi(
         case=case,
         examination=examination,

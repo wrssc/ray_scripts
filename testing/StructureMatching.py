@@ -244,10 +244,23 @@ def main():
         'Bone_Nasal_R']
     # plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
     # Make ExternalClean
-    ext_clean = StructureOperations.make_externalclean(case=case,
-                                                       examination=exam,
-                                                       structure_name='ExternalClean',
-                                                       suffix=None)
+    external_name = 'ExternalClean'
+    if StructureOperations.check_structure_exists(
+                                                  case,
+                                                  external_name,
+                                                  roi_list=None,
+                                                  option="Check",
+                                                  exam=exam
+                                                ):
+        logging.info('An external {} was already defined on exam {}.'
+                     .format(external_name, exam.Name) +
+                     ' It was not redefined.'
+                     )
+    else:
+        ext_clean = StructureOperations.make_externalclean(case=case,
+                                                           examination=exam,
+                                                           structure_name='ExternalClean',
+                                                           suffix=None)
     # plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
     plan_rois = StructureOperations.find_types(case=case)
     # filter the structure list
