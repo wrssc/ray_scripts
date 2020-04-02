@@ -332,7 +332,7 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
     :param case: raystation case
     :param structure_name:structure name to be tested
     :param roi_list: list of rois to look in, if not specified, use all rois
-    :return: name as defined in RayStation, or None
+    :return: name as defined in RayStation, or None if no match was found.
     """
     # If no roi_list is given, build it using all roi in the case
     if roi_list is None:
