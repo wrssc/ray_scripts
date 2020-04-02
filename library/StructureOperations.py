@@ -343,8 +343,8 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
                     roi_list.append(r.OfRoi.Name)
 
     for current_roi in roi_list:
-        if re.search(structure_name, current_roi, re.IGNORECASE):
-            if re.search(r'^' + structure_name + '$', current_roi):
+        if re.search(r'^' + structure_name + '$', current_roi, re.IGNORECASE):
+            if not re.search(r'^' + structure_name + '$', current_roi):
                 return current_roi
     return None
 
