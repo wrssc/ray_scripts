@@ -171,7 +171,8 @@ def exists_poi(case, pois):
 
 def has_coordinates_poi(case, exam, poi):
     """See if pois have locations
-    Currently this script will simply look to see if the coordinates are finite.
+    Currently this script will simply look to see if the coordinates are
+    finite.
 
     :param case: desired RS case object from connect
     :param exam: desired RS exam object from connect
@@ -182,11 +183,18 @@ def has_coordinates_poi(case, exam, poi):
             case.PatientModel.StructureSets[exam.Name].RoiGeometries['External'].GetBoundingBox
     Usage:
         import StructureOperations
-        test = StructureOperations.has_coordinates_poi(case=case, exam=exam, poi='SimFiducials')"""
+        test = StructureOperations.has_coordinates_poi(
+            case=case, exam=exam, poi='SimFiducials')
+    """
 
-    poi_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[poi]
-    test_points = [abs(poi_position.Point.x) < 1e5, abs(
-        poi_position.Point.y) < 1e5, abs(poi_position.Point.z < 1e5)]
+    poi_position = case.PatientModel \
+                       .StructureSets[exam.Name] \
+                       .PoiGeometries[poi]
+    test_points = [
+                   abs(poi_position.Point.x) < 1e5,
+                   abs(poi_position.Point.y) < 1e5,
+                   abs(poi_position.Point.z < 1e5)
+                   ]
     if all(test_points):
         return True
     else:
@@ -217,18 +225,23 @@ def check_roi(case, exam, rois):
 
 
 def max_coordinates(case, exam, rois):
-    """ Returns the maximum coordinates of the rois as a nested dictionary, e.g.
+    """
+    Returns the maximum coordinates of the rois as a nested dictionary, e.g.
     rois = PTV1
     a = max_coordinates(case=case, exam=exam, rois=rois)
     a['PTV1']['min_x'] = ...
 
-    TODO: Give max Patient L/R/A/P/S/I, and consider creating a type with defined methods"""
+    TODO: Give max Patient L/R/A/P/S/I, and consider creating a type with
+    defined methods
+    """
     if type(rois) is not list:
         rois = [rois]
 
     if any(exists_roi(case, rois)):
         logging.warning(
-            'Maximum Coordinates of ROI: {} could NOT be determined. ROI does not exist'.format(rois))
+            'Maximum Coordinates of ROI: {}'.format(rois) +
+            'could NOT be determined. ROI does not exist'
+            )
         return None
 
     logging.debug('Determining maximum coordinates of ROI: {}'.format(rois))
@@ -244,7 +257,10 @@ def max_coordinates(case, exam, rois):
         y = []
         z = []
 
-        contours = case.PatientModel.StructureSets[exam].RoiGeometries[rois].PrimaryShape.Contours
+        contours = case.PatientModel \
+                       .StructureSets[exam] \
+                       .RoiGeometries[rois] \
+                       .PrimaryShape.Contours
 
         for contour in contours:
             for point in contour:
@@ -293,7 +309,8 @@ def change_roi_color(case, roi_name, rgb):
 
 def find_targets(case):
     """
-    Find all structures with type 'Target' within the current case. Return the matches as a list
+    Find all structures with type 'Target' within the current case.
+    Return the matches as a list
     :param case: Current RS Case
     :return: plan_targets # A List of targets
     """
@@ -305,8 +322,10 @@ def find_targets(case):
             plan_targets.append(r.Name)
     # Add user threat: empty PTV list.
     if not plan_targets:
-        connect.await_user_input("The target list is empty." +
-                                 " Please apply type PTV to the targets and continue.")
+        connect.await_user_input(
+            "The target list is empty." +
+            " Please apply type PTV to the targets and continue."
+            )
         for r in case.PatientModel.RegionsOfInterest:
             if r.OrganData.OrganType == 'Target':
                 plan_targets.append(r.Name)
@@ -318,7 +337,8 @@ def find_targets(case):
 
 def case_insensitive_structure_search(case, structure_name, roi_list=None):
     """
-    Check if a case insensitive match to the structure_name exists and return the name or None
+    Check if a case insensitive match to the structure_name exists and
+    return the name or None
     :param case: raystation case
     :param structure_name:structure name to be tested
     :param roi_list: list of rois to look in, if not specified, use all rois
@@ -340,13 +360,15 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
 
 def exams_containing_roi(case, structure_name, roi_list=None):
     """
-        See if structure has contours on this exam, if no exam is supplied search all examinations in the case
+        See if structure has contours on this exam, if no exam is supplied
+        search all examinations in the case
         Verify if a structure with the exact name specified exists or not
         :param case: Current RS case
         :param structure_name: the name of the structure to be confirmed
-        :param roi_list: a list of available ROI's as RS RoiGeometries to check against
-        :return: list of exam names (keys) in which roi has contours
-        """
+        :param roi_list: a list of available ROI's as RS RoiGeometries to
+                         check against
+        :return: roi_found list of exam names (keys) in which roi has contours
+    """
     # If no roi_list is given, build it using all roi in the case
     if roi_list is None:
         roi_list = []
@@ -363,25 +385,34 @@ def exams_containing_roi(case, structure_name, roi_list=None):
 
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         for e in exam_list:
-            e_has_contours = case.PatientModel.StructureSets[e].RoiGeometries[structure_name].HasContours(
-            )
+            e_has_contours = case.PatientModel \
+                                 .StructureSets[e] \
+                                 .RoiGeometries[structure_name] \
+                                 .HasContours()
             if e_has_contours:
                 roi_found.append(e)
     return roi_found
 
 
-def check_structure_exists(case, structure_name, roi_list=None, option='Check', exam=None):
+def check_structure_exists(case,
+                           structure_name,
+                           roi_list=None,
+                           option='Check',
+                           exam=None):
     """
     Verify if a structure with the exact name specified exists or not
     :param case: Current RS case
     :param structure_name: the name of the structure to be confirmed
-    :param roi_list: a list of available ROI's as RS RoiGeometries to check against
+    :param roi_list: a list of available ROI's as RS RoiGeometries to check
+                     against
     :param option: desired behavior
         Delete - deletes structure if found
         Check - simply returns true or false if found
         Wait - prompt user to create structure if not found
-    :param exam: Current RS exam, if supplied the script deletes geometry only, otherwise contour is deleted
-    :return: Logical - True if structure is present in ROI List, false otherwise
+    :param exam: Current RS exam, if supplied the script deletes geometry only,
+                 otherwise contour is deleted
+    :return: Logical - True if structure is present in ROI List,
+                       False otherwise
     """
 
     # If no roi_list is given, build it using all roi in the case
@@ -395,8 +426,10 @@ def check_structure_exists(case, structure_name, roi_list=None, option='Check', 
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         if exam is not None:
             structure_has_contours_on_exam = \
-                case.PatientModel.StructureSets[exam.Name].RoiGeometries[structure_name].HasContours(
-                )
+                case.PatientModel \
+                .StructureSets[exam.Name] \
+                .RoiGeometries[structure_name] \
+                .HasContours()
         else:
             structure_has_contours_on_exam = False
 
