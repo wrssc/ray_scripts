@@ -270,10 +270,11 @@ def main():
         found_case_sensitive_match = StructureOperations \
                                      .case_insensitive_structure_search(
                                                                         case=case,
-                                                                        structure_name=r
+                                                                        structure_name=r,
+                                                                        roi_list=plan_rois
                                                                         )
         if found_case_sensitive_match is not None:
-            connect.await_user_input('Two structures share the same name with different case:' +
+            connect.await_user_input('Two structures share the same name with different case: ' +
                                      '{} matches {}'.format(r, found_case_sensitive_match) +
                                      ' resolve the error and continue the script'
                                      )
