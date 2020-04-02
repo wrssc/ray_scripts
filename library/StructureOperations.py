@@ -872,15 +872,18 @@ def match_roi(case, examination, plan_rois):
     # matched_rois now contains:
     # the keys as the planning structures, and the elementtree element found to match (or None)
     for k, v in matched_rois.iteritems():
-        # If no match was made, v will be None otherwise, if there is no match in the protocols, a user-supplied
-        # value can be used for the name. If it was matched then it is an elementree element for roi
+        # If no match was made, v will be None otherwise,
+        # if there is no match in the protocols, a user-supplied
+        # value can be used for the name. If it was matched then
+        # it is an elementree element for roi
         if v is None:
             return_rois[k] = None
             logging.debug("Structure {k} not matched {v}".format(k=k, v=v))
         else:
             # If the value is a string, then it was manually entered by the user
             if isinstance(v, str):
-                # We can only set name properties as the user has given a structure name with no protocol correlate
+                # We can only set name properties as the user has given a structure name
+                # with no protocol correlate
                 return_rois[k] = v
                 k_user_defined = True
             # If the value is not a string, then it is an elementtree. Retrieve its name
@@ -910,7 +913,8 @@ def match_roi(case, examination, plan_rois):
                     k_empty = False
                     if len(exams_with_k) > 1:
                         k_contours_multiple_exams = True
-                    # Go through the list of exams which have contours for k and see if any are exact matches
+                    # Go through the list of exams which have contours for k
+                    # and see if any are exact matches
                     for e in exams_with_k:
                         k_contours_this_exam = False
                         if e == examination.Name:
@@ -920,7 +924,8 @@ def match_roi(case, examination, plan_rois):
                 logging.debug("Renaming required for matching {} to {}".format(k, return_rois[k]))
                 # Try to just change the name of the existing contour, but if it is locked or if the
                 # desired contour already exists, we'll have to replace the geometry
-                # Check to see if return_rois[k] is approved or evaluate whether the correct structure already exists
+                # Check to see if return_rois[k] is approved or evaluate whether
+                # the correct structure already exists
                 if not k_contours_this_exam:
                     # TODO: Prefilter the roi list from the match so we dont need to do this.
                     #  there are no contours on this structure. So don't do anything with it
@@ -1044,8 +1049,10 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
             **<Yes> Is the geometry approved somewhere in the case?
                 ***<No> Either delete it (delete_existing), or append a supplied or default suffix
                 ***<Yes> Is the geometry approved on this exam?
-                    ****<No> -> Either delete it (delete_existing), or append a supplied or default suffix
-                    ****<Yes> -> Return None (delete_existing), or append a supplied or default suffix
+                    ****<No> -> Either delete it (delete_existing),
+                                or append a supplied or default suffix
+                    ****<Yes> -> Return None (delete_existing),
+                                 or append a supplied or default suffix
     :param case:
     :param examination:
     :param roi_name: string containing name of roi to be created
@@ -1063,7 +1070,8 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
         struct_exists = False
 
     logging.debug("{} is defined somewhere in this case {}".format(roi_name_ci, struct_exists))
-    # geometry_exists_in_case is True if any examination in this case has contours for this roi_name_ci
+    # geometry_exists_in_case is True if any examination
+    # in this case has contours for this roi_name_ci
     geometry_exists_in_case = check_structure_exists(
         case=case, structure_name=roi_name_ci, option="Check"
     )
@@ -1075,7 +1083,8 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
     logging.debug(
         "{} geometry exists in exam {}: {}".format(roi_name_ci, examination.Name, geometry_exists)
     )
-    # Look through all structure sets in the patient to see if roi name is approved on an exam in this patient
+    # Look through all structure sets in the patient to see if
+    # roi name is approved on an exam in this patient
     geometry_approved = structure_approved(case=case, roi_name=roi_name_ci, examination=examination)
     logging.debug(
         "{} geometry approved in exam {}: {}".format(
@@ -1092,7 +1101,8 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
                 if geometry_approved:
                     # TODO if delete_existing is selected, prompt the user to unapprove or quit
                     if delete_existing:
-                        # Delete the existing geometry and return the empty geometry on the current exam
+                        # Delete the existing geometry and return
+                        # the empty geometry on the current exam
                         logging.debug(
                             "Exam {} has an approved geometry for {}, cannot create new roi".format(
                                 examination.Name, roi_name_ci
@@ -1116,7 +1126,8 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
                 else:
                     # The geometry is not approved on this examination
                     if delete_existing:
-                        # Delete the existing geometry and return the empty geometry on the current exam
+                        # Delete the existing geometry and return
+                        # the empty geometry on the current exam
                         case.PatientModel.StructureSets[examination.Name].RoiGeometries[
                             roi_name_ci
                         ].DeleteGeometry
@@ -1536,8 +1547,8 @@ def planning_structures(
     All structures to be treated, and their doses
     All structures with priority 1 goals
         (they are going to be selected for UnderDose)
-    All structures where hot-spots are undesirable but underdosing is not desired.  They will be placed in
-    the UniformDose ROI.
+    All structures where hot-spots are undesirable but underdosing is not desired.
+        They will be placed in the UniformDose ROI.
 
 
     Raystation script to make structures used for planning.
@@ -1854,10 +1865,13 @@ def planning_structures(
         if dialog2_response == {}:
             sys.exit("Planning Structures and Goal Selection was cancelled")
         # Parse the output from initial_dialog
-        # We are going to take a user input input_source_list and convert them into PTV's used for planning
-        # input_source_list consists of the user-specified targets to be massaged into PTV1, PTV2, .... below
+        # We are going to take a user input input_source_list and
+        # convert them into PTV's used for planning
+        # input_source_list consists of the user-specified targets
+        # to be massaged into PTV1, PTV2, .... below
 
-        # TODO: Replace the separate input_source_list and source_doses lists with a dictionary or a tuple
+        # TODO: Replace the separate input_source_list and source_doses
+        #       lists with a dictionary or a tuple
         # Process inputs
         input_source_list = [None] * number_of_targets
         source_doses = [None] * number_of_targets
@@ -1916,7 +1930,8 @@ def planning_structures(
                     "input1_underdose": "Select UnderDose Structures",
                     "input2_underdose": "Select UnderDose OAR",
                     "input3_underdose": "Select UnderDose OAR",
-                    "input4_under_standoff": "UnderDose Standoff: x cm gap between targets and UnderDose volume",
+                    "input4_under_standoff":
+                        "UnderDose Standoff: x cm gap between targets and UnderDose volume",
                 },
                 datatype={
                     "input1_underdose": "check",
@@ -1962,7 +1977,8 @@ def planning_structures(
                     "input1_uniform": "Select UniformDose Structures",
                     "input2_uniform": "Select UniformDose OAR",
                     "input3_uniform": "Select UniformDose OAR",
-                    "input4_uniform_standoff": "UniformDose Standoff: x cm gap between targets and UniformDose volume",
+                    "input4_uniform_standoff":
+                        "UniformDose Standoff: x cm gap between targets and UniformDose volume",
                 },
                 datatype={
                     "input1_uniform": "check",
@@ -2335,7 +2351,8 @@ def planning_structures(
                 RoiMaterial=None,
             )
 
-    # Generate a rough field of view contour.  It should really be put in with the dependent structures
+    # Generate a rough field of view contour.
+    # It should really be put in with the dependent structures
     if generate_field_of_view:
         # Automated build of the Air contour
         fov_name = "FieldOfView"
@@ -2444,7 +2461,8 @@ def planning_structures(
             eval_subtract.append(target)
 
     # Generate the OTV's
-    # Build a region called z_derived_not_exp_underdose that does not include the underdose expansion
+    # Build a region called z_derived_not_exp_underdose that
+    # does not include the underdose expansion
     if generate_otvs:
         otv_intersect = []
         if generate_underdose:
@@ -2598,7 +2616,8 @@ def planning_structures(
     )
     newly_generated_rois.append(z_derived_targets_plus_standoff_ring_defs.get("StructureName"))
     # Now generate a ring for each target
-    # Each iteration will add the higher dose targets and rings to the subtract list for subsequent rings
+    # Each iteration will add the higher dose targets and
+    # rings to the subtract list for subsequent rings
     # ring(i) = [PTV(i) + thickness] - [a + b + PTV(i-1)]
     # where ring_avoid_subtract = [a + b + PTV(i-1)]
     ring_avoid_subtract = [
