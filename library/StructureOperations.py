@@ -658,9 +658,12 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
         [match, dist] = levenshtein_match(r, standard_names, num_matches)
         matched_rois[r] = []
         # unsorted_matches
-        #   Dict object: {Key: [(Match distance, Match name), (Match distance, MatchName2), ... num_matches}
+        #   Dict object: {Key: [(Match distance, Match name),
+        #                       (Match distance, MatchName2),
+        #                       ... num_matches}
         unsorted_matches = []
-        # Create an ordered list. If there is an exact match, make the first element in the ordered list that.
+        # Create an ordered list. If there is an exact match,
+        # make the first element in the ordered list that.
         for a_key, a_val in aliases.iteritems():
             for v in a_val:
                 if r in v:
@@ -681,8 +684,8 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
                     if not lr_mismatch:
                         unsorted_matches.append((d, match[i]))
         sorted_matches = sorted(unsorted_matches, key=lambda m: m[0])
-        # If the aliasing and matching produced nothing, then add a blank element to the beginning of the
-        # sorted list
+        # If the aliasing and matching produced nothing, then
+        # add a blank element to the beginning of the sorted list
         if not sorted_matches:
             sorted_matches.append((0, ""))
         elif sorted_matches[0][0] > alias_distance:
@@ -740,11 +743,14 @@ def filter_rois(plan_rois, skip_targets=True, skip_planning=True):
 
 def match_dialog(matches, elements):
     """
-    Dialog for matching taking the matches found in the search and pairing them with protocol elements
+    Dialog for matching taking the matches found in the search and
+    pairing them with protocol elements
     :param matches: matched elements in the form {PlanROI: <Matched_Protocol ROI>}
     :param elements: Elementtree list of roi elements
-    :return: dialog_result: {'CopyOfReplace':<'Copy' or 'Replace'>, PlanROI: <Matching ROI subelement>, or
-    a string indicating a user-typed input}
+    :return: dialog_result:
+                            {'CopyOfReplace':<'Copy' or 'Replace'>,
+                            PlanROI: <Matching ROI subelement>, or
+                            a string indicating a user-typed input}
     """
     # Make dialog inputs
     inputs = {}
