@@ -482,7 +482,10 @@ def main():
     # Avoid_Face - creates a block that will avoid treating the face
     # This contour extends down 10 cm from the brain itself.  Once this is subtracted
     # from the brain - this will leave only the face
-    if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid_Face'):
+    if not check_structure_exists(case=case,
+                                  roi_list=rois,
+                                  option='Delete',
+                                  structure_name='Avoid_Face'):
         logging.info('Avoid_Face not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid_Face",

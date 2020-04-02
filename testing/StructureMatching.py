@@ -73,7 +73,8 @@ def test_select_element(patient, case, exam, plan, beamset):
             set_elements='beam',
             filename=file,
             dialog=False,
-            folder=path_protocols)
+            folder=path_protocols
+            )
         logging.debug('Available beamsets include: {}'.format(available_beamsets))
         if not available_beamsets:
             on_screen_message += 'FAIL: Could not Find Beamset at protocol level'
@@ -252,9 +253,25 @@ def main():
     # filter the structure list
     filtered_plan_rois = []
     for r in plan_rois:
+        # Filter the list to look for duplicates and exit out if undesirable features are found
+        found_case_sensitive_match = StructureOperations \
+                                     .case_insensitive_structure_search(
+                                                                        case=case,
+                                                                        structure_name=r
+                                                                        )
+        if found_case_sensitive_match is not None:
+            connect.await_user_input('Two structures share the same name with different case:' +
+                                     '{} matches {}'.format(r, found_case_sensitive_match) +
+                                     ' resolve the error and continue the script'
+                                     )
+            logging.warning('Two structures share the same name with different case:' +
+                            '{} matches {}'.format(r, found_case_sensitive_match)
+                            )
         filtered_plan_rois.append(r)
 
-    results = StructureOperations.match_roi(examination=exam, case=case, plan_rois=plan_rois)
+    results = StructureOperations.match_roi(examination=exam,
+                                            case=case,
+                                            plan_rois=plan_rois)
 
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
     log_directory = patient_log_file_path.split(str(patient.PatientID))[0]

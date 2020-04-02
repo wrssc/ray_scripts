@@ -1,9 +1,10 @@
 """ List Match Table GUI Widget
 
-    The MatchDialog() class constructor displays a form allowing the user to match
-    each item in a list of input strings to a list of options. The form will display a
-    table with inputs in the left column and a dropdown list containing options in the
-    right column. Initial values for each match can be provided via an initial dict.
+    The MatchDialog() class constructor displays a form allowing the user to
+    match each item in a list of input strings to a list of options. The form
+    will display a table with inputs in the left column and a dropdown list
+    containing options in the right column. Initial values for each match
+    can be provided via an initial dict.
     If not provided, the class will set the initial value to the item in options with
     the smallest Levenshtein distance. Exact matching and regular expressions are also
     supported, both for inputs or options. All matching is case-insensitive. The
@@ -43,8 +44,16 @@ import re
 
 class MatchDialog:
 
-    def __init__(self, inputs, options, text='', title='Match Values', initial=None, form=None, method='Levenshtein',
-                 regexp=None, threshold=0.6):
+    def __init__(self,
+                 inputs,
+                 options,
+                 text='',
+                 title='Match Values',
+                 initial=None,
+                 form=None,
+                 method='Levenshtein',
+                 regexp=None,
+                 threshold=0.6):
         """dialog = UserInterface.MatchDialog(['a', 'b', 'c'], ['d', 'e', 'f'])"""
 
         # Link .NET assemblies
