@@ -929,7 +929,7 @@ def match_roi(case, examination, plan_rois):
                             # k has contours on this examination
                             k_contours_this_exam = True
                             break
-                logging.debug('k {}'.format(k),
+                logging.debug('Current roi is {}. '.format(k),
                               'k_contours_multiple_exams {}, '.format(k_contours_multiple_exams) +
                               'k_empty {}, '.format(k_empty) +
                               'k_contours_this_exam {}'.format(k_contours_this_exam))
@@ -946,7 +946,7 @@ def match_roi(case, examination, plan_rois):
                             k, return_rois[k], examination.Name
                         )
                     )
-                elif k_is_approved or k_case_insensitive_match or copy_all:
+                elif k_is_approved or k_case_insensitive_match or k_contours_multiple_exams:
                     logging.debug(
                         "Unable to rename {} to {}, attempting a geometry copy".format(
                             k, return_rois[k]
