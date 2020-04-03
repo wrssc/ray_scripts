@@ -929,7 +929,8 @@ def match_roi(case, examination, plan_rois):
                             # k has contours on this examination
                             k_contours_this_exam = True
                             break
-                logging.debug('k_contours_multiple_exams {}, '.format(k_contours_multiple_exams) +
+                logging.debug('k {}'.format(k),
+                              'k_contours_multiple_exams {}, '.format(k_contours_multiple_exams) +
                               'k_empty {}, '.format(k_empty) +
                               'k_contours_this_exam {}'.format(k_contours_this_exam))
                 logging.debug("Renaming required for matching {} to {}".format(k, return_rois[k]))
