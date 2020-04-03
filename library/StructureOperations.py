@@ -421,9 +421,10 @@ def check_structure_exists(case, structure_name, roi_list=None, option="Check", 
 
         if option == "Delete":
             if structure_has_contours_on_exam:
-                case.PatientModel.StructureSets[exam.Name].RoiGeometries[
-                    structure_name
-                ].DeleteGeometry()
+                case.PatientModel \
+                    .StructureSets[exam.Name] \
+                    .RoiGeometries[structure_name] \
+                    .DeleteGeometry()
                 logging.warning(structure_name + " found - deleting geometry")
                 return False
             else:
@@ -432,17 +433,19 @@ def check_structure_exists(case, structure_name, roi_list=None, option="Check", 
                 return True
         elif option == "Check":
             if exam is not None and structure_has_contours_on_exam:
-                logging.info(
-                    "Structure {} has contours on exam {}".format(structure_name, exam.Name)
-                )
+                # logging.info(
+                #     "Structure {} has contours on exam {}".format(structure_name, exam.Name)
+                # )
                 return True
             elif exam is not None:
-                logging.info(
-                    "Structure {} has no contours on exam {}".format(structure_name, exam.Name)
-                )
+                # logging.info(
+                #     "Structure {} has no contours on exam {}".format(structure_name, exam.Name)
+                # )
                 return False
             else:
-                logging.info(structure_name + " found")
+                # logging.info("Structure {} exists in this Case {}"
+                #              .format(structure_name, case.Name)
+                # )
                 return True
         elif option == "Wait":
             if structure_has_contours_on_exam:
@@ -934,10 +937,6 @@ def match_roi(case, examination, plan_rois):
                             # k has contours on this examination
                             k_contours_this_exam = True
                             break
-                logging.debug('Current roi is {}. '.format(k) +
-                              'k_contours_multiple_exams {}, '.format(k_contours_multiple_exams) +
-                              'k_empty {}, '.format(k_empty) +
-                              'k_contours_this_exam {}'.format(k_contours_this_exam))
                 logging.debug('Renaming required for matching {} to {}'
                               .format(k, return_rois[k])
                               )
