@@ -899,9 +899,15 @@ def match_roi(case, examination, plan_rois):
                 # Check if k is already approved on this examination
                 k_is_approved = structure_approved(case=case, roi_name=k, examination=examination)
                 # Check if there is a misnamed (case insensitive match) in this patient's case
-                k_case_insensitive_match = case_insensitive_structure_search(
+                case_insensitive_match = case_insensitive_structure_search(
                     case=case, structure_name=k
                 )
+                if case_insensitive_match is None:
+                    k_case_insensitive_match = False
+                else:
+                    k_case_insensitive_match = True
+                    logging.debug('Match to {} found as {}'.format(
+                        k, case_insensitive_match))
                 # Find all the exams which contain k
                 exams_with_k = exams_containing_roi(case=case, structure_name=k)
                 # If exams_with_k is empty, then no examination has contours for k
@@ -1062,8 +1068,12 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
     """
     # First we want to work with the case insensitive match to the structure name supplied
     roi_name_ci = case_insensitive_structure_search(case=case, structure_name=roi_name)
+    roi_name_exists = check_structure_exists(case=case, option='Check')
     # struct_exists is true if the roi_name is already defined
     if roi_name_ci is not None:
+        struct_exists = True
+    elif roi_name_exists:
+        roi_name_ci = roi_name
         struct_exists = True
     else:
         roi_name_ci = roi_name

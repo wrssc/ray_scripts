@@ -276,16 +276,15 @@ def main():
                 logging.info('Two structures share the same name with different case:' +
                              '{} matches {}'.format(r, found_case_sensitive_match)
                              )
-                connect.await_user_input('Two structures share the same name with different case: ' +
-                                         '{} matches {}'.format(r, found_case_sensitive_match) +
-                                         ' Copy the geometry from the incorrect name to the correct '+
-                                         ' structure and continue the script'
-                                         )
+                user_message = 'Two structures share the same name with different case: ' + \
+                               '{} matches {}. '.format(r, found_case_sensitive_match) + \
+                               'Copy the geometry from the incorrect name to the correct ' + \
+                               'structure and continue the script'
+                connect.await_user_input(user_message)
                 continue
 
             filtered_plan_rois.append(r)
         list_unfiltered = False
-
 
     results = StructureOperations.match_roi(examination=exam,
                                             case=case,
