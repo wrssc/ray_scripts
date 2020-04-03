@@ -920,7 +920,7 @@ def match_roi(case, examination, plan_rois):
                     if len(exams_with_k) > 1:
                         k_contours_multiple_exams = True
                     else:
-                        k_contours_this_exam = False
+                        k_contours_multiple_exams = False
                     # Go through the list of exams which have contours for k
                     # and see if any are exact matches
                     for e in exams_with_k:
