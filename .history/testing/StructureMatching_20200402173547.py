@@ -74,7 +74,7 @@ def test_select_element(patient, case, exam, plan, beamset):
             filename=file,
             dialog=False,
             folder=path_protocols
-        )
+            )
         logging.debug('Available beamsets include: {}'.format(available_beamsets))
         if not available_beamsets:
             on_screen_message += 'FAIL: Could not Find Beamset at protocol level'
@@ -184,9 +184,8 @@ def test_select_element(patient, case, exam, plan, beamset):
                                              restrict_beamset=None,
                                              checking=True)
                 else:
-                    logging.debug(
-                        'No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
-                            .format(o_n, o_r))
+                    logging.debug('No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
+                                  .format(o_n, o_r))
                     s_dose = 0
                     pass
             else:
@@ -247,12 +246,12 @@ def main():
     # Make ExternalClean
     external_name = 'ExternalClean'
     if StructureOperations.check_structure_exists(
-            case,
-            external_name,
-            roi_list=None,
-            option="Check",
-            exam=exam
-    ):
+                                                  case,
+                                                  external_name,
+                                                  roi_list=None,
+                                                  option="Check",
+                                                  exam=exam
+                                                ):
         logging.info('An external {} was already defined on exam {}.'
                      .format(external_name, exam.Name) +
                      ' It was not redefined.'
@@ -263,33 +262,30 @@ def main():
                                                            structure_name='ExternalClean',
                                                            suffix=None)
     # plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
-    list_unfiltered = True
-    while list_unfiltered:
-        plan_rois = StructureOperations.find_types(case=case)
-        # filter the structure list
-        filtered_plan_rois = []
-        for r in plan_rois:
-            # Filter the list to look for duplicates and exit out if undesirable features are found
-            found_case_sensitive_match = StructureOperations \
-                .case_insensitive_structure_search(case=case, structure_name=r, roi_list=plan_rois)
-            if found_case_sensitive_match is not None:
-                logging.info('Two structures share the same name with different case:' +
-                             '{} matches {}'.format(r, found_case_sensitive_match)
-                             )
-                connect.await_user_input('Two structures share the same name with different case: ' +
-                                         '{} matches {}'.format(r, found_case_sensitive_match) +
-                                         ' Copy the geometry from the incorrect name to the correct '+
-                                         ' structure and continue the script'
-                                         )
-                continue
-
-            filtered_plan_rois.append(r)
-        list_unfiltered = False
-
+    plan_rois = StructureOperations.find_types(case=case)
+    # filter the structure list
+    filtered_plan_rois = []
+    for r in plan_rois:
+        # Filter the list to look for duplicates and exit out if undesirable features are found
+        found_case_sensitive_match = StructureOperations \
+                                     .case_insensitive_structure_search(
+                                                                        case=case,
+                                                                        structure_name=r,
+                                                                        roi_list=plan_rois
+                                                                        )
+        if found_case_sensitive_match is not None:
+            connect.await_user_input('Two structures share the same name with different case: ' +
+                                     '{} matches {}'.format(r, found_case_sensitive_match) +
+                                     ' resolve the error and continue the script'
+                                     )
+            logging.warning('Two structures share the same name with different case:' +
+                            '{} matches {}'.format(r, found_case_sensitive_match)
+                            )
+        filtered_plan_rois.append(r)
 
     results = StructureOperations.match_roi(examination=exam,
                                             case=case,
-                                            plan_rois=filtered_plan_rois)
+                                            plan_rois=plan_rois)
 
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
     log_directory = patient_log_file_path.split(str(patient.PatientID))[0]
@@ -315,8 +311,7 @@ def main():
     else:
         beamset_name = 'None'
 
-    with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory),
-              'a') as match_file:
+    with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory), 'a') as match_file:
         match_file.write('StudyDescription:{},'.format(study_description))
         match_file.write('ProtocolName:{},'.format(protocol_name))
         match_file.write('SeriesDescription:{},'.format(series_description))
