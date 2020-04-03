@@ -896,6 +896,7 @@ def match_roi(case, examination, plan_rois):
                     "{} was matched to {}. No changes necessary".format(k, return_rois[k])
                 )
             else:
+                # Move the contents of k to return_rois[k]
                 # Check if k is already approved on this examination
                 k_is_approved = structure_approved(case=case, roi_name=k, examination=examination)
                 # Check if there is a misnamed (case insensitive match) in this patient's case
@@ -940,15 +941,16 @@ def match_roi(case, examination, plan_rois):
                 # desired contour already exists, we'll have to replace the geometry
                 # Check to see if return_rois[k] is approved or evaluate whether
                 # the correct structure already exists
-                if not k_contours_this_exam:
-                    # TODO: Prefilter the roi list from the match so we dont need to do this.
-                    #  there are no contours on this structure. So don't do anything with it
-                    logging.debug(
-                        "{} was matched to {}, but is empty on exam {}".format(
-                            k, return_rois[k], examination.Name
-                        )
-                    )
-                elif k_is_approved or k_case_insensitive_match or k_contours_multiple_exams:
+                # if not k_contours_this_exam:
+                #     # TODO: Prefilter the roi list from the match so we dont need to do this.
+                #     #  there are no contours on this structure. So don't do anything with it
+                #     logging.debug(
+                #         "{} was matched to {}, but is empty on exam {}".format(
+                #             k, return_rois[k], examination.Name
+                #         )
+                #     )
+                # if k_is_approved or k_case_insensitive_match or k_contours_multiple_exams:
+                if k_is_approved or k_case_insensitive_match:
                     logging.debug(
                         "Unable to rename {} to {}, attempting a geometry copy".format(
                             k, return_rois[k]
@@ -1093,7 +1095,9 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
     # geometry_exists_in_case is True if any examination
     # in this case has contours for this roi_name_ci
     geometry_exists_in_case = check_structure_exists(
-        case=case, structure_name=roi_name_ci, option="Check"
+        case=case,
+        structure_name=roi_name_ci,
+        option="Check"
     )
     logging.debug("{} geometry exists in case: {}".format(roi_name_ci, geometry_exists_in_case))
     # geometry_exists is True if this examination has contours
