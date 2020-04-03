@@ -238,8 +238,8 @@ def max_coordinates(case, exam, rois):
 
     ret = (
         case.PatientModel.StructureSets[exam.Name]
-        .RoiGeometries[rois]
-        .SetRepresentation(Representation="Contours")
+            .RoiGeometries[rois]
+            .SetRepresentation(Representation="Contours")
     )
     logging.debug("ret of operation is {}".format(ret))
 
@@ -413,8 +413,8 @@ def check_structure_exists(case, structure_name, roi_list=None, option="Check", 
         if exam is not None:
             structure_has_contours_on_exam = (
                 case.PatientModel.StructureSets[exam.Name]
-                .RoiGeometries[structure_name]
-                .HasContours()
+                    .RoiGeometries[structure_name]
+                    .HasContours()
             )
         else:
             structure_has_contours_on_exam = False
@@ -984,7 +984,7 @@ def match_roi(case, examination, plan_rois):
                             # k exists only on this exam, so we've copied its geometry and since its
                             if not k_contours_multiple_exams and k_contours_this_exam:
                                 if (geometry_validation["Precision"] - 1) <= epsilon and (
-                                    geometry_validation["Sensitivity"] - 1
+                                        geometry_validation["Sensitivity"] - 1
                                 ) <= epsilon:
                                     case.PatientModel.RegionsOfInterest[k].DeleteRoi()
                         else:
@@ -1068,7 +1068,9 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
     """
     # First we want to work with the case insensitive match to the structure name supplied
     roi_name_ci = case_insensitive_structure_search(case=case, structure_name=roi_name)
-    roi_name_exists = check_structure_exists(case=case, option='Check')
+    roi_name_exists = check_structure_exists(case=case,
+                                             option='Check',
+                                             structure_name=roi_name)
     # struct_exists is true if the roi_name is already defined
     if roi_name_ci is not None:
         struct_exists = True
@@ -1088,7 +1090,10 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
     logging.debug("{} geometry exists in case: {}".format(roi_name_ci, geometry_exists_in_case))
     # geometry_exists is True if this examination has contours
     geometry_exists = check_structure_exists(
-        case=case, structure_name=roi_name_ci, option="Check", exam=examination
+        case=case,
+        structure_name=roi_name_ci,
+        option="Check",
+        exam=examination
     )
     logging.debug(
         "{} geometry exists in exam {}: {}".format(roi_name_ci, examination.Name, geometry_exists)
@@ -1178,8 +1183,8 @@ def create_roi(case, examination, roi_name, delete_existing=True, suffix=None):
             "{} is not in the list. Creating {}".format(
                 roi_name_ci,
                 case.PatientModel.StructureSets[examination.Name]
-                .RoiGeometries[roi_name_ci]
-                .OfRoi.Name,
+                    .RoiGeometries[roi_name_ci]
+                    .OfRoi.Name,
             )
         )
         return case.PatientModel.StructureSets[examination.Name].RoiGeometries[roi_name_ci]
@@ -1274,7 +1279,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 
 
 def make_wall(
-    wall, sources, delta, patient, case, examination, inner=True, struct_type="Undefined"
+        wall, sources, delta, patient, case, examination, inner=True, struct_type="Undefined"
 ):
     """
 
@@ -1395,7 +1400,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 
 
 def make_externalclean(
-    case, examination, structure_name="ExternalClean", suffix=None, delete=False
+        case, examination, structure_name="ExternalClean", suffix=None, delete=False
 ):
     """
     Makes a cleaned version of the external (body) contour and sets its type appropriately
@@ -1497,7 +1502,7 @@ def dialog_number_of_targets():
         initial={
             "1": "0",
             "5": ["yes"]
-            },
+        },
         options={
             # Not yet,  Not yet.
             # '2': ['Single Target/Dose',
@@ -1535,23 +1540,23 @@ def dialog_number_of_targets():
 
 
 def planning_structures(
-    generate_ptvs=True,
-    generate_ptv_evals=True,
-    generate_otvs=True,
-    generate_skin=True,
-    generate_inner_air=True,
-    generate_field_of_view=True,
-    generate_ring_hd=True,
-    generate_ring_ld=True,
-    generate_normal_2cm=True,
-    generate_combined_ptv=True,
-    skin_contraction=0.3,
-    run_status=True,
-    planning_structure_selections=None,
-    dialog2_response=None,
-    dialog3_response=None,
-    dialog4_response=None,
-    dialog5_response=None,
+        generate_ptvs=True,
+        generate_ptv_evals=True,
+        generate_otvs=True,
+        generate_skin=True,
+        generate_inner_air=True,
+        generate_field_of_view=True,
+        generate_ring_hd=True,
+        generate_ring_ld=True,
+        generate_normal_2cm=True,
+        generate_combined_ptv=True,
+        skin_contraction=0.3,
+        run_status=True,
+        planning_structure_selections=None,
+        dialog2_response=None,
+        dialog3_response=None,
+        dialog4_response=None,
+        dialog5_response=None,
 ):
     """
     Generate Planning Structures
@@ -2769,4 +2774,3 @@ def planning_structures(
 
     if run_status:
         status.finish(text="The script executed successfully")
-
