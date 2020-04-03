@@ -909,34 +909,38 @@ def match_roi(case, examination, plan_rois):
                     k_case_insensitive_match = True
                     logging.debug('Match to {} found as {}'.format(
                         k, case_insensitive_match))
-                # Find all the exams which contain k
-                exams_with_k = exams_containing_roi(case=case, structure_name=k)
-                # If exams_with_k is empty, then no examination has contours for k
-                if not exams_with_k:
-                    k_contours_multiple_exams = False
-                    k_empty = True
-                    k_contours_this_exam = False
-                else:
-                    k_empty = False
-                    if len(exams_with_k) > 1:
-                        k_contours_multiple_exams = True
-                    else:
-                        k_contours_multiple_exams = False
-                    # Go through the list of exams which have contours for k
-                    # and see if any are exact matches
-                    for e in exams_with_k:
-                        k_contours_this_exam = False
-                        if e == examination.Name:
-                            # k has contours on this examination
-                            k_contours_this_exam = True
-                            break
-                logging.debug('Current roi is {}. '.format(k) +
-                              'k_contours_multiple_exams {}, '.format(k_contours_multiple_exams) +
-                              'k_empty {}, '.format(k_empty) +
-                              'k_contours_this_exam {}'.format(k_contours_this_exam))
-                logging.debug('Renaming required for matching {} to {}'
-                              .format(k, return_rois[k])
-                              )
+                # See if the destination contour exists
+                return_k_exists = check_structure_exists(case=case,
+                                                         structure_name=return_rois[k],
+                                                         option='Check')
+                # # Find all the exams which contain k
+                # # exams_with_k = exams_containing_roi(case=case, structure_name=k)
+                # # If exams_with_k is empty, then no examination has contours for k
+                # # if not exams_with_k:
+                # #     k_contours_multiple_exams = False
+                # #     k_empty = True
+                # #     k_contours_this_exam = False
+                # # else:
+                # #     k_empty = False
+                # #     if len(exams_with_k) > 1:
+                # #         k_contours_multiple_exams = True
+                # #     else:
+                # #         k_contours_multiple_exams = False
+                # #     # Go through the list of exams which have contours for k
+                # #     # and see if any are exact matches
+                # #     for e in exams_with_k:
+                # #         k_contours_this_exam = False
+                # #         if e == examination.Name:
+                # #             # k has contours on this examination
+                # #             k_contours_this_exam = True
+                # #             break
+                # # logging.debug('Current roi is {}. '.format(k) +
+                # #               'k_contours_multiple_exams {}, '.format(k_contours_multiple_exams) +
+                # #               'k_empty {}, '.format(k_empty) +
+                # #               'k_contours_this_exam {}'.format(k_contours_this_exam))
+                # # logging.debug('Renaming required for matching {} to {}'
+                # #               .format(k, return_rois[k])
+                # #               )
                 # Try to just change the name of the existing contour, but if it is locked or if the
                 # desired contour already exists, we'll have to replace the geometry
                 # Check to see if return_rois[k] is approved or evaluate whether
@@ -950,7 +954,7 @@ def match_roi(case, examination, plan_rois):
                 #         )
                 #     )
                 # if k_is_approved or k_case_insensitive_match or k_contours_multiple_exams:
-                if k_is_approved or k_case_insensitive_match:
+                if k_is_approved or k_case_insensitive_match or return_k_exists:
                     logging.debug(
                         "Unable to rename {} to {}, attempting a geometry copy".format(
                             k, return_rois[k]
@@ -1009,7 +1013,7 @@ def match_roi(case, examination, plan_rois):
                                 )
                             )
                 else:
-                    logging.debug("Rename {} to {}".format(k, return_rois[k]))
+                    logging.debug("Direct rename {} to {}".format(k, return_rois[k]))
                     case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
             # Change color if possible
             if not k_user_defined:
