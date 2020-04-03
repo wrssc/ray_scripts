@@ -927,6 +927,9 @@ def match_roi(case, examination, plan_rois):
                             # k has contours on this examination
                             k_contours_this_exam = True
                             break
+                logging.debug('k_contours_multiple_exams {}'.format(k_contours_multiple_exams) +
+                              'k_empty'.format(k_empty) +
+                              'k_contours_this_exam'.format(k_contours_this_exam))
                 logging.debug("Renaming required for matching {} to {}".format(k, return_rois[k]))
                 # Try to just change the name of the existing contour, but if it is locked or if the
                 # desired contour already exists, we'll have to replace the geometry
