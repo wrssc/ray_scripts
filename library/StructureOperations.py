@@ -928,7 +928,7 @@ def match_roi(case, examination, plan_rois):
     roi263 = tree.findall("./" + "roi")
     rois_dict = iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
-    test_out = df_rois[df_rois.name == 'Musc_Constr']
+    test_out = df_rois[df_rois.name == 'Musc_Constrict']
     logging.debug('{}'.format(test_out.to_string()))
     # Check aliases first (look in TG-263 to see if an alias is there).
     # Currently building a list of all aliases at this point (at little inefficient)
