@@ -876,14 +876,8 @@ def iter_standard_rois(etree):
                 roi["RGBColor"] = [r.find("Color").attrib["red"],
                                    r.find("Color").attrib["green"],
                                    r.find("Color").attrib["blue"]]
-                roi["Red"] = r.find("Color").attrib["red"]
-                roi["Green"] = r.find("Color").attrib["green"]
-                roi["Blue"] = r.find("Color").attrib["blue"]
             else:
                 roi["RGBColor"] = None
-                roi["Red"] = None
-                roi["Green"] = None
-                roi["Blue"] = None
         except AttributeError:
             roi["Color"] = None
         try:
@@ -939,12 +933,15 @@ def match_roi(case, examination, plan_rois):
         if len(df_e) > 1:
             logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
         else:
-            if df_e.RGBColor.values[0] is not None:
+            if df_e.RGBColor.values is not None:
                 logging.debug('{} with type{}'.format(index,type(index)))
                 e_name = df_e.name.values[0]
                 e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
                 change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
                 del_indices.append(index)
+    for indx in sorted(del_indices,reverse=True):
+        del oar_list[indx]
+
 
     # Check aliases first (look in TG-263 to see if an alias is there).
     # Currently building a list of all aliases at this point (at little inefficient)
