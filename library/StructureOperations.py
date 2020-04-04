@@ -61,7 +61,6 @@ import numpy as np
 import pandas as pd
 import xml
 
-
 clr.AddReference("System.Drawing")
 
 
@@ -838,9 +837,12 @@ def iter_standard_rois(etree):
         roi["TG263ReverseOrderName"] = r.find('TG263ReverseOrderName').text
         roi["FMAID"] = r.find('FMAID').text
         roi["Color"] = r.find('Color').text
-        roi["RGBColor"] = [r.find("Color").attrib["red"],
-                           r.find("Color").attrib["green"],
-                           r.find("Color").attrib["blue"]]
+        if roi["Color"] is not None:
+            roi["RGBColor"] = [r.find("Color").attrib["red"],
+                               r.find("Color").attrib["green"],
+                               r.find("Color").attrib["blue"]]
+        else:
+            roi["RGBColor"] = None
         roi["Alias"] = r.find("Alias").text
         rois["rois"].append(roi)
     return rois
@@ -903,13 +905,13 @@ def match_roi(case, examination, plan_rois):
     potential_matches_exacts_removed = potential_matches
     # Search the match list and if an exact match is found, pop the key
     for roi, match in potential_matches.iteritems():
-        if re.match('^'+roi+'$',match[0]):
+        if re.match('^' + roi + '$', match[0]):
             logging.debug('Roi {} exact match to {}. Popped'
-                          .format(roi,match[0]))
+                          .format(roi, match[0]))
             potential_matches_exacts_removed.pop(roi)
     # TODO: Add a matched_rois dictionary in here containing exact matches
-    for k,v in potential_matches_exacts_removed.iteritems():
-        logging.debug('k {}, v {}'.format(k,v))
+    for k, v in potential_matches_exacts_removed.iteritems():
+        logging.debug('k {}, v {}'.format(k, v))
 
     # Launch the dialog to get the list of matched elements
     matched_rois = match_dialog(matches=potential_matches, elements=roi263)
