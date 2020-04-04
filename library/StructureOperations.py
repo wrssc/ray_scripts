@@ -902,9 +902,6 @@ def match_roi(case, examination, plan_rois):
     """
     epsilon = 1e-6  # tolerance of variation in specificity and precision (Jaccard index)
     oar_list = filter_rois(plan_rois)
-    # target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
-    # protocol_folders = [r'../protocols']
-    # institution_folders = [r'']
     files = [[r"../protocols", r"", r"TG-263.xml"], [r"../protocols", r"UW", r""]]
     paths = []
     for i, f in enumerate(files):
@@ -928,6 +925,17 @@ def match_roi(case, examination, plan_rois):
     roi263 = tree.findall("./" + "roi")
     rois_dict = iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
+    # Remove the exact matches from the structure list and set their color, type
+    oars_copy = oar_list.copy()
+    for index, e in enumerate(oars_copy):
+        df_e = df_rois[df_rois.name == e]
+        if len(df_e) > 1:
+            logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
+        else:
+            if df_e.RGBColor is not None:
+                change_roi_color(case=case, roi_name=df_e.name, rgb=df_rois.RGBColor)
+            oar_list.pop(index)
+
 
    #### test_out = df_rois[df_rois.name == 'Musc_Constrict']
    #### logging.debug('{}'.format(test_out.to_string()))
@@ -949,13 +957,8 @@ def match_roi(case, examination, plan_rois):
     exact_match = []
     # Search the match list and if an exact match is found, pop the key
     for roi, match in potential_matches.iteritems():
-        #### logging.debug('roi {}: type {}, with match {}: type{}'
-        ####              .format(roi, type(roi), match, type(match)))
         if re.match(r'^' + roi + r'$', match[0][1]):
-         ####   logging.debug('Roi {} exact match to {}. Popped'
-         ####                 .format(roi, match[0][1]))
             potential_matches_exacts_removed.pop(roi)
-            # TODO Check the matched_rois return format to see if we should return tuple or value
             exact_match.append(match[0][1])
     for k, v in potential_matches_exacts_removed.iteritems():
         logging.debug('k {}, v {}'.format(k, v))
