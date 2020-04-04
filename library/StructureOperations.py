@@ -825,25 +825,64 @@ def iter_standard_rois(etree):
     rois = {"rois": []}
     for r in etree.iter('roi'):
         roi = {}
-        roi["name"] = r.find('name').text
-        roi["TG263PrimaryName"] = r.find('TG263PrimaryName').text
-        roi["Description"] = r.find('Description').text
-        roi["TargetType"] = r.find('TargetType').text
-        roi["RTROIInterpretedType"] = r.find('RTROIInterpretedType').text
-        roi["MajorCategory"] = r.find('MajorCategory').text
-        roi["MinorCategory"] = r.find('MinorCategory').text
-        roi["AnatomicGroup"] = r.find('AnatomicGroup').text
-        roi["NCharacters"] = r.find('NCharacters').text
-        roi["TG263ReverseOrderName"] = r.find('TG263ReverseOrderName').text
-        roi["FMAID"] = r.find('FMAID').text
-        roi["Color"] = r.find('Color').text
-        if roi["Color"] is not None:
-            roi["RGBColor"] = [r.find("Color").attrib["red"],
-                               r.find("Color").attrib["green"],
-                               r.find("Color").attrib["blue"]]
-        else:
-            roi["RGBColor"] = None
-        roi["Alias"] = r.find("Alias").text
+        try:
+            roi["name"] = r.find('name').text
+        except NameError:
+            roi["name"] = None
+        try:
+            roi["TG263PrimaryName"] = r.find('TG263PrimaryName').text
+        except NameError:
+            roi["TG263PrimaryName"] = None
+        try:
+            roi["Description"] = r.find('Description').text
+        except NameError:
+            roi["Description"] = None
+        try:
+            roi["TargetType"] = r.find('TargetType').text
+        except NameError:
+            roi["TargetType"] = None
+        try:
+            roi["RTROIInterpretedType"] = r.find('RTROIInterpretedType').text
+        except NameError:
+            roi["RTROIInterpretedType"] = None
+        try:
+            roi["MajorCategory"] = r.find('MajorCategory').text
+        except NameError:
+            roi["MajorCategory"] = None
+        try:
+            roi["MinorCategory"] = r.find('MinorCategory').text
+        except NameError:
+            roi["MinorCategory"] = None
+        try:
+            roi["AnatomicGroup"] = r.find('AnatomicGroup').text
+        except NameError:
+            roi["AnatomicGroup"] = None
+        try:
+            roi["NCharacters"] = r.find('NCharacters').text
+        except NameError:
+            roi["NCharacters"] = None
+        try:
+            roi["TG263ReverseOrderName"] = r.find('TG263ReverseOrderName').text
+        except NameError:
+            roi["TG263ReverseOrderName"] = None
+        try:
+            roi["FMAID"] = r.find('FMAID').text
+        except NameError:
+            roi["FMAID"] = None
+        try:
+            roi["Color"] = r.find('Color').text
+            if roi["Color"] is not None:
+                roi["RGBColor"] = [r.find("Color").attrib["red"],
+                                   r.find("Color").attrib["green"],
+                                   r.find("Color").attrib["blue"]]
+            else:
+                roi["RGBColor"] = None
+        except NameError:
+            roi["Color"] = None
+        try:
+            roi["Alias"] = r.find("Alias").text
+        except NameError:
+            roi["Alias"] = None
         rois["rois"].append(roi)
     return rois
 
