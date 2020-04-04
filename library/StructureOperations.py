@@ -884,7 +884,7 @@ def match_roi(case, examination, plan_rois):
     tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
     # TODO: Pandas dataframe here for tree
     roi263 = tree.findall("./" + "roi")
-    rois_dict = iter_standard_rois(roi263)
+    rois_dict = iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
     # Check aliases first (look in TG-263 to see if an alias is there).
     # Currently building a list of all aliases at this point (at little inefficient)
