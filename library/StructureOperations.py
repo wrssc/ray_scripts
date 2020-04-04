@@ -873,9 +873,9 @@ def iter_standard_rois(etree):
         try:
             roi["Color"] = r.find('Color').text
             if roi["Color"] is not None:
-                roi["Red"] = int(r.find("Color").attrib["red"])
-                roi["Green"] = int(r.find("Color").attrib["green"])
-                roi["Blue"] = int(r.find("Color").attrib["blue"])
+                roi["Red"] = r.find("Color").attrib["red"]
+                roi["Green"] = r.find("Color").attrib["green"]
+                roi["Blue"] = r.find("Color").attrib["blue"]
             else:
                 roi["Red"] = None
                 roi["Green"] = None
@@ -934,9 +934,9 @@ def match_roi(case, examination, plan_rois):
         if len(df_e) > 1:
             logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
         else:
-            e_color = [df_e.Red.values.values[0],
-                       df_e.Green.values.values[0],
-                       df_e.Blue.values.values[0]]
+            e_color = [df_e.Red.values[0],
+                       df_e.Green.values[0],
+                       df_e.Blue.values[0]]
             e_name = df_e.name.values[0]
             logging.debug('Type of {} is {}, and {} is {}'
                           .format(e_name,
