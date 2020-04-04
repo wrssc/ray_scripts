@@ -57,6 +57,7 @@ import sys
 import connect
 import clr
 import re
+import copy
 import numpy as np
 import pandas as pd
 import xml
@@ -926,7 +927,7 @@ def match_roi(case, examination, plan_rois):
     rois_dict = iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
     # Remove the exact matches from the structure list and set their color, type
-    oars_copy = oar_list.copy()
+    oars_copy = copy.copy(oar_list)
     for index, e in enumerate(oars_copy):
         df_e = df_rois[df_rois.name == e]
         if len(df_e) > 1:
