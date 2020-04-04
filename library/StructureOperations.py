@@ -872,9 +872,9 @@ def iter_standard_rois(etree):
         try:
             roi["Color"] = r.find('Color').text
             if roi["Color"] is not None:
-                roi["RGBColor"] = [r.find("Color").attrib["red"],
-                                   r.find("Color").attrib["green"],
-                                   r.find("Color").attrib["blue"]]
+                roi["RGBColor"] = [int(r.find("Color").attrib["red"]),
+                                   int(r.find("Color").attrib["green"]),
+                                   int(r.find("Color").attrib["blue"])]
             else:
                 roi["RGBColor"] = None
         except AttributeError:
@@ -928,8 +928,9 @@ def match_roi(case, examination, plan_rois):
     roi263 = tree.findall("./" + "roi")
     rois_dict = iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
-    test_out = df_rois[df_rois.name == 'Musc_Constrict']
-    logging.debug('{}'.format(test_out.to_string()))
+
+   #### test_out = df_rois[df_rois.name == 'Musc_Constrict']
+   #### logging.debug('{}'.format(test_out.to_string()))
     # Check aliases first (look in TG-263 to see if an alias is there).
     # Currently building a list of all aliases at this point (at little inefficient)
     standard_names = {}
@@ -945,23 +946,24 @@ def match_roi(case, examination, plan_rois):
         rois=oar_list, num_matches=5, standard_rois=standard_names
     )
     potential_matches_exacts_removed = potential_matches.copy()
-    exact_match = {}
+    exact_match = []
     # Search the match list and if an exact match is found, pop the key
     for roi, match in potential_matches.iteritems():
-        logging.debug('roi {}: type {}, with match {}: type{}'
-                      .format(roi, type(roi), match, type(match)))
+        #### logging.debug('roi {}: type {}, with match {}: type{}'
+        ####              .format(roi, type(roi), match, type(match)))
         if re.match(r'^' + roi + r'$', match[0][1]):
-            logging.debug('Roi {} exact match to {}. Popped'
-                          .format(roi, match[0][1]))
+         ####   logging.debug('Roi {} exact match to {}. Popped'
+         ####                 .format(roi, match[0][1]))
             potential_matches_exacts_removed.pop(roi)
             # TODO Check the matched_rois return format to see if we should return tuple or value
-            exact_match[roi] = match[0][1]
+            exact_match.append(match[0][1])
     for k, v in potential_matches_exacts_removed.iteritems():
         logging.debug('k {}, v {}'.format(k, v))
 
     # Do the stuff on the matched rois
-    # for e in exact_match:
-    #     change_roi_color(case=case, roi_name=return_rois[k], rgb=color)
+    for e in exact_match:
+        df_e = df_rois[df_rois.name == e]
+        change_roi_color(case=case, roi_name=df_e.name, rgb=df_rois.RGBColor)
 
     # Launch the dialog to get the list of matched elements
     matched_rois = match_dialog(matches=potential_matches_exacts_removed,
