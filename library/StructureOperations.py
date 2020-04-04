@@ -943,14 +943,16 @@ def match_roi(case, examination, plan_rois):
         rois=oar_list, num_matches=5, standard_rois=standard_names
     )
     potential_matches_exacts_removed = potential_matches
+    exact_match = {}
     # Search the match list and if an exact match is found, pop the key
     for roi, match in potential_matches.iteritems():
         logging.debug('roi {}: type {}, with match {}: type{}'
                       .format(roi, type(roi), match, type(match)))
-        if re.match(r'^' + roi + r'$', match[0]):
+        if re.match(r'^' + roi + r'$', match[0][0]):
             logging.debug('Roi {} exact match to {}. Popped'
-                          .format(roi, match[0]))
+                          .format(roi, match[0][0]))
             potential_matches_exacts_removed.pop(roi)
+            exact_match[roi] = match[0][0]
     # TODO: Add a matched_rois dictionary in here containing exact matches
     for k, v in potential_matches_exacts_removed.iteritems():
         logging.debug('k {}, v {}'.format(k, v))
