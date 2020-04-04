@@ -880,6 +880,7 @@ def iter_standard_rois(etree):
                 roi["RGBColor"] = None
         except AttributeError:
             roi["Color"] = None
+            roi["RGBColor"] = None
         try:
             alias = r.find("Alias").text
             roi["Alias"] = alias.split(",")
