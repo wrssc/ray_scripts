@@ -58,7 +58,9 @@ import connect
 import clr
 import re
 import numpy as np
+import pandas as pd
 import xml
+
 
 clr.AddReference("System.Drawing")
 
@@ -815,6 +817,35 @@ def match_dialog(matches, elements):
     return dialog_result
 
 
+def iter_standard_rois(etree):
+    """
+    Load the contents of a roi object from xml into a pandas dataframe
+    :param etree:
+    :return: rois
+    """
+    rois = {"rois": []}
+    for r in etree.iter('roi'):
+        roi = {}
+        roi["name"] = r.find('name').text
+        roi["TG263PrimaryName"] = r.find('TG263PrimaryName').text
+        roi["Description"] = r.find('Description').text
+        roi["TargetType"] = r.find('TargetType').text
+        roi["RTROIInterpretedType"] = r.find('RTROIInterpretedType').text
+        roi["MajorCategory"] = r.find('MajorCategory').text
+        roi["MinorCategory"] = r.find('MinorCategory').text
+        roi["AnatomicGroup"] = r.find('AnatomicGroup').text
+        roi["NCharacters"] = r.find('NCharacters').text
+        roi["TG263ReverseOrderName"] = r.find('TG263ReverseOrderName').text
+        roi["FMAID"] = r.find('FMAID').text
+        roi["Color"] = r.find('Color').text
+        roi["RGBColor"] = [r.find("Color").attrib["red"],
+                           r.find("Color").attrib["green"],
+                           r.find("Color").attrib["blue"]]
+        roi["Alias"] = r.find("Alias").text
+        rois["rois"].append(roi)
+    return rois
+
+
 def match_roi(case, examination, plan_rois):
     """
     Matches a input list of plan_rois (user-defined) to protocol,
@@ -851,7 +882,10 @@ def match_roi(case, examination, plan_rois):
                     standard_names.append(r.find("name").text)
 
     tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+    # TODO: Pandas dataframe here for tree
     roi263 = tree.findall("./" + "roi")
+    rois_dict = iter_standard_rois(roi263)
+    df_rois = pd.DataFrame(rois_dict["rois"])
     # Check aliases first (look in TG-263 to see if an alias is there).
     # Currently building a list of all aliases at this point (at little inefficient)
     standard_names = {}
@@ -869,17 +903,17 @@ def match_roi(case, examination, plan_rois):
     potential_matches_exacts_removed = potential_matches
     # Search the match list and if an exact match is found, pop the key
     for roi, match in potential_matches.iteritems():
-        if re.fullmatch('^'+roi+'$',match[0]):
+        if re.match('^'+roi+'$',match[0]):
             logging.debug('Roi {} exact match to {}. Popped'
                           .format(roi,match[0]))
             potential_matches_exacts_removed.pop(roi)
+    # TODO: Add a matched_rois dictionary in here containing exact matches
     for k,v in potential_matches_exacts_removed.iteritems():
         logging.debug('k {}, v {}'.format(k,v))
 
     # Launch the dialog to get the list of matched elements
     matched_rois = match_dialog(matches=potential_matches, elements=roi263)
     suffix = matched_rois["Suffix"]
-    copy_all = False
     matched_rois.pop("Suffix")
     return_rois = {}
     # matched_rois now contains:
