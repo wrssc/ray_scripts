@@ -944,7 +944,7 @@ def match_roi(case, examination, plan_rois):
                                   e_color,
                                   type(e_color)))
 
-            if df_e.RGBColor is not None:
+            if df_e.Red.values[0] is not None:
                 change_roi_color(case=case, roi_name=e_name, rgb=e_color)
             oar_list.pop(index)
 
