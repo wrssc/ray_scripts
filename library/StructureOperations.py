@@ -880,7 +880,8 @@ def iter_standard_rois(etree):
         except AttributeError:
             roi["Color"] = None
         try:
-            roi["Alias"] = r.find("Alias").text
+            alias = r.find("Alias").text
+            roi["Alias"] = alias.split(",")
         except AttributeError:
             roi["Alias"] = None
         rois["rois"].append(roi)
@@ -944,7 +945,9 @@ def match_roi(case, examination, plan_rois):
     potential_matches_exacts_removed = potential_matches
     # Search the match list and if an exact match is found, pop the key
     for roi, match in potential_matches.iteritems():
-        if re.match('^' + roi + '$', match[0]):
+        logging.debug('roi {}: type {}, with match {}: type{}'
+                      .format(roi, type(roi), match, type(match)))
+        if re.match(r'^' + roi + r'$', match[0]):
             logging.debug('Roi {} exact match to {}. Popped'
                           .format(roi, match[0]))
             potential_matches_exacts_removed.pop(roi)
