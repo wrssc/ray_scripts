@@ -943,7 +943,7 @@ def match_roi(case, examination, plan_rois):
                            int(df_e.Green.values[0]),
                            int(df_e.Blue.values[0])]
                 e_name = df_e.name.values[0]
-                e_rgb = df_e.RGBColor.values[0]
+                e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
                 logging.debug('Type of {} is {}, and {} is {}'
                               .format(e_name,
                                       type(e_name),
