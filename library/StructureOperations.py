@@ -944,7 +944,7 @@ def match_roi(case, examination, plan_rois):
     potential_matches = find_normal_structures_match(
         rois=oar_list, num_matches=5, standard_rois=standard_names
     )
-    potential_matches_exacts_removed = potential_matches
+    potential_matches_exacts_removed = potential_matches.copy()
     exact_match = {}
     # Search the match list and if an exact match is found, pop the key
     for roi, match in potential_matches.iteritems():
