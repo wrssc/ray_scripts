@@ -934,9 +934,9 @@ def match_roi(case, examination, plan_rois):
         if len(df_e) > 1:
             logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
         else:
-            e_color = [df_e.Red.values[0],
-                       df_e.Green.values[0],
-                       df_e.Blue.values[0]]
+            e_color = [int(df_e.Red.values[0]),
+                       int(df_e.Green.values[0]),
+                       int(df_e.Blue.values[0])]
             e_name = df_e.name.values[0]
             logging.debug('Type of {} is {}, and {} is {}'
                           .format(e_name,
@@ -972,10 +972,10 @@ def match_roi(case, examination, plan_rois):
     for k, v in potential_matches_exacts_removed.iteritems():
         logging.debug('k {}, v {}'.format(k, v))
 
-    # Do the stuff on the matched rois
-    for e in exact_match:
-        df_e = df_rois[df_rois.name == e]
-        change_roi_color(case=case, roi_name=df_e.name, rgb=df_rois.RGBColor)
+    #### Do the stuff on the matched rois
+    ####for e in exact_match:
+    ####    df_e = df_rois[df_rois.name == e]
+    ####    change_roi_color(case=case, roi_name=df_e.name, rgb=df_rois.RGBColor)
 
     # Launch the dialog to get the list of matched elements
     matched_rois = match_dialog(matches=potential_matches_exacts_removed,
