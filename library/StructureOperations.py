@@ -932,8 +932,8 @@ def match_roi(case, examination, plan_rois):
     rois_dict = iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
     # Remove the exact matches from the structure list and set their color, type
-    oars_copy = copy.copy(oar_list)
-    for index, e in enumerate(oars_copy):
+    del_indices = []
+    for index, e in enumerate(oar_list):
         df_e = df_rois[df_rois.name == e]
         if len(df_e) > 1:
             logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
@@ -950,7 +950,10 @@ def match_roi(case, examination, plan_rois):
                                       e_rgb,
                                       type(e_rgb)))
                 change_roi_color(case=case, roi_name=e_name, rgb=e_color)
-            oar_list.pop(index)
+                del_indices.append[index]
+
+    for index in sorted(del_indices, reverse=True):
+        del oar_list[index]
 
     # Check aliases first (look in TG-263 to see if an alias is there).
     # Currently building a list of all aliases at this point (at little inefficient)
