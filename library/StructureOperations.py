@@ -873,10 +873,14 @@ def iter_standard_rois(etree):
         try:
             roi["Color"] = r.find('Color').text
             if roi["Color"] is not None:
+                roi["RGBColor"] = [r.find("Color").attrib["red"],
+                                   r.find("Color").attrib["green"],
+                                   r.find("Color").attrib["blue"]]
                 roi["Red"] = r.find("Color").attrib["red"]
                 roi["Green"] = r.find("Color").attrib["green"]
                 roi["Blue"] = r.find("Color").attrib["blue"]
             else:
+                roi["RGBColor"] = None
                 roi["Red"] = None
                 roi["Green"] = None
                 roi["Blue"] = None
@@ -934,17 +938,17 @@ def match_roi(case, examination, plan_rois):
         if len(df_e) > 1:
             logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
         else:
-            e_color = [int(df_e.Red.values[0]),
-                       int(df_e.Green.values[0]),
-                       int(df_e.Blue.values[0])]
-            e_name = df_e.name.values[0]
-            logging.debug('Type of {} is {}, and {} is {}'
-                          .format(e_name,
-                                  type(e_name),
-                                  e_color,
-                                  type(e_color)))
-
-            if df_e.Red.values[0] is not None:
+            if df_e.RGBColor.values[0] is not None:
+                e_color = [int(df_e.Red.values[0]),
+                           int(df_e.Green.values[0]),
+                           int(df_e.Blue.values[0])]
+                e_name = df_e.name.values[0]
+                e_rgb = df_e.RGBColor.values[0].tolist
+                logging.debug('Type of {} is {}, and {} is {}'
+                              .format(e_name,
+                                      type(e_name),
+                                      e_rgb,
+                                      type(e_rgb)))
                 change_roi_color(case=case, roi_name=e_name, rgb=e_color)
             oar_list.pop(index)
 
