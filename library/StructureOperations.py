@@ -866,6 +866,16 @@ def match_roi(case, examination, plan_rois):
     potential_matches = find_normal_structures_match(
         rois=oar_list, num_matches=5, standard_rois=standard_names
     )
+    potential_matches_exacts_removed = potential_matches
+    # Search the match list and if an exact match is found, pop the key
+    for roi, match in potential_matches.iteritems():
+        if re.fullmatch('^'+roi+'$',match[0]):
+            logging.debug('Roi {} exact match to {}. Popped'
+                          .format(roi,match[0]))
+            potential_matches_exacts_removed.pop(roi)
+    for k,v in potential_matches_exacts_removed.iteritems():
+        logging.debug('k {}, v {}'.format(k,v))
+
     # Launch the dialog to get the list of matched elements
     matched_rois = match_dialog(matches=potential_matches, elements=roi263)
     suffix = matched_rois["Suffix"]
