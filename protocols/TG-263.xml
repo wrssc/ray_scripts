@@ -377,7 +377,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Kidney-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="130" green="130" blue="238">Soft Blue</Color>
+        <Color red="54" green="145" blue="176">#3691b0</Color>
         <Alias>Kidney-gtv,kidney-gtv</Alias>
     </roi>
     <roi>
@@ -1817,7 +1817,7 @@
         <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>PRV_SpinalCord</TG263ReverseOrderName>
-        <Color red="34" green="139" blue="34">Dark Green</Color>
+        <Color red="34" green="139" blue="34">#339933</Color>
         <FMAID></FMAID>
         <Alias></Alias>
     </roi>
@@ -1834,7 +1834,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRVxx_SpinalCord</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="34" green="139" blue="34">Dark Green</Color>
+        <Color red="34" green="139" blue="34">#339933</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1850,7 +1850,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRV05_SpinalCord</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="34" green="139" blue="34">Dark Green</Color>
+        <Color red="34" green="139" blue="34">#339933</Color>
         <Alias></Alias>
     </roi>
     <roi>
