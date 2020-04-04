@@ -873,11 +873,13 @@ def iter_standard_rois(etree):
         try:
             roi["Color"] = r.find('Color').text
             if roi["Color"] is not None:
-                roi["RGBColor"] = [int(r.find("Color").attrib["red"]),
-                                   int(r.find("Color").attrib["green"]),
-                                   int(r.find("Color").attrib["blue"])]
+                roi["Red"] = int(r.find("Color").attrib["red"])
+                roi["Green"] = int(r.find("Color").attrib["green"])
+                roi["Blue"] = int(r.find("Color").attrib["blue"])
             else:
-                roi["RGBColor"] = None
+                roi["Red"] = None
+                roi["Green"] = None
+                roi["Blue"] = None
         except AttributeError:
             roi["Color"] = None
         try:
@@ -922,7 +924,6 @@ def match_roi(case, examination, plan_rois):
                     standard_names.append(r.find("name").text)
 
     tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
-    # TODO: Pandas dataframe here for tree
     roi263 = tree.findall("./" + "roi")
     rois_dict = iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
@@ -933,7 +934,9 @@ def match_roi(case, examination, plan_rois):
         if len(df_e) > 1:
             logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
         else:
-            e_color = df_e.RGBColor.values.tolist
+            e_color = [df_e.Red.values.values[0],
+                       df_e.Green.values.values[0],
+                       df_e.Blue.values.values[0]]
             e_name = df_e.name.values[0]
             logging.debug('Type of {} is {}, and {} is {}'
                           .format(e_name,
@@ -945,9 +948,6 @@ def match_roi(case, examination, plan_rois):
                 change_roi_color(case=case, roi_name=df_e.name, rgb=df_rois.RGBColor)
             oar_list.pop(index)
 
-
-   #### test_out = df_rois[df_rois.name == 'Musc_Constrict']
-   #### logging.debug('{}'.format(test_out.to_string()))
     # Check aliases first (look in TG-263 to see if an alias is there).
     # Currently building a list of all aliases at this point (at little inefficient)
     standard_names = {}
