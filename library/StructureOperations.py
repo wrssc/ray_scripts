@@ -934,7 +934,10 @@ def match_roi(case, examination, plan_rois):
             logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
         else:
             logging.debug('Type of {} is {}, and {} is {}'
-                          .format(df_e.name,type(df_e.name),df_e.RGBColor,type(df_e.RGBColor)))
+                          .format(df_e.name.values,
+                                  type(df_e.name),
+                                  df_e.RGBColor.values.to_list,
+                                  type(df_e.RGBColor)))
             if df_e.RGBColor is not None:
                 change_roi_color(case=case, roi_name=df_e.name, rgb=df_rois.RGBColor)
             oar_list.pop(index)
