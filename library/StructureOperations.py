@@ -933,11 +933,14 @@ def match_roi(case, examination, plan_rois):
         if len(df_e) > 1:
             logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
         else:
+            e_color = df_e.RGBColor.values.tolist
+            e_name = df_e.name.values[0]
             logging.debug('Type of {} is {}, and {} is {}'
-                          .format(df_e.name.values,
-                                  type(df_e.name),
-                                  df_e.RGBColor.values.tolist,
-                                  type(df_e.RGBColor)))
+                          .format(e_name,
+                                  type(e_name),
+                                  e_color,
+                                  type(e_color)))
+
             if df_e.RGBColor is not None:
                 change_roi_color(case=case, roi_name=df_e.name, rgb=df_rois.RGBColor)
             oar_list.pop(index)
