@@ -933,12 +933,13 @@ def match_roi(case, examination, plan_rois):
         if len(df_e) > 1:
             logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
         else:
+            logging.debug('{}'
+                          .format(df_e.to_string()))
             if df_e.RGBColor.values is not None:
-                logging.debug('{} with type{}'.format(index,type(index)))
                 e_name = df_e.name.values[0]
                 e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
                 change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-                del_indices.append(index)
+            del_indices.append(index)
     for indx in sorted(del_indices,reverse=True):
         del oar_list[indx]
 
