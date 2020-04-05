@@ -958,13 +958,10 @@ def match_roi(case, examination, plan_rois):
             logging.debug('{} was not found in the protocol list'.format(e))
         else:
             logging.debug('{}'.format(df_e.to_string()))
-            e_name = df_e.name.values[0]
             if df_e.RGBColor.values[0] is not None:
+                e_name = df_e.name.values[0]
                 e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
                 change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-            if df_e.RTROIInterpretedType.values[0] is not None:
-                e_type = df_e.RTROIInterpretedType.values[0]
-                change_roi_type(case=case, roi_name=e_name, roi_type=e_type)
             del_indices.append(index)
     for indx in sorted(del_indices,reverse=True):
         del oar_list[indx]

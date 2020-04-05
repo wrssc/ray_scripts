@@ -285,7 +285,7 @@ def change_roi_color(case, roi_name, rgb):
     :param case: RS case object
     :param roi_name: string containing name of roi to be checked
     :param rgb: an rgb color object, e.g. [r, g, b] = [128, 132,256]
-    :return error_message: None for success, or error message for error
+    :return error_massage: None for success, or error message for error
     """
     if not all(exists_roi(case=case, rois=roi_name)):
         error_message = "Structure {} not found on case {}".format(roi_name, case)
@@ -295,28 +295,9 @@ def change_roi_color(case, roi_name, rgb):
     try:
         rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
         rs_roi.Color = sys_rgb
-        error_message = None
     except:
         error_message = "Unable to change color on roi {}".format(roi_name)
-    return error_message
-
-def change_roi_type(case, roi_name, roi_type):
-    """
-    :param case: RS Case object
-    :param roi_name: string containing roi name to be changed
-    :param roi_type: type of roi to be changed to. Available types include:
-    :return error_message: None for success and error message for error
-    """
-    if not all(exists_roi(case=case, rois=roi_name)):
-        error_message = "Structure {} not found on case {}".format(roi_name, case)
         return error_message
-    try:
-        rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
-        rs_roi.Type = roi_type
-        error_message = None
-    except:
-       error_message = "Unable to change type on roi {}".format(roi_name)
-    return error_message
 
 
 def find_targets(case):
@@ -862,7 +843,7 @@ def iter_standard_rois(etree):
         except AttributeError:
             roi["TargetType"] = None
         try:
-            roi["RTROIInterpretedType"] = str(r.find('RTROIInterpretedType').text).capitalize()
+            roi["RTROIInterpretedType"] = r.find('RTROIInterpretedType').text
         except AttributeError:
             roi["RTROIInterpretedType"] = None
         try:
@@ -892,7 +873,7 @@ def iter_standard_rois(etree):
         try:
             roi["Color"] = r.find('Color').text
             # RGBColor will be a list of [r, g, b], it gets converted using 
-            # [r, g, b] : [int(x) for x in df_e.RGBColor.values[0]]
+            # [r, g, b] = [int(x) for x in df_e.RGBColor.values[0]]
             if roi["Color"] is not None:
                 roi["RGBColor"] = [r.find("Color").attrib["red"],
                                    r.find("Color").attrib["green"],
@@ -958,13 +939,10 @@ def match_roi(case, examination, plan_rois):
             logging.debug('{} was not found in the protocol list'.format(e))
         else:
             logging.debug('{}'.format(df_e.to_string()))
-            e_name = df_e.name.values[0]
             if df_e.RGBColor.values[0] is not None:
+                e_name = df_e.name.values[0]
                 e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
                 change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-            if df_e.RTROIInterpretedType.values[0] is not None:
-                e_type = df_e.RTROIInterpretedType.values[0]
-                change_roi_type(case=case, roi_name=e_name, roi_type=e_type)
             del_indices.append(index)
     for indx in sorted(del_indices,reverse=True):
         del oar_list[indx]
