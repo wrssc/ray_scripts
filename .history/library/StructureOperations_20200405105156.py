@@ -909,9 +909,9 @@ def match_roi(case, examination, plan_rois):
     for i, f in enumerate(files):
         secondary_protocol_folder = f[0]
         institution_folder = f[1]
-        paths.append(os.path.join(os.path.dirname(__file__),
-                     secondary_protocol_folder,
-                     institution_folder))
+        paths.append(
+            os.path.join(os.path.dirname(__file__), secondary_protocol_folder, institution_folder)
+        )
     # Generate a list of all standard names used in both protocols and TG-263
     standard_names = []
     for f in os.listdir(paths[1]):

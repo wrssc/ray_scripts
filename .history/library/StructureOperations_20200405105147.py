@@ -909,9 +909,9 @@ def match_roi(case, examination, plan_rois):
     for i, f in enumerate(files):
         secondary_protocol_folder = f[0]
         institution_folder = f[1]
-        paths.append(os.path.join(os.path.dirname(__file__),
-                     secondary_protocol_folder,
-                     institution_folder))
+        paths.append(
+            os.path.join(os.path.dirname(__file__), secondary_protocol_folder, institution_folder)
+        )
     # Generate a list of all standard names used in both protocols and TG-263
     standard_names = []
     for f in os.listdir(paths[1]):
@@ -937,7 +937,8 @@ def match_roi(case, examination, plan_rois):
         elif df_e.empty:
             logging.debug('{} was not found in the protocol list'.format(e))
         else:
-            logging.debug('{}'.format(df_e.to_string()))
+            logging.debug('{}'
+                          .format(df_e.to_string()))
             if df_e.RGBColor.values[0] is not None:
                 e_name = df_e.name.values[0]
                 e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
