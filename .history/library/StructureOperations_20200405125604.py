@@ -330,28 +330,12 @@ def change_roi_type(case, roi_name, roi_type):
     Undefined -> Unknown
     :return error_message: None for success and error message for error
     """
-    other_types = ["Fixation", "Support"]
-    organ_types = ["Avoidance", "Organ"]
-    target_types = ["Ctv", "Gtv", "Ptv"]
-    unknown_types = ["BrachyAccessory", "BrachyChannel", "BrachyChannelShield",
-                     "BrachySourceApplicator", "Cavity", "ContrastAgent",
-                     "Control", "DoseRegion", "FieldOfView",
-                     "IrradiatedVolume", "Marker", "Registration",
-                     "TreatedVolume", "Undefined"]
     if not all(exists_roi(case=case, rois=roi_name)):
         error_message = "Structure {} not found on case {}".format(roi_name, case)
         return error_message
     try:
         rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
         rs_roi.Type = roi_type
-        if any(roi_type in types for types in other_types):
-            rs_roi.OrganType = "Other"
-        elif any(roi_type in types for types in organ_types):
-            rs_roi.OrganType = "Organ"
-        elif any(roi_type in types for types in target_types):
-            rs_roi.OrganType = "Target"
-        elif any(roi_type in types for types in unknown_types):
-            rs_roi.OrganType = "Unknown"
         error_message = None
     except:
        error_message = "Unable to change type on roi {}".format(roi_name)
@@ -901,9 +885,17 @@ def iter_standard_rois(etree):
         except AttributeError:
             roi["TargetType"] = None
         try:
+            target_types = ["Ptv", "Gtv", "Ctv", "Itv"]
             roi["RTROIInterpretedType"] = str(r.find('RTROIInterpretedType').text).capitalize()
+            if roi["RTROIInterpretedType"] == "Organ":
+                roi["RSOrganType"] = "OrganAtRisk"
+            elif any(roi["RTROIInterpretedType"] in t for t in target_types):
+                roi["RSOrganType"] = "Target"
+            else:
+                roi["RSOrganType"] = None
         except AttributeError:
             roi["RTROIInterpretedType"] = None
+            roi["RSOrganType"] = None
         try:
             roi["MajorCategory"] = r.find('MajorCategory').text
         except AttributeError:
@@ -1008,7 +1000,8 @@ def match_roi(case, examination, plan_rois):
             if df_e.RTROIInterpretedType.values[0] is not None \
                and df_e.RSOrganType.values[0] is not None:
                 e_type = df_e.RTROIInterpretedType.values[0]
-                msg = change_roi_type(case=case, roi_name=e_name, roi_type=e_type)
+                e_rs_type = df_e.RSOrganType.values[0]
+                change_roi_type(case=case, roi_name=e_name, roi_type=e_type, rs_type=e_rs_type)
                 if msg is None:
                     logging.debug('{} type changed to {}'.format(e_name,e_type))
                 else:

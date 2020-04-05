@@ -344,14 +344,6 @@ def change_roi_type(case, roi_name, roi_type):
     try:
         rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
         rs_roi.Type = roi_type
-        if any(roi_type in types for types in other_types):
-            rs_roi.OrganType = "Other"
-        elif any(roi_type in types for types in organ_types):
-            rs_roi.OrganType = "Organ"
-        elif any(roi_type in types for types in target_types):
-            rs_roi.OrganType = "Target"
-        elif any(roi_type in types for types in unknown_types):
-            rs_roi.OrganType = "Unknown"
         error_message = None
     except:
        error_message = "Unable to change type on roi {}".format(roi_name)
