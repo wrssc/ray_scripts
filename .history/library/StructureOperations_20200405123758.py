@@ -872,7 +872,7 @@ def iter_standard_rois(etree):
                 roi["RSOrganType"] = None
         except AttributeError:
             roi["RTROIInterpretedType"] = None
-            roi["RSOrganType"] = None
+                roi["RSOrganType"] = None
         try:
             roi["MajorCategory"] = r.find('MajorCategory').text
         except AttributeError:
