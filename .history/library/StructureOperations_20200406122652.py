@@ -1020,9 +1020,6 @@ def match_roi(case, examination, plan_rois):
                    + e \
                    + r'_PRV\d{2}$'
         df_prv_e = df_rois[df_rois.name.match(regex_prv) == True]
-        if not df_prv_e.empty:
-            logging.debug('Got something! {} found prv {}'
-                          .format(e, df_prv_e.name.values[0]))
         #    t = re.match(r'^'+sc+r'_PRV\d{2}$',arr[0])
     # Eliminate the structures with exact matches from the search.
     for indx in sorted(del_indices,reverse=True):
