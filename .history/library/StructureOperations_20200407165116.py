@@ -960,7 +960,6 @@ def create_prv(case, examination, source_roi, df_TG263):
 	df_source_roi = df_TG263[df_TG263.name == source_roi]
 	regex_prv = r'^'+ source_roi + r'_PRV\d{2}$'
  	df_prv = df_TG263[df_TG263.name.str.match(regex_prv) == True]
-	msg = ""
 	if not df_prv.empty:
 		parsed_name = df_prv.name.str.extract(r'([a-zA-z_]+)([0-9]+)', re.IGNORECASE, expand=True)
 		expansion_mm = int(parsed_name[1])
@@ -986,26 +985,26 @@ def create_prv(case, examination, source_roi, df_TG263):
 			# Set color of matched structures
 			if df_prv.RGBColor.values[0] is not None:
 				prv_rgb = [int(x) for x in df_prv.RGBColor.values[0]]
-				color_msg = change_roi_color(case=case, roi_name=prv_name, rgb=prv_rgb)
-				if color_msg is None:
-					msg.append('{} color changed to {}'.format(prv_name,prv_rgb))
+				msg = change_roi_color(case=case, roi_name=prv_name, rgb=prv_rgb)
+				if msg is None:
+					logging.debug('{} color changed to {}'.format(prv_name,prv_rgb))
 				else:
-					msg.append('{} could not change type. {}'.format(prv_name, color_msg))
+					logging.debug('{} could not change type. {}'.format(prv_name, msg))
 			# Set type and OrganType of matched structures
 			if df_prv.RTROIInterpretedType.values[0] is not None:
 				prv_type = df_prv.RTROIInterpretedType.values[0]
-				type_msg = change_roi_type(case=case, roi_name=prv_name, roi_type=prv_type)
-				if type_msg is None:
-					msg.append('{} type changed to {}\n'.format(prv_name, prv_type))
+				msg = change_roi_type(case=case, roi_name=prv_name, roi_type=prv_type)
+				if msg is None:
+					logging.debug('{} type changed to {}'.format(prv_name, prv_type))
 				else:
-					msg.append('{} could not change type. {}\n'.format(prv_name, type_msg))
+					logging.debug('{} could not change type. {}'.format(prv_name, msg))
 			return None
 		else:
-			msg.append("Unable to create {}".format(prv_name))
-			return msg
+			error_message = "Unable to create {}".format(prv_name)
+			return error_message
 	else:
-		msg.append("Unable to find {} in the dataframe".format(source_roi))
-		return msg
+		error_message = "Unable to find {} in the dataframe".format(source_roi)
+		return error_message
 
 
 def match_roi(case, examination, plan_rois):
@@ -1072,9 +1071,7 @@ def match_roi(case, examination, plan_rois):
 					logging.debug('{} type changed to {}'.format(e_name,e_type))
 				else:
 					logging.debug('{} could not change type. {}'.format(e_name, msg))
-			msg = create_prv(case=case, examination=examination, source_roi=e_name, df_TG263=df_rois)
-			if msg is not None:
-				logging.debug(msg)
+			create_prv(case=case, examination=examination, source_roi=e_name, df_TG263=df_rois)
 			del_indices.append(index)
 			#
 # 			# Create PRV's
