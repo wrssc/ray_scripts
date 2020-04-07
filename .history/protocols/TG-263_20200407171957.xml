@@ -4559,6 +4559,23 @@
         <Color red="52" green="12" blue="90">#340c5a</Color>
         <Alias>LensL_PRV,left_lens_PRV</Alias>
     </roi>
+    <roi>
+        <name>Lens_L_PRV05</name>
+        <TG263PrimaryName>Lens_L_PRV05</TG263PrimaryName>
+        <Description>Lens Left expanded 05 mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Eye</MajorCategory>
+        <MinorCategory>Lens</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>12</NCharacters>
+        <TG263ReverseOrderName>PRV05_L_Lens</TG263ReverseOrderName>
+        <FMAID>58243</FMAID>
+        <Color red="52" green="12" blue="90">#340c5a</Color>
+        <Alias>LensL_PRV05,left_lens_PRV05</Alias>
+    </roi>
+    <roi>
         <name>Lens_L_PRV07</name>
         <TG263PrimaryName>Lens_L_PRV07</TG263PrimaryName>
         <Description>Lens Left expanded 07 mm as a planning risk volume</Description>
