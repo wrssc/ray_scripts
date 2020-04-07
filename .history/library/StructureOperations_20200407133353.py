@@ -1029,18 +1029,21 @@ def match_roi(case, examination, plan_rois):
                           		      roi_name=df_prv_e.name.values[0],
                                   	  delete_existing=False, suffix=suffix)
 				if roi_geom is not None:
-					roi_geom.OfRoi.CreateMarginGeometry(
-														Examination=examination,
-														SourceRoiName=df_e.name.values[0],
-														MarginSettings={
-														"Type": "Expand",
-														"Superior": expansion_cm,
-														"Inferior": expansion_cm,
-														"Anterior": expansion_cm,
-														"Posterior": expansion_cm,
-														"Right": expansion_cm,
-														"Left": expansion_cm,
-														})
+					# Make the geometry and validate the result
+					if k_contours_this_exam:
+						roi_geom.OfRoi.CreateMarginGeometry(
+							Examination=examination,
+							SourceRoiName=k,
+							MarginSettings={
+								"Type": "Expand",
+								"Superior": expansion_cm,
+								"Inferior": expansion_cm,
+								"Anterior": expansion_cm,
+								"Posterior": 0.0,
+								"Right": 0.0,
+								"Left": 0.0,
+							},
+						)
 
 		#    t = re.match(r'^'+sc+r'_PRV\d{2}$',arr[0])
 	# Eliminate the structures with exact matches from the search.

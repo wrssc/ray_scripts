@@ -1774,25 +1774,9 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>SpinalCanal_PRV02</name>
-        <TG263PrimaryName>SpinalCanal_PRVxx</TG263PrimaryName>
-        <Description>A PRV created with an 02 millimeter expansion on the spinal canal</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>PRV</MajorCategory>
-        <MinorCategory>Spinal Canal</MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>PRV02_SpinalCanal</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color></Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>SpinalCanal_PRVxx</name>
-        <TG263PrimaryName>SpinalCanal_PRVxx</TG263PrimaryName>
-        <Description>A PRV created with an xx millimeter expansion on the spinal canal</Description>
+        <name>SpinalCanal_PRVx</name>
+        <TG263PrimaryName>SpinalCanal_PRVx</TG263PrimaryName>
+        <Description>A PRV created with an x millimeter expansion on the spinal canal</Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
@@ -1804,6 +1788,7 @@
         <FMAID></FMAID>
         <Color></Color>
         <Alias></Alias>
+    </roi>
     <roi>
         <name>SpinalCord</name>
         <TG263PrimaryName>SpinalCord</TG263PrimaryName>
