@@ -960,6 +960,7 @@ def create_prv(case, examination, source_roi, df_TG263):
 	df_source_roi = df_TG263[df_TG263.name == source_roi]
 	regex_prv = r'^'+ source_roi + r'_PRV\d{2}$'
  	df_prv = df_TG263[df_TG263.name.str.match(regex_prv) == True]
+
 	if not df_prv.empty:
 		parsed_name = df_prv.name.str.extract(r'([a-zA-z_]+)([0-9]+)', re.IGNORECASE, expand=True)
 		expansion_mm = int(parsed_name[1])
@@ -995,7 +996,7 @@ def create_prv(case, examination, source_roi, df_TG263):
 				prv_type = df_prv.RTROIInterpretedType.values[0]
 				msg = change_roi_type(case=case, roi_name=prv_name, roi_type=prv_type)
 				if msg is None:
-					logging.debug('{} type changed to {}'.format(prv_name, prv_type))
+					logging.debug('{} type changed to {}'.format(prv_name,prv_type))
 				else:
 					logging.debug('{} could not change type. {}'.format(prv_name, msg))
 			return None

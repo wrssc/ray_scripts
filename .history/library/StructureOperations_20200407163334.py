@@ -960,6 +960,7 @@ def create_prv(case, examination, source_roi, df_TG263):
 	df_source_roi = df_TG263[df_TG263.name == source_roi]
 	regex_prv = r'^'+ source_roi + r'_PRV\d{2}$'
  	df_prv = df_TG263[df_TG263.name.str.match(regex_prv) == True]
+
 	if not df_prv.empty:
 		parsed_name = df_prv.name.str.extract(r'([a-zA-z_]+)([0-9]+)', re.IGNORECASE, expand=True)
 		expansion_mm = int(parsed_name[1])
@@ -982,26 +983,26 @@ def create_prv(case, examination, source_roi, df_TG263):
 												"Left": expansion_cm,
 												}
             									)
+			e_name = df_e.name.values[0]
 			# Set color of matched structures
-			if df_prv.RGBColor.values[0] is not None:
-				prv_rgb = [int(x) for x in df_prv.RGBColor.values[0]]
-				msg = change_roi_color(case=case, roi_name=prv_name, rgb=prv_rgb)
+			if df_e.RGBColor.values[0] is not None:
+				e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
+				msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
 				if msg is None:
-					logging.debug('{} color changed to {}'.format(prv_name,prv_rgb))
+					logging.debug('{} color changed to {}'.format(e_name,e_rgb))
 				else:
-					logging.debug('{} could not change type. {}'.format(prv_name, msg))
+					logging.debug('{} could not change type. {}'.format(e_name, msg))
 			# Set type and OrganType of matched structures
-			if df_prv.RTROIInterpretedType.values[0] is not None:
-				prv_type = df_prv.RTROIInterpretedType.values[0]
-				msg = change_roi_type(case=case, roi_name=prv_name, roi_type=prv_type)
+			if df_e.RTROIInterpretedType.values[0] is not None:
+				e_type = df_e.RTROIInterpretedType.values[0]
+				msg = change_roi_type(case=case, roi_name=e_name, roi_type=e_type)
 				if msg is None:
-					logging.debug('{} type changed to {}'.format(prv_name, prv_type))
+					logging.debug('{} type changed to {}'.format(e_name,e_type))
 				else:
-					logging.debug('{} could not change type. {}'.format(prv_name, msg))
+					logging.debug('{} could not change type. {}'.format(e_name, msg))
 			return None
 		else:
-			error_message = "Unable to create {}".format(prv_name)
-			return error_message
+			error_message = "Unable to create {}".format(df_prv.name.values[0])
 	else:
 		error_message = "Unable to find {} in the dataframe".format(source_roi)
 		return error_message
