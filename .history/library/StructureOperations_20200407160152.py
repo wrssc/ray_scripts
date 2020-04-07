@@ -983,8 +983,6 @@ def create_prv(case, examination, source_roi, df_TG263):
 												"Left": expansion_cm,
 												})
 			return None
-		else:
-			error_message = "Unable to create {}".format(df_prv_e.name.values[0])
 	else:
 		error_message = "Unable to find {} in the dataframe".format(source_roi)
 		return error_message

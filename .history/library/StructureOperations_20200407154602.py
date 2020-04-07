@@ -957,10 +957,8 @@ def create_prv(case, examination, source_roi, df_TG263):
 	:param source_roi: name of the structure to find a match to
 	:param df_TG263: dataframe for the TG-263 database (loaded with iter_standard_rois)
 	"""
-	df_source_roi = df_TG263[df_TG263.name == source_roi]
-	regex_prv = r'^'+ source_roi + r'_PRV\d{2}$'
- 	df_prv_e = df_TG263[df_TG263.name.str.match(regex_prv) == True]
-
+	regex_prv = r'^'+ e + r'_PRV\d{2}$'
+ 	df_prv_e = df_rois[df_rois.name.str.match(regex_prv) == True]
 	if not df_prv_e.empty:
 		parsed_name = df_prv_e.name.str.extract(r'([a-zA-z_]+)([0-9]+)', re.IGNORECASE, expand=True)
 		expansion_mm = int(parsed_name[1])
@@ -968,11 +966,11 @@ def create_prv(case, examination, source_roi, df_TG263):
 		# Try to create the correct return roi or retrieve its existing geometry
 		roi_geom = create_roi(case=case, examination=examination,
                               roi_name=df_prv_e.name.values[0],
-                           	  delete_existing=False)
+                           	  delete_existing=False, suffix=suffix)
 		if roi_geom is not None:
 			roi_geom.OfRoi.CreateMarginGeometry(
 												Examination=examination,
-												SourceRoiName=df_source_roi.name.values[0],
+												SourceRoiName=df_e.name.values[0],
 												MarginSettings={
 												"Type": "Expand",
 												"Superior": expansion_cm,
@@ -982,12 +980,6 @@ def create_prv(case, examination, source_roi, df_TG263):
 												"Right": expansion_cm,
 												"Left": expansion_cm,
 												})
-			return None
-		else:
-			error_message = "Unable to create {}".format(df_prv_e.name.values[0])
-	else:
-		error_message = "Unable to find {} in the dataframe".format(source_roi)
-		return error_message
 
 
 def match_roi(case, examination, plan_rois):
