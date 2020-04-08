@@ -950,7 +950,7 @@ def iter_standard_rois(etree):
 	return rois
 
 
-def create_prv(patient, case, examination, source_roi, df_TG263):
+def create_prv(case, examination, source_roi, df_TG263):
 	"""
 	:param case: RS Case Object
 	:param examination: RS Examination
@@ -969,40 +969,20 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
 		# Try to create the correct return roi or retrieve its existing geometry
 		roi_geom = create_roi(case=case, examination=examination,
                               roi_name=prv_name, delete_existing=False)
-  
 		if roi_geom is not None:
-			prv_exp_defs = {
-			"StructureName": prv_name,
-			"ExcludeFromExport": True,
-			"VisualizeStructure": False,
-			"StructColor": " 192, 192, 192",
-			"OperationA": "Union",
-			"SourcesA": [source_roi],
-			"MarginTypeA": "Expand",
-			"ExpA": [expansion_cm] * 6,
-			"OperationB": "Union",
-			"SourcesB": [],
-			"MarginTypeB": "Expand",
-			"ExpB": [0] * 6,
-			"OperationResult": "None",
-			"MarginTypeR": "Expand",
-			"ExpR": [0] * 6,
-			"StructType": "Undefined",
-		}
-			make_boolean_structure(patient=patient, case=case, examination=examination, **prv_exp_defs)
-			# roi_geom.OfRoi.CreateMarginGeometry(
-			# 									Examination=examination,
-			# 									SourceRoiName=df_source_roi.name.values[0],
-			# 									MarginSettings={
-			# 									"Type": "Expand",
-			# 									"Superior": expansion_cm,
-			# 									"Inferior": expansion_cm,
-			# 									"Anterior": expansion_cm,
-			# 									"Posterior": expansion_cm,
-			# 									"Right": expansion_cm,
-			# 									"Left": expansion_cm,
-			# 									}
-            # 									)
+			roi_geom.OfRoi.CreateMarginGeometry(
+												Examination=examination,
+												SourceRoiName=df_source_roi.name.values[0],
+												MarginSettings={
+												"Type": "Expand",
+												"Superior": expansion_cm,
+												"Inferior": expansion_cm,
+												"Anterior": expansion_cm,
+												"Posterior": expansion_cm,
+												"Right": expansion_cm,
+												"Left": expansion_cm,
+												}
+            									)
 			# Set color of matched structures
 			if df_prv.RGBColor.values[0] is not None:
 				prv_rgb = [int(x) for x in df_prv.RGBColor.values[0]]
@@ -1028,14 +1008,13 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
 		return msg
 
 
-def match_roi(patient, case, examination, plan_rois):
+def match_roi(case, examination, plan_rois):
 	"""
 	Matches a input list of plan_rois (user-defined) to protocol,
 	if a structure set is approved or a structure already has an existing geometry
 	with the potential matched structure then this will create a copy and copy the geometry
 	if the geometry is copied, then the specicifity and dice coefficients are checked
 	outputs data to a log
-	:param patient: RS Patient Object
 	:param case: RS Case Object
 	:param examination: RS Examination object
 	:param plan_rois:
@@ -1094,11 +1073,7 @@ def match_roi(patient, case, examination, plan_rois):
 				else:
 					logging.debug('{} could not change type. {}'.format(e_name, msg))
 			# Create PRV's
-			msg = create_prv(patient=patient,
-                    		case=case,
-                      		examination=examination,
-                        	source_roi=e_name,
-                         	df_TG263=df_rois)
+			msg = create_prv(case=case, examination=examination, source_roi=e_name, df_TG263=df_rois)
 			if msg is not None:
 				logging.debug(msg)
 			del_indices.append(index)
@@ -1129,6 +1104,11 @@ def match_roi(patient, case, examination, plan_rois):
 			exact_match.append(match[0][1])
 	for k, v in potential_matches_exacts_removed.iteritems():
 		logging.debug('k {}, v {}'.format(k, v))
+
+	#### Do the stuff on the matched rois
+	####for e in exact_match:
+	####    df_e = df_rois[df_rois.name == e]
+	####    change_roi_color(case=case, roi_name=df_e.name, rgb=df_rois.RGBColor)
 
 	# Launch the dialog to get the list of matched elements
 	matched_rois = match_dialog(matches=potential_matches_exacts_removed,

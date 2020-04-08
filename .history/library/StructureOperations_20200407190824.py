@@ -1094,11 +1094,7 @@ def match_roi(patient, case, examination, plan_rois):
 				else:
 					logging.debug('{} could not change type. {}'.format(e_name, msg))
 			# Create PRV's
-			msg = create_prv(patient=patient,
-                    		case=case,
-                      		examination=examination,
-                        	source_roi=e_name,
-                         	df_TG263=df_rois)
+			msg = create_prv(patient=patient, case=case, examination=examination, source_roi=e_name, df_TG263=df_rois)
 			if msg is not None:
 				logging.debug(msg)
 			del_indices.append(index)
