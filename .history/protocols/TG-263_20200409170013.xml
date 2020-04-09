@@ -77,7 +77,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Appendix</TG263ReverseOrderName>
         <FMAID>14542</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -111,7 +111,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Common_BileDuct</TG263ReverseOrderName>
         <FMAID>14667</FMAID>
-        <Color red="233" green="238" blue="144">#E9EE90</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -427,7 +427,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Cortex_Kidney</TG263ReverseOrderName>
         <FMAID>15581</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -443,7 +443,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Cortex_Kidney</TG263ReverseOrderName>
         <FMAID>15584</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -475,7 +475,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Hilum_Kidney</TG263ReverseOrderName>
         <FMAID>15942</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -491,7 +491,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Hilum_Kidney</TG263ReverseOrderName>
         <FMAID>15941</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -507,7 +507,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Hilums_Kidney</TG263ReverseOrderName>
         <FMAID>15610</FMAID>
-        <Color red="255" green="255" blue="153">#ffff99</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -715,7 +715,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>Hepatogastrc_Lig</TG263ReverseOrderName>
         <FMAID>16520</FMAID>
-        <Color red="160" green="235" blue="81">#A0EB51</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -731,7 +731,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Liver</TG263ReverseOrderName>
         <FMAID>7197</FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -747,7 +747,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Liver-CTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="159" green="197" blue="119">#9FC577</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -763,7 +763,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Liver-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="159" green="197" blue="119">#9FC577</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -779,7 +779,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>L_Digastric_Musc</TG263ReverseOrderName>
         <FMAID>46293</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -795,7 +795,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>R_Digastric_Musc</TG263ReverseOrderName>
         <FMAID>46292</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -810,7 +810,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>PancJejuno</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -826,7 +826,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Pancreas</TG263ReverseOrderName>
         <FMAID>7198</FMAID>
-        <Color red="246" green="151" blue="81">#F69751</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -842,7 +842,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Head_Pancreas</TG263ReverseOrderName>
         <FMAID>10468</FMAID>
-        <Color red="246" green="151" blue="81">#F69751</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -858,7 +858,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Tail_Pancreas</TG263ReverseOrderName>
         <FMAID>14519</FMAID>
-        <Color red="246" green="151" blue="81">#F69751</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -890,7 +890,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Peritoneum_Skin</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -906,7 +906,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Bowel_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -922,7 +922,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Small_Bowel_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1018,7 +1018,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>L_VB</TG263ReverseOrderName>
         <FMAID>72065</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1034,7 +1034,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>L1_VB</TG263ReverseOrderName>
         <FMAID>13072</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1050,7 +1050,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>L2_VB</TG263ReverseOrderName>
         <FMAID>13073</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1066,7 +1066,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>L3_VB</TG263ReverseOrderName>
         <FMAID>13074</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1082,7 +1082,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>L4_VB</TG263ReverseOrderName>
         <FMAID>13075</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1098,7 +1098,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>L5_VB</TG263ReverseOrderName>
         <FMAID>13076</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1114,7 +1114,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Portal_V</TG263ReverseOrderName>
         <FMAID>66645</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1207,7 +1207,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Bone</TG263ReverseOrderName>
         <FMAID>30317</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1274,7 +1274,7 @@
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>CTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="127" blue="0">#ff7f00</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1598,7 +1598,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Musc</TG263ReverseOrderName>
         <FMAID>30316</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1740,7 +1740,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Skin</TG263ReverseOrderName>
         <FMAID>7163</FMAID>
-        <Color red="67" green="65" blue="225">#4341E1</Color>
+        <Color red="245" green="222" blue="142">#F5DE8E</Color>
         <Alias>skin,skin_prv</Alias>
     </roi>
     <roi>
@@ -1756,7 +1756,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>PRV03_Skin</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="67" green="65" blue="225">#4341E1</Color>
+        <Color red="245" green="222" blue="142">#F5DE8E</Color>
         <Alias>skin_prv05</Alias>
     </roi>
     <roi>
@@ -1772,7 +1772,7 @@
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5022,7 +5022,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Constrict_Musc</TG263ReverseOrderName>
         <FMAID>46620</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias>ConstrMuscle,ConstMusc</Alias>
     </roi>
     <roi>
@@ -5038,7 +5038,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>I_Constrict_Musc</TG263ReverseOrderName>
         <FMAID>46623</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5054,7 +5054,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>M_Constrict_Musc</TG263ReverseOrderName>
         <FMAID>46622</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5070,7 +5070,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>S_Constrict_Musc</TG263ReverseOrderName>
         <FMAID>46621</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5086,7 +5086,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Masseter_Musc</TG263ReverseOrderName>
         <FMAID>48996</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5102,7 +5102,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Masseter_Musc</TG263ReverseOrderName>
         <FMAID>48998</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5118,7 +5118,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Masseter_Musc</TG263ReverseOrderName>
         <FMAID>48997</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5134,7 +5134,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Platysma_Musc</TG263ReverseOrderName>
         <FMAID>45740</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5150,7 +5150,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Platysma_Musc</TG263ReverseOrderName>
         <FMAID>45739</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5166,7 +5166,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>L_Pterygoid_Musc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5182,7 +5182,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>R_Pterygoid_Musc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5198,7 +5198,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Sclmast_Musc</TG263ReverseOrderName>
         <FMAID>13409</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5214,7 +5214,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Sclmast_Musc</TG263ReverseOrderName>
         <FMAID>13408</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5230,7 +5230,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Temporal_Musc</TG263ReverseOrderName>
         <FMAID>49008</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5246,7 +5246,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Temporal_Musc</TG263ReverseOrderName>
         <FMAID>49007</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="153" green="153" blue="255">#9999ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5262,7 +5262,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Nape</TG263ReverseOrderName>
         <FMAID>24189</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="239" green="222" blue="205">#efdecd</Color>
         <Alias>nape</Alias>
     </roi>
     <roi>
@@ -5950,7 +5950,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Scalp</TG263ReverseOrderName>
         <FMAID>46494</FMAID>
-        <Color red="194" green="76" blue="197">#C24CC5</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6142,7 +6142,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Retrophar_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6158,7 +6158,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Retrophar_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6174,7 +6174,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Retrophars_Spc</TG263ReverseOrderName>
         <FMAID>286702</FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6190,7 +6190,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Retrosty_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6206,7 +6206,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Retrosty_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6222,7 +6222,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Retrosty_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6590,7 +6590,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Jugular_V</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6606,7 +6606,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Ext_Jugular_V</TG263ReverseOrderName>
         <FMAID>13112</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6622,7 +6622,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Ext_Jugular_V</TG263ReverseOrderName>
         <FMAID>13111</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6638,7 +6638,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Int_Jugular_V</TG263ReverseOrderName>
         <FMAID>4754</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6654,7 +6654,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Int_Jugular_V</TG263ReverseOrderName>
         <FMAID>4762</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6878,7 +6878,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Femur</TG263ReverseOrderName>
         <FMAID>24475</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6894,7 +6894,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Femur</TG263ReverseOrderName>
         <FMAID>24474</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6910,7 +6910,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Femurs</TG263ReverseOrderName>
         <FMAID>9611</FMAID>
-        <Color red="255" green="255" blue="153">#ffff99</Color>
+        <Color red="240" green="230" blue="140">#f0e68c</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7070,7 +7070,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_Fibula</TG263ReverseOrderName>
         <FMAID>24481</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7086,7 +7086,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>R_Fibula</TG263ReverseOrderName>
         <FMAID>24480</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7102,7 +7102,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>L_Humerus</TG263ReverseOrderName>
         <FMAID>23131</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="204">#ffffcc</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7118,7 +7118,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>R_Humerus</TG263ReverseOrderName>
         <FMAID>23130</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="204">#ffffcc</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7406,7 +7406,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Acetabulum</TG263ReverseOrderName>
         <FMAID>16599</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7422,7 +7422,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Acetabulum</TG263ReverseOrderName>
         <FMAID>16598</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7438,7 +7438,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Acetabulums</TG263ReverseOrderName>
         <FMAID>16579</FMAID>
-        <Color red="67" green="102" blue="157">#43669D</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7526,7 +7526,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Ilium_Bone</TG263ReverseOrderName>
         <FMAID>42832</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="179" green="0" blue="134">#b30086</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7542,7 +7542,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Ilium_Bone</TG263ReverseOrderName>
         <FMAID>16591</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="179" green="0" blue="134">#b30086</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7558,7 +7558,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Ilium_Bone</TG263ReverseOrderName>
         <FMAID>16590</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="179" green="0" blue="134">#b30086</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7574,7 +7574,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Ischium_Bone</TG263ReverseOrderName>
         <FMAID>16594</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="179" green="0" blue="134">#b30086</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7590,7 +7590,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Ischium_Bone</TG263ReverseOrderName>
         <FMAID>16593</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="179" green="0" blue="134">#b30086</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7606,7 +7606,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Pelvic_Bone</TG263ReverseOrderName>
         <FMAID>16580</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="179" green="0" blue="134">#b30086</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7622,7 +7622,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>L_Pelvic_Bone</TG263ReverseOrderName>
         <FMAID>20227</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="179" green="0" blue="134">#b30086</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7638,7 +7638,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>R_Pelvic_Bone</TG263ReverseOrderName>
         <FMAID>20226</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="179" green="0" blue="134">#b30086</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7836,7 +7836,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Head_Femur</TG263ReverseOrderName>
         <FMAID>32843</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7853,7 +7853,7 @@
         <NCharacters>18</NCharacters>
         <TG263ReverseOrderName>L_Head_Femur_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="67" green="102" blue="157">#43669D</Color>
+        <Color red="0" green="51" blue="0">#003300</Color>
         <Alias>prv_femurL,prv_femoralhead_L,prv_femoral_head_L</Alias>
     </roi>
     <roi>
@@ -7870,7 +7870,7 @@
         <NCharacters>18</NCharacters>
         <TG263ReverseOrderName>L_Head_Femur_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="67" green="102" blue="157">#43669D</Color>
+        <Color red="0" green="51" blue="0">#003300</Color>
         <Alias>prv05_femurL,prv05_femoralheadL,prv05_femoral_head_L</Alias>
     </roi>
     <roi>
@@ -7903,7 +7903,7 @@
         <NCharacters>18</NCharacters>
         <TG263ReverseOrderName>R_Head_Femur_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="67" green="102" blue="157">#43669D</Color>
+        <Color red="0" green="51" blue="0">#003300</Color>
         <Alias>prv_femurR,prv_femoralheadR,prv_femoral_head_R</Alias>
     </roi>
     <roi>
@@ -7920,7 +7920,7 @@
         <NCharacters>18</NCharacters>
         <TG263ReverseOrderName>R_Head_Femur_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="67" green="102" blue="157">#43669D</Color>
+        <Color red="0" green="51" blue="0">#003300</Color>
         <Alias>prv05_femurR,prv05_femoralheadR,prv05_femoral_head_R</Alias>
     </roi>
     <roi>
@@ -7968,7 +7968,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Neck_Femur</TG263ReverseOrderName>
         <FMAID>42386</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7984,7 +7984,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Neck_Femur</TG263ReverseOrderName>
         <FMAID>42387</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8000,7 +8000,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>L_Shaft_Femur</TG263ReverseOrderName>
         <FMAID>32849</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8016,7 +8016,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>R_Shaft_Femur</TG263ReverseOrderName>
         <FMAID>32848</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8495,7 +8495,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>PubicSymphys</TG263ReverseOrderName>
         <FMAID>16950</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8511,7 +8511,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_PubicSymphys</TG263ReverseOrderName>
         <FMAID>16597</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8527,7 +8527,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_PubicSymphys</TG263ReverseOrderName>
         <FMAID>16596</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8658,7 +8658,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Sacrum</TG263ReverseOrderName>
         <FMAID>16202</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8674,7 +8674,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Scrotum</TG263ReverseOrderName>
         <FMAID>18252</FMAID>
-        <Color red="233" green="238" blue="144">#E9EE90</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8690,7 +8690,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>SeminalVes</TG263ReverseOrderName>
         <FMAID>19387</FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8706,7 +8706,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Dist_SeminalVes</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8722,7 +8722,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Prox_SeminalVes</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8962,7 +8962,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>S_VB</TG263ReverseOrderName>
         <FMAID>12526</FMAID>
-        z<Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8978,7 +8978,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>S1_VB</TG263ReverseOrderName>
         <FMAID>13077</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8994,7 +8994,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>S2_VB</TG263ReverseOrderName>
         <FMAID>13078</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9010,7 +9010,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>S3_VB</TG263ReverseOrderName>
         <FMAID>13079</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9026,7 +9026,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>S4_VB</TG263ReverseOrderName>
         <FMAID>13080</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9042,7 +9042,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>S5_VB</TG263ReverseOrderName>
         <FMAID>13081</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9058,7 +9058,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>L_Ext_Iliac_V</TG263ReverseOrderName>
         <FMAID>18886</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9074,7 +9074,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>R_Ext_Iliac_V</TG263ReverseOrderName>
         <FMAID>18885</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9090,7 +9090,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>L_Int_Iliac_V</TG263ReverseOrderName>
         <FMAID>18810</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9106,7 +9106,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>R_Int_Iliac_V</TG263ReverseOrderName>
         <FMAID>18809</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9122,7 +9122,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>L_Iliac_V</TG263ReverseOrderName>
         <FMAID>21387</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9138,7 +9138,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>R_Iliac_V</TG263ReverseOrderName>
         <FMAID>21388</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9186,7 +9186,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>VaginalCuff</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color red="150" green="212" blue="233">#00ff00</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9202,7 +9202,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Vulva</TG263ReverseOrderName>
         <FMAID>20462</FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9218,7 +9218,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Vagina_Wall</TG263ReverseOrderName>
         <FMAID>19971</FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9844,7 +9844,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>R_Clavicle</TG263ReverseOrderName>
         <FMAID>13322</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11172,7 +11172,7 @@
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>Rib</TG263ReverseOrderName>
         <FMAID>7574</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11188,7 +11188,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib01</TG263ReverseOrderName>
         <FMAID>7987</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11204,7 +11204,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib01</TG263ReverseOrderName>
         <FMAID>7857</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11220,7 +11220,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib02</TG263ReverseOrderName>
         <FMAID>8012</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11236,7 +11236,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib02</TG263ReverseOrderName>
         <FMAID>7882</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11252,7 +11252,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib03</TG263ReverseOrderName>
         <FMAID>8039</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11268,7 +11268,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib03</TG263ReverseOrderName>
         <FMAID>7909</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11284,7 +11284,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib04</TG263ReverseOrderName>
         <FMAID>8148</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11300,7 +11300,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib04</TG263ReverseOrderName>
         <FMAID>7957</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11316,7 +11316,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib05</TG263ReverseOrderName>
         <FMAID>8093</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11332,7 +11332,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib05</TG263ReverseOrderName>
         <FMAID>8066</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11348,7 +11348,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib06</TG263ReverseOrderName>
         <FMAID>8202</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11364,7 +11364,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib06</TG263ReverseOrderName>
         <FMAID>8175</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11380,7 +11380,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib07</TG263ReverseOrderName>
         <FMAID>8256</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11396,7 +11396,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib07</TG263ReverseOrderName>
         <FMAID>8229</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11412,7 +11412,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib08</TG263ReverseOrderName>
         <FMAID>8310</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11428,7 +11428,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib08</TG263ReverseOrderName>
         <FMAID>8283</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11444,7 +11444,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib09</TG263ReverseOrderName>
         <FMAID>8391</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11460,7 +11460,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib09</TG263ReverseOrderName>
         <FMAID>8364</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11476,7 +11476,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib10</TG263ReverseOrderName>
         <FMAID>8472</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11492,7 +11492,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib10</TG263ReverseOrderName>
         <FMAID>8445</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11508,7 +11508,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib11</TG263ReverseOrderName>
         <FMAID>8532</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11524,7 +11524,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib11</TG263ReverseOrderName>
         <FMAID>8531</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11540,7 +11540,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib12</TG263ReverseOrderName>
         <FMAID>8534</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11556,7 +11556,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib12</TG263ReverseOrderName>
         <FMAID>8533</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11572,7 +11572,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>L_Scapula</TG263ReverseOrderName>
         <FMAID>13396</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11588,7 +11588,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>R_Scapula</TG263ReverseOrderName>
         <FMAID>13395</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11700,7 +11700,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>T_VB</TG263ReverseOrderName>
         <FMAID>9139</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11716,7 +11716,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T01_VB</TG263ReverseOrderName>
         <FMAID>9165</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11732,7 +11732,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T02_VB</TG263ReverseOrderName>
         <FMAID>9187</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11748,7 +11748,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T03_VB</TG263ReverseOrderName>
         <FMAID>9209</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11764,7 +11764,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T04_VB</TG263ReverseOrderName>
         <FMAID>9248</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11780,7 +11780,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T05_VB</TG263ReverseOrderName>
         <FMAID>9922</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11796,7 +11796,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T06_VB</TG263ReverseOrderName>
         <FMAID>9945</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11812,7 +11812,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T07_VB</TG263ReverseOrderName>
         <FMAID>9968</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11828,7 +11828,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T08_VB</TG263ReverseOrderName>
         <FMAID>9991</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11844,7 +11844,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T09_VB</TG263ReverseOrderName>
         <FMAID>10014</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11860,7 +11860,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T10_VB</TG263ReverseOrderName>
         <FMAID>10037</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11876,7 +11876,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T11_VB</TG263ReverseOrderName>
         <FMAID>10059</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11892,7 +11892,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>T12_VB</TG263ReverseOrderName>
         <FMAID>10081</FMAID>
-        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11908,7 +11908,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Azygos_V</TG263ReverseOrderName>
         <FMAID>4838</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11924,7 +11924,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Brachioceph_V</TG263ReverseOrderName>
         <FMAID>4761</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11940,7 +11940,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Brachioceph_V</TG263ReverseOrderName>
         <FMAID>4751</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11956,7 +11956,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Pulmonary_V</TG263ReverseOrderName>
         <FMAID>66643</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11972,7 +11972,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Subclavian_V</TG263ReverseOrderName>
         <FMAID>4763</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11988,7 +11988,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Subclavian_V</TG263ReverseOrderName>
         <FMAID>4755</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12004,7 +12004,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Subclavians_V</TG263ReverseOrderName>
         <FMAID>4725</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12020,7 +12020,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>I_Venacava_V</TG263ReverseOrderName>
         <FMAID>10951</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12036,7 +12036,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>S_Venacava_V</TG263ReverseOrderName>
         <FMAID>4720</FMAID>
-        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>

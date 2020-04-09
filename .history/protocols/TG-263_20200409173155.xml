@@ -890,7 +890,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Peritoneum_Skin</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -906,7 +906,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Bowel_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -922,7 +922,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Small_Bowel_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1772,7 +1772,7 @@
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6142,7 +6142,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Retrophar_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6158,7 +6158,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Retrophar_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6174,7 +6174,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Retrophars_Spc</TG263ReverseOrderName>
         <FMAID>286702</FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6190,7 +6190,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Retrosty_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6206,7 +6206,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Retrosty_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6222,7 +6222,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Retrosty_Spc</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8690,7 +8690,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>SeminalVes</TG263ReverseOrderName>
         <FMAID>19387</FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8706,7 +8706,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Dist_SeminalVes</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8722,7 +8722,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Prox_SeminalVes</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9186,7 +9186,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>VaginalCuff</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color red="150" green="212" blue="233">#00ff00</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9202,7 +9202,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Vulva</TG263ReverseOrderName>
         <FMAID>20462</FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color red="233" green="238" blue="144">#E9EE90</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9218,7 +9218,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Vagina_Wall</TG263ReverseOrderName>
         <FMAID>19971</FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
