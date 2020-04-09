@@ -1456,7 +1456,7 @@
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>ITV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color "red="255 "green="127 "blue="0>#ff7f00</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1788,7 +1788,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>SpinalCanal</TG263ReverseOrderName>
         <FMAID>9680</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color "red="55 "green="221 "blue="159>#37DD9F</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1804,7 +1804,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>PRV_SpinalCanal</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="91" green="185" blue="150">#5BB996</Color>
+        <Color "red="91 "green="185 "blue="150>#5bb996</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1820,7 +1820,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRV02_SpinalCanal</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="91" green="185" blue="150">#5BB996</Color>
+        <Color "red="91 "green="185 "blue="150>#5bb996</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1836,7 +1836,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRVx_SpinalCanal</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="91" green="185" blue="150">#5BB996</Color>
+        <Color "red="91 "green="185 "blue="150>#5bb996</Color>
         <Alias></Alias>
         </roi>
     <roi>
@@ -1852,8 +1852,24 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>SpinalCord</TG263ReverseOrderName>
         <FMAID>7647</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color "red="55 "green="221 "blue="159>#37DD9F</Color>
         <Alias>Cord,cord,spinalcord</Alias>
+    </roi>
+    <roi>
+        <name>SpinalCord_PRV</name>
+        <TG263PrimaryName>SpinalCord_PRV</TG263PrimaryName>
+        <Description></Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>PRV</MajorCategory>
+        <MinorCategory>Spinal Cord</MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>PRV_SpinalCord</TG263ReverseOrderName>
+        <Color "red="91 "green="185 "blue="150>#5bb996</Color>
+        <FMAID></FMAID>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>SpinalCord_PRVxx</name>
@@ -1868,7 +1884,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRVxx_SpinalCord</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="91" green="185" blue="150">#5BB996</Color>
+        <Color "red="91 "green="185 "blue="150>#5bb996</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1884,7 +1900,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRV05_SpinalCord</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="91" green="185" blue="150">#5BB996</Color>
+        <Color "red="91 "green="185 "blue="150>#5bb996</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1916,7 +1932,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>SurgicalBed</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color "red="106 "green="61 "blue="154>#6a3d9a</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1947,7 +1963,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>TumorBed</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="106" green="61" blue="154">#6a3d9a</Color>
+        <Color "red="106 "green="61 "blue="154>#6a3d9a</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4623,7 +4639,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>L_Lens</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-        <Color red="149" green="49" blue="224">#9531E0</Color>
+        <Color "red="149 "green="49 "blue="224>#9531E0</Color>
         <Alias>LensL,left_lens</Alias>
     </roi>
     <roi>
@@ -4639,7 +4655,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Lens_PRVxx</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-        <Color red="144" green="91" blue="185">#905BB9</Color>
+        <Color "red="144 "green="91 "blue="185>#905bb9</Color>
         <Alias>LensL_PRV,left_lens_PRV</Alias>
     </roi>
     <roi>
@@ -4655,7 +4671,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>PRV07_L_Lens</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-        <Color red="144" green="91" blue="185">#905BB9</Color>
+        <Color "red="144 "green="91 "blue="185>#905bb9</Color>
         <Alias>LensL_PRV07,left_lens_PRV07</Alias>
     </roi>
     <roi>
@@ -4671,7 +4687,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>R_Lens</TG263ReverseOrderName>
         <FMAID>58242</FMAID>
-        <Color red="149" green="49" blue="224">#9531E0</Color>
+        <Color "red="194 "green="76 "blue="197>#C24CC5</Color>
         <Alias>LensR,right_lens</Alias>
     </roi>
     <roi>
@@ -4687,7 +4703,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Lens_PRVxx</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-        <Color red="144" green="91" blue="185">#905BB9</Color>
+        <Color "red="183 "green="91 "blue="185>#b75bb9</Color>
         <Alias>LensR_PRV,right_lens_PRV</Alias>
     </roi>
     <roi>
@@ -4703,7 +4719,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Lens_PRV07</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-        <Color red="144" green="91" blue="185">#905BB9</Color>
+        <Color "red="183 "green="91 "blue="185>#b75bb9</Color>
         <Alias>LensR_PRV07,right_lens_PRV07</Alias>
     </roi>
     <roi>
@@ -4719,7 +4735,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Lips</TG263ReverseOrderName>
         <FMAID>59815</FMAID>
-        <Color red="160" green="235" blue="81">#A0EB51</Color>
+        <Color "red="245 "green="222 "blue="142>#F5DE8E</Color>
         <Alias>lips,lip</Alias>
     </roi>
     <roi>
