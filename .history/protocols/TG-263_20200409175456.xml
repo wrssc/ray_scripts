@@ -1360,7 +1360,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>ExternalClean</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="86" green="68" blue="254" Hex= "#5644FE" >LánSèBlue</Color>
+        <Color red="149" green="49" blue="224">#9531E0</Color>
         <Alias>External_Clean</Alias>
     </roi>
     <roi>
@@ -1376,7 +1376,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>External</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="86" green="68" blue="254" Hex= "#5644FE" >LánSèBlue</Color>
+        <Color red="149" green="49" blue="224">#9531E0</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1392,7 +1392,7 @@
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Color red="106" green="61" blue="154">#6a3d9a</Color>
         <Alias></Alias>
     </roi>
     <roi>

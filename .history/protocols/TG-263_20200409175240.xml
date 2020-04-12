@@ -1360,7 +1360,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>ExternalClean</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="86" green="68" blue="254" Hex= "#5644FE" >LánSèBlue</Color>
+        <Color red="149" green="49" blue="224">#9531E0</Color>
         <Alias>External_Clean</Alias>
     </roi>
     <roi>
@@ -1376,7 +1376,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>External</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="86" green="68" blue="254" Hex= "#5644FE" >LánSèBlue</Color>
+        <Color red="149" green="49" blue="224">#9531E0</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1392,7 +1392,7 @@
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Color red="106" green="61" blue="154">#6a3d9a</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1472,7 +1472,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Surface_Joint</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4158,7 +4158,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>TM_Joint</TG263ReverseOrderName>
         <FMAID>54832</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4174,7 +4174,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>L_TM_Joint</TG263ReverseOrderName>
         <FMAID>54834</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4190,7 +4190,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>R_TM_Joint</TG263ReverseOrderName>
         <FMAID>54833</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7022,7 +7022,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>Suprapatel_Strct</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7070,7 +7070,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Elbow</TG263ReverseOrderName>
         <FMAID>24901</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7086,7 +7086,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Elbow</TG263ReverseOrderName>
         <FMAID>24903</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7102,7 +7102,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Elbow</TG263ReverseOrderName>
         <FMAID>24902</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7198,7 +7198,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Elbow_Joint</TG263ReverseOrderName>
         <FMAID>35289</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7214,7 +7214,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>L_Elbow_Joint</TG263ReverseOrderName>
         <FMAID>35295</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7230,7 +7230,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>R_Elbow_Joint</TG263ReverseOrderName>
         <FMAID>35294</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7246,7 +7246,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Glenohum_Joint</TG263ReverseOrderName>
         <FMAID>25912</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7262,7 +7262,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>L_Glenohum_Joint</TG263ReverseOrderName>
         <FMAID>25929</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7278,7 +7278,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>R_Glenohum_Joint</TG263ReverseOrderName>
         <FMAID>25927</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7294,7 +7294,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Knee</TG263ReverseOrderName>
         <FMAID>24974</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7310,7 +7310,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>L_Knee</TG263ReverseOrderName>
         <FMAID>24978</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7326,7 +7326,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>R_Knee</TG263ReverseOrderName>
         <FMAID>24977</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8000,7 +8000,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>L_Joint_Femur</TG263ReverseOrderName>
         <FMAID>35180</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8016,7 +8016,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>R_Joint_Femur</TG263ReverseOrderName>
         <FMAID>35179</FMAID>
-        <Color red="55" green="221" blue="159">#37DD9F</Color>
+        <Color red="0" green="128" blue="0">#008000</Color>
         <Alias></Alias>
     </roi>
     <roi>
