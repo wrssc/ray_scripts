@@ -111,7 +111,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Common_BileDuct</TG263ReverseOrderName>
         <FMAID>14667</FMAID>
-         <Color red="197" green="250" blue="29" Hex= "#C5FA1D" >LimeYellow</Color>
+        <Color red="233" green="238" blue="144">#E9EE90</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -151,7 +151,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Small_Bowel</TG263ReverseOrderName>
         <FMAID>7200</FMAID>
-         <Color red="91" green="229" blue="249" Hex= "#5BE5F9" >Ionized-airGlow1</Color>
+        <Color red="160" green="235" blue="81">#A0EB51</Color>
         <Alias>small_bowel,smallbowel</Alias>
     </roi>
     <roi>
@@ -168,7 +168,7 @@
         <NCharacters>17</NCharacters>
         <TG263ReverseOrderName>Small_Bowel_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="170" green="239" blue="249" Hex= "#aaeff9" >BeyondtheClouds1</Color>
+        <Color red="159" green="197" blue="119">#9FC577</Color>
         <Alias>Small_Bowel_PRV,prv_small_bowel,prv_smallbowel</Alias>
     </roi>
     <roi>
@@ -185,7 +185,7 @@
         <NCharacters>17</NCharacters>
         <TG263ReverseOrderName>Small_Bowel_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="170" green="239" blue="249" Hex= "#aaeff9" >BeyondtheClouds1</Color>
+        <Color red="159" green="197" blue="119">#9FC577</Color>
         <Alias>Small_Bowel_PRV05,prv05_small_bowel,prv05_smallbowel</Alias>
     </roi>
     <roi>
@@ -313,7 +313,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Duodenum</TG263ReverseOrderName>
         <FMAID>7206</FMAID>
-         <Color red="122" green="253" blue="255" Hex= "#7AFDFF" >ElectricBlue</Color>
+        <Color red="160" green="235" blue="81">#A0EB51</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -330,7 +330,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Duodenum_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="188" green="254" blue="255" Hex= "#bcfeff" >YoungCornflower</Color>
+        <Color red="159" green="197" blue="119">#9FC577</Color>
         <Alias>duodenum_prv</Alias>
     </roi>
     <roi>
@@ -347,7 +347,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Duodenum_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="188" green="254" blue="255" Hex= "#bcfeff" >YoungCornflower</Color>
+        <Color red="159" green="197" blue="119">#9FC577</Color>
         <Alias>duodenum_prv05</Alias>
     </roi>
     <roi>
@@ -411,7 +411,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Kidney-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="255" green="255" blue="153">#ffff99</Color>
         <Alias>Kidney-gtv,kidney-gtv</Alias>
     </roi>
     <roi>
@@ -443,7 +443,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Cortex_Kidney</TG263ReverseOrderName>
         <FMAID>15584</FMAID>
-         <Color red="58" green="251" blue="170" Hex= "#3AFBAA" >EvaGreen</Color>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -475,7 +475,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Hilum_Kidney</TG263ReverseOrderName>
         <FMAID>15942</FMAID>
-         <Color red="58" green="251" blue="170" Hex= "#3AFBAA" >EvaGreen</Color>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -491,7 +491,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Hilum_Kidney</TG263ReverseOrderName>
         <FMAID>15941</FMAID>
-         <Color red="250" green="57" blue="105" Hex= "#FA3969" >ChineseNewYear</Color>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -523,7 +523,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_Kidney</TG263ReverseOrderName>
         <FMAID>7205</FMAID>
-         <Color red="58" green="251" blue="170" Hex= "#3AFBAA" >EvaGreen</Color>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -539,7 +539,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Kidney_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="154" green="251" blue="210" Hex= "#9afbd2" >PaleTurquoise1</Color>
+        <Color red="187" green="194" blue="226">#BBC2E2</Color>
         <Alias>lkidney_prv</Alias>
     </roi>
     <roi>
@@ -555,7 +555,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Kidney_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="154" green="251" blue="210" Hex= "#9afbd2" >PaleTurquoise1</Color>
+        <Color red="187" green="194" blue="226">#BBC2E2</Color>
         <Alias>lkidney_prv05</Alias>
     </roi>
     <roi>
@@ -571,7 +571,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Kidney-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="255" green="255" blue="153">#ffff99</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -587,7 +587,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Pelvis_Kidney</TG263ReverseOrderName>
         <FMAID>15579</FMAID>
-         <Color red="58" green="251" blue="170" Hex= "#3AFBAA" >EvaGreen</Color>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -603,7 +603,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Pelvis_Kidney</TG263ReverseOrderName>
         <FMAID>15578</FMAID>
-         <Color red="250" green="57" blue="105" Hex= "#FA3969" >ChineseNewYear</Color>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -619,7 +619,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>R_Kidney</TG263ReverseOrderName>
         <FMAID>7204</FMAID>
-         <Color red="250" green="57" blue="105" Hex= "#FA3969" >ChineseNewYear</Color>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -635,7 +635,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Kidney_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="250" green="154" blue="178" Hex= "#fa9ab2" >SairaRed</Color>
+        <Color red="187" green="194" blue="226">#BBC2E2</Color>
         <Alias>rkidney_prv</Alias>
     </roi>
     <roi>
@@ -651,7 +651,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Kidney_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="250" green="154" blue="178" Hex= "#fa9ab2" >SairaRed</Color>
+        <Color red="187" green="194" blue="226">#BBC2E2</Color>
         <Alias>rkidney_prv05</Alias>
     </roi>
     <roi>
@@ -667,7 +667,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Kidney-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="255" green="255" blue="153">#ffff99</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -683,7 +683,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Kidneys</TG263ReverseOrderName>
         <FMAID>264815</FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="255" green="255" blue="153">#ffff99</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -731,7 +731,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Liver</TG263ReverseOrderName>
         <FMAID>7197</FMAID>
-         <Color red="160" green="85" blue="252" Hex= "#A055FC" >IrrigoPurple</Color>
+        <Color red="225" green="169" blue="47">#E1A92F</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -747,7 +747,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Liver-CTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="159" green="197" blue="119">#9FC577</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -763,7 +763,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Liver-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="159" green="197" blue="119">#9FC577</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -826,7 +826,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Pancreas</TG263ReverseOrderName>
         <FMAID>7198</FMAID>
-         <Color red="58" green="251" blue="170" Hex= "#3AFBAA" >EvaGreen</Color>
+        <Color red="246" green="151" blue="81">#F69751</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -842,7 +842,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Head_Pancreas</TG263ReverseOrderName>
         <FMAID>10468</FMAID>
-         <Color red="62" green="251" blue="145" Hex= "#3EFB91" >EvaGreen1</Color>
+        <Color red="246" green="151" blue="81">#F69751</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -858,7 +858,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Tail_Pancreas</TG263ReverseOrderName>
         <FMAID>14519</FMAID>
-         <Color red="64" green="253" blue="102" Hex= "#40FD66" >AcidPops</Color>
+        <Color red="246" green="151" blue="81">#F69751</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -954,7 +954,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Spleen</TG263ReverseOrderName>
         <FMAID>7196</FMAID>
-         <Color red="254" green="233" blue="100" Hex= "#FEE964" >CaduceusGold</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -970,7 +970,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Hilum_Spleen</TG263ReverseOrderName>
         <FMAID>15841</FMAID>
-         <Color red="251" green="218" blue="63" Hex= "#FBDA3F" >DandelionYellow</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -986,7 +986,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Stomach</TG263ReverseOrderName>
         <FMAID>7148</FMAID>
-         <Color red="145" green="246" blue="36" Hex= "#91F624" >SpringFrost</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1002,23 +1002,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>PRVxx_Stomach</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="195" green="246" blue="141" Hex= "#c3f68d" >PistachioMousse</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Stomach_PRV05</name>
-        <TG263PrimaryName>Stomach_PRV05</TG263PrimaryName>
-        <Description>PRV created with 05 mm expansion on the stomach</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Stomach</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PRV05_Stomach</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="195" green="246" blue="141" Hex= "#c3f68d" >PistachioMousse</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1130,40 +1114,8 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Portal_V</TG263ReverseOrderName>
         <FMAID>66645</FMAID>
-         <Color red="235" green="255" blue="36" Hex= "#EBFF24" >SpoiledEgg</Color>
-        <Alias>portal_vein,portalvein</Alias>
-    </roi>
-<roi>
-        <name>V_Portal_PRVxx</name>
-        <TG263PrimaryName>V_Portal_PRVxx</TG263PrimaryName>
-        <Description>A PRV created with an xx millimeter expansion on the portal vein</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Vein</MajorCategory>
-        <MinorCategory>Abdomen</MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>14</NCharacters>
-        <TG263ReverseOrderName>PRVxx_SpinalCord</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
-        <Alias>portal_vein_prv</Alias>
-    </roi>
-    <roi>
-        <name>V_Portal_PRV07</name>
-        <TG263PrimaryName>V_Portal_PRV07</TG263PrimaryName>
-        <Description>A PRV created with an 07 millimeter expansion on the portal vein</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Vein</MajorCategory>
-        <MinorCategory>Abdomen</MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>14</NCharacters>
-        <TG263ReverseOrderName>PRV07_SpinalCord</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
-        <Alias>portal_vein_prv07</Alias>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Bag_Ostomy</name>
@@ -1255,7 +1207,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Bone</TG263ReverseOrderName>
         <FMAID>30317</FMAID>
-         <Color red="64" green="253" blue="102" Hex= "#40FD66" >AcidPops</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1315,27 +1267,11 @@
         <Description>Clinical Tumor Volume</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ctv</RTROIInterpretedType>
+        <RTROIInterpretedType>CTV</RTROIInterpretedType>
         <MajorCategory>CTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>3</NCharacters>
-        <TG263ReverseOrderName>CTV</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>CTV_Lumpectomy</name>
-        <TG263PrimaryName>CTV_Lumpectomy</TG263PrimaryName>
-        <Description>Clinical Tumor Volume of the breast lumpectomy</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ctv</RTROIInterpretedType>
-        <MajorCategory>CTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Breast</AnatomicGroup>
-        <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>CTV</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
@@ -1449,7 +1385,7 @@
         <Description>Gross Tumor Volume</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Gtv</RTROIInterpretedType>
+        <RTROIInterpretedType>GTV</RTROIInterpretedType>
         <MajorCategory>GTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1703,63 +1639,15 @@
         <Description>Planning Target Volume</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <RTROIInterpretedType>PTV</RTROIInterpretedType>
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>PTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
-        <Alias>ptv</Alias>
-    </roi>
-    <roi>
-        <name>PTV_Bst_xxxx</name>
-        <TG263PrimaryName>PTV_Bst_xxxx</TG263PrimaryName>
-        <Description>Planning Target Volume for boost treatment with dose xxxx Gy</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>12</NCharacters>
-        <TG263ReverseOrderName>PTV_Bst_xxxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV_Eval_xxxx</name>
-        <TG263PrimaryName>PTV_Eval_xxxx</TG263PrimaryName>
-        <Description>Evalation planning Target Volume with dose xxxx in cGy</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Breast</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PTV_Eval_xxxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
-        <Alias>ptv_eval</Alias>
-    </roi>
-    <roi>
-        <name>PTV_Lumpectomy_Eval_xxxx</name>
-        <TG263PrimaryName>PTV_Lumpectomy_Eval_xxxx</TG263PrimaryName>
-        <Description>Evalation Lumpectomy planning Target Volume with dose xxxx in cGy</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Breast</AnatomicGroup>
-        <NCharacters>24</NCharacters>
-        <TG263ReverseOrderName>PTV_Lumpectomy_Eval_xxxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
-        <Alias>ptv_eval_lumpectomy</Alias>
     </roi>
     <roi>
         <name>PTV_xxxx</name>
@@ -1767,7 +1655,7 @@
         <Description>Planning Target Volume with dose xxxx in cGy</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <RTROIInterpretedType>PTV</RTROIInterpretedType>
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1836,8 +1724,8 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Scar</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="56" green="246" blue="235" Hex= "#38F6EB" >BrightCyan</Color>
-        <Alias>scar</Alias>
+        <Color red="255" green="255" blue="255">#</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Scar_Boost</name>
@@ -1856,7 +1744,7 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Skin_PRVxx</name>
+        <name>Skin</name>
         <TG263PrimaryName>Skin</TG263PrimaryName>
         <Description>Skin</Description>
         <NCIt></NCIt>
@@ -1868,12 +1756,12 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Skin</TG263ReverseOrderName>
         <FMAID>7163</FMAID>
-         <Color red="251" green="218" blue="63" Hex= "#FBDA3F" >DandelionYellow</Color>
+        <Color red="67" green="65" blue="225">#4341E1</Color>
         <Alias>skin,skin_prv</Alias>
     </roi>
     <roi>
         <name>Skin_PRV03</name>
-        <TG263PrimaryName>Skin_PRV03</TG263PrimaryName>
+        <TG263PrimaryName>Skin</TG263PrimaryName>
         <Description>Skin</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
@@ -1884,8 +1772,8 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>PRV03_Skin</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="251" green="218" blue="63" Hex= "#FBDA3F" >DandelionYellow</Color>
-        <Alias>skin_prv03</Alias>
+        <Color red="67" green="65" blue="225">#4341E1</Color>
+        <Alias>skin_prv05</Alias>
     </roi>
     <roi>
         <name>Spc</name>
@@ -1916,7 +1804,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>SpinalCanal</TG263ReverseOrderName>
         <FMAID>9680</FMAID>
-         <Color red="64" green="248" blue="201" Hex= "#40F8C9" >FreshTurquoise1</Color>
+        <Color red="55" green="221" blue="159">#37DD9F</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1932,7 +1820,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>PRV_SpinalCanal</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="156" green="248" blue="224" Hex= "#9cf8e0" >PaleTurquoise</Color>
+        <Color red="91" green="185" blue="150">#5BB996</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1948,7 +1836,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRV02_SpinalCanal</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="156" green="248" blue="224" Hex= "#9cf8e0" >PaleTurquoise</Color>
+        <Color red="91" green="185" blue="150">#5BB996</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1964,7 +1852,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRVx_SpinalCanal</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="156" green="248" blue="224" Hex= "#9cf8e0" >PaleTurquoise</Color>
+        <Color red="91" green="185" blue="150">#5BB996</Color>
         <Alias></Alias>
         </roi>
     <roi>
@@ -1980,7 +1868,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>SpinalCord</TG263ReverseOrderName>
         <FMAID>7647</FMAID>
-         <Color red="62" green="251" blue="145" Hex= "#3EFB91" >EvaGreen1</Color>
+        <Color red="55" green="221" blue="159">#37DD9F</Color>
         <Alias>Cord,cord,spinalcord</Alias>
     </roi>
     <roi>
@@ -1996,7 +1884,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRVxx_SpinalCord</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="156" green="251" blue="198" Hex= "#9cfbc6" >LightSea-Foam</Color>
+        <Color red="91" green="185" blue="150">#5BB996</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2012,7 +1900,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRV05_SpinalCord</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="156" green="251" blue="198" Hex= "#9cfbc6" >LightSea-Foam</Color>
+        <Color red="91" green="185" blue="150">#5BB996</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2067,7 +1955,7 @@
         <name>TumorBed</name>
         <TG263PrimaryName>TumorBed</TG263PrimaryName>
         <Description>Tumor Bed</Description>
-        <NCIt>The tissue that envelopes a tumor site, following the surgical removal of the tumor.</NCIt>
+        <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
         <MajorCategory>Surgery</MajorCategory>
         <MinorCategory></MinorCategory>
@@ -2075,23 +1963,8 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>TumorBed</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="202" green="178" blue="214" Hex="#cab2d6">BrewerLightPurple</Color>
+        <Color red="106" green="61" blue="154">#6a3d9a</Color>
         <Alias></Alias>
-    </roi>
-     <roi>
-        <name>TumorBed_Lumpectomy</name>
-        <TG263PrimaryName>TumorBed_Lumpectomy</TG263PrimaryName>
-        <Description>Tumor Bed (where lumpectomy was surgically excised)</Description>
-        <NCIt></NCIt>
-        <TargetType>Non_Anatomic</TargetType>
-        <MajorCategory>Surgery</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>19</NCharacters>
-        <TG263ReverseOrderName>Lumpectomy_TumorBed</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="202" green="178" blue="214" Hex="#cab2d6">BrewerLightPurple</Color>
-        <Alias>TBV_Lumpectomy,lumpectomy,lump</Alias>
     </roi>
     <roi>
         <name>VB</name>
@@ -2173,39 +2046,6 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>A_Carotid_L_PRVxx</name>
-        <TG263PrimaryName>A_Carotid_L_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on A_Carotid_L that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>xx</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>xx</AnatomicGroup>
-        <NCharacters>xx</NCharacters>
-        <TG263ReverseOrderName>PRVxx_A_Carotid_L</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
-        <Alias>carotid_artery_L_prv</Alias>
-    </roi>
-     <roi>
-        <name>A_Carotid_L_PRV05</name>
-        <TG263PrimaryName>A_Carotid_L_PRV05</TG263PrimaryName>
-        <Description>PRV margin on A_Carotid_L that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>xx</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>xx</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>PRV05_A_Carotid_L</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
-        <Alias>carotid_artery_L_prv05</Alias>
-    </roi>
-
-    <roi>
         <name>A_Carotid_R</name>
         <TG263PrimaryName>A_Carotid_R</TG263PrimaryName>
         <Description>Carotid Artery</Description>
@@ -2220,38 +2060,6 @@
         <FMAID>3941</FMAID>
         <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>A_Carotid_R_PRVxx</name>
-        <TG263PrimaryName>A_Carotid_R_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on A_Carotid_R that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>xx</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>xx</AnatomicGroup>
-        <NCharacters>xx</NCharacters>
-        <TG263ReverseOrderName>PRVxx_A_Carotid_R</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
-        <Alias>carotid_artery_R_prv</Alias>
-    </roi>
-     <roi>
-        <name>A_Carotid_R_PRV05</name>
-        <TG263PrimaryName>A_Carotid_R_PRV05</TG263PrimaryName>
-        <Description>PRV margin on A_Carotid_R that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>xx</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>xx</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>PRV05_A_Carotid_R</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
-        <Alias>carotid_artery_R_prv05</Alias>
     </roi>
     <roi>
         <name>A_Coronary</name>
@@ -2842,42 +2650,9 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Brain</TG263ReverseOrderName>
         <FMAID>50801</FMAID>
-         <Color red="160" green="85" blue="252" Hex= "#A055FC" >IrrigoPurple</Color>
+        <Color red="0" green="179" blue="0">#00b300</Color>
         <Alias>brain</Alias>
     </roi>
-    <roi>
-        <name>Brain_PRVxx</name>
-        <TG263PrimaryName>Brain_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on Brain that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Brain</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>11</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Brain</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="206" green="168" blue="252" Hex= "#cea8fc" >PurpleHepatica</Color>
-        <Alias>brain_prv</Alias>
-    </roi>
-    <roi>
-        <name>Brain_PRV03</name>
-        <TG263PrimaryName>Brain_PRV03</TG263PrimaryName>
-        <Description>PRV margin on Brain that is a 03 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Brain</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>11</NCharacters>
-        <TG263ReverseOrderName>PRV03_Brain</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="206" green="168" blue="252" Hex= "#cea8fc" >PurpleHepatica</Color>
-        <Alias>brain_prv03</Alias>
-    </roi>
-
     <roi>
         <name>Brain-CTV</name>
         <TG263PrimaryName>Brain-CTV</TG263PrimaryName>
@@ -2891,7 +2666,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brain-CTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="0" green="102" blue="0">#006600</Color>
         <Alias>brain-ctv</Alias>
     </roi>
     <roi>
@@ -2907,7 +2682,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brain-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="0" green="102" blue="0">#006600</Color>
         <Alias>brain-gtv</Alias>
     </roi>
     <roi>
@@ -2923,7 +2698,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brain-PTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="0" green="102" blue="0">#006600</Color>
         <Alias>brain-ptv,brain-PTV,</Alias>
     </roi>
     <roi>
@@ -2939,7 +2714,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brainstem</TG263ReverseOrderName>
         <FMAID>79876</FMAID>
-         <Color red="254" green="233" blue="100" Hex= "#FEE964" >CaduceusGold</Color>
+        <Color red="218" green="165" blue="32">#daa520</Color>
         <Alias>BrainStem</Alias>
     </roi>
     <roi>
@@ -2955,7 +2730,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Core_Brainstem</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="251" green="218" blue="63" Hex= "#FBDA3F" >DandelionYellow</Color>
+        <Color red="0" green="102" blue="0">#006600</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2971,7 +2746,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Surf_Brainstem</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="248" green="203" blue="51" Hex= "#F8CB33" >GoldenMarguerite</Color>
+        <Color red="0" green="102" blue="0">#006600</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2987,7 +2762,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>PRV_Brainstem</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="248" green="225" blue="149" Hex= "#f8e195" >CheesyGrin</Color>
+        <Color red="132" green="101" blue="21">#846515</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3003,7 +2778,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>PRVxx_Brainstem</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="248" green="225" blue="149" Hex= "#f8e195" >CheesyGrin</Color>
+        <Color red="132" green="101" blue="21">#846515</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3019,7 +2794,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>PRV03_Brainstem</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="248" green="225" blue="149" Hex= "#f8e195" >CheesyGrin</Color>
+        <Color red="132" green="101" blue="21">#846515</Color>
         <Alias></Alias>
     </roi>
 
@@ -3036,7 +2811,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>III_CN</TG263ReverseOrderName>
         <FMAID>50864</FMAID>
-         <Color red="233" green="238" blue="144" Hex= "#E9EE90">Jonquil</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3052,7 +2827,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_III_CN</TG263ReverseOrderName>
         <FMAID>50880</FMAID>
-         <Color red="233" green="238" blue="144" Hex= "#E9EE90">Jonquil</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3068,7 +2843,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>R_III_CN</TG263ReverseOrderName>
         <FMAID>50879</FMAID>
-         <Color red="149" green="49" blue="224" Hex= "#9531E0">BrightBlueViolet</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3084,7 +2859,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>IX_CN</TG263ReverseOrderName>
         <FMAID>50870</FMAID>
-         <Color red="214" green="217" blue="166" Hex= "#D6D9A6">CreamCheeseAvocado</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3100,7 +2875,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_IX_CN</TG263ReverseOrderName>
         <FMAID>50892</FMAID>
-         <Color red="214" green="217" blue="166" Hex= "#D6D9A6">CreamCheeseAvocado</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3116,7 +2891,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_IX_CN</TG263ReverseOrderName>
         <FMAID>50870</FMAID>
-         <Color red="194" green="76" blue="197" Hex= "#C24CC5">UnloadedTexturePurple</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3132,7 +2907,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>V_CN</TG263ReverseOrderName>
         <FMAID>50866</FMAID>
-         <Color red="160" green="235" blue="81" Hex= "#A0EB51">KiwiPulp</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3148,7 +2923,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>VI_CN</TG263ReverseOrderName>
         <FMAID>50867</FMAID>
-         <Color red="160" green="235" blue="81" Hex= "#A0EB51">KiwiPulp</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3164,7 +2939,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>VII_CN</TG263ReverseOrderName>
         <FMAID>50868</FMAID>
-         <Color red="183" green="91" blue="185" Hex= "#B75BB9">MazzyStar</Color>
+        z<Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3180,7 +2955,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>VIII_CN</TG263ReverseOrderName>
         <FMAID>50869</FMAID>
-         <Color red="159" green="197" blue="119" Hex= "#9FC577">JadeLime</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3196,7 +2971,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>L_VIII_CN</TG263ReverseOrderName>
         <FMAID>50891</FMAID>
-         <Color red="159" green="197" blue="119" Hex= "#9FC577">JadeLime</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3212,7 +2987,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>R_VIII_CN</TG263ReverseOrderName>
         <FMAID>50890</FMAID>
-         <Color red="252" green="179" blue="231" Hex= "#FCB3E7">HotAquarellePink</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3228,7 +3003,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_VII_CN</TG263ReverseOrderName>
         <FMAID>50889</FMAID>
-         <Color red="55" green="221" blue="159" Hex= "#37DD9F">DarkShamrock</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3244,7 +3019,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>R_VII_CN</TG263ReverseOrderName>
         <FMAID>50888</FMAID>
-         <Color red="232" green="201" blue="223" Hex= "#E8C9DF">SweetMurmur</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3260,7 +3035,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_VI_CN</TG263ReverseOrderName>
         <FMAID>50887</FMAID>
-         <Color red="91" green="185" blue="150" Hex= "#5BB996">JadeCream</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3276,7 +3051,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_VI_CN</TG263ReverseOrderName>
         <FMAID>50886</FMAID>
-         <Color red="183" green="87" blue="145" Hex= "#B75791">SpruceTreeFlower</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3292,7 +3067,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>L_V_CN</TG263ReverseOrderName>
         <FMAID>50885</FMAID>
-         <Color red="27" green="158" blue="180" Hex= "#1B9EB4">Riviera</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3308,7 +3083,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>R_V_CN</TG263ReverseOrderName>
         <FMAID>50884</FMAID>
-         <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3324,7 +3099,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>XI_CN</TG263ReverseOrderName>
         <FMAID>6720</FMAID>
-         <Color red="63" green="134" blue="146" Hex= "#3F8692">Seachange</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3340,7 +3115,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>XII_CN</TG263ReverseOrderName>
         <FMAID>50871</FMAID>
-         <Color red="226" green="207" blue="103" Hex= "#E2CF67">Bananarama</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3356,7 +3131,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_XII_CN</TG263ReverseOrderName>
         <FMAID>50903</FMAID>
-         <Color red="226" green="207" blue="103" Hex= "#E2CF67">Bananarama</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3372,7 +3147,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>R_XII_CN</TG263ReverseOrderName>
         <FMAID>50901</FMAID>
-         <Color red="103" green="101" blue="189" Hex= "#6765BD">BluishPurpleAnemone</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3388,7 +3163,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_XI_CN</TG263ReverseOrderName>
         <FMAID>50899</FMAID>
-         <Color red="201" green="191" blue="130" Hex= "#C9BF82">OliveHint</Color>
+                <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3404,7 +3179,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_XI_CN</TG263ReverseOrderName>
         <FMAID>50897</FMAID>
-         <Color red="144" green="91" blue="185" Hex= "#905BB9">LustyLavender</Color>
+                <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3548,7 +3323,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Cochlea</TG263ReverseOrderName>
         <FMAID>60201</FMAID>
-         <Color red="253" green="121" blue="73" Hex= "#FD7949" >MythicalOrange</Color>
+       <Color red="245" green="222" blue="142">#F5DE8E</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3564,42 +3339,9 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>L_Cochlea</TG263ReverseOrderName>
         <FMAID>60203</FMAID>
-         <Color red="253" green="121" blue="73" Hex= "#FD7949" >MythicalOrange</Color>
+       <Color red="245" green="222" blue="142">#F5DE8E</Color>
         <Alias></Alias>
     </roi>
-    <roi>
-        <name>Cochlea_L_PRVxx</name>
-        <TG263PrimaryName>Cochlea_L_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on Cochlea_L that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Ear</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Cochlea_L</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="252" green="208" blue="152" Hex= "#fcd098" >Impala</Color>
-        <Alias>cochlea_L_prv</Alias>
-    </roi>
-    <roi>
-        <name>Cochlea_L_PRV05</name>
-        <TG263PrimaryName>Cochlea_L_PRV05</TG263PrimaryName>
-        <Description>PRV margin on Cochlea_L that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Ear</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>PRV05_Cochlea_L</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="252" green="208" blue="152" Hex= "#fcd098" >Impala</Color>
-        <Alias>cochlea_L_prv05</Alias>
-    </roi>
-
     <roi>
         <name>Cochlea_R</name>
         <TG263PrimaryName>Cochlea_R</TG263PrimaryName>
@@ -3613,13 +3355,13 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>R_Cochlea</TG263ReverseOrderName>
         <FMAID>60202</FMAID>
-         <Color red="91" green="229" blue="249" Hex= "#5BE5F9" >Ionized-airGlow1</Color>
+       <Color red="245" green="222" blue="142">#F5DE8E</Color>
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Cochlea_R_PRVxx</name>
-        <TG263PrimaryName>Cochlea_R_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on Cochlea_R that is a xx millimeter expansion</Description>
+        <name>Cochlea_L_PRV05</name>
+        <TG263PrimaryName>Cochlea_L_PRV05</TG263PrimaryName>
+        <Description>Left Cochlea Planning Risk Volume</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
         <RTROIInterpretedType>Organ</RTROIInterpretedType>
@@ -3627,15 +3369,15 @@
         <MinorCategory>Cochlea</MinorCategory>
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>14</NCharacters>
-        <TG263ReverseOrderName>R_Cochlea_PRVxx</TG263ReverseOrderName>
+        <TG263ReverseOrderName>L_Cochlea_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="170" green="239" blue="249" Hex= "#aaeff9" >BeyondtheClouds1</Color>
+        <Color red="218" green="208" blue="169">#DAD0A9</Color>
         <Alias></Alias>
     </roi>
     <roi>
         <name>Cochlea_R_PRV05</name>
         <TG263PrimaryName>Cochlea_R_PRV05</TG263PrimaryName>
-        <Description>PRV margin on Cochlea_R that is a 05 millimeter expansion</Description>
+        <Description>Right Cochlea Planning Risk Volume</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
         <RTROIInterpretedType>Organ</RTROIInterpretedType>
@@ -3645,7 +3387,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Cochlea_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="170" green="239" blue="249" Hex= "#aaeff9" >BeyondtheClouds1</Color>
+        <Color red="218" green="208" blue="169">#DAD0A9</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3661,7 +3403,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Cornea</TG263ReverseOrderName>
         <FMAID>58238</FMAID>
-         <Color red="253" green="121" blue="73" Hex= "#FD7949" >MythicalOrange</Color>
+        <Color red="27" green="158" blue="180">#1B9EB4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3677,7 +3419,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_Cornea</TG263ReverseOrderName>
         <FMAID>58240</FMAID>
-         <Color red="253" green="121" blue="73" Hex= "#FD7949" >MythicalOrange</Color>
+        <Color red="27" green="158" blue="180">#1B9EB4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3693,7 +3435,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>R_Cornea</TG263ReverseOrderName>
         <FMAID>58239</FMAID>
-         <Color red="253" green="187" blue="163" Hex= "#fdbba3" >PrairieSunset</Color>
+        <Color red="27" green="158" blue="180">#1B9EB4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3708,7 +3450,7 @@
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>CribriformPlate</TG263ReverseOrderName>
-         <Color red="46" green="122" blue="177" Hex= "#2E7AB1">Campánula</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <FMAID>52890</FMAID>
         <Alias></Alias>
     </roi>
@@ -3757,24 +3499,8 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Dens</TG263ReverseOrderName>
         <FMAID>24043</FMAID>
-         <Color red="246" green="151" blue="81" Hex= "#F69751">HollandTulip</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Ear_External</name>
-        <TG263PrimaryName>Ear_External_L</TG263PrimaryName>
-        <Description>External Ear Left</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Ear</MajorCategory>
-        <MinorCategory>External</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>14</NCharacters>
-        <TG263ReverseOrderName>L_External_Ear</TG263ReverseOrderName>
-        <FMAID>53644</FMAID>
-         <Color red="233" green="238" blue="144" Hex= "#E9EE90">Jonquil</Color>
-        <Alias>Ear,ear</Alias>
     </roi>
     <roi>
         <name>Ear_External_L</name>
@@ -3789,8 +3515,8 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_External_Ear</TG263ReverseOrderName>
         <FMAID>53644</FMAID>
-         <Color red="233" green="238" blue="144" Hex= "#E9EE90">Jonquil</Color>
-        <Alias>Ear_L, left_ear</Alias>
+        <Color red="255" green="255" blue="255">#</Color>
+        <Alias>Ear_L</Alias>
     </roi>
     <roi>
         <name>Ear_External_R</name>
@@ -3805,7 +3531,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_External_Ear</TG263ReverseOrderName>
         <FMAID>53643</FMAID>
-         <Color red="149" green="49" blue="224" Hex= "#9531E0">BrightBlueViolet</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias>Ear_R</Alias>
     </roi>
     <roi>
@@ -3821,7 +3547,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Externals_Ear</TG263ReverseOrderName>
         <FMAID>52781</FMAID>
-         <Color red="214" green="217" blue="166" Hex= "#D6D9A6">CreamCheeseAvocado</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias>Ears</Alias>
     </roi>
     <roi>
@@ -3837,7 +3563,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Internal_Ear</TG263ReverseOrderName>
         <FMAID>61021</FMAID>
-         <Color red="160" green="235" blue="81" Hex= "#A0EB51">KiwiPulp</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3853,7 +3579,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Internal_Ear</TG263ReverseOrderName>
         <FMAID>61020</FMAID>
-         <Color red="183" green="91" blue="185" Hex= "#B75BB9">MazzyStar</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3869,7 +3595,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Internals_Ear</TG263ReverseOrderName>
         <FMAID>60909</FMAID>
-         <Color red="160" green="235" blue="81" Hex= "#A0EB51">KiwiPulp</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3885,7 +3611,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Middle_Ear</TG263ReverseOrderName>
         <FMAID>56513</FMAID>
-         <Color red="159" green="197" blue="119" Hex= "#9FC577">JadeLime</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3901,7 +3627,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Middle_Ear</TG263ReverseOrderName>
         <FMAID>56515</FMAID>
-         <Color red="159" green="197" blue="119" Hex= "#9FC577">JadeLime</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3917,7 +3643,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Middle_Ear</TG263ReverseOrderName>
         <FMAID>56514</FMAID>
-         <Color red="252" green="179" blue="231" Hex= "#FCB3E7">HotAquarellePink</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3933,7 +3659,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>L_Eye</TG263ReverseOrderName>
         <FMAID>12515</FMAID>
-         <Color red="250" green="57" blue="105" Hex= "#FA3969" >ChineseNewYear</Color>
+        <Color red="225" green="169" blue="47">#E1A92F</Color>
         <Alias>Globe_L</Alias>
     </roi>
     <roi>
@@ -3949,7 +3675,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>R_Eye</TG263ReverseOrderName>
         <FMAID>12514</FMAID>
-         <Color red="62" green="251" blue="145" Hex= "#3EFB91" >EvaGreen1</Color>
+        <Color red="225" green="169" blue="47">#E1A92F</Color>
         <Alias>Globe_R</Alias>
     </roi>
     <roi>
@@ -3965,7 +3691,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Eyes</TG263ReverseOrderName>
         <FMAID>268861</FMAID>
-         <Color red="62" green="251" blue="145" Hex= "#3EFB91" >EvaGreen1</Color>
+        <Color red="255" green="255" blue="153">#ffff99</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3981,7 +3707,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Jugular_Fossa</TG263ReverseOrderName>
         <FMAID>56429</FMAID>
-         <Color red="159" green="197" blue="119" Hex= "#9FC577">JadeLime</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -3997,7 +3723,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Posterior_Fossa</TG263ReverseOrderName>
         <FMAID>54368</FMAID>
-         <Color red="252" green="179" blue="231" Hex= "#FCB3E7">HotAquarellePink</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4013,7 +3739,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59101</FMAID>
-         <Color red="183" green="153" blue="87" Hex= "#B79957">OrleansTune</Color>
+        <Color red="70" green="130" blue="180">#4682b4</Color>
         <Alias>lacrimal_gland</Alias>
     </roi>
    
@@ -4030,7 +3756,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59103</FMAID>
-         <Color red="183" green="153" blue="87" Hex= "#B79957">OrleansTune</Color>
+        <Color red="70" green="130" blue="180">#4682b4</Color>
         <Alias>Lacrimal_Gland_L,Glnd_Lacrimal_L,Gland_Lacrimal_L,LacrimalGland_L,LacrimalGlnd_L
         </Alias>
     </roi>
@@ -4047,7 +3773,7 @@
         <NCharacters>19</NCharacters>
         <TG263ReverseOrderName>L_Lacrimal_Glnd_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="245" green="222" blue="142" Hex= "#F5DE8E">Popcorn</Color>
+        <Color red="43" green="80" blue="110">#2b506e</Color>
         <Alias>lacrimal_gland_L_prv,prv_lacrimal_gland_l</Alias>
     </roi>
     <roi>
@@ -4063,7 +3789,7 @@
         <NCharacters>19</NCharacters>
         <TG263ReverseOrderName>L_Lacrimal_Glnd_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="245" green="222" blue="142" Hex= "#F5DE8E">Popcorn</Color>
+        <Color red="43" green="80" blue="110">#2b506e</Color>
         <Alias>lacrimal_gland_L_prv05,prv05_lacrimal_gland_l</Alias>
     </roi>
     <roi>
@@ -4079,7 +3805,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59102</FMAID>
-         <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
+        <Color red="70" green="130" blue="180">#4682b4</Color>
         <Alias>Lacrimal_Gland_R,Glnd_Lacrimal_R,Gland_Lacrimal_R,LacrimalGland_R,LacrimalGlnd_R
         </Alias>
     </roi>
@@ -4096,7 +3822,7 @@
         <NCharacters>19</NCharacters>
         <TG263ReverseOrderName>R_Lacrimal_Glnd_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="187" green="194" blue="226" Hex= "#BBC2E2">EtheriumBlue</Color>
+        <Color red="43" green="80" blue="110">#2b506e</Color>
         <Alias>lacrimal_gland_R_prv,prv_lacrimal_gland_r</Alias>
     </roi>
     <roi>
@@ -4112,24 +3838,8 @@
         <NCharacters>19</NCharacters>
         <TG263ReverseOrderName>R_Lacrimal_Glnd_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="187" green="194" blue="226" Hex= "#BBC2E2">EtheriumBlue</Color>
+        <Color red="43" green="80" blue="110">#2b506e</Color>
         <Alias>lacrimal_gland_R_prv05,prv05_lacrimal_gland_r</Alias>
-    </roi>
-     <roi>
-        <name>Glnd_Subling_L</name>
-        <TG263PrimaryName>Glnd_Subling_L</TG263PrimaryName>
-        <Description>Sublingual gland</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Gland</MajorCategory>
-        <MinorCategory>Sublingual</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>L_Subling_Glnd</TG263ReverseOrderName>
-        <FMAID>59805</FMAID>
-         <Color red="159" green="197" blue="119" Hex= "#9FC577">JadeLime</Color>
-        <Alias></Alias>
     </roi>
     <roi>
         <name>Glnd_Subling_R</name>
@@ -4144,7 +3854,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Subling_Glnd</TG263ReverseOrderName>
         <FMAID>59804</FMAID>
-         <Color red="252" green="179" blue="231" Hex= "#FCB3E7">HotAquarellePink</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4160,7 +3870,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Sublings_Glnd</TG263ReverseOrderName>
         <FMAID>320440</FMAID>
-         <Color red="159" green="197" blue="119" Hex= "#9FC577">JadeLime</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4304,23 +4014,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Hippocampi</TG263ReverseOrderName>
         <FMAID>275020</FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
-    </roi>
-     <roi>
-        <name>Hippocampus_L</name>
-        <TG263PrimaryName>Hippocampus_L</TG263PrimaryName>
-        <Description>Hippocampus Left</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Brain</MajorCategory>
-        <MinorCategory>Hippocampus</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>L_Hippocampus</TG263ReverseOrderName>
-        <FMAID>275024</FMAID>
-         <Color red="251" green="70" blue="222" Hex= "#FB46DE" >PurplePizzazz</Color>
+        <Color red="232" green="201" blue="223">#E8C9DF</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4336,7 +4030,7 @@
         <NCharacters>19</NCharacters>
         <TG263ReverseOrderName>L_PRVxx_Hippocampus</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="251" green="161" blue="236" Hex= "#fba1ec" >LavenderRose</Color>
+        <Color red="232" green="201" blue="223">#E8C9DF</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4352,13 +4046,13 @@
         <NCharacters>19</NCharacters>
         <TG263ReverseOrderName>L_PRV05_Hippocampus</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="251" green="161" blue="236" Hex= "#fba1ec" >LavenderRose</Color>
+        <Color red="232" green="201" blue="223">#E8C9DF</Color>
         <Alias></Alias>
     </roi>
-     <roi>
-        <name>Hippocampus_R</name>
-        <TG263PrimaryName>Hippocampus_R</TG263PrimaryName>
-        <Description>Hippocampus Right</Description>
+    <roi>
+        <name>Hippocampus_L</name>
+        <TG263PrimaryName>Hippocampus_L</TG263PrimaryName>
+        <Description>Hippocampus Left</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
         <RTROIInterpretedType>Organ</RTROIInterpretedType>
@@ -4366,9 +4060,9 @@
         <MinorCategory>Hippocampus</MinorCategory>
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>R_Hippocampus</TG263ReverseOrderName>
-        <FMAID>275022</FMAID>
-         <Color red="212" green="246" blue="43" Hex= "#D4F62B" >StadiumGrass</Color>
+        <TG263ReverseOrderName>L_Hippocampus</TG263ReverseOrderName>
+        <FMAID>275024</FMAID>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4384,7 +4078,7 @@
         <NCharacters>19</NCharacters>
         <TG263ReverseOrderName>R_PRVxx_Hippocampus</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="229" green="246" blue="144" Hex= "#e5f690" >KeyLimeWater1</Color>
+        <Color red="232" green="201" blue="223">#E8C9DF</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4400,7 +4094,23 @@
         <NCharacters>19</NCharacters>
         <TG263ReverseOrderName>R_PRV05_Hippocampus</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="229" green="246" blue="144" Hex= "#e5f690" >KeyLimeWater1</Color>
+        <Color red="232" green="201" blue="223">#E8C9DF</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Hippocampus_R</name>
+        <TG263PrimaryName>Hippocampus_R</TG263PrimaryName>
+        <Description>Hippocampus Right</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>Brain</MajorCategory>
+        <MinorCategory>Hippocampus</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>13</NCharacters>
+        <TG263ReverseOrderName>R_Hippocampus</TG263ReverseOrderName>
+        <FMAID>275022</FMAID>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4944,7 +4654,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Larynx</TG263ReverseOrderName>
         <FMAID>55097</FMAID>
-         <Color red="253" green="183" blue="85" Hex= "#FDB755" >SummerOrange</Color>
+        <Color red="0" green="255" blue="255">#00ffff</Color>
         <Alias>larynx,larnyx</Alias>
     </roi>
     <roi>
@@ -4960,7 +4670,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>SG_Larynx</TG263ReverseOrderName>
         <FMAID>55476</FMAID>
-         <Color red="253" green="183" blue="85" Hex= "#FDB755" >SummerOrange</Color>
+        <Color red="0" green="255" blue="255">#00ffff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4992,7 +4702,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>L_Lens</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-         <Color red="255" green="15" blue="171" Hex= "#FF0FAB" >SpicyPink</Color>
+        <Color red="149" green="49" blue="224">#9531E0</Color>
         <Alias>LensL,left_lens</Alias>
     </roi>
     <roi>
@@ -5008,7 +4718,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Lens_PRVxx</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-         <Color red="255" green="135" blue="213" Hex= "#ff87d5" >PinkDelight</Color>
+        <Color red="144" green="91" blue="185">#905BB9</Color>
         <Alias>LensL_PRV,left_lens_PRV</Alias>
     </roi>
     <roi>
@@ -5024,7 +4734,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>PRV07_L_Lens</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-         <Color red="255" green="135" blue="213" Hex= "#ff87d5" >PinkDelight</Color>
+        <Color red="144" green="91" blue="185">#905BB9</Color>
         <Alias>LensL_PRV07,left_lens_PRV07</Alias>
     </roi>
     <roi>
@@ -5040,7 +4750,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>R_Lens</TG263ReverseOrderName>
         <FMAID>58242</FMAID>
-         <Color red="145" green="246" blue="36" Hex= "#91F624" >SpringFrost</Color>
+        <Color red="149" green="49" blue="224">#9531E0</Color>
         <Alias>LensR,right_lens</Alias>
     </roi>
     <roi>
@@ -5056,7 +4766,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Lens_PRVxx</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-         <Color red="195" green="246" blue="141" Hex= "#c3f68d" >PistachioMousse</Color>
+        <Color red="144" green="91" blue="185">#905BB9</Color>
         <Alias>LensR_PRV,right_lens_PRV</Alias>
     </roi>
     <roi>
@@ -5072,7 +4782,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Lens_PRV07</TG263ReverseOrderName>
         <FMAID>58243</FMAID>
-         <Color red="195" green="246" blue="141" Hex= "#c3f68d" >PistachioMousse</Color>
+        <Color red="144" green="91" blue="185">#905BB9</Color>
         <Alias>LensR_PRV07,right_lens_PRV07</Alias>
     </roi>
     <roi>
@@ -5712,7 +5422,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>OpticChiasm</TG263ReverseOrderName>
         <FMAID>62045</FMAID>
-         <Color red="253" green="35" blue="153" Hex= "#FD2399" >PersianRose</Color>
+        <Color red="139" green="0" blue="0">#8B0000</Color>
         <Alias>chiasm,Chiasm</Alias>
     </roi>
     <roi>
@@ -5728,7 +5438,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRVx_OpticChiasm</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="253" green="144" blue="203" Hex= "#fd90cb" >ShimmeringLove</Color>
+        <Color red="77" green="0" blue="0">#4d0000</Color>
         <Alias>optic_chiasm_prv,prv_optic_chiasm</Alias>
     </roi>
     <roi>
@@ -5744,7 +5454,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>PRV03_OpticChiasm</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="253" green="144" blue="203" Hex= "#fd90cb" >ShimmeringLove</Color>
+        <Color red="77" green="0" blue="0">#4d0000</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5760,7 +5470,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>OpticNrv</TG263ReverseOrderName>
         <FMAID>50863</FMAID>
-         <Color red="254" green="53" blue="80" Hex= "#FE3550" >DetailedDevil</Color>
+       <Color red="222" green="47" blue="80">#DE2F50</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5776,13 +5486,13 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>L_OpticNrv</TG263ReverseOrderName>
         <FMAID>50878</FMAID>
-         <Color red="254" green="53" blue="80" Hex= "#FE3550" >DetailedDevil</Color>
+       <Color red="222" green="47" blue="80">#DE2F50</Color>
         <Alias>OpticNerve_L,opticnerve_l,opticnervel</Alias>
     </roi>
     <roi>
-        <name>OpticNrv_L_PRVxx</name>
-        <TG263PrimaryName>OpticNrv_L_PRVxx</TG263PrimaryName>
-        <Description>PRV for left Optic Nerve</Description>
+        <name>OpticNrv_PRV</name>
+        <TG263PrimaryName>OpticNrv_PRV</TG263PrimaryName>
+        <Description>PRV for Optic Nerve</Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
@@ -5790,15 +5500,79 @@
         <MinorCategory>Optic</MinorCategory>
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>12</NCharacters>
-        <TG263ReverseOrderName>PRVxx_OpticNrv_L</TG263ReverseOrderName>
+        <TG263ReverseOrderName>PRV_OpticNrv</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="254" green="154" blue="167" Hex= "#fe9aa7" >SalmonTartare</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
+    </roi>
+    <roi>
+        <name>OpticNrv_PRV_L</name>
+        <TG263PrimaryName>OpticNrv_PRV_L</TG263PrimaryName>
+        <Description></Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>Optic</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>L_PRV_OpticNrv</TG263ReverseOrderName>
+        <Color red="83" green="87" blue="105">#535769</Color>
+        <FMAID></FMAID>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>OpticNrv_PRV_R</name>
+        <TG263PrimaryName>OpticNrv_PRV_R</TG263PrimaryName>
+        <Description></Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>Optic</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>R_PRV_OpticNrv</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="83" green="87" blue="105">#535769</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>OpticNrv_PRVxx_L</name>
+        <TG263PrimaryName>OpticNrv_PRVxx_L</TG263PrimaryName>
+        <Description>PRV expansion of xx millimeters on the right optic nerve</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>Optic</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>16</NCharacters>
+        <TG263ReverseOrderName>L_PRVxx_OpticNrv</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="83" green="87" blue="105">#535769</Color>
+        <Alias>optic_nerve_L_prv,prv_optic_nerve_l,opticnerve_L_prv</Alias>
+    </roi>
+    <roi>
+        <name>OpticNrv_PRVxx_R</name>
+        <TG263PrimaryName>OpticNrv_PRVxx_R</TG263PrimaryName>
+        <Description>PRV created with xx mm expansion on the left optic nerve</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>Optic</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>16</NCharacters>
+        <TG263ReverseOrderName>R_PRVxx_OpticNrv</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="83" green="87" blue="105">#535769</Color>
+        <Alias>optic_nerve_R_prv,prv_optic_nerve_r,opticnerve_R_prv</Alias>
     </roi>
     <roi>
         <name>OpticNrv_L_PRV03</name>
         <TG263PrimaryName>OpticNrv_PRV03_L</TG263PrimaryName>
-        <Description>PRV expansion of 3 millimeters on the left optic nerve</Description>
+        <Description>PRV expansion of xx millimeters on the right optic nerve</Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
@@ -5808,10 +5582,26 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>L_PRV03_OpticNrv</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="254" green="154" blue="167" Hex= "#fe9aa7" >SalmonTartare</Color>
+        <Color red="83" green="87" blue="105">#535769</Color>
         <Alias></Alias>
     </roi>
-     <roi>
+    <roi>
+        <name>OpticNrv_R_PRV03</name>
+        <TG263PrimaryName>OpticNrv_PRV03_R</TG263PrimaryName>
+        <Description>PRV created with xx mm expansion on the left optic nerve</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Nerve</MajorCategory>
+        <MinorCategory>Optic</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>16</NCharacters>
+        <TG263ReverseOrderName>R_PRV03_OpticNrv</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="83" green="87" blue="105">#535769</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>OpticNrv_R</name>
         <TG263PrimaryName>OpticNrv_R</TG263PrimaryName>
         <Description>Optic nerve</Description>
@@ -5824,40 +5614,8 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>R_OpticNrv</TG263ReverseOrderName>
         <FMAID>50875</FMAID>
-         <Color red="58" green="251" blue="170" Hex= "#3AFBAA" >EvaGreen</Color>
-        <Alias>OpticNerve_R,opticnerve_R,opticnerve_r,Ropticnerve</Alias>
-    </roi>
-    <roi>
-        <name>OpticNrv_R_PRVxx</name>
-        <TG263PrimaryName>OpticNrv_R_PRVxx</TG263PrimaryName>
-        <Description>PRV created with xx mm expansion on the right optic nerve</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>Optic</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>R_PRVxx_OpticNrv</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="154" green="251" blue="210" Hex= "#9afbd2" >PaleTurquoise1</Color>
-        <Alias>optic_nerve_R_prv,prv_optic_nerve_r,opticnerve_R_prv</Alias>
-    </roi>
-    <roi>
-        <name>OpticNrv_R_PRV03</name>
-        <TG263PrimaryName>OpticNrv_R_PRV03</TG263PrimaryName>
-        <Description>PRV created with xx mm expansion on the left optic nerve</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>Optic</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>R_PRV03_OpticNrv</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="154" green="251" blue="210" Hex= "#9afbd2" >PaleTurquoise1</Color>
-        <Alias></Alias>
+        <Color red="222" green="47" blue="80">#DE2F50</Color>
+        <Alias>OpticNerve_R,opticnerve_R,opticnerver</Alias>
     </roi>
     <roi>
         <name>Orbit_L</name>
@@ -5920,7 +5678,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Soft_Palate</TG263ReverseOrderName>
         <FMAID>55021</FMAID>
-         <Color red="62" green="170" blue="254" Hex= "#3EAAFE" >SkyDancer</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5936,7 +5694,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>L_Parotid</TG263ReverseOrderName>
         <FMAID>59798</FMAID>
-         <Color red="252" green="201" blue="87" Hex= "#FCC957" >AngryPasta</Color>
+        <Color red="0" green="206" blue="209">#00CED1</Color>
         <Alias>left_parotid,parotid_l,L_parotid</Alias>
     </roi>
     <roi>
@@ -5952,7 +5710,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>R_Parotid</TG263ReverseOrderName>
         <FMAID>59797</FMAID>
-         <Color red="62" green="170" blue="254" Hex= "#3EAAFE" >SkyDancer</Color>
+        <Color red="0" green="206" blue="209">#00CED1</Color>
         <Alias>right_parotid,parotid_r,R_Parotid</Alias>
     </roi>
     <roi>
@@ -5968,7 +5726,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Parotids</TG263ReverseOrderName>
         <FMAID>320436</FMAID>
-         <Color red="252" green="201" blue="87" Hex= "#FCC957" >AngryPasta</Color>
+        <Color red="0" green="206" blue="209">#00CED1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6016,7 +5774,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Pituitary</TG263ReverseOrderName>
         <FMAID>13889</FMAID>
-        <Color red="235" green="255" blue="36" Hex= "#EBFF24" >SpoiledEgg</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6032,23 +5790,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>PRVxx_Pituitary</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Pituitary_PRV05</name>
-        <TG263PrimaryName>Pituitary_PRV05</TG263PrimaryName>
-        <Description>PRV constructed as 05 millimeter expansion on Pituitary</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Gland</MajorCategory>
-        <MinorCategory>Pituitary</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>PRV05_Pituitary</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6208,11 +5950,11 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_Retina</TG263ReverseOrderName>
         <FMAID>58303</FMAID>
-         <Color red="246" green="151" blue="81" Hex= "#F69751">HollandTulip</Color>
+        <Color red="225" green="169" blue="47">#E1A92F</Color>
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Retina_L_PRVxx</name>
+        <name>Retina_PRVxx_L</name>
         <TG263PrimaryName>Retina_PRVxx_L</TG263PrimaryName>
         <Description></Description>
         <NCIt></NCIt>
@@ -6224,23 +5966,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_PRVxx_Retina</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="225" green="169" blue="47" Hex= "#E1A92F">Currywurst</Color>
-        <Alias></Alias>
-    </roi>
-     <roi>
-        <name>Retina_L_PRV03</name>
-        <TG263PrimaryName>Retina_PRV03_L</TG263PrimaryName>
-        <Description></Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Eye</MajorCategory>
-        <MinorCategory>Retina</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>14</NCharacters>
-        <TG263ReverseOrderName>L_PRV03_Retina</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="225" green="169" blue="47" Hex= "#E1A92F">Currywurst</Color>
+        <Color red="183" green="153" blue="87">#B79957</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6256,7 +5982,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>R_Retina</TG263ReverseOrderName>
         <FMAID>58302</FMAID>
-         <Color red="67" green="102" blue="157" Hex= "#43669D">Mariner</Color>
+        <Color red="225" green="169" blue="47">#E1A92F</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6272,7 +5998,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_PRVxx_Retina</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
+        <Color red="183" green="153" blue="87">#B79957</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6288,7 +6014,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Retinas</TG263ReverseOrderName>
         <FMAID>58301</FMAID>
-         <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
+        <Color red="255" green="255" blue="153">#ffff99</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6304,7 +6030,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Scalp</TG263ReverseOrderName>
         <FMAID>46494</FMAID>
-         <Color red="56" green="246" blue="235" Hex= "#38F6EB" >BrightCyan</Color>
+        <Color red="194" green="76" blue="197">#C24CC5</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7456,40 +7182,8 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>L_Humerus</TG263ReverseOrderName>
         <FMAID>23131</FMAID>
-        <Color red="91" green="185" blue="150" Hex= "#5BB996">JadeCream</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Humerus_L_PRVxx</name>
-        <TG263PrimaryName>Humerus_PRVxx_L</TG263PrimaryName>
-        <Description>PRV margin on left humerus that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRVxx_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="27" green="158" blue="180" Hex= "#1B9EB4">Riviera</Color>
-        <Alias>humerus_l_prv</Alias>
-    </roi>
-    <roi>
-        <name>Humerus_L_PRV05</name>
-        <TG263PrimaryName>Humerus_PRV05_L</TG263PrimaryName>
-        <Description>PRV margin on left humerus that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRV05_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="27" green="158" blue="180" Hex= "#1B9EB4">Riviera</Color>
-        <Alias>humerus_l_prv05</Alias>
     </roi>
     <roi>
         <name>Humerus_R</name>
@@ -7504,40 +7198,8 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>R_Humerus</TG263ReverseOrderName>
         <FMAID>23130</FMAID>
-         <Color red="183" green="87" blue="145" Hex= "#B75791">SpruceTreeFlower</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Humerus_R_PRVxx</name>
-        <TG263PrimaryName>Humerus_PRVxx_R</TG263PrimaryName>
-        <Description>PRV margin on right humerus that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRVxx_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
-        <Alias>humerus_r_prv</Alias>
-    </roi>
-    <roi>
-        <name>Humerus_R_PRV05</name>
-        <TG263PrimaryName>Humerus_PRV05_R</TG263PrimaryName>
-        <Description>PRV margin on right humerus that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRV05_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
-        <Alias>humerus_r_prv05</Alias>
     </roi>
     <roi>
         <name>Joint_Elbow</name>
@@ -7891,7 +7553,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Bladder</TG263ReverseOrderName>
         <FMAID>15900</FMAID>
-         <Color red="235" green="255" blue="36" Hex= "#EBFF24" >SpoiledEgg</Color>
+        <Color red="255" green="255" blue="0">Yellow</Color>
         <Alias>bladder</Alias>
     </roi>
     <roi>
@@ -7907,7 +7569,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Bladder-CTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="128" green="128" blue="0">Olive</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7926,7 +7588,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Bladder_Wall</TG263ReverseOrderName>
         <FMAID>15902</FMAID>
-         <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
+        <Color red="255" green="255" blue="0">Yellow</Color>
         <Alias>bladderwall</Alias>
     </roi>
     <roi>
@@ -8072,7 +7734,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Large_Bowel</TG263ReverseOrderName>
         <FMAID>7201</FMAID>
-         <Color red="252" green="165" blue="52" Hex= "#FCA534" >TamagoOrange</Color>
+        <Color red="187" green="144" blue="187">#bb90bb</Color>
         <Alias>large_bowel</Alias>
     </roi>
     <roi>
@@ -8088,7 +7750,7 @@
         <NCharacters>17</NCharacters>
         <TG263ReverseOrderName>Large_Bowel_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="252" green="208" blue="152" Hex= "#fcd098" >Impala</Color>
+        <Color red="126" green="78" blue="126">#7e4e7e</Color>
         <Alias>Large_Bowel_PRV,Bowel_Large_PRV</Alias>
     </roi>
     <roi>
@@ -8104,7 +7766,7 @@
         <NCharacters>17</NCharacters>
         <TG263ReverseOrderName>Large_Bowel_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="252" green="208" blue="152" Hex= "#fcd098" >Impala</Color>
+        <Color red="126" green="78" blue="126">#7e4e7e</Color>
         <Alias>Large_Bowel_PRV05</Alias>
     </roi>
     <roi>
@@ -8142,7 +7804,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>CaudaEquina</TG263ReverseOrderName>
         <FMAID>52590</FMAID>
-         <Color red="250" green="57" blue="105" Hex= "#FA3969" >ChineseNewYear</Color>
+        <Color red="0" green="153" blue="0">#009900</Color>
         <Alias>cauda,cauda_equina</Alias>
     </roi>
     <roi>
@@ -8158,7 +7820,7 @@
         <NCharacters>17</NCharacters>
         <TG263ReverseOrderName>PRVxx_CaudaEquina</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="250" green="154" blue="178" Hex= "#fa9ab2" >SairaRed</Color>
+        <Color red="0" green="51" blue="0">#003300</Color>
         <Alias>cauda_prv,prv_cauda</Alias>
     </roi>
     <roi>
@@ -8174,7 +7836,7 @@
         <NCharacters>17</NCharacters>
         <TG263ReverseOrderName>PRV05_CaudaEquina</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="250" green="154" blue="178" Hex= "#fa9ab2" >SairaRed</Color>
+        <Color red="0" green="51" blue="0">#003300</Color>
         <Alias>cauda_prv05,prv05_cauda</Alias>
     </roi>
     <roi>
@@ -8254,7 +7916,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Head_Femur</TG263ReverseOrderName>
         <FMAID>32843</FMAID>
-         <Color red="251" green="185" blue="49" Hex= "#FBB931" >NYCTaxi</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -8271,7 +7933,8 @@
         <NCharacters>18</NCharacters>
         <TG263ReverseOrderName>L_Head_Femur_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="251" green="185" blue="49" Hex= "#FBB931" >NYCTaxi</Color><Alias>prv_femurL,prv_femoralhead_L,prv_femoral_head_L</Alias>
+        <Color red="67" green="102" blue="157">#43669D</Color>
+        <Alias>prv_femurL,prv_femoralhead_L,prv_femoral_head_L</Alias>
     </roi>
     <roi>
         <name>Femur_Head_L_PRV05</name>
@@ -8465,7 +8128,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Gallbladder</TG263ReverseOrderName>
         <FMAID>7202</FMAID>
-         <Color red="252" green="201" blue="87" Hex= "#FCC957" >AngryPasta</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9155,24 +8818,8 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Perineum_Skin</TG263ReverseOrderName>
         <FMAID>20429</FMAID>
-        <Color red="253" green="183" blue="85" Hex= "#FDB755" >SummerOrange</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Skin_LymphDrain</name>
-        <TG263PrimaryName>Skin_LymphDrain</TG263PrimaryName>
-        <Description>Skin avoidance for lymphatic drainage</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Skin</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>LymphDrain_Skin</TG263ReverseOrderName>
-        <FMAID></FMAID>
         <Color red="255" green="255" blue="255">#</Color>
-        <Alias>skin_avoid,skin_avoidance,avoid_skin</Alias>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Sphincter_Anal</name>
@@ -9223,21 +8870,6 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Testes</name>
-        <TG263PrimaryName>Testes</TG263PrimaryName>
-        <Description>Testes</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Reproductive</MajorCategory>
-        <MinorCategory>Testis</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>6</NCharacters>
-        <TG263ReverseOrderName>Testes</TG263ReverseOrderName>
-        <FMAID>7210</FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
-    <roi>
         <name>Testis</name>
         <TG263PrimaryName>Testis</TG263PrimaryName>
         <Description>Testis</Description>
@@ -9250,7 +8882,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Testis</TG263ReverseOrderName>
         <FMAID>7210</FMAID>
-         <Color red="241" green="72" blue="254" Hex= "#F148FE" >PhenomenalPink</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9266,40 +8898,8 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_Testis</TG263ReverseOrderName>
         <FMAID>7212</FMAID>
-         <Color red="241" green="72" blue="254" Hex= "#F148FE" >PhenomenalPink</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Testis_L_PRVxx</name>
-        <TG263PrimaryName>Testis_PRVxx_L</TG263PrimaryName>
-        <Description>PRV margin on Left Testis that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Testis</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRVxx_Testis</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
-        <Alias>left_testis_prv,left_testicle_prv</Alias>
-    </roi>
-     <roi>
-        <name>Testis_L_PRV10</name>
-        <TG263PrimaryName>Testis_PRV10_L</TG263PrimaryName>
-        <Description>PRV margin on Left Testis that is a 10 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Testis</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRV10_Testis</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
-        <Alias>left_testis_prv10,left_testicle_prv10</Alias>
     </roi>
     <roi>
         <name>Testis_R</name>
@@ -9316,38 +8916,6 @@
         <FMAID>7211</FMAID>
         <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Testis_R_PRVxx</name>
-        <TG263PrimaryName>Testis_PRVxx_R</TG263PrimaryName>
-        <Description>PRV margin on Right Testis that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Testis</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRVxx_Testis</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="247" green="242" blue="134" Hex= "#f7f286" >SpätzleYellow</Color>
-        <Alias>right_testis_prv,right_testicle_prv</Alias>
-    </roi>
-     <roi>
-        <name>Testis_R_PRV10</name>
-        <TG263PrimaryName>Testis_PRV10_R</TG263PrimaryName>
-        <Description>PRV margin on Right Testis that is a 10 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Testis</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRV10_Testis</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="247" green="242" blue="134" Hex= "#f7f286" >SpätzleYellow</Color>
-        <Alias>right_testis_prv10,right_testicle_prv10</Alias>
     </roi>
     <roi>
         <name>UreterDivert</name>
@@ -9746,24 +9314,8 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Aorta_A</TG263ReverseOrderName>
         <FMAID>3734</FMAID>
-         <Color red="254" green="54" blue="244" Hex= "#FE36F4" >LuridPink</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>A_Aorta_PRVxx</name>
-        <TG263PrimaryName>A_Aorta_PRVxx</TG263PrimaryName>
-        <Description>Aorta expanded by xx mm as a planning risk volume</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Artery</MajorCategory>
-        <MinorCategory>Aorta</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Aorta_A</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="254" green="154" blue="249" Hex= "#fe9af9" >Pinkalicious</Color>
-        <Alias>aorta_prv</Alias>
     </roi>
     <roi>
         <name>A_Aorta_Asc</name>
@@ -9778,7 +9330,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Asc_Aorta_A</TG263ReverseOrderName>
         <FMAID>3736</FMAID>
-        <Color red="254" green="54" blue="244" Hex= "#FE36F4" >LuridPink</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9844,39 +9396,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>LAD_A</TG263ReverseOrderName>
         <FMAID>3862</FMAID>
-         <Color red="241" green="72" blue="254" Hex= "#F148FE" >PhenomenalPink</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>A_LAD_PRVxx</name>
-        <TG263PrimaryName>A_LAD_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on A_LAD that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Artery</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>11</NCharacters>
-        <TG263ReverseOrderName>PRVxx_A_LAD</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
-        <Alias></Alias>
-    </roi>
-      <roi>
-        <name>A_LAD_PRV05</name>
-        <TG263PrimaryName>A_LAD_PRV05</TG263PrimaryName>
-        <Description>PRV margin on A_LAD that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Artery</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>11</NCharacters>
-        <TG263ReverseOrderName>PRV05_A_LAD</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9892,7 +9412,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Pulmonary_A</TG263ReverseOrderName>
         <FMAID>66326</FMAID>
-         <Color red="250" green="28" blue="185" Hex= "#FA1CB9" >SpicyPink1</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9908,7 +9428,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Subclavian_A</TG263ReverseOrderName>
         <FMAID>3951</FMAID>
-         <Color red="251" green="2" blue="201" Hex= "#FB02C9" >HotMagenta</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9924,7 +9444,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Subclavian_A</TG263ReverseOrderName>
         <FMAID>4694</FMAID>
-         <Color red="251" green="70" blue="222" Hex= "#FB46DE" >PurplePizzazz</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9940,7 +9460,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Subclavian_A</TG263ReverseOrderName>
         <FMAID>3953</FMAID>
-         <Color red="254" green="54" blue="244" Hex= "#FE36F4" >LuridPink</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9956,7 +9476,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Vertebral_A</TG263ReverseOrderName>
         <FMAID>3956</FMAID>
-         <Color red="241" green="72" blue="254" Hex= "#F148FE" >PhenomenalPink</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9972,7 +9492,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>L_Vertebral_A</TG263ReverseOrderName>
         <FMAID>4066</FMAID>
-         <Color red="241" green="72" blue="254" Hex= "#F148FE" >PhenomenalPink</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9988,7 +9508,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>R_Vertebral_A</TG263ReverseOrderName>
         <FMAID>3958</FMAID>
-         <Color red="195" green="49" blue="251" Hex= "#C331FB" >Magnetos</Color>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -10071,22 +9591,6 @@
         <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
-     <roi>
-        <name>BrachialPlexs</name>
-        <TG263PrimaryName>BrachialPlexs</TG263PrimaryName>
-        <Description>Brachial plexus</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>Brachial</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>BrachialPlexs</TG263ReverseOrderName>
-        <FMAID>5906</FMAID>
-         <Color red="254" green="53" blue="80" Hex= "#FE3550" >DetailedDevil</Color>
-        <Alias>plexus</Alias>
-    </roi>
     <roi>
         <name>BrachialPlex_L</name>
         <TG263PrimaryName>BrachialPlex_L</TG263PrimaryName>
@@ -10100,40 +9604,8 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_BrachialPlex</TG263ReverseOrderName>
         <FMAID>45245</FMAID>
-         <Color red="254" green="53" blue="80" Hex= "#FE3550" >DetailedDevil</Color>
+        <Color red="255" green="153" blue="255">#ff99ff</Color>
         <Alias>plexus_l,L_plexus</Alias>
-    </roi>
-    <roi>
-        <name>BrachialPlex_L_PRVxx</name>
-        <TG263PrimaryName>BrachialPlex_PRVxx_L</TG263PrimaryName>
-        <Description>PRV margin on BrachialPlex_L that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>20</NCharacters>
-        <TG263ReverseOrderName>L_PRVxx_BrachialPlex</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="254" green="154" blue="167" Hex= "#fe9aa7" >SalmonTartare</Color>
-        <Alias>brachialplexus_prv_L,Lbrachialplexus_prv,plexusL_prv</Alias>
-    </roi>
-    <roi>
-        <name>BrachialPlex_L_PRV05</name>
-        <TG263PrimaryName>BrachialPlex_PRV05_L</TG263PrimaryName>
-        <Description>PRV margin on BrachialPlex_L that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>20</NCharacters>
-        <TG263ReverseOrderName>L_PRV05_BrachialPlex</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="254" green="154" blue="167" Hex= "#fe9aa7" >SalmonTartare</Color>
-        <Alias>brachialplexus_prv05_L,Lbrachialplexus_prv05,plexusL_prv05</Alias>
     </roi>
     <roi>
         <name>BrachialPlex_R</name>
@@ -10148,40 +9620,24 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_BrachialPlex</TG263ReverseOrderName>
         <FMAID>45244</FMAID>
-         <Color red="58" green="251" blue="170" Hex= "#3AFBAA" >EvaGreen</Color>
+        <Color red="255" green="153" blue="255">#ff99ff</Color>
         <Alias>plexus_r,r_brachial_plexus,r_brachialplex</Alias>
     </roi>
     <roi>
-        <name>BrachialPlex_R_PRVxx</name>
-        <TG263PrimaryName>BrachialPlex_PRVxx_R</TG263PrimaryName>
-        <Description>PRV margin on BrachialPlex_R that is a xx millimeter expansion</Description>
+        <name>BrachialPlexs</name>
+        <TG263PrimaryName>BrachialPlexs</TG263PrimaryName>
+        <Description>Brachial plexus</Description>
         <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
         <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
+        <MinorCategory>Brachial</MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>20</NCharacters>
-        <TG263ReverseOrderName>R_PRVxx_BrachialPlex</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="154" green="251" blue="210" Hex= "#9afbd2" >PaleTurquoise1</Color>
-        <Alias>brachialplexus_prv_R,Rbrachialplexus_prv,plexusR_prv</Alias>
-    </roi>
-    <roi>
-        <name>BrachialPlex_R_PRV05</name>
-        <TG263PrimaryName>BrachialPlex_PRV05_R</TG263PrimaryName>
-        <Description>PRV margin on BrachialPlex_R that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Nerve</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>20</NCharacters>
-        <TG263ReverseOrderName>R_PRV05_BrachialPlex</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="154" green="251" blue="210" Hex= "#9afbd2" >PaleTurquoise1</Color>
-        <Alias>brachialplexus_prv05_R,Rbrachialplexus_prv05,plexusR_prv05</Alias>
+        <NCharacters>13</NCharacters>
+        <TG263ReverseOrderName>BrachialPlexs</TG263ReverseOrderName>
+        <FMAID>5906</FMAID>
+        <Color red="255" green="153" blue="255">#ff99ff</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Breast_L</name>
@@ -10196,8 +9652,8 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_Breast</TG263ReverseOrderName>
         <FMAID>321497</FMAID>
-         <Color red="252" green="201" blue="87" Hex= "#FCC957" >AngryPasta</Color>
-        <Alias>left_breast,breastl</Alias>
+        <Color red="139" green="0" blue="0">#8B0000</Color>
+        <Alias>left_breast</Alias>
     </roi>
     <roi>
         <name>Breast_R</name>
@@ -10212,8 +9668,8 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>R_Breast</TG263ReverseOrderName>
         <FMAID>321496</FMAID>
-         <Color red="62" green="170" blue="254" Hex= "#3EAAFE" >SkyDancer</Color>
-        <Alias>right_breast,breastr</Alias>
+        <Color red="139" green="0" blue="0">#8B0000</Color>
+        <Alias>right_breast</Alias>
     </roi>
     <roi>
         <name>Breasts</name>
@@ -10228,7 +9684,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Breasts</TG263ReverseOrderName>
         <FMAID>268893</FMAID>
-         <Color red="252" green="201" blue="87" Hex= "#FCC957" >AngryPasta</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -10356,8 +9812,8 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Carina</TG263ReverseOrderName>
         <FMAID>7465</FMAID>
-         <Color red="235" green="255" blue="36" Hex= "#EBFF24" >SpoiledEgg</Color>
-        <Alias>carina</Alias>
+        <Color red="255" green="255" blue="255">#</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Cartlg_Thyroid</name>
@@ -10388,23 +9844,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Chestwall</TG263ReverseOrderName>
         <FMAID>50060</FMAID>
-         <Color red="68" green="136" blue="254" Hex= "#4488FE" >BleuchâtelBlue</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Chestwall_PRV20</name>
-        <TG263PrimaryName>Chestwall_PRV20</TG263PrimaryName>
-        <Description>Chest wall prv constructed with 20 mm expansion from lungs excluding mediastinum</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Chest wall</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>9</NCharacters>
-        <TG263ReverseOrderName>PRV20_Chestwall</TG263ReverseOrderName>
-        <FMAID>50060</FMAID>
-        z <Color red="161" green="195" blue="254" Hex= "#a1c3fe" >PastelBlue</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -10420,7 +9860,7 @@
         <NCharacters>24</NCharacters>
         <TG263ReverseOrderName></TG263ReverseOrderName>
         <FMAID>50060</FMAID>
-         <Color red="68" green="136" blue="254" Hex= "#4488FE" >BleuchâtelBlue</Color>
+        <Color red="255" green="255" blue="153">#ffff99</Color>
         <Alias>Avoid_Pectoralis_Ribs</Alias>
     </roi>
     <roi>
@@ -10436,7 +9876,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>L_Chestwall</TG263ReverseOrderName>
         <FMAID>25559</FMAID>
-         <Color red="68" green="136" blue="254" Hex= "#4488FE" >BleuchâtelBlue</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -10452,7 +9892,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>R_Chestwall</TG263ReverseOrderName>
         <FMAID>25558</FMAID>
-         <Color red="252" green="201" blue="87" Hex= "#FCC957" >AngryPasta</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -10516,7 +9956,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Esophagus</TG263ReverseOrderName>
         <FMAID>7131</FMAID>
-         <Color red="41" green="188" blue="250" Hex= "#29BCFA" >CherenkovRadiation</Color>
+       <Color red="245" green="222" blue="142">#F5DE8E</Color>
         <Alias>esophagus</Alias>
     </roi>
     <roi>
@@ -10532,7 +9972,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>PRVxx_Esophagus</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="146" green="219" blue="250" Hex= "#92dbfa" >GasGiant</Color>
+        <Color red="218" green="208" blue="169">#DAD0A9</Color>
         <Alias>esophagus_prv</Alias>
     </roi>
     <roi>
@@ -10548,7 +9988,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>PRV05_Esophagus</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="146" green="219" blue="250" Hex= "#92dbfa" >GasGiant</Color>
+        <Color red="218" green="208" blue="169">#DAD0A9</Color>
         <Alias>esophagus_prv05</Alias>
     </roi>
     <roi>
@@ -10692,7 +10132,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Thyroid_Glnd</TG263ReverseOrderName>
         <FMAID>9603</FMAID>
-         <Color red="122" green="253" blue="255" Hex= "#7AFDFF" >ElectricBlue</Color>
+        <Color red="60" green="179" blue="113">#3CB371</Color>
         <Alias>thyroid,Thyroid</Alias>
     </roi>
     <roi>
@@ -10741,7 +10181,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Heart</TG263ReverseOrderName>
         <FMAID>7088</FMAID>
-         <Color red="255" green="15" blue="171" Hex= "#FF0FAB" >SpicyPink</Color>
+        <Color red="255" green="179" blue="230">#ffb3e6</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11573,7 +11013,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>L_Lung</TG263ReverseOrderName>
         <FMAID>7310</FMAID>
-         <Color red="253" green="122" blue="9" Hex= "#FD7A09" >PumpkinOrange</Color>
+        <Color red="204" green="204" blue="255">#ccccff</Color>
         <Alias>lung_l,left_lung</Alias>
     </roi>
     <roi>
@@ -11589,7 +11029,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>LLL_Lung</TG263ReverseOrderName>
         <FMAID>7371</FMAID>
-         <Color red="253" green="121" blue="73" Hex= "#FD7949" >MythicalOrange</Color>
+        <Color red="153" green="255" blue="153">#99ff99</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11605,7 +11045,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>LUL_Lung</TG263ReverseOrderName>
         <FMAID>7370</FMAID>
-         <Color red="253" green="95" blue="56" Hex= "#FD5F38" >ToxicOrange</Color>
+        <Color red="102" green="255" blue="204">#66ffcc</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11621,7 +11061,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>R_Lung</TG263ReverseOrderName>
         <FMAID>7309</FMAID>
-         <Color red="54" green="247" blue="223" Hex= "#36F7DF" >FreshTurquoise</Color>
+        <Color red="204" green="204" blue="255">#ccccff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11637,7 +11077,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>RLL_Lung</TG263ReverseOrderName>
         <FMAID>7337</FMAID>
-         <Color red="49" green="249" blue="211" Hex= "#31F9D3" >IceClimber</Color>
+        <Color red="255" green="102" blue="204">#ff66cc</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11653,7 +11093,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>RML_Lung</TG263ReverseOrderName>
         <FMAID>7383</FMAID>
-         <Color red="64" green="248" blue="201" Hex= "#40F8C9" >FreshTurquoise1</Color>
+        <Color red="204" green="102" blue="255">#cc66ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11669,7 +11109,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>RUL_Lung</TG263ReverseOrderName>
         <FMAID>7333</FMAID>
-         <Color red="15" green="251" blue="185" Hex= "#0FFBB9" >NightPearl</Color>
+        <Color red="51" green="102" blue="255">#3366ff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11685,7 +11125,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Lungs</TG263ReverseOrderName>
         <FMAID>68877</FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="195" green="176" blue="145">#f0e68c</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11701,7 +11141,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-CTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11717,7 +11157,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-GTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11733,7 +11173,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-ITV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11749,7 +11189,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-PTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11780,40 +11220,8 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Pacemaker</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="251" green="47" blue="132" Hex= "#FB2F84" >PinkPiano</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Pacemaker_PRVxx</name>
-        <TG263PrimaryName>Pacemaker_PRVxx</TG263PrimaryName>
-        <Description>Pacemaker expanded xx mm as a planning risk volume</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>PRV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>Pacemaker_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="253" green="144" blue="203" Hex= "#fd90cb" >ShimmeringLove</Color>
-        <Alias>pacemaker_prv</Alias>
-    </roi>
-    <roi>
-        <name>Pacemaker_PRV10</name>
-        <TG263PrimaryName>Pacemaker_PRV10</TG263PrimaryName>
-        <Description>Pacemaker expanded 10 mm as a planning risk volume</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>PRV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>Pacemaker_PRV10</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="253" green="144" blue="203" Hex= "#fd90cb" >ShimmeringLove</Color>
-        <Alias>pacemaker_prv10</Alias>
     </roi>
     <roi>
         <name>Pericardium</name>
@@ -11844,40 +11252,8 @@
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>Rib</TG263ReverseOrderName>
         <FMAID>7574</FMAID>
-         <Color red="251" green="185" blue="49" Hex= "#FBB931" >NYCTaxi</Color>
-        <Alias>rib</Alias>
-    </roi>
-     <roi>
-        <name>Ribs</name>
-        <TG263PrimaryName>Ribs</TG263PrimaryName>
-        <Description>Multiple unspecified ribs</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>4</NCharacters>
-        <TG263ReverseOrderName>Rib</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="251" green="218" blue="150" Hex= "#fbda96" >GoldenHaze</Color>
-        <Alias>ribs</Alias>
-    </roi>
-     <roi>
-        <name>Rib01</name>
-        <TG263PrimaryName>Rib01</TG263PrimaryName>
-        <Description>First Rib Unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib01</TG263ReverseOrderName>
-        <FMAID>7987</FMAID>
-         <Color red="200" green="157" blue="126" Hex= "#C89D7E">ChinookSalmon</Color>
-        <Alias>first_rib</Alias>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Rib01_L</name>
@@ -11892,7 +11268,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib01</TG263ReverseOrderName>
         <FMAID>7987</FMAID>
-         <Color red="200" green="157" blue="126" Hex= "#C89D7E">ChinookSalmon</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11908,23 +11284,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib01</TG263ReverseOrderName>
         <FMAID>7857</FMAID>
-         <Color red="46" green="122" blue="177" Hex= "#2E7AB1">Campánula</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Rib02</name>
-        <TG263PrimaryName>Rib02</TG263PrimaryName>
-        <Description>Second rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>7</NCharacters>
-        <TG263ReverseOrderName>Rib02</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="246" green="151" blue="81" Hex= "#F69751">HollandTulip</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11940,7 +11300,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib02</TG263ReverseOrderName>
         <FMAID>8012</FMAID>
-         <Color red="246" green="151" blue="81" Hex= "#F69751">HollandTulip</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11956,23 +11316,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib02</TG263ReverseOrderName>
         <FMAID>7882</FMAID>
-         <Color red="67" green="102" blue="157" Hex= "#43669D">Mariner</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Rib03</name>
-        <TG263PrimaryName>Rib03</TG263PrimaryName>
-        <Description>Third rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib03</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="225" green="169" blue="47" Hex= "#E1A92F">Currywurst</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -11988,7 +11332,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib03</TG263ReverseOrderName>
         <FMAID>8039</FMAID>
-         <Color red="225" green="169" blue="47" Hex= "#E1A92F">Currywurst</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12004,23 +11348,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib03</TG263ReverseOrderName>
         <FMAID>7909</FMAID>
-         <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Rib04</name>
-        <TG263PrimaryName>Rib04</TG263PrimaryName>
-        <Description>Fourth rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib04</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="183" green="153" blue="87" Hex= "#B79957">OrleansTune</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12036,7 +11364,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib04</TG263ReverseOrderName>
         <FMAID>8148</FMAID>
-         <Color red="183" green="153" blue="87" Hex= "#B79957">OrleansTune</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12052,23 +11380,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib04</TG263ReverseOrderName>
         <FMAID>7957</FMAID>
-         <Color red="83" green="87" blue="105" Hex= "#535769">HeavyViolet</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Rib05</name>
-        <TG263PrimaryName>Rib05</TG263PrimaryName>
-        <Description>Fifth rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib05</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="245" green="222" blue="142" Hex= "#F5DE8E">Popcorn</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12084,7 +11396,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib05</TG263ReverseOrderName>
         <FMAID>8093</FMAID>
-         <Color red="245" green="222" blue="142" Hex= "#F5DE8E">Popcorn</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12100,23 +11412,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib05</TG263ReverseOrderName>
         <FMAID>8066</FMAID>
-         <Color red="187" green="194" blue="226" Hex= "#BBC2E2">EtheriumBlue</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Rib06</name>
-        <TG263PrimaryName>Rib06</TG263PrimaryName>
-        <Description>Sixth rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib06</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="218" green="208" blue="169" Hex= "#DAD0A9">CapitalGrains</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12132,7 +11428,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib06</TG263ReverseOrderName>
         <FMAID>8202</FMAID>
-         <Color red="218" green="208" blue="169" Hex= "#DAD0A9">CapitalGrains</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12148,23 +11444,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib06</TG263ReverseOrderName>
         <FMAID>8175</FMAID>
-         <Color red="67" green="65" blue="225" Hex= "#4341E1">BrightGreek</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Rib07</name>
-        <TG263PrimaryName>Rib07L</TG263PrimaryName>
-        <Description>Seventh rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib07</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="226" green="207" blue="103" Hex= "#E2CF67">Bananarama</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12180,7 +11460,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib07</TG263ReverseOrderName>
         <FMAID>8256</FMAID>
-         <Color red="226" green="207" blue="103" Hex= "#E2CF67">Bananarama</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12196,23 +11476,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib07</TG263ReverseOrderName>
         <FMAID>8229</FMAID>
-         <Color red="103" green="101" blue="189" Hex= "#6765BD">BluishPurpleAnemone</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Rib08</name>
-        <TG263PrimaryName>Rib08</TG263PrimaryName>
-        <Description>Eighth rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>L_Rib08</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="201" green="191" blue="130" Hex= "#C9BF82">OliveHint</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12228,7 +11492,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib08</TG263ReverseOrderName>
         <FMAID>8310</FMAID>
-         <Color red="201" green="191" blue="130" Hex= "#C9BF82">OliveHint</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12244,23 +11508,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib08</TG263ReverseOrderName>
         <FMAID>8283</FMAID>
-         <Color red="144" green="91" blue="185" Hex= "#905BB9">LustyLavender</Color>
-        <Alias></Alias>
-    </roi>
-     <roi>
-        <name>Rib09</name>
-        <TG263PrimaryName>Rib09</TG263PrimaryName>
-        <Description>Ninth rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib09</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="233" green="238" blue="144" Hex= "#E9EE90">Jonquil</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12276,7 +11524,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib09</TG263ReverseOrderName>
         <FMAID>8391</FMAID>
-         <Color red="233" green="238" blue="144" Hex= "#E9EE90">Jonquil</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12292,25 +11540,9 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib09</TG263ReverseOrderName>
         <FMAID>8364</FMAID>
-         <Color red="149" green="49" blue="224" Hex= "#9531E0">BrightBlueViolet</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
-    <roi>
-        <name>Rib10</name>
-        <TG263PrimaryName>Rib10</TG263PrimaryName>
-        <Description>Tenth rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib10</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="214" green="217" blue="166" Hex= "#D6D9A6">CreamCheeseAvocado</Color>
-        <Alias></Alias>
-    </roi>z
     <roi>
         <name>Rib10_L</name>
         <TG263PrimaryName>Rib10_L</TG263PrimaryName>
@@ -12324,7 +11556,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib10</TG263ReverseOrderName>
         <FMAID>8472</FMAID>
-         <Color red="214" green="217" blue="166" Hex= "#D6D9A6">CreamCheeseAvocado</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12340,23 +11572,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib10</TG263ReverseOrderName>
         <FMAID>8445</FMAID>
-         <Color red="194" green="76" blue="197" Hex= "#C24CC5">UnloadedTexturePurple</Color>
-        <Alias></Alias>
-    </roi>
-     <roi>
-        <name>Rib11</name>
-        <TG263PrimaryName>Rib11</TG263PrimaryName>
-        <Description>Eleventh rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib11</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="160" green="235" blue="81" Hex= "#A0EB51">KiwiPulp</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12372,7 +11588,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib11</TG263ReverseOrderName>
         <FMAID>8532</FMAID>
-         <Color red="160" green="235" blue="81" Hex= "#A0EB51">KiwiPulp</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12388,23 +11604,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib11</TG263ReverseOrderName>
         <FMAID>8531</FMAID>
-         <Color red="183" green="91" blue="185" Hex= "#B75BB9">MazzyStar</Color>
-        <Alias></Alias>
-    </roi>
-     <roi>
-        <name>Rib12</name>
-        <TG263PrimaryName>Rib12</TG263PrimaryName>
-        <Description>Twelfth rib unspecified laterality</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>Rib</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>Rib12</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="159" green="197" blue="119" Hex= "#9FC577">JadeLime</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12420,7 +11620,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>L_Rib12</TG263ReverseOrderName>
         <FMAID>8534</FMAID>
-         <Color red="159" green="197" blue="119" Hex= "#9FC577">JadeLime</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12436,7 +11636,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Rib12</TG263ReverseOrderName>
         <FMAID>8533</FMAID>
-         <Color red="252" green="179" blue="231" Hex= "#FCB3E7">HotAquarellePink</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12452,7 +11652,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>L_Scapula</TG263ReverseOrderName>
         <FMAID>13396</FMAID>
-         <Color red="55" green="221" blue="159" Hex= "#37DD9F">DarkShamrock</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12468,7 +11668,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>R_Scapula</TG263ReverseOrderName>
         <FMAID>13395</FMAID>
-         <Color red="232" green="201" blue="223" Hex= "#E8C9DF">SweetMurmur</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -12900,42 +12100,8 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>I_Venacava_V</TG263ReverseOrderName>
         <FMAID>10951</FMAID>
-         <Color red="235" green="255" blue="36" Hex= "#EBFF24" >SpoiledEgg</Color>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>V_Venacava_I_PRVxx</name>
-        <TG263PrimaryName>V_Venacava_I_PRVxx</TG263PrimaryName>
-        <Description>Venacava inferior expanded xx mm as a planning risk volume
-        </Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Vein</MajorCategory>
-        <MinorCategory>Venacava</MinorCategory>
-        <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>18</NCharacters>
-        <TG263ReverseOrderName>V_Venacava_I_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
-        <Alias>prv_venacava</Alias>
-    </roi>
-     <roi>
-        <name>V_Venacava_I_PRV05</name>
-        <TG263PrimaryName>V_Venacava_I_PRV05</TG263PrimaryName>
-        <Description>Venacava inferior expanded 05 mm as a planning risk volume
-        </Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Vein</MajorCategory>
-        <MinorCategory>Venacava</MinorCategory>
-        <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>18</NCharacters>
-        <TG263ReverseOrderName>V_Venacava_I_PRV05</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
-        <Alias>prv05_venacava</Alias>
     </roi>
     <roi>
         <name>V_Venacava_S</name>
@@ -12950,7 +12116,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>S_Venacava_V</TG263ReverseOrderName>
         <FMAID>4720</FMAID>
-         <Color red="247" green="251" blue="50" Hex= "#F7FB32" >MaximumYellow</Color>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -13046,39 +12212,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>L_Ventricle</TG263ReverseOrderName>
         <FMAID>7101</FMAID>
-         <Color red="251" green="2" blue="201" Hex= "#FB02C9" >HotMagenta</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Ventricle_L_PRVxx</name>
-        <TG263PrimaryName>Ventricle_PRVxx_L</TG263PrimaryName>
-        <Description>Ventricle (cardiac) Left expanded by xx mm to create a planning risk volume </Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Heart</MajorCategory>
-        <MinorCategory>Ventricle</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>L_Ventricle_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="251" green="126" blue="226" Hex= "#fb7ee2" >SplashOfGrenadine</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Ventricle_L_PRV07</name>
-        <TG263PrimaryName>Ventricle_PRV07_L</TG263PrimaryName>
-        <Description>Ventricle (cardiac) Left expanded by 07 mm to create a planning risk volume </Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Heart</MajorCategory>
-        <MinorCategory>Ventricle</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>L_Ventricle_PRV07</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="251" green="126" blue="226" Hex= "#fb7ee2" >SplashOfGrenadine</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -13094,54 +12228,6 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>R_Ventricle</TG263ReverseOrderName>
         <FMAID>7098</FMAID>
-         <Color red="197" green="250" blue="29" Hex= "#C5FA1D" >LimeYellow</Color>
-        <Alias></Alias>
-    </roi>
-   <roi>
-        <name>Ventricle_R_PRVxx</name>
-        <TG263PrimaryName>Ventricle_PRVxx_R</TG263PrimaryName>
-        <Description>Ventricle (cardiac) Right expanded by xx mm to create a planning risk volume </Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Heart</MajorCategory>
-        <MinorCategory>Ventricle</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>R_Ventricle_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="224" green="250" blue="140" Hex= "#e0fa8c" >KeyLimeWater</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Ventricle_R_PRV07</name>
-        <TG263PrimaryName>Ventricle_PRV07_R</TG263PrimaryName>
-        <Description>Ventricle (cardiac) Right expanded by 07 mm to create a planning risk volume </Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Heart</MajorCategory>
-        <MinorCategory>Ventricle</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>R_Ventricle_PRV07</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="224" green="250" blue="140" Hex= "#e0fa8c" >KeyLimeWater</Color>
-        <Alias></Alias>
-    </roi> 
-     <roi>
-        <name>Wire</name>
-        <TG263PrimaryName>Markers</TG263PrimaryName>
-        <Description></Description>
-        <NCIt></NCIt>
-        <TargetType>Non_Anatomic</TargetType>
-        <RTROIInterpretedType>Marker</RTROIInterpretedType>
-        <MajorCategory>Devices</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>7</NCharacters>
-        <TG263ReverseOrderName>Markers</TG263ReverseOrderName>
-        <FMAID></FMAID>
         <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>

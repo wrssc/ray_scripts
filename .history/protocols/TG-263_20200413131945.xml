@@ -7508,38 +7508,6 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Humerus_R_PRVxx</name>
-        <TG263PrimaryName>Humerus_PRVxx_R</TG263PrimaryName>
-        <Description>PRV margin on right humerus that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRVxx_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
-        <Alias>humerus_r_prv</Alias>
-    </roi>
-    <roi>
-        <name>Humerus_R_PRV05</name>
-        <TG263PrimaryName>Humerus_PRV05_R</TG263PrimaryName>
-        <Description>PRV margin on right humerus that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRV05_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
-        <Alias>humerus_r_prv05</Alias>
-    </roi>
-    <roi>
         <name>Joint_Elbow</name>
         <TG263PrimaryName>Joint_Elbow</TG263PrimaryName>
         <Description>Elbow joint</Description>

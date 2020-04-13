@@ -1255,7 +1255,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Bone</TG263ReverseOrderName>
         <FMAID>30317</FMAID>
-         <Color red="64" green="253" blue="102" Hex= "#40FD66" >AcidPops</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1315,7 +1315,7 @@
         <Description>Clinical Tumor Volume</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ctv</RTROIInterpretedType>
+        <RTROIInterpretedType>CTV</RTROIInterpretedType>
         <MajorCategory>CTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1331,7 +1331,7 @@
         <Description>Clinical Tumor Volume of the breast lumpectomy</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ctv</RTROIInterpretedType>
+        <RTROIInterpretedType>CTV</RTROIInterpretedType>
         <MajorCategory>CTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Breast</AnatomicGroup>
@@ -1449,7 +1449,7 @@
         <Description>Gross Tumor Volume</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Gtv</RTROIInterpretedType>
+        <RTROIInterpretedType>GTV</RTROIInterpretedType>
         <MajorCategory>GTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1703,30 +1703,14 @@
         <Description>Planning Target Volume</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <RTROIInterpretedType>PTV</RTROIInterpretedType>
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>3</NCharacters>
         <TG263ReverseOrderName>PTV</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
-        <Alias>ptv</Alias>
-    </roi>
-    <roi>
-        <name>PTV_Bst_xxxx</name>
-        <TG263PrimaryName>PTV_Bst_xxxx</TG263PrimaryName>
-        <Description>Planning Target Volume for boost treatment with dose xxxx Gy</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>12</NCharacters>
-        <TG263ReverseOrderName>PTV_Bst_xxxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1735,7 +1719,7 @@
         <Description>Evalation planning Target Volume with dose xxxx in cGy</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <RTROIInterpretedType>PTV</RTROIInterpretedType>
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Breast</AnatomicGroup>
@@ -1751,7 +1735,7 @@
         <Description>Evalation Lumpectomy planning Target Volume with dose xxxx in cGy</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <RTROIInterpretedType>PTV</RTROIInterpretedType>
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Breast</AnatomicGroup>
@@ -1767,7 +1751,7 @@
         <Description>Planning Target Volume with dose xxxx in cGy</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <RTROIInterpretedType>PTV</RTROIInterpretedType>
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1873,7 +1857,7 @@
     </roi>
     <roi>
         <name>Skin_PRV03</name>
-        <TG263PrimaryName>Skin_PRV03</TG263PrimaryName>
+        <TG263PrimaryName>Skin</TG263PrimaryName>
         <Description>Skin</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
@@ -1884,8 +1868,8 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>PRV03_Skin</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="251" green="218" blue="63" Hex= "#FBDA3F" >DandelionYellow</Color>
-        <Alias>skin_prv03</Alias>
+         <Color red="251" green="218" blue="63" Hex= "#FBDA3F" >DandelionYellow</Color>
+        <Alias>skin_prv05</Alias>
     </roi>
     <roi>
         <name>Spc</name>
@@ -4944,7 +4928,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Larynx</TG263ReverseOrderName>
         <FMAID>55097</FMAID>
-         <Color red="253" green="183" blue="85" Hex= "#FDB755" >SummerOrange</Color>
+        <Color red="0" green="255" blue="255">#00ffff</Color>
         <Alias>larynx,larnyx</Alias>
     </roi>
     <roi>
@@ -4960,7 +4944,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>SG_Larynx</TG263ReverseOrderName>
         <FMAID>55476</FMAID>
-         <Color red="253" green="183" blue="85" Hex= "#FDB755" >SummerOrange</Color>
+        <Color red="0" green="255" blue="255">#00ffff</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6016,7 +6000,7 @@
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Pituitary</TG263ReverseOrderName>
         <FMAID>13889</FMAID>
-        <Color red="235" green="255" blue="36" Hex= "#EBFF24" >SpoiledEgg</Color>
+         <Color red="235" green="255" blue="36" Hex= "#EBFF24" >SpoiledEgg</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -6032,13 +6016,13 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>PRVxx_Pituitary</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
+         <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Pituitary_PRV05</name>
-        <TG263PrimaryName>Pituitary_PRV05</TG263PrimaryName>
-        <Description>PRV constructed as 05 millimeter expansion on Pituitary</Description>
+        <name>Pituitary_PRV03</name>
+        <TG263PrimaryName>Pituitary_PRV03</TG263PrimaryName>
+        <Description>PRV constructed as 03 millimeter expansion on Pituitary</Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
@@ -6046,9 +6030,9 @@
         <MinorCategory>Pituitary</MinorCategory>
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>PRV05_Pituitary</TG263ReverseOrderName>
+        <TG263ReverseOrderName>PRV03_Pituitary</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
+         <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -7460,38 +7444,6 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Humerus_L_PRVxx</name>
-        <TG263PrimaryName>Humerus_PRVxx_L</TG263PrimaryName>
-        <Description>PRV margin on left humerus that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRVxx_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="27" green="158" blue="180" Hex= "#1B9EB4">Riviera</Color>
-        <Alias>humerus_l_prv</Alias>
-    </roi>
-    <roi>
-        <name>Humerus_L_PRV05</name>
-        <TG263PrimaryName>Humerus_PRV05_L</TG263PrimaryName>
-        <Description>PRV margin on left humerus that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRV05_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="27" green="158" blue="180" Hex= "#1B9EB4">Riviera</Color>
-        <Alias>humerus_l_prv05</Alias>
-    </roi>
-    <roi>
         <name>Humerus_R</name>
         <TG263PrimaryName>Humerus_R</TG263PrimaryName>
         <Description>Humerus Right</Description>
@@ -7506,38 +7458,6 @@
         <FMAID>23130</FMAID>
          <Color red="183" green="87" blue="145" Hex= "#B75791">SpruceTreeFlower</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Humerus_R_PRVxx</name>
-        <TG263PrimaryName>Humerus_PRVxx_R</TG263PrimaryName>
-        <Description>PRV margin on right humerus that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRVxx_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
-        <Alias>humerus_r_prv</Alias>
-    </roi>
-    <roi>
-        <name>Humerus_R_PRV05</name>
-        <TG263PrimaryName>Humerus_PRV05_R</TG263PrimaryName>
-        <Description>PRV margin on right humerus that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRV05_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
-        <Alias>humerus_r_prv05</Alias>
     </roi>
     <roi>
         <name>Joint_Elbow</name>
@@ -9155,24 +9075,8 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Perineum_Skin</TG263ReverseOrderName>
         <FMAID>20429</FMAID>
-        <Color red="253" green="183" blue="85" Hex= "#FDB755" >SummerOrange</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Skin_LymphDrain</name>
-        <TG263PrimaryName>Skin_LymphDrain</TG263PrimaryName>
-        <Description>Skin avoidance for lymphatic drainage</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Skin</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>LymphDrain_Skin</TG263ReverseOrderName>
-        <FMAID></FMAID>
         <Color red="255" green="255" blue="255">#</Color>
-        <Alias>skin_avoid,skin_avoidance,avoid_skin</Alias>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Sphincter_Anal</name>
@@ -9223,21 +9127,6 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Testes</name>
-        <TG263PrimaryName>Testes</TG263PrimaryName>
-        <Description>Testes</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Reproductive</MajorCategory>
-        <MinorCategory>Testis</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>6</NCharacters>
-        <TG263ReverseOrderName>Testes</TG263ReverseOrderName>
-        <FMAID>7210</FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
-    <roi>
         <name>Testis</name>
         <TG263PrimaryName>Testis</TG263PrimaryName>
         <Description>Testis</Description>
@@ -9250,7 +9139,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Testis</TG263ReverseOrderName>
         <FMAID>7210</FMAID>
-         <Color red="241" green="72" blue="254" Hex= "#F148FE" >PhenomenalPink</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9266,40 +9155,8 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>L_Testis</TG263ReverseOrderName>
         <FMAID>7212</FMAID>
-         <Color red="241" green="72" blue="254" Hex= "#F148FE" >PhenomenalPink</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Testis_L_PRVxx</name>
-        <TG263PrimaryName>Testis_PRVxx_L</TG263PrimaryName>
-        <Description>PRV margin on Left Testis that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Testis</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRVxx_Testis</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
-        <Alias>left_testis_prv,left_testicle_prv</Alias>
-    </roi>
-     <roi>
-        <name>Testis_L_PRV10</name>
-        <TG263PrimaryName>Testis_PRV10_L</TG263PrimaryName>
-        <Description>PRV margin on Left Testis that is a 10 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Testis</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRV10_Testis</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="248" green="163" blue="254" Hex= "#f8a3fe" >RichBrilliantLavender</Color>
-        <Alias>left_testis_prv10,left_testicle_prv10</Alias>
     </roi>
     <roi>
         <name>Testis_R</name>
@@ -9316,38 +9173,6 @@
         <FMAID>7211</FMAID>
         <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Testis_R_PRVxx</name>
-        <TG263PrimaryName>Testis_PRVxx_R</TG263PrimaryName>
-        <Description>PRV margin on Right Testis that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Testis</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRVxx_Testis</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="247" green="242" blue="134" Hex= "#f7f286" >SpätzleYellow</Color>
-        <Alias>right_testis_prv,right_testicle_prv</Alias>
-    </roi>
-     <roi>
-        <name>Testis_R_PRV10</name>
-        <TG263PrimaryName>Testis_PRV10_R</TG263PrimaryName>
-        <Description>PRV margin on Right Testis that is a 10 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Testis</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRV10_Testis</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="247" green="242" blue="134" Hex= "#f7f286" >SpätzleYellow</Color>
-        <Alias>right_testis_prv10,right_testicle_prv10</Alias>
     </roi>
     <roi>
         <name>UreterDivert</name>
@@ -10692,7 +10517,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Thyroid_Glnd</TG263ReverseOrderName>
         <FMAID>9603</FMAID>
-         <Color red="122" green="253" blue="255" Hex= "#7AFDFF" >ElectricBlue</Color>
+        <Color red="60" green="179" blue="113">#3CB371</Color>
         <Alias>thyroid,Thyroid</Alias>
     </roi>
     <roi>
@@ -11790,7 +11615,7 @@
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>PRV</MajorCategory>
+        <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>15</NCharacters>
@@ -11806,7 +11631,7 @@
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>PRV</MajorCategory>
+        <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>15</NCharacters>
@@ -13129,20 +12954,4 @@
          <Color red="224" green="250" blue="140" Hex= "#e0fa8c" >KeyLimeWater</Color>
         <Alias></Alias>
     </roi> 
-     <roi>
-        <name>Wire</name>
-        <TG263PrimaryName>Markers</TG263PrimaryName>
-        <Description></Description>
-        <NCIt></NCIt>
-        <TargetType>Non_Anatomic</TargetType>
-        <RTROIInterpretedType>Marker</RTROIInterpretedType>
-        <MajorCategory>Devices</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>7</NCharacters>
-        <TG263ReverseOrderName>Markers</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="255" green="255" blue="255">#</Color>
-        <Alias></Alias>
-    </roi>
 </roiset>

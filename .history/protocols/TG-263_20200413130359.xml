@@ -1255,7 +1255,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Bone</TG263ReverseOrderName>
         <FMAID>30317</FMAID>
-         <Color red="64" green="253" blue="102" Hex= "#40FD66" >AcidPops</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1884,7 +1884,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>PRV03_Skin</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="251" green="218" blue="63" Hex= "#FBDA3F" >DandelionYellow</Color>
+         <Color red="251" green="218" blue="63" Hex= "#FBDA3F" >DandelionYellow</Color>
         <Alias>skin_prv03</Alias>
     </roi>
     <roi>
@@ -7460,38 +7460,6 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Humerus_L_PRVxx</name>
-        <TG263PrimaryName>Humerus_PRVxx_L</TG263PrimaryName>
-        <Description>PRV margin on left humerus that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRVxx_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="27" green="158" blue="180" Hex= "#1B9EB4">Riviera</Color>
-        <Alias>humerus_l_prv</Alias>
-    </roi>
-    <roi>
-        <name>Humerus_L_PRV05</name>
-        <TG263PrimaryName>Humerus_PRV05_L</TG263PrimaryName>
-        <Description>PRV margin on left humerus that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>L_PRV05_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="27" green="158" blue="180" Hex= "#1B9EB4">Riviera</Color>
-        <Alias>humerus_l_prv05</Alias>
-    </roi>
-    <roi>
         <name>Humerus_R</name>
         <TG263PrimaryName>Humerus_R</TG263PrimaryName>
         <Description>Humerus Right</Description>
@@ -7506,38 +7474,6 @@
         <FMAID>23130</FMAID>
          <Color red="183" green="87" blue="145" Hex= "#B75791">SpruceTreeFlower</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Humerus_R_PRVxx</name>
-        <TG263PrimaryName>Humerus_PRVxx_R</TG263PrimaryName>
-        <Description>PRV margin on right humerus that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRVxx_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
-        <Alias>humerus_r_prv</Alias>
-    </roi>
-    <roi>
-        <name>Humerus_R_PRV05</name>
-        <TG263PrimaryName>Humerus_PRV05_R</TG263PrimaryName>
-        <Description>PRV margin on right humerus that is a 05 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Limbs</AnatomicGroup>
-        <NCharacters>15</NCharacters>
-        <TG263ReverseOrderName>R_PRV05_Humerus</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
-        <Alias>humerus_r_prv05</Alias>
     </roi>
     <roi>
         <name>Joint_Elbow</name>
@@ -9155,12 +9091,12 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Perineum_Skin</TG263ReverseOrderName>
         <FMAID>20429</FMAID>
-        <Color red="253" green="183" blue="85" Hex= "#FDB755" >SummerOrange</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
         <name>Skin_LymphDrain</name>
-        <TG263PrimaryName>Skin_LymphDrain</TG263PrimaryName>
+        <TG263PrimaryName>Skin_Perineum</TG263PrimaryName>
         <Description>Skin avoidance for lymphatic drainage</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
