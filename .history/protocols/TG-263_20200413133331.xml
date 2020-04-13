@@ -1274,7 +1274,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>BoneMarrow</TG263ReverseOrderName>
         <FMAID>9608</FMAID>
-        <Color red="62" green="170" blue="254" Hex= "#3EAAFE" >SkyDancer</Color>
+        <Color red="64" green="224" blue="208">#40e0d0</Color>
         <Alias>marrow,bone_marrow</Alias>
     </roi>
     <roi>
@@ -1290,7 +1290,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Act_BoneMarrow</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="41" green="188" blue="250" Hex= "#29BCFA" >CherenkovRadiation</Color>
+        <Color red="64" green="224" blue="208">#40e0d0</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -2506,40 +2506,8 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Mandible_Bone</TG263ReverseOrderName>
         <FMAID>52748</FMAID>
-         <Color red="160" green="235" blue="81" Hex= "#A0EB51">KiwiPulp</Color>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
         <Alias>Mandible</Alias>
-    </roi>
-    <roi>
-        <name>Bone_Mandible_PRVxx</name>
-        <TG263PrimaryName>Bone_Mandible_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on the mandible that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>19</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Bone_Mandible</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="91" green="185" blue="150" Hex= "#5BB996">JadeCream</Color>
-        <Alias>bone_mandible_prv</Alias>
-    </roi>
-    <roi>
-        <name>Bone_Mandible_PRV03</name>
-        <TG263PrimaryName>Bone_Mandible_PRV03</TG263PrimaryName>
-        <Description>PRV margin on the mandible that is a 03 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bone</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>19</NCharacters>
-        <TG263ReverseOrderName>PRV03_Bone_Mandible</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="91" green="185" blue="150" Hex= "#5BB996">JadeCream</Color>
-        <Alias>bone_mandible_prv03</Alias>
     </roi>
     <roi>
         <name>Bone_Mastoid</name>
@@ -3468,7 +3436,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Oral_Cavity</TG263ReverseOrderName>
         <FMAID>20292</FMAID>
-         <Color red="49" green="249" blue="211" Hex= "#31F9D3" >IceClimber</Color>
+        <Color red="128" green="144" blue="80">#809050</Color>
         <Alias>Oral Cavity,Oral_Cavity,OralCavity,oralcavity</Alias>
     </roi>
     <roi>
@@ -4208,7 +4176,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Submand_Glnd</TG263ReverseOrderName>
         <FMAID>59803</FMAID>
-        <Color red="251" green="2" blue="201" Hex= "#FB02C9" >HotMagenta</Color>
+        <Color red="255" green="215" blue="0">#ffd700</Color>
         <Alias>Submandibular_L</Alias>
     </roi>
     <roi>
@@ -4224,7 +4192,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Submand_Glnd</TG263ReverseOrderName>
         <FMAID>59802</FMAID>
-         <Color red="197" green="250" blue="29" Hex= "#C5FA1D" >LimeYellow</Color>
+        <Color red="255" green="215" blue="0">#ffd700</Color>
         <Alias>Submandibular_R</Alias>
     </roi>
     <roi>
@@ -4486,7 +4454,7 @@
     <roi>
         <name>Joint_TM</name>
         <TG263PrimaryName>Joint_TM</TG263PrimaryName>
-        <Description>Temperomandibular Joint unspecified laterality</Description>
+        <Description>Temperomandibular Joint</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
         <RTROIInterpretedType>Organ</RTROIInterpretedType>
@@ -4496,7 +4464,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>TM_Joint</TG263ReverseOrderName>
         <FMAID>54832</FMAID>
-        <Color red="247" green="236" blue="20" Hex= "#F7EC14" >GenoaLemon</Color>
+        <Color red="55" green="221" blue="159">#37DD9F</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -4512,40 +4480,8 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>L_TM_Joint</TG263ReverseOrderName>
         <FMAID>54834</FMAID>
-        <Color red="247" green="236" blue="20" Hex= "#F7EC14" >GenoaLemon</Color>
+        <Color red="55" green="221" blue="159">#37DD9F</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Joint_TM_L_PRVxx</name>
-        <TG263PrimaryName>Joint_TM_PRVxx_L</TG263PrimaryName>
-        <Description>PRV margin on Left Temporal-Mandibular Joint that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Joint</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>L_Joint_TM_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="201" green="191" blue="130" Hex= "#C9BF82">OliveHint</Color>
-        <Alias>tempmand_l_prv</Alias>
-    </roi>
-    <roi>
-        <name>Joint_TM_L_PRV03</name>
-        <TG263PrimaryName>Joint_TM_PRV03_L</TG263PrimaryName>
-        <Description>PRV margin on Left Temporal-Mandibular Joint that is a 03 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Joint</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>L_Joint_TM_PRV03</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="201" green="191" blue="130" Hex= "#C9BF82">OliveHint</Color>
-        <Alias>tempmand_l_prv03</Alias>
     </roi>
     <roi>
         <name>Joint_TM_R</name>
@@ -4560,40 +4496,8 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>R_TM_Joint</TG263ReverseOrderName>
         <FMAID>54833</FMAID>
-        <Color red="46" green="122" blue="177" Hex= "#2E7AB1">Campánula</Color>
+        <Color red="55" green="221" blue="159">#37DD9F</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Joint_TM_R_PRVxx</name>
-        <TG263PrimaryName>Joint_TM_PRVxx_R</TG263PrimaryName>
-        <Description>PRV margin on Right Temporal-Mandibular Joint that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Joint</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>R_Joint_TM_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
-        <Alias>tempmand_R_prv</Alias>
-    </roi>
-    <roi>
-        <name>Joint_TM_R_PRV03</name>
-        <TG263PrimaryName>Joint_TM_PRV03_R</TG263PrimaryName>
-        <Description>PRV margin on Right Temporal-Mandibular Joint that is a 03 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Joint</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>R_Joint_TM_PRV03</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
-        <Alias>tempmand_R_prv03</Alias>
     </roi>
     <roi>
         <name>LN_Neck_IA_L</name>
@@ -5184,7 +5088,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Lips</TG263ReverseOrderName>
         <FMAID>59815</FMAID>
-        <Color red="253" green="121" blue="73" Hex= "#FD7949" >MythicalOrange</Color>
+        <Color red="160" green="235" blue="81">#A0EB51</Color>
         <Alias>lips,lip</Alias>
     </roi>
     <roi>
@@ -5200,7 +5104,7 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Frontal_Lobe</TG263ReverseOrderName>
         <FMAID>61824</FMAID>
-         <Color red="63" green="134" blue="146" Hex= "#3F8692">Seachange</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5216,7 +5120,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>L_Frontal_Lobe</TG263ReverseOrderName>
         <FMAID>72970</FMAID>
-         <Color red="63" green="134" blue="146" Hex= "#3F8692">Seachange</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5232,7 +5136,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>R_Frontal_Lobe</TG263ReverseOrderName>
         <FMAID>72969</FMAID>
-         <Color red="222" green="47" blue="80" Hex= "#DE2F50">Chin-ChinCherry</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5248,7 +5152,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Occipital_Lobe</TG263ReverseOrderName>
         <FMAID>67325</FMAID>
-        <Color red="246" green="151" blue="81" Hex= "#F69751">HollandTulip</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5264,7 +5168,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>L_Occipital_Lobe</TG263ReverseOrderName>
         <FMAID>72976</FMAID>
-        <Color red="246" green="151" blue="81" Hex= "#F69751">HollandTulip</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5280,7 +5184,7 @@
         <NCharacters>16</NCharacters>
         <TG263ReverseOrderName>R_Occipital_Lobe</TG263ReverseOrderName>
         <FMAID>72975</FMAID>
-        <Color red="67" green="102" blue="157" Hex= "#43669D">Mariner</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5296,7 +5200,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Parietal_Lobe</TG263ReverseOrderName>
         <FMAID>61826</FMAID>
-        <Color red="225" green="169" blue="47" Hex= "#E1A92F">Currywurst</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5312,7 +5216,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Parietal_Lobe</TG263ReverseOrderName>
         <FMAID>72974</FMAID>
-        <Color red="225" green="169" blue="47" Hex= "#E1A92F">Currywurst</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5328,7 +5232,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Parietal_Lobe</TG263ReverseOrderName>
         <FMAID>72973</FMAID>
-        <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5344,7 +5248,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Temporal_Lobe</TG263ReverseOrderName>
         <FMAID>61825</FMAID>
-         <Color red="200" green="157" blue="126" Hex= "#C89D7E">ChinookSalmon</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5360,40 +5264,8 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Temporal_Lobe</TG263ReverseOrderName>
         <FMAID>72972</FMAID>
-         <Color red="200" green="157" blue="126" Hex= "#C89D7E">ChinookSalmon</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Lobe_Temporal_L_PRVxx</name>
-        <TG263PrimaryName>Lobe_Temporal_PRVxx_L</TG263PrimaryName>
-        <Description>PRV margin on the Left-Temporal Lobe that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Brain</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>21</NCharacters>
-        <TG263ReverseOrderName>L_PRVxx_Lobe_Temporal</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="201" green="191" blue="130" Hex= "#C9BF82">OliveHint</Color>
-        <Alias>temporallobe_l_prv</Alias>
-    </roi>
-    <roi>
-        <name>Lobe_Temporal_L_PRV03</name>
-        <TG263PrimaryName>Lobe_Temporal_PRV03_L</TG263PrimaryName>
-        <Description>PRV margin on the Left-Temporal Lobe that is a 03 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Brain</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>21</NCharacters>
-        <TG263ReverseOrderName>L_PRV03_Lobe_Temporal</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="201" green="191" blue="130" Hex= "#C9BF82">OliveHint</Color>
-        <Alias>temporallobe_l_prv03</Alias>
     </roi>
     <roi>
         <name>Lobe_Temporal_R</name>
@@ -5408,40 +5280,8 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Temporal_Lobe</TG263ReverseOrderName>
         <FMAID>72971</FMAID>
-         <Color red="46" green="122" blue="177" Hex= "#2E7AB1">Campánula</Color>
-        <Alias>temporal_lobe_r</Alias>
-    </roi>
-    <roi>
-        <name>Lobe_Temporal_R_PRVxx</name>
-        <TG263PrimaryName>Lobe_Temporal_PRVxx_R</TG263PrimaryName>
-        <Description>PRV margin on the Right-Temporal Lobe that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Brain</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>21</NCharacters>
-        <TG263ReverseOrderName>R_PRVxx_Lobe_Temporal</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
-        <Alias>temporallobe_R_prv</Alias>
-    </roi>
-    <roi>
-        <name>Lobe_Temporal_R_PRV03</name>
-        <TG263PrimaryName>Lobe_Temporal_PRV03_R</TG263PrimaryName>
-        <Description>PRV margin on the Right-Temporal Lobe that is a 03 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Brain</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Head and Neck</AnatomicGroup>
-        <NCharacters>21</NCharacters>
-        <TG263ReverseOrderName>R_PRV03_Lobe_Temporal</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
-        <Alias>temporallobe_R_prv03</Alias>
+        <Color red="255" green="255" blue="255">#</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Malleus</name>
@@ -5552,7 +5392,7 @@
         <NCharacters>14</NCharacters>
         <TG263ReverseOrderName>Constrict_Musc</TG263ReverseOrderName>
         <FMAID>46620</FMAID>
-         <Color red="233" green="238" blue="144" Hex= "#E9EE90">Jonquil</Color>
+        <Color red="194" green="76" blue="197">#C24CC5</Color>
         <Alias>ConstrMuscle,ConstMusc</Alias>
     </roi>
     <roi>
@@ -5792,7 +5632,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Nape</TG263ReverseOrderName>
         <FMAID>24189</FMAID>
-         <Color red="187" green="194" blue="226" Hex= "#BBC2E2">EtheriumBlue</Color>
+        <Color red="194" green="76" blue="197">#C24CC5</Color>
         <Alias>nape</Alias>
     </roi>
     <roi>
@@ -7440,8 +7280,8 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>R_Femur</TG263ReverseOrderName>
         <FMAID>24474</FMAID>
-         <Color red="183" green="87" blue="145" Hex= "#B75791">SpruceTreeFlower</Color>
-        <Alias>r_femur</Alias>
+        <Color red="46" green="122" blue="177">#2E7AB1</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Femur_R_PRVxx</name>
@@ -7456,7 +7296,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>R_PRVxx_Femur</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
+        <Color red="27" green="158" blue="180" Hex= "#1B9EB4">Riviera</Color>
         <Alias>Femur_R_prv,femur_r_prv</Alias>
     </roi>
     <roi>
@@ -7472,7 +7312,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>R_PRV05_Femur</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="209" green="63" blue="150" Hex= "#D13F96">Kirby</Color>
+        <Color red="27" green="158" blue="180" Hex= "#1B9EB4">Riviera</Color>
         <Alias>Femur_R_prv05,femur_r_prv05</Alias>
     </roi>
     <roi>
@@ -7488,7 +7328,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Femurs</TG263ReverseOrderName>
         <FMAID>9611</FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="255" green="255" blue="153">#ffff99</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9938,7 +9778,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Vulva</TG263ReverseOrderName>
         <FMAID>20462</FMAID>
-        <Color red="195" green="49" blue="251" Hex= "#C331FB" >Magnetos</Color>
+        <Color red="106" green="61" blue="154">#6a3d9a</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9954,7 +9794,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Vagina_Wall</TG263ReverseOrderName>
         <FMAID>19971</FMAID>
-        <Color red="241" green="72" blue="254" Hex= "#F148FE" >PhenomenalPink</Color>
+        <Color red="106" green="61" blue="154">#6a3d9a</Color>
         <Alias></Alias>
     </roi>
     <roi>

@@ -5184,7 +5184,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Lips</TG263ReverseOrderName>
         <FMAID>59815</FMAID>
-        <Color red="253" green="121" blue="73" Hex= "#FD7949" >MythicalOrange</Color>
+        <Color red="160" green="235" blue="81">#A0EB51</Color>
         <Alias>lips,lip</Alias>
     </roi>
     <roi>
@@ -5296,7 +5296,7 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>Parietal_Lobe</TG263ReverseOrderName>
         <FMAID>61826</FMAID>
-        <Color red="225" green="169" blue="47" Hex= "#E1A92F">Currywurst</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5312,7 +5312,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>L_Parietal_Lobe</TG263ReverseOrderName>
         <FMAID>72974</FMAID>
-        <Color red="225" green="169" blue="47" Hex= "#E1A92F">Currywurst</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5328,7 +5328,7 @@
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>R_Parietal_Lobe</TG263ReverseOrderName>
         <FMAID>72973</FMAID>
-        <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -5409,7 +5409,7 @@
         <TG263ReverseOrderName>R_Temporal_Lobe</TG263ReverseOrderName>
         <FMAID>72971</FMAID>
          <Color red="46" green="122" blue="177" Hex= "#2E7AB1">Campánula</Color>
-        <Alias>temporal_lobe_r</Alias>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Lobe_Temporal_R_PRVxx</name>
@@ -5424,7 +5424,7 @@
         <NCharacters>21</NCharacters>
         <TG263ReverseOrderName>R_PRVxx_Lobe_Temporal</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
+         <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
         <Alias>temporallobe_R_prv</Alias>
     </roi>
     <roi>
@@ -5440,7 +5440,7 @@
         <NCharacters>21</NCharacters>
         <TG263ReverseOrderName>R_PRV03_Lobe_Temporal</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
+         <Color red="170" green="184" blue="244" Hex= "#AAB8F4">Perano</Color>
         <Alias>temporallobe_R_prv03</Alias>
     </roi>
     <roi>

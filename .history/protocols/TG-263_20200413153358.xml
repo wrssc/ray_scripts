@@ -5184,7 +5184,7 @@
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>Lips</TG263ReverseOrderName>
         <FMAID>59815</FMAID>
-        <Color red="253" green="121" blue="73" Hex= "#FD7949" >MythicalOrange</Color>
+        <Color red="160" green="235" blue="81">#A0EB51</Color>
         <Alias>lips,lip</Alias>
     </roi>
     <roi>
