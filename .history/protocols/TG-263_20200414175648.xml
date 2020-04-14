@@ -10323,24 +10323,8 @@
         <NCharacters>13</NCharacters>
         <TG263ReverseOrderName>PRVxx_Urethra</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="206" green="168" blue="252" Hex= "#cea8fc" >PurpleHepatica</Color>
+        <Color red="132" green="101" blue="21">#846515</Color>
         <Alias>urethra_prv</Alias>
-    </roi>
-     <roi>
-        <name>Urethra_PRV02</name>
-        <TG263PrimaryName>Urethra_PRV02</TG263PrimaryName>
-        <Description>PRV margin on Urethra that is a 02 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Urinary</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PRV02_Urethra</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="206" green="168" blue="252" Hex= "#cea8fc" >PurpleHepatica</Color>
-        <Alias>urethra_prv02</Alias>
     </roi>
     <roi>
         <name>Urethra_Prostatc</name>

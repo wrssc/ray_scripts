@@ -1714,8 +1714,8 @@
         <Alias>ptv</Alias>
     </roi>
     <roi>
-        <name>PTV_bst</name>
-        <TG263PrimaryName>PTV_bst</TG263PrimaryName>
+        <name>PTV_Bst_xxxx</name>
+        <TG263PrimaryName>PTV_Bst_xxxx</TG263PrimaryName>
         <Description>Planning Target Volume for boost treatment with dose xxxx Gy</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
@@ -1724,10 +1724,10 @@
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>12</NCharacters>
-        <TG263ReverseOrderName>PTV_bst</TG263ReverseOrderName>
+        <TG263ReverseOrderName>PTV_Bst_xxxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="51" green="160" blue="44" Hex="#33a02c">BrewerDarkGreen</Color>
-        <Alias>ptv_boost,ptv_bst</Alias>
+        <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>PTV_Eval_xxxx</name>
@@ -1758,87 +1758,23 @@
         <NCharacters>24</NCharacters>
         <TG263ReverseOrderName>PTV_Lumpectomy_Eval_xxxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="51" green="160" blue="44" Hex="#33a02c">BrewerDarkGreen</Color>
+        <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
         <Alias>ptv_eval_lumpectomy</Alias>
     </roi>
     <roi>
-        <name>PTV_p</name>
-        <TG263PrimaryName>PTV_p</TG263PrimaryName>
-        <Description>Planning Target Volume of a primary volume</Description>
+        <name>PTV_xxxx</name>
+        <TG263PrimaryName>PTV_xxxx</TG263PrimaryName>
+        <Description>Planning Target Volume with dose xxxx in cGy</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
         <RTROIInterpretedType>Ptv</RTROIInterpretedType>
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>5</NCharacters>
-        <TG263ReverseOrderName>PTV_p</TG263ReverseOrderName>
+        <NCharacters>8</NCharacters>
+        <TG263ReverseOrderName>PTV_xxxx</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV_p-OLV</name>
-        <TG263PrimaryName>PTV_p-OLV</TG263PrimaryName>
-        <Description>Planning Target Volume minus the overlap volume</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>10</NCharacters>
-        <TG263ReverseOrderName>PTV_p-OLV</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV_p_OLV</name>
-        <TG263PrimaryName>PTV_p_OLV</TG263PrimaryName>
-        <Description>Planning Target Volume intersecting the overlap volume</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>9</NCharacters>
-        <TG263ReverseOrderName>PTV_p_OLV</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="251" green="154" blue="153" Hex="#fb9a99">BrewerRose</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV_sib</name>
-        <TG263PrimaryName>PTV_sib</TG263PrimaryName>
-        <Description>Planning Target Volume which is to receive a simulataneous integrated boost</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>7</NCharacters>
-        <TG263ReverseOrderName>PTV_sib</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV_sib_OLV</name>
-        <TG263PrimaryName>PTV_sib_OLV</TG263PrimaryName>
-        <Description>Planning Target Volume which is to receive a simulataneous integrated boost and intersects the overlap volume of nearby critical structures.</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>11</NCharacters>
-        <TG263ReverseOrderName>PTV_sib</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="202" green="178" blue="214" Hex="#cab2d6">BrewerLightPurple</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -1922,8 +1858,8 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>PTV1_LLL</name>
-        <TG263PrimaryName>PTV1_LLL</TG263PrimaryName>
+        <name>PTV_LLL</name>
+        <TG263PrimaryName>PTV_LLL</TG263PrimaryName>
         <Description>Planning Target Volume for the left lower lobe of the lung</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
@@ -1931,15 +1867,15 @@
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV1_LLL</TG263ReverseOrderName>
+        <NCharacters>7</NCharacters>
+        <TG263ReverseOrderName>PTV_LLL</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
         <Alias></Alias>
     </roi>
     <roi>
-        <name>PTV1_LUL</name>
-        <TG263PrimaryName>PTV1_LUL</TG263PrimaryName>
+        <name>PTV_LUL</name>
+        <TG263PrimaryName>PTV_LUL</TG263PrimaryName>
         <Description>Planning Target Volume for the left upper lobe of the lung</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
@@ -1947,15 +1883,15 @@
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV1_LUL</TG263ReverseOrderName>
+        <NCharacters>7</NCharacters>
+        <TG263ReverseOrderName>PTV_LUL</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
         <Alias></Alias>
     </roi>
     <roi>
-        <name>PTV1_RLL</name>
-        <TG263PrimaryName>PTV1_RLL</TG263PrimaryName>
+        <name>PTV_RLL</name>
+        <TG263PrimaryName>PTV_RLL</TG263PrimaryName>
         <Description>Planning Target Volume for the right lower lobe of the lung</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
@@ -1963,15 +1899,15 @@
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV1_RLL</TG263ReverseOrderName>
+        <NCharacters>7</NCharacters>
+        <TG263ReverseOrderName>PTV_RLL</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
         <Alias></Alias>
     </roi>
     <roi>
-        <name>PTV1_RML</name>
-        <TG263PrimaryName>PTV1_RML</TG263PrimaryName>
+        <name>PTV_RML</name>
+        <TG263PrimaryName>PTV_RML</TG263PrimaryName>
         <Description>Planning Target Volume for the right medial lobe of the lung</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
@@ -1979,15 +1915,15 @@
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV1_RML</TG263ReverseOrderName>
+        <NCharacters>7</NCharacters>
+        <TG263ReverseOrderName>PTV_RML</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
         <Alias></Alias>
     </roi>
     <roi>
-        <name>PTV1_RUL</name>
-        <TG263PrimaryName>PTV1_RUL</TG263PrimaryName>
+        <name>PTV_RUL</name>
+        <TG263PrimaryName>PTV_RUL</TG263PrimaryName>
         <Description>Planning Target Volume for the right upper lobe of the lung</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
@@ -1995,412 +1931,12 @@
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV1_RUL</TG263ReverseOrderName>
+        <NCharacters>7</NCharacters>
+        <TG263ReverseOrderName>PTV_RUL</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="227" green="26" blue="28" Hex="#e31a1c">BrewerRed</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV2_LLL</name>
-        <TG263PrimaryName>PTV2_LLL</TG263PrimaryName>
-        <Description>Planning Target Volume for the left lower lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV2_LLL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="51" green="160" blue="44" Hex="#33a02c">BrewerDarkGreen</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV2_LUL</name>
-        <TG263PrimaryName>PTV2_LUL</TG263PrimaryName>
-        <Description>Planning Target Volume for the left upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV2_LUL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="51" green="160" blue="44" Hex="#33a02c">BrewerDarkGreen</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV2_RLL</name>
-        <TG263PrimaryName>PTV2_RLL</TG263PrimaryName>
-        <Description>Planning Target Volume for the right lower lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV2_RLL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="51" green="160" blue="44" Hex="#33a02c">BrewerDarkGreen</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV2_RML</name>
-        <TG263PrimaryName>PTV2_RML</TG263PrimaryName>
-        <Description>Planning Target Volume for the right medial lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV2_RML</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="51" green="160" blue="44" Hex="#33a02c">BrewerDarkGreen</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV2_RUL</name>
-        <TG263PrimaryName>PTV2_RUL</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV2_RUL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="51" green="160" blue="44" Hex="#33a02c">BrewerDarkGreen</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV3_LLL</name>
-        <TG263PrimaryName>PTV3_LLL</TG263PrimaryName>
-        <Description>Planning Target Volume for the left lower lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV3_LLL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="31" green="120" blue="180" Hex="#1f78b4">BrewerDarkBlue</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV3_LUL</name>
-        <TG263PrimaryName>PTV3_LUL</TG263PrimaryName>
-        <Description>Planning Target Volume for the left upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV3_LUL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="31" green="120" blue="180" Hex="#1f78b4">BrewerDarkBlue</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV3_RLL</name>
-        <TG263PrimaryName>PTV3_RLL</TG263PrimaryName>
-        <Description>Planning Target Volume for the right lower lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV3_RLL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="31" green="120" blue="180" Hex="#1f78b4">BrewerDarkBlue</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV3_RML</name>
-        <TG263PrimaryName>PTV3_RML</TG263PrimaryName>
-        <Description>Planning Target Volume for the right medial lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV3_RML</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="31" green="120" blue="180" Hex="#1f78b4">BrewerDarkBlue</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV3_RUL</name>
-        <TG263PrimaryName>PTV3_RUL</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV3_RUL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="31" green="120" blue="180" Hex="#1f78b4">BrewerDarkBlue</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV4_LLL</name>
-        <TG263PrimaryName>PTV4_LLL</TG263PrimaryName>
-        <Description>Planning Target Volume for the left lower lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV4_LLL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV4_LUL</name>
-        <TG263PrimaryName>PTV4_LUL</TG263PrimaryName>
-        <Description>Planning Target Volume for the left upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV4_LUL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV4_RLL</name>
-        <TG263PrimaryName>PTV4_RLL</TG263PrimaryName>
-        <Description>Planning Target Volume for the right lower lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV4_RLL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV4_RML</name>
-        <TG263PrimaryName>PTV4_RML</TG263PrimaryName>
-        <Description>Planning Target Volume for the right medial lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV4_RML</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV4_RUL</name>
-        <TG263PrimaryName>PTV4_RUL</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV4_RUL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV5_LLL</name>
-        <TG263PrimaryName>PTV5_LLL</TG263PrimaryName>
-        <Description>Planning Target Volume for the left lower lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV5_LLL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV5_LUL</name>
-        <TG263PrimaryName>PTV5_LUL</TG263PrimaryName>
-        <Description>Planning Target Volume for the left upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV5_LUL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV5_RLL</name>
-        <TG263PrimaryName>PTV5_RLL</TG263PrimaryName>
-        <Description>Planning Target Volume for the right lower lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV5_RLL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV5_RML</name>
-        <TG263PrimaryName>PTV5_RML</TG263PrimaryName>
-        <Description>Planning Target Volume for the right medial lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV5_RML</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV5_RUL</name>
-        <TG263PrimaryName>PTV5_RUL</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>8</NCharacters>
-        <TG263ReverseOrderName>PTV5_RUL</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV1</name>
-        <TG263PrimaryName>PTV1</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>4</NCharacters>
-        <TG263ReverseOrderName>PTV1</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV2</name>
-        <TG263PrimaryName>PTV2</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>4</NCharacters>
-        <TG263ReverseOrderName>PTV2</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV3</name>
-        <TG263PrimaryName>PTV3</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>4</NCharacters>
-        <TG263ReverseOrderName>PTV3</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>PTV4</name>
-        <TG263PrimaryName>PTV4</TG263PrimaryName>
-        <Description>Planning Target Volume for Target 4</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>4</NCharacters>
-        <TG263ReverseOrderName>PTV4</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
-        <Alias></Alias>
-    </roi>
-   <roi>
-        <name>PTV5</name>
-        <TG263PrimaryName>PTV5</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
-        <NCIt></NCIt>
-        <TargetType>Target</TargetType>
-        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
-        <MajorCategory>PTV</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>4</NCharacters>
-        <TG263ReverseOrderName>PTV5</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
-        <Alias></Alias>
-    </roi>
+    </roi> 
     <roi>
         <name>Postop</name>
         <TG263PrimaryName>Postop</TG263PrimaryName>
@@ -8743,22 +8279,6 @@
         <Alias>bladder</Alias>
     </roi>
     <roi>
-        <name>Bladder_PRV02</name>
-        <TG263PrimaryName>Bladder_PRV02</TG263PrimaryName>
-        <Description>PRV margin on Bladder that is a 02 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bladder</ajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PRV02_Bladder</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
-        <Alias>bladder_prv02,prv02_bladder</Alias>
-    </roi>
-    <roi>
         <name>Bladder-CTV</name>
         <TG263PrimaryName>Bladder-CTV</TG263PrimaryName>
         <Description>Bladder minus CTV</Description>
@@ -8984,8 +8504,8 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Anal_Canal</TG263ReverseOrderName>
         <FMAID>15703</FMAID>
-        <Color red="122" green="253" blue="255" Hex= "#7AFDFF" >ElectricBlue</Color>
-        <Alias>analcanal,anal_canal</Alias>
+        <Color red="255" green="255" blue="255">#</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>CaudaEquina</name>
@@ -9135,8 +8655,7 @@
         <NCharacters>18</NCharacters>
         <TG263ReverseOrderName>L_Head_Femur_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="251" green="218" blue="150" Hex= "#fbda96" >GoldenHaze</Color>
-        <Alias>prv_femurL,prv_femoralhead_L,prv_femoral_head_L</Alias>
+        <Color red="251" green="185" blue="49" Hex= "#FBB931">NYCTaxi</Color><Alias>prv_femurL,prv_femoralhead_L,prv_femoral_head_L</Alias>
     </roi>
     <roi>
         <name>Femur_Head_L_PRV05</name>
@@ -9152,7 +8671,7 @@
         <NCharacters>18</NCharacters>
         <TG263ReverseOrderName>L_Head_Femur_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="251" green="218" blue="150" Hex= "#fbda96" >GoldenHaze</Color>
+        <Color red="67" green="102" blue="157">#43669D</Color>
         <Alias>prv05_femurL,prv05_femoralheadL,prv05_femoral_head_L</Alias>
     </roi>
     <roi>
@@ -9314,7 +8833,7 @@
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Foley</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="46" green="122" blue="177" Hex= "#2E7AB1">Campánula</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9621,22 +9140,6 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>OLV</name>
-        <TG263PrimaryName>OLV</TG263PrimaryName>
-        <Description>Overlap volume between targets and organs at risk</Description>
-        <NCIt></NCIt>
-        <TargetType>Derived</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Body</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup></AnatomicGroup>
-        <NCharacters>3</NCharacters>
-        <TG263ReverseOrderName>OLV</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="177" green="89" blue="40" Hex="#b15928">BrewerBrown</Color>
-        <Alias>olv</Alias>
-    </roi>
-    <roi>
         <name>Ovaries</name>
         <TG263PrimaryName>Ovaries</TG263PrimaryName>
         <Description>Ovary</Description>
@@ -9713,7 +9216,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>PenileBulb</TG263ReverseOrderName>
         <FMAID>19614</FMAID>
-         <Color red="64" green="248" blue="201" Hex= "#40F8C9" >FreshTurquoise1</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9761,7 +9264,7 @@
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Prostate</TG263ReverseOrderName>
         <FMAID>9600</FMAID>
-        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9777,7 +9280,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>ProstateBed</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -9841,7 +9344,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Rectal_Wall</TG263ReverseOrderName>
         <FMAID>14626</FMAID>
-        <Color red="252" green="165" blue="52" Hex= "#FCA534" >TamagoOrange</Color>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
         <Alias>rectalwall,wall_rectum</Alias>
     </roi>
     <roi>
@@ -9860,7 +9363,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Rectum</TG263ReverseOrderName>
         <FMAID>14544</FMAID>
-        <Color red="253" green="183" blue="85" Hex= "#FDB755" >SummerOrange</Color>
+        <Color red="165" green="42" blue="42">#a52a2a</Color>
         <Alias>rectalwall,wall_rectum</Alias>
     </roi>
     <roi>
@@ -9876,13 +9379,13 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Rectum_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="253" green="218" blue="169" Hex= "#fddaa9" >PeachCider</Color>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
         <Alias>rectum_prv,prv_rectum</Alias>
     </roi>
     <roi>
-        <name>Rectum_PRV02</name>
-        <TG263PrimaryName>Rectum_PRV02</TG263PrimaryName>
-        <Description>Large bowel - Rectum expanded 02 mm as a planning risk volume</Description>
+        <name>Rectum_PRV05</name>
+        <TG263PrimaryName>Rectum_PRV05</TG263PrimaryName>
+        <Description>Large bowel - Rectum expanded 05 mm as a planning risk volume</Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
@@ -9890,10 +9393,10 @@
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Pelvis</AnatomicGroup>
         <NCharacters>12</NCharacters>
-        <TG263ReverseOrderName>Rectum_PRV02</TG263ReverseOrderName>
+        <TG263ReverseOrderName>Rectum_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="253" green="218" blue="169" Hex= "#fddaa9" >PeachCider</Color>
-        <Alias>rectum_prv02</Alias>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
+        <Alias>rectum_prv05</Alias>
     </roi>
     <roi>
         <name>Rectum-PTV</name>
@@ -9908,11 +9411,11 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName></TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
         <Alias>rectum</Alias>
     </roi>
     <roi>
-        <name>Rectum-CTV</name>
+        <name>Rectum-PTV</name>
         <TG263PrimaryName>Rectum-PTV</TG263PrimaryName>
         <Description>Large bowel - Rectum minus the planning risk volume</Description>
         <NCIt></NCIt>
@@ -9924,7 +9427,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName></TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
         <Alias>rectum</Alias>
     </roi>
     <roi>
@@ -10307,40 +9810,8 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Urethra</TG263ReverseOrderName>
         <FMAID>19667</FMAID>
-        <Color red="160" green="85" blue="252" Hex= "#A055FC" >IrrigoPurple</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Urethra_PRVxx</name>
-        <TG263PrimaryName>Urethra_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on Urethra that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Urinary</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Urethra</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="206" green="168" blue="252" Hex= "#cea8fc" >PurpleHepatica</Color>
-        <Alias>urethra_prv</Alias>
-    </roi>
-     <roi>
-        <name>Urethra_PRV02</name>
-        <TG263PrimaryName>Urethra_PRV02</TG263PrimaryName>
-        <Description>PRV margin on Urethra that is a 02 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Urinary</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PRV02_Urethra</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="206" green="168" blue="252" Hex= "#cea8fc" >PurpleHepatica</Color>
-        <Alias>urethra_prv02</Alias>
     </roi>
     <roi>
         <name>Urethra_Prostatc</name>
@@ -10806,38 +10277,6 @@
         <TG263ReverseOrderName>Pulmonary_A</TG263ReverseOrderName>
         <FMAID>66326</FMAID>
         <Color red="250" green="28" blue="185" Hex= "#FA1CB9">SpicyPink1</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>A_Pulmonary_PRVxx</name>
-        <TG263PrimaryName>A_Pulmonary_PRVxx</TG263PrimaryName>
-        <Description>Planning risk volume for Pulmonary Artery, an xx expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Artery</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Pulmonary_A</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="223" green="150" blue="251" Hex= "#df96fb" >MediumLavenderMagenta</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
-        <name>A_Pulmonary_PRV05</name>
-        <TG263PrimaryName>A_Pulmonary_PRV05</TG263PrimaryName>
-        <Description>Planning risk volume for Pulmonary Artery, an 05 expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Artery</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Pulmonary_A</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="223" green="150" blue="251" Hex= "#df96fb" >MediumLavenderMagenta</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -13893,40 +13332,8 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Pulmonary_V</TG263ReverseOrderName>
         <FMAID>66643</FMAID>
-        <Color red="247" green="236" blue="20" Hex= "#F7EC14" >GenoaLemon</Color>
-        <Alias>pulmonary_vein,pulmonaryVein</Alias>
-    </roi>
-    <roi>
-        <name>V_Pulmonary_PRVxx</name>
-        <TG263PrimaryName>V_Pulmonary_PRVxx</TG263PrimaryName>
-        <Description>Planning risk volume made by expanding Pulmonary vein xx mm</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Vein</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Pulmonary_V</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
-        <Alias>PulmonaryVein_PRV</Alias>
-    </roi>
-    <roi>
-        <name>V_Pulmonary_PRV05</name>
-        <TG263PrimaryName>V_Pulmonary_PRV05</TG263PrimaryName>
-        <Description>Planning risk volume made by expanding Pulmonary vein 05 mm</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Vein</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>PRV05_Pulmonary_V</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="245" green="255" blue="146" Hex= "#f5ff92" >PastelYellow</Color>
-        <Alias>PulmonaryVein_PRV05</Alias>
+        <Color red="170" green="184" blue="244">#AAB8F4</Color>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>V_Subclavian_L</name>
@@ -13975,56 +13382,6 @@
         <FMAID>4725</FMAID>
         <Color red="170" green="184" blue="244">#AAB8F4</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>V_Venacava</name>
-        <TG263PrimaryName>V_Venacava</TG263PrimaryName>
-        <Description>Vena cava</Description>
-        <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType>Organ</RTROIInterpretedType>
-        <MajorCategory>Vein</MajorCategory>
-        <MinorCategory>VenaCava</MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>12</NCharacters>
-        <TG263ReverseOrderName>Venacava_V</TG263ReverseOrderName>
-        <FMAID>10951</FMAID>
-        <Color red="235" green="255" blue="36" Hex= "#EBFF24">SpoiledEgg</Color>
-        <Alias>venacava</Alias>
-    </roi>
-    <roi>
-        <name>V_Venacava_PRVxx</name>
-        <TG263PrimaryName>V_Venacava_PRVxx</TG263PrimaryName>
-        <Description>Vena cava expanded xx mm as a planning risk volume
-        </Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Vein</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>18</NCharacters>
-        <TG263ReverseOrderName>V_Venacava_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="245" green="255" blue="146" Hex= "#f5ff92">PastelYellow</Color>
-        <Alias>prv_venacava</Alias>
-    </roi>
-    <roi>
-        <name>V_Venacava_PRV05</name>
-        <TG263PrimaryName>V_Venacava_PRV05</TG263PrimaryName>
-        <Description>Vena cava expanded 05 mm as a planning risk volume
-        </Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Vein</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>18</NCharacters>
-        <TG263ReverseOrderName>V_Venacava_PRV05</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="245" green="255" blue="146" Hex= "#f5ff92">PastelYellow</Color>
-        <Alias>prv_venacava</Alias>
     </roi>
     <roi>
         <name>V_Venacava_I</name>

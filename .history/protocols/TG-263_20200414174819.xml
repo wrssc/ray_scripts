@@ -9841,7 +9841,7 @@
         <NCharacters>11</NCharacters>
         <TG263ReverseOrderName>Rectal_Wall</TG263ReverseOrderName>
         <FMAID>14626</FMAID>
-        <Color red="252" green="165" blue="52" Hex= "#FCA534" >TamagoOrange</Color>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
         <Alias>rectalwall,wall_rectum</Alias>
     </roi>
     <roi>
@@ -9860,7 +9860,7 @@
         <NCharacters>6</NCharacters>
         <TG263ReverseOrderName>Rectum</TG263ReverseOrderName>
         <FMAID>14544</FMAID>
-        <Color red="253" green="183" blue="85" Hex= "#FDB755" >SummerOrange</Color>
+        <Color red="165" green="42" blue="42">#a52a2a</Color>
         <Alias>rectalwall,wall_rectum</Alias>
     </roi>
     <roi>
@@ -9876,13 +9876,13 @@
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>Rectum_PRVxx</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="253" green="218" blue="169" Hex= "#fddaa9" >PeachCider</Color>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
         <Alias>rectum_prv,prv_rectum</Alias>
     </roi>
     <roi>
-        <name>Rectum_PRV02</name>
-        <TG263PrimaryName>Rectum_PRV02</TG263PrimaryName>
-        <Description>Large bowel - Rectum expanded 02 mm as a planning risk volume</Description>
+        <name>Rectum_PRV05</name>
+        <TG263PrimaryName>Rectum_PRV05</TG263PrimaryName>
+        <Description>Large bowel - Rectum expanded 05 mm as a planning risk volume</Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
@@ -9890,10 +9890,10 @@
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Pelvis</AnatomicGroup>
         <NCharacters>12</NCharacters>
-        <TG263ReverseOrderName>Rectum_PRV02</TG263ReverseOrderName>
+        <TG263ReverseOrderName>Rectum_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="253" green="218" blue="169" Hex= "#fddaa9" >PeachCider</Color>
-        <Alias>rectum_prv02</Alias>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
+        <Alias>rectum_prv05</Alias>
     </roi>
     <roi>
         <name>Rectum-PTV</name>
@@ -9908,11 +9908,11 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName></TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
         <Alias>rectum</Alias>
     </roi>
     <roi>
-        <name>Rectum-CTV</name>
+        <name>Rectum-PTV</name>
         <TG263PrimaryName>Rectum-PTV</TG263PrimaryName>
         <Description>Large bowel - Rectum minus the planning risk volume</Description>
         <NCIt></NCIt>
@@ -9924,7 +9924,7 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName></TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Color red="122" green="31" blue="31">#7a1f1f</Color>
         <Alias>rectum</Alias>
     </roi>
     <roi>
@@ -10307,40 +10307,8 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Urethra</TG263ReverseOrderName>
         <FMAID>19667</FMAID>
-        <Color red="160" green="85" blue="252" Hex= "#A055FC" >IrrigoPurple</Color>
+        <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Urethra_PRVxx</name>
-        <TG263PrimaryName>Urethra_PRVxx</TG263PrimaryName>
-        <Description>PRV margin on Urethra that is a xx millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Urinary</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PRVxx_Urethra</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="206" green="168" blue="252" Hex= "#cea8fc" >PurpleHepatica</Color>
-        <Alias>urethra_prv</Alias>
-    </roi>
-     <roi>
-        <name>Urethra_PRV02</name>
-        <TG263PrimaryName>Urethra_PRV02</TG263PrimaryName>
-        <Description>PRV margin on Urethra that is a 02 millimeter expansion</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Urinary</MajorCategory>
-        <MinorCategory>PRV</MinorCategory>
-        <AnatomicGroup>Pelvis</AnatomicGroup>
-        <NCharacters>13</NCharacters>
-        <TG263ReverseOrderName>PRV02_Urethra</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="206" green="168" blue="252" Hex= "#cea8fc" >PurpleHepatica</Color>
-        <Alias>urethra_prv02</Alias>
     </roi>
     <roi>
         <name>Urethra_Prostatc</name>
