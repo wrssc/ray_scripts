@@ -4963,6 +4963,38 @@
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
     </roi>
+    <roi>
+        <name>Hippocampi_PRVxx</name>
+        <TG263PrimaryName>Hippocampi_PRVxx</TG263PrimaryName>
+        <Description>Hippocampi expanded xx mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Brain</MajorCategory>
+        <MinorCategory>Hippocampus</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>19</NCharacters>
+        <TG263ReverseOrderName>PRVxx_Hippocampi</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="251" green="161" blue="236" Hex= "#fba1ec">LavenderRose</Color>
+        <Alias>hippo_prv,hippocampi_prv</Alias>
+    </roi>
+    <roi>
+        <name>Hippocampi_PRV05</name>
+        <TG263PrimaryName>Hippocampi_PRV05</TG263PrimaryName>
+        <Description>Hippocampi expanded 05 mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Brain</MajorCategory>
+        <MinorCategory>Hippocampus</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>19</NCharacters>
+        <TG263ReverseOrderName>PRV05_Hippocampi</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="251" green="161" blue="236" Hex= "#fba1ec">LavenderRose</Color>
+        <Alias>hippo_prv05,hippocampi_prv05,hippo_avoid_05</Alias>
+    </roi>
      <roi>
         <name>Hippocampus_L</name>
         <TG263PrimaryName>Hippocampus_L</TG263PrimaryName>
@@ -4977,7 +5009,7 @@
         <TG263ReverseOrderName>L_Hippocampus</TG263ReverseOrderName>
         <FMAID>275024</FMAID>
         <Color red="251" green="70" blue="222" Hex= "#FB46DE">PurplePizzazz</Color>
-        <Alias></Alias>
+        <Alias>hippo_l</Alias>
     </roi>
     <roi>
         <name>Hippocampus_L_PRVxx</name>
@@ -5025,7 +5057,7 @@
         <TG263ReverseOrderName>R_Hippocampus</TG263ReverseOrderName>
         <FMAID>275022</FMAID>
         <Color red="212" green="246" blue="43" Hex= "#D4F62B">StadiumGrass</Color>
-        <Alias></Alias>
+        <Alias>hippo_r</Alias>
     </roi>
     <roi>
         <name>Hippocampus_R_PRVxx</name>
@@ -6561,7 +6593,7 @@
         <TG263ReverseOrderName>L_OpticNrv</TG263ReverseOrderName>
         <FMAID>50878</FMAID>
         <Color red="254" green="53" blue="80" Hex= "#FE3550">DetailedDevil</Color>
-        <Alias>OpticNerve_L,opticnerve_l,opticnervel</Alias>
+        <Alias>OpticNerve_L,opticnerve_l,opticnervel,nerve_l</Alias>
     </roi>
     <roi>
         <name>OpticNrv_L_PRVxx</name>
@@ -6609,7 +6641,7 @@
         <TG263ReverseOrderName>R_OpticNrv</TG263ReverseOrderName>
         <FMAID>50875</FMAID>
         <Color red="58" green="251" blue="170" Hex= "#3AFBAA">EvaGreen</Color>
-        <Alias>OpticNerve_R,opticnerve_R,opticnerve_r,Ropticnerve</Alias>
+        <Alias>OpticNerve_R,opticnerve_R,opticnerve_r,Ropticnerve,nerve_r</Alias>
     </roi>
     <roi>
         <name>OpticNrv_R_PRVxx</name>
