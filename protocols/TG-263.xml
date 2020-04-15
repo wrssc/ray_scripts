@@ -8749,7 +8749,7 @@
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Bladder</ajorCategory>
+        <MajorCategory>Bladder</MajorCategory>
         <MinorCategory>PRV</MinorCategory>
         <AnatomicGroup>Pelvis</AnatomicGroup>
         <NCharacters>13</NCharacters>
