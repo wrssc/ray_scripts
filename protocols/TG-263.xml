@@ -2702,7 +2702,7 @@
         <Color red="202" green="178" blue="214" Hex="#cab2d6">BrewerLightPurple</Color>
         <Alias></Alias>
     </roi>
-     <roi>
+    <roi>
         <name>TumorBed_Lumpectomy</name>
         <TG263PrimaryName>TumorBed_Lumpectomy</TG263PrimaryName>
         <Description>Tumor Bed (where lumpectomy was surgically excised)</Description>
