@@ -11740,7 +11740,7 @@
     <roi>
         <name>GreatVes_PRVxx</name>
         <TG263PrimaryName>GreatVes_PRVxx_X</TG263PrimaryName>
-        <Description>PRV margin on the great vessels (aorta, vena cava S/I, pulmonary A&ampV; that is a xx millimeter expansion</Description>
+        <Description>PRV margin on the great vessels: aorta, vena cava S/I, pulmonary A&ampV; that is a xx millimeter expansion</Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
