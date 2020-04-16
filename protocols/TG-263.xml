@@ -6593,7 +6593,7 @@
         <TG263ReverseOrderName>L_OpticNrv</TG263ReverseOrderName>
         <FMAID>50878</FMAID>
         <Color red="254" green="53" blue="80" Hex= "#FE3550">DetailedDevil</Color>
-        <Alias>OpticNerve_L,opticnerve_l,opticnervel,nerve_l</Alias>
+        <Alias>OpticNerve_L,opticnerve_l,opticnervel,nerve_l,optic_nerve_lt</Alias>
     </roi>
     <roi>
         <name>OpticNrv_L_PRVxx</name>
