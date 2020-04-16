@@ -22,3 +22,4 @@ codestyles/
 codestyles/Default.xml
 .vscode/settings.json
 .env
+.pylintrc

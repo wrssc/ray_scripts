@@ -35,7 +35,6 @@ class ButtonList:
 
     def __init__(self, inputs, text='', title='Select a Button', form=None):
         """dialog = UserInterface.ButtonList(['a', 'b'])"""
-        
         # Link .NET assemblies
         clr.AddReference('System.Windows.Forms')
         clr.AddReference('System.Drawing')

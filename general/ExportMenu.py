@@ -30,6 +30,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 import sys
 import logging
 import time
+
 import connect
 import UserInterface
 import DicomExport
