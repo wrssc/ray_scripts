@@ -1100,6 +1100,7 @@ def match_roi(patient, case, examination, plan_rois):
 	standard_names = {}
 	aliases = {}
 	# Search through the dataframe for all available aliases.
+	
 	rois_with_alias = df_rois[df_rois['Alias'].notnull()]
  	standard_names = rois_with_alias.set_index('name')['Alias'].to_dict()
 	for k, v in iter(standard_names):

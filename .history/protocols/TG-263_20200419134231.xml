@@ -9746,7 +9746,7 @@
         <TG263ReverseOrderName>PenileBulb</TG263ReverseOrderName>
         <FMAID>19614</FMAID>
          <Color red="64" green="248" blue="201" Hex= "#40F8C9" >FreshTurquoise1</Color>
-        <Alias>penile_bulb</Alias>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Penis</name>
