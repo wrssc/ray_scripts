@@ -696,10 +696,9 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
 
 	standard_names = []
 	aliases = {}
-	for n, a in standard_rois.items():
+	for n, a in standard_rois.iteritems():
 		standard_names.append(n)
-		if a is not None:
-			aliases[n] = a
+		aliases[n] = a
 
 	matched_rois = {}  # return variable described above
 	# alias_distance
