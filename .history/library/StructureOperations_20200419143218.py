@@ -1110,8 +1110,6 @@ def match_roi(patient, case, examination, plan_rois):
 			standard_names[r.find("name").text] = alias.split(",")
 		else:
 			standard_names[r.find("name").text] = {}
-	for k, v in standard_names.items():
-	 	logging.debug('Standard {} with alias {}'.format(k,v))
 	# Comes up with a list of up to 5 matches
 	potential_matches = find_normal_structures_match(
 		rois=oar_list, num_matches=5, standard_rois=standard_names

@@ -1102,16 +1102,14 @@ def match_roi(patient, case, examination, plan_rois):
 	# Search through the dataframe for all available aliases.
 	rois_with_alias = df_rois[df_rois['Alias'].notnull()]
  	standard_names1 = rois_with_alias.set_index('name')['Alias'].to_dict()
-	for k, v in standard_names1.items():
-	 	logging.debug('{} with alias {}'.format(k,v))
-	for r in roi263:
-		if r.find("Alias").text is not None:
-			alias = r.find("Alias").text
-			standard_names[r.find("name").text] = alias.split(",")
-		else:
-			standard_names[r.find("name").text] = {}
 	for k, v in standard_names.items():
-	 	logging.debug('Standard {} with alias {}'.format(k,v))
+	 	logging.debug('{} with alias {}'.format(k,v))
+	# for r in roi263:
+	# 	if r.find("Alias").text is not None:
+	# 		alias = r.find("Alias").text
+	# 		standard_names[r.find("name").text] = alias.split(",")
+	# 	else:
+	# 		standard_names[r.find("name").text] = {}
 	# Comes up with a list of up to 5 matches
 	potential_matches = find_normal_structures_match(
 		rois=oar_list, num_matches=5, standard_rois=standard_names
