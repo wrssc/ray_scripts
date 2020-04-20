@@ -856,22 +856,22 @@ def match_dialog(matches, elements,df_rois=None):
 					else:
 						df_matches[m] = df_e
 						e_name = df_e.name.values[0]
-						found_index = df_e.index
+						found_indx = df_e.index
 				else:
-					for e_index, standard_rois in enumerate(elements):
+					for indx, standard_rois in enumerate(elements):
 						if standard_rois.find("name").text == m:
-							found_index = e_index
+							found_indx = indx
 							break
 						else:
-							found_index = None
-				if found_index is not None:
+							found_indx = None
+				if found_indx is not None:
 					if df_rois is None:
 						logging.debug(
 							"Found element match {}: returning element {}".format(
-							r, elements[found_index].find("name").text
+							r, elements[found_indx].find("name").text
 							)
 						)
-						dialog_result[r] = elements[found_index]
+						dialog_result[r] = elements[found_indx]
 					else:
 						dialog_result[r] = df_e
 				# Address user supplied contour
