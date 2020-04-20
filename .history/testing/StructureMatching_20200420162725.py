@@ -231,18 +231,17 @@ def main():
 					 institution_folder))
     tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
     roi263 = tree.findall("./" + "roi")
-    rois_dict = StructureOperations.iter_standard_rois(tree)
+    rois_dict = iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
 	# Generate a list of all standard names used in both protocols and TG-263
-    # standard_names = []
-    # for f in os.listdir(paths[1]):
-	# 	if f.endswith(".xml"):
-	# 		tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
-	# 		prot_rois = tree.findall(".//roi")
-	# 		for r in prot_rois:
-	# 			if not any(i in r.find("name").text for i in standard_names):
-	# 				standard_names.append(r.find("name").text)
-    #
+    standard_names = []
+    for f in os.listdir(paths[1]):
+		if f.endswith(".xml"):
+			tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
+			prot_rois = tree.findall(".//roi")
+			for r in prot_rois:
+				if not any(i in r.find("name").text for i in standard_names):
+					standard_names.append(r.find("name").text)
     # Make ExternalClean
     external_name = 'ExternalClean'
     if StructureOperations.check_structure_exists(
@@ -260,8 +259,7 @@ def main():
         ext_clean = StructureOperations.make_externalclean(case=case,
                                                            examination=exam,
                                                            structure_name='ExternalClean',
-                                                           suffix=None,
-                                                           df_rois=df_rois)
+                                                           suffix=None)
 
     list_unfiltered = True
     while list_unfiltered:
@@ -295,35 +293,8 @@ def main():
     # Redefine all of the plan rois
     all_rois = StructureOperations.find_types(case=case)
     for roi in all_rois:
-        df_e = df_rois[df_rois.name == roi]
-        if len(df_e) > 1:
-			logging.warning('Too many matching {}. That makes me a sad panda. :('.format(roi))
-        elif df_e.empty:
-			logging.debug('{} was not found in the protocol list'.format(roi))
-        else:
-            e_name = df_e.name.values[0]
-			# Set color of matched structures
-            if df_e.RGBColor.values[0] is not None:
-				e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
-				msg = StructureOperations.change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-				if msg is None:
-					logging.debug('{} color changed to {}'.format(e_name,e_rgb))
-				else:
-					logging.debug('{} could not change type. {}'.format(e_name, msg))
-			# Set type and OrganType of matched structures
-            if df_e.RTROIInterpretedType.values[0] is not None:
-				e_type = df_e.RTROIInterpretedType.values[0]
-				msg = StructureOperations.change_roi_type(case=case, roi_name=e_name, roi_type=e_type)
-				if msg is None:
-					logging.debug('{} type changed to {}'.format(e_name,e_type))
-				else:
-					logging.debug('{} could not change type. {}'.format(e_name, msg))
-			# Create PRV's
-            msg = StructureOperations.create_prv(patient=patient,
-                    		case=case,
-                      		examination=exam,
-                        	source_roi=e_name,
-                         	df_TG263=df_rois)
+         
+    
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
     log_directory = patient_log_file_path.split(str(patient.PatientID))[0]
 

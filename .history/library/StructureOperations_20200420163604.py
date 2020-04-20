@@ -1064,39 +1064,39 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 	# Remove the exact matches from the structure list and set their color, type
 	del_indices = []
 	for index, e in enumerate(oar_list):
-	 	df_e = df_rois[df_rois.name == e]
-	 	# If more than one result is returned by the dataframe search report an error
-	 	if len(df_e) > 1:
-	 		logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
-	 	elif df_e.empty:
-	 		logging.debug('{} was not found in the protocol list'.format(e))
-	 	else:
-	 		e_name = df_e.name.values[0]
-		del_indices.append(index)
-	# 		# Set color of matched structures
-	# 		if df_e.RGBColor.values[0] is not None:
-	# 			e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
-	# 			msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-	# 			if msg is None:
-	# 				logging.debug('{} color changed to {}'.format(e_name,e_rgb))
-	# 			else:
-	# 				logging.debug('{} could not change type. {}'.format(e_name, msg))
-	# 		# Set type and OrganType of matched structures
-	# 		if df_e.RTROIInterpretedType.values[0] is not None:
-	# 			e_type = df_e.RTROIInterpretedType.values[0]
-	# 			msg = change_roi_type(case=case, roi_name=e_name, roi_type=e_type)
-	# 			if msg is None:
-	# 				logging.debug('{} type changed to {}'.format(e_name,e_type))
-	# 			else:
-	# 				logging.debug('{} could not change type. {}'.format(e_name, msg))
-	# 		# Create PRV's
-	# 		msg = create_prv(patient=patient,
-	#					case=case,
-    #                 		examination=examination,
-    #                   	source_roi=e_name,
-    #                    	df_TG263=df_rois)
-	#	if msg is not None:
-	#		logging.debug(msg)
+		df_e = df_rois[df_rois.name == e]
+		# If more than one result is returned by the dataframe search report an error
+		if len(df_e) > 1:
+			logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
+		elif df_e.empty:
+			logging.debug('{} was not found in the protocol list'.format(e))
+		else:
+			e_name = df_e.name.values[0]
+			# Set color of matched structures
+			if df_e.RGBColor.values[0] is not None:
+				e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
+				msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
+				if msg is None:
+					logging.debug('{} color changed to {}'.format(e_name,e_rgb))
+				else:
+					logging.debug('{} could not change type. {}'.format(e_name, msg))
+			# Set type and OrganType of matched structures
+			if df_e.RTROIInterpretedType.values[0] is not None:
+				e_type = df_e.RTROIInterpretedType.values[0]
+				msg = change_roi_type(case=case, roi_name=e_name, roi_type=e_type)
+				if msg is None:
+					logging.debug('{} type changed to {}'.format(e_name,e_type))
+				else:
+					logging.debug('{} could not change type. {}'.format(e_name, msg))
+			# Create PRV's
+			msg = create_prv(patient=patient,
+                    		case=case,
+                      		examination=examination,
+                        	source_roi=e_name,
+                         	df_TG263=df_rois)
+			if msg is not None:
+				logging.debug(msg)
+			del_indices.append(index)
 	# Eliminate the structures with exact matches from the search.
 	for indx in sorted(del_indices,reverse=True):
 		del oar_list[indx]

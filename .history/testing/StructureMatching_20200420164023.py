@@ -234,7 +234,7 @@ def main():
     rois_dict = StructureOperations.iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
 	# Generate a list of all standard names used in both protocols and TG-263
-    # standard_names = []
+    standard_names = []
     # for f in os.listdir(paths[1]):
 	# 	if f.endswith(".xml"):
 	# 		tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
@@ -297,9 +297,9 @@ def main():
     for roi in all_rois:
         df_e = df_rois[df_rois.name == roi]
         if len(df_e) > 1:
-			logging.warning('Too many matching {}. That makes me a sad panda. :('.format(roi))
+			logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
         elif df_e.empty:
-			logging.debug('{} was not found in the protocol list'.format(roi))
+			logging.debug('{} was not found in the protocol list'.format(e))
         else:
             e_name = df_e.name.values[0]
 			# Set color of matched structures
