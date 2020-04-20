@@ -845,6 +845,7 @@ def match_dialog(matches, elements,df_rois=None):
 			if not m:
 				dialog_result[r] = None
 			else:
+				# Ok, :TODO: Replace this with a pandas search on the dataframe
 				if df_rois is not None:
 					df_e = df_rois[df_rois.name == m]
 					# If more than one result is returned by the dataframe search report an error
@@ -1122,7 +1123,6 @@ def match_roi(patient, case, examination, plan_rois):
 	# Launch the dialog to get the list of matched elements
 	matched_rois = match_dialog(matches=potential_matches_exacts_removed,
 								elements=roi263, df_rois=df_rois)
-	# Store the suffix and pop it
 	suffix = matched_rois["Suffix"]
 	matched_rois.pop("Suffix")
 	return_rois = {}
@@ -1143,10 +1143,6 @@ def match_roi(patient, case, examination, plan_rois):
 				# with no protocol correlate
 				return_rois[k] = v
 				k_user_defined = True
-			# If this is pandas, then grab its name
-			elif type(v) is pd.core.frame.DataFrame:
-				return_rois[k] = v.name
-				k_user_defined = False
 			# If the value is not a string, then it is an elementtree. Retrieve its name
 			else:
 				return_rois[k] = v.find("name").text
@@ -1274,10 +1270,7 @@ def match_roi(patient, case, examination, plan_rois):
 					case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
 			# Change color if possible
 			if not k_user_defined:
-				if type(v) is pd.core.frame.DataFrame:
-					e_rgb =	[int(x) for x in df_e.RGBColor.values[0]]
-					msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-				elif "red" in v.find("Color").attrib:
+				if "red" in v.find("Color").attrib:
 					color = [
 						int(v.find("Color").attrib["red"]),
 						int(v.find("Color").attrib["green"]),

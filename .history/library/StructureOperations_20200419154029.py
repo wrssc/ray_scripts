@@ -793,7 +793,7 @@ def filter_rois(plan_rois, skip_targets=True, skip_planning=True):
 	return filtered_rois
 
 
-def match_dialog(matches, elements,df_rois=None):
+def match_dialog(matches, elements):
 	"""
 	Dialog for matching taking the matches found in the search and
 	pairing them with protocol elements
@@ -837,7 +837,6 @@ def match_dialog(matches, elements,df_rois=None):
 	dialog_result = {}
 	# Figure out if we are copying or renaming.
 	dialog_result["Suffix"] = response[k_copy]
-	df_matches =  {}
 	for r, m in response.iteritems():
 		# Manage responses
 		if r != k_copy:
@@ -845,34 +844,20 @@ def match_dialog(matches, elements,df_rois=None):
 			if not m:
 				dialog_result[r] = None
 			else:
-				if df_rois is not None:
-					df_e = df_rois[df_rois.name == m]
-					# If more than one result is returned by the dataframe search report an error
-					if len(df_e) > 1:
-						logging.warning('Too many matching {}. That makes me a sad panda. :('.format(m))
-					elif df_e.empty:
-						logging.debug('{} was not found in the protocol list'.format(m))
+				# Ok, :TODO: Replace this with a pandas search on the dataframe
+				for indx, standard_rois in enumerate(elements):
+					if standard_rois.find("name").text == m:
+						found_indx = indx
+						break
 					else:
-						df_matches[m] = df_e
-						e_name = df_e.name.values[0]
-						found_index = df_e.Index
-				else:
-					for indx, standard_rois in enumerate(elements):
-						if standard_rois.find("name").text == m:
-							found_indx = indx
-							break
-						else:
-							found_indx = None
+						found_indx = None
 				if found_indx:
-					if df_rois is None:
-						logging.debug(
-							"Found element match {}: returning element {}".format(
+					logging.debug(
+						"Found element match {}: returning element {}".format(
 							r, elements[found_indx].find("name").text
-							)
 						)
-						dialog_result[r] = elements[found_indx]
-					else:
-						dialog_result[r] = df_e
+					)
+					dialog_result[r] = elements[found_indx]
 				# Address user supplied contour
 				else:
 					logging.debug("No element match {}: returning string {}".format(r, m))
@@ -1121,8 +1106,7 @@ def match_roi(patient, case, examination, plan_rois):
 
 	# Launch the dialog to get the list of matched elements
 	matched_rois = match_dialog(matches=potential_matches_exacts_removed,
-								elements=roi263, df_rois=df_rois)
-	# Store the suffix and pop it
+								elements=roi263)
 	suffix = matched_rois["Suffix"]
 	matched_rois.pop("Suffix")
 	return_rois = {}
@@ -1143,10 +1127,6 @@ def match_roi(patient, case, examination, plan_rois):
 				# with no protocol correlate
 				return_rois[k] = v
 				k_user_defined = True
-			# If this is pandas, then grab its name
-			elif type(v) is pd.core.frame.DataFrame:
-				return_rois[k] = v.name
-				k_user_defined = False
 			# If the value is not a string, then it is an elementtree. Retrieve its name
 			else:
 				return_rois[k] = v.find("name").text
@@ -1274,10 +1254,7 @@ def match_roi(patient, case, examination, plan_rois):
 					case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
 			# Change color if possible
 			if not k_user_defined:
-				if type(v) is pd.core.frame.DataFrame:
-					e_rgb =	[int(x) for x in df_e.RGBColor.values[0]]
-					msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-				elif "red" in v.find("Color").attrib:
+				if "red" in v.find("Color").attrib:
 					color = [
 						int(v.find("Color").attrib["red"]),
 						int(v.find("Color").attrib["green"]),
