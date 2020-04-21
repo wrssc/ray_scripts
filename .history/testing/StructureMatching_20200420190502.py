@@ -302,9 +302,6 @@ def main():
 			logging.debug('{} was not found in the protocol list'.format(roi))
         else:
             e_name = df_e.name.values[0]
-            logging.debug('roi {} was matched to dataframe element {}'.format(
-                roi, e_name
-            ))
 			# Set color of matched structures
             if df_e.RGBColor.values[0] is not None:
 				e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
