@@ -1073,7 +1073,7 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 	 	else:
 	 		logging.debug('{} matched to  {} in protocol list'.format(e,df_rois.name))
 	 		e_name = df_e.name.values[0]
-			del_indices.append(index)
+		del_indices.append(index)
 	# 		# Set color of matched structures
 	# 		if df_e.RGBColor.values[0] is not None:
 	# 			e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
