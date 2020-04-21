@@ -22,7 +22,7 @@ __contact__ = 'rabayliss@wisc.edu'
 __version__ = '1.0.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/User-Interface'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents
 
 import sys
 import os

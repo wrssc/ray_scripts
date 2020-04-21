@@ -7,8 +7,6 @@ Version Notes:
 Script: Matches all plan rois with TG-263 based normal structures returning a sorted list of
 the most likely matches based on: exact match, previously matched names (aliases) or levenshtein match
 
-Known Issues: 
-
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
