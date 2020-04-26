@@ -1278,18 +1278,18 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 					logging.debug("Direct rename {} to {}".format(k, return_rois[k]))
 					case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
 			# Change color if possible
-			# if not k_user_defined:
-			# 	if type(v) is pd.core.frame.DataFrame:
-			# 		e_rgb =	[int(x) for x in df_e.RGBColor.values[0]]
-			# 		msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-			# 	elif "red" in v.find("Color").attrib:
-			# 		color = [
-			# 			int(v.find("Color").attrib["red"]),
-			# 			int(v.find("Color").attrib["green"]),
-			# 			int(v.find("Color").attrib["blue"]),
-			# 		]
-			# 		change_roi_color(case=case, roi_name=return_rois[k], rgb=color)
-			# 		logging.debug("Color of roi {} changed".format(return_rois[k]))
+			if not k_user_defined:
+				if type(v) is pd.core.frame.DataFrame:
+					e_rgb =	[int(x) for x in df_e.RGBColor.values[0]]
+					msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
+				elif "red" in v.find("Color").attrib:
+					color = [
+						int(v.find("Color").attrib["red"]),
+						int(v.find("Color").attrib["green"]),
+						int(v.find("Color").attrib["blue"]),
+					]
+					change_roi_color(case=case, roi_name=return_rois[k], rgb=color)
+					logging.debug("Color of roi {} changed".format(return_rois[k]))
 	return return_rois
 
 

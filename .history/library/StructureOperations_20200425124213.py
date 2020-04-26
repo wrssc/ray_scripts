@@ -1059,8 +1059,6 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 		roi263 = tree.findall("./" + "roi")
 		rois_dict = iter_standard_rois(tree)
 		df_rois = pd.DataFrame(rois_dict["rois"])
-	# (see results using df_rois.to_string())
-	# :TODO: Move the structure modifications to the end of this function.
 	# Remove the exact matches from the structure list and set their color, type
 	del_indices = []
 	for index, e in enumerate(oar_list):
@@ -1074,30 +1072,6 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 	 		logging.debug('{} matched to  {} in protocol list'.format(e,df_rois.name))
 	 		e_name = df_e.name.values[0]
 			del_indices.append(index)
-	# 		# Set color of matched structures
-	# 		if df_e.RGBColor.values[0] is not None:
-	# 			e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
-	# 			msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-	# 			if msg is None:
-	# 				logging.debug('{} color changed to {}'.format(e_name,e_rgb))
-	# 			else:
-	# 				logging.debug('{} could not change type. {}'.format(e_name, msg))
-	# 		# Set type and OrganType of matched structures
-	# 		if df_e.RTROIInterpretedType.values[0] is not None:
-	# 			e_type = df_e.RTROIInterpretedType.values[0]
-	# 			msg = change_roi_type(case=case, roi_name=e_name, roi_type=e_type)
-	# 			if msg is None:
-	# 				logging.debug('{} type changed to {}'.format(e_name,e_type))
-	# 			else:
-	# 				logging.debug('{} could not change type. {}'.format(e_name, msg))
-	# 		# Create PRV's
-	# 		msg = create_prv(patient=patient,
-	#					case=case,
-    #                 		examination=examination,
-    #                   	source_roi=e_name,
-    #                    	df_TG263=df_rois)
-	#	if msg is not None:
-	#		logging.debug(msg)
 	# Eliminate the structures with exact matches from the search.
 	for indx in sorted(del_indices,reverse=True):
 		del oar_list[indx]
@@ -1278,18 +1252,18 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 					logging.debug("Direct rename {} to {}".format(k, return_rois[k]))
 					case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
 			# Change color if possible
-			# if not k_user_defined:
-			# 	if type(v) is pd.core.frame.DataFrame:
-			# 		e_rgb =	[int(x) for x in df_e.RGBColor.values[0]]
-			# 		msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-			# 	elif "red" in v.find("Color").attrib:
-			# 		color = [
-			# 			int(v.find("Color").attrib["red"]),
-			# 			int(v.find("Color").attrib["green"]),
-			# 			int(v.find("Color").attrib["blue"]),
-			# 		]
-			# 		change_roi_color(case=case, roi_name=return_rois[k], rgb=color)
-			# 		logging.debug("Color of roi {} changed".format(return_rois[k]))
+			if not k_user_defined:
+				if type(v) is pd.core.frame.DataFrame:
+					e_rgb =	[int(x) for x in df_e.RGBColor.values[0]]
+					msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
+				elif "red" in v.find("Color").attrib:
+					color = [
+						int(v.find("Color").attrib["red"]),
+						int(v.find("Color").attrib["green"]),
+						int(v.find("Color").attrib["blue"]),
+					]
+					change_roi_color(case=case, roi_name=return_rois[k], rgb=color)
+					logging.debug("Color of roi {} changed".format(return_rois[k]))
 	return return_rois
 
 
