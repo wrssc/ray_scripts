@@ -409,7 +409,7 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
 	return None
 
 
-def exams_containing_roi(case, structure_name, roi_list=None, exam=None):
+def exams_containing_roi(case, structure_name, roi_list=None):
 	"""
 		See if structure has contours on this exam, if no exam is supplied
 		search all examinations in the case
@@ -429,11 +429,8 @@ def exams_containing_roi(case, structure_name, roi_list=None, exam=None):
 					roi_list.append(r)
 	# If no exam is supplied build a list of all examination names
 	exam_list = []
-	if exam == None:
-		for e in case.Examinations:
-			exam_list.append(e.Name)
-	else:
-		exam_list = [exam]
+	for e in case.Examinations:
+		exam_list.append(e.Name)
 
 	roi_found = []
 
@@ -1505,7 +1502,6 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 		)
 	except:
 		create_roi(case, examination, StructureName, delete_existing=True, suffix=None)
-		change_roi_type(case=case,roi_name=StructureName,roi_type=StructType)
 		# case.PatientModel.CreateRoi(
 		# 	Name=StructureName,
 		# 	Color=StructColor,
@@ -1556,9 +1552,6 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 	if ExcludeFromExport:
 		exclude_from_export(case=case, rois=StructureName)
 
-	msg = change_roi_color(case=case,
-         		         	roi_name = StructureName,
-         		         	rgb=StructColor)
 	case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
 		Examination=examination, Algorithm="Auto"
 	)
@@ -1622,34 +1615,23 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 	"""
 	new_structs = []
 	# Automated build of the Air contour
-	air_name  = "Air"
-	air_color = [ 55, 221, 159] # DarkShamrock
-	air_exists = exams_containing_roi(case=case,
-                                	  structure_name=air_name,
-                                   	  exam=examination)
-	if air_exists is not None:
-		retval_air = case.PatientModel.RegionsOfInterest[air_name]
-	else:
-		msg = create_roi(case=case,
-                         examination=examination,
-                         roi_name=air_name,
-                         delete_existing=True,
-                         suffix=None)
-		retval_air = case.PatientModel.RegionsOfInterest[air_name]
-		change_roi_color(case=case, roi_name=air_name, rgb=air_color)
-		# retval_air = case.PatientModel.CreateRoi(
-		# 	Name="Air",
-		# 	Color="Green",
-		# 	Type="Undefined",
-		# 	TissueName=None,
-		# 	RbeCellTypeName=None,
-		# 	RoiMaterial=None,
-		# )
-		new_structs.append(air_name)
-	patient.SetRoiVisibility(RoiName=air_name, IsVisible=False)
-	exclude_from_export(case=case, rois=air_name)
+	try:
+		retval_AIR = case.PatientModel.RegionsOfInterest["Air"]
+	except:
+		# TODO Move to an internal create call
+		retval_AIR = case.PatientModel.CreateRoi(
+			Name="Air",
+			Color="Green",
+			Type="Undefined",
+			TissueName=None,
+			RbeCellTypeName=None,
+			RoiMaterial=None,
+		)
+		new_structs.append("Air")
+	patient.SetRoiVisibility(RoiName="Air", IsVisible=False)
+	exclude_from_export(case=case, rois="Air")
 
-	retval_air.GrayLevelThreshold(
+	retval_AIR.GrayLevelThreshold(
 		Examination=examination,
 		LowThreshold=-1024,
 		HighThreshold=inner_air_HU,
@@ -1658,12 +1640,13 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 		BoundingBox=None,
 	)
 
-	inner_air_sources = [air_name, external]
+	inner_air_sources = ["Air", external]
 	inner_air_defs = {
 		"StructureName": "InnerAir",
 		"ExcludeFromExport": True,
 		"VisualizeStructure": False,
-		"StructColor": air_color,
+		"StructColor": [183, 153, 87],
+		"OperationA": "Intersection",
 		"SourcesA": inner_air_sources,
 		"MarginTypeA": "Expand",
 		"ExpA": [0] * 6,
@@ -3006,7 +2989,7 @@ def planning_structures(
 				"StructureName": "Ring_HD",
 				"ExcludeFromExport": True,
 				"VisualizeStructure": False,
-				"StructColor": [252, 179, 231],
+				"StructColor": " 255, 0, 255",
 				"SourcesA": PTVList,
 				"MarginTypeA": "Expand",
 				"ExpA": [ring_standoff + thickness_hd_ring] * 6,
@@ -3032,7 +3015,7 @@ def planning_structures(
 			"StructureName": "Ring_LD",
 			"ExcludeFromExport": True,
 			"VisualizeStructure": False,
-			"StructColor": [232, 201, 223],
+			"StructColor": " 255, 0, 255",
 			"SourcesA": PTVList,
 			"MarginTypeA": "Expand",
 			"ExpA": [ring_standoff + thickness_hd_ring + thickness_ld_ring] * 6,
@@ -3055,7 +3038,7 @@ def planning_structures(
 			"StructureName": "Normal_2cm",
 			"ExcludeFromExport": True,
 			"VisualizeStructure": False,
-			"StructColor": [183, 87, 145],
+			"StructColor": " 255, 0, 255",
 			"SourcesA": ["ExternalClean"],
 			"MarginTypeA": "Expand",
 			"ExpA": [0] * 6,
@@ -3079,7 +3062,7 @@ def planning_structures(
 			"StructureName": "Normal_1cm",
 			"ExcludeFromExport": True,
 			"VisualizeStructure": False,
-			"StructColor": [183, 87, 145],
+			"StructColor": " 255, 0, 255",
 			"SourcesA": ["ExternalClean"],
 			"MarginTypeA": "Expand",
 			"ExpA": [0] * 6,

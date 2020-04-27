@@ -1505,7 +1505,6 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 		)
 	except:
 		create_roi(case, examination, StructureName, delete_existing=True, suffix=None)
-		change_roi_type(case=case,roi_name=StructureName,roi_type=StructType)
 		# case.PatientModel.CreateRoi(
 		# 	Name=StructureName,
 		# 	Color=StructColor,
@@ -1658,12 +1657,13 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 		BoundingBox=None,
 	)
 
-	inner_air_sources = [air_name, external]
+	inner_air_sources = ["Air", external]
 	inner_air_defs = {
 		"StructureName": "InnerAir",
 		"ExcludeFromExport": True,
 		"VisualizeStructure": False,
-		"StructColor": air_color,
+		"StructColor": [183, 153, 87],
+		"OperationA": "Intersection",
 		"SourcesA": inner_air_sources,
 		"MarginTypeA": "Expand",
 		"ExpA": [0] * 6,

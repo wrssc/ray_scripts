@@ -1505,7 +1505,6 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 		)
 	except:
 		create_roi(case, examination, StructureName, delete_existing=True, suffix=None)
-		change_roi_type(case=case,roi_name=StructureName,roi_type=StructType)
 		# case.PatientModel.CreateRoi(
 		# 	Name=StructureName,
 		# 	Color=StructColor,

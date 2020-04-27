@@ -1505,7 +1505,6 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 		)
 	except:
 		create_roi(case, examination, StructureName, delete_existing=True, suffix=None)
-		change_roi_type(case=case,roi_name=StructureName,roi_type=StructType)
 		# case.PatientModel.CreateRoi(
 		# 	Name=StructureName,
 		# 	Color=StructColor,
@@ -1622,20 +1621,19 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 	"""
 	new_structs = []
 	# Automated build of the Air contour
-	air_name  = "Air"
-	air_color = [ 55, 221, 159] # DarkShamrock
-	air_exists = exams_containing_roi(case=case,
-                                	  structure_name=air_name,
-                                   	  exam=examination)
-	if air_exists is not None:
-		retval_air = case.PatientModel.RegionsOfInterest[air_name]
-	else:
+	try:
+		retval_air = case.PatientModel.RegionsOfInterest["Air"]
+	except:
+		# TODO Move to an internal create call
+		air_name  = "Air"
+		air_color = [ 55, 221, 159] # DarkShamrock
+
 		msg = create_roi(case=case,
-                         examination=examination,
-                         roi_name=air_name,
-                         delete_existing=True,
-                         suffix=None)
-		retval_air = case.PatientModel.RegionsOfInterest[air_name]
+                          		examination=examination,
+                          		roi_name=air_name,
+                            	delete_existing=True,
+                             	suffix=None) 
+		retval_air = case.PatientModel.RegionsOfInterest["Air"]
 		change_roi_color(case=case, roi_name=air_name, rgb=air_color)
 		# retval_air = case.PatientModel.CreateRoi(
 		# 	Name="Air",
@@ -1658,12 +1656,13 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 		BoundingBox=None,
 	)
 
-	inner_air_sources = [air_name, external]
+	inner_air_sources = ["Air", external]
 	inner_air_defs = {
 		"StructureName": "InnerAir",
 		"ExcludeFromExport": True,
 		"VisualizeStructure": False,
-		"StructColor": air_color,
+		"StructColor": [183, 153, 87],
+		"OperationA": "Intersection",
 		"SourcesA": inner_air_sources,
 		"MarginTypeA": "Expand",
 		"ExpA": [0] * 6,
