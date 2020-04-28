@@ -553,14 +553,14 @@ def check_overlap(patient, case, exam, structure, rois):
 	"""
 	exist_list = exists_roi(case, rois)
 	roi_index = 0
-	rois_verified = []
+	rois_verif = []
 	# Check all incoming rois to see if they exist in the list
 	for r in exist_list:
 		if r:
-			rois_verified.append(rois[roi_index])
+			rois_verif.append(rois[roi_index])
 		roi_index += 1
 	logging.debug(
-		"Found the following in evaluation of overlap with {}: ".format(structure, rois_verified)
+		"Found the following in evaluation of overlap with {}: ".format(structure, rois_verif)
 	)
 
 	overlap_name = "z_overlap"
@@ -577,7 +577,7 @@ def check_overlap(patient, case, exam, structure, rois):
 		"MarginTypeA": "Expand",
 		"ExpA": [0] * 6,
 		"OperationB": "Union",
-		"SourcesB": rois_verified,
+		"SourcesB": rois_verif,
 		"MarginTypeB": "Expand",
 		"ExpB": [0] * 6,
 		"OperationResult": "Intersection",
@@ -1028,7 +1028,7 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 	Matches a input list of plan_rois (user-defined) to protocol,
 	if a structure set is approved or a structure already has an existing geometry
 	with the potential matched structure then this will create a copy and copy the geometry
-	if the geometry is copied, then the specificity and dice coefficients are checked
+	if the geometry is copied, then the specicifity and dice coefficients are checked
 	outputs data to a log
 	:param patient: RS Patient Object
 	:param case: RS Case Object

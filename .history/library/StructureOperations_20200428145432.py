@@ -77,6 +77,7 @@ def exclude_from_export(case, rois):
 		case.PatientModel.ToggleExcludeFromExport(
 			ExcludeFromExport=True, RegionOfInterests=rois, PointsOfInterests=[]
 		)
+
 	except Exception:
 		logging.warning("Unable to exclude {} from export".format(rois))
 
@@ -542,7 +543,7 @@ def convert_poi(poi1):
 
 def check_overlap(patient, case, exam, structure, rois):
 	"""
-	Checks the overlap of structure with the roi list defined in rois.
+	Checks the overlap of strucure with the roi list defined in rois.
 	Returns the volume of overlap
 	:param: patient: RS patient object
 	:param exam: RS exam object
@@ -553,14 +554,14 @@ def check_overlap(patient, case, exam, structure, rois):
 	"""
 	exist_list = exists_roi(case, rois)
 	roi_index = 0
-	rois_verified = []
+	rois_verif = []
 	# Check all incoming rois to see if they exist in the list
 	for r in exist_list:
 		if r:
-			rois_verified.append(rois[roi_index])
+			rois_verif.append(rois[roi_index])
 		roi_index += 1
 	logging.debug(
-		"Found the following in evaluation of overlap with {}: ".format(structure, rois_verified)
+		"Found the following in evaluation of overlap with {}: ".format(structure, rois_verif)
 	)
 
 	overlap_name = "z_overlap"
@@ -577,7 +578,7 @@ def check_overlap(patient, case, exam, structure, rois):
 		"MarginTypeA": "Expand",
 		"ExpA": [0] * 6,
 		"OperationB": "Union",
-		"SourcesB": rois_verified,
+		"SourcesB": rois_verif,
 		"MarginTypeB": "Expand",
 		"ExpB": [0] * 6,
 		"OperationResult": "Intersection",
@@ -1028,7 +1029,7 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 	Matches a input list of plan_rois (user-defined) to protocol,
 	if a structure set is approved or a structure already has an existing geometry
 	with the potential matched structure then this will create a copy and copy the geometry
-	if the geometry is copied, then the specificity and dice coefficients are checked
+	if the geometry is copied, then the specicifity and dice coefficients are checked
 	outputs data to a log
 	:param patient: RS Patient Object
 	:param case: RS Case Object
@@ -1845,7 +1846,7 @@ def dialog_number_of_targets():
 	dialog1 = UserInterface.InputDialog(
 		inputs={
 			'1': "Enter Number of Targets",
-			'2': 'Enter the beginning target number, e.g. start numbering at 2 for PTV2, PTV3, PTV4 ...',
+			'2': 'Enter the beginning target number, e.g. start numbering at 2 for PTV2',
 			'3': "Priority 1 goals present: Use Underdosing",
 			'4': "Targets overlap sensitive structures: Use UniformDoses",
 			'5': "Use InnerAir to avoid high-fluence due to cavities",
@@ -2504,7 +2505,7 @@ def planning_structures(
 					OTVName = OTVPrefix + "_Mid" + str(MidTargetNumber)
 					sotvu_name = sotvu_prefix + "_Mid" + str(MidTargetNumber)
 			elif numbered_targets:
-				PTVName = PTVPrefix + str(index + initial_target_offset + 1) + "_" + source_doses[index]
+				PTVName = PTVPrefix + str(index + intial_target_offset + 1) + "_" + source_doses[index]
 				PTVEvalName = PTVPrefix + str(index + initial_target_offset + 1) + "_Eval_" + source_doses[index]
 				PTVEZName = PTVPrefix + str(index + initial_target_offset + 1) + "_EZ_" + source_doses[index]
 				OTVName = OTVPrefix + str(index + initial_target_offset + 1) + "_" + source_doses[index]

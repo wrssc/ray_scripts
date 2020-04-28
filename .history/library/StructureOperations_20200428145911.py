@@ -1028,7 +1028,7 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 	Matches a input list of plan_rois (user-defined) to protocol,
 	if a structure set is approved or a structure already has an existing geometry
 	with the potential matched structure then this will create a copy and copy the geometry
-	if the geometry is copied, then the specificity and dice coefficients are checked
+	if the geometry is copied, then the specicifity and dice coefficients are checked
 	outputs data to a log
 	:param patient: RS Patient Object
 	:param case: RS Case Object
