@@ -1520,7 +1520,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 		logging.debug('Margin type A {}'.format(MarginTypeA))
 		logging.debug('Margin type B {}'.format(MarginTypeB))
 		try:
-			logging.debug('{} Defined'.format(case.PatientModel.RegionsOfInterest[StructureName].Name))
+			case.PatientModel.RegionsOfInterest[StructureName]
 		except:
 			logging.debug('Unknown structure {}'.format(StructureName))
 
