@@ -2260,7 +2260,8 @@ def planning_structures(
 		for k, v in dialog2_response.iteritems():
 			# Grab the first two characters in the key and convert to an index
 			i_char = k[:2]
-			indx = int(i_char) - 1 - initial_target_offset
+			indx = int(i_char) - 1\
+       				- (initial_target_number - 1)
 			if len(v) > 0:
 				if "name" in k:
 					input_source_list[indx] = v

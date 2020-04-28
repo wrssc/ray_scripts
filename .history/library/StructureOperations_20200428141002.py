@@ -1819,7 +1819,6 @@ class planning_structure_preferences:
 		self.origin_file = None
 		self.origin_path = None
 		self.number_of_targets = None
-		self.first_target_number = None
 		self.targets = {}
 		self.use_inner_air = None
 		self.use_uniform_dose = None
@@ -1846,22 +1845,20 @@ def dialog_number_of_targets():
 	dialog1 = UserInterface.InputDialog(
 		inputs={
 			'1': "Enter Number of Targets",
-			'2': 'Enter the beginning target number, e.g. 2 for PTV<2>',
+			'2': 'Enter the first target number, e.g. 1 for PTV\u1',
 			'3': "Priority 1 goals present: Use Underdosing",
 			'4': "Targets overlap sensitive structures: Use UniformDoses",
 			'5': "Use InnerAir to avoid high-fluence due to cavities",
 			# '6': 'SBRT'
 		},
 		title="Planning Structures and Goal Selection",
-		datatype={ 
-            '2': "text",
+		datatype={  # Not yet '2': 'combo',
 			'3': "check",
 			'4': "check",
 			'5': "check",
 		},  # '6': 'check'},
 		initial={
 			'1': "0",
-			'2': "0",
 			'5': ["yes"]
 		},
 		options={
@@ -1875,26 +1872,25 @@ def dialog_number_of_targets():
 			'5': ["yes"],
 			# '6': ['yes']
 		},
-		required=['1', '2']
+		required=['1'],  # , Not Yet'2']
 	)
 	dialog1_response = dialog1.show()
 	if dialog1_response == {}:
 		sys.exit("Planning Structures and Goal Selection was cancelled")
 	# Parse number of targets
-	planning_structures.number_of_targets = int(dialog1_response['1'])
-	planning_structures.first_target_number = int(dialog1_response['2'])
+	planning_structures.number_of_targets = int(dialog1_response["1"])
 	# User selected that Underdose is required
-	if "yes" in dialog1_response['3']:
+	if "yes" in dialog1_response["3"]:
 		planning_structures.use_under_dose = True
 	else:
 		planning_structures.use_under_dose = False
 	# User selected that Uniformdose is required
-	if "yes" in dialog1_response['4']:
+	if "yes" in dialog1_response["4"]:
 		planning_structures.use_uniform_dose = True
 	else:
 		planning_structures.use_uniform_dose = False
 	# User selected that InnerAir is required
-	if "yes" in dialog1_response['5']:
+	if "yes" in dialog1_response["5"]:
 		planning_structures.use_inner_air = True
 	else:
 		planning_structures.use_inner_air = False
@@ -2172,7 +2168,6 @@ def planning_structures(
 	if planning_structure_selections is None:
 		planning_structure_selections = dialog_number_of_targets()
 	number_of_targets = planning_structure_selections.number_of_targets
-	initial_target_offset = planning_structure_selections.first_target_number - 1
 	generate_underdose = planning_structure_selections.use_under_dose
 	generate_uniformdose = planning_structure_selections.use_uniform_dose
 	generate_inner_air = planning_structure_selections.use_inner_air
@@ -2222,10 +2217,10 @@ def planning_structures(
 		t_d = {}
 		t_r = []
 		for i in range(1, number_of_targets + 1):
-			j = str(i + initial_target_offset)
+			j = str(i)
 			k_name = j.zfill(2) + "_Aname"
 			k_dose = j.zfill(2) + "_Bdose"
-			t_name = "PTV" + j
+			t_name = "PTV" + str(i)
 			t_i[k_name] = "Match an existing plan target to " + t_name + ":"
 			t_o[k_name] = TargetMatches
 			t_d[k_name] = "combo"
@@ -2260,7 +2255,7 @@ def planning_structures(
 		for k, v in dialog2_response.iteritems():
 			# Grab the first two characters in the key and convert to an index
 			i_char = k[:2]
-			indx = int(i_char) - 1 - initial_target_offset
+			indx = int(i_char) - 1
 			if len(v) > 0:
 				if "name" in k:
 					input_source_list[indx] = v
@@ -2505,11 +2500,11 @@ def planning_structures(
 					OTVName = OTVPrefix + "_Mid" + str(MidTargetNumber)
 					sotvu_name = sotvu_prefix + "_Mid" + str(MidTargetNumber)
 			elif numbered_targets:
-				PTVName = PTVPrefix + str(index + intial_target_offset + 1) + "_" + source_doses[index]
-				PTVEvalName = PTVPrefix + str(index + initial_target_offset + 1) + "_Eval_" + source_doses[index]
-				PTVEZName = PTVPrefix + str(index + initial_target_offset + 1) + "_EZ_" + source_doses[index]
-				OTVName = OTVPrefix + str(index + initial_target_offset + 1) + "_" + source_doses[index]
-				sotvu_name = sotvu_prefix + str(index + initial_target_offset + 1) + "_" + source_doses[index]
+				PTVName = PTVPrefix + str(index + 1) + "_" + source_doses[index]
+				PTVEvalName = PTVPrefix + str(index + 1) + "_Eval_" + source_doses[index]
+				PTVEZName = PTVPrefix + str(index + 1) + "_EZ_" + source_doses[index]
+				OTVName = OTVPrefix + str(index + 1) + "_" + source_doses[index]
+				sotvu_name = sotvu_prefix + str(index + 1) + "_" + source_doses[index]
 			PTVList.append(PTVName)
 			translation_mapping[PTVName] = [input_source_list[index], str(source_doses[index])]
 			PTVEvalList.append(PTVEvalName)
@@ -3038,7 +3033,7 @@ def planning_structures(
 	if generate_target_rings:
 		logging.debug("Target specific rings being constructed")
 		for index, target in enumerate(PTVList):
-			ring_name = "ring" + str(index + initial_target_offset + 1) + "_" + source_doses[index]
+			ring_name = "ring" + str(index + 1) + "_" + source_doses[index]
 			target_ring_defs = {
 				"StructureName": ring_name,
 				"ExcludeFromExport": True,
