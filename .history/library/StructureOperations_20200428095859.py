@@ -1516,7 +1516,6 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 		#)
 	if StructureName == "InnerAir":
     	sys.exit('Good!')
-		
 	case.PatientModel.RegionsOfInterest[StructureName].SetAlgebraExpression(
 		ExpressionA={
 			"Operation": OperationA,
