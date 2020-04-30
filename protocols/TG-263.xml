@@ -2936,6 +2936,21 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>Override_Artifact</name>
+        <TG263PrimaryName>Override_Artifact</TG263PrimaryName>
+        <Description></Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>Density Override</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Thorax</AnatomicGroup>
+        <NCharacters>17</NCharacters>
+        <TG263ReverseOrderName>Artifact_Override</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="251" green="47" blue="132" Hex= "#FB2F84">PinkPiano</Color>
+        <Alias>scatter, scatter_</Alias>
+    </roi>
+    <roi>
         <name>Arytenoid</name>
         <TG263PrimaryName>Arytenoid</TG263PrimaryName>
         <Description>Arytenoid cartilage</Description>
