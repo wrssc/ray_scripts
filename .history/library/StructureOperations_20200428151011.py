@@ -1254,6 +1254,19 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 				else:
 					logging.debug("Direct rename {} to {}".format(k, return_rois[k]))
 					case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
+			# Change color if possible
+			# if not k_user_defined:
+			# 	if type(v) is pd.core.frame.DataFrame:
+			# 		e_rgb =	[int(x) for x in df_e.RGBColor.values[0]]
+			# 		msg = change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
+			# 	elif "red" in v.find("Color").attrib:
+			# 		color = [
+			# 			int(v.find("Color").attrib["red"]),
+			# 			int(v.find("Color").attrib["green"]),
+			# 			int(v.find("Color").attrib["blue"]),
+			# 		]
+			# 		change_roi_color(case=case, roi_name=return_rois[k], rgb=color)
+			# 		logging.debug("Color of roi {} changed".format(return_rois[k]))
 	return return_rois
 
 
@@ -1514,6 +1527,24 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 		)
 	except:
 		create_roi(case, examination, StructureName, delete_existing=True, suffix=None)
+		change_roi_type(case=case,roi_name=StructureName,roi_type=StructType)
+		# case.PatientModel.CreateRoi(
+		# 	Name=StructureName,
+		# 	Color=StructColor,
+		# 	Type=StructType,
+		# 	TissueName=None,
+		# 	RbeCellTypeName=None,
+		# 	RoiMaterial=None,
+		#)
+	if StructureName == "InnerAir":
+		logging.debug('A sources {}'.format(SourcesA))
+		logging.debug('B sources {}'.format(SourcesB))
+		logging.debug('Margin type A {}'.format(MarginTypeA))
+		logging.debug('Margin type B {}'.format(MarginTypeB))
+		try:
+			logging.debug('{} Defined'.format(case.PatientModel.RegionsOfInterest[StructureName].Name))
+		except:
+			logging.debug('Unknown structure {}'.format(StructureName))
 
 	case.PatientModel.RegionsOfInterest[StructureName].SetAlgebraExpression(
 		ExpressionA={
@@ -1562,10 +1593,9 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 	msg = change_roi_color(case=case,
          		         	roi_name = StructureName,
          		         	rgb=StructColor)
-	change_roi_type(case=case,roi_name=StructureName,roi_type=StructType)
 	case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
-     												   Examination=examination, Algorithm="Auto"
-													   )
+		Examination=examination, Algorithm="Auto"
+	)
 	patient.SetRoiVisibility(RoiName=StructureName, IsVisible=VisualizeStructure)
 	patient.Set2DvisualizationForRoi(RoiName=StructureName, Mode=VisualizationType)
 
@@ -1739,7 +1769,6 @@ def make_externalclean(
 			+ " exists.  Using predefined structure after removing holes and changing color."
 		)
 	roi_geom.OfRoi.SetAsExternal()
-	roi_geom.OfRoi.Color = define_sys_color([86, 68, 254])
 	case.PatientModel.StructureSets[examination.Name].SimplifyContours(
 		RoiNames=[structure_name],
 		RemoveHoles3D=True,
@@ -1771,7 +1800,6 @@ class planning_structure_preferences:
 		self.uniform_dose_oar = {}
 		self.use_under_dose = None
 		self.under_dose_oar = {}
-		self.plan_type = None
 
 
 def dialog_number_of_targets():
@@ -1796,7 +1824,7 @@ def dialog_number_of_targets():
 			'3': "Priority 1 goals present: Use Underdosing",
 			'4': "Targets overlap sensitive structures: Use UniformDoses",
 			'5': "Use InnerAir to avoid high-fluence due to cavities",
-			'6': "Select plan type"
+			# '6': 'SBRT'
 		},
 		title="Planning Structures and Goal Selection",
 		datatype={ 
@@ -1804,12 +1832,11 @@ def dialog_number_of_targets():
 			'3': "check",
 			'4': "check",
 			'5': "check",
-		    '6': "combo"},
+		},  # '6': 'check'},
 		initial={
 			'1': "0",
 			'2': "0",
-			'5': ["yes"],
-			'6': ["Concurrent"]
+			'5': ["yes"]
 		},
 		options={
 			# Not yet,  Not yet.
@@ -1820,11 +1847,9 @@ def dialog_number_of_targets():
 			'3': ["yes"],
 			'4': ["yes"],
 			'5': ["yes"],
-			'6': ["Concurrent",
-			      "Sequential Primary+Boost(s)",
-			      "Multiple Separate Targets"],
+			# '6': ['yes']
 		},
-		required=['1', '2', '6']
+		required=['1', '2']
 	)
 	dialog1_response = dialog1.show()
 	if dialog1_response == {}:
@@ -1832,12 +1857,6 @@ def dialog_number_of_targets():
 	# Parse number of targets
 	planning_structures.number_of_targets = int(dialog1_response['1'])
 	planning_structures.first_target_number = int(dialog1_response['2'])
-	if dialog1_response['6'] == "Concurrent":
-		planning_structures.plan_type = "Concurrent"
-	elif dialog1_response['6'] == "Sequential Primary+Boost(s)":
-		planning_structures.plan_type = "Sequential"
-	else:
-		planning_structures.plan_type = "Multi"
 	# User selected that Underdose is required
 	if "yes" in dialog1_response['3']:
 		planning_structures.use_under_dose = True
@@ -1942,6 +1961,12 @@ def planning_structures(
 	:param skin_contraction: Contraction in cm to be used in the definition of the skin contour
 	:return:
 	"""
+	__author__ = "Adam Bayliss"
+	__contact__ = "rabayliss@wisc.edu"
+	__version__ = "1.0.5"
+	__license__ = "GPLv3"
+	__help__ = "https://github.com/wrssc/ray_scripts/wiki/User-Interface"
+	__copyright__ = "Copyright (C) 2018, University of Wisconsin Board of Regents"
 	# The following list allows different elements of the code to be toggled
 	# No guarantee can be made that things will work if elements are turned off
 	# all dependencies are not really resolved
@@ -2000,7 +2025,7 @@ def planning_structures(
 			CreateCopyOfRoi=False,
 			ResolveOverlappingContours=False,
 		)
-		retval_ExternalClean.Color = define_sys_color([86, 68, 254])
+		retval_ExternalClean.Color = define_sys_color([234, 192, 134])
 		logging.warning(
 			"Structure "
 			+ StructureName
@@ -2012,7 +2037,7 @@ def planning_structures(
 		# TODO Move to an internal create call
 		retval_ExternalClean = case.PatientModel.CreateRoi(
 			Name=StructureName,
-			Color="86, 68, 254",
+			Color="234, 192, 134",
 			Type="External",
 			TissueName="",
 			RbeCellTypeName=None,

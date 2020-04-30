@@ -1739,7 +1739,7 @@ def make_externalclean(
 			+ " exists.  Using predefined structure after removing holes and changing color."
 		)
 	roi_geom.OfRoi.SetAsExternal()
-	roi_geom.OfRoi.Color = define_sys_color([86, 68, 254])
+	roi_geom.Color = define_sys_color([86, 68, 254])
 	case.PatientModel.StructureSets[examination.Name].SimplifyContours(
 		RoiNames=[structure_name],
 		RemoveHoles3D=True,

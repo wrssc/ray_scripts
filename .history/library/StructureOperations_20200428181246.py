@@ -1739,7 +1739,6 @@ def make_externalclean(
 			+ " exists.  Using predefined structure after removing holes and changing color."
 		)
 	roi_geom.OfRoi.SetAsExternal()
-	roi_geom.OfRoi.Color = define_sys_color([86, 68, 254])
 	case.PatientModel.StructureSets[examination.Name].SimplifyContours(
 		RoiNames=[structure_name],
 		RemoveHoles3D=True,
@@ -2000,7 +1999,7 @@ def planning_structures(
 			CreateCopyOfRoi=False,
 			ResolveOverlappingContours=False,
 		)
-		retval_ExternalClean.Color = define_sys_color([86, 68, 254])
+		retval_ExternalClean.Color = define_sys_color([234, 192, 134])
 		logging.warning(
 			"Structure "
 			+ StructureName
@@ -2012,7 +2011,7 @@ def planning_structures(
 		# TODO Move to an internal create call
 		retval_ExternalClean = case.PatientModel.CreateRoi(
 			Name=StructureName,
-			Color="86, 68, 254",
+			Color="234, 192, 134",
 			Type="External",
 			TissueName="",
 			RbeCellTypeName=None,
