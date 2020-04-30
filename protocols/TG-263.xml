@@ -6234,7 +6234,7 @@
         <TG263ReverseOrderName>Constrict_Musc</TG263ReverseOrderName>
         <FMAID>46620</FMAID>
         <Color red="233" green="238" blue="144" Hex= "#E9EE90">Jonquil</Color>
-        <Alias>ConstrMuscle,ConstMusc</Alias>
+        <Alias>ConstrMuscle,ConstMusc,Constrictors</Alias>
     </roi>
     <roi>
         <name>Musc_Constrict_I</name>
