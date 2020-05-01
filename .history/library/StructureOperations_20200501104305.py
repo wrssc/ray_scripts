@@ -1086,7 +1086,7 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 	# Search through the dataframe for all available aliases.
  	standard_names = df_rois.set_index('name')['Alias'].to_dict()
 	logging.debug('Standard Name list follows:')
-	for k, v in standard_names.items:
+	for k, v in items(standard_names):
 		logging.debug('Name {} and alias list {}'.format(k, v))
 	# Comes up with a list of up to 5 matches
 	potential_matches = find_normal_structures_match(
