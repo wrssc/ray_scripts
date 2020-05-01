@@ -6234,7 +6234,7 @@
         <TG263ReverseOrderName>Constrict_Musc</TG263ReverseOrderName>
         <FMAID>46620</FMAID>
         <Color red="233" green="238" blue="144" Hex= "#E9EE90">Jonquil</Color>
-        <Alias>ConstrMuscle,ConstMusc,Constrictors,PharynxConst</Alias>
+        <Alias>ConstrMuscle,ConstMusc,Constrictors</Alias>
     </roi>
     <roi>
         <name>Musc_Constrict_I</name>
@@ -13616,7 +13616,7 @@
         <TG263ReverseOrderName>L_Shoulder_Block</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="252" green="179" blue="231" Hex= "#FCB3E7">HotAquarellePink</Color>
-        <Alias>shoulder_l,l_shoulder,shoulder_blk_l,shoulderblock_l,ShoulderL</Alias>
+        <Alias>shoulder_l,l_shoulder,shoulder_blk_l,shoulderblock_l</Alias>
     </roi>
     <roi>
         <name>Block_Shoulder_R</name>
@@ -13632,7 +13632,7 @@
         <TG263ReverseOrderName>R_Shoulder_Block</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="55" green="221" blue="159" Hex= "#37DD9F">DarkShamrock</Color>
-        <Alias>shoulder_r,r_shoulder,shoulder_blk_r,shoulderblock_r,ShoulderR</Alias>
+        <Alias>shoulder_r,r_shoulder,shoulder_blk_r,shoulderblock_r</Alias>
     </roi>
     <roi>
         <name>Spc_Supraclav_L</name>
