@@ -1072,7 +1072,7 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 	 	elif df_e.empty:
 	 		logging.debug('{} was not found in the protocol list'.format(e))
 	 	else:
-	 		logging.debug('{} matched to  {} in protocol list'.format(e,df_e.name))
+	 		logging.debug('{} matched to  {} in protocol list'.format(e,df_rois.name))
 	 		e_name = df_e.name.values[0]
 			del_indices.append(index)
 	# Eliminate the structures with exact matches from the search.
