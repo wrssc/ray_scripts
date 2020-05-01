@@ -347,32 +347,31 @@ def change_roi_type(case, roi_name, roi_type):
     rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
     current_dicom_type = rs_roi.Type
     current_organ_type = rs_roi.OrganData.OrganType
-    # Set the dicom type if neccessary
-    if current_dicom_type == roi_type:
-        logging.debug("Structure {} is already type {}".format(roi_name, roi_type))
-    else:
-        try:
-            rs_roi.Type = roi_type
-        except:
-            error_message = "Unable to change type on roi {} from Dicom type {} to type {}".format(
-                roi_name, current_dicom_type, roi_type)
-    # Set the organ type if neccessary
-    for k, v in type_dict.items():
-        if any(roi_type in types for types in v):
-            if current_organ_type == k:
-                logging.debug("Structure {} is already organ type {}".format(roi_name, current_organ_type))
-                error_message = None
+    rs_roi.Type = roi_type
+    for types, dicom_types in type_dict.items():
+        if any(roi_type in t for t in dicom_types):
+            if rs_roi.OrganData.OrganType == types:
+                error_message = "Structure {} is already type {}".format(roi_name, types)
+                return error_message
             else:
-                if roi_type == 'External':
-                    try:
-                        rs_roi.SetAsExternal()
-                    except:
-                        error_message = 'External error. Could not change {} to type {}'.format(roi_name, roi_type)
+                if types == 'External':
+                    rs_roi.SetAsExternal() 
                 else:
-                    try:
-                        rs_roi.OrganData.OrganType = k
-                    except:
-                        error_message = 'Type error. Could not change {} to type {}'.format(roi_name, roi_type)
+                    rs_roi.OrganData.OrganType = types
+    try:
+        if any(roi_type in types for types in other_types):
+            rs_roi.OrganData.OrganType = "Other"
+        elif any(roi_type in types for types in organ_types):
+            rs_roi.OrganData.OrganType = "OrganAtRisk"
+        elif any(roi_type in types for types in target_types):
+            rs_roi.OrganData.OrganType = "Target"
+        elif any(roi_type in types for types in unknown_types):
+            rs_roi.OrganData.OrganType = "Unknown"
+        elif any(roi_type in types for types in external_types):
+            rs_roi.SetAsExternal()
+        error_message = None
+    except:
+        error_message = "Unable to change type on roi {}".format(roi_name)
     return error_message
 
 
