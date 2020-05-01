@@ -1642,7 +1642,7 @@
         <TG263ReverseOrderName>Leads</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="255">#</Color>
-        <Alias>pacemaker_leads,leads_pacer,pacer_leads</Alias>
+        <Alias></Alias>
     </roi>
     <roi>
         <name>Markers</name>
@@ -2938,12 +2938,12 @@
     <roi>
         <name>Override_Artifact</name>
         <TG263PrimaryName>Override_Artifact</TG263PrimaryName>
-        <Description>Artifact due to beam hardening requiring an override to nearby tissue</Description>
+        <Description></Description>
         <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
         <MajorCategory>Density Override</MajorCategory>
         <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
+        <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>17</NCharacters>
         <TG263ReverseOrderName>Artifact_Override</TG263ReverseOrderName>
         <FMAID></FMAID>
@@ -13585,42 +13585,6 @@
         <FMAID>13395</FMAID>
         <Color red="232" green="201" blue="223" Hex= "#E8C9DF">SweetMurmur</Color>
         <Alias></Alias>
-    </roi>
-    <roi>
-        <name>Block_Shoulder_L</name>
-        <TG263PrimaryName>Block_Shoulder_L</TG263PrimaryName>
-        <Description>An entrance dose block placed on the left shoulder to avoid pathlength uncertainty.
-            For a patient in a thermoplastic mask, ideally 1 cm superior to and 2 cm inferior to the acromial/clavicular joint, 
-            and a 2 cm expansion about the body.</Description>
-        <NCIt></NCIt>
-        <TargetType>Non-Anatomic</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Body</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>L_Shoulder_Block</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="252" green="179" blue="231" Hex= "#FCB3E7">HotAquarellePink</Color>
-        <Alias>shoulder_l,l_shoulder,shoulder_blk_l</Alias>
-    </roi>
-    <roi>
-        <name>Block_Shoulder_R</name>
-        <TG263PrimaryName>Block_Shoulder_R</TG263PrimaryName>
-        <Description>An entrance dose block placed on the right shoulder to avoid pathlength uncertainty.
-            For a patient in a thermoplastic mask, ideally 1 cm superior to and 2 cm inferior to the acromial/clavicular joint, 
-            and a 2 cm expansion about the body.</Description>
-        <NCIt></NCIt>
-        <TargetType>Non-Anatomic</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Body</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>R_Shoulder_Block</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="55" green="221" blue="159" Hex= "#37DD9F">DarkShamrock</Color>
-        <Alias>shoulder_r,r_shoulder,shoulder_blk_r</Alias>
     </roi>
     <roi>
         <name>Spc_Supraclav_L</name>
