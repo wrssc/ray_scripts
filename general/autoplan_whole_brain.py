@@ -90,7 +90,8 @@ def check_structure_exists(case, structure_name, roi_list, option):
                             structure_name + 'found - deleting and creating')
         elif option == 'Check':
             connect.await_user_input(
-                'Contour {} Exists - Verify its accuracy and continue script'.format(structure_name))
+                'Contour {} Exists - Verify its accuracy and continue script'.format(
+                    structure_name))
         return True
     else:
         logging.info('check_structure_exists: '
@@ -165,7 +166,8 @@ def main():
     if sim_point_found:
         logging.warning("POI SimFiducials Exists")
         status.next_step(text="SimFiducials Point found, ensure that it is placed properly")
-        connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
+        connect.await_user_input(
+            'Ensure Correct placement of the SimFiducials Point and continue script.')
     else:
         case.PatientModel.CreatePoi(Examination=examination,
                                     Point={'x': 0,
@@ -176,11 +178,13 @@ def main():
                                     Color="Green",
                                     Type="LocalizationPoint")
         status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
-        connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
+        connect.await_user_input(
+            'Ensure Correct placement of the SimFiducials Point and continue script.')
 
     # Generate the target based on an MBS brain contour
     status.next_step(text="The PTV_WB_xxxx target is being generated")
-    if not check_structure_exists(case=case, structure_name='PTV_WB_xxxx', roi_list=rois, option='Check'):
+    if not check_structure_exists(case=case, structure_name='PTV_WB_xxxx', roi_list=rois,
+                                  option='Check'):
         case.PatientModel.MBSAutoInitializer(
             MbsRois=[{'CaseType': "HeadNeck",
                       'ModelName': "Brain",
@@ -212,7 +216,8 @@ def main():
 
     case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].OrganData.OrganType = "Target"
 
-    connect.await_user_input('Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
+    connect.await_user_input(
+        'Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
 
     # Get some user data
     status.next_step(text="Complete plan information - check the TPO for doses " +
@@ -242,7 +247,8 @@ def main():
                   'input4_choose_machine'])
 
     # Launch the dialog
-    print input_dialog.show()
+    print
+    input_dialog.show()
 
     # Parse the outputs
     # User selected that they want a plan-stub made
@@ -295,7 +301,8 @@ def main():
             Examination=examination,
             UseAtlasBasedInitialization=True)
 
-    if not check_structure_exists(case=case, structure_name='Lens_L', roi_list=rois, option='Check'):
+    if not check_structure_exists(case=case, structure_name='Lens_L', roi_list=rois,
+                                  option='Check'):
         case.PatientModel.CreateRoi(Name='Lens_L',
                                     Color="Purple",
                                     Type="Organ",
@@ -304,7 +311,8 @@ def main():
                                     RoiMaterial=None)
         connect.await_user_input('Draw the LEFT Lens then continue playing the script')
 
-    if not check_structure_exists(case=case, structure_name='Lens_R', roi_list=rois, option='Check'):
+    if not check_structure_exists(case=case, structure_name='Lens_R', roi_list=rois,
+                                  option='Check'):
         case.PatientModel.CreateRoi(Name="Lens_R",
                                     Color="Purple",
                                     Type="Organ",
@@ -313,7 +321,8 @@ def main():
                                     RoiMaterial=None)
         connect.await_user_input('Draw the RIGHT Lens then continue playing the script')
 
-    if not check_structure_exists(case=case, structure_name='External', roi_list=rois, option='Check'):
+    if not check_structure_exists(case=case, structure_name='External', roi_list=rois,
+                                  option='Check'):
         case.PatientModel.CreateRoi(Name="External",
                                     Color="Blue",
                                     Type="External",
@@ -329,9 +338,8 @@ def main():
                             ' script after choosing External-Type')
             sys.exit
 
-
-
-    if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_L_PRV05'):
+    if not check_structure_exists(case=case, roi_list=rois, option='Delete',
+                                  structure_name='Lens_L_PRV05'):
         logging.info('Lens_L_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
@@ -354,7 +362,8 @@ def main():
         Examination=examination, Algorithm="Auto")
 
     # The Lens_R prv will always be "remade"
-    if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Lens_R_PRV05'):
+    if not check_structure_exists(case=case, roi_list=rois, option='Delete',
+                                  structure_name='Lens_R_PRV05'):
         logging.info('Lens_R_PRV05 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(
@@ -377,7 +386,8 @@ def main():
         Examination=examination,
         Algorithm="Auto")
 
-    if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='Avoid'):
+    if not check_structure_exists(case=case, roi_list=rois, option='Delete',
+                                  structure_name='Avoid'):
         logging.info('Avoid not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="Avoid",
@@ -425,7 +435,8 @@ def main():
     # Load the S-frame into the current scan based on the structure template input above.
     # This operation is not supported in RS7, however, when we convert to RS8, this should work
     try:
-        if check_structure_exists(case=case, roi_list=rois, option='Check', structure_name='S-frame'):
+        if check_structure_exists(case=case, roi_list=rois, option='Check',
+                                  structure_name='S-frame'):
             logging.info('S-frame found, bugging user')
             connect.await_user_input(
                 'S-frame present. ' +
@@ -448,7 +459,8 @@ def main():
                 'S-frame automatically loaded. ' +
                 'Ensure placed correctly then continue script')
 
-        status.next_step(text='S-frame has been loaded. Ensure its alignment and continue the script.')
+        status.next_step(
+            text='S-frame has been loaded. Ensure its alignment and continue the script.')
     except Exception:
         logging.warning('Support structure failed to load and was not found')
         status.next_step(text='S-frame failed to load and was not found. ' +
@@ -458,7 +470,8 @@ def main():
             'Ensure it is loaded and placed correctly then continue script')
 
     # Creating planning structures for treatment and protect
-    if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Brain'):
+    if not check_structure_exists(case=case, roi_list=rois, option='Delete',
+                                  structure_name='BTV_Brain'):
         logging.info('BTV_Brain not found, generating from expansion')
 
     status.next_step(text='Building planning structures')
@@ -509,7 +522,8 @@ def main():
 
     # BTV_Flash_20: a 2 cm expansion for flash except in the directions the MD's wish to have no flash
     # Per MD's flashed dimensions are superior, anterior, and posterior
-    if not check_structure_exists(case=case, roi_list=rois, option='Delete', structure_name='BTV_Flash_20'):
+    if not check_structure_exists(case=case, roi_list=rois, option='Delete',
+                                  structure_name='BTV_Flash_20'):
         logging.info('BTV_Flash_20 not found, generating from expansion')
 
     case.PatientModel.CreateRoi(Name="BTV_Flash_20",
@@ -693,7 +707,6 @@ def main():
             case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
             case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
 
-
             plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
                                                'y': 0.2,
                                                'z': 0.2})
@@ -755,7 +768,8 @@ def main():
     # Rename PTV per convention
     total_dose_string = str(int(total_dose))
     try:
-        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+        case.PatientModel.RegionsOfInterest[
+            'PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
     except Exception as e:
         logging.debug('error reported {}'.format(e))
         logging.debug('cannot do name change')

@@ -12,7 +12,8 @@ def check_localization(case, exam, create=False, confirm=False):
     if sim_point_found:
         if confirm:
             logging.info("POI SimFiducials Exists")
-            connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
+            connect.await_user_input(
+                'Ensure Correct placement of the SimFiducials Point and continue script.')
             return True
         else:
             return True
@@ -26,7 +27,8 @@ def check_localization(case, exam, create=False, confirm=False):
                                         Name="SimFiducials",
                                         Color="Green",
                                         Type="LocalizationPoint")
-            connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
+            connect.await_user_input(
+                'Ensure Correct placement of the SimFiducials Point and continue script.')
             return True
         else:
             return False
@@ -43,13 +45,15 @@ def find_optimization_index(plan, beamset, verbose_logging=True):
     # This can likely be replaced with a list comprehension
     while index_not_found:
         try:
-            opt_name = plan.PlanOptimizations[opt_index].OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
+            opt_name = plan.PlanOptimizations[opt_index].OptimizedBeamSets[
+                beamset.DicomPlanLabel].DicomPlanLabel
             index_not_found = False
         except Exception:
             index_not_found = True
             opt_index += 1
     if index_not_found:
-        logging.warning("Beamset optimization for {} could not be found.".format(beamset.DicomPlanLabel))
+        logging.warning(
+            "Beamset optimization for {} could not be found.".format(beamset.DicomPlanLabel))
         return None
     else:
         # Found our index.  We will use a shorthand for the remainder of the code
@@ -57,7 +61,8 @@ def find_optimization_index(plan, beamset, verbose_logging=True):
         if verbose_logging:
             logging.debug(
                 'Optimization found, proceeding with plan.PlanOptimization[{}] for beamset {}'.format(
-                    opt_index, plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
+                    opt_index,
+                    plan_optimization.OptimizedBeamSets[beamset.DicomPlanLabel].DicomPlanLabel
                 ))
         return opt_index
 
@@ -75,13 +80,13 @@ def find_beamset(plan, beamset_name, exact=True):
             return beamset
         else:
             logging.info('No beamset with name exactly matching {} found in {}'.format(
-                beamset_name,plan.Name))
+                beamset_name, plan.Name))
             return None
     else:
         for b in plan.BeamSets:
             if beamset_name in b.DicomPlanLabel:
                 return b
-        logging.info('No beamset with name {} found in {}'.format(beamset_name,plan.Name))
+        logging.info('No beamset with name {} found in {}'.format(beamset_name, plan.Name))
 
 
 def find_used_structures(case, exam, plan, beamset):
@@ -108,8 +113,3 @@ def find_used_structures(case, exam, plan, beamset):
     # Search the plan evaluation functions
     for e in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
         used_rois.append(e.ForRegionOfInterest.Name)
-
-
-
-
-

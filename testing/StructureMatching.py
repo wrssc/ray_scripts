@@ -225,14 +225,14 @@ def main():
     plan = scope['Plan']
     beamset = scope['BeamSet']
     # Open the 263 Dataframe
-    files = [[r"../protocols", r"", r"TG-263.xml"]]# , [r"../protocols", r"UW", r""]]
+    files = [[r"../protocols", r"", r"TG-263.xml"]]  # , [r"../protocols", r"UW", r""]]
     paths = []
     for i, f in enumerate(files):
-		secondary_protocol_folder = f[0]
-		institution_folder = f[1]
-		paths.append(os.path.join(os.path.dirname(__file__),
-					 secondary_protocol_folder,
-					 institution_folder))
+        secondary_protocol_folder = f[0]
+        institution_folder = f[1]
+        paths.append(os.path.join(os.path.dirname(__file__),
+                                  secondary_protocol_folder,
+                                  institution_folder))
     tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
     rois_dict = StructureOperations.iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
@@ -255,7 +255,7 @@ def main():
                                                            structure_name=external_name,
                                                            suffix=None,
                                                            delete=True)
-                                                        #   df_rois=df_rois)
+        #   df_rois=df_rois)
 
     list_unfiltered = True
     while list_unfiltered:
@@ -291,51 +291,53 @@ def main():
     for roi in all_rois:
         df_e = df_rois[df_rois.name == roi]
         if len(df_e) > 1:
-			logging.warning('Too many matching {}. That makes me a sad panda. :('.format(roi))
+            logging.warning('Too many matching {}. That makes me a sad panda. :('.format(roi))
         elif df_e.empty:
-			logging.debug('{} was not found in the protocol list'.format(roi))
+            logging.debug('{} was not found in the protocol list'.format(roi))
         else:
             e_name = df_e.name.values[0]
             logging.debug('roi {} was matched to dataframe element {}'.format(
                 roi, e_name
             ))
-			# Set color of matched structures
+            # Set color of matched structures
             if df_e.RGBColor.values[0] is not None:
-				e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
-				msg = StructureOperations.change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
-				if msg is None:
-					logging.debug('{} color changed to {}'.format(e_name,e_rgb))
-				else:
-					logging.debug('{} could not change type. {}'.format(e_name, msg))
-			# Set type and OrganType of matched structures
+                e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
+                msg = StructureOperations.change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
+                if msg is None:
+                    logging.debug('{} color changed to {}'.format(e_name, e_rgb))
+                else:
+                    logging.debug('{} could not change type. {}'.format(e_name, msg))
+            # Set type and OrganType of matched structures
             if df_e.RTROIInterpretedType.values[0] is not None:
-				e_type = df_e.RTROIInterpretedType.values[0]
-				msg = StructureOperations.change_roi_type(case=case, roi_name=e_name, roi_type=e_type)
-				if msg is None:
-					logging.debug('{} type changed to {}'.format(e_name,e_type))
-				else:
-					logging.debug('{} could not change type. {}'.format(e_name, msg))
-			# Create PRV's
+                e_type = df_e.RTROIInterpretedType.values[0]
+                msg = StructureOperations.change_roi_type(case=case, roi_name=e_name,
+                                                          roi_type=e_type)
+                if msg is None:
+                    logging.debug('{} type changed to {}'.format(e_name, e_type))
+                else:
+                    logging.debug('{} could not change type. {}'.format(e_name, msg))
+            # Create PRV's
             msg = StructureOperations.create_prv(patient=patient,
-                    		case=case,
-                      		examination=exam,
-                        	source_roi=e_name,
-                         	df_TG263=df_rois)
+                                                 case=case,
+                                                 examination=exam,
+                                                 source_roi=e_name,
+                                                 df_TG263=df_rois)
         # Basic target handling
         target_filters = {}
         # PTV rules
-        target_filters['Ptv'] = re.compile(r'^PTV',re.IGNORECASE)
+        target_filters['Ptv'] = re.compile(r'^PTV', re.IGNORECASE)
         # GTV rules
-        target_filters['Gtv'] = re.compile(r'^GTV',re.IGNORECASE)
+        target_filters['Gtv'] = re.compile(r'^GTV', re.IGNORECASE)
         # CTV rules
-        target_filters['Ctv'] = re.compile(r'^CTV',re.IGNORECASE)
+        target_filters['Ctv'] = re.compile(r'^CTV', re.IGNORECASE)
         for roi_type, re_test in target_filters.items():
             if re.match(re_test, roi):
-                msg = StructureOperations.change_roi_type(case=case, roi_name=roi, roi_type=roi_type)
+                msg = StructureOperations.change_roi_type(case=case, roi_name=roi,
+                                                          roi_type=roi_type)
                 if msg is None:
-					logging.debug('{}: type changed to {}'.format(roi, roi_type))
+                    logging.debug('{}: type changed to {}'.format(roi, roi_type))
                 else:
-					logging.debug('{}: could not change type. {}'.format(roi, msg))
+                    logging.debug('{}: could not change type. {}'.format(roi, msg))
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
     log_directory = patient_log_file_path.split(str(patient.PatientID))[0]
 
