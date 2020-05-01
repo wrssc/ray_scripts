@@ -332,10 +332,6 @@ def main():
         for roi_type, re_test in target_filters.items():
             if re.match(re_test, roi):
                 msg = StructureOperations.change_roi_type(case=case, roi_name=roi, roi_type=roi_type)
-                if msg is None:
-					logging.debug('{}: type changed to {}'.format(roi, roi_type))
-                else:
-					logging.debug('{}: could not change type. {}'.format(roi, msg))
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
     log_directory = patient_log_file_path.split(str(patient.PatientID))[0]
 

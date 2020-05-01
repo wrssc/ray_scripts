@@ -322,20 +322,16 @@ def main():
                         	source_roi=e_name,
                          	df_TG263=df_rois)
         # Basic target handling
-        target_filters = {}
         # PTV rules
-        target_filters['Ptv'] = re.compile(r'^PTV',re.IGNORECASE)
+        re_ptv = re.compile(r'^PTV',re.IGNORECASE)
+        ptv_type = "PTV"
         # GTV rules
-        target_filters['Gtv'] = re.compile(r'^GTV',re.IGNORECASE)
+        re_gtv = re.compile(r'^GTV',re.IGNORECASE)
+        gtv_type = "Gtv"
         # CTV rules
-        target_filters['Ctv'] = re.compile(r'^CTV',re.IGNORECASE)
-        for roi_type, re_test in target_filters.items():
-            if re.match(re_test, roi):
-                msg = StructureOperations.change_roi_type(case=case, roi_name=roi, roi_type=roi_type)
-                if msg is None:
-					logging.debug('{}: type changed to {}'.format(roi, roi_type))
-                else:
-					logging.debug('{}: could not change type. {}'.format(roi, msg))
+        re_ctv = re.compile(r'^CTV',re.IGNORECASE)
+        ctv_type = "Ctv"
+
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
     log_directory = patient_log_file_path.split(str(patient.PatientID))[0]
 
