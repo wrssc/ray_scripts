@@ -1068,8 +1068,7 @@ def match_roi(patient, case, examination, plan_rois,df_rois=None):
 	 	df_e = df_rois[df_rois.name == e]
 	 	# If more than one result is returned by the dataframe search report an error
 	 	if len(df_e) > 1:
-	 		logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e) +
-                    		'It is likely the protocol file contains multiple references to the same structure')
+	 		logging.warning('Too many matching {}. That makes me a sad panda. :('.format(e))
 	 	elif df_e.empty:
 	 		logging.debug('{} was not found in the protocol list'.format(e))
 	 	else:
