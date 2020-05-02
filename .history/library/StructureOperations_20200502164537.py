@@ -1744,6 +1744,7 @@ def make_externalclean(
     """
     if delete:
         externals = find_types(case=case, roi_type="External")
+        logging.debug('This is what is fucking in here. {}'.format(externals))
         if externals:
             current_external = externals[0]
             if current_external != structure_name:
