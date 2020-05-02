@@ -1592,7 +1592,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
     type_msg = change_roi_type(case=case, roi_name=StructureName, roi_type=StructType)
     if type_msg is not None:
         for m in msg:
-            logging.debug(m)
+            logging.debug(msg)
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
         Examination=examination, Algorithm="Auto"
     )
@@ -1771,7 +1771,7 @@ def make_externalclean(
     msg = change_roi_type(case=case,roi_name=structure_name,roi_type="External")
     if msg is not None:
         for m in msg:
-            logging.debug(m)
+            logging.debug(msg)
     roi_geom.OfRoi.Color = define_sys_color([86, 68, 254])
     case.PatientModel.StructureSets[examination.Name].SimplifyContours(
         RoiNames=[structure_name],
@@ -2025,7 +2025,7 @@ def planning_structures(
         msg = change_roi_type(case=case,roi_name=StructureName,roi_type="External")
         if msg is not None:
             for m in msg:
-                logging.debug(m)
+                logging.debug(msg)
         # retval_ExternalClean.SetAsExternal()
         case.PatientModel.StructureSets[examination.Name].SimplifyContours(
             RoiNames=[StructureName],

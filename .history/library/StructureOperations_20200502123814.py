@@ -1038,8 +1038,6 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
                 if type_msg is None:
                     msg += '{} type changed to {}\n'.format(prv_name, prv_type)
                 else:
-                    for m in type_msg:
-                        logging.debug(m)
                     msg += '{} could not change type. {}\n'.format(prv_name, type_msg)
             return None
         else:
@@ -1589,10 +1587,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
     msg = change_roi_color(case=case,
                            roi_name=StructureName,
                            rgb=StructColor)
-    type_msg = change_roi_type(case=case, roi_name=StructureName, roi_type=StructType)
-    if type_msg is not None:
-        for m in msg:
-            logging.debug(m)
+    change_roi_type(case=case, roi_name=StructureName, roi_type=StructType)
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
         Examination=examination, Algorithm="Auto"
     )
@@ -1770,8 +1765,7 @@ def make_externalclean(
         )
     msg = change_roi_type(case=case,roi_name=structure_name,roi_type="External")
     if msg is not None:
-        for m in msg:
-            logging.debug(m)
+        logging.debug(msg)
     roi_geom.OfRoi.Color = define_sys_color([86, 68, 254])
     case.PatientModel.StructureSets[examination.Name].SimplifyContours(
         RoiNames=[structure_name],
@@ -2024,8 +2018,7 @@ def planning_structures(
         retval_ExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
         msg = change_roi_type(case=case,roi_name=StructureName,roi_type="External")
         if msg is not None:
-            for m in msg:
-                logging.debug(m)
+            logging.debug(msg)
         # retval_ExternalClean.SetAsExternal()
         case.PatientModel.StructureSets[examination.Name].SimplifyContours(
             RoiNames=[StructureName],
