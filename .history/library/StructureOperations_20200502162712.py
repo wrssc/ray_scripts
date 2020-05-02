@@ -1743,14 +1743,12 @@ def make_externalclean(
     :return: the RoiGeometries object of the cleaned external
     """
     if delete:
-        externals = find_types(case=case, roi_type="External")
-        if externals is not None:
-            current_external = externals[0]
-            if current_external != structure_name:
-                try:
-                    roi_geom = case.PatientModel.RegionsOfInterest[current_external].DeleteRoi()
-                except:
-                    logging.warning('Structure {} could not be deleted'.format(current_external))
+        current_external = find_types(case=case, roi_type="External")
+        if current_external[0] != structure_name:
+            try:
+                roi_geom = case.PatientModel.RegionsOfInterest[current_external[0]].DeleteRoi()
+            except:
+                logging.warning('Structure {} could not be deleted'.format(current_external))
     # Redraw the ExternalClean structure if necessary
     if  check_structure_exists(case=case,structure_name=structure_name,exam=examination,option="Check"):
         roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[structure_name]
