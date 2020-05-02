@@ -1746,7 +1746,7 @@ def make_externalclean(
         current_external = find_types(case=case, roi_type="External")
         if current_external != structure_name:
             try:
-                roi_geom = case.PatientModel.RegionsOfInterest[current_external].DeleteRoi()
+                roi_geom = case.PatientModel.StructureSets[examination].RoiGeometries[current_external].DeleteGeometry()
             except:
                 logging.warning('Structure {} could not be deleted'.format(current_external))
     # Redraw the ExternalClean structure if necessary
@@ -1767,8 +1767,9 @@ def make_externalclean(
         )
     else:
         logging.warning(
-            "Structure {} exists. ".format(structure_name)
-            + "Using predefined structure after removing holes and changing color."
+            "Structure "
+            + structure_name
+            + " exists.  Using predefined structure after removing holes and changing color."
         )
     type_msg = change_roi_type(case=case,roi_name=structure_name,roi_type="External")
     if type_msg is not None:
