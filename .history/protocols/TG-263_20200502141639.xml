@@ -2808,7 +2808,7 @@
         <TG263ReverseOrderName>L_Carotid_A</TG263ReverseOrderName>
         <FMAID>4058</FMAID>
         <Color red="252" green="179" blue="231">#FCB3E7</Color>
-        <Alias>LCA, L CA</Alias>
+        <Alias>LCA</Alias>
     </roi>
     <roi>
         <name>A_Carotid_L_PRVxx</name>
@@ -2857,7 +2857,7 @@
         <TG263ReverseOrderName>R_Carotid_A</TG263ReverseOrderName>
         <FMAID>3941</FMAID>
         <Color red="252" green="179" blue="231">#FCB3E7</Color>
-        <Alias>RCA, R CA</Alias>
+        <Alias>RCA</Alias>
     </roi>
     <roi>
         <name>A_Carotid_R_PRVxx</name>
