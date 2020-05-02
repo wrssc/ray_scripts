@@ -1750,7 +1750,7 @@ def make_externalclean(
             logging.warning('Structure {} could not be deleted'.format(current_external))
     # Redraw the ExternalClean structure if necessary
     try:
-        roi_geom = case.RegionsOfInterest[structure_name].HasContours()
+        roi_geom = case.RegionsOfInterest[structure_name].HasContours():
     except:
         roi_geom = create_roi(
             case=case,
