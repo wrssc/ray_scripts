@@ -1443,7 +1443,7 @@
         <Description>Contour encompassing body plus other external items</Description>
         <NCIt></NCIt>
         <TargetType>Anatomic</TargetType>
-        <RTROIInterpretedType></RTROIInterpretedType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
         <MajorCategory>Body</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
