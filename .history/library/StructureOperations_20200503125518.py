@@ -986,7 +986,7 @@ def iter_standard_rois(etree):
     return rois
 
 
-def check_derivation(case, examination, **kwargs):
+def check_derivation(patient, case, examination, **kwargs):
     """
     Will need an existing structure where StructureName is
     
@@ -1104,9 +1104,12 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
         expansion_mm = int(parsed_name[1])
         expansion_cm = expansion_mm / 10.
         prv_name = df_prv.name.values[0]
-        # Log the result if we don't need any changes
+        # Try to create the correct return roi or retrieve its existing geometry
+        roi_geom = create_roi(case=case, examination=examination,
+                              roi_name=prv_name, delete_existing=True)
 
-        prv_exp_defs = {
+        if roi_geom is not None:
+            prv_exp_defs = {
                 "StructureName": prv_name,
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
@@ -1124,14 +1127,6 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
                 "ExpR": [0] * 6,
                 "StructType": "Undefined",
             }
-        already_derived = check_derivation(case=case,examination=examination,**prv_exp_defs)
-        logging.debug('Status of already derived for {} is {}'.format(prv_name, already_derived))
-
-        # Try to create the correct return roi or retrieve its existing geometry
-        roi_geom = create_roi(case=case, examination=examination,
-                              roi_name=prv_name, delete_existing=True)
-
-        if roi_geom is not None:
             make_boolean_structure(patient=patient, case=case, examination=examination,
                                    **prv_exp_defs)
             # Set color of matched structures

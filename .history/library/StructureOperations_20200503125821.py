@@ -1125,7 +1125,6 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
                 "StructType": "Undefined",
             }
         already_derived = check_derivation(case=case,examination=examination,**prv_exp_defs)
-        logging.debug('Status of already derived for {} is {}'.format(prv_name, already_derived))
 
         # Try to create the correct return roi or retrieve its existing geometry
         roi_geom = create_roi(case=case, examination=examination,

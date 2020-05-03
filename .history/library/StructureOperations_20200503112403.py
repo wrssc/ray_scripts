@@ -986,108 +986,10 @@ def iter_standard_rois(etree):
     return rois
 
 
-def check_derivation(case, examination, **kwargs):
-    """
-    Will need an existing structure where StructureName is
+def check_algebra(patient, case, examination, **exp_defs):
     
-    """
-    StructureName = kwargs.get("StructureName")
-    SourcesA = kwargs.get("SourcesA")
-    MarginTypeA = kwargs.get("MarginTypeA")
-    ExpA = kwargs.get("ExpA")
-    OperationA = kwargs.get("OperationA")
-    SourcesB = kwargs.get("SourcesB")
-    MarginTypeB = kwargs.get("MarginTypeB")
-    ExpB = kwargs.get("ExpB")
-    OperationB = kwargs.get("OperationB")
-    MarginTypeR = kwargs.get("MarginTypeR")
-    ExpR = kwargs.get("ExpR")
-    OperationResult = kwargs.get("OperationResult")
-    # Build a map to the structures used in the RS algebra
-    test_structure = case.PatientModel.RegionsOfInterest[StructureName]
-    current_margins = test_structure.DerivedRoiExpression
-    # If the current expression is None, the structure has no derived status
-    if current_margins is None:
-        return False
-    if current_margins.ExpandContractType != MarginTypeR:
-        return False
-    if current_margins.SuperiorDistance != ExpR[0]:
-        return False
-    if current_margins.InferiorDistance != ExpR[1]:
-        return False
-    if current_margins.AnteriorDistance != ExpR[2]:
-        return False
-    if current_margins.PosteriorDistance != ExpR[3]:
-        return False
-    if current_margins.RightDistance != ExpR[4]:
-        return False
-    if current_margins.LeftDistance != ExpR[5]:
-        return False
-    # Check A/B operation
-    if current_margins.Children[0].Operation != OperationResult:
-        return False
-    # Check the expansion type and distances for A
-    current_a_margins = current_margins.Children[0].Children[0]
-    # Load the children of A into an expression
-    current_a_expression = current_a_margins.Children[0]
-    if current_a_margins.ExpandContractType != MarginTypeA:
-        return False
-    if current_a_margins.SuperiorDistance != ExpA[0]:
-        return False
-    if current_a_margins.InferiorDistance != ExpA[1]:
-        return False
-    if current_a_margins.AnteriorDistance != ExpA[2]:
-        return False
-    if current_a_margins.PosteriorDistance != ExpA[3]:
-        return False
-    if current_a_margins.RightDistance != ExpA[4]:
-        return False
-    if current_a_margins.LeftDistance != ExpA[5]:
-        return False
-    # Check the A structures and combinations
-    if current_a_expression.Operation != OperationA:
-        return False
-    # Create a for loop over the children in A which should have the 
-    # A Sources in somewhere in their children
-    a_rois = []
-    for a in current_a_expression.Children:
-        a_rois.append(a.RegionOfInterest.Name)
-    if set(a_rois) != set(SourcesA):
-        return False
-    # Check the expansion type and distances for B
-    try:
-        current_b_margins = current_margins.Children[0].Children[1]
-        current_b_expression = current_b_margins.Children[0]
-        if current_b_margins.ExpandContractType != MarginTypeB:
-            return False
-        if current_b_margins.SuperiorDistance != ExpB[0]:
-            return False
-        if current_b_margins.InferiorDistance != ExpB[1]:
-            return False
-        if current_b_margins.AnteriorDistance != ExpB[2]:
-            return False
-        if current_b_margins.PosteriorDistance != ExpB[3]:
-            return False
-        if current_b_margins.RightDistance != ExpB[4]:
-            return False
-        if current_b_margins.LeftDistance != ExpB[5]:
-            return False
-        # Check the A structures and combinations
-        if current_b_expression.Operation != OperationB:
-            return False
-        b_rois = []
-        for b in current_b_expression:
-            b_rois.append(b.RegionOfInterest.Name)
-        if set(b_rois) != set(SourcesB):
-            return False
-    except:
-        if SourcesB is not None:
-            return False
-    # If after all that, we haven't returned, then it must be true
-    return True
-
-
-
+    
+    
 def create_prv(patient, case, examination, source_roi, df_TG263):
     """
     :param case: RS Case Object
@@ -1104,9 +1006,12 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
         expansion_mm = int(parsed_name[1])
         expansion_cm = expansion_mm / 10.
         prv_name = df_prv.name.values[0]
-        # Log the result if we don't need any changes
+        # Try to create the correct return roi or retrieve its existing geometry
+        roi_geom = create_roi(case=case, examination=examination,
+                              roi_name=prv_name, delete_existing=True)
 
-        prv_exp_defs = {
+        if roi_geom is not None:
+            prv_exp_defs = {
                 "StructureName": prv_name,
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
@@ -1124,14 +1029,6 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
                 "ExpR": [0] * 6,
                 "StructType": "Undefined",
             }
-        already_derived = check_derivation(case=case,examination=examination,**prv_exp_defs)
-        logging.debug('Status of already derived for {} is {}'.format(prv_name, already_derived))
-
-        # Try to create the correct return roi or retrieve its existing geometry
-        roi_geom = create_roi(case=case, examination=examination,
-                              roi_name=prv_name, delete_existing=True)
-
-        if roi_geom is not None:
             make_boolean_structure(patient=patient, case=case, examination=examination,
                                    **prv_exp_defs)
             # Set color of matched structures
