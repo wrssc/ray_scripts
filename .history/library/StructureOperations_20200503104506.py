@@ -626,13 +626,8 @@ def find_types(case, roi_type=None):
     """
     Return a list of all structures that in exist in the roi list with type roi_type
     :param patient:
-    :param case: RS case
-    :param type: string from any of the following choices:
-                 Avoidance, Bolus, BrachyAccessory, BrachyChannel, BrachyChannelShield,
-                 BrachySourceApplicator, Cavity, ContrastAgent, Control, Ctv,
-                 DoseRegion, External, FieldOfView, Fixation, Gtv,
-                 IrradiatedVolume, Marker, Organ, Ptv, Registration, Support,
-                 TreatedVolume, Undefined,
+    :param case:
+    :param type:
     :return: found_roi
     """
     found_roi = []
@@ -1316,12 +1311,11 @@ def structure_approved(case, roi_name, examination=None):
         return False
 
 
-def renumber_roi(case):
+def sort_roi(case,examination):
     """
     Sort the ROI list and renumber alphabetically
     """
     rois = find_types(case=case,roi_type=None)
-    logging.debug("Unsorted list is {}".format(rois))
     sorted_rois = rois.sort(reverse=True)
     num_rois = len(rois)
     i = num_rois

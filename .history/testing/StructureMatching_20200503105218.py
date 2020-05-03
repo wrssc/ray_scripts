@@ -345,7 +345,7 @@ def main():
                     logging.debug('{}: could not change type.'.format(roi))
                     for m in msg:
                         logging.debug(m)
-    StructureOperations.renumber_roi(case=case)
+    StructureOperations.renumber_roi(case=case,examination=exam)
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
     log_directory = patient_log_file_path.split(str(patient.PatientID))[0]
 
