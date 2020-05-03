@@ -1105,7 +1105,6 @@ def check_derivation(case, examination, **kwargs):
             return False
         # Check the A structures and combinations
         if current_b_expression.Operation != OperationB:
-            logging.debug('B operation')
             return False
         b_rois = []
         for b in current_b_expression:
@@ -1115,7 +1114,6 @@ def check_derivation(case, examination, **kwargs):
             return False
     except:
         if SourcesB is not None:
-            logging.debug('B source list is empty in RS')
             return False
     # If after all that, we haven't returned, then it must be true
     return True
