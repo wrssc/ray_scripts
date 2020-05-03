@@ -1026,8 +1026,8 @@ def check_derivation(case, examination, **kwargs):
         return False
     # Check A/B operation
     try:
-        if current_margins.Children[0].Operation != OperationResult:
-            return False
+        current_margins.Children[0].Operation != OperationResult:
+        return False
     except AttributeError:
         if OperationResult is not None:
             return False

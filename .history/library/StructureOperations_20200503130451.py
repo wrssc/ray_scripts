@@ -1025,12 +1025,8 @@ def check_derivation(case, examination, **kwargs):
     if current_margins.LeftDistance != ExpR[5]:
         return False
     # Check A/B operation
-    try:
-        if current_margins.Children[0].Operation != OperationResult:
-            return False
-    except AttributeError:
-        if OperationResult is not None:
-            return False
+    if current_margins.Children[0].Operation != OperationResult:
+        return False
     # Check the expansion type and distances for A
     current_a_margins = current_margins.Children[0].Children[0]
     # Load the children of A into an expression
