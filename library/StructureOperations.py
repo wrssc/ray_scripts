@@ -299,7 +299,7 @@ def change_roi_color(case, roi_name, rgb):
     sys_rgb = define_sys_color(rgb)
     try:
         rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
-        if get_color_from_roi(case=case,roi_name=rs_roi) != sys_rbg:
+        if get_color_from_roi(case=case,roi_name=rs_roi) != sys_rgb:
             rs_roi.Color = sys_rgb
             error_message = None
         else:
