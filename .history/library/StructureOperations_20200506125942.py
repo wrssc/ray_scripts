@@ -1190,20 +1190,20 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
 
         if roi_geom is not None:
             # Set color of matched structures
-            # if prv_rgb is not None:
-            #     color_msg = change_roi_color(case=case, roi_name=prv_name, rgb=prv_rgb)
-            #     if color_msg is None:
-            #         msg.append("{} color changed to {}".format(prv_name, prv_rgb))
-            #     else:
-            #         msg.append("{} could not change color. {}".format(prv_name, color_msg))
-            # # Set type and OrganType of matched structures
-            # if prv_type is not None:
-            #     type_msg = change_roi_type(case=case, roi_name=prv_name, roi_type=prv_type)
-            #     if type_msg is None:
-            #         msg.append("{} type changed to {}".format(prv_name, prv_type))
-            #     else:
-            #         msg.append("{} could not change type.".format(prv_name))
-            #         msg.append(type_msg)
+            if prv_rgb is not None:
+                color_msg = change_roi_color(case=case, roi_name=prv_name, rgb=prv_rgb)
+                if color_msg is None:
+                    msg.append("{} color changed to {}".format(prv_name, prv_rgb))
+                else:
+                    msg.append("{} could not change color. {}".format(prv_name, color_msg))
+            # Set type and OrganType of matched structures
+            if prv_type is not None:
+                type_msg = change_roi_type(case=case, roi_name=prv_name, roi_type=prv_type)
+                if type_msg is None:
+                    msg.append("{} type changed to {}".format(prv_name, prv_type))
+                else:
+                    msg.append("{} could not change type.".format(prv_name))
+                    msg.append(type_msg)
             make_boolean_structure(patient=patient, case=case, examination=examination,
                                **prv_exp_defs)
             return None
