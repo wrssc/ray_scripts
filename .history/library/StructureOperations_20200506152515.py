@@ -360,10 +360,10 @@ def change_roi_type(case, roi_name, roi_type):
         if current_dicom_type == 'External':
             error_message.append("Structure {} is already type {}".format(roi_name, roi_type))
         else:
-            try:
-                rs_roi.SetAsExternal()
-            except:
-                error_message.append('External error. Could not change {} to type {}'.format(roi_name, roi_type))
+            # try:
+            rs_roi.SetAsExternal()
+            # except:
+            #     error_message.append('External error. Could not change {} to type {}'.format(roi_name, roi_type))
         return error_message
     # Set the dicom type if necessary
     if current_dicom_type == roi_type:
