@@ -1061,38 +1061,27 @@ def check_derivation(case, examination, **kwargs):
     current_a_margins = current_margins.Children[0]
     # Load the children of A into an expression
     current_a_expression = current_a_margins.Children[0]
-    # Expansions have margins and ExpandContractTypes
-    try:
-        if current_a_margins.ExpandContractType != MarginTypeA:
-            logging.debug('A expand contract type')
-            return False
-    except AttributeError:
-        if MarginTypeA != None:
-            logging.debug('A expand/contract type expected to be something')
-            return False
-    try:
-        if current_a_margins.SuperiorDistance != ExpA[0]:
-            logging.debug('A superior distance')
-            return False
-        if current_a_margins.InferiorDistance != ExpA[1]:
-            logging.debug('A I distance')
-            return False
-        if current_a_margins.AnteriorDistance != ExpA[2]:
-            logging.debug('A Anterior distance')
-            return False
-        if current_a_margins.PosteriorDistance != ExpA[3]:
-            logging.debug('A Posterior distance')
-            return False
-        if current_a_margins.RightDistance != ExpA[4]:
-            logging.debug('A Right distance')
-            return False
-        if current_a_margins.LeftDistance != ExpA[5]:
-            logging.debug('A left distance')
-            return False
-    except AttributeError:
-        if ExpA:
-            logging.debug('A expansion was expected to be defined')
-            return False 
+    if current_a_margins.ExpandContractType != MarginTypeA:
+        logging.debug('A expand contract type')
+        return False
+    if current_a_margins.SuperiorDistance != ExpA[0]:
+        logging.debug('A superior distance')
+        return False
+    if current_a_margins.InferiorDistance != ExpA[1]:
+        logging.debug('A I distance')
+        return False
+    if current_a_margins.AnteriorDistance != ExpA[2]:
+        logging.debug('A Anterior distance')
+        return False
+    if current_a_margins.PosteriorDistance != ExpA[3]:
+        logging.debug('A Posterior distance')
+        return False
+    if current_a_margins.RightDistance != ExpA[4]:
+        logging.debug('A Right distance')
+        return False
+    if current_a_margins.LeftDistance != ExpA[5]:
+        logging.debug('A left distance')
+        return False
     # Check the A structures and combinations
     if current_a_expression.Operation != OperationA:
         logging.debug('A operation')
