@@ -1042,7 +1042,7 @@ def check_derivation(case, examination, **kwargs):
             logging.debug('A/B operation should have been something')
             return False
     # Check the expansion type and distances for A
-    current_a_margins = current_margins.Children[0].Children[0]
+    current_a_margins = current_margins.Children[0]
     # Load the children of A into an expression
     current_a_expression = current_a_margins.Children[0]
     if current_a_margins.ExpandContractType != MarginTypeA:
@@ -1158,16 +1158,29 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
                 "ExpR": [0] * 6,
                 "StructType": "Undefined",
             }
-        already_derived = check_derivation(case=case,examination=examination,**prv_exp_defs)
-        logging.debug('Status of already derived for {} is {}'.format(prv_name, already_derived))
-
-        # Try to create the correct return roi or retrieve its existing geometry
-        roi_geom = create_roi(case=case, examination=examination,
+        if check_structure_exists(case=case,structure_name=prv_name,option='Check'):
+            already_derived = check_derivation(case=case,examination=examination,**prv_exp_defs)
+            if already_derived:
+                logging.debug('{} is already derived.'.format(prv_name))
+            else:
+                roi_geom = create_roi(case=case, examination=examination,
                               roi_name=prv_name, delete_existing=True)
-
-        if roi_geom is not None:
+                make_boolean_structure(patient=patient, case=case, examination=examination,
+                                         **prv_exp_defs)
+        else:
+            roi_geom = create_roi(case=case, examination=examination,
+                              roi_name=prv_name, delete_existing=True)
             make_boolean_structure(patient=patient, case=case, examination=examination,
                                    **prv_exp_defs)
+
+        # Try to create the correct return roi or retrieve its existing geometry
+        if already_derived:
+            roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name]
+        else:
+            make_boolean_structure(patient=patient, case=case, examination=examination,
+                                   **prv_exp_defs)
+
+        if roi_geom is not None:
             # Set color of matched structures
             if df_prv.RGBColor.values[0] is not None:
                 prv_rgb = [int(x) for x in df_prv.RGBColor.values[0]]
