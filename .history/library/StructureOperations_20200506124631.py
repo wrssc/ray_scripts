@@ -1175,13 +1175,13 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
                 "StructType": prv_type,
             }
         time_a = datetime.datetime.now()
-        alpha = check_structure_exists(case=case,structure_name=prv_name,option='Check')
+        alpha = check_structure_exists(case=case,structure_name=prv_name,option='Check'):
         time_b = datetime.datetime.now()
-        beta = any(exists_roi(case=case,rois=prv_name))
+        beta = any(exists_roi(case=case,rois=prv_name)) 
         time_c = datetime.datetime.now()
         ab = time_b -time_a
         bc = time_c - time_b
-        logging.debug('Check struct {} versus exists {}'.format(ab.seconds,bc.seconds))
+        logging.debug() 
         if any(exists_roi(case=case,rois=prv_name)):
             roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name]
         else:
