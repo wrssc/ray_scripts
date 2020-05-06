@@ -1900,20 +1900,20 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     make_boolean_structure(patient=patient, case=case, examination=examination, **inner_air_defs)
 
     # Define the inner_air structure at the Patient Model level
-    # inner_air_pm = case.PatientModel.RegionsOfInterest["InnerAir"]
+    inner_air_pm = case.PatientModel.RegionsOfInterest["InnerAir"]
     # Define the inner_air structure at the examination level
     inner_air_ex = case.PatientModel.StructureSets[examination.Name].RoiGeometries["InnerAir"]
 
     # If the InnerAir structure has contours clean them
-    if not inner_air_ex.HasContours():
-        #inner_air_pm.VolumeThreshold(
-        #    InputRoi=inner_air_pm, Examination=examination, MinVolume=0.1, MaxVolume=500
-        #)
+    if inner_air_ex.HasContours():
+        inner_air_pm.VolumeThreshold(
+            InputRoi=inner_air_pm, Examination=examination, MinVolume=0.1, MaxVolume=500
+        )
         # Check for emptied contours
-        #if not inner_air_ex.HasContours():
-    #     logging.debug("Volume Thresholding has eliminated InnerAir contours")
-    # else:
-         logging.debug("No air contours were found near the targets")
+        if not inner_air_ex.HasContours():
+            logging.debug("Volume Thresholding has eliminated InnerAir contours")
+    else:
+        logging.debug("No air contours were found near the targets")
 
     return new_structs
 

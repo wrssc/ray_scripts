@@ -1900,7 +1900,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     make_boolean_structure(patient=patient, case=case, examination=examination, **inner_air_defs)
 
     # Define the inner_air structure at the Patient Model level
-    # inner_air_pm = case.PatientModel.RegionsOfInterest["InnerAir"]
+    inner_air_pm = case.PatientModel.RegionsOfInterest["InnerAir"]
     # Define the inner_air structure at the examination level
     inner_air_ex = case.PatientModel.StructureSets[examination.Name].RoiGeometries["InnerAir"]
 
