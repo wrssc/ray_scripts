@@ -1181,7 +1181,7 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
         #     make_boolean_structure(patient=patient, case=case, examination=examination,
         #                            **prv_exp_defs)
         if check_structure_exists(case=case,structure_name=prv_name,option='Check'):
-            roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name]
+            roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name] 
         else:
             roi_geom = create_roi(case=case, examination=examination,
                                   roi_name=prv_name, delete_existing=True)
@@ -1739,12 +1739,12 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                 "Posterior": ExpA[3],
                 "Right": ExpA[4],
                 "Left": ExpA[5],
-                },
             },
-            ExpressionB={
-                "Operation": OperationB,
-                "SourceRoiNames": SourcesB,
-                "MarginSettings": {
+        },
+        ExpressionB={
+            "Operation": OperationB,
+            "SourceRoiNames": SourcesB,
+            "MarginSettings": {
                 "Type": MarginTypeB,
                 "Superior": ExpB[0],
                 "Inferior": ExpB[1],
@@ -1752,19 +1752,19 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                 "Posterior": ExpB[3],
                 "Right": ExpB[4],
                 "Left": ExpB[5],
-                },
             },
-            ResultOperation=OperationResult,
-            ResultMarginSettings={
-                "Type": MarginTypeR,
-                "Superior": ExpR[0],
-                "Inferior": ExpR[1],
-                "Anterior": ExpR[2],
-                "Posterior": ExpR[3],
-                "Right": ExpR[4],
-                "Left": ExpR[5],
-            },
-        )
+        },
+        ResultOperation=OperationResult,
+        ResultMarginSettings={
+            "Type": MarginTypeR,
+            "Superior": ExpR[0],
+            "Inferior": ExpR[1],
+            "Anterior": ExpR[2],
+            "Posterior": ExpR[3],
+            "Right": ExpR[4],
+            "Left": ExpR[5],
+        },
+    )
 
     if StructureName == "InnerAir":
         logging.debug('Excluding {} from export'.format(StructureName))

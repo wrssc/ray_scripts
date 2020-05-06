@@ -1181,7 +1181,7 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
         #     make_boolean_structure(patient=patient, case=case, examination=examination,
         #                            **prv_exp_defs)
         if check_structure_exists(case=case,structure_name=prv_name,option='Check'):
-            roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name]
+            roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name] 
         else:
             roi_geom = create_roi(case=case, examination=examination,
                                   roi_name=prv_name, delete_existing=True)
