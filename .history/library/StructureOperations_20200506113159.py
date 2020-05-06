@@ -1151,7 +1151,7 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
                 "StructureName": prv_name,
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
-                "StructColor": prv_rgb,
+                "StructColor": prv_color,
                 "OperationA": "Union",
                 "SourcesA": [source_roi],
                 "MarginTypeA": "Expand",
