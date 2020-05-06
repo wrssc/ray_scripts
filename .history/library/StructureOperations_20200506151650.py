@@ -2273,7 +2273,7 @@ def planning_structures(
         # 	CreateCopyOfRoi=False,
         # 	ResolveOverlappingContours=False,
         # 	)
-    ##    newly_generated_rois.append("ExternalClean")
+        newly_generated_rois.append("ExternalClean")
 
     if run_status:
         status.next_step(text="Please fill out the following input dialogs")
