@@ -1771,9 +1771,6 @@ def make_boolean_structure(patient, case, examination, **kwargs):
         exclude_from_export(case=case, rois=StructureName)
 
     msg = change_roi_color(case=case, roi_name=StructureName, rgb=StructColor)
-    if msg is not None:
-        for m in msg:
-            logging.debug(m)
     type_msg = change_roi_type(case=case, roi_name=StructureName, roi_type=StructType)
     if type_msg is not None:
         for m in type_msg:
