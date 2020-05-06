@@ -1484,7 +1484,7 @@ def renumber_roi(case):
     Sort the ROI list and renumber alphabetically
     """
     rois = find_types(case=case,roi_type=None)
-    # :TODO: Consider moving the encoding to find_types, also use encode not str
+    # :TODO: Consider moving the encoding to find_types, also use encode
     rois = [str(r) for r in rois]
     logging.debug("Unsorted list is {}".format(rois))
     sorted_rois = rois.sort(reverse=True)
