@@ -293,9 +293,6 @@ def change_roi_color(case, roi_name, rgb):
     :param rgb: an rgb color object, e.g. [r, g, b] = [128, 132,256]
     :return error_message: None for success, or error message for error
     """
-    if structure_approved(case=case,roi_name=roi_name):
-        error_message = "Structure {} is approved, cannot change color" .format(roi_name)
-        return error_message
     if not all(exists_roi(case=case, rois=roi_name)):
         error_message = "Structure {} not found on case {}".format(roi_name, case)
         return error_message
@@ -356,7 +353,6 @@ def change_roi_type(case, roi_name, roi_type):
     if structure_approved(case=case,roi_name=roi_name):
         error_message.append("Structure {} is approved, cannot change type {}"
                              .format(roi_name,roi_type))
-        return error_message
     if not all(exists_roi(case=case, rois=roi_name)):
         error_message.append("Structure {} not found on case {}".format(roi_name, case))
         return error_message
