@@ -276,7 +276,6 @@ def get_color_from_roi(case, roi_name):
     sys_col = case.PatientModel.RegionsOfInterest[roi_name].Color
     return [int(sys_col.R), int(sys_col.G), int(sys_col.B)]
 
-
 def define_sys_color(rgb):
     """ Takes an rgb list and converts to a Color object useable by RS
     :param rgb: an rgb color list, e.g. [128, 132, 256]
@@ -299,11 +298,8 @@ def change_roi_color(case, roi_name, rgb):
     sys_rgb = define_sys_color(rgb)
     try:
         rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
-        if get_color_from_roi(case=case,roi_name=rs_roi) != sys_rbg:
-            rs_roi.Color = sys_rgb
-            error_message = None
-        else:
-            error_message = 'Color for {} was already {}'.format(rs_roi, rgb)
+        rs_roi.Color = sys_rgb
+        error_message = None
     except:
         error_message = "Unable to change color on roi {}".format(roi_name)
     return error_message
