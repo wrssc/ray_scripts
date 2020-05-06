@@ -1067,7 +1067,7 @@ def check_derivation(case, examination, **kwargs):
             logging.debug('A expand contract type')
             return False
     except AttributeError:
-        if MarginTypeA != None and current_a_expression.ExpandContractType != MarginTypeA:
+        if MarginTypeA != None:
             logging.debug('A expand/contract type expected to be something')
             return False
     try:
