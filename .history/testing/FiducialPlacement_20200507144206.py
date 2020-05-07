@@ -98,7 +98,6 @@ def main():
     else:
         external_name = external_roi[0]
         logging.debug('External contour is {}'.format(external_name))
-    # Place initial point at center of external
     external_center = case.PatientModel.StructureSets[exam.Name] \
                     .RoiGeometries[external_name].GetCenterOfRoi()
     initial_position = {'x': external_center.x, 
