@@ -133,8 +133,7 @@ def main():
             connect.await_user_input('Zoom in on fiducial {}.'.format(n + 1)
                                  +' Place crosshairs {} at its geometric center.'.format(point_name)
                                  +' Select \'Set to slice intersection \'')
-            fiducial_position = case.PatientModel.StructureSets[exam.Name] \
-                                .PoiGeometries[point_name].Point
+            fiducial_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[point_name]
         logging.debug('Point placed at x = {}, y = {}, z = {}'
                       .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
         fiducial_name = fiducial_name + str(n + 1)
