@@ -175,7 +175,7 @@ def main():
               )
         x_hat = (b[1].x - b[0].x) / mag
         y_hat = (b[1].y - b[0].y) / mag
-        z_hat = (b[1].z - b[0].z) / mag
+        z_hat = (b[1].x - b[0].x) / mag
         # Initial axis: The unit vector describing the initial cylinder placement
         #   HFS: x~L/R, y~A/P,  z~S/I
         initial_axis = {'x': x_hat, 'y':y_hat, 'z': z_hat}
