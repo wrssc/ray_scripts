@@ -2042,7 +2042,7 @@ def dialog_number_of_targets():
             '3': "Priority 1 goals present: Use Underdosing",
             '4': "Targets overlap sensitive structures: Use UniformDoses",
             '5': "Use InnerAir to avoid high-fluence due to cavities",
-           # '6': "Select plan type"
+            '6': "Select plan type"
         },
         title="Planning Structures and Goal Selection",
         datatype={
@@ -2050,21 +2050,25 @@ def dialog_number_of_targets():
             '3': "check",
             '4': "check",
             '5': "check",
-           # '6': "combo"},
-        },
+            '6': "combo"},
         initial={
             '1': "0",
             '2': "0",
             '5': ["yes"],
-           # '6': ["Concurrent"]
+            '6': ["Concurrent"]
         },
         options={
+            # Not yet,  Not yet.
+            # '2': ['Single Target/Dose',
+            #       'Concurrent',
+            #       'Primary+Boost',
+            #       'Multiple Separate Targets'],
             '3': ["yes"],
             '4': ["yes"],
             '5': ["yes"],
-           # '6': ["Concurrent",
-           #       "Sequential Primary+Boost(s)",
-           #       "Multiple Separate Targets"],
+            '6': ["Concurrent",
+                  "Sequential Primary+Boost(s)",
+                  "Multiple Separate Targets"],
         },
         required=['1', '2', '6']
     )
@@ -2074,12 +2078,12 @@ def dialog_number_of_targets():
     # Parse number of targets
     planning_structures.number_of_targets = int(dialog1_response['1'])
     planning_structures.first_target_number = int(dialog1_response['2'])
-    # if dialog1_response['6'] == "Concurrent":
-    #     planning_structures.plan_type = "Concurrent"
-    # elif dialog1_response['6'] == "Sequential Primary+Boost(s)":
-    #     planning_structures.plan_type = "Sequential"
-    # else:
-    #     planning_structures.plan_type = "Multi"
+    if dialog1_response['6'] == "Concurrent":
+        planning_structures.plan_type = "Concurrent"
+    elif dialog1_response['6'] == "Sequential Primary+Boost(s)":
+        planning_structures.plan_type = "Sequential"
+    else:
+        planning_structures.plan_type = "Multi"
     # User selected that Underdose is required
     if "yes" in dialog1_response['3']:
         planning_structures.use_under_dose = True
@@ -2236,8 +2240,6 @@ def planning_structures(
         sys.exit('This script cannot be run on image sets with approved plans.')
     except ValueError:
         logging.debug('Exam {} does not have approved structures. Proceeding'.format(examination.Name))
-    
-    
     roi_check = all(check_roi(case=case, exam=examination, rois=StructureName))
 
     external_name = "ExternalClean"

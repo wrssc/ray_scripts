@@ -2051,7 +2051,7 @@ def dialog_number_of_targets():
             '4': "check",
             '5': "check",
            # '6': "combo"},
-        },
+        }
         initial={
             '1': "0",
             '2': "0",
@@ -2074,12 +2074,12 @@ def dialog_number_of_targets():
     # Parse number of targets
     planning_structures.number_of_targets = int(dialog1_response['1'])
     planning_structures.first_target_number = int(dialog1_response['2'])
-    # if dialog1_response['6'] == "Concurrent":
-    #     planning_structures.plan_type = "Concurrent"
-    # elif dialog1_response['6'] == "Sequential Primary+Boost(s)":
-    #     planning_structures.plan_type = "Sequential"
-    # else:
-    #     planning_structures.plan_type = "Multi"
+    if dialog1_response['6'] == "Concurrent":
+        planning_structures.plan_type = "Concurrent"
+    elif dialog1_response['6'] == "Sequential Primary+Boost(s)":
+        planning_structures.plan_type = "Sequential"
+    else:
+        planning_structures.plan_type = "Multi"
     # User selected that Underdose is required
     if "yes" in dialog1_response['3']:
         planning_structures.use_under_dose = True
