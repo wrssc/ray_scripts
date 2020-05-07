@@ -54,6 +54,9 @@ def main():
     exam = find_scope(level='Examination')
     # Fiducial prefix to be used for naming rois and pois
     fiducial_prefix = 'Fiducial_'
+    # Initial axis: The unit vector describing the initial cylinder placement
+    #   HFS: x~L/R, y~A/P,  z~S/I
+    initial_axis = {'x': 0, 'y':0, 'z': 1}
     # Launch a dialog for the number of fiducials
     dialog1 = UserInterface.InputDialog(
         inputs={
@@ -167,18 +170,14 @@ def main():
         # Solve for a rough axis
         b = case.PatientModel.StructureSets[exam.Name] \
                     .RoiGeometries[fiducial_name].GetBoundingBox() 
-#        bounds = [b[0].x,b[1].x,b[0].y,b[1].y,b[0].z,b[1].z]
-        mag = (
-                (b[0].x - b[1].x)**2
-              + (b[0].y - b[1].y)**2
-              + (b[0].z - b[1].z)**2
-              )
+        bounds = [b[0].x,b[1].x,b[0].y,b[1].y,b[0].z,b[1].z]
+        mag = ((b[0].x)**2 + (b[1].x)**2)**0.5 \
+            + ((b[0].y)**2 + (b[1].y)**2)**0.5 \
+            + ((b[0].x)**2 + (b[1].x)**2)**0.5
         x_hat = (b[1].x - b[0].x) / mag
         y_hat = (b[1].y - b[0].y) / mag
         z_hat = (b[1].x - b[0].x) / mag
-        # Initial axis: The unit vector describing the initial cylinder placement
-        #   HFS: x~L/R, y~A/P,  z~S/I
-        initial_axis = {'x': x_hat, 'y':y_hat, 'z': z_hat}
+        
 
         fiducial_geom.OfRoi.CreateCylinderGeometry(
                                             Radius=0.15,

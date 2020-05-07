@@ -167,7 +167,7 @@ def main():
         # Solve for a rough axis
         b = case.PatientModel.StructureSets[exam.Name] \
                     .RoiGeometries[fiducial_name].GetBoundingBox() 
-#        bounds = [b[0].x,b[1].x,b[0].y,b[1].y,b[0].z,b[1].z]
+        bounds = [b[0].x,b[1].x,b[0].y,b[1].y,b[0].z,b[1].z]
         mag = (
                 (b[0].x - b[1].x)**2
               + (b[0].y - b[1].y)**2
@@ -179,6 +179,7 @@ def main():
         # Initial axis: The unit vector describing the initial cylinder placement
         #   HFS: x~L/R, y~A/P,  z~S/I
         initial_axis = {'x': x_hat, 'y':y_hat, 'z': z_hat}
+        
 
         fiducial_geom.OfRoi.CreateCylinderGeometry(
                                             Radius=0.15,
