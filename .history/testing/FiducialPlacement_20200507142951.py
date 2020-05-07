@@ -39,7 +39,7 @@ import UserInterface
 import BeamOperations
 import PlanOperations
 import PlanQualityAssuranceTests
-from GeneralOperations import find_scope as find_scope
+import GeneralOperations import find_scope as find_scope
 from GeneralOperations import logcrit as logcrit
 import StructureOperations
 import clr
