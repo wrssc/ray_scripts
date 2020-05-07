@@ -114,9 +114,8 @@ def main():
                                     Color='Green',
                                     VisualizationDiameter=1,
                                     Type='Control')
-        connect.await_user_input('Zoom in on fiducial {}.'.format(n + 1) 
-                                 +' Place crosshairs {} at its geometric center.'.format(point_name)
-                                 +' Select \033[1m Set to slice intersection \033[0m'
+        connect.await_user_input('Zoom in on fiducial {}'.format(n + 1) 
+                                 +'place point {} at its geometric center and continue.'.format(point_name)
         )
         fiducial_name = 'Fiducial' + str(n)
         fiducial_geom = StructureOperations.create_roi(case=case,
