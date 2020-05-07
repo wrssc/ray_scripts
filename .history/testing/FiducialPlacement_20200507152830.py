@@ -53,9 +53,6 @@ def main():
     exam = find_scope(level='Examination')
     # Fiducial prefix to be used for naming rois and pois
     fiducial_name = 'Fiducial_'
-    # Initial axis: The unit vector describing the initial cylinder placement
-    #   HFS: x~L/R, y~S/I,  z~A/P
-    initial_axis = {'x': 0, 'y':1, 'z': 0}
     # Launch a dialog for the number of fiducials
     dialog1 = UserInterface.InputDialog(
         inputs={
@@ -117,7 +114,7 @@ def main():
                                     Volume=0,
                                     Name=point_name,
                                     Color='Green',
-                                    VisualizationDiameter=0.5,
+                                    VisualizationDiameter=1,
                                     Type='Control')
         connect.await_user_input('Zoom in on fiducial {}.'.format(n + 1)
                                  +' Place crosshairs {} at its geometric center.'.format(point_name)
@@ -138,10 +135,9 @@ def main():
         fiducial_geom = StructureOperations.create_roi(case=case,
                                                        examination=exam,
                                                        roi_name=fiducial_name)
-        logging.debug('Roi fiducial {} is type {}'.format(fiducial_geom.OfRoi.Name,type(fiducial_geom)))
         fiducial_geom.OfRoi.CreateCylinderGeometry(
                                             Radius=0.15,
-                                            Axis=initial_axis,
+                                            Axis=0.15,
                                             Length=0.5,
                                             Examination=exam,
                                             Center={'x':fiducial_position.x,

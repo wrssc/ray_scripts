@@ -138,7 +138,6 @@ def main():
         fiducial_geom = StructureOperations.create_roi(case=case,
                                                        examination=exam,
                                                        roi_name=fiducial_name)
-        logging.debug('Roi fiducial {} is type {}'.format(fiducial_geom.OfRoi.Name,type(fiducial_geom)))
         fiducial_geom.OfRoi.CreateCylinderGeometry(
                                             Radius=0.15,
                                             Axis=initial_axis,
