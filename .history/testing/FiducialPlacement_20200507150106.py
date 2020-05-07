@@ -116,34 +116,14 @@ def main():
                                     Color='Green',
                                     VisualizationDiameter=1,
                                     Type='Control')
-        connect.await_user_input('Zoom in on fiducial {}.'.format(n + 1)
+        connect.await_user_input('Zoom in on fiducial {}.'.format(n + 1) 
                                  +' Place crosshairs {} at its geometric center.'.format(point_name)
                                  +' Select \'Set to slice intersection \''
         )
-        fiducial_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[point_name]
-        while fiducial_position.x == external_center.x \
-              and fiducial_position.y == external_center.y \
-              and fiducial_position.z == external_center.z:
-            connect.await_user_input('Zoom in on fiducial {}.'.format(n + 1)
-                                 +' Place crosshairs {} at its geometric center.'.format(point_name)
-                                 +' Select \'Set to slice intersection \'')
-            fiducial_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[point_name]
-        logging.debug('Point placed at x = {}, y = {}, z = {}'
-                      .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
         fiducial_name = fiducial_name + str(n + 1)
         fiducial_geom = StructureOperations.create_roi(case=case,
                                                        examination=exam,
-                                                       roi_name=fiducial_name)
-        fiducial_geom.CreateCylinderGeometry(
-                                            Radius=0.15,
-                                            Axis=0.15,
-                                            Length=0.5,
-                                            Examination=exam,
-                                            Center={'x':fiducial_position.x,
-                                                    'y':fiducial_position.y,
-                                                    'z':fiducial_position.z},
-                                            Representation='Voxels',
-                                            VoxelSize=0.01)
+                                                       roi_name=fiducial_name) 
 
     # Prompt the user to center the cross-hairs on the fiducial
 

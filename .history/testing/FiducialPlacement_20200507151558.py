@@ -128,6 +128,7 @@ def main():
                                  +' Place crosshairs {} at its geometric center.'.format(point_name)
                                  +' Select \'Set to slice intersection \'')
             fiducial_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[point_name]
+            
         logging.debug('Point placed at x = {}, y = {}, z = {}'
                       .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
         fiducial_name = fiducial_name + str(n + 1)
