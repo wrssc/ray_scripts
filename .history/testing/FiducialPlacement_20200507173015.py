@@ -154,19 +154,13 @@ def main():
                         'MaxCorner':{'x':x_max, 'y':y_max, 'z':z_max},
         }
         fiducial_geom.OfRoi.GrayLevelThreshold(
-            Examination=exam,
+            Examination=examination,
             LowThreshold=500,
             HighThreshold=4000,
             PetUnit="",
             CbctUnit=None,
-            BoundingBox=bounding_box
+            BoundingBox={'MinCorner':{'x':fiducial_position.x-0.5}} 
         )
-        # Grab the new Center
-        fiducial_position = case.PatientModel.StructureSets[exam.Name] \
-                    .RoiGeometries[fiducial_name].GetCenterOfRoi() 
-        logging.debug('GrayLevelAutocontour moved fiducial center to x = {}, y = {}, z = {}'
-                      .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
-
         fiducial_geom.OfRoi.CreateCylinderGeometry(
                                             Radius=0.15,
                                             Axis=initial_axis,

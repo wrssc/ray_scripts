@@ -137,36 +137,11 @@ def main():
                                 .PoiGeometries[point_name].Point
         logging.debug('Point placed at x = {}, y = {}, z = {}'
                       .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
-        
         fiducial_name = fiducial_prefix + str(n + 1)
         fiducial_geom = StructureOperations.create_roi(case=case,
                                                        examination=exam,
                                                        roi_name=fiducial_name)
-        # Now improve on the initial position with a bounding box
-        x_min = fiducial_position.x - 0.5
-        y_min = fiducial_position.y - 0.5
-        z_min = fiducial_position.z - 0.5
-        x_max = fiducial_position.x + 0.5
-        y_max = fiducial_position.y + 0.5
-        z_max = fiducial_position.z + 0.5
-        bounding_box = {
-                        'MinCorner':{'x':x_min, 'y':y_min, 'z':z_min},
-                        'MaxCorner':{'x':x_max, 'y':y_max, 'z':z_max},
-        }
-        fiducial_geom.OfRoi.GrayLevelThreshold(
-            Examination=exam,
-            LowThreshold=500,
-            HighThreshold=4000,
-            PetUnit="",
-            CbctUnit=None,
-            BoundingBox=bounding_box
-        )
-        # Grab the new Center
-        fiducial_position = case.PatientModel.StructureSets[exam.Name] \
-                    .RoiGeometries[fiducial_name].GetCenterOfRoi() 
-        logging.debug('GrayLevelAutocontour moved fiducial center to x = {}, y = {}, z = {}'
-                      .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
-
+        logging.debug('Roi fiducial {} is type {}'.format(fiducial_geom.OfRoi.Name,type(fiducial_geom)))
         fiducial_geom.OfRoi.CreateCylinderGeometry(
                                             Radius=0.15,
                                             Axis=initial_axis,
