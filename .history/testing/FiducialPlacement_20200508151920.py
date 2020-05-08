@@ -212,7 +212,7 @@ def main():
         prv_geom = StructureOperations.create_roi(case=case,
                                                        examination=exam,
                                                        roi_name=prv_name)
-        prv_geom.OfRoi.CreateSphereGeometry(
+        prv_geom.CreateSphereGeometry(
                                     Radius=0.2,
                                     Examination=exam,
                                     Center={'x':fiducial_position.x,

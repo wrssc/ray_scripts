@@ -55,7 +55,7 @@ def main():
     # Fiducial prefix to be used for naming rois and pois
     fiducial_prefix = 'Fiducial_'
     # Search distance for the size of the box around which to look for the fiducial
-    search_distance = 0.35 # cm
+    search_distance = 0.25 # cm
     # Launch a dialog for the number of fiducials
     dialog1 = UserInterface.InputDialog(
         inputs={
@@ -212,7 +212,7 @@ def main():
         prv_geom = StructureOperations.create_roi(case=case,
                                                        examination=exam,
                                                        roi_name=prv_name)
-        prv_geom.OfRoi.CreateSphereGeometry(
+        prv_geom.CreateSphereGeometry(
                                     Radius=0.2,
                                     Examination=exam,
                                     Center={'x':fiducial_position.x,
