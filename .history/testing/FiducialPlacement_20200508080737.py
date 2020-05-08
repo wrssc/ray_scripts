@@ -164,9 +164,6 @@ def main():
                     .RoiGeometries[fiducial_name].GetCenterOfRoi() 
         logging.debug('GrayLevelAutocontour moved fiducial center to x = {}, y = {}, z = {}'
                       .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
-        # At this time, RS can only take a single direction for the axis alignment. 
-        # However, as a TODO: should use least squares to find transformation matrix
-        # Also could solve for a rough axis as follows
         # Solve for a rough axis
         # b = case.PatientModel.StructureSets[exam.Name] \
         #             .RoiGeometries[fiducial_name].GetBoundingBox() 
@@ -180,14 +177,11 @@ def main():
         # x_hat = (b[1].x - fiducial_position.x) / mag
         # y_hat = (b[1].y - fiducial_position.y) / mag
         # z_hat = (b[1].z - fiducial_position.z) / mag
+        # At this time, RS can only take a single direction for the axis alignment. 
         # initial_axis = {'x': x_hat, 'y':y_hat, 'z': z_hat}
         # Initial axis: The unit vector describing the initial cylinder placement
         #   HFS: x~L/R, y~A/P,  z~S/I
-        initial_axis = {'x': 0, 'y':0, 'z': 1} 
-        logging.debug('Coordinates of axis are {}, {}, {}'
-                      .format(initial_axis['x'],
-                              initial_axis['y'],
-                              initial_axis['z']))
+        logging.debug('Coordinates of axis are {}, {}, {}'.format(x_hat,y_hat,z_hat))
 
         fiducial_geom.OfRoi.CreateCylinderGeometry(
                                             Radius=0.15,
