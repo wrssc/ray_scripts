@@ -1469,21 +1469,6 @@
         <Alias>fiducial_1</Alias>
     </roi>
     <roi>
-        <name>Fiducial_1_PRVxx</name>
-        <TG263PrimaryName>Fiducial_1_PRVxx</TG263PrimaryName>
-        <Description>Sphere surround fiducial which the center of fiducial must lie within for tracking</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <MajorCategory>Devices</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>Fiducial_1_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="222" green="47" blue="80" Hex= "#DE2F50">Chin-ChinCherry</Color>
-        <Alias>fiducial_1_PRVxx</Alias>
-    </roi>
-    <roi>
         <name>Fiducial_2</name>
         <TG263PrimaryName>Fiducial_2</TG263PrimaryName>
         <Description>Fiducial markers for tracking</Description>
@@ -1499,21 +1484,6 @@
         <Alias>fiducial_2</Alias>
     </roi>
     <roi>
-        <name>Fiducial_2_PRVxx</name>
-        <TG263PrimaryName>Fiducial_2_PRVxx</TG263PrimaryName>
-        <Description>Sphere surrounding fiducial which the center of fiducial must lie within for tracking</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <MajorCategory>Devices</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>Fiducial_2_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="55" green="221" blue="159" Hex= "#37DD9F">DarkShamrock</Color>
-        <Alias>fiducial_2_PRVxx</Alias>
-    </roi>
-    <roi>
         <name>Fiducial_3</name>
         <TG263PrimaryName>Fiducial_3</TG263PrimaryName>
         <Description>Fiducial markers for tracking</Description>
@@ -1525,23 +1495,8 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Fiducial_3</TG263ReverseOrderName>
         <FMAID></FMAID>
-         <Color red="160" green="235" blue="81" Hex= "#A0EB51">KiwiPulp</Color>
+        <Color red="67" green="65" blue="225" Hex= "#4341E1">BrightGreek</Color>
         <Alias>fiducial_3</Alias>
-    </roi>
-       <roi>
-        <name>Fiducial_3_PRVxx</name>
-        <TG263PrimaryName>Fiducial_3_PRVxx</TG263PrimaryName>
-        <Description>Sphere surrounding fiducial which the center of fiducial must lie within for tracking</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <MajorCategory>Devices</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>Fiducial_3_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-         <Color red="160" green="235" blue="81" Hex= "#A0EB51">KiwiPulp</Color>
-        <Alias>fiducial_3_PRVxx</Alias>
     </roi>
     <roi>
         <name>Fiducial_4</name>
@@ -1555,23 +1510,8 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Fiducial_4</TG263ReverseOrderName>
         <FMAID></FMAID>
-        <Color red="246" green="151" blue="81" Hex= "#F69751">HollandTulip</Color>
+        <Color red="67" green="65" blue="225" Hex= "#4341E1">BrightGreek</Color>
         <Alias>fiducial_4</Alias>
-    </roi>
-    <roi>
-        <name>Fiducial_4_PRVxx</name>
-        <TG263PrimaryName>Fiducial_4_PRVxx</TG263PrimaryName>
-        <Description>Sphere surrounding fiducial which the center of fiducial must lie within for tracking</Description>
-        <NCIt></NCIt>
-        <TargetType>PRV</TargetType>
-        <MajorCategory>Devices</MajorCategory>
-        <MinorCategory></MinorCategory>
-        <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>16</NCharacters>
-        <TG263ReverseOrderName>Fiducial_4_PRVxx</TG263ReverseOrderName>
-        <FMAID></FMAID>
-        <Color red="246" green="151" blue="81" Hex= "#F69751">HollandTulip</Color>
-        <Alias>fiducial_4_PRVxx</Alias>
     </roi>
     <roi>
         <name>GTV</name>

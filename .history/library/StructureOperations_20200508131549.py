@@ -285,34 +285,22 @@ def define_sys_color(rgb):
     return System.Drawing.Color.FromArgb(255, rgb[0], rgb[1], rgb[2])
 
 
-def change_to_263_color(case, roi_name, df_rois=None):
-    """
-    case: rs case
-    roi_name: str: Name of ROI
-    df_rois: Pandas dataframe defined with elements from the iter_standard_roi function
-    """
-    if df_rois is None:
-        files = [[r"../protocols", r"", r"TG-263.xml"]]  # , [r"../protocols", r"UW", r""]]
-        paths = []
-        for i, f in enumerate(files):
-            secondary_protocol_folder = f[0]
-            institution_folder = f[1]
-            paths.append(os.path.join(os.path.dirname(__file__),
-                                      secondary_protocol_folder,
-                                      institution_folder))
-        tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
-        rois_dict = iter_standard_rois(tree)
-        df_rois = pd.DataFrame(rois_dict["rois"])
-
+def find_263_color(roi_name):
+    files = [[r"../protocols", r"", r"TG-263.xml"]]  # , [r"../protocols", r"UW", r""]]
+    paths = []
+    for i, f in enumerate(files):
+        secondary_protocol_folder = f[0]
+        institution_folder = f[1]
+        paths.append(os.path.join(os.path.dirname(__file__),
+                                  secondary_protocol_folder,
+                                  institution_folder))
+    tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+    rois_dict = iter_standard_rois(tree)
+    df_rois = pd.DataFrame(rois_dict["rois"])
     df_e = df_rois[df_rois.name == roi_name]
-    if df_e.RGBColor.values[0] is not None:
-                e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
-                msg = change_roi_color(case=case, roi_name=roi_name, rgb=e_rgb)
-                return msg
-    else:
-        msg = 'Could not find {} in TG-263 list'.format(roi_name)
-
     
+    
+
 def change_roi_color(case, roi_name, rgb):
     """
     Change the color of an roi to a system color

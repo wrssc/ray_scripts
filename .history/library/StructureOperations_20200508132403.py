@@ -285,7 +285,7 @@ def define_sys_color(rgb):
     return System.Drawing.Color.FromArgb(255, rgb[0], rgb[1], rgb[2])
 
 
-def change_to_263_color(case, roi_name, df_rois=None):
+def change_to_263_color(case, roi_name, df_rois):
     """
     case: rs case
     roi_name: str: Name of ROI

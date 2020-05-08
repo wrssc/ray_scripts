@@ -285,7 +285,7 @@ def define_sys_color(rgb):
     return System.Drawing.Color.FromArgb(255, rgb[0], rgb[1], rgb[2])
 
 
-def change_to_263_color(case, roi_name, df_rois=None):
+def change_to_263_color(case, roi_name, df_rois):
     """
     case: rs case
     roi_name: str: Name of ROI
@@ -310,7 +310,7 @@ def change_to_263_color(case, roi_name, df_rois=None):
                 msg = change_roi_color(case=case, roi_name=roi_name, rgb=e_rgb)
                 return msg
     else:
-        msg = 'Could not find {} in TG-263 list'.format(roi_name)
+        msg = 'Could not find {}'.format(roi_name)
 
     
 def change_roi_color(case, roi_name, rgb):
