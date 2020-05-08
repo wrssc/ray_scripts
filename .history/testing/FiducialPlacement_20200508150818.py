@@ -209,19 +209,11 @@ def main():
         fiducial_position = case.PatientModel.StructureSets[exam.Name] \
                     .RoiGeometries[fiducial_name].GetCenterOfRoi()
         prv_name = fiducial_prefix + str(n + 1) + '_PRVxx'
-        prv_geom = StructureOperations.create_roi(case=case,
+        fiducial_geom = StructureOperations.create_roi(case=case,
                                                        examination=exam,
                                                        roi_name=prv_name)
-        prv_geom.CreateSphereGeometry(
-                                    Radius=0.2,
-                                    Examination=exam,
-                                    Center={'x':fiducial_position.x,
-                                            'y':fiducial_position.y,
-                                            'z':fiducial_position.z},
-                                    Representation='Voxels',
-                                    VoxelSize=0.01
-                                      )
-        msg = StructureOperations.change_to_263_color(case=case,roi_name=prv_name)
+         
+        
 
 
     # Prompt the user to center the cross-hairs on the fiducial

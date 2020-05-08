@@ -137,8 +137,7 @@ def main():
                                 .PoiGeometries[point_name].Point
         logging.debug('Point placed at x = {}, y = {}, z = {}'
                       .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
-        # Delete POI. 
-        case.PatientModel.PointsOfInterest[point_name].DeleteRoi()
+        
         fiducial_name = fiducial_prefix + str(n + 1)
         fiducial_geom = StructureOperations.create_roi(case=case,
                                                        examination=exam,
@@ -203,26 +202,6 @@ def main():
                                             Representation='Voxels',
                                             VoxelSize=0.01)
         msg = StructureOperations.change_to_263_color(case=case,roi_name=fiducial_name)
-        connect.await_user_input('Use the 3D tools to rotate and translate the fiducial contour')
-        patient.SetRoiVisibility(RoiName=fiducial_name, IsVisible=False)
-        # Acquire the new ROI center for placing the prv
-        fiducial_position = case.PatientModel.StructureSets[exam.Name] \
-                    .RoiGeometries[fiducial_name].GetCenterOfRoi()
-        prv_name = fiducial_prefix + str(n + 1) + '_PRVxx'
-        prv_geom = StructureOperations.create_roi(case=case,
-                                                       examination=exam,
-                                                       roi_name=prv_name)
-        prv_geom.CreateSphereGeometry(
-                                    Radius=0.2,
-                                    Examination=exam,
-                                    Center={'x':fiducial_position.x,
-                                            'y':fiducial_position.y,
-                                            'z':fiducial_position.z},
-                                    Representation='Voxels',
-                                    VoxelSize=0.01
-                                      )
-        msg = StructureOperations.change_to_263_color(case=case,roi_name=prv_name)
-
 
     # Prompt the user to center the cross-hairs on the fiducial
 
