@@ -35,14 +35,14 @@ __copyright__ = 'Copyright (C) 2020, University of Wisconsin Board of Regents'
 import logging
 import sys
 import connect
-# import math
+import math
 import UserInterface
 from GeneralOperations import find_scope as find_scope
 from GeneralOperations import logcrit as logcrit
 import StructureOperations
-# import clr
-# clr.AddReference("System.Xml")
-# import System
+import clr
+clr.AddReference("System.Xml")
+import System
 
 def main():
     # Get current patient, case, exam, and plan
@@ -79,7 +79,7 @@ def main():
     else:
         external_name = external_roi[0]
         logging.debug('External contour is {}'.format(external_name))
-    # Place initial point at center of external initially
+    # Place initial point at center of external
     external_center = case.PatientModel.StructureSets[exam.Name] \
                     .RoiGeometries[external_name].GetCenterOfRoi()
     initial_position = {'x': external_center.x,
@@ -104,7 +104,6 @@ def main():
         )
         fiducial_position = case.PatientModel.StructureSets[exam.Name]\
                             .PoiGeometries[point_name].Point
-        # Check to make sure the user moved the poi
         while fiducial_position.x == initial_position['x'] \
               and fiducial_position.y == initial_position['y'] \
               and fiducial_position.z == initial_position['z']:

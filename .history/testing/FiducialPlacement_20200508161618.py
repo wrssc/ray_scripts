@@ -1,4 +1,4 @@
-""" Fiducial Contouring
+""" Fiducials
 
     0.0.0 Guides user through fiducial placement for prostate SBRT
 
@@ -35,14 +35,17 @@ __copyright__ = 'Copyright (C) 2020, University of Wisconsin Board of Regents'
 import logging
 import sys
 import connect
-# import math
+import math
 import UserInterface
+import BeamOperations
+import PlanOperations
+import PlanQualityAssuranceTests
 from GeneralOperations import find_scope as find_scope
 from GeneralOperations import logcrit as logcrit
 import StructureOperations
-# import clr
-# clr.AddReference("System.Xml")
-# import System
+import clr
+clr.AddReference("System.Xml")
+import System
 
 def main():
     # Get current patient, case, exam, and plan
@@ -79,7 +82,7 @@ def main():
     else:
         external_name = external_roi[0]
         logging.debug('External contour is {}'.format(external_name))
-    # Place initial point at center of external initially
+    # Place initial point at center of external
     external_center = case.PatientModel.StructureSets[exam.Name] \
                     .RoiGeometries[external_name].GetCenterOfRoi()
     initial_position = {'x': external_center.x,
@@ -97,14 +100,12 @@ def main():
                                     Color='Green',
                                     VisualizationDiameter=0.5,
                                     Type='Control')
-        # Prompt the user to place the poi at the slice intersection
         connect.await_user_input('Zoom in on fiducial {}.'.format(n + 1)
                                  +' Place crosshairs {} at its geometric center.'.format(point_name)
                                  +' Select \'Set to slice intersection \''
         )
         fiducial_position = case.PatientModel.StructureSets[exam.Name]\
                             .PoiGeometries[point_name].Point
-        # Check to make sure the user moved the poi
         while fiducial_position.x == initial_position['x'] \
               and fiducial_position.y == initial_position['y'] \
               and fiducial_position.z == initial_position['z']:
@@ -115,7 +116,7 @@ def main():
                                 .PoiGeometries[point_name].Point
         logging.debug('Point placed at x = {}, y = {}, z = {}'
                       .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
-        # Delete POI
+        # Delete POI. 
         case.PatientModel.PointsOfInterest[point_name].DeleteRoi()
         fiducial_name = fiducial_prefix + str(n + 1)
         fiducial_geom = StructureOperations.create_roi(case=case,
@@ -206,7 +207,6 @@ def main():
         msg = StructureOperations.change_to_263_color(case=case,roi_name=prv_name)
         if msg is not None:
             logging.debug(msg)
-    logcrit('Final Dose script ran successfully on {} fiducials'.format(num_fiducials))
 
 
     # Prompt the user to center the cross-hairs on the fiducial

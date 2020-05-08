@@ -35,14 +35,14 @@ __copyright__ = 'Copyright (C) 2020, University of Wisconsin Board of Regents'
 import logging
 import sys
 import connect
-# import math
+import math
 import UserInterface
 from GeneralOperations import find_scope as find_scope
 from GeneralOperations import logcrit as logcrit
 import StructureOperations
-# import clr
-# clr.AddReference("System.Xml")
-# import System
+import clr
+clr.AddReference("System.Xml")
+import System
 
 def main():
     # Get current patient, case, exam, and plan
