@@ -421,12 +421,11 @@
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>Kidney-GTV</TG263ReverseOrderName>
         <Dependencies>Kidney_L,Kidney_R,GTV</Dependencies>
-        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
-            Kidney_L,Kidney_R</SourcesA>
-        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
-            GTV</SourcesB>
-        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
-            Kidney-GTV</Result>
+        <SourcesA operation="Intersection" expand_contract="Expand" margin_inf="0" margin_sup="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Kidney_L,Kidney_R
+        </SourcesA>
+        <SourcesB operation="Intersection", expansion="0">GTV</SourcesB>
+        <Result operation="Subtraction">Kidney-GTV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias>Kidney-gtv,kidney-gtv</Alias>

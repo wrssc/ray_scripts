@@ -1004,7 +1004,7 @@ def iter_standard_rois(etree):
         for d in derived:
             if d == "Result"
                 source_key = d
-                exp_key = "ExpR"
+                exp_key="ExpR"
                 margin_key = "MarginTypeR"
             else:
                 source_key = "Sources"+ d

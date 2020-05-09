@@ -1002,15 +1002,11 @@ def iter_standard_rois(etree):
             roi["TG263ReverseOrderName"] = None
         derived = ["A", "B", "Result"]
         for d in derived:
-            if d == "Result"
-                source_key = d
-                exp_key = "ExpR"
-                margin_key = "MarginTypeR"
-            else:
-                source_key = "Sources"+ d
-                exp_key = "Exp" + d
-                margin_key = "MarginType" + d
+            source_key = "Sources"+ d
             operation_key = "Operation" + d
+            margin_key = "MarginType" + d
+            exp_key = "Exp" + d
+            
             try:
                 roi[source_key] = str(r.find(source_key).text).split(",")
                 roi[operation_key] = r.find(source_key).attrib['operation']
@@ -1027,6 +1023,23 @@ def iter_standard_rois(etree):
                 roi[operation_key] = None
                 roi[margin_key] = None
                 roi[exp_key] = []
+
+        try:
+            roi["SourcesB"] = str(r.find('SourcesA').text).split(",")
+            roi["OperationB"] = r.find('SourcesA').attrib['operation']
+            roi["MarginTypeB"] = r.find('SourcesA').attrib['margin_type']
+            roi["ExpA"] = [float(r.find('SourcesA').attrib['margin_sup']),
+                           float(r.find('SourcesA').attrib['margin_inf']),
+                           float(r.find('SourcesA').attrib['margin_ant']),
+                           float(r.find('SourcesA').attrib['margin_pos']),
+                           float(r.find('SourcesA').attrib['margin_r']),
+                           float(r.find('SourcesA').attrib['margin_l'])
+            ]
+        except AttributeError:
+            roi["SourcesA"]=None
+            roi["OperationA"] = None
+            roi["MarginTypeA"] = None
+            roi["ExpA"] = None 
 
         try:
             roi["FMAID"] = r.find('FMAID').text

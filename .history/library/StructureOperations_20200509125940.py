@@ -312,7 +312,7 @@ def change_to_263_color(case, roi_name, df_rois=None):
     else:
         msg = 'Could not find {} in TG-263 list'.format(roi_name)
 
-
+    
 def change_roi_color(case, roi_name, rgb):
     """
     Change the color of an roi to a system color
@@ -712,6 +712,10 @@ def translate_roi(case, exam, roi, shifts):
     )
 
 
+# case.PatientModel.StructureSets[exam].RoiGeometries[roi].TransformROI3D(
+#    Examination=exam,TransformationMatrix=transform_matrix)
+
+
 def levenshtein_match(item, arr, num_matches=None):
     """[match,dist]=__levenshtein_match(item,arr)"""
 
@@ -1000,34 +1004,6 @@ def iter_standard_rois(etree):
             roi["TG263ReverseOrderName"] = r.find('TG263ReverseOrderName').text
         except AttributeError:
             roi["TG263ReverseOrderName"] = None
-        derived = ["A", "B", "Result"]
-        for d in derived:
-            if d == "Result"
-                source_key = d
-                exp_key = "ExpR"
-                margin_key = "MarginTypeR"
-            else:
-                source_key = "Sources"+ d
-                exp_key = "Exp" + d
-                margin_key = "MarginType" + d
-            operation_key = "Operation" + d
-            try:
-                roi[source_key] = str(r.find(source_key).text).split(",")
-                roi[operation_key] = r.find(source_key).attrib['operation']
-                roi[margin_key] = r.find(source_key).attrib['margin_type']
-                roi[exp_key] = [float(r.find(source_key).attrib['margin_sup']),
-                               float(r.find(source_key).attrib['margin_inf']),
-                               float(r.find(source_key).attrib['margin_ant']),
-                               float(r.find(source_key).attrib['margin_pos']),
-                               float(r.find(source_key).attrib['margin_r']),
-                               float(r.find(source_key).attrib['margin_l'])
-                ]
-            except AttributeError:
-                roi[source_key] = None
-                roi[operation_key] = None
-                roi[margin_key] = None
-                roi[exp_key] = []
-
         try:
             roi["FMAID"] = r.find('FMAID').text
         except AttributeError:
@@ -1261,12 +1237,6 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
         msg.append("{} does not need a planning risk volume".format(source_roi))
         return msg
 
-def create_derived(patient, case, examination, source_rois, df_TG263):
-    """
-    Function to search the df_TG263 pandas dataframe for each element in the source rois list.
-    Follow the directions of the derived tags
-    """
-    
 
 def match_roi(patient, case, examination, plan_rois, df_rois=None):
     """
