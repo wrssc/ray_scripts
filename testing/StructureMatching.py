@@ -334,6 +334,12 @@ def main():
                                                           roi_type=roi_type)
                 if msg is not None:
                     logging.debug('{}: could not change type. {}'.format(roi, msg))
+    msg = StructureOperations.create_derived(patient=patient,
+                                             case=case,
+                                             examination=exam,
+                                             roi=None,
+                                             df_rois=df_rois,
+                                             roi_list=None)
     # :TODO: Uncomment when RaySearch allows a sort to roi list.
     # StructureOperations.renumber_roi(case=case)
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename

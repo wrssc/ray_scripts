@@ -1,11 +1,13 @@
 """ Match Dialog
-Test scripts for matching
+Matches the current ROI list with TG-263 defined names, colors, and types
 
 Version Notes:
-0.0.0 Exclude targets doing aTG-263 normal structure matching
+0.0.0 
 
 Script: Matches all plan rois with TG-263 based normal structures returning a sorted list of
 the most likely matches based on: exact match, previously matched names (aliases) or levenshtein match
+
+Known Issues: 
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -23,30 +25,36 @@ You should have received a copy of the GNU General Public License along with
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '02-Feb-2020'
+
 __version__ = '0.0.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
+
 __raystation__ = '8.0.B'
-__maintainer__ = 'One maintainer'
+__maintainer__ = 'Adam Bayliss'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/wrssc/ray_scripts/wiki/Test_IO'
-__credits__ = []
+__help__ = ''
 
 import os
 import sys
 import logging
 import random
+import csv
+import xml
+import pandas as pd
+import re
+
+# Local imports
 import connect
 import BeamOperations
 import Objectives
 import Beams
 import StructureOperations
 import UserInterface
-import csv
 
 
 def test_select_element(patient, case, exam, plan, beamset):
@@ -216,52 +224,38 @@ def main():
     scope = find_scope()
     plan = scope['Plan']
     beamset = scope['BeamSet']
-    target_list = ['OTV', 'sOTV', '_EZ_', 'ring', 'PTV', 'ITV', 'GTV']
-    protocol_rois = [
-        'A_Carotid',
-        'A_Carotid_L',
-        'A_Carotid_R',
-        'A_Coronary',
-        'A_Hypophyseal_I',
-        'A_Hypophyseal_S',
-        'Arytenoid',
-        'Arytenoid_L',
-        'Arytenoid_R',
-        'Bone_Ethmoid',
-        'Bone_Frontal',
-        'Bone_Hyoid',
-        'Bone_Incus',
-        'Bone_Incus_L',
-        'Bone_Incus_R',
-        'Bone_Lacrimal',
-        'Bone_Lacrimal_L',
-        'Bone_Lacrimal_R',
-        'Bone_Mandible',
-        'Bone_Mastoid',
-        'Bone_Mastoid_L',
-        'Bone_Mastoid_R',
-        'Bone_Nasal',
-        'Bone_Nasal_L',
-        'Bone_Nasal_R']
-    # plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
+    # Open the 263 Dataframe
+    files = [[r"../protocols", r"", r"TG-263.xml"]]  # , [r"../protocols", r"UW", r""]]
+    paths = []
+    for i, f in enumerate(files):
+        secondary_protocol_folder = f[0]
+        institution_folder = f[1]
+        paths.append(os.path.join(os.path.dirname(__file__),
+                                  secondary_protocol_folder,
+                                  institution_folder))
+    tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+    rois_dict = StructureOperations.iter_standard_rois(tree)
+    df_rois = pd.DataFrame(rois_dict["rois"])
     # Make ExternalClean
     external_name = 'ExternalClean'
-    if StructureOperations.check_structure_exists(
-            case,
-            external_name,
-            roi_list=None,
-            option="Check",
-            exam=exam
-    ):
-        logging.info('An external {} was already defined on exam {}.'
-                     .format(external_name, exam.Name) +
-                     ' It was not redefined.'
-                     )
-    else:
-        ext_clean = StructureOperations.make_externalclean(case=case,
+    # if StructureOperations.check_structure_exists(
+    #         case,
+    #         external_name,
+    # #         roi_list=None,
+    #         option="Check",
+    #         exam=exam
+    # ):
+    #     logging.info('An external {} was already defined on exam {}.'
+    #                  .format(external_name, exam.Name) +
+    #                  ' It was not redefined.'
+    #                  )
+    # else:
+    ext_clean = StructureOperations.make_externalclean(case=case,
                                                            examination=exam,
-                                                           structure_name='ExternalClean',
-                                                           suffix=None)
+                                                           structure_name=external_name,
+                                                           suffix=None,
+                                                           delete=True)
+        #   df_rois=df_rois)
 
     list_unfiltered = True
     while list_unfiltered:
@@ -290,7 +284,64 @@ def main():
                                             examination=exam,
                                             case=case,
                                             plan_rois=filtered_plan_rois)
-
+    # This is where we could  put in all of the color changing, type changing, and PRV definition
+    #
+    # Redefine all of the plan rois
+    all_rois = StructureOperations.find_types(case=case)
+    for roi in all_rois:
+        df_e = df_rois[df_rois.name == roi]
+        if len(df_e) > 1:
+            logging.warning('Too many matching {}. That makes me a sad panda. :('.format(roi))
+        elif df_e.empty:
+            logging.debug('{} was not found in the protocol list'.format(roi))
+        else:
+            e_name = df_e.name.values[0]
+            logging.debug('roi {} was matched to dataframe element {}'.format(
+                roi, e_name
+            ))
+            # Set color of matched structures
+            if df_e.RGBColor.values[0] is not None:
+                e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
+                msg = StructureOperations.change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
+                if msg is not None:
+                    logging.debug('{} could not change color. {}'.format(e_name, msg))
+            # Set type and OrganType of matched structures
+            if df_e.RTROIInterpretedType.values[0] is not None:
+                e_type = df_e.RTROIInterpretedType.values[0]
+                msg = StructureOperations.change_roi_type(case=case, roi_name=e_name,
+                                                          roi_type=e_type)
+                if msg is not None:
+                    logging.debug('{} could not change type. {}'.format(e_name, msg))
+            # Create PRV's
+            msg = StructureOperations.create_prv(patient=patient,
+                                                 case=case,
+                                                 examination=exam,
+                                                 source_roi=e_name,
+                                                 df_TG263=df_rois)
+            if msg is not None:
+                logging.debug(msg)
+        # Basic target handling
+        target_filters = {}
+        # PTV rules
+        target_filters['Ptv'] = re.compile(r'^PTV', re.IGNORECASE)
+        # GTV rules
+        target_filters['Gtv'] = re.compile(r'^GTV', re.IGNORECASE)
+        # CTV rules
+        target_filters['Ctv'] = re.compile(r'^CTV', re.IGNORECASE)
+        for roi_type, re_test in target_filters.items():
+            if re.match(re_test, roi):
+                msg = StructureOperations.change_roi_type(case=case, roi_name=roi,
+                                                          roi_type=roi_type)
+                if msg is not None:
+                    logging.debug('{}: could not change type. {}'.format(roi, msg))
+    msg = StructureOperations.create_derived(patient=patient,
+                                             case=case,
+                                             examination=exam,
+                                             roi=None,
+                                             df_rois=df_rois,
+                                             roi_list=None)
+    # :TODO: Uncomment when RaySearch allows a sort to roi list.
+    # StructureOperations.renumber_roi(case=case)
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
     log_directory = patient_log_file_path.split(str(patient.PatientID))[0]
 
@@ -331,11 +382,11 @@ def main():
             i += 1
         match_file.write('\n')
 
-    with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory)) as csvfile:
-        label_data = csv.DictReader(csvfile)
-        for row in label_data:
-            for k, v in row.iteritems():
-                logging.debug('Match {} to user input {}'.format(k, v))
+    ## with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory)) as csvfile:
+    ##     label_data = csv.DictReader(csvfile)
+    ##     for row in label_data:
+    ##         for k, v in row.iteritems():
+    ##             logging.debug('Match {} to user input {}'.format(k, v))
 
 
 if __name__ == '__main__':
