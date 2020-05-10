@@ -1001,7 +1001,7 @@ def iter_standard_rois(etree):
         except AttributeError:
             roi["TG263ReverseOrderName"] = None
         try:
-            dependencies = r.find("Dependencies").text.strip()
+            dependencies = (r.find("Dependencies").text).strip()
             roi["Dependencies"] = dependencies.split(",")
         except AttributeError:
             roi["Dependencies"] = None
@@ -1018,7 +1018,7 @@ def iter_standard_rois(etree):
                 margin_key = "MarginType" + d
             operation_key = "Operation" + d
             try:
-                strip_source_key = r.find(source_key).text.strip()
+                strip_source_key = (r.find(source_key).text).strip()
                 roi[source_key] = strip_source_key.split(",")
                 roi[operation_key] = r.find(source_key).attrib['operation']
                 roi[margin_key] = r.find(source_key).attrib['margin_type']
@@ -1276,55 +1276,13 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
     msg = []
     if roi_list is None:
         roi_list = find_types(case=case,roi_type=None)
-    # Filter the dataframe for the dependencies that are not empty
-    df_ne = df_rois[df_rois.Dependencies.notnull()]
-    # Find the dataframe rows for which the dependency element is a subset of the roi_list
-    df_needs_derived = df_ne[df_ne['Dependencies'].apply(lambda x: set(x).issubset(set(roi_list)))]
-    if not df_needs_derived.empty:
-        for index, row in df_needs_derived.iterrows():
-            prv_name  = row["name"]
-            if row.RGBColor is not None:
-                prv_rgb = [int(x) for x in row.RGBColor]
-            else:
-                prv_rgb = None
-            if row.RTROIInterpretedType is not None:
-                prv_type = row.RTROIInterpretedType
-            else:
-                prv_type = None
-            derived_defs =  {
-                "StructureName": prv_name,
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": prv_rgb,
-                "OperationA": row.OperationA,
-                "SourcesA": row.SourcesA,
-                "MarginTypeA": row.MarginTypeA,
-                "ExpA": row.ExpA,
-                "OperationB": row.OperationB,
-                "SourcesB": row.SourcesB,
-                "MarginTypeB": row.MarginTypeB,
-                "ExpB": row.ExpB,
-                "OperationResult": row.OperationResult,
-                "MarginTypeR": row.MarginTypeR,
-                "ExpR": row.ExpR,
-                "StructType": prv_type,
-            }
-            if any(exists_roi(case=case,rois=prv_name)):
-                roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name]
-            else:
-                roi_geom = create_roi(case=case, examination=examination,
-                                      roi_name=prv_name, delete_existing=True)
-
-            if roi_geom is not None:
-                make_boolean_structure(patient=patient, case=case, examination=examination,
-                                   **derived_defs)
-                return None
-            else:
-                msg.append("Unable to create {}".format(prv_name))
-                return msg 
+    df_e = df_rois[df_rois.Dependencies.isin(roi)]
+    if not df_e.empty:
+        # The input roi is listed as structure for which a derived structure should be created
+        if set(df_e.Dependencies).intersection(set(roi_list)):
+            logging.debug('All dependencies are accounted for ')            
     else:
         msg.append("{} does not need any derived structures".format(roi))
-        return msg
 
 
 def match_roi(patient, case, examination, plan_rois, df_rois=None):

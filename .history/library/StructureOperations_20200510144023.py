@@ -1282,7 +1282,6 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
     df_needs_derived = df_ne[df_ne['Dependencies'].apply(lambda x: set(x).issubset(set(roi_list)))]
     if not df_needs_derived.empty:
         for index, row in df_needs_derived.iterrows():
-            prv_name  = row["name"]
             if row.RGBColor is not None:
                 prv_rgb = [int(x) for x in row.RGBColor]
             else:
@@ -1292,7 +1291,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
             else:
                 prv_type = None
             derived_defs =  {
-                "StructureName": prv_name,
+                "StructureName": row["name"],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": prv_rgb,
@@ -1317,7 +1316,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
 
             if roi_geom is not None:
                 make_boolean_structure(patient=patient, case=case, examination=examination,
-                                   **derived_defs)
+                                   **prv_exp_defs)
                 return None
             else:
                 msg.append("Unable to create {}".format(prv_name))

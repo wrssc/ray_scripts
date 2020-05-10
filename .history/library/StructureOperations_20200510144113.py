@@ -1317,7 +1317,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
 
             if roi_geom is not None:
                 make_boolean_structure(patient=patient, case=case, examination=examination,
-                                   **derived_defs)
+                                   **prv_exp_defs)
                 return None
             else:
                 msg.append("Unable to create {}".format(prv_name))

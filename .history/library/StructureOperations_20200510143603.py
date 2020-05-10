@@ -1282,17 +1282,16 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
     df_needs_derived = df_ne[df_ne['Dependencies'].apply(lambda x: set(x).issubset(set(roi_list)))]
     if not df_needs_derived.empty:
         for index, row in df_needs_derived.iterrows():
-            prv_name  = row["name"]
-            if row.RGBColor is not None:
-                prv_rgb = [int(x) for x in row.RGBColor]
+            if row.RGBColor.values[0] is not None:
+                prv_rgb = [int(x) for x in row.RGBColor.values[0]]
             else:
                 prv_rgb = None
-            if row.RTROIInterpretedType is not None:
-                prv_type = row.RTROIInterpretedType
+            if row.RTROIInterpretedType.values[0] is not None:
+                prv_type = row.RTROIInterpretedType.values[0]
             else:
-                prv_type = None
+                prv_type = none
             derived_defs =  {
-                "StructureName": prv_name,
+                "StructureName": df_needs_derived[index].name,
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": prv_rgb,
@@ -1308,20 +1307,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                 "MarginTypeR": row.MarginTypeR,
                 "ExpR": row.ExpR,
                 "StructType": prv_type,
-            }
-            if any(exists_roi(case=case,rois=prv_name)):
-                roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name]
-            else:
-                roi_geom = create_roi(case=case, examination=examination,
-                                      roi_name=prv_name, delete_existing=True)
-
-            if roi_geom is not None:
-                make_boolean_structure(patient=patient, case=case, examination=examination,
-                                   **derived_defs)
-                return None
-            else:
-                msg.append("Unable to create {}".format(prv_name))
-                return msg 
+            } 
     else:
         msg.append("{} does not need any derived structures".format(roi))
         return msg
