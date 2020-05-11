@@ -1319,7 +1319,8 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                 make_boolean_structure(patient=patient, case=case, examination=examination,
                                    **derived_defs)
                 # TODO check if its empty and then delete it if has no contours on any exam
-                # If subtraction and If A/B are both zero just check the Dice coefficient of each contour in Source A with source B. 
+                # Likely check if the resulting operation was subtraction. If so, and all expansions were zero, then a 
+                # a Dice coefficient of 0 for the sources in A and sources in B would capture whether this contour is useful
                 return None
             else:
                 msg.append("Unable to create {}".format(derived_roi_name))

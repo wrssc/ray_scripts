@@ -699,6 +699,12 @@
         <AnatomicGroup>Abdomen</AnatomicGroup>
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Kidneys</TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Kidney_L,Kidney_R</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            </SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Kidneys</Result>
         <FMAID>264815</FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
@@ -766,6 +772,29 @@
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Liver-GTV</name>
+        <TG263PrimaryName>Liver-GTV</TG263PrimaryName>
+        <Description></Description>
+        <NCIt></NCIt>
+        <TargetType>Derived</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Liver</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Abdomen</AnatomicGroup>
+        <NCharacters>10</NCharacters>
+        <TG263ReverseOrderName>Liver-GTV</TG263ReverseOrderName>
+        <Dependencies>Liver,GTV</Dependencies>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Liver</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            GTV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Liver-GTV</Result>
+        <FMAID></FMAID>
+        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
+        <Alias>liver-gtv</Alias>
     </roi>
     <roi>
         <name>Liver-GTV</name>
@@ -3675,7 +3704,6 @@
         <Color red="206" green="168" blue="252" Hex="#cea8fc">PurpleHepatica</Color>
         <Alias>brain_prv03</Alias>
     </roi>
-
     <roi>
         <name>Brain-CTV</name>
         <TG263PrimaryName>Brain-CTV</TG263PrimaryName>
@@ -3688,6 +3716,12 @@
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brain-CTV</TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Brain</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            CTV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Brain-CTV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias>brain-ctv</Alias>
@@ -3704,6 +3738,12 @@
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brain-GTV</TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Brain</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            GTV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Brain-GTV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias>brain-gtv</Alias>
@@ -3720,6 +3760,12 @@
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brain-PTV</TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Brain</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            PTV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Brain-PTV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias>brain-ptv,brain-PTV,</Alias>
@@ -10125,9 +10171,15 @@
         <AnatomicGroup>Pelvis</AnatomicGroup>
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName></TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Rectum</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            PTV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Rectum-PTV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias>rectum</Alias>
+        <Alias>rectum-ptv</Alias>
     </roi>
     <roi>
         <name>Rectum-CTV</name>
@@ -10141,9 +10193,15 @@
         <AnatomicGroup>Pelvis</AnatomicGroup>
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName></TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Rectum</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            CTV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Rectum-CTV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias>rectum</Alias>
+        <Alias>rectum-ctv</Alias>
     </roi>
     <roi>
         <name>SacralPlex</name>
@@ -13041,6 +13099,13 @@
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>5</NCharacters>
         <TG263ReverseOrderName>Lungs</TG263ReverseOrderName>
+        <Dependencies>Lung_L,Lung_R</Dependencies>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lung_L,Lung_R</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            </SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lungs</Result>
         <FMAID>68877</FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
@@ -13057,6 +13122,12 @@
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-CTV</TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lung_L,Lung_R</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            CTV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lungs-CTV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
@@ -13073,6 +13144,12 @@
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-GTV</TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lung_L,Lung_R</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            GTV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lungs-GTV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
@@ -13089,6 +13166,12 @@
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-ITV</TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lung_L,Lung_R</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            ITV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lungs-ITV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
@@ -13105,6 +13188,12 @@
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-PTV</TG263ReverseOrderName>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lung_L,Lung_R</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            PTV</SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lungs-PTV</Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>

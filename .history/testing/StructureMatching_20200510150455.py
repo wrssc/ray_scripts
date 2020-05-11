@@ -340,8 +340,7 @@ def main():
                                              roi=None,
                                              df_rois=df_rois,
                                              roi_list=None)
-    if msg is not None:
-        logging.debug(msg)
+    logging.debug(msg)
     # :TODO: Uncomment when RaySearch allows a sort to roi list.
     # StructureOperations.renumber_roi(case=case)
     patient_log_file_path = logging.getLoggerClass().root.handlers[0].baseFilename
