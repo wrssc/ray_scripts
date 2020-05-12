@@ -40,6 +40,8 @@ import UserInterface
 from GeneralOperations import find_scope as find_scope
 from GeneralOperations import logcrit as logcrit
 import StructureOperations
+
+
 # import clr
 # clr.AddReference("System.Xml")
 # import System
@@ -52,11 +54,11 @@ def main():
     # Fiducial prefix to be used for naming rois and pois
     fiducial_prefix = 'Fiducial'
     # Search distance for the size of the box around which to look for the fiducial
-    search_distance = 0.35 # cm
+    search_distance = 0.35  # cm
     # Specifications of the seed
     seed_radius = 0.15
     seed_length = 0.4
-    prv_radius = seed_length/2. + 0.2 # half length + 4 mm search diameter
+    prv_radius = seed_length / 2. + 0.2  # half length + 4 mm search diameter
     # Launch a dialog for the number of fiducials
     dialog1 = UserInterface.InputDialog(
         inputs={'1': "Enter Number of Fiducials"},
@@ -72,7 +74,7 @@ def main():
     num_fiducials = int(dialog1_response['1'])
     logging.debug('User selected {} fiducials'.format(num_fiducials))
     # Find center of patient
-    external_roi = StructureOperations.find_types(case=case,roi_type='External')
+    external_roi = StructureOperations.find_types(case=case, roi_type='External')
     if len(external_roi) != 1:
         sys.exit('One and only one external-type object must be defined. {}'
                  .format(len(external_roi)))
@@ -81,15 +83,15 @@ def main():
         logging.debug('External contour is {}'.format(external_name))
     # Place initial point at center of external initially
     external_center = case.PatientModel.StructureSets[exam.Name] \
-                    .RoiGeometries[external_name].GetCenterOfRoi()
+        .RoiGeometries[external_name].GetCenterOfRoi()
     initial_position = {'x': external_center.x,
                         'y': external_center.y,
                         'z': external_center.z}
     logging.debug('Center of the external at x = {}, y = {}, z = {}'
-                      .format(initial_position['x'], initial_position['y'], initial_position['z']))
+                  .format(initial_position['x'], initial_position['y'], initial_position['z']))
     # Change the window level
     for n in range(num_fiducials):
-        point_name = fiducial_prefix +str(n+1) +'_POI'
+        point_name = fiducial_prefix + str(n + 1) + '_POI'
         case.PatientModel.CreatePoi(Examination=exam,
                                     Point=initial_position,
                                     Volume=0,
@@ -99,20 +101,22 @@ def main():
                                     Type='Control')
         # Prompt the user to place the poi at the slice intersection
         connect.await_user_input('Zoom in on fiducial {}.'.format(n + 1)
-                                 +' Place crosshairs {} at its geometric center.'.format(point_name)
-                                 +' Select \'Set to slice intersection \''
-        )
-        fiducial_position = case.PatientModel.StructureSets[exam.Name]\
-                            .PoiGeometries[point_name].Point
+                                 + ' Place crosshairs {} at its geometric center.'.format(
+            point_name)
+                                 + ' Select \'Set to slice intersection \''
+                                 )
+        fiducial_position = case.PatientModel.StructureSets[exam.Name] \
+            .PoiGeometries[point_name].Point
         # Check to make sure the user moved the poi
         while fiducial_position.x == initial_position['x'] \
-              and fiducial_position.y == initial_position['y'] \
-              and fiducial_position.z == initial_position['z']:
+                and fiducial_position.y == initial_position['y'] \
+                and fiducial_position.z == initial_position['z']:
             connect.await_user_input('Zoom in on fiducial {}.'.format(n + 1)
-                                 +' Place crosshairs {} at its geometric center.'.format(point_name)
-                                 +' Select \'Set to slice intersection \'')
+                                     + ' Place crosshairs {} at its geometric center.'.format(
+                point_name)
+                                     + ' Select \'Set to slice intersection \'')
             fiducial_position = case.PatientModel.StructureSets[exam.Name] \
-                                .PoiGeometries[point_name].Point
+                .PoiGeometries[point_name].Point
         logging.debug('Point placed at x = {}, y = {}, z = {}'
                       .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
         # Delete POI
@@ -129,8 +133,8 @@ def main():
         y_max = fiducial_position.y + search_distance
         z_max = fiducial_position.z + search_distance
         bounding_box = {
-                        'MinCorner':{'x':x_min, 'y':y_min, 'z':z_min},
-                        'MaxCorner':{'x':x_max, 'y':y_max, 'z':z_max},
+            'MinCorner': {'x': x_min, 'y': y_min, 'z': z_min},
+            'MaxCorner': {'x': x_max, 'y': y_max, 'z': z_max},
         }
         fiducial_geom.OfRoi.GrayLevelThreshold(
             Examination=exam,
@@ -142,7 +146,7 @@ def main():
         )
         # Grab the new Center
         fiducial_position = case.PatientModel.StructureSets[exam.Name] \
-                    .RoiGeometries[fiducial_name].GetCenterOfRoi() 
+            .RoiGeometries[fiducial_name].GetCenterOfRoi()
         logging.debug('GrayLevelAutocontour moved fiducial center to x = {}, y = {}, z = {}'
                       .format(fiducial_position.x, fiducial_position.y, fiducial_position.z))
         # At this time, RS can only take a single direction for the axis alignment. 
@@ -164,23 +168,23 @@ def main():
         # initial_axis = {'x': x_hat, 'y':y_hat, 'z': z_hat}
         # Initial axis: The unit vector describing the initial cylinder placement
         #   HFS: x~L/R, y~A/P,  z~S/I
-        initial_axis = {'x': 0, 'y':0, 'z': 1} 
+        initial_axis = {'x': 0, 'y': 0, 'z': 1}
         logging.debug('Coordinates of axis are {}, {}, {}'
                       .format(initial_axis['x'],
                               initial_axis['y'],
                               initial_axis['z']))
         # Place the seed
         fiducial_geom.OfRoi.CreateCylinderGeometry(
-                                            Radius=seed_radius,
-                                            Axis=initial_axis,
-                                            Length=seed_length,
-                                            Examination=exam,
-                                            Center={'x':fiducial_position.x,
-                                                    'y':fiducial_position.y,
-                                                    'z':fiducial_position.z},
-                                            Representation='Voxels',
-                                            VoxelSize=0.01)
-        msg = StructureOperations.change_to_263_color(case=case,roi_name=fiducial_name)
+            Radius=seed_radius,
+            Axis=initial_axis,
+            Length=seed_length,
+            Examination=exam,
+            Center={'x': fiducial_position.x,
+                    'y': fiducial_position.y,
+                    'z': fiducial_position.z},
+            Representation='Voxels',
+            VoxelSize=0.01)
+        msg = StructureOperations.change_to_263_color(case=case, roi_name=fiducial_name)
         if msg is not None:
             logging.debug(msg)
         # Prompt the user to manipulate the contour
@@ -188,28 +192,28 @@ def main():
         patient.SetRoiVisibility(RoiName=fiducial_name, IsVisible=False)
         # Acquire the new ROI center for placing the prv
         fiducial_position = case.PatientModel.StructureSets[exam.Name] \
-                    .RoiGeometries[fiducial_name].GetCenterOfRoi()
+            .RoiGeometries[fiducial_name].GetCenterOfRoi()
         prv_name = fiducial_prefix + str(n + 1) + '_PRVxx'
         prv_geom = StructureOperations.create_roi(case=case,
-                                                       examination=exam,
-                                                       roi_name=prv_name)
+                                                  examination=exam,
+                                                  roi_name=prv_name)
         # Create the spherical prv volume
         prv_geom.OfRoi.CreateSphereGeometry(
-                                    Radius=prv_radius,
-                                    Examination=exam,
-                                    Center={'x':fiducial_position.x,
-                                            'y':fiducial_position.y,
-                                            'z':fiducial_position.z},
-                                    Representation='Voxels',
-                                    VoxelSize=0.01
-                                      )
-        msg = StructureOperations.change_to_263_color(case=case,roi_name=prv_name)
+            Radius=prv_radius,
+            Examination=exam,
+            Center={'x': fiducial_position.x,
+                    'y': fiducial_position.y,
+                    'z': fiducial_position.z},
+            Representation='Voxels',
+            VoxelSize=0.01
+        )
+        msg = StructureOperations.change_to_263_color(case=case, roi_name=prv_name)
         if msg is not None:
             logging.debug(msg)
     logcrit('Final Dose script ran successfully on {} fiducials'.format(num_fiducials))
 
-
     # Prompt the user to center the cross-hairs on the fiducial
+
 
 if __name__ == '__main__':
     main()

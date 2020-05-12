@@ -251,11 +251,11 @@ def main():
     #                  )
     # else:
     ext_clean = StructureOperations.make_externalclean(case=case,
-                                                           examination=exam,
-                                                           structure_name=external_name,
-                                                           suffix=None,
-                                                           delete=True)
-        #   df_rois=df_rois)
+                                                       examination=exam,
+                                                       structure_name=external_name,
+                                                       suffix=None,
+                                                       delete=True)
+    #   df_rois=df_rois)
 
     list_unfiltered = True
     while list_unfiltered:

@@ -61,6 +61,7 @@ import pandas as pd
 import xml
 import datetime
 import System.Drawing
+
 clr.AddReference("System.Drawing")
 
 from GeneralOperations import logcrit as logcrit
@@ -306,9 +307,9 @@ def change_to_263_color(case, roi_name, df_rois=None):
 
     df_e = df_rois[df_rois.name == roi_name]
     if df_e.RGBColor.values[0] is not None:
-                e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
-                msg = change_roi_color(case=case, roi_name=roi_name, rgb=e_rgb)
-                return msg
+        e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
+        msg = change_roi_color(case=case, roi_name=roi_name, rgb=e_rgb)
+        return msg
     else:
         msg = 'Could not find {} in TG-263 list'.format(roi_name)
 
@@ -321,8 +322,8 @@ def change_roi_color(case, roi_name, rgb):
     :param rgb: an rgb color object, e.g. [r, g, b] = [128, 132,256]
     :return error_message: None for success, or error message for error
     """
-    if structure_approved(case=case,roi_name=roi_name):
-        error_message = "Structure {} is approved, cannot change color" .format(roi_name)
+    if structure_approved(case=case, roi_name=roi_name):
+        error_message = "Structure {} is approved, cannot change color".format(roi_name)
         return error_message
     if not all(exists_roi(case=case, rois=roi_name)):
         error_message = "Structure {} not found on case {}".format(roi_name, case)
@@ -377,13 +378,13 @@ def change_roi_type(case, roi_name, roi_type):
     type_dict['OrganAtRisk'] = ["Avoidance", "Organ"]
     type_dict['Target'] = ["Ctv", "Gtv", "Ptv"]
     type_dict['Unknown'] = ["BrachyAccessory", "BrachyChannel", "BrachyChannelShield",
-                     "BrachySourceApplicator", "Cavity", "ContrastAgent",
-                     "Control", "DoseRegion", "FieldOfView",
-                     "IrradiatedVolume", "Marker", "Registration",
-                     "TreatedVolume", "Undefined"]
-    if structure_approved(case=case,roi_name=roi_name):
+                            "BrachySourceApplicator", "Cavity", "ContrastAgent",
+                            "Control", "DoseRegion", "FieldOfView",
+                            "IrradiatedVolume", "Marker", "Registration",
+                            "TreatedVolume", "Undefined"]
+    if structure_approved(case=case, roi_name=roi_name):
         error_message.append("Structure {} is approved, cannot change type {}"
-                             .format(roi_name,roi_type))
+                             .format(roi_name, roi_type))
         return error_message
     if not all(exists_roi(case=case, rois=roi_name)):
         error_message.append("Structure {} not found on case {}".format(roi_name, case))
@@ -398,7 +399,8 @@ def change_roi_type(case, roi_name, roi_type):
             try:
                 rs_roi.SetAsExternal()
             except:
-                error_message.append('External error. Could not change {} to type {}'.format(roi_name, roi_type))
+                error_message.append(
+                    'External error. Could not change {} to type {}'.format(roi_name, roi_type))
         return error_message
     # Set the dicom type if necessary
     if current_dicom_type == roi_type:
@@ -407,18 +409,21 @@ def change_roi_type(case, roi_name, roi_type):
         try:
             rs_roi.Type = roi_type
         except:
-            error_message.append("Unable to change type on roi {} from Dicom type {} to type {}".format(
-                roi_name, current_dicom_type, roi_type))
+            error_message.append(
+                "Unable to change type on roi {} from Dicom type {} to type {}".format(
+                    roi_name, current_dicom_type, roi_type))
     # Set the organ type if necessary
     for k, v in type_dict.items():
         if any(roi_type in types for types in v):
             if current_organ_type == k:
-                error_message.append("Structure {} is already organ type {}".format(roi_name, current_organ_type))
+                error_message.append(
+                    "Structure {} is already organ type {}".format(roi_name, current_organ_type))
             else:
                 try:
                     rs_roi.OrganData.OrganType = k
                 except:
-                    error_message.append("Type error. Could not change {} to type {}".format(roi_name, roi_type))
+                    error_message.append(
+                        "Type error. Could not change {} to type {}".format(roi_name, roi_type))
     return error_message
 
 
@@ -1013,7 +1018,7 @@ def iter_standard_rois(etree):
                 exp_key = "ExpR"
                 margin_key = "MarginTypeR"
             else:
-                source_key = "Sources"+ d
+                source_key = "Sources" + d
                 exp_key = "Exp" + d
                 margin_key = "MarginType" + d
             operation_key = "Operation" + d
@@ -1023,12 +1028,12 @@ def iter_standard_rois(etree):
                 roi[operation_key] = r.find(source_key).attrib['operation']
                 roi[margin_key] = r.find(source_key).attrib['margin_type']
                 roi[exp_key] = [float(r.find(source_key).attrib['margin_sup']),
-                               float(r.find(source_key).attrib['margin_inf']),
-                               float(r.find(source_key).attrib['margin_ant']),
-                               float(r.find(source_key).attrib['margin_pos']),
-                               float(r.find(source_key).attrib['margin_r']),
-                               float(r.find(source_key).attrib['margin_l'])
-                ]
+                                float(r.find(source_key).attrib['margin_inf']),
+                                float(r.find(source_key).attrib['margin_ant']),
+                                float(r.find(source_key).attrib['margin_pos']),
+                                float(r.find(source_key).attrib['margin_r']),
+                                float(r.find(source_key).attrib['margin_l'])
+                                ]
             except AttributeError:
                 roi[source_key] = None
                 roi[operation_key] = None
@@ -1151,8 +1156,8 @@ def check_derivation(case, examination, **kwargs):
     except AttributeError:
         if ExpA:
             logging.debug('A expansion was expected to be defined')
-            return False 
-    # Check the A structures and combinations
+            return False
+            # Check the A structures and combinations
     if current_a_expression.Operation != OperationA:
         logging.debug('A operation')
         return False
@@ -1224,33 +1229,33 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
         expansion_cm = expansion_mm / 10.
         prv_name = df_prv.name.values[0]
         if df_prv.RGBColor.values[0] is not None:
-                prv_rgb = [int(x) for x in df_prv.RGBColor.values[0]]
+            prv_rgb = [int(x) for x in df_prv.RGBColor.values[0]]
         else:
             prv_rgb = None
         if df_prv.RTROIInterpretedType.values[0] is not None:
-                prv_type = df_prv.RTROIInterpretedType.values[0]
+            prv_type = df_prv.RTROIInterpretedType.values[0]
         else:
             prv_type = None
 
         prv_exp_defs = {
-                "StructureName": prv_name,
-                "ExcludeFromExport": True,
-                "VisualizeStructure": False,
-                "StructColor": prv_rgb,
-                "OperationA": "Union",
-                "SourcesA": [source_roi],
-                "MarginTypeA": "Expand",
-                "ExpA": [expansion_cm] * 6,
-                "OperationB": "Union",
-                "SourcesB": [],
-                "MarginTypeB": "Expand",
-                "ExpB": [0] * 6,
-                "OperationResult": "None",
-                "MarginTypeR": "Expand",
-                "ExpR": [0] * 6,
-                "StructType": prv_type,
-            }
-        if any(exists_roi(case=case,rois=prv_name)):
+            "StructureName": prv_name,
+            "ExcludeFromExport": True,
+            "VisualizeStructure": False,
+            "StructColor": prv_rgb,
+            "OperationA": "Union",
+            "SourcesA": [source_roi],
+            "MarginTypeA": "Expand",
+            "ExpA": [expansion_cm] * 6,
+            "OperationB": "Union",
+            "SourcesB": [],
+            "MarginTypeB": "Expand",
+            "ExpB": [0] * 6,
+            "OperationResult": "None",
+            "MarginTypeR": "Expand",
+            "ExpR": [0] * 6,
+            "StructType": prv_type,
+        }
+        if any(exists_roi(case=case, rois=prv_name)):
             roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[prv_name]
         else:
             roi_geom = create_roi(case=case, examination=examination,
@@ -1258,7 +1263,7 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
 
         if roi_geom is not None:
             make_boolean_structure(patient=patient, case=case, examination=examination,
-                               **prv_exp_defs)
+                                   **prv_exp_defs)
             return None
         else:
             msg.append("Unable to create {}".format(prv_name))
@@ -1275,14 +1280,14 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
     """
     msg = []
     if roi_list is None:
-        roi_list = find_types(case=case,roi_type=None)
+        roi_list = find_types(case=case, roi_type=None)
     # Filter the dataframe for the dependencies that are not empty
     df_ne = df_rois[df_rois.Dependencies.notnull()]
     # Find the dataframe rows for which the dependency element is a subset of the roi_list
     df_needs_derived = df_ne[df_ne['Dependencies'].apply(lambda x: set(x).issubset(set(roi_list)))]
     if not df_needs_derived.empty:
         for index, row in df_needs_derived.iterrows():
-            derived_roi_name  = row["name"]
+            derived_roi_name = row["name"]
             if row.RGBColor is not None:
                 derived_roi_color = [int(x) for x in row.RGBColor]
             else:
@@ -1291,7 +1296,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                 derived_roi_type = row.RTROIInterpretedType
             else:
                 derived_roi_type = None
-            derived_defs =  {
+            derived_defs = {
                 "StructureName": derived_roi_name,
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
@@ -1309,21 +1314,22 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                 "ExpR": row.ExpR,
                 "StructType": derived_roi_type,
             }
-            if any(exists_roi(case=case,rois=derived_roi_name)):
-                roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[derived_roi_name]
+            if any(exists_roi(case=case, rois=derived_roi_name)):
+                roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                    derived_roi_name]
             else:
                 roi_geom = create_roi(case=case, examination=examination,
                                       roi_name=derived_roi_name, delete_existing=True)
 
             if roi_geom is not None:
                 make_boolean_structure(patient=patient, case=case, examination=examination,
-                                   **derived_defs)
+                                       **derived_defs)
                 # TODO check if its empty and then delete it if has no contours on any exam
                 # If subtraction and If A/B are both zero just check the Dice coefficient of each contour in Source A with source B. 
                 return None
             else:
                 msg.append("Unable to create {}".format(derived_roi_name))
-                return msg 
+                return msg
     else:
         msg.append("{} does not need any derived structures".format(roi))
         return msg
@@ -1596,7 +1602,7 @@ def renumber_roi(case):
     """
     Sort the ROI list and renumber alphabetically
     """
-    rois = find_types(case=case,roi_type=None)
+    rois = find_types(case=case, roi_type=None)
     logging.debug("Unsorted list is {}".format(rois))
     sorted_rois = sorted(rois, reverse=True)
     num_rois = len(rois)
@@ -1835,7 +1841,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
         )
     except:
         create_roi(case, examination, StructureName, delete_existing=True, suffix=None)
-    already_derived = check_derivation(case=case,examination=examination,**kwargs)
+    already_derived = check_derivation(case=case, examination=examination, **kwargs)
     if already_derived:
         logging.debug('{} is already derived.'.format(StructureName))
     else:
@@ -1845,26 +1851,26 @@ def make_boolean_structure(patient, case, examination, **kwargs):
                 "Operation": OperationA,
                 "SourceRoiNames": SourcesA,
                 "MarginSettings": {
-                "Type": MarginTypeA,
-                "Superior": ExpA[0],
-                "Inferior": ExpA[1],
-                "Anterior": ExpA[2],
-                "Posterior": ExpA[3],
-                "Right": ExpA[4],
-                "Left": ExpA[5],
+                    "Type": MarginTypeA,
+                    "Superior": ExpA[0],
+                    "Inferior": ExpA[1],
+                    "Anterior": ExpA[2],
+                    "Posterior": ExpA[3],
+                    "Right": ExpA[4],
+                    "Left": ExpA[5],
                 },
             },
             ExpressionB={
                 "Operation": OperationB,
                 "SourceRoiNames": SourcesB,
                 "MarginSettings": {
-                "Type": MarginTypeB,
-                "Superior": ExpB[0],
-                "Inferior": ExpB[1],
-                "Anterior": ExpB[2],
-                "Posterior": ExpB[3],
-                "Right": ExpB[4],
-                "Left": ExpB[5],
+                    "Type": MarginTypeB,
+                    "Superior": ExpB[0],
+                    "Inferior": ExpB[1],
+                    "Anterior": ExpB[2],
+                    "Posterior": ExpB[3],
+                    "Right": ExpB[4],
+                    "Left": ExpB[5],
                 },
             },
             ResultOperation=OperationResult,
@@ -1990,7 +1996,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         BoundingBox=None,
     )
     air_examination.VolumeThreshold(InputRoi=air_name,
-                                    Examination=examination, 
+                                    Examination=examination,
                                     MinVolume=0.1, MaxVolume=500)
     inner_air_sources = [air_name, external]
     inner_air_defs = {
@@ -2020,14 +2026,14 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 
     # If the InnerAir structure has contours clean them
     if not inner_air_ex.HasContours():
-        #inner_air_pm.VolumeThreshold(
+        # inner_air_pm.VolumeThreshold(
         #    InputRoi=inner_air_pm, Examination=examination, MinVolume=0.1, MaxVolume=500
-        #)
+        # )
         # Check for emptied contours
-        #if not inner_air_ex.HasContours():
-    #     logging.debug("Volume Thresholding has eliminated InnerAir contours")
-    # else:
-         logging.debug("No air contours were found near the targets")
+        # if not inner_air_ex.HasContours():
+        #     logging.debug("Volume Thresholding has eliminated InnerAir contours")
+        # else:
+        logging.debug("No air contours were found near the targets")
 
     return new_structs
 
@@ -2054,7 +2060,8 @@ def make_externalclean(
                 except:
                     logging.warning('Structure {} could not be deleted'.format(current_external))
     # Redraw the ExternalClean structure if necessary
-    if  check_structure_exists(case=case,structure_name=structure_name,exam=examination,option="Check"):
+    if check_structure_exists(case=case, structure_name=structure_name, exam=examination,
+                              option="Check"):
         roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[structure_name]
     else:
         roi_geom = create_roi(
@@ -2074,14 +2081,14 @@ def make_externalclean(
             "Structure {} exists. ".format(structure_name)
             + "Using predefined structure after removing holes and changing color."
         )
-    type_msg = change_roi_type(case=case,roi_name=structure_name,roi_type="External")
+    type_msg = change_roi_type(case=case, roi_name=structure_name, roi_type="External")
     if type_msg is not None:
         logging.debug(type_msg)
     rgb = [86, 68, 254]
-    color_msg = change_roi_color(case=case,roi_name=structure_name,rgb=rgb)
+    color_msg = change_roi_color(case=case, roi_name=structure_name, rgb=rgb)
     if color_msg is not None:
         logging.debug(color_msg)
-    if not structure_approved(case=case,roi_name=structure_name):
+    if not structure_approved(case=case, roi_name=structure_name):
         case.PatientModel.StructureSets[examination.Name].SimplifyContours(
             RoiNames=[structure_name],
             RemoveHoles3D=True,
@@ -2138,7 +2145,7 @@ def dialog_number_of_targets():
             '3': "Priority 1 goals present: Use Underdosing",
             '4': "Targets overlap sensitive structures: Use UniformDoses",
             '5': "Use InnerAir to avoid high-fluence due to cavities",
-           # '6': "Select plan type"
+            # '6': "Select plan type"
         },
         title="Planning Structures and Goal Selection",
         datatype={
@@ -2146,21 +2153,21 @@ def dialog_number_of_targets():
             '3': "check",
             '4': "check",
             '5': "check",
-           # '6': "combo"},
+            # '6': "combo"},
         },
         initial={
             '1': "0",
             '2': "0",
             '5': ["yes"],
-           # '6': ["Concurrent"]
+            # '6': ["Concurrent"]
         },
         options={
             '3': ["yes"],
             '4': ["yes"],
             '5': ["yes"],
-           # '6': ["Concurrent",
-           #       "Sequential Primary+Boost(s)",
-           #       "Multiple Separate Targets"],
+            # '6': ["Concurrent",
+            #       "Sequential Primary+Boost(s)",
+            #       "Multiple Separate Targets"],
         },
         required=['1', '2', '6']
     )
@@ -2296,7 +2303,6 @@ def planning_structures(
         examination = connect.get_current("Examination")
     except:
         logging.warning("patient, case and examination must be loaded")
-    
 
     if run_status:
         status = UserInterface.ScriptStatus(
@@ -2331,17 +2337,17 @@ def planning_structures(
                                  + ' as primary and run this script')
         sys.exit('This script cannot be run on image sets with approved plans.')
     except ValueError:
-        logging.debug('Exam {} does not have approved structures. Proceeding'.format(examination.Name))
-    
-    
+        logging.debug(
+            'Exam {} does not have approved structures. Proceeding'.format(examination.Name))
+
     roi_check = all(check_roi(case=case, exam=examination, rois=StructureName))
 
     external_name = "ExternalClean"
     ext_clean = make_externalclean(case=case,
-                                       examination=examination,
-                                       structure_name=external_name,
-                                       suffix=None,
-                                       delete=True) 
+                                   examination=examination,
+                                   structure_name=external_name,
+                                   suffix=None,
+                                   delete=True)
     ##  if roi_check:
     ##      retval_ExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
     ##      type_msg = change_roi_type(case=case,roi_name=StructureName,roi_type="External")
@@ -2372,32 +2378,32 @@ def planning_structures(
     ##                                     structure_name=external_name,
     ##                                     suffix=None,
     ##                                     delete=True)
-        #   df_rois=df_rois)
-        # # TODO Move to an internal create call
-        # retval_ExternalClean = case.PatientModel.CreateRoi(
-        # 	Name=StructureName,
-        # 	Color="86, 68, 254",
-        # 	Type="External",
-        # 	TissueName="",
-        # 	RbeCellTypeName=None,
-        # 	RoiMaterial=None,
-        # )
-        # retval_ExternalClean.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
-        # InExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
-        # retval_ExternalClean.VolumeThreshold(
-        # 	InputRoi=InExternalClean, Examination=examination, MinVolume=1, MaxVolume=200000
-        # 	)
-        # retval_ExternalClean.SetAsExternal()
-        # case.PatientModel.StructureSets[examination.Name].SimplifyContours(
-        # 	RoiNames=[StructureName],
-        # 	RemoveHoles3D=True,
-        # # 	RemoveSmallContours=False,
-        # 	AreaThreshold=None,
-        # 	ReduceMaxNumberOfPointsInContours=False,
-        # 	MaxNumberOfPoints=None,
-        # 	CreateCopyOfRoi=False,
-        # 	ResolveOverlappingContours=False,
-        # 	)
+    #   df_rois=df_rois)
+    # # TODO Move to an internal create call
+    # retval_ExternalClean = case.PatientModel.CreateRoi(
+    # 	Name=StructureName,
+    # 	Color="86, 68, 254",
+    # 	Type="External",
+    # 	TissueName="",
+    # 	RbeCellTypeName=None,
+    # 	RoiMaterial=None,
+    # )
+    # retval_ExternalClean.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+    # InExternalClean = case.PatientModel.RegionsOfInterest[StructureName]
+    # retval_ExternalClean.VolumeThreshold(
+    # 	InputRoi=InExternalClean, Examination=examination, MinVolume=1, MaxVolume=200000
+    # 	)
+    # retval_ExternalClean.SetAsExternal()
+    # case.PatientModel.StructureSets[examination.Name].SimplifyContours(
+    # 	RoiNames=[StructureName],
+    # 	RemoveHoles3D=True,
+    # # 	RemoveSmallContours=False,
+    # 	AreaThreshold=None,
+    # 	ReduceMaxNumberOfPointsInContours=False,
+    # 	MaxNumberOfPoints=None,
+    # 	CreateCopyOfRoi=False,
+    # 	ResolveOverlappingContours=False,
+    # 	)
     ##    newly_generated_rois.append("ExternalClean")
 
     if run_status:
