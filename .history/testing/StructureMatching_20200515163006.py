@@ -250,8 +250,7 @@ def main():
     #                  ' It was not redefined.'
     #                  )
     # else:
-    ext_clean = StructureOperations.make_externalclean(patient=patient,
-                                                       case=case,
+    ext_clean = StructureOperations.make_externalclean(case=case,
                                                        examination=exam,
                                                        structure_name=external_name,
                                                        suffix=None,

@@ -2039,7 +2039,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 
 
 def make_externalclean(
-        patient, case, examination, structure_name="ExternalClean", suffix=None, delete=False
+        case, examination, structure_name="ExternalClean", suffix=None, delete=False
 ):
     """
     Makes a cleaned version of the external (body) contour and sets its type appropriately
@@ -2403,8 +2403,7 @@ def planning_structures(
     roi_check = all(check_roi(case=case, exam=examination, rois=StructureName))
 
     external_name = "ExternalClean"
-    ext_clean = make_externalclean(patient=patient,
-                                   case=case,
+    ext_clean = make_externalclean(case=case,
                                    examination=examination,
                                    structure_name=external_name,
                                    suffix=None,

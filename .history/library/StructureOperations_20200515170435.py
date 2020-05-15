@@ -2039,7 +2039,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 
 
 def make_externalclean(
-        patient, case, examination, structure_name="ExternalClean", suffix=None, delete=False
+        case, examination, structure_name="ExternalClean", suffix=None, delete=False
 ):
     """
     Makes a cleaned version of the external (body) contour and sets its type appropriately
@@ -2065,17 +2065,7 @@ def make_externalclean(
     while check_structure_exists(case=case,structure_name=temp_ext,exam=examination,optino="Check"):
         i += 1
         temp_ext = 'temp_ext'+str(i)
-    temp_ext_geom = create_roi(
-            case=case,
-            examination=examination,
-            roi_name=temp_ext,
-            delete_existing=False,
-            suffix=suffix,
-        )
-    temp_ext_geom.OfRoi.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
-    temp_ext_geom.OfRoi.VolumeThreshold(
-            InputRoi=temp_ext_geom.OfRoi, Examination=examination, MinVolume=1, MaxVolume=200000
-        )
+    temp_ext_geom = 
     # Redraw the ExternalClean structure if necessary
     if check_structure_exists(case=case, structure_name=structure_name, exam=examination,
                               option="Check"):
@@ -2089,33 +2079,10 @@ def make_externalclean(
             suffix=suffix,
         )
     if not roi_geom.HasContours():
-        supports = find_types(case=case,roi_type='Support')
-        if supports:
-            ext_defs = {
-            "StructureName": structure_name,
-            "ExcludeFromExport": False,
-            "VisualizeStructure": False,
-            "StructColor": [192, 192, 192],
-            "OperationA": "Union",
-            "SourcesA": [temp_ext],
-            "MarginTypeA": "Expand",
-            "ExpA": [0] * 6,
-            "OperationB": "Union",
-            "SourcesB": supports,
-            "MarginTypeB": "Expand",
-            "ExpB": [0] * 6,
-            "OperationResult": "Subtract",
-            "MarginTypeR": "Expand",
-            "ExpR": [0] * 6,
-            "StructType": "Undefined",
-            }
-            make_boolean_structure(patient=patient, case=case, examination=examination, **ext_defs)
-        else:
-            roi_geom.OfRoi.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
-            roi_geom.OfRoi.VolumeThreshold(
-                InputRoi=roi_geom.OfRoi, Examination=examination, MinVolume=1, MaxVolume=200000
-            )
-            case.PatientModel.RegionsOfInterest[temp_ext].DeleteRoi()
+        roi_geom.OfRoi.CreateExternalGeometry(Examination=examination, ThresholdLevel=None)
+        roi_geom.OfRoi.VolumeThreshold(
+            InputRoi=roi_geom.OfRoi, Examination=examination, MinVolume=1, MaxVolume=200000
+        )
     else:
         logging.warning(
             "Structure {} exists. ".format(structure_name)
@@ -2403,8 +2370,7 @@ def planning_structures(
     roi_check = all(check_roi(case=case, exam=examination, rois=StructureName))
 
     external_name = "ExternalClean"
-    ext_clean = make_externalclean(patient=patient,
-                                   case=case,
+    ext_clean = make_externalclean(case=case,
                                    examination=examination,
                                    structure_name=external_name,
                                    suffix=None,
