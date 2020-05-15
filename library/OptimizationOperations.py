@@ -237,6 +237,7 @@ def set_treat_margins(beam, rois, margins=None):
     for r in rois:
         logging.debug('{} treat margins used [X1, X2, Y1, Y2] = [{}, {}, {}, {}]'.format(
             r, margins['X1'], margins['X2'], margins['Y1'], margins['Y2']))
+        beam.SetTreatOrProtectRoi(RoiName=r)
         beam.SetTreatAndProtectMarginsForBeam(TopMargin=margins['Y2'],
                                               BottomMargin=margins['Y1'],
                                               RightMargin=margins['X2'],
