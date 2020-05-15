@@ -2116,12 +2116,12 @@ def make_externalclean(
             roi_geom.OfRoi.VolumeThreshold(
                 InputRoi=roi_geom.OfRoi, Examination=examination, MinVolume=1, MaxVolume=200000
             )
+            case.PatientModel.RegionsOfInterest[temp_ext].DeleteRoi()
     else:
         logging.warning(
             "Structure {} exists. ".format(structure_name)
             + "Using predefined structure after removing holes and changing color."
         )
-    case.PatientModel.RegionsOfInterest[temp_ext].DeleteRoi()
     type_msg = change_roi_type(case=case, roi_name=structure_name, roi_type="External")
     if type_msg is not None:
         logging.debug(type_msg)
