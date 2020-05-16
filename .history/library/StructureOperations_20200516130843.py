@@ -1405,7 +1405,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                                                       exam=examination,
                                                       rois_a=row.SourcesB,
                                                       rois_b=row.SourcesA)
-                logging.debug('Result was A {} and B {} with stats: {}'.format(row.SourcesB, row.SourcesA, stats))
+            
             if row.RGBColor is not None:
                 derived_roi_color = [int(x) for x in row.RGBColor]
             else:

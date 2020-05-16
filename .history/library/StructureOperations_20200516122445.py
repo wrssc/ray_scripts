@@ -671,56 +671,44 @@ def check_overlap(patient, case, exam, structure, rois):
     return vol
 
 
-def compute_comparison_statistics(patient, case, exam, rois_a, rois_b, compute_distances=False):
+def compute_comparison_statistics(patient, case, exam, structure, rois, compute_distances=False):
     """
     Compute the statistics of the overlap with a structure and the input rois
     Returns the volume of overlap
     :param: patient: RS patient object
     :param exam: RS exam object
     :param case: RS Case object
-    :param rois_a: List of target structures for overlap
-    :param rois_b: List of structures which will be checked for overlap with structure
+    :param structure: List of target structures for overlap
+    :param rois: List of structures which will be checked for overlap with structure
     :return: stats: dictionary containing:
-        {
-         'DiceSimilarityCoefficient': float: 2 | ROIA intersect ROIB | / | ROIA | + | ROIB |
-         'Precision': float: ROIA intersect ROIB | / | ROIA union ROIB |
-         'Sensitivity': float: 1 - | ROIB not ROIA | / | ROIA |
-         'Specificity': float: | ROIA intersect ROIB | / | ROIA |
-         'MeanDistanceToAgreement': float: Mean distance to agreement computed from average of minimum voxel distances
-         'MaxDistanceToAgreement': float: Maximum of minimum distances between voxels (Hausdorff)
-         }
+        {'DiceSimilarityCoefficient': float, 'Precision': float, 'Sensitivity': float, 'Specificity': float}
+        DiceSimilarityCoefficient:  2 | ROIA intersect ROIB | / | ROIA | + | ROIB |
+        Precision:| ROIA intersect ROIB | / | ROIA union ROIB |
+        Sensitivity: 1 - | ROIB not ROIA | / | ROIA |
+        Specificity: | ROIA intersect ROIB | / | ROIA |
     """
-    exist_list_a = exists_roi(case, rois_a)
-    exist_list_b = exists_roi(case, rois_b)
+    exist_list = exists_roi(case, rois)
     roi_index = 0
-    rois_verified_a = []
-    rois_verified_b = []
+    rois_verified = []
     # Check all incoming rois to see if they exist in the list
-    for r in exist_list_a:
+    for r in exist_list:
         if r:
-            rois_verified_a.append(rois_b[roi_index])
-        roi_index += 1
-
-    # Check all incoming rois to see if they exist in the list
-    for r in exist_list_b:
-        if r:
-            rois_verified_b.append(rois_b[roi_index])
+            rois_verified.append(rois[roi_index])
         roi_index += 1
     logging.debug(
-        "Found the following in evaluation of overlap with {}: ".format(rois_verified_a, rois_verified_b)
+        "Found the following in evaluation of overlap with {}: ".format(structure, rois_verified)
     )
 
-    a_union_name = "z_a_union"
-    b_union_name = "z_b_union"
+    union_name = "z_union"
 
-    if len(rois_verified_a) > 1:
-        a_union_defs = {
-            "StructureName": a_union_name,
+    if len(rois_verified) > 1:
+        union_defs = {
+            "StructureName": union_name,
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": [192, 192, 192],
             "OperationA": "Union",
-            "SourcesA": rois_verified_a,
+            "SourcesA": rois_verified,
             "MarginTypeA": "Expand",
             "ExpA": [0] * 6,
             "OperationB": "Union",
@@ -732,41 +720,18 @@ def compute_comparison_statistics(patient, case, exam, rois_a, rois_b, compute_d
             "ExpR": [0] * 6,
             "StructType": "Undefined",
         }
-        make_boolean_structure(patient=patient, case=case, examination=exam, **a_union_defs)
-    else:
-        a_union_name = rois_verified_a[0]
-
-    if len(rois_verified_b) > 1:
-        b_union_defs = {
-            "StructureName": b_union_name,
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": [192, 192, 192],
-            "OperationA": "Union",
-            "SourcesA": rois_verified_b,
-            "MarginTypeA": "Expand",
-            "ExpA": [0] * 6,
-            "OperationB": "Union",
-            "SourcesB": [],
-            "MarginTypeB": "Expand",
-            "ExpB": [0] * 6,
-            "OperationResult": "Intersection",
-            "MarginTypeR": "Expand",
-            "ExpR": [0] * 6,
-            "StructType": "Undefined",
-        }
-        make_boolean_structure(patient=patient, case=case, examination=exam, **b_union_defs)
-    else:
-        b_union_name = rois_verified_b[0]
-    # Compute the stats
-    stats = case.PatientModel.StructureSets[exam.Name].ComparisonOfRoiGeometries(RoiA=a_union_name,
-                                                                                 RoiB=b_union_name,
-                                                                                 ComputeDistanceToAgreementMeasures=compute_distances
+        make_boolean_structure(patient=patient, case=case, examination=exam, **union_defs)
+        stats = case.PatientModel.StructureSets[exam.Name].ComparisonOfRoiGeometries(RoiA=structure,
+                                                                                     RoiB=union_name,
+                                                                                     ComputeDistanceToAgreementMeasures=compute_distances
                                                                                      )
-    if len(rois_verified_a) > 1:
-        case.PatientModel.RegionsOfInterest[a_union_name].DeleteRoi()
-    if len(rois_verified_b) > 1:
-        case.PatientModel.RegionsOfInterest[b_union_name].DeleteRoi()
+        case.PatientModel.RegionsOfInterest[union_name].DeleteRoi()
+    else:
+        stats = case.PatientModel.StructureSets[exam.Name].ComparisonOfRoiGeometries(
+                                                RoiA=structure,
+                                                RoiB=rois_verified,
+                                                ComputeDistanceToAgreementMeasures=compute_distances
+                                                )
     # vol = None
     # try:
     #     t = case.PatientModel.StructureSets[exam.Name].RoiGeometries[overlap_name]
@@ -1398,14 +1363,6 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
     if not df_needs_derived.empty:
         for index, row in df_needs_derived.iterrows():
             derived_roi_name = row["name"]
-            # If the operation is a subtraction, then check to see if the result will have a volume
-            if row.OperationResult == 'Subtraction':
-                stats = compute_comparison_statistics(patient=patient,
-                                                      case=case,
-                                                      exam=examination,
-                                                      rois_a=row.SourcesB,
-                                                      rois_b=row.SourcesA)
-                logging.debug('Result was A {} and B {} with stats: {}'.format(row.SourcesB, row.SourcesA, stats))
             if row.RGBColor is not None:
                 derived_roi_color = [int(x) for x in row.RGBColor]
             else:

@@ -733,8 +733,6 @@ def compute_comparison_statistics(patient, case, exam, rois_a, rois_b, compute_d
             "StructType": "Undefined",
         }
         make_boolean_structure(patient=patient, case=case, examination=exam, **a_union_defs)
-    else:
-        a_union_name = rois_verified_a[0]
 
     if len(rois_verified_b) > 1:
         b_union_defs = {
@@ -756,17 +754,19 @@ def compute_comparison_statistics(patient, case, exam, rois_a, rois_b, compute_d
             "StructType": "Undefined",
         }
         make_boolean_structure(patient=patient, case=case, examination=exam, **b_union_defs)
-    else:
-        b_union_name = rois_verified_b[0]
-    # Compute the stats
-    stats = case.PatientModel.StructureSets[exam.Name].ComparisonOfRoiGeometries(RoiA=a_union_name,
-                                                                                 RoiB=b_union_name,
-                                                                                 ComputeDistanceToAgreementMeasures=compute_distances
+    
+    
+        stats = case.PatientModel.StructureSets[exam.Name].ComparisonOfRoiGeometries(RoiA=rois_a,
+                                                                                     RoiB=union_name,
+                                                                                     ComputeDistanceToAgreementMeasures=compute_distances
                                                                                      )
-    if len(rois_verified_a) > 1:
-        case.PatientModel.RegionsOfInterest[a_union_name].DeleteRoi()
-    if len(rois_verified_b) > 1:
-        case.PatientModel.RegionsOfInterest[b_union_name].DeleteRoi()
+        case.PatientModel.RegionsOfInterest[union_name].DeleteRoi()
+    else:
+        stats = case.PatientModel.StructureSets[exam.Name].ComparisonOfRoiGeometries(
+                                                RoiA=rois_a,
+                                                RoiB=rois_verified_b,
+                                                ComputeDistanceToAgreementMeasures=compute_distances
+                                                )
     # vol = None
     # try:
     #     t = case.PatientModel.StructureSets[exam.Name].RoiGeometries[overlap_name]
@@ -1398,14 +1398,11 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
     if not df_needs_derived.empty:
         for index, row in df_needs_derived.iterrows():
             derived_roi_name = row["name"]
-            # If the operation is a subtraction, then check to see if the result will have a volume
-            if row.OperationResult == 'Subtraction':
-                stats = compute_comparison_statistics(patient=patient,
-                                                      case=case,
-                                                      exam=examination,
-                                                      rois_a=row.SourcesB,
-                                                      rois_b=row.SourcesA)
-                logging.debug('Result was A {} and B {} with stats: {}'.format(row.SourcesB, row.SourcesA, stats))
+            stats = compute_comparison_statistics(patient=patient,
+                                                  case=case,
+                                                  exam=examination,
+                                                  structure=row.SourcesB,
+                                                  rois=row.SourcesA)
             if row.RGBColor is not None:
                 derived_roi_color = [int(x) for x in row.RGBColor]
             else:
