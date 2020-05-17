@@ -1428,7 +1428,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                 #                                       rois_a=row.SourcesB,
                 #                                       rois_b=row.SourcesA)
                         logging.debug('Result was A {} and B {} with stats: {}'.format(a, b, stats))
-                if any(s != 0 for s in specificity):
+                if any(s == 0 for s in specificity):
                     make_derived = True
                 else:
                     make_derived = False
