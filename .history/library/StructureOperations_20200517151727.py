@@ -1442,43 +1442,40 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                 derived_roi_type = row.RTROIInterpretedType
             else:
                 derived_roi_type = None
-            if make_derived:
-                derived_defs = {
-                    "StructureName": derived_roi_name,
-                    "ExcludeFromExport": True,
-                    "VisualizeStructure": False,
-                    "StructColor": derived_roi_color,
-                    "OperationA": row.OperationA,
-                    "SourcesA": row.SourcesA,
-                    "MarginTypeA": row.MarginTypeA,
-                    "ExpA": row.ExpA,
-                    "OperationB": row.OperationB,
-                    "SourcesB": row.SourcesB,
-                    "MarginTypeB": row.MarginTypeB,
-                    "ExpB": row.ExpB,
-                    "OperationResult": row.OperationResult,
-                    "MarginTypeR": row.MarginTypeR,
-                    "ExpR": row.ExpR,
-                    "StructType": derived_roi_type,
-                }
-                if any(exists_roi(case=case, rois=derived_roi_name)):
-                    roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
-                        derived_roi_name]
-                else:
-                    roi_geom = create_roi(case=case, examination=examination,
-                                        roi_name=derived_roi_name, delete_existing=True)
-
-                if roi_geom is not None:
-                    make_boolean_structure(patient=patient, case=case, examination=examination,
-                                        **derived_defs)
-                    # TODO check if its empty and then delete it if has no contours on any exam
-                    # If subtraction and If A/B are both zero just check the Dice coefficient of each contour in Source A with source B. 
-                    return None
-                else:
-                    msg.append("Unable to create {}".format(derived_roi_name))
-                    return msg
+            derived_defs = {
+                "StructureName": derived_roi_name,
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                "StructColor": derived_roi_color,
+                "OperationA": row.OperationA,
+                "SourcesA": row.SourcesA,
+                "MarginTypeA": row.MarginTypeA,
+                "ExpA": row.ExpA,
+                "OperationB": row.OperationB,
+                "SourcesB": row.SourcesB,
+                "MarginTypeB": row.MarginTypeB,
+                "ExpB": row.ExpB,
+                "OperationResult": row.OperationResult,
+                "MarginTypeR": row.MarginTypeR,
+                "ExpR": row.ExpR,
+                "StructType": derived_roi_type,
+            }
+            if any(exists_roi(case=case, rois=derived_roi_name)):
+                roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                    derived_roi_name]
             else:
-                logging.debug('No Derived necessary for {}'.format(derived_roi_name))
+                roi_geom = create_roi(case=case, examination=examination,
+                                      roi_name=derived_roi_name, delete_existing=True)
+
+            if roi_geom is not None:
+                make_boolean_structure(patient=patient, case=case, examination=examination,
+                                       **derived_defs)
+                # TODO check if its empty and then delete it if has no contours on any exam
+                # If subtraction and If A/B are both zero just check the Dice coefficient of each contour in Source A with source B. 
+                return None
+            else:
+                msg.append("Unable to create {}".format(derived_roi_name))
+                return msg
     else:
         msg.append("{} does not need any derived structures".format(roi))
         return msg

@@ -713,6 +713,7 @@ def compute_comparison_statistics(patient, case, exam, rois_a, rois_b, compute_d
 
     a_union_name = "z_a_union"
     b_union_name = "z_b_union"
+    t0 = datetime.datetime.now()
     if len(rois_verified_a) > 1:
         a_union_defs = {
             "StructureName": a_union_name,
@@ -756,7 +757,7 @@ def compute_comparison_statistics(patient, case, exam, rois_a, rois_b, compute_d
         }
         make_boolean_structure(patient=patient, case=case, examination=exam, **b_union_defs)
     else:
-        b_union_name = rois_verified_b[0]
+       b_union_name = rois_verified_b[0]
     # Compute the stats
     stats = case.PatientModel.StructureSets[exam.Name].ComparisonOfRoiGeometries(RoiA=a_union_name,
                                                                                  RoiB=b_union_name,
@@ -766,6 +767,7 @@ def compute_comparison_statistics(patient, case, exam, rois_a, rois_b, compute_d
         case.PatientModel.RegionsOfInterest[a_union_name].DeleteRoi()
     if len(rois_verified_b) > 1:
         case.PatientModel.RegionsOfInterest[b_union_name].DeleteRoi()
+    t1 = datetime.datetime.now()
     
     # vol = None
     # try:
@@ -1409,31 +1411,13 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
         for index, row in df_needs_derived.iterrows():
             derived_roi_name = row["name"]
             # If the operation is a subtraction, then check to see if the result will have a volume
-            if row.OperationResult == 'Subtraction' and\
-                all(r == 0 for r in row.ExpR) and\
-                all(a == 0 for a in row.ExpA) and\
-                all(b == 0 for b in row.ExpB):
-                specificity = []
-                for a in row.SourcesB:
-                    for b in row.SourcesA:
-                        stats = case.PatientModel.StructureSets[examination.Name]\
-                                .ComparisonOfRoiGeometries(RoiA=a,
-                                                           RoiB=b,
-                                                           ComputeDistanceToAgreementMeasures=False
-                            )
-                        specificity.append(stats['Specificity'])
-                # stats = compute_comparison_statistics(patient=patient,
-                #                                       case=case,
-                #                                       exam=examination,
-                #                                       rois_a=row.SourcesB,
-                #                                       rois_b=row.SourcesA)
-                        logging.debug('Result was A {} and B {} with stats: {}'.format(a, b, stats))
-                if all(s == 0 for s in specificity):
-                    make_derived = True
-                else
-                    make_derived = False
-            else:
-                make_derived = True
+            if row.OperationResult == 'Subtraction':
+                stats = compute_comparison_statistics(patient=patient,
+                                                      case=case,
+                                                      exam=examination,
+                                                      rois_a=row.SourcesB,
+                                                      rois_b=row.SourcesA)
+                logging.debug('Result was A {} and B {} with stats: {}'.format(row.SourcesB, row.SourcesA, stats))
             if row.RGBColor is not None:
                 derived_roi_color = [int(x) for x in row.RGBColor]
             else:
@@ -1442,43 +1426,40 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                 derived_roi_type = row.RTROIInterpretedType
             else:
                 derived_roi_type = None
-            if make_derived:
-                derived_defs = {
-                    "StructureName": derived_roi_name,
-                    "ExcludeFromExport": True,
-                    "VisualizeStructure": False,
-                    "StructColor": derived_roi_color,
-                    "OperationA": row.OperationA,
-                    "SourcesA": row.SourcesA,
-                    "MarginTypeA": row.MarginTypeA,
-                    "ExpA": row.ExpA,
-                    "OperationB": row.OperationB,
-                    "SourcesB": row.SourcesB,
-                    "MarginTypeB": row.MarginTypeB,
-                    "ExpB": row.ExpB,
-                    "OperationResult": row.OperationResult,
-                    "MarginTypeR": row.MarginTypeR,
-                    "ExpR": row.ExpR,
-                    "StructType": derived_roi_type,
-                }
-                if any(exists_roi(case=case, rois=derived_roi_name)):
-                    roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
-                        derived_roi_name]
-                else:
-                    roi_geom = create_roi(case=case, examination=examination,
-                                        roi_name=derived_roi_name, delete_existing=True)
-
-                if roi_geom is not None:
-                    make_boolean_structure(patient=patient, case=case, examination=examination,
-                                        **derived_defs)
-                    # TODO check if its empty and then delete it if has no contours on any exam
-                    # If subtraction and If A/B are both zero just check the Dice coefficient of each contour in Source A with source B. 
-                    return None
-                else:
-                    msg.append("Unable to create {}".format(derived_roi_name))
-                    return msg
+            derived_defs = {
+                "StructureName": derived_roi_name,
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                "StructColor": derived_roi_color,
+                "OperationA": row.OperationA,
+                "SourcesA": row.SourcesA,
+                "MarginTypeA": row.MarginTypeA,
+                "ExpA": row.ExpA,
+                "OperationB": row.OperationB,
+                "SourcesB": row.SourcesB,
+                "MarginTypeB": row.MarginTypeB,
+                "ExpB": row.ExpB,
+                "OperationResult": row.OperationResult,
+                "MarginTypeR": row.MarginTypeR,
+                "ExpR": row.ExpR,
+                "StructType": derived_roi_type,
+            }
+            if any(exists_roi(case=case, rois=derived_roi_name)):
+                roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                    derived_roi_name]
             else:
-                logging.debug('No Derived necessary for {}'.format(derived_roi_name))
+                roi_geom = create_roi(case=case, examination=examination,
+                                      roi_name=derived_roi_name, delete_existing=True)
+
+            if roi_geom is not None:
+                make_boolean_structure(patient=patient, case=case, examination=examination,
+                                       **derived_defs)
+                # TODO check if its empty and then delete it if has no contours on any exam
+                # If subtraction and If A/B are both zero just check the Dice coefficient of each contour in Source A with source B. 
+                return None
+            else:
+                msg.append("Unable to create {}".format(derived_roi_name))
+                return msg
     else:
         msg.append("{} does not need any derived structures".format(roi))
         return msg
