@@ -781,12 +781,6 @@ def compute_comparison_statistics(patient, case, exam, rois_a, rois_b, compute_d
     #     logging.warning("Error getting volume for {}, volume => 0.0".format(overlap_name))
 
     # logging.debug("Calculated volume of overlap of {} is {}".format(overlap_name, vol))
-    for a in rois_verified_a:
-        for b in rois_verified_b:
-            stats = case.PatientModel.StructureSets[exam.Name].ComparisonOfRoiGeometries(RoiA=a,
-                                                                                         RoiB=b,
-                                                                                         ComputeDistanceToAgreementMeasures=compute_distances
-                                                                                     )
     t2 = datetime.now()
     delta1 = t1 - t0
     delta2 = t2 - t1
