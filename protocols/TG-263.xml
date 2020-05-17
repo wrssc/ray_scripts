@@ -698,7 +698,7 @@
         <TG263PrimaryName>Kidneys</TG263PrimaryName>
         <Description>Both Kidneys</Description>
         <NCIt></NCIt>
-        <TargetType>Anatomic</TargetType>
+        <TargetType>Derived</TargetType>
         <RTROIInterpretedType>Organ</RTROIInterpretedType>
         <MajorCategory>Urinary</MajorCategory>
         <MinorCategory>Kidney</MinorCategory>
