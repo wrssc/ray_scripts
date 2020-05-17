@@ -1403,7 +1403,6 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
         roi_list = find_types(case=case, roi_type=None)
     # Filter the dataframe for the dependencies that are not empty
     df_ne = df_rois[df_rois.Dependencies.notnull()]
-    logging.debug('{}'.format(df_ne.to_string()))
     # Find the dataframe rows for which the dependency element is a subset of the roi_list
     df_needs_derived = df_ne[df_ne['Dependencies'].apply(lambda x: set(x).issubset(set(roi_list)))]
     if not df_needs_derived.empty:
