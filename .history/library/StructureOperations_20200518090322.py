@@ -1178,7 +1178,7 @@ def iter_standard_rois(etree):
             roi["Color"] = None
             roi["RGBColor"] = None
         try:
-            strip_alias = r.find("Alias").text.replace(" ","")
+            strip_alias = (r.find("Alias").text).strip()
             roi["Alias"] = strip_alias.split(",")
         except AttributeError:
             roi["Alias"] = None
