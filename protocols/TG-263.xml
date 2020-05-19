@@ -713,7 +713,7 @@
         <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
         </SourcesB>
-        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0"
+        <Result operation="None" margin_type="Expand" margin_sup="0" margin_inf="0"
                 margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Kidneys
         </Result>
