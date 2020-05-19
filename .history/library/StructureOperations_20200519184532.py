@@ -1144,12 +1144,9 @@ def iter_standard_rois(etree):
                 margin_key = "MarginType" + d
             operation_key = "Operation" + d
             try:
-                if r.find(source_key).text:
-                    strip_source_key = r.find(source_key).text.replace(" ","")
-                    strip_source_key = strip_source_key.strip()
-                    roi[source_key] = strip_source_key.split(",")
-                else:
-                    roi[source_key] = []
+                strip_source_key = r.find(source_key).text.replace(" ","")
+                strip_source_key = strip_source_key.strip()
+                roi[source_key] = strip_source_key.split(",")
                 # roi[source_key] = ['Hi my name is WHO my name is WHAT']
             except AttributeError:
                 roi[source_key] = []

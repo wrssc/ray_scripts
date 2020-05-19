@@ -707,11 +707,16 @@
         <TG263ReverseOrderName>Kidneys</TG263ReverseOrderName>
         <Dependencies>Kidney_L, Kidney_R</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
-                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Kidney_L,Kidney_R</SourcesA>
+                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Kidney_L,Kidney_R
+        </SourcesA>
         <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
-                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0"></SourcesB>
+                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+        </SourcesB>
         <Result operation="None" margin_type="Expand" margin_sup="0" margin_inf="0"
-                margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Kidneys</Result>
+                margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Kidneys
+        </Result>
         <FMAID>264815</FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
@@ -13159,11 +13164,15 @@
         <TG263ReverseOrderName>Lungs</TG263ReverseOrderName>
         <Dependencies>Lung_L,Lung_R</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
-                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Lung_L,Lung_R</SourcesA>
+                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lung_L,Lung_R
+        </SourcesA>
         <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0"></SourcesB>
         <Result operation="None" margin_type="Expand" margin_sup="0" margin_inf="0"
-                margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Lungs</Result>
+                margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Lungs
+        </Result>
         <FMAID>68877</FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
