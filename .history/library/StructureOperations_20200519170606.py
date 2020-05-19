@@ -1474,7 +1474,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                     "ExpR": row.ExpR,
                     "StructType": derived_roi_type,
                 }
-                for k,v in derived_defs.items():
+                for k,v in items(derived_defs.iteritems:
                     logging.debug('{} and {}'.format(k,v))
                 if any(exists_roi(case=case, rois=derived_roi_name)):
                     roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
