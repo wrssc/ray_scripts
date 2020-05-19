@@ -1144,8 +1144,7 @@ def iter_standard_rois(etree):
                 margin_key = "MarginType" + d
             operation_key = "Operation" + d
             try:
-                if r.find(source_key).text:
-                    logging.debug('Source {} is with type {}'.format(r.find(source_key).text,type(r.find(source_key.text))))
+                if not r.find(source_key).text:
                     strip_source_key = r.find(source_key).text.replace(" ","")
                     strip_source_key = strip_source_key.strip()
                     roi[source_key] = strip_source_key.split(",")
