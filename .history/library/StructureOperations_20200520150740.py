@@ -581,10 +581,13 @@ def check_structure_exists(case, structure_name, roi_list=None, option="Check", 
                 return True
         elif option == "Wait":
             if structure_has_contours_on_exam:
-                # logging.info( "Structure {} has contours on exam {}".format(structure_name, exam.Name))
+                logging.info(
+                    "Structure {} has contours on exam {}".format(structure_name, exam.Name)
+                )
                 return True
             else:
-                logging.info( "Structure {} not found on exam {}, prompted user to create".format(
+                logging.info(
+                    "Structure {} not found on exam {}, prompted user to create".format(
                         structure_name, exam.Name
                     )
                 )
@@ -1436,6 +1439,12 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                                                            ComputeDistanceToAgreementMeasures=False
                             )
                         specificity.append(stats['Specificity'])
+                # stats = compute_comparison_statistics(patient=patient,
+                #                                       case=case,
+                #                                       exam=examination,
+                #                                       rois_a=row.SourcesB,
+                #                                       rois_b=row.SourcesA)
+                        logging.debug('Result was A {} and B {} with stats: {}'.format(a, b, stats))
                 if any(s != 0 for s in specificity):
                     make_derived = True
                 else:

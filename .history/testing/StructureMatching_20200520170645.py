@@ -198,21 +198,20 @@ def main():
     else:
         beamset_name = 'None'
 
-    # Output the resulting matches
     with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory),
               'a') as match_file:
         match_file.write('StudyDescription:{},'.format(study_description))
         match_file.write('ProtocolName:{},'.format(protocol_name))
         match_file.write('SeriesDescription:{},'.format(series_description))
         match_file.write('Beamset:{},'.format(beamset_name))
-        i# match_file.write(',')
+        match_file.write('{{,')
         i = 0
         for k, v in results.iteritems():
-            # if i == len(results) - 1:
-            #     match_file.write('{v}:{k}'.format(k=k, v=v))
-            # else:
-            match_file.write('{v}:{k},'.format(k=k, v=v))
-            #i += 1
+            if i == len(results) - 1:
+                match_file.write('{v}:{k}}}'.format(k=k, v=v))
+            else:
+                match_file.write('{v}:{k},'.format(k=k, v=v))
+            i += 1
         match_file.write('\n')
 
     ## with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory)) as csvfile:

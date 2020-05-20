@@ -581,10 +581,13 @@ def check_structure_exists(case, structure_name, roi_list=None, option="Check", 
                 return True
         elif option == "Wait":
             if structure_has_contours_on_exam:
-                # logging.info( "Structure {} has contours on exam {}".format(structure_name, exam.Name))
+                logging.info(
+                    "Structure {} has contours on exam {}".format(structure_name, exam.Name)
+                )
                 return True
             else:
-                logging.info( "Structure {} not found on exam {}, prompted user to create".format(
+                logging.info(
+                    "Structure {} not found on exam {}, prompted user to create".format(
                         structure_name, exam.Name
                     )
                 )
