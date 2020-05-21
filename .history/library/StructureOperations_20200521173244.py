@@ -2535,7 +2535,6 @@ def planning_structures(
                                  + ' Select an examination without approved structures'
                                  + ' as primary and run this script')
         sys.exit('This script cannot be run on image sets with approved plans.')
-    # Interestingly, RS is throwing a ValueError in the console, but system error when executed in CPython
     except Exception:
         logging.debug(
             'Exam {} does not have approved structures. Proceeding'.format(examination.Name))
