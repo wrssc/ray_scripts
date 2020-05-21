@@ -99,7 +99,7 @@ def rename_examinations(case):
     series_dict[text_FB.get()].Name = "Free-breathing"
 
 
-def create_external_fb(case, clean_up=False):
+def create_external_fb(case):
 
     with CompositeAction("Rename DIBH and free-breathing examinations"):
         rename_examinations(case)
@@ -196,4 +196,4 @@ if __name__ == "__main__":
 
     case = get_current("Case")
 
-    create_external_fb(case, clean_up=True)
+    create_external_fb(case)
