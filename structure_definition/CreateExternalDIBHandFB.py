@@ -1,16 +1,47 @@
 """ CreateExternalDIBHandFB.py
 This script accomplishes the following tasks:
+1. Renames CT datasets to "DIBH" and "Free-breathing".
 1. Renames "External" to "External_DIBH" on the DIBH planning scan.
 2. Creates an external contour on the free-breathing scan called "External_FB"
 3. Copies "External_FB" to the DIBH planning scan.
 
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 """
+
+__author__ = "Dustin Jacqmin"
+__contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
+__date__ = "2020-05-21"
+__version__ = "1.0.0"
+__status__ = "Development"
+__deprecated__ = False
+__reviewer__ = None
+__reviewed__ = None
+__raystation__ = "8.0 SP B"
+__maintainer__ = "Dustin Jacqmin"
+__contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
+__license__ = "GPLv3"
+__help__ = None
+__copyright__ = "Copyright (C) 2020, University of Wisconsin Board of Regents"
+
 from connect import CompositeAction, get_current, await_user_input
-try: # for Python 3
+
+try:  # for Python 3
     from tkinter import *
     from tkinter import messagebox
     from tkinter.ttk import *
-except: # for Python 2
+except:  # for Python 2
     from Tkinter import *
     import tkMessageBox as messagebox
     from ttk import *
@@ -167,7 +198,9 @@ def create_external_fb(case):
 
     message_text = "The script has finished, please review the results\n"
     message_text += "If the External_FB and External_DIBH are acceptable, click OK.\n"
-    message_text += "If the contours don't look right, click Cancel and contact the POD.\n"
+    message_text += (
+        "If the contours don't look right, click Cancel and contact the POD.\n"
+    )
 
     script_result_accepted = messagebox.askokcancel("Script has finished", message_text)
 
