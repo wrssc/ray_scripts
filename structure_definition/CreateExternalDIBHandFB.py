@@ -5,6 +5,11 @@ This script accomplishes the following tasks:
 2. Creates an external contour on the free-breathing scan called "External_FB"
 3. Copies "External_FB" to the DIBH planning scan.
 
+This script was tested with:
+* Patient: Example, OSMS
+* MRN: 20170327DJJ
+* RayStation: Launcher 8B SP2 - Test (Development Server)
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
