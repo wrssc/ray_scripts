@@ -1,9 +1,5 @@
 """ Match and Generate Derived ROIs
 Matches the current ROI list with TG-263 defined names, colors, and types
-This script loads the TG-263 file as a pandas dataframe
-Makes an ExternalClean object if it isn't already there
-Looks for conflicting structure names that will be a problem when matching occurs
-
 
 Version Notes:
 0.0.0 
