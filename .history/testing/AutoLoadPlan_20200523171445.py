@@ -144,8 +144,7 @@ def main():
         try:
             info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
                                             Filter = {'Name': row.ExaminationName})
-            if info[0]['Name'] == row.ExaminationName:
-                exam = case.LoadExamination( ExaminationInfo = info[0] )
+            exam = case.LoadExamination( ExaminationInfo = info[0] )
         except IndexError:
             status['Script_Status'] = 'Examination {} not found'.format(row.ExaminationName)
             output_status(output_filename,status)
