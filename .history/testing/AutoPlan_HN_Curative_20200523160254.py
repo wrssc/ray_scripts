@@ -142,7 +142,7 @@ def main():
         try:
             info = case.QueryPlanInfo(Filter = {'Name': plan_name})
             if info[0]['Name'] == plan_name:
-                plan = case.TreatmentPlans[plan_name]
+                plan = TreatmentPlans[plan_name]
         except ValueError:
             case.AddNewPlan(
                 PlanName=plan_name,
