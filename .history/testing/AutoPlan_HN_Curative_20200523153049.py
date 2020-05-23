@@ -135,7 +135,7 @@ def main():
             case = patient.Cases[case_name]
         except SystemError:
             status['Script_Status'] = 'Case {} not found'.format(case_name)
-            output_status(output_filename,status)
+            output_status(output_filename,status)    
         case.SetCurrent()
         #
         # If the plan is found, cool. just make it current

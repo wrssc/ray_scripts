@@ -135,7 +135,7 @@ def main():
             case = patient.Cases[case_name]
         except SystemError:
             status['Script_Status'] = 'Case {} not found'.format(case_name)
-            output_status(output_filename,status)
+            output_status(output_filename,status)    
         case.SetCurrent()
         #
         # If the plan is found, cool. just make it current
@@ -166,7 +166,7 @@ def main():
                 beamset_exists = False
         # TODO: Retrieve these definitions from the planning protocol.
         # Go grab the beamset called protocol_beamset
-        # This step is likely not necessary, just know exact beamset name from protocol
+        # This step is likely not neccessary, just know exact beamset name from protocol
         available_beamsets = BeamOperations.Beams.select_element(
             set_level='beamset',
             set_type=None,
@@ -174,7 +174,7 @@ def main():
             filename=row.BeamsetFile,
             set_level_name=row.ProtocolBeamset,
             dialog=False,
-            folder=row.BeamsetPath,
+            folder=path_protocols,
             verbose_logging=False)
         beamset_defs = BeamOperations.BeamSet()
         beamset_defs.rx_target = row.Target01
@@ -201,7 +201,6 @@ def main():
                                                     dialog=False,
                                                     BeamSet=beamset_defs,
                                                     create_setup_beams=False)
-        sys.exit('Done')
 
         beams = BeamOperations.load_beams_xml(filename=file,
                                               beamset_name=protocol_beamset,

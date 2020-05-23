@@ -68,9 +68,7 @@ def output_status(filename, status):
     output_file.write(output_message)
     output_file.close()
 
-
-# def create_beamset(beamset_name, df_input, suffix=):
-#    """Create a beamset from """
+    
 def main():
     # Load the current RS database
     db = connect.get_current("PatientDB")
@@ -135,7 +133,7 @@ def main():
             case = patient.Cases[case_name]
         except SystemError:
             status['Script_Status'] = 'Case {} not found'.format(case_name)
-            output_status(output_filename,status)
+            output_status(output_filename,status)    
         case.SetCurrent()
         #
         # If the plan is found, cool. just make it current
@@ -164,17 +162,19 @@ def main():
                                 else beamset_name + str(random.randint(1,99)).zfill(2)
             except KeyError:
                 beamset_exists = False
+        # ok, now make the beamset current
+        beamset.SetCurrent()
         # TODO: Retrieve these definitions from the planning protocol.
         # Go grab the beamset called protocol_beamset
-        # This step is likely not necessary, just know exact beamset name from protocol
+        # This step is likely not neccessary, just know exact beamset name from protocol
         available_beamsets = BeamOperations.Beams.select_element(
             set_level='beamset',
             set_type=None,
             set_elements='beam',
             filename=row.BeamsetFile,
-            set_level_name=row.ProtocolBeamset,
+            set_level_name=protocol_beamset,
             dialog=False,
-            folder=row.BeamsetPath,
+            folder=path_protocols,
             verbose_logging=False)
         beamset_defs = BeamOperations.BeamSet()
         beamset_defs.rx_target = row.Target01
@@ -201,13 +201,10 @@ def main():
                                                     dialog=False,
                                                     BeamSet=beamset_defs,
                                                     create_setup_beams=False)
-        sys.exit('Done')
 
         beams = BeamOperations.load_beams_xml(filename=file,
                                               beamset_name=protocol_beamset,
                                               path=path_protocols)
-        # ok, now make the beamset current
-        rs_beam_set.SetCurrent()
 
     ## path = os.path.dirname(file_csv)
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))

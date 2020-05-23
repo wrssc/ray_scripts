@@ -43,7 +43,6 @@ import csv
 import logging
 import xml
 import pandas as pd
-import random
 
 import connect
 import GeneralOperations
@@ -68,9 +67,7 @@ def output_status(filename, status):
     output_file.write(output_message)
     output_file.close()
 
-
-# def create_beamset(beamset_name, df_input, suffix=):
-#    """Create a beamset from """
+    
 def main():
     # Load the current RS database
     db = connect.get_current("PatientDB")
@@ -135,7 +132,7 @@ def main():
             case = patient.Cases[case_name]
         except SystemError:
             status['Script_Status'] = 'Case {} not found'.format(case_name)
-            output_status(output_filename,status)
+            output_status(output_filename,status)    
         case.SetCurrent()
         #
         # If the plan is found, cool. just make it current
@@ -151,63 +148,9 @@ def main():
             )
             plan = case.TreatmentPlans[plan_name]
         plan.SetCurrent()
-        #
-        # If this beamset is found, then append 1-99 to the name and keep going
-        beamset_exists = True
-        while beamset_exists:
-            info = plan.QueryBeamSetInfo(Filter={'Name':'^{0}'.format(beamset_name)})
-            try:
-                info[0]['Name']
-                beamset_name = (beamset_name[:14] 
-                                + str(random.randint(1,99)).zfill(2)) \
-                                if len(beamset_name) > 14 \
-                                else beamset_name + str(random.randint(1,99)).zfill(2)
-            except KeyError:
-                beamset_exists = False
-        # TODO: Retrieve these definitions from the planning protocol.
-        # Go grab the beamset called protocol_beamset
-        # This step is likely not necessary, just know exact beamset name from protocol
-        available_beamsets = BeamOperations.Beams.select_element(
-            set_level='beamset',
-            set_type=None,
-            set_elements='beam',
-            filename=row.BeamsetFile,
-            set_level_name=row.ProtocolBeamset,
-            dialog=False,
-            folder=row.BeamsetPath,
-            verbose_logging=False)
-        beamset_defs = BeamOperations.BeamSet()
-        beamset_defs.rx_target = row.Target01
-        beamset_defs.name = beamset_name
-        beamset_defs.DicomName = beamset_name
-        beamset_defs.number_of_fractions = row.NumberFractions
-        beamset_defs.total_dose = row.TargetDose01
-        beamset_defs.machine = row.Machine
-        beamset_defs.modality = 'Photons'
-        beamset_defs.technique = 'TomoHelical'
-        beamset_defs.iso_target = row.Isotarget
-        beamset_defs.protocol_name = available_beamsets
-
-        order_name = None
-        # par_beam_set = BeamOperations.beamset_dialog(case=case,
-        #                                              filename=file,
-        #                                              path=path_protocols,
-        #                                              order_name=order_name)
-
-        rs_beam_set = BeamOperations.create_beamset(patient=patient,
-                                                    case=case,
-                                                    exam=exam,
-                                                    plan=plan,
-                                                    dialog=False,
-                                                    BeamSet=beamset_defs,
-                                                    create_setup_beams=False)
-        sys.exit('Done')
-
-        beams = BeamOperations.load_beams_xml(filename=file,
-                                              beamset_name=protocol_beamset,
-                                              path=path_protocols)
-        # ok, now make the beamset current
-        rs_beam_set.SetCurrent()
+        # If this beamset is found, then append something to the name and keep going
+        beamset = plan.BeamSets[beamset_name]
+        beamset.SetCurrent()
 
     ## path = os.path.dirname(file_csv)
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
@@ -215,43 +158,43 @@ def main():
     ## output_message = "PatientID" + "\tPlan Name" + "\tBeamSet Name" + "\tStatus\n"
     ## output_file.write(output_message)
     ## output_file.close()
-    ## Get current patient, case, exam, and plan
-    ## note that the interpreter handles a missing plan as an Exception
-    ## patient = GeneralOperations.find_scope(level='Patient')
-    ## case = GeneralOperations.find_scope(level='Case')
-        exam = GeneralOperations.find_scope(level='Examination')
+    # Get current patient, case, exam, and plan
+    # note that the interpreter handles a missing plan as an Exception
+    patient = GeneralOperations.find_scope(level='Patient')
+    case = GeneralOperations.find_scope(level='Case')
+    exam = GeneralOperations.find_scope(level='Examination')
     # plan = GeneralOperations.find_scope(level='Plan')
     # Get in here and grab a patient specific csv
-        protocol_folder = r'../protocols'
-        institution_folder = r'UW'
-        beamset_folder = ''
-        file = 'UWGeneric.xml'
-        protocol_beamset = 'Tomo3D-FW5'
-        beamset_file = 'UWGeneric.xml'
-        path_protocols = os.path.join(os.path.dirname(__file__),
+    protocol_folder = r'../protocols'
+    institution_folder = r'UW'
+    beamset_folder = ''
+    file = 'UWGeneric.xml'
+    protocol_beamset = 'Tomo3D-FW5'
+    beamset_file = 'UWGeneric.xml'
+    path_protocols = os.path.join(os.path.dirname(__file__),
                                   protocol_folder,
                                   institution_folder, beamset_folder)
-        # Targets and dose
-        target_1 = 'PTV_60'
-        target_1_dose = 6000
-        # target_2 = 'PTV_60'
-        # target_2_dose = 6000
-        # target_3 = 'PTV_54'
-        # target_3_dose = 5400
-        rx_target = target_1
-        beamset_name = 'Tmplt_20Feb2020'
-        number_fractions = 30
-        machine = 'HDA0488'
-        iso_target = 'All_PTVs'
-        #
-        planning_struct = True
-        if planning_struct:
-            # Define planning structures
-            planning_prefs= StructureOperations.planning_structure_preferences()
-            planning_prefs.number_of_targets = 1
-            planning_prefs.use_uniform_dose = True
-            planning_prefs.use_under_dose = False
-            planning_prefs.use_inner_air = False
+    # Targets and dose
+    target_1 = 'PTV_60'
+    target_1_dose = 6000
+    # target_2 = 'PTV_60'
+    # target_2_dose = 6000
+    # target_3 = 'PTV_54'
+    # target_3_dose = 5400
+    rx_target = target_1
+    beamset_name = 'Tmplt_20Feb2020'
+    number_fractions = 30
+    machine = 'HDA0488'
+    iso_target = 'All_PTVs'
+    #
+    planning_struct = True
+    if planning_struct:
+        # Define planning structures
+        planning_prefs= StructureOperations.planning_structure_preferences()
+        planning_prefs.number_of_targets = 1
+        planning_prefs.use_uniform_dose = True
+        planning_prefs.use_under_dose = False
+        planning_prefs.use_inner_air = False
 
         dialog1_response = {'number_of_targets': 1,
                          'generate_underdose': False,
@@ -298,78 +241,79 @@ def main():
             dialog5_response=dialog5_response
         )
 
-        # Dependancies: All_PTVs
-        iso_target_exists = StructureOperations.check_structure_exists(
+    # Dependancies: All_PTVs
+    iso_target_exists = StructureOperations.check_structure_exists(
         case=case, structure_name=iso_target, option='Wait', exam=exam)
-        if not iso_target_exists:
-            logging.debug('{} does not exist. It must be defined to make this script work'.format(iso_target))
-            sys.exit('{} is a required structure'.format(iso_target))
+    if not iso_target_exists:
+        logging.debug('{} does not exist. It must be defined to make this script work'.format(iso_target))
+        sys.exit('{} is a required structure'.format(iso_target))
 
-        # TODO: Add a plan based on the xml
-        # Go grab the beamset called protocol_beamset
-        # This step is likely not neccessary, just know exact beamset name from protocol
-        available_beamsets = BeamOperations.Beams.select_element(
-            set_level='beamset',
-            set_type=None,
-            set_elements='beam',
-            filename=beamset_file,
-            set_level_name=protocol_beamset,
-            dialog=False,
-            folder=path_protocols,
-            verbose_logging=False)
+    # TODO: Add a plan based on the xml
+    # Go grab the beamset called protocol_beamset
+    # This step is likely not neccessary, just know exact beamset name from protocol
+    available_beamsets = BeamOperations.Beams.select_element(
+        set_level='beamset',
+        set_type=None,
+        set_elements='beam',
+        filename=beamset_file,
+        set_level_name=protocol_beamset,
+        dialog=False,
+        folder=path_protocols,
+        verbose_logging=False)
 
-        # TODO: Retrieve these definitions from the planning protocol.
-        beamset_defs = BeamOperations.BeamSet()
-        beamset_defs.rx_target = rx_target
-        beamset_defs.name = beamset_name
-        beamset_defs.DicomName = beamset_name
-        beamset_defs.number_of_fractions = number_fractions
-        beamset_defs.total_dose = target_1_dose
-        beamset_defs.machine = machine
-        beamset_defs.modality = 'Photons'
-        beamset_defs.technique = 'TomoHelical'
-        beamset_defs.iso_target = iso_target
-        beamset_defs.protocol_name = available_beamsets
+    # TODO: Retrieve these definitions from the planning protocol.
+    beamset_defs = BeamOperations.BeamSet()
+    beamset_defs.rx_target = rx_target
+    beamset_defs.name = beamset_name
+    beamset_defs.DicomName = beamset_name
+    beamset_defs.number_of_fractions = number_fractions
+    beamset_defs.total_dose = target_1_dose
+    beamset_defs.machine = machine
+    beamset_defs.modality = 'Photons'
+    beamset_defs.technique = 'TomoHelical'
+    beamset_defs.iso_target = iso_target
+    beamset_defs.protocol_name = available_beamsets
 
-        order_name = None
-        # par_beam_set = BeamOperations.beamset_dialog(case=case,
-        #                                              filename=file,
-        #                                              path=path_protocols,
-        #                                              order_name=order_name)
+    order_name = None
+    # par_beam_set = BeamOperations.beamset_dialog(case=case,
+    #                                              filename=file,
+    #                                              path=path_protocols,
+    #                                              order_name=order_name)
 
-        rs_beam_set = BeamOperations.create_beamset(patient=patient,
-                                                    case=case,
-                                                    exam=exam,
-                                                    plan=plan,
-                                                    dialog=False,
-                                                    BeamSet=beamset_defs,
-                                                    create_setup_beams=False)
+    rs_beam_set = BeamOperations.create_beamset(patient=patient,
+                                                case=case,
+                                                exam=exam,
+                                                plan=plan,
+                                                dialog=False,
+                                                BeamSet=beamset_defs,
+                                                create_setup_beams=False)
 
-        beams = BeamOperations.load_beams_xml(filename=file,
-                                              beamset_name=protocol_beamset,
-                                              path=path_protocols)
-        if len(beams) > 1:
-            logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
-        else:
-            beam = beams[0]
+    beams = BeamOperations.load_beams_xml(filename=file,
+                                          beamset_name=protocol_beamset,
+                                          path=path_protocols)
+    if len(beams) > 1:
+        logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
+    else:
+        beam = beams[0]
 
-        # Place isocenter
-        try:
-            beamset_defs.iso = BeamOperations.find_isocenter_parameters(
-                case=case,
-                exam=exam,
-                beamset=rs_beam_set,
-                iso_target=beamset_defs.iso_target,
-                lateral_zero=True)
-        except Exception:
-            logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
-            sys.exit('Failed to place isocenter')
+    # Place isocenter
+    try:
+        beamset_defs.iso = BeamOperations.find_isocenter_parameters(
+            case=case,
+            exam=exam,
+            beamset=rs_beam_set,
+            iso_target=beamset_defs.iso_target,
+            lateral_zero=True)
 
-        BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso, beamset=rs_beam_set, beam=beam)
+    except Exception:
+        logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
+        sys.exit('Failed to place isocenter')
 
-        patient.Save()
-        rs_beam_set.SetCurrent()
-        sys.exit('Done')
+    BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso, beamset=rs_beam_set, beam=beam)
+
+    patient.Save()
+    rs_beam_set.SetCurrent()
+    sys.exit('Done')
 
     dialog_beamset.rx_target = dialog.values['0']
     dialog_beamset.name = dialog.values['1']
