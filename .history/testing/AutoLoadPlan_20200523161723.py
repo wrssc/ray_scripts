@@ -153,7 +153,6 @@ def main():
                 AllowDuplicateNames=False
             )
             plan = case.TreatmentPlans[plan_name]
-        # Plan creation modification requires a patient save
         patient.Save()
         plan.SetCurrent()
         #
