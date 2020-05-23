@@ -8,7 +8,6 @@
     -Loads plan optimization templates
     -Runs an optimization script
     -Saves the plan for future comparisons
-    Examination and Case must exist up front
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software

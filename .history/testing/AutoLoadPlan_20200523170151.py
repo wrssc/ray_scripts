@@ -8,7 +8,6 @@
     -Loads plan optimization templates
     -Runs an optimization script
     -Saves the plan for future comparisons
-    Examination and Case must exist up front
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -137,18 +136,13 @@ def main():
         except SystemError:
             status['Script_Status'] = 'Case {} not found'.format(case_name)
             output_status(output_filename,status)
-            continue
         case.SetCurrent()
         # 
         # Load correct examination
         try:
-            infos = db.QueryExaminationInfo(PatientInfo = patient_info,
-                                            Filter = {'Name': row.ExaminationName})
-            exam = case.LoadExamination( ExaminationInfo = infos[0] )
-        except IndexError:
-            status['Script_Status'] = 'Examination {} not found'.format(row.ExaminationName)
-            output_status(output_filename,status)
-            continue
+             infos = db.QueryExaminationInfo(PatientInfo = patient_info,
+                                             Filter = {'Name': row.ExaminationName})
+            examination = study.LoadExamination( ExaminationInfo = infos[0] )
         #
         # Load the plan indicated
         # If the plan is found, cool. just make it current
@@ -161,7 +155,7 @@ def main():
                 PlanName=plan_name,
                 PlannedBy='H.A.L.',
                 Comment='Diagnosis',
-                ExaminationName=exam.Name,
+                ExaminationName=row.ExaminationName,
                 AllowDuplicateNames=False
             )
             plan = case.TreatmentPlans[plan_name]
