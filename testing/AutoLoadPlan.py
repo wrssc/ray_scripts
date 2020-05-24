@@ -73,6 +73,7 @@ def output_status(filename, patient_id, case_name, plan_name, beamset_name,
         optimization_complete {[bool]} -- Optimization ended successfully
         script_status {[string]} -- Error messages if applicable, success otherwise
     """
+    # TODO Add in a check to see if the header is already written. Hard code the header in this function
     output_file = open(filename, "a+")
     if script_status is None:
         script_status = 'success'
@@ -193,18 +194,18 @@ def main():
     if file_csv != '':
         plan_data = pd.read_csv(file_csv)
 
-    status_0 ={
-        'PatientID':"PatientID",
-        'Case':"Case",
-        'PlanName':"PlanName",
-        'BeamSetName':"BeamSetName",
-        'PlanningStructures_Created':"PlanningStructures_Created",
-        'Beams_Loaded':"Beams_Loaded",
-        'ClinicalGoals_Loaded':"ClinicalGoals_Loaded",
-        'PlanOptimization_Loaded':"PlanOptimization_Loaded",
-        'Optimization_Completed':"Optimization_Completed",
-        'Script_Status':"Script_Status",
-    }
+    ## status_0 ={
+    ##     'PatientID':"PatientID",
+    ##     'Case':"Case",
+    ##     'PlanName':"PlanName",
+    ##     'BeamSetName':"BeamSetName",
+    ##     'PlanningStructures_Created':"PlanningStructures_Created",
+    ##     'Beams_Loaded':"Beams_Loaded",
+    ##     'ClinicalGoals_Loaded':"ClinicalGoals_Loaded",
+    ##     'PlanOptimization_Loaded':"PlanOptimization_Loaded",
+    ##     'Optimization_Completed':"Optimization_Completed",
+    ##     'Script_Status':"Script_Status",
+    ## }
     #
     # Create the output file
     path = os.path.dirname(file_csv)
