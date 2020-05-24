@@ -278,6 +278,7 @@ def main():
             exam = patient_data['Exam']
             case = patient_data['Case']
             plan = patient_data['Plan']
+            case.SetCurrent()
             plan.SetCurrent()
             patient_load = True
 
