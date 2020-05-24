@@ -52,21 +52,41 @@ import StructureOperations
 import BeamOperations
 import UserInterface
 
-def output_status(filename, status):
-    """Write out status"""
+def output_status(filename, patient_id, case_name, plan_name, beamset_name,
+                  patient_load, planning_structs, beams_load, clinical_goals_load,
+                  plan_optimization_strategy_load, optimization_complete, script_status):
+    """
+    Write out the status of the optimization for a given patient
+
+    Arguments:
+        filename {[string]} -- name of file for output
+        patient_id {[string]} -- Patient ID under auto-planning
+        case {[string]} -- RS case name
+        plan_name {[string]} -- RS Plan name
+        beamset_name {[string]} -- RS beamset name
+        patient_load {[bool]} -- Did the patient load successfully
+        planning_structs {[bool]} -- Were planning structures loaded
+        beams_load {[bool]} --  Did Beams load
+        clinical_goals_load {[bool]} -- Clinical Goals and Plan Objectives loaded
+        plan_optimization_strategy_load {[bool]} -- An optimization strategy was loaded
+        optimization_complete {[bool]} -- Optimization ended successfully
+        script_status {[string]} -- Error messages if applicable, success otherwise
+    """
     output_file = open(filename, "a+")
+    if script_status is None:
+        script_status = 'success'
     output_message = \
-          status['PatientID'] + "\t" \
-        + status['Case'] + "\t" \
-        + status['PlanName'] + "\t" \
-        + status['BeamSetName'] + "\t" \
-        + str(status['PatientLoads']) + "\t" \
-        + str(status['PlanningStructures_Created']) + "\t" \
-        + str(status['Beams_Loaded']) + "\t" \
-        + str(status['ClinicalGoals_Loaded']) + "\t" \
-        + str(status['PlanOptimization_Loaded']) + "\t" \
-        + str(status['Optimization_Completed']) + "\t" \
-        + str(status['Script_Status']) + "\n" 
+          patient_id + "\t" \
+        + case_name + "\t" \
+        + plan_name + "\t" \
+        + beamset_name + "\t" \
+        + str(patient_load) + "\t" \
+        + str(planning_structs) + "\t" \
+        + str(beams_load) + "\t" \
+        + str(clinical_goals_load) + "\t" \
+        + str(plan_optimization_strategy_load) + "\t" \
+        + str(optimization_complete) + "\t" \
+        + str(script_status) + "\n" 
     output_file.write(output_message)
     output_file.close()
 
@@ -158,7 +178,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
 #    """Create a beamset from """
 def main():
     # Load the current RS database
-    db = connect.get_current("PatientDB")
+    ## db = connect.get_current("PatientDB")
     # Prompt the user to open a file
     browser = UserInterface.CommonDialog()
     file_csv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
@@ -181,26 +201,44 @@ def main():
     # Create the output file
     path = os.path.dirname(file_csv)
     output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
-    output_status(output_filename, status_0)
+    output_status(output_filename,
+                  patient_id="PatientID",
+                  case_name="Case",
+                  plan_name="Plan",
+                  beamset_name="Beamset",
+                  patient_load="Patient Loaded",
+                  planning_structs="Planning Structs Loaded",
+                  beams_load="Beams Loaded",
+                  clinical_goals_load="Clinical Goals Loaded",
+                  plan_optimization_strategy_load="Optimization Strategy Loaded",
+                  optimization_complete="Optimization Completed",
+                  script_status="Plan Complete" )
+    ## output_status(output_filename, status_0)
     for index, row in plan_data.iterrows():
         beamset_name = row.BeamsetName
         plan_name = row.PlanName
         patient_id = row.PatientID
         case_name = row.Case
+        patient_load = False
+        planning_structs= False
+        beams_load = False
+        clinical_goals_load = False
+        plan_optimization_strategy_load = False
+        optimization_complete = False
 
-        status = {
-            'PatientID': patient_id,
-            'Case': case_name,
-            'PlanName': plan_name,
-            'BeamSetName': beamset_name,
-            'PatientLoads': False,
-            'PlanningStructures_Created': False,
-            'Beams_Loaded': False,
-            'ClinicalGoals_Loaded': False,
-            'PlanOptimization_Loaded': False,
-            'Optimization_Completed': False,
-            'Script_Status': None,
-        }
+        ## status = {
+        ##     'PatientID': patient_id,
+        ##     'Case': case_name,
+        ##     'PlanName': plan_name,
+        ##     'BeamSetName': beamset_name,
+        ##     'PatientLoad': False,
+        ##     'PlanningStructures_Created': False,
+        ##     'Beams_Loaded': False,
+        ##     'ClinicalGoals_Loaded': False,
+        ##     'PlanOptimization_Loaded': False,
+        ##     'Optimization_Completed': False,
+        ##     'Script_Status': None,
+        ## }
         patient_data = load_patient_data(
                                          patient_id=row.PatientID,
                                          first_name=row.FirstName,
@@ -212,7 +250,21 @@ def main():
         # Check loading status
         if not patient_data['Error']:
             status['Script_Status'] = patient_data['Error']
-            output_status(output_filename,status)
+            ## patient_load = False
+            ## output_status(output_filename,status)
+            output_status(output_filename,
+                      patient_id=patient_id,
+                      case_name=case_name,
+                      plan_name=plan_name,
+                      beamset_name=beamset_name,
+                      patient_load=patient_load,
+                      planning_structs=planning_structs,
+                      beams_load=beams_load,
+                      clinical_goals_load=clinical_goals_load,
+                      plan_optimization_strategy_load=plan_optimization_strategy_load,
+                      optimization_complete=optimization_complete,
+                      script_status=patient_data['Error']
+            )
             continue
         else:
             patient = patient_data['Patient']
@@ -220,7 +272,7 @@ def main():
             case = patient_data['Case']
             plan = patient_data['Plan']
             plan.SetCurrent()
-            status['PatientLoads'] = True
+            patient_load = True
 
         # Set Plan
         
@@ -335,13 +387,13 @@ def main():
                                                     dialog=False,
                                                     BeamSet=beamset_defs,
                                                     create_setup_beams=False)
-        sys.exit('Done')
 
         beams = BeamOperations.load_beams_xml(filename=file,
                                               beamset_name=protocol_beamset,
                                               path=path_protocols)
         # ok, now make the beamset current
         rs_beam_set.SetCurrent()
+        sys.exit('Done')
 
     ## path = os.path.dirname(file_csv)
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
