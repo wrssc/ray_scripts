@@ -240,12 +240,12 @@ def main():
         ##     'Script_Status': None,
         ## }
         patient_data = load_patient_data(
-                                         patient_id=row.PatientID,
+                                         patient_id=patient_id,
                                          first_name=row.FirstName,
                                          last_name=row.LastName,
-                                         case_name=row.Case,
+                                         case_name=case_name,
                                          exam_name=row.ExaminationName,
-                                         plan_name=row.plan_name
+                                         plan_name=plan_name,
                                          )
         # Check loading status
         if not patient_data['Error']:
