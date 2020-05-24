@@ -45,6 +45,7 @@ import logging
 import xml
 import pandas as pd
 import random
+import logging
 
 import connect
 import GeneralOperations
@@ -279,70 +280,11 @@ def main():
             case = patient_data['Case']
             plan = patient_data['Plan']
             case.SetCurrent()
+            connect.get_current('Case')
             plan.SetCurrent()
             connect.get_current('Plan')
             patient_load = True
 
-        # Set Plan
-        ## # Find the patient in the database
-        ## patient_info = db.QueryPatientInfo(
-        ##     Filter={
-        ##         'FirstName': '^{0}$'.format(row.FirstName),
-        ##         'LastName': '^{0}$'.format(row.LastName),
-        ##         'PatientID': '^{0}$'.format(patient_id)
-        ##     }
-        ## )
-        ## if len(patient_info) != 1:
-        ##     status['Script_Status'] = 'Patient not found'
-        ##     output_status(output_filename,status)
-        ##     continue
-        # Set the appropriate parameters for this patient
-        ## patient = db.LoadPatient(PatientInfo=patient_info[0])
-        ## # TODO: add capability of creating a case using ImportDataFromPath
-        ## #
-        ## # Load case
-        # See if the case exists
-        ## try:
-        ##     case = patient.Cases[case_name]
-        ## except SystemError:
-        ##     status['Script_Status'] = 'Case {} not found'.format(case_name)
-        ##     output_status(output_filename,status)
-        ##     continue
-        ## case.SetCurrent()
-        ## # 
-        ## # Load examination
-        ## try:
-        ##     info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
-        ##                                     Filter = {'Name': row.ExaminationName})
-        ##     if info[0]['Name'] == row.ExaminationName:
-        ##         # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
-        ##         #   causing the ID key to be non unique.
-        ##         info_name = {'Name':info[0]['Name']}
-        ##         exam = case.LoadExamination( ExaminationInfo = info_name)
-        ## except IndexError:
-        ##     status['Script_Status'] = 'Examination {} not found'.format(row.ExaminationName)
-        ##     output_status(output_filename,status)
-        ##     continue
-        ## #
-        # Load the plan indicated
-        ## # If the plan is found, cool. just make it current
-        ## try:
-        ##     info = case.QueryPlanInfo(Filter = {'Name': plan_name})
-        ##     if info[0]['Name'] == plan_name:
-        ##         plan = case.TreatmentPlans[plan_name]
-        ## except IndexError:
-        ##     case.AddNewPlan(
-        ##         PlanName=plan_name,
-        ##         PlannedBy='H.A.L.',
-        ##         Comment='Diagnosis',
-        ##         ExaminationName=exam.Name,
-        ##         AllowDuplicateNames=False
-        ##     )
-        ##     plan = case.TreatmentPlans[plan_name]
-        ## # Plan creation modification requires a patient save
-        ## patient.Save()
-        ## plan.SetCurrent()
-        #
         # If this beamset is found, then append 1-99 to the name and keep going
         beamset_exists = True
         while beamset_exists:
@@ -395,14 +337,13 @@ def main():
                                                     dialog=False,
                                                     BeamSet=beamset_defs,
                                                     create_setup_beams=False)
-
-        beams = BeamOperations.load_beams_xml(filename=file,
-                                              beamset_name=protocol_beamset,
-                                              path=path_protocols)
         # ok, now make the beamset current
         rs_beam_set.SetCurrent()
         connect.get_current('BeamSet')
         sys.exit('Done')
+        beams = BeamOperations.load_beams_xml(filename=row.BeamsetFile,
+                                              beamset_name=row.ProtocolBeamset,
+                                              path=path_protocols)
 
     ## path = os.path.dirname(file_csv)
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
