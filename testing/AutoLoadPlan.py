@@ -566,38 +566,38 @@ def main():
         rs_beam_set.SetCurrent()
         sys.exit('Done')
 
-    dialog_beamset.rx_target = dialog.values['0']
-    dialog_beamset.name = dialog.values['1']
-    dialog_beamset.DicomName = dialog.values['1']
-    dialog_beamset.number_of_fractions = float(dialog.values['2'])
-    dialog_beamset.total_dose = float(dialog.values['3'])
-    dialog_beamset.machine = dialog.values['4']
-    dialog_beamset.modality = 'Photons'
-    dialog_beamset.technique = dialog.values['6']
-    dialog_beamset.iso_target = dialog.values['7']
-    dialog_beamset.protocol_name = dialog.values['8']
-    # For debugging we can bypass the dialog by uncommenting the below lines
-    order_name = None
-    par_beam_set = BeamOperations.beamset_dialog(case=case,
-                                                 filename=file,
-                                                 path=path_protocols,
-                                                 order_name=order_name)
+        dialog_beamset.rx_target = dialog.values['0']
+        dialog_beamset.name = dialog.values['1']
+        dialog_beamset.DicomName = dialog.values['1']
+        dialog_beamset.number_of_fractions = float(dialog.values['2'])
+        dialog_beamset.total_dose = float(dialog.values['3'])
+        dialog_beamset.machine = dialog.values['4']
+        dialog_beamset.modality = 'Photons'
+        dialog_beamset.technique = dialog.values['6']
+        dialog_beamset.iso_target = dialog.values['7']
+        dialog_beamset.protocol_name = dialog.values['8']
+        # For debugging we can bypass the dialog by uncommenting the below lines
+        order_name = None
+        par_beam_set = BeamOperations.beamset_dialog(case=case,
+                                                    filename=file,
+                                                    path=path_protocols,
+                                                    order_name=order_name)
 
-    rs_beam_set = BeamOperations.create_beamset(patient=patient,
-                                                case=case,
-                                                exam=exam,
-                                                plan=plan,
-                                                dialog=False,
-                                                BeamSet=par_beam_set,
-                                                create_setup_beams=False)
+        rs_beam_set = BeamOperations.create_beamset(patient=patient,
+                                                    case=case,
+                                                    exam=exam,
+                                                    plan=plan,
+                                                    dialog=False,
+                                                    BeamSet=par_beam_set,
+                                                    create_setup_beams=False)
 
-    beams = BeamOperations.load_beams_xml(filename=file,
-                                          beamset_name=par_beam_set.protocol_name,
-                                          path=path_protocols)
+        beams = BeamOperations.load_beams_xml(filename=file,
+                                            beamset_name=par_beam_set.protocol_name,
+                                            path=path_protocols)
 
-    # Now add in clinical goals and objectives
-    add_goals_and_structures_from_protocol(patient=patient, case=case, plan=plan, beamset=rs_beam_set, exam=exam,
-                                           filename=None, path_protocols=None, run_status=False)
+        # Now add in clinical goals and objectives
+        add_goals_and_structures_from_protocol(patient=patient, case=case, plan=plan, beamset=rs_beam_set, exam=exam,
+                                            filename=None, path_protocols=None, run_status=False)
 
 
 
