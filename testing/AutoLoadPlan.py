@@ -150,7 +150,7 @@ def main():
                 # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
                 #   causing the ID key to be non unique.
                 info_name = {'Name':info[0]['Name']}
-                exam = case.LoadExamination( ExaminationInfo = info[0]['Name'] )
+                exam = case.LoadExamination( ExaminationInfo = info_name)
         except IndexError:
             status['Script_Status'] = 'Examination {} not found'.format(row.ExaminationName)
             output_status(output_filename,status)
