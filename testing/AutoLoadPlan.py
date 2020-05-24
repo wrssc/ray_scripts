@@ -256,7 +256,7 @@ def main():
                                          plan_name=plan_name,
                                          )
         # Check loading status
-        if not patient_data['Error']:
+        if patient_data['Error']:
             ## status['Script_Status'] = patient_data['Error']
             ## patient_load = False
             ## output_status(output_filename,status)
