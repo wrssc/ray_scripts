@@ -107,7 +107,12 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
         dict -- {'Case': RS Case Object, 'Exam' RS Exam object,
                  'Plan': RS Plan Object - either existing or new}
     """
-    patient_data = {'Error': []}
+    # Initialize return variable
+    patient_data = {'Error': [],
+                    'Case': None,
+                    'Patient': None,
+                    'Exam': None,
+                    'Plan': None}
     db = connect.get_current("PatientDB")
     # Find the patient in the database
     patient_info = db.QueryPatientInfo(
@@ -118,10 +123,10 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
         }
     )
     if len(patient_info) != 1:
-        patient_data['Patient'] = None
         patient_data['Error'] = ['Patient {} {}, ID: {} not found'.format(
             first_name, last_name, patient_id
         )]
+        return patient_data
     else:
         # Set the appropriate parameters for this patient
         patient = db.LoadPatient(PatientInfo=patient_info[0])
@@ -132,9 +137,22 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
         case = patient.Cases[case_name]
         patient_data['Case'] = case
     except SystemError:
-        patient_data['Case'] = None
         patient_data['Error'].append('Case {} not found'.format(case_name))
-    
+        return patient_data
+    # 
+    # Load examination
+    try:
+        info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
+                                        Filter = {'Name': exam_name})
+        if info[0]['Name'] == exam_name:
+            # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
+            #   causing the ID key to be non unique.
+            info_name = {'Name': exam_name}
+            exam = case.LoadExamination( ExaminationInfo = info_name)
+            patient_data['Exam'] = exam
+    except IndexError:
+        patient_data['Error'].append('Exam {} not found'.format(exam_name)) 
+        return patient_data
     #
     # Load the plan indicated
     # If the plan is found, cool. just make it current
@@ -156,22 +174,9 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
     try:
         test_plan = case.TreatmentPlans[plan_name]
     except IndexError:
-        patient_data['Plan'] = None
         patient_data['Error'].append('Plan {} not found'.format(plan_name))
-    # 
-    # Load examination
-    try:
-        info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
-                                        Filter = {'Name': exam_name})
-        if info[0]['Name'] == exam_name:
-            # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
-            #   causing the ID key to be non unique.
-            info_name = {'Name':'^{0}$'.format(info[0]['Name'])}
-            exam = case.LoadExamination( ExaminationInfo = info_name)
-            patient_data['Exam'] = exam
-    except IndexError:
-        patient_data['Exam'] = None
-        patient_data['Error'].append('Exam {} not found'.format(exam_name))
+        return patient_data
+    
 
     return patient_data
 
