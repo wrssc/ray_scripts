@@ -341,10 +341,32 @@ def main():
         patient.Save()
         rs_beam_set.SetCurrent()
         connect.get_current('BeamSet')
-        sys.exit('Done')
         beams = BeamOperations.load_beams_xml(filename=row.BeamsetFile,
                                               beamset_name=row.ProtocolBeamset,
                                               path=path_protocols)
+        
+        if len(beams) > 1:
+            logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
+        else:
+            beam = beams[0]
+
+        # Place isocenter
+        try:
+            beamset_defs.iso = BeamOperations.find_isocenter_parameters(
+                case=case,
+                exam=exam,
+                beamset=rs_beam_set,
+                iso_target=beamset_defs.iso_target,
+                lateral_zero=True)
+        except Exception:
+            logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
+            sys.exit('Failed to place isocenter')
+
+        BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso, beamset=rs_beam_set, beam=beam)
+
+        patient.Save()
+        rs_beam_set.SetCurrent()
+        sys.exit('Done')
 
     ## path = os.path.dirname(file_csv)
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
