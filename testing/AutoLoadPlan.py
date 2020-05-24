@@ -148,7 +148,8 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
             # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
             #   causing the ID key to be non unique.
             info_name = {'Name': exam_name}
-            exam = case.LoadExamination( ExaminationInfo = info_name)
+            ## exam = case.LoadExamination( ExaminationInfo = info_name)
+            exam = case.Examinations[exam_name]
             patient_data['Exam'] = exam
     except IndexError:
         patient_data['Error'].append('Exam {} not found'.format(exam_name)) 
