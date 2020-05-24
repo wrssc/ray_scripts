@@ -20,6 +20,8 @@ _windows/
 _windows/laf.xml
 codestyles/
 codestyles/Default.xml
-.vscode/settings.json
+
+.vscode
+*.history
 .env
 .pylintrc
