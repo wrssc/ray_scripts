@@ -338,6 +338,7 @@ def main():
                                                     BeamSet=beamset_defs,
                                                     create_setup_beams=False)
         # ok, now make the beamset current
+        patient.Save()
         rs_beam_set.SetCurrent()
         connect.get_current('BeamSet')
         sys.exit('Done')
