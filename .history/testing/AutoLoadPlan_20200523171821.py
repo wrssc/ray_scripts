@@ -144,11 +144,9 @@ def main():
         try:
             info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
                                             Filter = {'Name': row.ExaminationName})
+            logging.debug('{}'.format(info[0]))
             if info[0]['Name'] == row.ExaminationName:
-                # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
-                #   causing the ID key to be non unique.
-                info_name = {'Name':info[0]['Name']}
-                exam = case.LoadExamination( ExaminationInfo = info[0]['Name'] )
+                exam = case.LoadExamination( ExaminationInfo = info[0] )
         except IndexError:
             status['Script_Status'] = 'Examination {} not found'.format(row.ExaminationName)
             output_status(output_filename,status)
