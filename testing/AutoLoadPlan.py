@@ -280,6 +280,7 @@ def main():
             plan = patient_data['Plan']
             case.SetCurrent()
             plan.SetCurrent()
+            connect.get_current('Plan')
             patient_load = True
 
         # Set Plan
@@ -400,6 +401,7 @@ def main():
                                               path=path_protocols)
         # ok, now make the beamset current
         rs_beam_set.SetCurrent()
+        connect.get_current('BeamSet')
         sys.exit('Done')
 
     ## path = os.path.dirname(file_csv)
