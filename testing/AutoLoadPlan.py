@@ -145,9 +145,9 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
         info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
                                         Filter = {'Name': exam_name})
         if info[0]['Name'] == exam_name:
-            # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
-            #   causing the ID key to be non unique.
-            info_name = {'Name': exam_name}
+            ## Raystation sets the value of an anonymized CT ID to -sys.maxint -1
+            ##   causing the ID key to be non unique.
+            ## info_name = {'Name': exam_name}
             ## exam = case.LoadExamination( ExaminationInfo = info_name)
             exam = case.Examinations[exam_name]
             patient_data['Exam'] = exam
@@ -208,18 +208,18 @@ def main():
     # Create the output file
     path = os.path.dirname(file_csv)
     output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
-    output_status(output_filename,
-                  patient_id="PatientID",
-                  case_name="Case",
-                  plan_name="Plan",
-                  beamset_name="Beamset",
-                  patient_load="Patient Loaded",
-                  planning_structs="Planning Structs Loaded",
-                  beams_load="Beams Loaded",
-                  clinical_goals_load="Clinical Goals Loaded",
-                  plan_optimization_strategy_load="Optimization Strategy Loaded",
-                  optimization_complete="Optimization Completed",
-                  script_status="Plan Complete" )
+    ## output_status(output_filename,
+    ##               patient_id="PatientID",
+    ##               case_name="Case",
+    ##               plan_name="Plan",
+    ##               beamset_name="Beamset",
+    ##               patient_load="Patient Loaded",
+    ##               planning_structs="Planning Structs Loaded",
+    ##               beams_load="Beams Loaded",
+    ##               clinical_goals_load="Clinical Goals Loaded",
+    ##               plan_optimization_strategy_load="Optimization Strategy Loaded",
+    ##               optimization_complete="Optimization Completed",
+    ##               script_status="Plan Complete" )
     ## output_status(output_filename, status_0)
     for index, row in plan_data.iterrows():
         beamset_name = row.BeamsetName
@@ -256,7 +256,7 @@ def main():
                                          )
         # Check loading status
         if not patient_data['Error']:
-            status['Script_Status'] = patient_data['Error']
+            ## status['Script_Status'] = patient_data['Error']
             ## patient_load = False
             ## output_status(output_filename,status)
             output_status(output_filename,
@@ -282,7 +282,6 @@ def main():
             patient_load = True
 
         # Set Plan
-        
         ## # Find the patient in the database
         ## patient_info = db.QueryPatientInfo(
         ##     Filter={
@@ -348,7 +347,7 @@ def main():
             info = plan.QueryBeamSetInfo(Filter={'Name':'^{0}'.format(beamset_name)})
             try:
                 if info[0]['Name'] == beamset_name:
-                    beamset_name = (beamset_name[:14] 
+                    beamset_name = (beamset_name[:14]
                                     + str(random.randint(1,99)).zfill(2)) \
                                     if len(beamset_name) > 14 \
                                     else beamset_name + str(random.randint(1,99)).zfill(2)
