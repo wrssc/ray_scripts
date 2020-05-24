@@ -60,6 +60,7 @@ def output_status(filename, status):
         + status['Case'] + "\t" \
         + status['PlanName'] + "\t" \
         + status['BeamSetName'] + "\t" \
+        + str(status['PatientLoads']) + "\t" \
         + str(status['PlanningStructures_Created']) + "\t" \
         + str(status['Beams_Loaded']) + "\t" \
         + str(status['ClinicalGoals_Loaded']) + "\t" \
@@ -69,6 +70,89 @@ def output_status(filename, status):
     output_file.write(output_message)
     output_file.close()
 
+
+def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, plan_name):
+    """ Query's database for plan, case, and exam. Returns them as a dict. Saves patient if a 
+        new plan is created.
+
+    Arguments:
+        patient_id {string} -- Patient's ID in database
+        first_name {string} -- Patient first name
+        last_name {string} -- Patient Last Name
+        case_name {string} -- RS case name
+        exam_name {string} -- RS Exam Name
+        plan_name {string} -- RS plan
+
+    Returns:
+        dict -- {'Case': RS Case Object, 'Exam' RS Exam object,
+                 'Plan': RS Plan Object - either existing or new}
+    """
+    patient_data = {'Error': []}
+    db = connect.get_current("PatientDB")
+    # Find the patient in the database
+    patient_info = db.QueryPatientInfo(
+        Filter={
+            'FirstName': '^{0}$'.format(first_name),
+            'LastName': '^{0}$'.format(last_name),
+            'PatientID': '^{0}$'.format(patient_id)
+        }
+    )
+    if len(patient_info) != 1:
+        patient_data['Patient'] = None
+        patient_data['Error'] = ['Patient {} {}, ID: {} not found'.format(
+            first_name, last_name, patient_id
+        )]
+    else:
+        # Set the appropriate parameters for this patient
+        patient = db.LoadPatient(PatientInfo=patient_info[0])
+        patient_data['Patient'] = patient
+    # Load case
+    # See if the case exists
+    try:
+        case = patient.Cases[case_name]
+        patient_data['Case'] = case
+    except SystemError:
+        patient_data['Case'] = None
+        patient_data['Error'].append('Case {} not found'.format(case_name))
+    # 
+    # Load examination
+    try:
+        info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
+                                        Filter = {'Name': exam_name})
+        if info[0]['Name'] == exam_name:
+            # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
+            #   causing the ID key to be non unique.
+            info_name = {'Name':info[0]['Name']}
+            exam = case.LoadExamination( ExaminationInfo = info_name)
+            patient_data['Exam'] = exam
+    except IndexError:
+        patient_data['Exam'] = None
+        patient_data['Error'].append('Exam {} not found'.format(exam_name))
+    #
+    # Load the plan indicated
+    # If the plan is found, cool. just make it current
+    try:
+        info = case.QueryPlanInfo(Filter = {'Name': plan_name})
+        if info[0]['Name'] == plan_name:
+            patient_data['Plan'] = case.TreatmentPlans[plan_name]
+    except IndexError:
+        case.AddNewPlan(
+            PlanName=plan_name,
+            PlannedBy='H.A.L.',
+            Comment='Diagnosis',
+            ExaminationName=exam.Name,
+            AllowDuplicateNames=False
+        )
+        patient_data['Plan'] = case.TreatmentPlans[plan_name]
+        # Plan creation modification requires a patient save
+        patient.Save()
+    try:
+        test_plan = case.TreatmentPlans[plan_name]
+    except IndexError:
+        patient_data['Plan'] = None
+        patient_data['Error'].append('Plan {} not found'.format(plan_name))
+
+    return patient_data
 
 # def create_beamset(beamset_name, df_input, suffix=):
 #    """Create a beamset from """
@@ -109,6 +193,7 @@ def main():
             'Case': case_name,
             'PlanName': plan_name,
             'BeamSetName': beamset_name,
+            'PatientLoads': False,
             'PlanningStructures_Created': False,
             'Beams_Loaded': False,
             'ClinicalGoals_Loaded': False,
@@ -116,64 +201,87 @@ def main():
             'Optimization_Completed': False,
             'Script_Status': None,
         }
-        # Find the patient in the database
-        patient_info = db.QueryPatientInfo(
-            Filter={
-                'FirstName': '^{0}$'.format(row.FirstName),
-                'LastName': '^{0}$'.format(row.LastName),
-                'PatientID': '^{0}$'.format(patient_id)
-            }
-        )
-        if len(patient_info) != 1:
-            status['Script_Status'] = 'Patient not found'
+        patient_data = load_patient_data(
+                                         patient_id=row.PatientID,
+                                         first_name=row.FirstName,
+                                         last_name=row.LastName,
+                                         case_name=row.Case,
+                                         exam_name=row.ExaminationName,
+                                         plan_name=row.plan_name
+                                         )
+        # Check loading status
+        if not patient_data['Error']:
+            status['Script_Status'] = patient_data['Error']
             output_status(output_filename,status)
             continue
+        else:
+            patient = patient_data['Patient']
+            exam = patient_data['Exam']
+            case = patient_data['Case']
+            plan = patient_data['Plan']
+            plan.SetCurrent()
+            status['PatientLoads'] = True
+
+        # Set Plan
+        
+        ## # Find the patient in the database
+        ## patient_info = db.QueryPatientInfo(
+        ##     Filter={
+        ##         'FirstName': '^{0}$'.format(row.FirstName),
+        ##         'LastName': '^{0}$'.format(row.LastName),
+        ##         'PatientID': '^{0}$'.format(patient_id)
+        ##     }
+        ## )
+        ## if len(patient_info) != 1:
+        ##     status['Script_Status'] = 'Patient not found'
+        ##     output_status(output_filename,status)
+        ##     continue
         # Set the appropriate parameters for this patient
-        patient = db.LoadPatient(PatientInfo=patient_info[0])
-        # TODO: add capability of creating a case using ImportDataFromPath
-        #
-        # Load case
+        ## patient = db.LoadPatient(PatientInfo=patient_info[0])
+        ## # TODO: add capability of creating a case using ImportDataFromPath
+        ## #
+        ## # Load case
         # See if the case exists
-        try:
-            case = patient.Cases[case_name]
-        except SystemError:
-            status['Script_Status'] = 'Case {} not found'.format(case_name)
-            output_status(output_filename,status)
-            continue
-        case.SetCurrent()
-        # 
-        # Load examination
-        try:
-            info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
-                                            Filter = {'Name': row.ExaminationName})
-            if info[0]['Name'] == row.ExaminationName:
-                # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
-                #   causing the ID key to be non unique.
-                info_name = {'Name':info[0]['Name']}
-                exam = case.LoadExamination( ExaminationInfo = info_name)
-        except IndexError:
-            status['Script_Status'] = 'Examination {} not found'.format(row.ExaminationName)
-            output_status(output_filename,status)
-            continue
-        #
+        ## try:
+        ##     case = patient.Cases[case_name]
+        ## except SystemError:
+        ##     status['Script_Status'] = 'Case {} not found'.format(case_name)
+        ##     output_status(output_filename,status)
+        ##     continue
+        ## case.SetCurrent()
+        ## # 
+        ## # Load examination
+        ## try:
+        ##     info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
+        ##                                     Filter = {'Name': row.ExaminationName})
+        ##     if info[0]['Name'] == row.ExaminationName:
+        ##         # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
+        ##         #   causing the ID key to be non unique.
+        ##         info_name = {'Name':info[0]['Name']}
+        ##         exam = case.LoadExamination( ExaminationInfo = info_name)
+        ## except IndexError:
+        ##     status['Script_Status'] = 'Examination {} not found'.format(row.ExaminationName)
+        ##     output_status(output_filename,status)
+        ##     continue
+        ## #
         # Load the plan indicated
-        # If the plan is found, cool. just make it current
-        try:
-            info = case.QueryPlanInfo(Filter = {'Name': plan_name})
-            if info[0]['Name'] == plan_name:
-                plan = case.TreatmentPlans[plan_name]
-        except IndexError:
-            case.AddNewPlan(
-                PlanName=plan_name,
-                PlannedBy='H.A.L.',
-                Comment='Diagnosis',
-                ExaminationName=exam.Name,
-                AllowDuplicateNames=False
-            )
-            plan = case.TreatmentPlans[plan_name]
-        # Plan creation modification requires a patient save
-        patient.Save()
-        plan.SetCurrent()
+        ## # If the plan is found, cool. just make it current
+        ## try:
+        ##     info = case.QueryPlanInfo(Filter = {'Name': plan_name})
+        ##     if info[0]['Name'] == plan_name:
+        ##         plan = case.TreatmentPlans[plan_name]
+        ## except IndexError:
+        ##     case.AddNewPlan(
+        ##         PlanName=plan_name,
+        ##         PlannedBy='H.A.L.',
+        ##         Comment='Diagnosis',
+        ##         ExaminationName=exam.Name,
+        ##         AllowDuplicateNames=False
+        ##     )
+        ##     plan = case.TreatmentPlans[plan_name]
+        ## # Plan creation modification requires a patient save
+        ## patient.Save()
+        ## plan.SetCurrent()
         #
         # If this beamset is found, then append 1-99 to the name and keep going
         beamset_exists = True
