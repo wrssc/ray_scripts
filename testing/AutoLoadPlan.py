@@ -142,7 +142,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
         if info[0]['Name'] == exam_name:
             # Raystation sets the value of an anonymized CT ID to -sys.maxint -1
             #   causing the ID key to be non unique.
-            info_name = {'Name':info[0]['Name']}
+            info_name = {'Name':'^{0}$'.format(info[0]['Name'])}
             exam = case.LoadExamination( ExaminationInfo = info_name)
             patient_data['Exam'] = exam
     except IndexError:
