@@ -303,7 +303,8 @@ def main():
             dialog=False,
             folder=path_protocols,
             verbose_logging=False)[0]
-        # Need to resolve excatly what we are getting with available beamsets thing
+        # Need to resolve exactly what we are getting with available beamsets thing
+        logging.debug('type of beamset_etree is {}'.format(type(beamset_etree)))
         etree = beamset_etree[0]
 
         beamset_defs = BeamOperations.BeamSet()
