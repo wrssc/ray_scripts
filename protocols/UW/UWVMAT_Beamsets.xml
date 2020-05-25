@@ -120,7 +120,7 @@
     </beamset>
     <beamset>
         <name>AbdPelv Central 2Arc</name>
-        <technique>VMAT</technique>
+        <technique>DynamicArc</technique>
         <DicomName>AbPl2A_VMA_R_A_</DicomName>
         <description>Arc set for 24 degree posterior avoidance</description>
         <beam>

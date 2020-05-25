@@ -311,7 +311,7 @@ def main():
         beamset_defs.total_dose = row.TargetDose01
         beamset_defs.machine = row.Machine
         beamset_defs.modality = 'Photons'
-        beamset_defs.technique = 'TomoHelical'
+        beamset_defs.technique = str(available_beamsets.find('technique').text)
         beamset_defs.iso_target = row.Isotarget
         beamset_defs.protocol_name = available_beamsets
 
