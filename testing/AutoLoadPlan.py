@@ -336,10 +336,7 @@ def main():
                                               beamset_name=row.ProtocolBeamset,
                                               path=path_protocols)
         
-        if len(beams) > 1:
-            logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
-        else:
-            beam = beams[0]
+        
 
         # Place isocenter
         try:
@@ -353,30 +350,44 @@ def main():
             logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
             sys.exit('Failed to place isocenter')
         # TODO: Need to parse tomo beams versus vmat
-        BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso, beamset=rs_beam_set, beam=beam)
-        #
-        # Beams loaded successfully
-        beams_load = True
-        # TODO: Move this down as we get through more operations
-        output_status(
-                      path=path,
-                      input_filename=file_csv,
-                      patient_id=patient_id,
-                      case_name=case_name,
-                      plan_name=plan_name,
-                      beamset_name=beamset_name,
-                      patient_load=patient_load,
-                      planning_structs=planning_structs,
-                      beams_load=beams_load,
-                      clinical_goals_load=clinical_goals_load,
-                      plan_optimization_strategy_load=plan_optimization_strategy_load,
-                      optimization_complete=optimization_complete,
-                      script_status= None
-            )
+        if beamset_defs.technique == 'TomoHelical':
+            if len(beams) > 1:
+                logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
+            else:
+                beam = beams[0]
+            BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso,
+                                                      beamset=rs_beam_set, beam=beam)
+            # Beams loaded successfully
+            beams_load = True
+        elif beamset_defs.technique == 'DynamicArc':
+            BeamOperations.place_beams_in_beamset(iso=beamset_defs.iso, beamset=rs_beam_set,
+                                                  beams=beams)
+            # Beams loaded successfully
+            beams_load = True
+        else:
+            logging.debug('Unsupported beamset technique {}'.format(beamset_defs.technique))
+        if not beams_load:
+            output_status(
+                          path=path,
+                          input_filename=file_csv,
+                          patient_id=patient_id,
+                          case_name=case_name,
+                          plan_name=plan_name,
+                          beamset_name=beamset_name,
+                          patient_load=patient_load,
+                          planning_structs=planning_structs,
+                          beams_load=beams_load,
+                          clinical_goals_load=clinical_goals_load,
+                          plan_optimization_strategy_load=plan_optimization_strategy_load,
+                          optimization_complete=optimization_complete,
+                          script_status= None
+                )
+            continue
 
         patient.Save()
         rs_beam_set.SetCurrent()
-        sys.exit('Done')
+        continue
+    sys.exit('Done')
 
     ## path = os.path.dirname(file_csv)
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
@@ -488,17 +499,17 @@ def main():
             verbose_logging=False)
 
         # TODO: Retrieve these definitions from the planning protocol.
-        beamset_defs = BeamOperations.BeamSet()
-        beamset_defs.rx_target = rx_target
-        beamset_defs.name = beamset_name
-        beamset_defs.DicomName = beamset_name
-        beamset_defs.number_of_fractions = number_fractions
-        beamset_defs.total_dose = target_1_dose
-        beamset_defs.machine = machine
-        beamset_defs.modality = 'Photons'
-        beamset_defs.technique = 'TomoHelical'
-        beamset_defs.iso_target = iso_target
-        beamset_defs.protocol_name = available_beamsets
+        ## beamset_defs = BeamOperations.BeamSet()
+        ## beamset_defs.rx_target = rx_target
+        ## beamset_defs.name = beamset_name
+        ## beamset_defs.DicomName = beamset_name
+        ## beamset_defs.number_of_fractions = number_fractions
+        ## beamset_defs.total_dose = target_1_dose
+        ## beamset_defs.machine = machine
+        ## beamset_defs.modality = 'Photons'
+        ## beamset_defs.technique = 'TomoHelical'
+        ## beamset_defs.iso_target = iso_target
+        ## beamset_defs.protocol_name = available_beamsets
 
         order_name = None
         # par_beam_set = BeamOperations.beamset_dialog(case=case,
@@ -506,39 +517,39 @@ def main():
         #                                              path=path_protocols,
         #                                              order_name=order_name)
 
-        rs_beam_set = BeamOperations.create_beamset(patient=patient,
-                                                    case=case,
-                                                    exam=exam,
-                                                    plan=plan,
-                                                    dialog=False,
-                                                    BeamSet=beamset_defs,
-                                                    create_setup_beams=False)
+        ## rs_beam_set = BeamOperations.create_beamset(patient=patient,
+        ##                                             case=case,
+        ##                                             exam=exam,
+        ##                                             plan=plan,
+        ##                                             dialog=False,
+        ##                                             BeamSet=beamset_defs,
+        ##                                             create_setup_beams=False)
 
-        beams = BeamOperations.load_beams_xml(filename=file,
-                                              beamset_name=protocol_beamset,
-                                              path=path_protocols)
-        if len(beams) > 1:
-            logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
-        else:
-            beam = beams[0]
+        ##  beams = BeamOperations.load_beams_xml(filename=file,
+        ##                                       beamset_name=protocol_beamset,
+        ##                                       path=path_protocols)
+        ## if len(beams) > 1:
+        ##     logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
+        ## else:
+        ##     beam = beams[0]
 
         # Place isocenter
-        try:
-            beamset_defs.iso = BeamOperations.find_isocenter_parameters(
-                case=case,
-                exam=exam,
-                beamset=rs_beam_set,
-                iso_target=beamset_defs.iso_target,
-                lateral_zero=True)
-        except Exception:
-            logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
-            sys.exit('Failed to place isocenter')
+        ## try:
+        ##     beamset_defs.iso = BeamOperations.find_isocenter_parameters(
+        ##         case=case,
+        ##         exam=exam,
+        ##         beamset=rs_beam_set,
+        ##         iso_target=beamset_defs.iso_target,
+        ##         lateral_zero=True)
+        ## except Exception:
+        ##     logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
+        ##     sys.exit('Failed to place isocenter')
 
-        BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso, beamset=rs_beam_set, beam=beam)
+        ## BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso, beamset=rs_beam_set, beam=beam)
 
-        patient.Save()
-        rs_beam_set.SetCurrent()
-        sys.exit('Done')
+        ## patient.Save()
+        ## rs_beam_set.SetCurrent()
+        ## sys.exit('Done')
 
         dialog_beamset.rx_target = dialog.values['0']
         dialog_beamset.name = dialog.values['1']
