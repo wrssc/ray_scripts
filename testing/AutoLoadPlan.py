@@ -1,4 +1,4 @@
-""" Auto Load Plan
+""" Multi-Patient Planning Study
     
     Automatic generation of a curative Head and Neck Plan.  
     -Load the patient and case
