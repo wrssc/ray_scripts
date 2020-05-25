@@ -305,7 +305,7 @@ def main():
             verbose_logging=False)[0]
         # Need to resolve exactly what we are getting with available beamsets thing
         logging.debug('type of beamset_etree is {}'.format(type(beamset_etree)))
-        etree = beamset_etree[0]
+        etree = beamset_etree
 
         beamset_defs = BeamOperations.BeamSet()
         beamset_defs.rx_target = row.Target01
