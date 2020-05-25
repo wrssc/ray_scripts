@@ -303,6 +303,8 @@ def main():
             dialog=False,
             folder=path_protocols,
             verbose_logging=False)
+        # Need to resolve excatly what we are getting with available beamsets thing
+        etree = available_beamsets[0]
         beamset_defs = BeamOperations.BeamSet()
         beamset_defs.rx_target = row.Target01
         beamset_defs.name = beamset_name
@@ -311,7 +313,7 @@ def main():
         beamset_defs.total_dose = row.TargetDose01
         beamset_defs.machine = row.Machine
         beamset_defs.modality = 'Photons'
-        beamset_defs.technique = str(available_beamsets.find('technique').text)
+        beamset_defs.technique = str(etree.find('technique').text)
         beamset_defs.iso_target = row.Isotarget
         beamset_defs.protocol_name = available_beamsets
 
