@@ -81,6 +81,7 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
     # Determine if a filename exists and is empty
     if os.path.exists(output_filename) and os.stat(output_filename).st_size != 0:
         output_file = open(output_filename, "a+")
+        logging.debug('Output directed to {}'.format(output_filename))
     else:
         # The file does not currently exist or is empty
         output_file = open(output_filename, "w+")
@@ -98,6 +99,7 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
                    "Optimization Completed" + ",\t" \
                    "Plan Complete" + "\n"
         output_file.write(output_message)
+        logging.debug('Header written to {}'.format(output_filename))
     #
     output_file = open(output_filename, "a+")
     if script_status is None:
@@ -350,8 +352,27 @@ def main():
         except Exception:
             logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
             sys.exit('Failed to place isocenter')
-
+        # TODO: Need to parse tomo beams versus vmat
         BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso, beamset=rs_beam_set, beam=beam)
+        #
+        # Beams loaded successfully
+        beams_load = True
+        # TODO: Move this down as we get through more operations
+        output_status(
+                      path=path,
+                      input_filename=file_csv,
+                      patient_id=patient_id,
+                      case_name=case_name,
+                      plan_name=plan_name,
+                      beamset_name=beamset_name,
+                      patient_load=patient_load,
+                      planning_structs=planning_structs,
+                      beams_load=beams_load,
+                      clinical_goals_load=clinical_goals_load,
+                      plan_optimization_strategy_load=plan_optimization_strategy_load,
+                      optimization_complete=optimization_complete,
+                      script_status= None
+            )
 
         patient.Save()
         rs_beam_set.SetCurrent()
