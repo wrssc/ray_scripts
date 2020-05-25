@@ -360,7 +360,7 @@ def main():
                                                       beamset=rs_beam_set, beam=beam)
             # Beams loaded successfully
             beams_load = True
-        elif beamset_defs.technique == 'DynamicArc':
+        elif beamset_defs.technique == 'VMAT':
             BeamOperations.place_beams_in_beamset(iso=beamset_defs.iso, beamset=rs_beam_set,
                                                   beams=beams)
             # Beams loaded successfully
