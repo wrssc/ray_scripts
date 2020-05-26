@@ -51,25 +51,44 @@ except:  # for Python 2
     import tkMessageBox as messagebox
     from ttk import *
 from sys import exit
+import logging
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 
 def rename_examinations(case):
+    """ Renames CT data sets to DIBH and Free-breathing
+
+    This scripts launches a tkinter window that allows the user to select
+    a DIBH and Free-breathing scan, which are then renamed, respectively,
+    to "DIBH" and "Free-breathing".
+
+    PARAMETERS
+    ----------
+    case : ScriptObject
+        A RayStation ScriptObject corresponding to the current case.
+
+    RETURNS
+    -------
+    None
+
+    """
+
     def continue_func():
+        """ A function that determines if the user-selected values in the
+        GUI are valid, which will allow the script to continue.
+        """
+
         if text_DIBH.get() == text_FB.get():
             messagebox.showerror(
-                "Image Set Seletion Error",
+                "Image Set Selection Error",
                 "The DIBH image set and the free-breathing image set are the same. Please select a unique image set for each.",
             )
         else:
             # Destroy window and continue
             window.destroy()
-
-    if len(case.Examinations) < 2:
-        messagebox.showerror(
-            "Image Set Error",
-            "This script requires two more image sets (one DIBH and one free-breathing). Please import DIBH an free-breathing scans.",
-        )
-        exit()
 
     # Create a window to allow user to choose correct image set
     window = Tk()
@@ -136,26 +155,58 @@ def rename_examinations(case):
 
 
 def create_external_fb(case):
+    """ Creates External_FB and External_DIBH contours.
+
+    PARAMETERS
+    ----------
+    case : ScriptObject
+        A RayStation ScriptObject corresponding to the current case.
+
+    RETURNS
+    -------
+    None
+
+    """
+
+    # First, verify that the pre-requisites for the script are present
+
+    # The case must have two or more image sets.
+    if len(case.Examinations) < 2:
+        messagebox.showerror(
+            "Image Set Error",
+            "This script requires two more or image sets (one DIBH and one free-breathing). Please import DIBH and free-breathing scans.",
+        )
+        exit()
+
+    # The case must have a region of interest set to the "External" type
+    roi_type_list = [roi.Type for roi in case.PatientModel.RegionsOfInterest]
+    if "External" not in roi_type_list:
+        messagebox.showerror(
+            "External Structure Error",
+            "The script requires that a structure (usually External or ExternalClean) be set as external in RayStation.",
+        )
+        exit()
+
+    # The name of the ROI of type External should have "External" in the name
+    external_roi = None
+    for roi in case.PatientModel.RegionsOfInterest:
+        if roi.Type == "External":
+            external_roi = roi
+            break
+    if "External" not in external_roi.Name:
+        messagebox.showwarning(
+            "External Structure Warning",
+            "The ROI of type 'External' is called {}. Typically, it is called 'External' or 'ExternalClean'.".format(
+                external_roi.Name
+            ),
+        )
+    
 
     with CompositeAction("Rename DIBH and free-breathing examinations"):
         rename_examinations(case)
 
     with CompositeAction("Rename External on DIBH scan to 'External_DIBH'"):
-        external_roi = None
-        for roi in case.PatientModel.RegionsOfInterest:
-            if roi.Type == "External":
-                external_roi = roi
-                break
-
-        try:
-            external_roi.Name = "External_DIBH"
-        except AttributeError:
-
-            messagebox.showerror(
-                "External Structure Error",
-                "The script requires that a structure (usually External or ExternalClean) be set as external in RayStation.",
-            )
-            exit()
+        external_roi.Name = "External_DIBH"
 
     """
     ui = get_current("ui")
@@ -176,7 +227,7 @@ def create_external_fb(case):
         roi_names = [roi.Name for roi in case.PatientModel.RegionsOfInterest]
         if "External_FB" in roi_names:
             messagebox.showinfo(
-                title="Extenral_FB already exists ",
+                title="External_FB already exists ",
                 message="A region of interest called External_FB already exists. It will be deleted",
             )
             case.PatientModel.RegionsOfInterest["External_FB"].DeleteRoi()
@@ -214,7 +265,18 @@ def create_external_fb(case):
 
 
 def clean(case):
-    """Undo all of the actions done by create_external_fb()"""
+    """Undo all of the actions done by create_external_fb()
+
+    PARAMETERS
+    ----------
+    case : ScriptObject
+        A RayStation ScriptObject corresponding to the current case.
+
+    RETURNS
+    -------
+    None
+
+    """
 
     # Delete External_FB
     with CompositeAction("Delete External_FB"):
