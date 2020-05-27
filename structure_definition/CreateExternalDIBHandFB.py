@@ -1,9 +1,9 @@
 """ Create External DIBH and FB Contours
 This script accomplishes the following tasks:
 1. Renames CT datasets to "DIBH" and "Free-breathing".
-1. Renames "External" to "External_DIBH" on the DIBH planning scan.
-2. Creates an external contour on the free-breathing scan called "External_FB"
-3. Copies "External_FB" to the DIBH planning scan.
+2. Renames "External" to "External_DIBH" on the DIBH planning scan.
+3. Creates an external contour on the free-breathing scan called "External_FB"
+4. Copies "External_FB" to the DIBH planning scan.
 
 This script was tested with:
 * Patient: Example, OSMS
@@ -344,8 +344,11 @@ def clean(case):
         case.Examinations["DIBH"].Name = "CT 1"
         case.Examinations["Free-breathing"].Name = "CT 2"
 
-
-if __name__ == "__main__":
+def main():
+    """The main function for this file"""
 
     case = get_current("Case")
     create_external_fb(case)
+
+if __name__ == "__main__":
+    main()
