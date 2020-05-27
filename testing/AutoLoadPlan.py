@@ -487,8 +487,8 @@ def main():
                 if df_workflow.ring_hd_name.values[0]:
                     generate_ring_hd = True
                     dialog5_response['ring_hd'] = generate_ring_hd
-                    dialog5_response['thick_hd_ring'] = df_workflow.ring_hd_ExpA[0]
-                    dialog5_response['ring_standoff'] = df_workflow.ring_hd_standoff
+                    dialog5_response['thick_hd_ring'] = df_workflow.ring_hd_ExpA.values[0][0]
+                    dialog5_response['ring_standoff'] = df_workflow.ring_hd_standoff.values[0]
                 else:
                     generate_ring_hd = False
                     dialog5_response['ring_hd'] = generate_ring_hd
@@ -498,8 +498,8 @@ def main():
                 if df_workflow.ring_ld_name.values[0]:
                     generate_ring_ld = True
                     dialog5_response['ring_ld'] = generate_ring_ld
-                    dialog5_response['thick_ld_ring'] = None
-                    dialog5_response['ring_standoff'] = None
+                    dialog5_response['thick_ld_ring'] = df_workflow.ring_ld_ExpA.values[0][0]
+                    dialog5_response['ring_standoff'] = df_workflow.ring_hd_standoff.values[0]
                 else:
                     generate_ring_ld = False
                     dialog5_response['ring_ld'] = generate_ring_ld
@@ -511,7 +511,7 @@ def main():
                     dialog5_response['target_rings'] = False
                 # OTV's
                 if df_workflow.otv_name.values[0]:
-                    dialog5_response['otv_standoff'] = df_workflow.otv_standoff
+                    dialog5_response['otv_standoff'] = df_workflow.otv_standoff.values[0]
                     generate_otvs = True
                 else:
                     dialog5_response['otv_standoff'] = None
@@ -519,7 +519,7 @@ def main():
                 # Skin evals
                 if df_workflow.skin_name.values[0]:
                     generate_skin = True
-                    skin_contraction = df_workflow.skin_ExpA[0]
+                    skin_contraction = df_workflow.skin_ExpA.values[0][0]
                 else:
                     generate_skin = False
                     skin_contraction = None
