@@ -5713,4 +5713,44 @@
             <CouchAngle>0</CouchAngle>
         </beam>
     </beamset>
+    <planning_structure_set>
+        <name>3 Target HN</name>
+        <description>A typical 3 Target planning structure configuration for HN planning</description>
+        <number_of_targets>3</number_of_targets>
+        <uniform_dose_structs standoff="0.4">Larnyx,Esophagus,Brain</uniform_dose_structs>
+        <underdose_structs standoff="0.3">Bone_Mandible</underdose_structs>
+        <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+             margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
+        <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
+             margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD</ring_hd>
+        <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
+             margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
+        <ring_targets standoff="0.2" margin_type="Expand" margin_sup="1" margin_inf="1"
+             margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring</ring_targets>
+        <inner_air>InnerAir</inner_air>
+        <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
+             margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin</superficial_target>
+        <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
+    </planning_structure_set>
+    <planning_structure_set>
+        <name>2 Target HN</name>
+        <description>A typical 2 Target planning structure configuration for HN planning</description>
+        <number_of_targets>2</number_of_targets>
+        <uniform_dose_structs standoff="0.4">Larnyx,Esophagus,Brain</uniform_dose_structs>
+        <underdose_structs standoff="0.3"></underdose_structs>
+        <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+             margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
+        <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
+             margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD</ring_hd>
+        <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
+             margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
+        <ring_targets standoff="0.2" margin_type="Expand" margin_sup="1" margin_inf="1"
+             margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring</ring_targets>
+        <inner_air>InnerAir</inner_air>
+        <superficial_target standoff="0.0" margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+             margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin</superficial_target>
+        <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
+    </planning_structure_set>
 </protocol>

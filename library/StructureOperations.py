@@ -2301,6 +2301,232 @@ def make_externalclean(
     return roi_geom
 
 
+def iter_planning_structure_etree(etree):
+    """Load the elements of a planning structure tag into a dictionary
+
+    Arguments:
+        etree {[elementree]} --  planning_structure_set tag
+
+    Returns:
+       ps_preferences -- a dictionary for reading into a dataframe
+    """
+    ps_config = {'planning_structure_config':[]}
+    for p in etree.iter('planning_structure_set'):
+        ps_preference = {}
+        #
+        # Planning structure set name
+        try:
+            ps_preference['name'] = p.find('name').text
+        except AttributeError:
+            ps_preference['name'] = ""
+        #
+        # Planning structure description
+        try:
+            ps_preference['description'] = p.find('description').text
+        except AttributeError:
+            ps_preference['description'] = ""
+        #
+        # Number of targets
+        try:
+            ps_preference['number_of_targets'] = p.find('number_of_targets').text
+        except AttributeError:
+            ps_preference['number_of_targets'] = ""
+        # Uniform structure handling
+        try:
+            uniform_structures = p.find('uniform_dose_structs').text.replace(" ","")
+            uniform_structures = uniform_structures.strip()
+            if uniform_structures:
+                ps_preference['uniform_structures'] = uniform_structures.split(",")
+                ps_preference['uniform_standoff'] = float(p.find('uniform_dose_structs').attrib['standoff'])
+            else:
+                ps_preference['uniform_structures'] = []
+        except AttributeError:
+            ps_preference['uniform_structures'] = []
+        #
+        # Underdose elements
+        try:
+            underdose_structures = p.find('underdose_structs').text.replace(" ","")
+            underdose_structures = underdose_structures.strip()
+            if underdose_structures:
+                ps_preference['underdose_structures'] = underdose_structures.split(",")
+                ps_preference['underdose_standoff'] = float(p.find('underdose_structs').attrib['standoff'])
+            else:
+                ps_preference['underdose_structures'] = []
+        except AttributeError:
+            ps_preference['underdose_structures'] = []
+        #
+        # Evaluate any skin structure generation
+        try:
+            skin_structure = p.find('skin_structure').text.replace(" ","")
+            skin_structure = skin_structure.strip()
+            if skin_structure:
+                ps_preference['skin_name'] = skin_structure
+                ps_preference['skin_operation'] = p.find('skin_structure').attrib['margin_type']
+                ps_preference['skin_ExpA'] = [
+                                float(p.find('skin_structure').attrib['margin_sup']),
+                                float(p.find('skin_structure').attrib['margin_inf']),
+                                float(p.find('skin_structure').attrib['margin_ant']),
+                                float(p.find('skin_structure').attrib['margin_pos']),
+                                float(p.find('skin_structure').attrib['margin_r']),
+                                float(p.find('skin_structure').attrib['margin_l'])
+                                ]
+            else:
+                ps_preference['skin_name'] = ""
+                ps_preference['skin_operation'] = ""
+                ps_preference['skin_ExpA'] = []
+        except AttributeError:
+            ps_preference['skin_name'] = "" 
+            ps_preference['skin_ExpA'] = []
+        #
+        # High Dose Ring
+        try:
+            ring_hd_structure = p.find('ring_hd').text.replace(" ","")
+            ring_hd_structure = ring_hd_structure.strip()
+            if ring_hd_structure:
+                ps_preference['ring_hd_name'] = ring_hd_structure
+                ps_preference['ring_hd_operation'] = p.find('ring_hd').attrib['margin_type']
+                ps_preference['ring_hd_standoff'] = float(p.find('ring_hd').attrib['standoff'])
+                ps_preference['ring_hd_ExpA'] = [
+                                float(p.find('ring_hd').attrib['margin_sup']),
+                                float(p.find('ring_hd').attrib['margin_inf']),
+                                float(p.find('ring_hd').attrib['margin_ant']),
+                                float(p.find('ring_hd').attrib['margin_pos']),
+                                float(p.find('ring_hd').attrib['margin_r']),
+                                float(p.find('ring_hd').attrib['margin_l'])
+                                ]
+            else:
+                ps_preference['ring_hd_name'] = ""
+                ps_preference['ring_hd_operation'] = ""
+                ps_preference['ring_hd_standoff'] = ""
+                ps_preference['ring_hd_ExpA'] = []
+        except AttributeError:
+            ps_preference['ring_hd_name'] = "" 
+            ps_preference['ring_hd_operation'] = ""
+            ps_preference['ring_hd_standoff'] = ""
+            ps_preference['ring_hd_ExpA'] = []
+        #
+        # Low Dose Ring
+        try:
+            ring_ld_structure = p.find('ring_ld').text.replace(" ","")
+            ring_ld_structure = ring_ld_structure.strip()
+            if ring_ld_structure:
+                ps_preference['ring_ld_name'] = ring_ld_structure
+                ps_preference['ring_ld_operation'] = p.find('ring_ld').attrib['margin_type']
+                ps_preference['ring_ld_standoff'] = float(p.find('ring_ld').attrib['standoff'])
+                ps_preference['ring_ld_ExpA'] = [
+                                float(p.find('ring_ld').attrib['margin_sup']),
+                                float(p.find('ring_ld').attrib['margin_inf']),
+                                float(p.find('ring_ld').attrib['margin_ant']),
+                                float(p.find('ring_ld').attrib['margin_pos']),
+                                float(p.find('ring_ld').attrib['margin_r']),
+                                float(p.find('ring_ld').attrib['margin_l'])
+                                ]
+            else:
+                ps_preference['ring_ld_name'] = ""
+                ps_preference['ring_ld_operation'] = ""
+                ps_preference['ring_ld_standoff'] = ""
+                ps_preference['ring_ld_ExpA'] = []
+        except AttributeError:
+            ps_preference['ring_ld_name'] = "" 
+            ps_preference['ring_ld_operation'] = ""
+            ps_preference['ring_ld_standoff'] = ""
+            ps_preference['ring_ld_ExpA'] = []
+        #
+        # Target Specific (ts) rings
+        try:
+            ring_ts_structure = p.find('ring_targets').text.replace(" ","")
+            ring_ts_structure = ring_ts_structure.strip()
+            if ring_ts_structure:
+                ps_preference['ring_ts_name'] = ring_ts_structure
+                ps_preference['ring_ts_operation'] = p.find('ring_targets').attrib['margin_type']
+                ps_preference['ring_ts_standoff'] = float(p.find('ring_targets').attrib['standoff'])
+                ps_preference['ring_ts_ExpA'] = [
+                                float(p.find('ring_targets').attrib['margin_sup']),
+                                float(p.find('ring_targets').attrib['margin_inf']),
+                                float(p.find('ring_targets').attrib['margin_ant']),
+                                float(p.find('ring_targets').attrib['margin_pos']),
+                                float(p.find('ring_targets').attrib['margin_r']),
+                                float(p.find('ring_targets').attrib['margin_l'])
+                                ]
+            else:
+                ps_preference['ring_ts_name'] = ""
+                ps_preference['ring_ts_operation'] = ""
+                ps_preference['ring_ts_standoff'] = ""
+                ps_preference['ring_ts_ExpA'] = []
+        except AttributeError:
+            ps_preference['ring_ts_name'] = "" 
+            ps_preference['ring_ts_operation'] = ""
+            ps_preference['ring_ts_standoff'] = ""
+            ps_preference['ring_ts_ExpA'] = []
+        #
+        # Inner Air
+        try:
+            inner_air_structure = p.find('inner_air').text.replace(" ","")
+            inner_air_structure = inner_air_structure.strip()
+            if inner_air_structure:
+                ps_preference['inner_air_name'] = inner_air_structure
+            else:
+                ps_preference['inner_air_name'] = ""
+        except AttributeError:
+            ps_config['inner_air_name'] = "" 
+        #
+        # Preserve skin dose
+        try:
+            superficial_target_structure = p.find('superficial_target').text.replace(" ","")
+            superficial_target_structure = superficial_target_structure.strip()
+            if superficial_target_structure:
+                ps_preference['superficial_target_name'] = superficial_target_structure
+                ps_preference['superficial_target_operation'] = p.find('superficial_target').attrib['margin_type']
+                ps_preference['superficial_target_standoff'] = float(p.find('superficial_target').attrib['standoff'])
+                ps_preference['superficial_target_ExpA'] = [
+                                float(p.find('superficial_target').attrib['margin_sup']),
+                                float(p.find('superficial_target').attrib['margin_inf']),
+                                float(p.find('superficial_target').attrib['margin_ant']),
+                                float(p.find('superficial_target').attrib['margin_pos']),
+                                float(p.find('superficial_target').attrib['margin_r']),
+                                float(p.find('superficial_target').attrib['margin_l'])
+                                ]
+            else:
+                ps_preference['superficial_target_name'] = ""
+                ps_preference['superficial_target_operation'] = ""
+                ps_preference['superficial_target_standoff'] = ""
+                ps_preference['superficial_target_ExpA'] = []
+        except AttributeError:
+            ps_preference['superficial_target_name'] = "" 
+            ps_preference['superficial_target_operation'] = ""
+            ps_preference['superficial_target_standoff'] = ""
+            ps_preference['superficial_target_ExpA'] = []
+        #
+        # OTV preferences
+        try:
+            otv_structure = p.find('otv').text.replace(" ","")
+            otv_structure = otv_structure.strip()
+            if otv_structure:
+                ps_preference['otv_name'] = otv_structure
+                ps_preference['otv_operation'] = p.find('otv').attrib['margin_type']
+                ps_preference['otv_standoff'] = float(p.find('otv').attrib['standoff'])
+                ps_preference['otv_ExpA'] = [
+                                float(p.find('otv').attrib['margin_sup']),
+                                float(p.find('otv').attrib['margin_inf']),
+                                float(p.find('otv').attrib['margin_ant']),
+                                float(p.find('otv').attrib['margin_pos']),
+                                float(p.find('otv').attrib['margin_r']),
+                                float(p.find('otv').attrib['margin_l'])
+                                ]
+            else:
+                ps_preference['otv_name'] = ""
+                ps_preference['otv_operation'] = ""
+                ps_preference['otv_standoff'] = ""
+                ps_preference['otv_ExpA'] = []
+        except AttributeError:
+            ps_preference['otv_name'] = "" 
+            ps_preference['otv_operation'] = ""
+            ps_preference['otv_standoff'] = ""
+            ps_preference['otv_ExpA'] = []
+        # Append the resulting preferences to the dictionary
+        ps_config['planning_structure_config'].append(ps_preference)
+    return ps_config
+
 class planning_structure_preferences:
     """
     Class for getting all relevant data for creating planning structures.
