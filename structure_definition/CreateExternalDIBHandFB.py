@@ -1,4 +1,4 @@
-""" CreateExternalDIBHandFB.py
+""" Create External DIBH and FB Contours
 This script accomplishes the following tasks:
 1. Renames CT datasets to "DIBH" and "Free-breathing".
 1. Renames "External" to "External_DIBH" on the DIBH planning scan.
@@ -352,5 +352,4 @@ def clean(case):
 if __name__ == "__main__":
 
     case = get_current("Case")
-
     create_external_fb(case)
