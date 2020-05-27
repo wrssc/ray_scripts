@@ -344,11 +344,14 @@ def clean(case):
         case.Examinations["DIBH"].Name = "CT 1"
         case.Examinations["Free-breathing"].Name = "CT 2"
 
+
 def main():
     """The main function for this file"""
 
+    logging.debug("Beginning execution of CreateExternalDIBHandFB.py in main()")
     case = get_current("Case")
     create_external_fb(case)
+
 
 if __name__ == "__main__":
     main()
