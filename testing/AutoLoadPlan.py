@@ -438,7 +438,7 @@ def main():
                 if uniform_structures:
                     planning_prefs.use_uniform_dose = True
                     dialog4_response = {'structures': df_workflow.uniform_structures.values[0],
-                                        'standoff': df_workflow.uniform_standoff}
+                                        'standoff': df_workflow.uniform_standoff.values[0]}
                 else:
                     planning_prefs.use_uniform_dose = False
                     dialog4_response = {'structures': [], 'standoff': None}
@@ -446,7 +446,7 @@ def main():
                 if underdose_structures:
                     planning_prefs.use_under_dose = True
                     dialog3_response = {'structures': df_workflow.underdose_structures.values[0],
-                                        'standoff': df_workflow.underdose_standoff}
+                                        'standoff': df_workflow.underdose_standoff.values[0]}
                 else:
                     planning_prefs.use_under_dose = False
                     dialog3_response = {'structures': [], 'standoff': None}
