@@ -53,17 +53,16 @@ except:  # for Python 2
 from sys import exit
 import logging
 
+logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.WARNING)
 
 
-def rename_examinations(case):
-    """ Renames CT data sets to DIBH and Free-breathing
+def get_DIBH_and_FB_exams(case):
+    """ Gets the names of the DIBH and Free-breathing exams from the user
 
     This scripts launches a tkinter window that allows the user to select
-    a DIBH and Free-breathing scan, which are then renamed, respectively,
-    to "DIBH" and "Free-breathing".
+    a DIBH and Free-breathing scan, which are then returned.
 
     PARAMETERS
     ----------
@@ -72,7 +71,8 @@ def rename_examinations(case):
 
     RETURNS
     -------
-    None
+    tuple of str, str
+        A tuple containing the DIBH and free-breathing exam names, respectively
 
     """
 
@@ -81,7 +81,13 @@ def rename_examinations(case):
         GUI are valid, which will allow the script to continue.
         """
 
+        logger.debug("User pressed 'Continue'")
         if text_DIBH.get() == text_FB.get():
+            logger.warning(
+                "The DIBH image set and the free-breathing image set are the same: {}".format(
+                    text_DIBH.get()
+                )
+            )
             messagebox.showerror(
                 "Image Set Selection Error",
                 "The DIBH image set and the free-breathing image set are the same. Please select a unique image set for each.",
@@ -149,9 +155,29 @@ def rename_examinations(case):
     btn_cancel.pack(side=RIGHT, ipadx=10)
     window.mainloop()
 
-    # Rename examinations
-    series_dict[text_DIBH.get()].Name = "DIBH"
-    series_dict[text_FB.get()].Name = "Free-breathing"
+    # Now that two examinations have been identified, we will verify that
+    # the structure sets for these series are not approved:
+    selected_exams = (series_dict[text_DIBH.get()], series_dict[text_FB.get()])
+    selected_exam_names = [exam.Name for exam in selected_exams]
+    for structset in case.PatientModel.StructureSets:
+        for _ in structset.ApprovedStructureSets:
+            # If you get to this point, there are approved structures in
+            # this structure set.
+            if structset.OnExamination.Name in selected_exam_names:
+                logger.error(
+                    "The structure set associated with {} is approved, which will prevent successful execution of the script.".format(
+                        structset.OnExamination.Name
+                    )
+                )
+                messagebox.showerror(
+                    "Approved Structure Set Error",
+                    "The structure set associated with {} is approved, which will prevent successful execution of the script.".format(
+                        structset.OnExamination.Name,
+                    ),
+                )
+                exit()
+
+    return selected_exams
 
 
 def create_external_fb(case):
@@ -172,6 +198,11 @@ def create_external_fb(case):
 
     # The case must have two or more image sets.
     if len(case.Examinations) < 2:
+        logger.error(
+            "Number of examinations = {}. This script requires two more or image sets (one DIBH and one free-breathing).".format(
+                case.Examinations
+            )
+        )
         messagebox.showerror(
             "Image Set Error",
             "This script requires two more or image sets (one DIBH and one free-breathing). Please import DIBH and free-breathing scans.",
@@ -181,6 +212,7 @@ def create_external_fb(case):
     # The case must have a region of interest set to the "External" type
     roi_type_list = [roi.Type for roi in case.PatientModel.RegionsOfInterest]
     if "External" not in roi_type_list:
+        logger.error("No ROI of type 'External' found.")
         messagebox.showerror(
             "External Structure Error",
             "The script requires that a structure (usually External or ExternalClean) be set as external in RayStation.",
@@ -194,18 +226,28 @@ def create_external_fb(case):
             external_roi = roi
             break
     if "External" not in external_roi.Name:
+        logger.warning(
+            "ROI of type 'External' is called {}, which deviates from standard naming conventions.".format(
+                external_roi.Name
+            )
+        )
         messagebox.showwarning(
             "External Structure Warning",
             "The ROI of type 'External' is called {}. Typically, it is called 'External' or 'ExternalClean'.".format(
                 external_roi.Name
             ),
         )
-    
 
     with CompositeAction("Rename DIBH and free-breathing examinations"):
-        rename_examinations(case)
+        (DIBH_exam, FB_exam) = get_DIBH_and_FB_exams(case)
+
+        logger.info("Renaming exam {} to DIBH".format(DIBH_exam.Name))
+        DIBH_exam.Name = "DIBH"
+        logger.info("Renaming exam {} to Free-breathing".format(FB_exam.Name))
+        FB_exam.Name = "Free-breathing"
 
     with CompositeAction("Rename External on DIBH scan to 'External_DIBH'"):
+        logger.info("Renaming the ROI of type 'External' to 'DIBH'.")
         external_roi.Name = "External_DIBH"
 
     """
@@ -226,12 +268,16 @@ def create_external_fb(case):
 
         roi_names = [roi.Name for roi in case.PatientModel.RegionsOfInterest]
         if "External_FB" in roi_names:
+            logger.info(
+                "A region of interest called External_FB already exists. It will be deleted"
+            )
             messagebox.showinfo(
                 title="External_FB already exists ",
                 message="A region of interest called External_FB already exists. It will be deleted",
             )
             case.PatientModel.RegionsOfInterest["External_FB"].DeleteRoi()
 
+        logger.info("Creating an ROI called 'External_FB")
         external_fb_roi = case.PatientModel.CreateRoi(
             Name="External_FB",
             Color="Green",
@@ -240,12 +286,17 @@ def create_external_fb(case):
             RbeCellTypeName=None,
             RoiMaterial=None,
         )
+        logger.info(
+            "Using CreateExternalGeometry on exam 'Free-breathing' to populate External_FB"
+        )
         external_fb_roi.CreateExternalGeometry(
             Examination=case.Examinations["Free-breathing"], ThresholdLevel=-250
         )
+        logger.info("Setting External_DIBH as the 'External' ROI.")
         external_roi.SetAsExternal()
 
     with CompositeAction("Copy External_FB to DIBH Image Set"):
+        logger.info("Copying External_FB to the DIBH examination.")
         case.PatientModel.CopyRoiGeometries(
             SourceExamination=case.Examinations["Free-breathing"],
             TargetExaminationNames=["DIBH"],
@@ -261,7 +312,10 @@ def create_external_fb(case):
     script_result_accepted = messagebox.askokcancel("Script has finished", message_text)
 
     if not script_result_accepted:
+        logger.info("User rejected contours. Running clean() to undo changes.")
         clean(case)
+    else:
+        logger.info("User accepted contours. Script completed.")
 
 
 def clean(case):
@@ -280,14 +334,17 @@ def clean(case):
 
     # Delete External_FB
     with CompositeAction("Delete External_FB"):
+        logger.info("Deleting External_FB")
         case.PatientModel.RegionsOfInterest["External_FB"].DeleteRoi()
 
     # Undo renaming of external DIBH
     with CompositeAction("Reverse rename of External_DIBH"):
+        logger.info("Renaming 'External_DIBH' to 'External'")
         case.PatientModel.RegionsOfInterest["External_DIBH"].Name = "External"
 
     # Undo renaming of examinations
     with CompositeAction("Reverse rename of DIBH and free-breathing examinations"):
+        logger.info("Renaming examinations to 'CT_1' and 'CT_2'")
         case.Examinations["DIBH"].Name = "CT 1"
         case.Examinations["Free-breathing"].Name = "CT 2"
 
