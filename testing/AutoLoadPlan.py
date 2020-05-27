@@ -504,6 +504,11 @@ def main():
                     generate_ring_ld = False
                     dialog5_response['ring_ld'] = generate_ring_ld
                     dialog5_response['thick_ld_ring'] = None
+                # Target rings
+                if df_workflow.ring_ts_name.values[0]:
+                    dialog5_response['target_rings'] = True
+                else:
+                    dialog5_response['target_rings'] = False
                 # OTV's
                 if df_workflow.otv_name.values[0]:
                     dialog5_response['otv_standoff'] = df_workflow.otv_standoff
