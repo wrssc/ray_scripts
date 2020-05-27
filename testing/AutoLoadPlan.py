@@ -47,6 +47,7 @@ import pandas as pd
 import numpy as np
 import random
 import logging
+from collections import OrderedDict
 
 import connect
 import GeneralOperations
@@ -221,7 +222,7 @@ def merge_dict(row):
         """
         target_column_exists = True
         target_columns = 0 
-        target_dict = {}
+        target_dict = OrderedDict()
         while target_column_exists:
             try:
                 target_name = 'Target' + str(target_columns+1).zfill(2)
