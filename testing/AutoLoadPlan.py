@@ -477,6 +477,7 @@ def main():
                 #       Add capabilities of specifinyg a ring HD/LD/targets thickness- with differential expansion,
                 #           standoff etc...
                 # Skin-superficial
+                dialog5_response = {}
                 if df_workflow.superficial_target_name.values[0]:
                     dialog5_response['target_skin'] = True
                 else:
