@@ -406,13 +406,17 @@ def main():
         patient.Save()
         rs_beam_set.SetCurrent()
         if row.PlanningStructureWorkflow is not None:
-            path_planning_structure_protocol = os.path.join(os.path.dirname(__file__),
-                                  row.PlanningStructurePath)
+            # path_planning_structure_protocol = os.path.join(os.path.dirname(__file__),
+            #                       row.PlanningStructurePath)
             # Go get a dataframe for planning structures
             # Planning preferences loaded into tree
-            planning_preferences_tree = xml.etree.ElementTree.parse(os.path.join(
-                                        path_planning_structure_protocol,
-                                        row.PlanningStructureFile))
+            planning_preferences_tree = xml.etree.ElementTree.parse(
+                                            os.path.join(
+                                                         os.path.dirname(__file__),
+                                                         row.PlanningStructurePath,
+                                                         row.PlanningStructureFile
+                                                         )
+                                            )
             # Planning preferences loaded into dict
             planning_preferences_dict = StructureOperations \
                                         .iter_planning_structure_etree(planning_preferences_tree)
