@@ -2154,7 +2154,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         CbctUnit=None,
         BoundingBox=None,
     )
-    air_examination.VolumeThreshold(InputRoi=air_name,
+    air_examination.OfRoi.VolumeThreshold(InputRoi=air_name,
                                     Examination=examination,
                                     MinVolume=0.1, MaxVolume=500)
     inner_air_sources = [air_name, external]
