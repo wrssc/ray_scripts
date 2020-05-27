@@ -430,6 +430,7 @@ def main():
             else:
                 planning_prefs = StructureOperations.planning_structure_preferences()
                 planning_prefs.number_of_targets = row.NumberTargets
+                planning_prefs.first_target_number = df_workflow.first_target_number.values[0]
                 uniform_structures = df_workflow.uniform_structures.values[0]
                 underdose_structures = df_workflow.underdose_structures.values[0]
                 inner_air_name = df_workflow.inner_air_name.values[0]

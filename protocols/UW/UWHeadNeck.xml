@@ -5717,6 +5717,7 @@
         <name>3 Target HN</name>
         <description>A typical 3 Target planning structure configuration for HN planning</description>
         <number_of_targets>3</number_of_targets>
+        <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.4">Larnyx,Esophagus,Brain</uniform_dose_structs>
         <underdose_structs standoff="0.3">Bone_Mandible</underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
@@ -5737,6 +5738,7 @@
         <name>2 Target HN</name>
         <description>A typical 2 Target planning structure configuration for HN planning</description>
         <number_of_targets>2</number_of_targets>
+        <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.4">Larnyx,Esophagus,Brain</uniform_dose_structs>
         <underdose_structs standoff="0.3"></underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"

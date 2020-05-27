@@ -2331,6 +2331,12 @@ def iter_planning_structure_etree(etree):
             ps_preference['number_of_targets'] = p.find('number_of_targets').text
         except AttributeError:
             ps_preference['number_of_targets'] = ""
+        #
+        # Start target numbering at index
+        try:
+            ps_preference['first_target_number'] = p.find('first_target_number').text
+        except AttributeError:
+            ps_preference['first_target_number'] = ""
         # Uniform structure handling
         try:
             uniform_structures = p.find('uniform_dose_structs').text.replace(" ","")
