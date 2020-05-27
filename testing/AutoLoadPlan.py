@@ -430,14 +430,14 @@ def main():
             else:
                 planning_prefs = StructureOperations.planning_structure_preferences()
                 planning_prefs.number_of_targets = row.NumberTargets
-                uniform_structures = df_workflow.uniform_dose_structures.values[0]
+                uniform_structures = df_workflow.uniform_structures.values[0]
                 underdose_structures = df_workflow.underdose_structures.values[0]
                 inner_air_name = df_workflow.inner_air_name.values[0]
                 
                 if uniform_structures:
                     planning_prefs.use_uniform_dose = True
-                    dialog4_response = {'structures': df_workflow.uniform_dose_structures.values[0],
-                                        'standoff': df_workflow.uniform_dose_standoff}
+                    dialog4_response = {'structures': df_workflow.uniform_structures.values[0],
+                                        'standoff': df_workflow.uniform_standoff}
                 else:
                     planning_prefs.use_uniform_dose = False
                     dialog4_response = {'structures': [], 'standoff': None}
