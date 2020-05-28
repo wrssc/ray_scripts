@@ -487,6 +487,7 @@ def exams_containing_roi(case, structure_name, roi_list=None, exam=None):
         :param structure_name: the name of the structure to be confirmed
         :param roi_list: a list of available ROI's as RS RoiGeometries to
                          check against
+        :param exam: An RS Script Object for the examination
         :return: roi_found list of exam names (keys) in which roi has contours
     """
     # If no roi_list is given, build it using all roi in the case
@@ -502,12 +503,18 @@ def exams_containing_roi(case, structure_name, roi_list=None, exam=None):
         for e in case.Examinations:
             exam_list.append(e.Name)
     else:
-        exam_list = [exam]
+        exam_list = [exam.Name]
 
     roi_found = []
 
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         for e in exam_list:
+            logging.debug('Exam is {} with type {} for structure {} with type {}'.format(
+                e, type(e), structure_name,type(structure_name)
+            ))
+            ss = case.PatientModel.StructureSets[e]
+            rg = ss.RoiGeometries[structure_name]
+            logging.debug("type ss {} and rg {}".format(ss, rg))
             e_has_contours = (
                 case.PatientModel.StructureSets[e].RoiGeometries[structure_name].HasContours()
             )
