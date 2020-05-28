@@ -2165,8 +2165,8 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
             case=case,
             examination=examination,
             roi_name=temp_air_name,
-            delete_existing=False,
-            suffix=suffix,
+            delete_existing=True,
+            suffix=None,
         )
     temp_air_roi = case.PatientModel.RegionsOfInterest[temp_air_name]
     # Build the temporary air volume
