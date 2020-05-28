@@ -246,6 +246,8 @@ def main():
         plan_data = pd.read_csv(file_csv)
         # Merge the target rows into a dictionary containing {[Target Name]:Dose}
         plan_data['Targets'] = plan_data.apply(lambda row: merge_dict(row), axis=1)
+        # Replace all nan with ''
+        plan_data = plan_data.replace(np.nan, '',regex=True)
     ## Create the output file
     path = os.path.dirname(file_csv)
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
@@ -406,7 +408,7 @@ def main():
 
         patient.Save()
         rs_beam_set.SetCurrent()
-        if row.PlanningStructureWorkflow is not None:
+        if not row.PlanningStructureWorkflow.isna():
             # path_planning_structure_protocol = os.path.join(os.path.dirname(__file__),
             #                       row.PlanningStructurePath)
             # Go get a dataframe for planning structures
