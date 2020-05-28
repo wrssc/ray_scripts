@@ -54,6 +54,7 @@ import GeneralOperations
 import StructureOperations
 import BeamOperations
 import UserInterface
+from Objectives import add_goals_and_structures_from_protocol_3
 
 def output_status(path, input_filename, patient_id, case_name, plan_name, beamset_name,
                   patient_load, planning_structs, beams_load, clinical_goals_load,
@@ -258,7 +259,12 @@ def main():
         patient_id = row.PatientID
         case_name = row.Case
         patient_load = False
-        planning_structs= False
+        if row.PlanningStructureWorkflow:
+            generate_planning_structures = True
+            planning_structs= False
+        else:
+            generate_planning_structures = False
+            planning_structs = "NA"
         beams_load = False
         clinical_goals_load = False
         plan_optimization_strategy_load = False
@@ -371,7 +377,7 @@ def main():
         except Exception:
             logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
             sys.exit('Failed to place isocenter')
-        # TODO: Need to parse tomo beams versus vmat
+        # Parse Tomo versus VMAT
         if beamset_defs.technique == 'TomoHelical':
             if len(beams) > 1:
                 logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
@@ -408,10 +414,7 @@ def main():
 
         patient.Save()
         rs_beam_set.SetCurrent()
-        if not row.PlanningStructureWorkflow.isna():
-            # path_planning_structure_protocol = os.path.join(os.path.dirname(__file__),
-            #                       row.PlanningStructurePath)
-            # Go get a dataframe for planning structures
+        if generate_planning_structures:
             # Planning preferences loaded into tree
             planning_preferences_tree = xml.etree.ElementTree.parse(
                                             os.path.join(
@@ -582,6 +585,24 @@ def main():
         ##     dialog=False,
         ##     folder=path_planning_structure_protocol,
         ##     verbose_logging=False)[0]
+        # Now add in clinical goals and objectives
+        add_goals_and_structures_from_protocol_3(patient=patient, case=case, plan=plan, beamset=rs_beam_set, exam=exam,
+                                        filename=None, path_protocols=None, run_status=False)
+        output_status(
+                          path=path,
+                          input_filename=file_csv,
+                          patient_id=patient_id,
+                          case_name=case_name,
+                          plan_name=plan_name,
+                          beamset_name=beamset_name,
+                          patient_load=patient_load,
+                          planning_structs=planning_structs,
+                          beams_load=beams_load,
+                          clinical_goals_load=clinical_goals_load,
+                          plan_optimization_strategy_load=plan_optimization_strategy_load,
+                          optimization_complete=optimization_complete,
+                          script_status= None
+                )
         
         continue
     sys.exit('Done')
@@ -622,20 +643,20 @@ def main():
     ## iso_target = 'All_PTVs'
     ## #
     ## planning_struct = True
-    if planning_struct:
-        # Define planning structures
-        planning_prefs= StructureOperations.planning_structure_preferences()
-        planning_prefs.number_of_targets = 1
-        planning_prefs.use_uniform_dose = True
-        planning_prefs.use_under_dose = False
-        planning_prefs.use_inner_air = False
+    ## if planning_struct:
+    ##     # Define planning structures
+    ##     planning_prefs= StructureOperations.planning_structure_preferences()
+    ##     planning_prefs.number_of_targets = 1
+    ##     planning_prefs.use_uniform_dose = True
+    ##     planning_prefs.use_under_dose = False
+    ##     planning_prefs.use_inner_air = False
 
-    dialog1_response = {'number_of_targets': 1,
-                        'generate_underdose': False,
-                        'generate_uniformdose': True,
-                        'generate_inner_air': False}
-    targets_dose = {target_1: target_1_dose}
-    dialog2_response = targets_dose
+    ## dialog1_response = {'number_of_targets': 1,
+    ##                     'generate_underdose': False,
+    ##                     'generate_uniformdose': True,
+    ##                     'generate_inner_air': False}
+    ## targets_dose = {target_1: target_1_dose}
+    ## dialog2_response = targets_dose
     # dialog1_response = {'number_of_targets': 2,
     #                     'generate_underdose': False,
     #                     'generate_uniformdose': True,
@@ -644,36 +665,36 @@ def main():
     # dialog2_response = targets_dose
     # dialog1_response = None
     # dialog2_response = None
-    dialog3_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
-                        'standoff': 0.4}
-    dialog4_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
-                        'standoff': 0.4}
-    dialog5_response = {'target_skin': False,
-                        'ring_hd': True,
-                        'target_rings': True,
-                        'thick_hd_ring': 2,
-                        'thick_ld_ring': 5,
-                        'ring_standoff': 0.2,
-                        'otv_standoff': 0.4}
-    StructureOperations.planning_structures(
-        generate_ptvs=True,
-        generate_ptv_evals=True,
-        generate_otvs=True,
-        generate_skin=True,
-        generate_inner_air=True,
-        generate_field_of_view=True,
-        generate_ring_hd=True,
-        generate_ring_ld=True,
-        generate_normal_2cm=True,
-        generate_combined_ptv=True,
-        skin_contraction=0.3,
-        run_status=False,
-        planning_structure_selections=planning_prefs,
-        dialog2_response=dialog2_response,
-        dialog3_response=dialog3_response,
-        dialog4_response=dialog4_response,
-        dialog5_response=dialog5_response
-    )
+    ## dialog3_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
+    ##                     'standoff': 0.4}
+    ## dialog4_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
+    ##                     'standoff': 0.4}
+    ## dialog5_response = {'target_skin': False,
+    ##                     'ring_hd': True,
+    ##                     'target_rings': True,
+    ##                     'thick_hd_ring': 2,
+    ##                     'thick_ld_ring': 5,
+    ##                     'ring_standoff': 0.2,
+    ##                     'otv_standoff': 0.4}
+    ## StructureOperations.planning_structures(
+    ##     generate_ptvs=True,
+    ##     generate_ptv_evals=True,
+    ##     generate_otvs=True,
+    ##     generate_skin=True,
+    ##     generate_inner_air=True,
+    ##     generate_field_of_view=True,
+    ##     generate_ring_hd=True,
+    ##     generate_ring_ld=True,
+    ##     generate_normal_2cm=True,
+    ##     generate_combined_ptv=True,
+    ##     skin_contraction=0.3,
+    ##     run_status=False,
+    ##     planning_structure_selections=planning_prefs,
+    ##     dialog2_response=dialog2_response,
+    ##     dialog3_response=dialog3_response,
+    ##     dialog4_response=dialog4_response,
+    ##     dialog5_response=dialog5_response
+    ## )
 
     # Dependancies: All_PTVs
     iso_target_exists = StructureOperations.check_structure_exists(
