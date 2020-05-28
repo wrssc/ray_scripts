@@ -2182,7 +2182,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         "MarginTypeA": "Expand",
         "ExpA": [0] * 6,
         "OperationB": "Union",
-        "SourcesB": [external]
+        "SourcesB": [external],
         "MarginTypeB": "Expand",
         "ExpB": [0] * 6,
         "OperationResult": "Intersection",
