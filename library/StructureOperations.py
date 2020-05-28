@@ -2198,11 +2198,11 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         "StructType": "Undefined",
     }
     make_boolean_structure(patient=patient, case=case, examination=examination, **air_defs)
-    air_examination.OfRoi.DeleteExpression()
+    retval_air.DeleteExpression()
     temp_air_roi.DeleteRoi()
     
-    air_examination.OfRoi.VolumeThreshold(
-                    InputRoi=air_examination,
+    retval_air.VolumeThreshold(
+                    InputRoi=retval_air,
                     Examination=examination,
                     MinVolume=0.1, MaxVolume=500)
     inner_air_sources = [air_name, external]
