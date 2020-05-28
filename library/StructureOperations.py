@@ -2133,20 +2133,37 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
                          suffix=None)
         retval_air = case.PatientModel.RegionsOfInterest[air_name]
         change_roi_color(case=case, roi_name=air_name, rgb=air_color)
-        # retval_air = case.PatientModel.CreateRoi(
-        # 	Name="Air",
-        # 	Color="Green",
-        # 	Type="Undefined",
-        # 	TissueName=None,
-        # 	RbeCellTypeName=None,
-        # 	RoiMaterial=None,
-        # )
         new_structs.append(air_name)
     air_examination = case.PatientModel.StructureSets[examination.Name].RoiGeometries[air_name]
     patient.SetRoiVisibility(RoiName=air_name, IsVisible=False)
     exclude_from_export(case=case, rois=air_name)
 
-    retval_air.GrayLevelThreshold(
+    ## retval_air.GrayLevelThreshold(
+    ##     Examination=examination,
+    ##     LowThreshold=-1024,
+    ##     HighThreshold=inner_air_HU,
+    ##     PetUnit="",
+    ##     CbctUnit=None,
+    ##     BoundingBox=None,
+    ## )
+    # A volume reduction without further steps seems to result in a crash.
+    # Eliminate the air voxels outside the patient
+    # Make a temporary external that we can use to get rid of supports
+    i = 0
+    temp_air_name = air_name + str(i)
+    while check_structure_exists(case=case,structure_name=temp_air_name,exam=examination,option="Check"):
+        i += 1
+        temp_air_name = air_name +str(i)
+    temp_air_geom = create_roi(
+            case=case,
+            examination=examination,
+            roi_name=temp_air_name,
+            delete_existing=False,
+            suffix=suffix,
+        )
+    temp_air_roi = case.PatientModel.RegionsOfInterest[temp_air_name]
+    # Build the temporary air volume
+    temp_air_roi.GrayLevelThreshold(
         Examination=examination,
         LowThreshold=-1024,
         HighThreshold=inner_air_HU,
@@ -2154,6 +2171,29 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         CbctUnit=None,
         BoundingBox=None,
     )
+    # Build the arguments for the Boolean Air construction
+    air_defs = {
+        "StructureName": air_name,
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": air_color,
+        "OperationA": "Union",
+        "SourcesA": [temp_air_name],
+        "MarginTypeA": "Expand",
+        "ExpA": [0] * 6,
+        "OperationB": "Union",
+        "SourcesB": [external]
+        "MarginTypeB": "Expand",
+        "ExpB": [0] * 6,
+        "OperationResult": "Intersection",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Undefined",
+    }
+    make_boolean_structure(patient=patient, case=case, examination=examination, **air_defs)
+    air_examination.DeleteExpression()
+    temp_air_roi.DeleteRoi()
+    
     air_examination.OfRoi.VolumeThreshold(
                     InputRoi=air_examination,
                     Examination=examination,
