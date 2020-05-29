@@ -602,13 +602,14 @@ def main():
         for k, v in row.Targets.iteritems():
             # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
             translation_map[v[1]] = (k, float(v[0]) /100.)
+            logging.debug('{} is {}'.format(v[1],translation_map[v[1]]))
         
         add_goals_and_structures_from_protocol_3(
                                         patient=patient, case=case, plan=plan,
                                         beamset=rs_beam_set, exam=exam,filename=goal_file_name,
                                         path_protocols=path_goals, protocol_name=protocol_name,
-                                        order_name = order_name, run_status=False,
-                                        targets=translation_map)
+                                        order_name = order_name, targets=translation_map,run_status=False,
+        )
         output_status(
                           path=path,
                           input_filename=file_csv,
