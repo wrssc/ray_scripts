@@ -36,6 +36,7 @@ import sys
 import os
 import logging
 import xml.etree.ElementTree
+from collections import OrderedDict
 import UserInterface
 import StructureOperations
 import Goals
