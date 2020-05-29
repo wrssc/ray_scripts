@@ -1176,12 +1176,13 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 			docstring=__doc__,
 			help=__help__)
 
-	if path_protocols is None:
+	if not path_protocols:
 		protocol_folder = r'../protocols'
 		institution_folder = r'UW'
 		path_protocols = os.path.join(os.path.dirname(__file__),
 									  protocol_folder,
 									  institution_folder)
+
 
 	# Get current patient, case, exam, and plan
 	if patient is None:

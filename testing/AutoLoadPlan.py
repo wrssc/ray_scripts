@@ -587,14 +587,15 @@ def main():
         ##     verbose_logging=False)[0]
         # Now add in clinical goals and objectives
         ## GoalPath	GoalFile	ProtocolName	OrderName
-        filename = row.GoalFile
-        path_protocols = row.GoalPath
+        goal_file_name = row.GoalFile
+        path_goals = os.path.join(os.path.dirname(__file__),
+								  row.GoalPath)
         protocol_name = row.ProtocolName
         order_name = row.OrderName
         add_goals_and_structures_from_protocol_3(
                                         patient=patient, case=case, plan=plan,
-                                        beamset=rs_beam_set, exam=exam,filename=filename,
-                                        path_protocols=path_protocols, protocol_name=protocol_name,
+                                        beamset=rs_beam_set, exam=exam,filename=goal_file_name,
+                                        path_protocols=path_goals, protocol_name=protocol_name,
                                         run_status=False)
         output_status(
                           path=path,
