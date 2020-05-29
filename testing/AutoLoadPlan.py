@@ -228,6 +228,7 @@ def merge_dict(row):
             try:
                 target_name = 'Target' + str(target_columns+1).zfill(2)
                 target_dose = 'TargetDose' + str(target_columns+1).zfill(2)
+                protocol_name = 'Protocol'+ target_name
                 if not np.isnan(row[target_dose]):
                     target_dict[row[target_name]] = row[target_dose]
                 target_columns += 1
@@ -466,7 +467,16 @@ def main():
                         'generate_underdose': planning_prefs.use_under_dose,
                         'generate_uniformdose': planning_prefs.use_uniform_dose,
                         'generate_inner_air': planning_prefs.use_inner_air}
-                dialog2_response = row.Targets
+                dialog2_response = {}
+                i = 1
+                translation_map ={}
+                for k, v in row.Targets:
+                    dialog2_response[k] = v[0]
+                    # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
+                    translation_map[v[1]] = (None)*2
+                    translation_map[v[1]][0] = k
+                    translation_map[v[1]][1] = float(v[1]) / 100.
+                ## dialog2_response = row.Targets
                 ## dialog1_response = {'number_of_targets': 2,
                 ##                     'generate_underdose': False,
                 ##                     'generate_uniformdose': True,
@@ -592,11 +602,15 @@ def main():
 								  row.GoalPath)
         protocol_name = row.ProtocolName
         order_name = row.OrderName
-        add_goals_and_structures_from_protocol_3(
+        translation_map={}
+        
+        add_goals_and_stru:w
+        ctures_from_protocol_3(
                                         patient=patient, case=case, plan=plan,
                                         beamset=rs_beam_set, exam=exam,filename=goal_file_name,
                                         path_protocols=path_goals, protocol_name=protocol_name,
-                                        run_status=False)
+                                        run_status=False,
+                                        targets=translation_map)
         output_status(
                           path=path,
                           input_filename=file_csv,

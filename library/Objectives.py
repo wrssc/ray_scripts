@@ -1114,7 +1114,8 @@ def add_goals_and_structures_from_protocol(patient=None, case=None, plan=None, b
     
     
 def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None, beamset=None, exam=None,
-										   filename=None, path_protocols=None, protocol_name=None, order_name=None, target_dialog=None, run_status=True):
+										    filename=None, path_protocols=None, protocol_name=None, order_name=None, 
+             								targets=None, run_status=True):
 	"""Add Clinical Goals and Objectives from Protocol
 	
  	Add clinical goals and objectives in RayStation given user supplied inputs
@@ -1213,7 +1214,7 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 		logcrit('Protocol selected: {}'.format(
 			filename))
 		if protocol_name:
-  			tree = xml.etree.ElementTree.parse(os.path.join(protocol_folder,filename))
+  			tree = xml.etree.ElementTree.parse(os.path.join(path_protocols,filename))
 			if tree.getroot.tag() == 'protocol':
 				name = tree.find('name').text 
 				if name == protocol_name:
@@ -1278,104 +1279,105 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 			logging.debug('No orders in protocol')
 			use_orders = False
 
-		# Match the list of structures found in the objective protocols and protocols
+	# Match the list of structures found in the objective protocols and protocols
 
-		# Find RS targets
-		plan_targets = StructureOperations.find_targets(case=case)
+	# Find RS targets
+	plan_targets = StructureOperations.find_targets(case=case)
+	if run_status:
 		status.next_step(text="Matching all structures to the current list.", num=1)
+	protocol_targets = []
+	missing_contours = []
 
-		protocol_targets = []
-		missing_contours = []
+	# Build second dialog
+	target_inputs = {}
+	target_initial = {}
+	target_options = {}
+	target_datatype = {}
+	target_required = []
+	i = 1
+	# Lovely code, but had to break this loop up
+	# for g, t in ((a, b) for a in root.findall('./goals/roi') for b in plan_targets):
 
-		# Build second dialog
-		target_inputs = {}
-		target_initial = {}
-		target_options = {}
-		target_datatype = {}
-		target_required = []
-		i = 1
-		# Lovely code, but had to break this loop up
-		# for g, t in ((a, b) for a in root.findall('./goals/roi') for b in plan_targets):
+	if use_orders:
+		goal_locations = (protocol.findall('./goals/roi'), order.findall('./goals/roi'))
+	else:
+		goal_locations = (protocol.findall('./goals/roi'))
+	# Use the following loop to find the targets in protocol matching the names above
+	for s in goal_locations:
+		for g in s:
+			g_name = g.find('name').text
+			# Priorities should be even for targets and append unique elements only
+			# into the protocol_targets list
+			if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
+				protocol_targets.append(g_name)
+				k = str(i)
+				# Python doesn't sort lists....
+				k_name = k.zfill(2) + 'Aname_' + g_name
+				k_dose = k.zfill(2) + 'Bdose_' + g_name
+				target_inputs[k_name] = 'Match a plan target to ' + g_name
+				target_options[k_name] = plan_targets
+				target_datatype[k_name] = 'combo'
+				target_required.append(k_name)
+				target_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
+				target_required.append(k_dose)
+				i += 1
+				# Exact matches get an initial guess in the dropdown
+				for t in plan_targets:
+					if g_name == t:
+						target_initial[k_name] = t
 
-		if use_orders:
-			goal_locations = (protocol.findall('./goals/roi'), order.findall('./goals/roi'))
-		else:
-			goal_locations = (protocol.findall('./goals/roi'))
-		# Use the following loop to find the targets in protocol matching the names above
-		for s in goal_locations:
-			for g in s:
-				g_name = g.find('name').text
-				# Priorities should be even for targets and append unique elements only
-				# into the protocol_targets list
-				if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
-					protocol_targets.append(g_name)
-					k = str(i)
-					# Python doesn't sort lists....
-					k_name = k.zfill(2) + 'Aname_' + g_name
-					k_dose = k.zfill(2) + 'Bdose_' + g_name
-					target_inputs[k_name] = 'Match a plan target to ' + g_name
-					target_options[k_name] = plan_targets
-					target_datatype[k_name] = 'combo'
-					target_required.append(k_name)
-					target_inputs[k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
-					target_required.append(k_dose)
-					i += 1
-					# Exact matches get an initial guess in the dropdown
-					for t in plan_targets:
-						if g_name == t:
-							target_initial[k_name] = t
+	# Warn the user they are missing organs at risk specified in the order
+	rois = []  # List of contours in plan
+	protocol_rois = []  # List of all the regions of interest specified in the protocol
 
-		# Warn the user they are missing organs at risk specified in the order
-		rois = []  # List of contours in plan
-		protocol_rois = []  # List of all the regions of interest specified in the protocol
+	for r in case.PatientModel.RegionsOfInterest:
+		# Maybe extend, can't remember
+		rois.append(r.Name)
+	for s in goal_locations:
+		for g in s:
+			g_name = g.find('name').text
+			if g_name not in protocol_rois: protocol_rois.append(g_name)
+			# Add a quick check if the contour exists in RS
+			# This step is slow, we may want to gather all rois into a list and look for it
+			if int(g.find('priority').text) % 2:
+				if not any(r == g_name for r in rois) and g_name not in missing_contours:
+					#       case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
+					missing_contours.append(g_name)
 
+	# Launch the matching script here. Then check for any missing that remain. Supply function with rois and
+	# protocol_rois
+
+	if missing_contours and not targets:
+		mc_list = ',\n'.join(missing_contours)
+		missing_message = 'Missing structures, continue script or cancel \n' + mc_list
+		status.next_step(text=missing_message, num=1)
+		connect.await_user_input(missing_message)
+		# Add a line here to check again for missing contours and write out the list
 		for r in case.PatientModel.RegionsOfInterest:
 			# Maybe extend, can't remember
 			rois.append(r.Name)
-		for s in goal_locations:
-			for g in s:
-				g_name = g.find('name').text
-				if g_name not in protocol_rois: protocol_rois.append(g_name)
-				# Add a quick check if the contour exists in RS
-				# This step is slow, we may want to gather all rois into a list and look for it
-				if int(g.find('priority').text) % 2:
-					if not any(r == g_name for r in rois) and g_name not in missing_contours:
-						#       case.PatientModel.RegionsOfInterest) and g_name not in missing_contours:
-						missing_contours.append(g_name)
 
-		# Launch the matching script here. Then check for any missing that remain. Supply function with rois and
-		# protocol_rois
-
-		if missing_contours:
-			mc_list = ',\n'.join(missing_contours)
-			missing_message = 'Missing structures, continue script or cancel \n' + mc_list
-			status.next_step(text=missing_message, num=1)
-			connect.await_user_input(missing_message)
-			# Add a line here to check again for missing contours and write out the list
-			for r in case.PatientModel.RegionsOfInterest:
-				# Maybe extend, can't remember
-				rois.append(r.Name)
-
-			m_c = []
-			found = False
-			for m in missing_contours:
-				# We don't want in, we need an exact match - for length too
-				for r in rois:
-					found = False
-					if r == m:
-						found = True
-						break
-				if not found:
-					if m not in m_c:
-						m_c.append(m)
-			if not m_c:
-				logging.debug('All structures in protocol accounted for')
-			else:
-				mc_list = ',\n'.join(m_c)
-				missing_message = 'Missing structures remain: ' + mc_list
-				logging.warning('Missing contours from this order: {}'.format(m_c))
-
+		m_c = []
+		found = False
+		for m in missing_contours:
+			# We don't want in, we need an exact match - for length too
+			for r in rois:
+				found = False
+				if r == m:
+					found = True
+					break
+			if not found:
+				if m not in m_c:
+					m_c.append(m)
+		if not m_c:
+			logging.debug('All structures in protocol accounted for')
+		else:
+			mc_list = ',\n'.join(m_c)
+			missing_message = 'Missing structures remain: ' + mc_list
+			logging.warning('Missing contours from this order: {}'.format(m_c))
+	if run_status:
 		status.next_step(text="Getting target doses from user.", num=2)
+	if not targets:
 		target_dialog = UserInterface.InputDialog(
 			inputs=target_inputs,
 			title='Input Target Dose Levels',
@@ -1383,131 +1385,133 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 			initial=target_initial,
 			options=target_options,
 			required=[])
-		print
+   		print
 		target_dialog.show()
 
-		# Process inputs
-		# Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
-		nominal_dose = 0
-		translation_map = {}
-		# TODO Add a dict element that is just key and dose
-		#  seems like the next two loops could be combined, but
-		#  since dict cycling isn't ordered I don't know how to create
-		#  a blank element space
+	# Process inputs
+	# Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
+	nominal_dose = 0
+	translation_map = {}
+	# TODO Add a dict element that is just key and dose
+	#  seems like the next two loops could be combined, but
+	#  since dict cycling isn't ordered I don't know how to create
+	#  a blank element space
+	if targets:
+		translation_map = targets
+	else:
 		for k, v in target_dialog.values.iteritems():
-			if len(v) > 0:
-				i, p = k.split("_", 1)
-				if p not in translation_map:
-					translation_map[p] = [None] * 2
-				if 'name' in i:
-					# Key name will be the protocol target name
-					translation_map[p][0] = v
+		    if len(v) > 0:
+			    i, p = k.split("_", 1)
+			    if p not in translation_map:
+			    	translation_map[p] = [None] * 2
+			    if 'name' in i:
+			        # Key name will be the protocol target name
+			    	translation_map[p][0] = v
+			    if 'dose' in i:
+			    	# Append _dose to the key name
+			    	pd = p + '_dose'
+		    		# Not sure if this loop is still needed
+		    		translation_map[p][1] = (float(v) / 100.)
+			    	## if nominal_dose == 0:
+		    		##     # Set a nominal dose to the first matched pair
 
-				if 'dose' in i:
-					# Append _dose to the key name
-					pd = p + '_dose'
-					# Not sure if this loop is still needed
-					translation_map[p][1] = (float(v) / 100.)
-					## if nominal_dose == 0:
-					##     # Set a nominal dose to the first matched pair
+	status.next_step(text="Adding goals.", num=3)
+	# Iterate over goals in orders and protocols
+	for seq in goal_locations:
+		for g in seq:
+			# try:
+			# 1. Figure out if we need to change the goal ROI name
+			p_n = g.find('name').text
+			p_d = g.find('dose').text
+			p_t = g.find('type').text
+			# Change the name for the roi goal if the user has matched it to a target
+			if p_n in translation_map:
+				# Change the roi name the goal uses to the matched value
+				g.find('name').text = translation_map[p_n][0]
 
-		status.next_step(text="Adding goals.", num=3)
-		# Iterate over goals in orders and protocols
-		for seq in goal_locations:
-			for g in seq:
-				# try:
-				# 1. Figure out if we need to change the goal ROI name
-				p_n = g.find('name').text
-				p_d = g.find('dose').text
-				p_t = g.find('type').text
-				# Change the name for the roi goal if the user has matched it to a target
-				if p_n in translation_map:
-					# Change the roi name the goal uses to the matched value
-					g.find('name').text = translation_map[p_n][0]
+				logging.debug('Reassigned protocol target name:{} to {}'.format(
+					p_n, g.find('name').text))
+			# TODO: Exception catching in here for an unresolved reference
+			# else:
+			#    logging.debug('Protocol ROI: {}'.format(p_n) +
+			#                  ' was not matched to a target supplied by the user. ' +
+			#                 'expected if the ROI type is not a target')
+			# If the goal is relative change the name of the dose attribution
+			# Change the dose to the user-specified level
+			if "%" in g.find('dose').attrib['units']:
+				# Define the unmatched and unmodified protocol name and dose
+				p_r = g.find('dose').attrib['roi']
+				# See if the goal is on a matched target and change the % dose of the attributed ROI
+				# to match the user input target and dose level for that named structure
+				logging.debug('ROI: {} has a relative goal of type: {} with a relative dose level: {}%'.format(
+					p_n, p_t, p_d))
+				# Correct the relative dose to the user-specified dose levels for this structure
+				if p_r in translation_map:
+					# Change the dose attribute to absolute
+					# TODO:: This may not be such a hot idea.
+					g.find('dose').attrib['units'] = "Gy"
+					g.find('dose').attrib['roi'] = translation_map[p_r][0]
+					goal_dose = float(translation_map[p_r][1]) * float(p_d) / 100
+					g.find('dose').text = str(goal_dose)
+					logging.debug('Reassigned protocol dose attribute name:' +
+									'{} to {}, for dose:{}% to {} Gy'.format(
+										p_r, g.find('dose').attrib['roi'], p_d, g.find('dose').text))
+				else:
+					logging.warning('Unsuccessful match between relative dose goal for ROI: ' +
+									'{}. '.format(p_r) +
+									'The user did not match an existing roi to one required for this goal')
+					pass
 
-					logging.debug('Reassigned protocol target name:{} to {}'.format(
-						p_n, g.find('name').text))
-				# TODO: Exception catching in here for an unresolved reference
-				# else:
-				#    logging.debug('Protocol ROI: {}'.format(p_n) +
-				#                  ' was not matched to a target supplied by the user. ' +
-				#                 'expected if the ROI type is not a target')
-				# If the goal is relative change the name of the dose attribution
-				# Change the dose to the user-specified level
-				if "%" in g.find('dose').attrib['units']:
-					# Define the unmatched and unmodified protocol name and dose
+			#  Knowledge-based goals:
+			#  Call the knowledge_based_goal for the correct structure
+			#  Use the returned dictionary to modify the ElementTree
+			if 'know' in g.find('type').attrib:
+				# TODO: Consider a new type for know-goals in the xml
+				try:
 					p_r = g.find('dose').attrib['roi']
-					# See if the goal is on a matched target and change the % dose of the attributed ROI
-					# to match the user input target and dose level for that named structure
-					logging.debug('ROI: {} has a relative goal of type: {} with a relative dose level: {}%'.format(
-						p_n, p_t, p_d))
-					# Correct the relative dose to the user-specified dose levels for this structure
-					if p_r in translation_map:
-						# Change the dose attribute to absolute
-						# TODO:: This may not be such a hot idea.
-						g.find('dose').attrib['units'] = "Gy"
-						g.find('dose').attrib['roi'] = translation_map[p_r][0]
-						goal_dose = float(translation_map[p_r][1]) * float(p_d) / 100
-						g.find('dose').text = str(goal_dose)
-						logging.debug('Reassigned protocol dose attribute name:' +
-									  '{} to {}, for dose:{}% to {} Gy'.format(
-										  p_r, g.find('dose').attrib['roi'], p_d, g.find('dose').text))
-					else:
-						logging.warning('Unsuccessful match between relative dose goal for ROI: ' +
-										'{}. '.format(p_r) +
-										'The user did not match an existing roi to one required for this goal')
-						pass
+				except KeyError:
+					# If there is no relative dose attribute the correct structure is the
+					# the structure itself
+					p_r = g.find('name').text
+				if g.find('volume') is not None:
+					vol = g.find('volume').text
+				else:
+					vol = None
+				know_goal = knowledge_based_goal(
+					structure_name=p_r,
+					goal_type=g.find('type').attrib['know'],
+					case=case,
+					exam=exam,
+					isodose=g.find('dose').text,
+					res_vol=vol)
+				# use a dictionary for storing the return values
+				try:
+					g.find('index').text = str(know_goal['index'])
+					logging.debug('Index changed for ROI {} to {}'.format(
+						g.find('name').text, g.find('index').text))
+				except KeyError:
+					logging.debug('knowledge goals for {} had no index information'.format(
+						g.find('name').text))
+				try:
+					g.find('dose').text = str(know_goal['dose'])
+					logging.debug('Dose changed for ROI {} to {}'.format(
+						g.find('name').text, g.find('dose').text))
+				except KeyError:
+					logging.debug('knowledge goals for {} had no dose information'.format(
+						g.find('name').text))
+				try:
+					g.find('volume').text = str(know_goal['volume'])
+					g.find('volume').attrib['units'] = str(know_goal['units'])
+					logging.debug('Index changed for ROI {} to {}'.format(
+						g.find('name').text, g.find('volume').text))
+				except KeyError:
+					logging.debug('knowledge goals for {} had no volume information'.format(
+						g.find('name').text))
 
-				#  Knowledge-based goals:
-				#  Call the knowledge_based_goal for the correct structure
-				#  Use the returned dictionary to modify the ElementTree
-				if 'know' in g.find('type').attrib:
-					# TODO: Consider a new type for know-goals in the xml
-					try:
-						p_r = g.find('dose').attrib['roi']
-					except KeyError:
-						# If there is no relative dose attribute the correct structure is the
-						# the structure itself
-						p_r = g.find('name').text
-					if g.find('volume') is not None:
-						vol = g.find('volume').text
-					else:
-						vol = None
-					know_goal = knowledge_based_goal(
-						structure_name=p_r,
-						goal_type=g.find('type').attrib['know'],
-						case=case,
-						exam=exam,
-						isodose=g.find('dose').text,
-						res_vol=vol)
-					# use a dictionary for storing the return values
-					try:
-						g.find('index').text = str(know_goal['index'])
-						logging.debug('Index changed for ROI {} to {}'.format(
-							g.find('name').text, g.find('index').text))
-					except KeyError:
-						logging.debug('knowledge goals for {} had no index information'.format(
-							g.find('name').text))
-					try:
-						g.find('dose').text = str(know_goal['dose'])
-						logging.debug('Dose changed for ROI {} to {}'.format(
-							g.find('name').text, g.find('dose').text))
-					except KeyError:
-						logging.debug('knowledge goals for {} had no dose information'.format(
-							g.find('name').text))
-					try:
-						g.find('volume').text = str(know_goal['volume'])
-						g.find('volume').attrib['units'] = str(know_goal['units'])
-						logging.debug('Index changed for ROI {} to {}'.format(
-							g.find('name').text, g.find('volume').text))
-					except KeyError:
-						logging.debug('knowledge goals for {} had no volume information'.format(
-							g.find('name').text))
-
-				# except AttributeError:
-				#    logging.debug('Goal loaded which does not have dose attribute.')
-				# Regardless, add the goal now
-				Goals.add_goal(g, connect.get_current('Plan'))
+			# except AttributeError:
+			#    logging.debug('Goal loaded which does not have dose attribute.')
+			# Regardless, add the goal now
+			Goals.add_goal(g, connect.get_current('Plan'))
 
 	if run_status:
 		status.next_step(text="Adding Objectives.", num=4)
