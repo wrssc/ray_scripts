@@ -474,6 +474,7 @@ def main():
                     dialog2_response[k] = v[0]
                     # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
                     translation_map[v[1]] = (k, float(v[0]) /100.)
+
                 ## dialog2_response = row.Targets
                 ## dialog1_response = {'number_of_targets': 2,
                 ##                     'generate_underdose': False,
