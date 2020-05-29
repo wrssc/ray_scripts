@@ -1403,7 +1403,7 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 		    if len(v) > 0:
 			    i, p = k.split("_", 1)
 			    if p not in translation_map:
-			    	translation_map[p] = [None] * 2
+			    	translation_map[p] = (None, None)
 			    if 'name' in i:
 			        # Key name will be the protocol target name
 			    	translation_map[p][0] = v
@@ -1411,7 +1411,7 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 			    	# Append _dose to the key name
 			    	pd = p + '_dose'
 		    		# Not sure if this loop is still needed
-		    		translation_map[p][1] = (float(v) / 100.)
+		    		translation_map[p][1] = float(v) / 100.
 			    	## if nominal_dose == 0:
 		    		##     # Set a nominal dose to the first matched pair
 

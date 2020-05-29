@@ -230,7 +230,7 @@ def merge_dict(row):
                 target_dose = 'TargetDose' + str(target_columns+1).zfill(2)
                 protocol_name = 'Protocol'+ target_name
                 if not np.isnan(row[target_dose]):
-                    target_dict[row[target_name]] = row[target_dose]
+                    target_dict[row[target_name]] = (row[target_dose],row[protocol_name])
                 target_columns += 1
             except KeyError:
                 target_column_exists = False
@@ -473,9 +473,7 @@ def main():
                 for k, v in row.Targets.iteritems():
                     dialog2_response[k] = v[0]
                     # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
-                    translation_map[v[1]] = (None)*2
-                    translation_map[v[1]][0] = k
-                    translation_map[v[1]][1] = float(v[1]) / 100.
+                    translation_map[v[1]] = (k, float(v[0]) /100.)
                 ## dialog2_response = row.Targets
                 ## dialog1_response = {'number_of_targets': 2,
                 ##                     'generate_underdose': False,
