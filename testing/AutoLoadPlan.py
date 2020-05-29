@@ -607,7 +607,7 @@ def main():
                                         patient=patient, case=case, plan=plan,
                                         beamset=rs_beam_set, exam=exam,filename=goal_file_name,
                                         path_protocols=path_goals, protocol_name=protocol_name,
-                                        run_status=False,
+                                        order_name = order_name, run_status=False,
                                         targets=translation_map)
         output_status(
                           path=path,
