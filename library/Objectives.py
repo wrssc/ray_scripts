@@ -1114,9 +1114,9 @@ def add_goals_and_structures_from_protocol(patient=None, case=None, plan=None, b
 							  checking=True)
     
     
-def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None, beamset=None, exam=None,
-										    filename=None, path_protocols=None, protocol_name=None, order_name=None, 
-             								target_map=None, run_status=True):
+def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
+										    filename, path_protocols, protocol_name,target_map,
+              								order_name=None,run_status=False):
 	"""Add Clinical Goals and Objectives from Protocol
 	
  	Add clinical goals and objectives in RayStation given user supplied inputs
@@ -1168,6 +1168,8 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 	__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 	# Potential inputs, patient, case, exam, beamset, protocol path, filename
+	if not target_map:
+		return False
 	for k, v in target_map.items():
 		logging.debug('Targets are {}:{}'.format(k,v))
 	if run_status:
@@ -1189,16 +1191,16 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 
 
 	# Get current patient, case, exam, and plan
-	if patient is None:
-		patient = find_scope(level='Patient')
-	if case is None:
-		case = find_scope(level='Case')
-	if exam is None:
-		exam = find_scope(level='Examination')
-	if plan is None:
-		plan = find_scope(level='Plan')
-	if beamset is None:
-		beamset = find_scope(level='BeamSet')
+	# if patient is None:
+	# 	patient = find_scope(level='Patient')
+	# if case is None:
+	# 	case = find_scope(level='Case')
+	# if exam is None:
+	# 	exam = find_scope(level='Examination')
+	# if plan is None:
+	# 	plan = find_scope(level='Plan')
+	# if beamset is None:
+	# 	beamset = find_scope(level='BeamSet')
 
 	tpo = UserInterface.TpoDialog()
 	tpo.load_protocols(path_protocols)
