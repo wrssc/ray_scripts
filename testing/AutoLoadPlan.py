@@ -315,6 +315,7 @@ def main():
         for k, v in row.Targets.items():
         ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
             translation_map[v[1]] = (k, float(v[0]) /100.)
+            logging.debug("translatin map {}:{}".format(v[1],translation_map[v[1]]))
 
         # If this beamset is found, then append 1-99 to the name and keep going
         beamset_exists = True

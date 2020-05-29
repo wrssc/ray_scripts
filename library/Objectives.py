@@ -1167,6 +1167,8 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 	__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 	# Potential inputs, patient, case, exam, beamset, protocol path, filename
+	logging.debug('Targets are {}'.format(target_map))
+	sys.exit()
 	if run_status:
 		status = UserInterface.ScriptStatus(
 			steps=['Finding correct protocol',
