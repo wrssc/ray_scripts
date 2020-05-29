@@ -468,7 +468,7 @@ def main():
                         'generate_uniformdose': planning_prefs.use_uniform_dose,
                         'generate_inner_air': planning_prefs.use_inner_air}
                 dialog2_response = {}
-                for k, v in row.Targets.iteritems():
+                for k, v in row.Targets.items():
                     dialog2_response[k] = v[0]
 
                 ## dialog2_response = row.Targets
@@ -597,12 +597,11 @@ def main():
 								  row.GoalPath)
         protocol_name = row.ProtocolName
         order_name = row.OrderName
-        i = 1
-        translation_map ={}
+        translation_map = {}
         for k, v in row.Targets.items():
-            # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
+        # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
             translation_map[v[1]] = (k, float(v[0]) /100.)
-            logging.debug('{} is {}'.format(v[1],translation_map[v[1]]))
+            logging.debug('Translation map key: {} value: {}'.format(v[1],translation_map[v[1]]))
         
         add_goals_and_structures_from_protocol_3(
                                         patient=patient, case=case, plan=plan,
