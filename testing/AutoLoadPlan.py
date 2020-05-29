@@ -252,6 +252,15 @@ def main():
         plan_data = plan_data.replace(np.nan, '',regex=True)
     ## Create the output file
     path = os.path.dirname(file_csv)
+    for index, row in plan_data.iterrows():
+        translation_map=OrderedDict()
+        for k, v in row.Targets.items():
+        # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
+            translation_map[v[1]] = (k, float(v[0]) /100.)
+            logging.debug('Translation map key: {} value: {}'.format(v[1],translation_map[v[1]]))
+        for k, v, in translation_map.items():
+            logging.debug('translation map post adjustment is {}:{}'.format(k,v))
+    sys.exit('Done')
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
     # Cycle through the input file
     for index, row in plan_data.iterrows():
