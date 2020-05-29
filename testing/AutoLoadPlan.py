@@ -602,10 +602,8 @@ def main():
 								  row.GoalPath)
         protocol_name = row.ProtocolName
         order_name = row.OrderName
-        translation_map={}
         
-        add_goals_and_stru:w
-        ctures_from_protocol_3(
+        add_goals_and_structures_from_protocol_3(
                                         patient=patient, case=case, plan=plan,
                                         beamset=rs_beam_set, exam=exam,filename=goal_file_name,
                                         path_protocols=path_goals, protocol_name=protocol_name,
