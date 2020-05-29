@@ -470,7 +470,7 @@ def main():
                 dialog2_response = {}
                 i = 1
                 translation_map ={}
-                for k, v in row.Targets:
+                for k, v in row.Targets.iteritems():
                     dialog2_response[k] = v[0]
                     # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
                     translation_map[v[1]] = (None)*2
