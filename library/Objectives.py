@@ -1115,7 +1115,7 @@ def add_goals_and_structures_from_protocol(patient=None, case=None, plan=None, b
     
 def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None, beamset=None, exam=None,
 										    filename=None, path_protocols=None, protocol_name=None, order_name=None, 
-             								targets=None, run_status=True):
+             								target_map=None, run_status=True):
 	"""Add Clinical Goals and Objectives from Protocol
 	
  	Add clinical goals and objectives in RayStation given user supplied inputs
@@ -1348,7 +1348,7 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 	# Launch the matching script here. Then check for any missing that remain. Supply function with rois and
 	# protocol_rois
 	if False:
-		if missing_contours and not targets:
+		if missing_contours and not target_map:
 			mc_list = ',\n'.join(missing_contours)
 			missing_message = 'Missing structures, continue script or cancel \n' + mc_list
 			if run_status:
@@ -1379,7 +1379,7 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 				logging.warning('Missing contours from this order: {}'.format(m_c))
 	if run_status:
 		status.next_step(text="Getting target doses from user.", num=2)
-	logging.debug('Targets are {}'.format(targets))
+	logging.debug('Targets are {}'.format(target_map))
 	## if not targets:
 	## 	target_dialog = UserInterface.InputDialog(
 	## 		inputs=target_inputs,
@@ -1399,8 +1399,8 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 	#  seems like the next two loops could be combined, but
 	#  since dict cycling isn't ordered I don't know how to create
 	#  a blank element space
-	if targets:
-		translation_map = targets
+	if target_map:
+		translation_map = target_map
 ## 	else:
 ## 		for k, v in target_dialog.values.iteritems():
 ## 		    if len(v) > 0:

@@ -313,12 +313,8 @@ def main():
 
         translation_map=OrderedDict()
         for k, v in row.Targets.items():
-        # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
+        ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
             translation_map[v[1]] = (k, float(v[0]) /100.)
-            logging.debug('Translation map key: {} value: {}'.format(v[1],translation_map[v[1]]))
-        for k, v, in translation_map.items():
-            logging.debug('translation map post adjustment is {}:{}'.format(k,v))
-        break
 
         # If this beamset is found, then append 1-99 to the name and keep going
         beamset_exists = True
@@ -607,18 +603,18 @@ def main():
 								  row.GoalPath)
         protocol_name = row.ProtocolName
         order_name = row.OrderName
-        translation_map = OrderedDict()
-        for k, v in row.Targets.items():
+        ## translation_map = OrderedDict()
+        ## for k, v in row.Targets.items():
         # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
-            translation_map[v[1]] = (k, float(v[0]) /100.)
-            logging.debug('Translation map key: {} value: {}'.format(v[1],translation_map[v[1]]))
-        for k, v, in translation_map.items():
-            logging.debug('translation map post adjustment is {}:{}'.format(k,v))
+        ##     translation_map[v[1]] = (k, float(v[0]) /100.)
+        ##     logging.debug('Translation map key: {} value: {}'.format(v[1],translation_map[v[1]]))
+        ## for k, v, in translation_map.items():
+        ##     logging.debug('translation map post adjustment is {}:{}'.format(k,v))
         add_goals_and_structures_from_protocol_3(
                                         patient=patient, case=case, plan=plan,
                                         beamset=rs_beam_set, exam=exam,filename=goal_file_name,
                                         path_protocols=path_goals, protocol_name=protocol_name,
-                                        order_name = order_name, targets=translation_map,run_status=False,
+                                        order_name = order_name, target_map=translation_map,run_status=False,
         )
         output_status(
                           path=path,
