@@ -48,12 +48,18 @@ import sys
 import logging
 import random
 import csv
+## R: The only function you are using is ElementTree. I recommend:
+##> import xml.etree.ElementTree as ET
+## and then below
+##> tree = ET.parse(file)
 import xml
 import pandas as pd
 import re
 
 # Local imports
 import connect
+## R: How does python know how to find these libraries? Is there another
+## script that adds them to the path?
 import BeamOperations
 import Objectives
 import Beams
@@ -61,6 +67,8 @@ import StructureOperations
 import UserInterface
 
 def main():
+    ## R: StructureOperations is imported twice. I recommend moving all 
+    ## imports outside of the function
     import StructureOperations
     from GeneralOperations import find_scope
 
@@ -69,9 +77,19 @@ def main():
     case = find_scope(level='Case')
     exam = find_scope(level='Examination')
     scope = find_scope()
+    ## R: The plan variable is never used and can be safely omitted
     plan = scope['Plan']
     beamset = scope['BeamSet']
     # Open the 263 Dataframe
+    ## R: PYTHON 3 NOTE: It is considered best practice in Python 3 to replace
+    ## "os.path" with the pathlib library, which was added to the standard
+    ## library for Python3. pathlib will improve the readability of this section:
+    ##> from pathlib import Path
+    ##> file = Path("..") / "protocols" / "TG-263.xml"
+    ##> tree = ET.parse(file)
+    ## *****
+    ## R: This strikes me as a lot of code for loading a single file,
+    ## even for os.path. Why is the loop needed?
     files = [[r"../protocols", r"", r"TG-263.xml"]]  # , [r"../protocols", r"UW", r""]]
     paths = []
     for i, f in enumerate(files):
@@ -83,15 +101,21 @@ def main():
     tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
     rois_dict = StructureOperations.iter_standard_rois(tree)
     df_rois = pd.DataFrame(rois_dict["rois"])
+
     # Make ExternalClean
     external_name = 'ExternalClean'
+    ## R: Style: The "ext_clean" is never used, so you could use the a 
+    ## single underscore "_ = ". A single standalone underscore is sometimes
+    ## used as a name to indicate that a variable is temporary or insignificant.
     ext_clean = StructureOperations.make_externalclean(patient=patient,
                                                        case=case,
                                                        examination=exam,
                                                        structure_name=external_name,
                                                        suffix=None,
                                                        delete=True)
-
+    ## R: I am confused by the use of a while loop here.
+    ## The while loop will only get executed once because the loop ends with
+    ## "list_unfiltered = Flase". Seems like the while loop can be removed.
     list_unfiltered = True
     while list_unfiltered:
         plan_rois = StructureOperations.find_types(case=case)
@@ -99,6 +123,8 @@ def main():
         filtered_plan_rois = []
         for r in plan_rois:
             # Filter the list to look for duplicates and exit out if undesirable features are found
+            ## R: Will this function work if there are more than one case
+            ## sensitive matches?
             found_case_sensitive_match = StructureOperations \
                 .case_insensitive_structure_search(case=case, structure_name=r, roi_list=plan_rois)
             if found_case_sensitive_match is not None:
@@ -110,11 +136,18 @@ def main():
                                'Copy the geometry from the incorrect name to the correct ' + \
                                'structure and continue the script'
                 connect.await_user_input(user_message)
+                ## R: To be clear, using continue here will skip "filtered_plan_rois.append(r)"
+                ## and move to the next contour in plan_rois. Is this intended?
                 continue
 
             filtered_plan_rois.append(r)
         list_unfiltered = False
 
+    ## R: In the control flow above, if there are structures that are a case-sensitive match,
+    ## then the user manually unifies them into a single structure. When this happens,
+    ## the contour "r" is never appended to filtered_plan_rois because of the continue statement.
+    ## If the user decides to consolodate the duplicate contours into "r", then "r" will never end up in
+    ## filtered_plan_rois when we reach the code below. Is that intended?
     results = StructureOperations.match_roi(patient=patient,
                                             examination=exam,
                                             case=case,
