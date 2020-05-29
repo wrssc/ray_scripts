@@ -1168,8 +1168,8 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 	__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 	# Potential inputs, patient, case, exam, beamset, protocol path, filename
-	logging.debug('Targets are {}'.format(target_map))
-	sys.exit()
+	for k, v in target_map.items():
+		logging.debug('Targets are {}:{}'.format(k,v))
 	if run_status:
 		status = UserInterface.ScriptStatus(
 			steps=['Finding correct protocol',
@@ -1382,7 +1382,8 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 				logging.warning('Missing contours from this order: {}'.format(m_c))
 	if run_status:
 		status.next_step(text="Getting target doses from user.", num=2)
-	logging.debug('Targets are {}'.format(target_map))
+	for k, v in target_map.items():
+		logging.debug('Targets are {}{}'.format(k,v))
 	## if not targets:
 	## 	target_dialog = UserInterface.InputDialog(
 	## 		inputs=target_inputs,
@@ -1397,7 +1398,6 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 	# Process inputs
 	# Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
 	nominal_dose = 0
-	translation_map = {}
 	# TODO Add a dict element that is just key and dose
 	#  seems like the next two loops could be combined, but
 	#  since dict cycling isn't ordered I don't know how to create
