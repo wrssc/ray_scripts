@@ -1419,7 +1419,7 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 ## 		    		##     # Set a nominal dose to the first matched pair
 
  	if run_status:
-      	status.next_step(text="Adding goals.", num=3)
+		status.next_step(text="Adding goals.", num=3)
 	# Iterate over goals in orders and protocols
 	for seq in goal_locations:
 		for g in seq:
