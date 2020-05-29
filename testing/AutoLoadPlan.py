@@ -605,17 +605,23 @@ def main():
         protocol_name = row.ProtocolName
         order_name = row.OrderName
         ## translation_map = OrderedDict()
-        ## for k, v in row.Targets.items():
+        for k, v in row.Targets.items():
         # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
         ##     translation_map[v[1]] = (k, float(v[0]) /100.)
-        ##     logging.debug('Translation map key: {} value: {}'.format(v[1],translation_map[v[1]]))
+            logging.debug('Translation map key: {} value: {}'.format(v[1],translation_map[v[1]]))
         ## for k, v, in translation_map.items():
         ##     logging.debug('translation map post adjustment is {}:{}'.format(k,v))
         add_goals_and_structures_from_protocol_3(
-                                        patient=patient, case=case, plan=plan,
-                                        beamset=rs_beam_set, exam=exam,filename=goal_file_name,
-                                        path_protocols=path_goals, protocol_name=protocol_name,
-                                        order_name = order_name, target_map=translation_map,run_status=False,
+                                        case=case,
+                                        plan=plan,
+                                        beamset=rs_beam_set,
+                                        exam=exam,
+                                        filename=goal_file_name,
+                                        path_protocols=path_goals,
+                                        protocol_name=protocol_name,
+                                        target_map=translation_map,
+                                        order_name = order_name,
+                                        run_status=False,
         )
         output_status(
                           path=path,
@@ -828,7 +834,7 @@ def main():
                                         path=path_protocols)
 
     # Now add in clinical goals and objectives
-    add_goals_and_structures_from_protocol(patient=patient, case=case, plan=plan, beamset=rs_beam_set, exam=exam,
+    add_goals_and_structures_from_protocol( case=case, plan=plan, beamset=rs_beam_set, exam=exam,
                                         filename=None, path_protocols=None, run_status=False)
 
 if __name__ == '__main__':
