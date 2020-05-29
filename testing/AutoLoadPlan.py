@@ -319,7 +319,6 @@ def main():
         for k, v, in translation_map.items():
             logging.debug('translation map post adjustment is {}:{}'.format(k,v))
         break
-    sys.exit('Done')
 
         # If this beamset is found, then append 1-99 to the name and keep going
         beamset_exists = True
