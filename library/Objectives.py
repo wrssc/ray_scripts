@@ -1379,16 +1379,17 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 				logging.warning('Missing contours from this order: {}'.format(m_c))
 	if run_status:
 		status.next_step(text="Getting target doses from user.", num=2)
-	if not targets:
-		target_dialog = UserInterface.InputDialog(
-			inputs=target_inputs,
-			title='Input Target Dose Levels',
-			datatype=target_datatype,
-			initial=target_initial,
-			options=target_options,
-			required=[])
-   		print
-		target_dialog.show()
+	logging.debug('Targets are {}'.format(targets))
+	## if not targets:
+	## 	target_dialog = UserInterface.InputDialog(
+	## 		inputs=target_inputs,
+	## 		title='Input Target Dose Levels',
+	## 		datatype=target_datatype,
+	## 		initial=target_initial,
+	## 		options=target_options,
+	## 		required=[])
+   	## 	print
+	## 	target_dialog.show()
 
 	# Process inputs
 	# Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
@@ -1400,24 +1401,25 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 	#  a blank element space
 	if targets:
 		translation_map = targets
-	else:
-		for k, v in target_dialog.values.iteritems():
-		    if len(v) > 0:
-			    i, p = k.split("_", 1)
-			    if p not in translation_map:
-			    	translation_map[p] = (None, None)
-			    if 'name' in i:
-			        # Key name will be the protocol target name
-			    	translation_map[p][0] = v
-			    if 'dose' in i:
-			    	# Append _dose to the key name
-			    	pd = p + '_dose'
-		    		# Not sure if this loop is still needed
-		    		translation_map[p][1] = float(v) / 100.
-			    	## if nominal_dose == 0:
-		    		##     # Set a nominal dose to the first matched pair
+## 	else:
+## 		for k, v in target_dialog.values.iteritems():
+## 		    if len(v) > 0:
+## 			    i, p = k.split("_", 1)
+## 			    if p not in translation_map:
+## 			    	translation_map[p] = (None, None)
+## 			    if 'name' in i:
+## 			        # Key name will be the protocol target name
+## 			    	translation_map[p][0] = v
+## 			    if 'dose' in i:
+## 			    	# Append _dose to the key name
+## 			    	pd = p + '_dose'
+## 		    		# Not sure if this loop is still needed
+## 		    		translation_map[p][1] = float(v) / 100.
+## 			    	## if nominal_dose == 0:
+## 		    		##     # Set a nominal dose to the first matched pair
 
-	status.next_step(text="Adding goals.", num=3)
+ 	if run_status:
+      	status.next_step(text="Adding goals.", num=3)
 	# Iterate over goals in orders and protocols
 	for seq in goal_locations:
 		for g in seq:
