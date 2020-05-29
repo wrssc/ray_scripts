@@ -1227,58 +1227,58 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 					break	
 
 
-	else:
-		# Find the protocol the user wants to use.
-		input_dialog = UserInterface.InputDialog(
-			inputs={'i': 'Select Protocol'},
-			title='Protocol Selection',
-			datatype={'i': 'combo'},
-			initial={},
-			options={'i': list(tpo.protocols.keys())},
-			required=['i'])
-		# Launch the dialog
-		response = input_dialog.show()
-		# Link root to selected protocol ElementTree
-		logging.info("Protocol selected: {}".format(
-			input_dialog.values['i']))
-		# Store the protocol name and optional order name
-		protocol_name = input_dialog.values['i']
-		order_name = None
-		order_list = []
-		protocol = tpo.protocols[input_dialog.values['i']]
-		for o in protocol.findall('order/name'):
-			order_list.append(o.text)
-
-		if len(order_list) >= 1:
-			use_orders = True
-			# Find the protocol the user wants to use.
-			input_dialog = UserInterface.InputDialog(
-				inputs={'i': 'Select Order'},
-				title='Order Selection',
-				datatype={'i': 'combo'},
-				initial={'i': order_list[0]},
-				options={'i': order_list},
-				required=['i'])
-			# Launch the dialog
-			response = input_dialog.show()
-			# Link root to selected protocol ElementTree
-			logging.critical("Treatment Planning Order selected: {}".format(
-				input_dialog.values['i']))
-			# Update the order name
+	## else:
+	##	# Find the protocol the user wants to use.
+	##	input_dialog = UserInterface.InputDialog(
+	##		inputs={'i': 'Select Protocol'},
+	##		title='Protocol Selection',
+	##		datatype={'i': 'combo'},
+	##		initial={},
+	##		options={'i': list(tpo.protocols.keys())},
+	##		required=['i'])
+	##	# Launch the dialog
+	##	response = input_dialog.show()
+	##	# Link root to selected protocol ElementTree
+	##	logging.info("Protocol selected: {}".format(
+	##		input_dialog.values['i']))
+	##	# Store the protocol name and optional order name
+	##	protocol_name = input_dialog.values['i']
+	##	order_name = None
+	##	order_list = []
+	##	protocol = tpo.protocols[input_dialog.values['i']]
+	##	for o in protocol.findall('order/name'):
+	##		order_list.append(o.text)
+##
+	##	if len(order_list) >= 1:
+	##		use_orders = True
+	##		# Find the protocol the user wants to use.
+	##		input_dialog = UserInterface.InputDialog(
+	##			inputs={'i': 'Select Order'},
+	##			title='Order Selection',
+	##			datatype={'i': 'combo'},
+	##			initial={'i': order_list[0]},
+	##			options={'i': order_list},
+	##			required=['i'])
+	##		# Launch the dialog
+	##		response = input_dialog.show()
+	##		# Link root to selected protocol ElementTree
+	##		logging.critical("Treatment Planning Order selected: {}".format(
+	##			input_dialog.values['i']))
+	##		# Update the order name
 
 			# I believe this loop can be eliminated with we can use a different function
 			# to match protocol.find('order') with input_dialog.values['i']
-			for o in protocol.findall('order'):
-				if o.find('name').text == input_dialog.values['i']:
-					order = o
-					logging.debug('Matching protocol ElementTag found for {}'.format(
-						input_dialog.values['i']))
-					break
-			order_name = input_dialog.values['i']
+	##		for o in protocol.findall('order'):
+	##			if o.find('name').text == input_dialog.values['i']:
+	##				order = o
+	##				logging.debug('Matching protocol ElementTag found for {}'.format(
+	##					input_dialog.values['i']))
+	##				break
+	##		order_name = input_dialog.values['i']
 
-		else:
-			logging.debug('No orders in protocol')
-			use_orders = False
+	##	else:
+	##		logging.debug('No orders in protocol')
+	##		use_orders = False
 
 	# Match the list of structures found in the objective protocols and protocols
 
@@ -1347,35 +1347,36 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 
 	# Launch the matching script here. Then check for any missing that remain. Supply function with rois and
 	# protocol_rois
+	if False:
+		if missing_contours and not targets:
+			mc_list = ',\n'.join(missing_contours)
+			missing_message = 'Missing structures, continue script or cancel \n' + mc_list
+			if run_status:
+				status.next_step(text=missing_message, num=1)
+			connect.await_user_input(missing_message)
+			# Add a line here to check again for missing contours and write out the list
+			for r in case.PatientModel.RegionsOfInterest:
+				# Maybe extend, can't remember
+				rois.append(r.Name)
 
-	if missing_contours and not targets:
-		mc_list = ',\n'.join(missing_contours)
-		missing_message = 'Missing structures, continue script or cancel \n' + mc_list
-		status.next_step(text=missing_message, num=1)
-		connect.await_user_input(missing_message)
-		# Add a line here to check again for missing contours and write out the list
-		for r in case.PatientModel.RegionsOfInterest:
-			# Maybe extend, can't remember
-			rois.append(r.Name)
-
-		m_c = []
-		found = False
-		for m in missing_contours:
-			# We don't want in, we need an exact match - for length too
-			for r in rois:
-				found = False
-				if r == m:
-					found = True
-					break
-			if not found:
-				if m not in m_c:
-					m_c.append(m)
-		if not m_c:
-			logging.debug('All structures in protocol accounted for')
-		else:
-			mc_list = ',\n'.join(m_c)
-			missing_message = 'Missing structures remain: ' + mc_list
-			logging.warning('Missing contours from this order: {}'.format(m_c))
+			m_c = []
+			found = False
+			for m in missing_contours:
+				# We don't want in, we need an exact match - for length too
+				for r in rois:
+					found = False
+					if r == m:
+						found = True
+						break
+				if not found:
+					if m not in m_c:
+						m_c.append(m)
+			if not m_c:
+				logging.debug('All structures in protocol accounted for')
+			else:
+				mc_list = ',\n'.join(m_c)
+				missing_message = 'Missing structures remain: ' + mc_list
+				logging.warning('Missing contours from this order: {}'.format(m_c))
 	if run_status:
 		status.next_step(text="Getting target doses from user.", num=2)
 	if not targets:
