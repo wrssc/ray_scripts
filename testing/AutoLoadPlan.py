@@ -312,7 +312,7 @@ def main():
             patient_load = True
 
         translation_map=OrderedDict()
-        for k, v in row.Targets.items():
+        for k, v in row.Targets.iteritems():
         ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
             translation_map[v[1]] = (k, float(v[0]) /100.)
             logging.debug("translatin map {}:{}".format(v[1],translation_map[v[1]]))
