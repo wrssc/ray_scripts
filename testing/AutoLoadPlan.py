@@ -602,7 +602,8 @@ def main():
         # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
             translation_map[v[1]] = (k, float(v[0]) /100.)
             logging.debug('Translation map key: {} value: {}'.format(v[1],translation_map[v[1]]))
-        
+        for k, v, in translation_map.items():
+            logging.debug('translation map post adjustment is {}:{}'.format(k,v))
         add_goals_and_structures_from_protocol_3(
                                         patient=patient, case=case, plan=plan,
                                         beamset=rs_beam_set, exam=exam,filename=goal_file_name,
