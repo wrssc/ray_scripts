@@ -1215,7 +1215,7 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 			filename))
 		if protocol_name:
   			tree = xml.etree.ElementTree.parse(os.path.join(path_protocols,filename))
-			if tree.getroot.tag() == 'protocol':
+			if tree.getroot().tag == 'protocol':
 				name = tree.find('name').text 
 				if name == protocol_name:
 					protocol = tree.getroot()
