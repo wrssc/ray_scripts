@@ -1223,6 +1223,7 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 			for o in protocol.findall('order'):
 				if o.find('name').text == order_name:
 					order = o
+					use_orders = True
 					break	
 
 
