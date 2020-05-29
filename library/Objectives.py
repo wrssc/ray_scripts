@@ -1206,12 +1206,18 @@ def add_goals_and_structures_from_protocol_3(patient=None, case=None, plan=None,
 	# TODO: Set up a means of bypassing the dialogs
 	#  Eventually we may want to convert to accepting a call from a filename
 	#  Alternatively, this could all be set up as a function call
+	# TODO: there is some lack of logic here. If we move the elementree stuff to
+	# 		dataframes, it would help reduce the overhead in messing with these 
+ 	# 		unsearchable elementrees
 	if filename:
 		logcrit('Protocol selected: {}'.format(
 			filename))
-		root = tpo.protocols[tpo.protocols[filename]]
 		if protocol_name:
-			protocol = tpo.protocols[protocol_name]
+  			tree = xml.etree.ElementTree.parse(os.path.join(protocol_folder,filename))
+			if tree.getroot.tag() == 'protocol':
+				name = tree.find('name').text 
+				if name == protocol_name:
+					protocol = tree.getroot()
   		if order_name:
 			for o in protocol.findall('order'):
 				if o.find('name').text == order_name:
