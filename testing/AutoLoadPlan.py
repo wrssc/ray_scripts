@@ -99,9 +99,9 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
                           + "Planning Structs Loaded" + ",\t"
                           + "Beams Loaded" + ",\t"
                           + "Clinical Goals Loaded" + ",\t"
-                          + "Optimization Strategy Loaded" + ",\t")
-                                                                                                                                                                                   "Optimization Completed" + ",\t" \
-                                                                                                                                                                                                              "Plan Complete" + "\n"
+                          + "Optimization Strategy Loaded" + ",\t"
+                          + "Optimization Completed" + ",\t"
+                          + "Plan Complete" + "\n")
         output_file.write(output_message)
         logging.debug('Header written to {}'.format(output_filename))
     #
