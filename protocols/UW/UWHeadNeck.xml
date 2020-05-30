@@ -5779,7 +5779,6 @@
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
         <reduce_oar>True</reduce_oar>
-        <segment_weight>True
-        <segment_weight>
+        <segment_weight>True</segment_weight>
     </optimization_config>
 </protocol>
