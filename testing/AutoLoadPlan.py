@@ -91,16 +91,15 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
         # The file does not currently exist or is empty
         output_file = open(output_filename, "w+")
         # Write the header
-        output_message = \
-            "PatientID" + ",\t" \
-                          "Case" + ",\t" \
-                                   "Plan" + ",\t" \
-                                            "Beamset" + ",\t" \
-                                                        "Patient Loaded" + ",\t" \
-                                                                           "Planning Structs Loaded" + ",\t" \
-                                                                                                       "Beams Loaded" + ",\t" \
-                                                                                                                        "Clinical Goals Loaded" + ",\t" \
-                                                                                                                                                  "Optimization Strategy Loaded" + ",\t" \
+        output_message = ( "PatientID" + ",\t"
+                          + "Case" + ",\t"
+                          + "Plan" + ",\t"
+                          + "Beamset" + ",\t"
+                          + "Patient Loaded" + ",\t"
+                          + "Planning Structs Loaded" + ",\t"
+                          + "Beams Loaded" + ",\t"
+                          + "Clinical Goals Loaded" + ",\t"
+                          + "Optimization Strategy Loaded" + ",\t")
                                                                                                                                                                                    "Optimization Completed" + ",\t" \
                                                                                                                                                                                                               "Plan Complete" + "\n"
         output_file.write(output_message)
@@ -400,8 +399,7 @@ def optimize(s):
     tree_oc = xml.etree.ElementTree.parse(
         os.path.join(os.path.dirname(__file__), path, file))
     # Planning preferences loaded into dict
-    dict_oc = OptimizationOperations \
-        .iter_planning_structure_etree(tree_oc)
+    dict_oc = iter_planning_structure_etree(tree_oc)
     # Planning preferences loaded dataframe
     df_oc = pd.DataFrame(
         dict_oc[key_oc])
