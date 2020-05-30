@@ -312,7 +312,7 @@ def main():
             patient_load = True
 
         translation_map=OrderedDict()
-        for k, v in row.Targets.iteritems():
+        for k, v in row['Targets'].items():
         ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
             translation_map[v[1]] = (k, float(v[0]) /100.)
             logging.debug("translatin map {}:{}".format(v[1],translation_map[v[1]]))
@@ -608,7 +608,7 @@ def main():
         for k, v in translation_map.items():
         # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
         ##     translation_map[v[1]] = (k, float(v[0]) /100.)
-            logging.debug('Translation map key: {} value: {}'.format(k,v))
+            logging.debug('Translation3 map key: {} value: {}'.format(k,v))
         ## for k, v, in translation_map.items():
         ##     logging.debug('translation map post adjustment is {}:{}'.format(k,v))
         add_goals_and_structures_from_protocol_3(
