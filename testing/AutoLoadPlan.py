@@ -420,7 +420,8 @@ def main():
         rs_beam_set.SetCurrent()
         
         translation_map=OrderedDict()
-        logging.debug('targets {} are great, type {}'.format(row['Targets'],type(row['Targets'])))
+        logging.debug('targets {} are great, type {}, len {}'.format(
+            row['Targets'],type(row['Targets']),len(row['Targets'])))
         for k, v in row['Targets'].items():
         ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
             key = str(v[1])
