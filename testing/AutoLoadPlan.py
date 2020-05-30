@@ -265,9 +265,12 @@ def test_input_commands(s):
 def load_planning_structures(s):
 
     key_ps = 'planning_structure_config'
+    wf = s.PlanningStructureWorkflow
+    # No planning structures needed 
+    if not wf:
+        return 'NA'
     file = s.PlanningStructureFile
     path = s.PlanningStructurePath
-    wf = s.PlanningStructureWorkflow
     tree_pp = xml.etree.ElementTree.parse(
                                 os.path.join( os.path.dirname(__file__), path,file))
     # Planning preferences loaded into dict
@@ -380,6 +383,8 @@ def load_planning_structures(s):
         dialog4_response=dialog4_response,
         dialog5_response=dialog5_response
     )
+    success = 'True'
+    return success
 
 
 def merge_dict(row):
@@ -482,8 +487,26 @@ def main():
             connect.get_current('Plan')
             patient_load = True
 
-        test_input_commands(row)
-        load_planning_structures(row)
+        input_error = test_input_commands(row)
+        if input_error:
+            # Go to the next entry
+            output_status(
+                path=path,
+                input_filename=file_csv,
+                patient_id=patient_id,
+                case_name=case_name,
+                plan_name=plan_name,
+                beamset_name=beamset_name,
+                patient_load=patient_load,
+                planning_structs=planning_structs,
+                beams_load=beams_load,
+                clinical_goals_load=clinical_goals_load,
+                plan_optimization_strategy_load=plan_optimization_strategy_load,
+                optimization_complete=optimization_complete,
+                script_status=input_error
+            )
+            continue
+        planning_structs = load_planning_structures(row)
         if False:
             # Planning preferences loaded into tree
             structure_error = load_patient_structures(
