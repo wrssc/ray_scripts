@@ -2815,8 +2815,10 @@ class planning_structure_preferences:
         self.targets = {}
         self.use_inner_air = None
         self.use_uniform_dose = None
+        self.uniform_properties = {'structures':[], 'standoff':None}
         self.uniform_dose_oar = {}
         self.use_under_dose = None
+        self.under_dose_properties = {'structures':[], 'standoff':None}
         self.under_dose_oar = {}
         self.plan_type = None
 
