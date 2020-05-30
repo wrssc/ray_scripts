@@ -311,7 +311,127 @@ def main():
             connect.get_current('Plan')
             patient_load = True
 
-        
+        if generate_planning_structures:
+            # Planning preferences loaded into tree
+            planning_preferences_tree = xml.etree.ElementTree.parse(
+                                            os.path.join(
+                                                         os.path.dirname(__file__),
+                                                         row.PlanningStructurePath,
+                                                         row.PlanningStructureFile
+                                                         )
+                                            )
+            # Planning preferences loaded into dict
+            planning_preferences_dict = StructureOperations \
+                                        .iter_planning_structure_etree(planning_preferences_tree)
+            # Planning preferences loaded dataframe
+            df_planning_preferences = pd.DataFrame(planning_preferences_dict['planning_structure_config'])
+            # Select the dataframe row that matches the workflow name
+            df_workflow = df_planning_preferences[df_planning_preferences.name == row.PlanningStructureWorkflow]
+            # If we matched, then lets start setting up planning structures
+            if df_workflow.empty:
+                planning_structs = False
+            else:
+                planning_prefs = StructureOperations.planning_structure_preferences()
+                planning_prefs.number_of_targets = row.NumberTargets
+                planning_prefs.first_target_number = df_workflow.first_target_number.values[0]
+                uniform_structures = df_workflow.uniform_structures.values[0]
+                underdose_structures = df_workflow.underdose_structures.values[0]
+                inner_air_name = df_workflow.inner_air_name.values[0]
+                
+                if uniform_structures:
+                    planning_prefs.use_uniform_dose = True
+                    dialog4_response = {'structures': df_workflow.uniform_structures.values[0],
+                                        'standoff': df_workflow.uniform_standoff.values[0]}
+                else:
+                    planning_prefs.use_uniform_dose = False
+                    dialog4_response = {'structures': [], 'standoff': None}
+
+                if underdose_structures:
+                    planning_prefs.use_under_dose = True
+                    dialog3_response = {'structures': df_workflow.underdose_structures.values[0],
+                                        'standoff': df_workflow.underdose_standoff.values[0]}
+                else:
+                    planning_prefs.use_under_dose = False
+                    dialog3_response = {'structures': [], 'standoff': None}
+
+                if inner_air_name:
+                    planning_prefs.use_inner_air = True
+                else:
+                    planning_prefs.use_inner_air = False
+                dialog1_response = {
+                        'number_of_targets': planning_prefs.number_of_targets,
+                        'generate_underdose': planning_prefs.use_under_dose,
+                        'generate_uniformdose': planning_prefs.use_uniform_dose,
+                        'generate_inner_air': planning_prefs.use_inner_air}
+                dialog2_response = OrderedDict()
+                for k, v in row.Targets.items():
+                    dialog2_response[k] = v[0]
+                # Skin-superficial
+                dialog5_response = {}
+                if df_workflow.superficial_target_name.values[0]:
+                    dialog5_response['target_skin'] = True
+                else:
+                    dialog5_response['target_skin'] = False
+                # HD Ring
+                if df_workflow.ring_hd_name.values[0]:
+                    generate_ring_hd = True
+                    dialog5_response['ring_hd'] = generate_ring_hd
+                    dialog5_response['thick_hd_ring'] = df_workflow.ring_hd_ExpA.values[0][0]
+                    dialog5_response['ring_standoff'] = df_workflow.ring_hd_standoff.values[0]
+                else:
+                    generate_ring_hd = False
+                    dialog5_response['ring_hd'] = generate_ring_hd
+                    dialog5_response['thick_hd_ring'] = None
+                    dialog5_response['ring_standoff'] = None
+                # LD Ring
+                if df_workflow.ring_ld_name.values[0]:
+                    generate_ring_ld = True
+                    dialog5_response['ring_ld'] = generate_ring_ld
+                    dialog5_response['thick_ld_ring'] = df_workflow.ring_ld_ExpA.values[0][0]
+                    dialog5_response['ring_standoff'] = df_workflow.ring_hd_standoff.values[0]
+                else:
+                    generate_ring_ld = False
+                    dialog5_response['ring_ld'] = generate_ring_ld
+                    dialog5_response['thick_ld_ring'] = None
+                # Target rings
+                if df_workflow.ring_ts_name.values[0]:
+                    dialog5_response['target_rings'] = True
+                else:
+                    dialog5_response['target_rings'] = False
+                # OTV's
+                if df_workflow.otv_name.values[0]:
+                    dialog5_response['otv_standoff'] = df_workflow.otv_standoff.values[0]
+                    generate_otvs = True
+                else:
+                    dialog5_response['otv_standoff'] = None
+                    generate_otvs = False
+                # Skin evals
+                if df_workflow.skin_name.values[0]:
+                    generate_skin = True
+                    skin_contraction = df_workflow.skin_ExpA.values[0][0]
+                else:
+                    generate_skin = False
+                    skin_contraction = None
+                StructureOperations.planning_structures(
+                    generate_ptvs=True,
+                    generate_ptv_evals=True,
+                    generate_otvs=generate_otvs,
+                    generate_skin=generate_skin,
+                    generate_inner_air=planning_prefs.use_inner_air,
+                    generate_field_of_view=True,
+                    generate_ring_hd=generate_ring_hd,
+                    generate_ring_ld=generate_ring_ld,
+                    generate_normal_2cm=True,
+                    generate_combined_ptv=True,
+                    skin_contraction=skin_contraction,
+                    run_status=False,
+                    planning_structure_selections=planning_prefs,
+                    dialog2_response=dialog2_response,
+                    dialog3_response=dialog3_response,
+                    dialog4_response=dialog4_response,
+                    dialog5_response=dialog5_response
+                )
+                 
 
         # If this beamset is found, then append 1-99 to the name and keep going
         beamset_exists = True
@@ -421,181 +541,7 @@ def main():
         
         
     
-        if generate_planning_structures:
-            # Planning preferences loaded into tree
-            planning_preferences_tree = xml.etree.ElementTree.parse(
-                                            os.path.join(
-                                                         os.path.dirname(__file__),
-                                                         row.PlanningStructurePath,
-                                                         row.PlanningStructureFile
-                                                         )
-                                            )
-            # Planning preferences loaded into dict
-            planning_preferences_dict = StructureOperations \
-                                        .iter_planning_structure_etree(planning_preferences_tree)
-            # Planning preferences loaded dataframe
-            df_planning_preferences = pd.DataFrame(planning_preferences_dict['planning_structure_config'])
-            # Select the dataframe row that matches the workflow name
-            df_workflow = df_planning_preferences[df_planning_preferences.name == row.PlanningStructureWorkflow]
-            # If we matched, then lets start setting up planning structures
-            if df_workflow.empty:
-                planning_structs = False
-            else:
-                planning_prefs = StructureOperations.planning_structure_preferences()
-                planning_prefs.number_of_targets = row.NumberTargets
-                planning_prefs.first_target_number = df_workflow.first_target_number.values[0]
-                uniform_structures = df_workflow.uniform_structures.values[0]
-                underdose_structures = df_workflow.underdose_structures.values[0]
-                inner_air_name = df_workflow.inner_air_name.values[0]
-                
-                if uniform_structures:
-                    planning_prefs.use_uniform_dose = True
-                    dialog4_response = {'structures': df_workflow.uniform_structures.values[0],
-                                        'standoff': df_workflow.uniform_standoff.values[0]}
-                else:
-                    planning_prefs.use_uniform_dose = False
-                    dialog4_response = {'structures': [], 'standoff': None}
-
-                if underdose_structures:
-                    planning_prefs.use_under_dose = True
-                    dialog3_response = {'structures': df_workflow.underdose_structures.values[0],
-                                        'standoff': df_workflow.underdose_standoff.values[0]}
-                else:
-                    planning_prefs.use_under_dose = False
-                    dialog3_response = {'structures': [], 'standoff': None}
-
-                if inner_air_name:
-                    planning_prefs.use_inner_air = True
-                else:
-                    planning_prefs.use_inner_air = False
-                dialog1_response = {
-                        'number_of_targets': planning_prefs.number_of_targets,
-                        'generate_underdose': planning_prefs.use_under_dose,
-                        'generate_uniformdose': planning_prefs.use_uniform_dose,
-                        'generate_inner_air': planning_prefs.use_inner_air}
-                dialog2_response = OrderedDict()
-                for k, v in row.Targets.items():
-                    dialog2_response[k] = v[0]
-
-                ## dialog2_response = row.Targets
-                ## dialog1_response = {'number_of_targets': 2,
-                ##                     'generate_underdose': False,
-                ##                     'generate_uniformdose': True,
-                ##                     'generate_inner_air': False}
-                ## targets_dose = {target_1: target_1_dose, target_2: target_2_dose, target_3: target_3_dose}
-                ## dialog2_response = targets_dose
-                ## dialog1_response = None
-                ## dialog2_response = None
-                # Underdose dialog, dictionary or none
-                    
-                ## dialog4_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
-                ##                 'standoff': 0.4}
-                # TODO Add capabilites for handing a name and expansion for superficial targets,
-                #       Make OTV's optional, add standoffs, 
-                #       Add capabilities of specifinyg a ring HD/LD/targets thickness- with differential expansion,
-                #           standoff etc...
-                # Skin-superficial
-                dialog5_response = {}
-                if df_workflow.superficial_target_name.values[0]:
-                    dialog5_response['target_skin'] = True
-                else:
-                    dialog5_response['target_skin'] = False
-                # HD Ring
-                if df_workflow.ring_hd_name.values[0]:
-                    generate_ring_hd = True
-                    dialog5_response['ring_hd'] = generate_ring_hd
-                    dialog5_response['thick_hd_ring'] = df_workflow.ring_hd_ExpA.values[0][0]
-                    dialog5_response['ring_standoff'] = df_workflow.ring_hd_standoff.values[0]
-                else:
-                    generate_ring_hd = False
-                    dialog5_response['ring_hd'] = generate_ring_hd
-                    dialog5_response['thick_hd_ring'] = None
-                    dialog5_response['ring_standoff'] = None
-                # LD Ring
-                if df_workflow.ring_ld_name.values[0]:
-                    generate_ring_ld = True
-                    dialog5_response['ring_ld'] = generate_ring_ld
-                    dialog5_response['thick_ld_ring'] = df_workflow.ring_ld_ExpA.values[0][0]
-                    dialog5_response['ring_standoff'] = df_workflow.ring_hd_standoff.values[0]
-                else:
-                    generate_ring_ld = False
-                    dialog5_response['ring_ld'] = generate_ring_ld
-                    dialog5_response['thick_ld_ring'] = None
-                # Target rings
-                if df_workflow.ring_ts_name.values[0]:
-                    dialog5_response['target_rings'] = True
-                else:
-                    dialog5_response['target_rings'] = False
-                # OTV's
-                if df_workflow.otv_name.values[0]:
-                    dialog5_response['otv_standoff'] = df_workflow.otv_standoff.values[0]
-                    generate_otvs = True
-                else:
-                    dialog5_response['otv_standoff'] = None
-                    generate_otvs = False
-                # Skin evals
-                if df_workflow.skin_name.values[0]:
-                    generate_skin = True
-                    skin_contraction = df_workflow.skin_ExpA.values[0][0]
-                else:
-                    generate_skin = False
-                    skin_contraction = None
-                StructureOperations.planning_structures(
-                    generate_ptvs=True,
-                    generate_ptv_evals=True,
-                    generate_otvs=generate_otvs,
-                    generate_skin=generate_skin,
-                    generate_inner_air=planning_prefs.use_inner_air,
-                    generate_field_of_view=True,
-                    generate_ring_hd=generate_ring_hd,
-                    generate_ring_ld=generate_ring_ld,
-                    generate_normal_2cm=True,
-                    generate_combined_ptv=True,
-                    skin_contraction=skin_contraction,
-                    run_status=False,
-                    planning_structure_selections=planning_prefs,
-                    dialog2_response=dialog2_response,
-                    dialog3_response=dialog3_response,
-                    dialog4_response=dialog4_response,
-                    dialog5_response=dialog5_response
-                )
-                ## dialog5_response = {'target_skin': False,
-                ##                 'ring_hd': True,
-                ##                 'target_rings': True,
-                ##                 'thick_hd_ring': 2,
-                ##                 'thick_ld_ring': 5,
-                ##                 'ring_standoff': 0.2,
-                ##                 'otv_standoff': 0.4}
-                ## StructureOperations.planning_structures(
-                ##    generate_ptvs=True,
-                ##    generate_ptv_evals=True,
-                ##    generate_otvs=True,
-                ##    generate_skin=True,
-                ##    generate_inner_air=True,
-                ##    generate_field_of_view=True,
-                ##    generate_ring_hd=True,
-                ##    generate_ring_ld=True,
-                ##    generate_normal_2cm=True,
-                ##    generate_combined_ptv=True,
-                ##    skin_contraction=0.3,
-                ##    run_status=False,
-                ##    planning_structure_selections=planning_prefs,
-                ##    dialog2_response=dialog2_response,
-                ##    dialog3_response=dialog3_response,
-                ##    dialog4_response=dialog4_response,
-                ##    dialog5_response=dialog5_response
-                ##)
-        ## # Go grab the beamset called protocol_beamset
-        ## # This step is likely not necessary, just know exact beamset name from protocol
-        ## planning_struct_etree = BeamOperations.Beams.select_element(
-        ##     set_level='planning_structure_set',
-        ##     set_type=None,
-        ##     set_elements='planning_structure_preferences',
-        ##     filename=row.PlanningStructureFile,
-        ##     set_level_name=row.PlanningStructureWorkflow,
-        ##     dialog=False,
-        ##     folder=path_planning_structure_protocol,
-        ##     verbose_logging=False)[0]
+       
         # Now add in clinical goals and objectives
         ## GoalPath	GoalFile	ProtocolName	OrderName
         goal_file_name = row.GoalFile
