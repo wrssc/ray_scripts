@@ -281,12 +281,6 @@ def main():
                                          exam_name=row.ExaminationName,
                                          plan_name=plan_name,
                                          )
-<<<<<<< HEAD
-=======
-        logging.debug('targets {} are great, type {}, len {}'.format(
-            row.Targets,type(row.Targets),len(row.Targets)))
-        logging.debug('plan_data {}'.format(plan_data.Targets.to_string()))
->>>>>>> 12b2adfe595f09d33d69284de0436c43e8a2d085
         # Check loading status
         if patient_data['Error']:
             # Go to the next entry
