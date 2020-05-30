@@ -281,6 +281,8 @@ def main():
                                          exam_name=row.ExaminationName,
                                          plan_name=plan_name,
                                          )
+        logging.debug('targets {} are great, type {}, len {}'.format(
+            row.Targets,type(row.Targets),len(row.Targets)))
         # Check loading status
         if patient_data['Error']:
             # Go to the next entry
@@ -311,8 +313,6 @@ def main():
             connect.get_current('Plan')
             patient_load = True
 
-        logging.debug('targets {} are great, type {}, len {}'.format(
-            row.Targets,type(row.Targets),len(row.Targets)))
         
 
         # If this beamset is found, then append 1-99 to the name and keep going
