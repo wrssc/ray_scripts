@@ -214,6 +214,174 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
     return patient_data
 
 
+def test_input_commands(s):
+    e =[] # Errors 
+    # Planning Structures
+    wf = s.PlanningStructureWorkflow # Named workflow: planning_structure_set>name, or None for skip
+    elem = 'planning_structure_set'
+    if wf:
+        file = s.PlanningStructureFile
+        path = s.PlanningStructurePath
+        path_file = os.path.join(os.path.dirname(__file__), path,file) 
+        if not path:
+            e.append("Empty planning structure path.")
+        if not file:
+            e.append("Empty planning structure file.")
+        if not os.path.isfile(path_file):
+            e.append("Planning structure file does not exist: {}".format(path_file))
+        # Check the file for a planning_structure_set
+        try:
+            tree_pp = xml.etree.ElementTree.parse(
+                                os.path.join( os.path.dirname(__file__), path,file))
+            if not tree_pp.findall(elem):
+                e.append("Planning structure file {} does not contain elements: {}".format(path_file,elem))
+                return e
+        except:
+            e.append('Could not parse {}'.format(path_file))
+            return e
+        # Check the file for the named workflow
+        try:
+            dict_pp = StructureOperations.iter_planning_structure_etree(tree_pp)
+        except:
+            e.append("Could not convert element-tree in {} to dictionary.".format(path_file))
+            return e
+        # Convert the dict to pandas dataframe and see if it is empty
+        df_pp = pd.DataFrame(dict_pp)
+        if df_pp.empty:
+            e.append("Could not convert dictionary in {} to dataframe.".format(path_file))
+        # Slice the dataframe at the workflow name
+        df_wf = df_pp[df_pp.name == wf]
+        # Check if no match found
+        if df_wf.empty:
+            e.append("No planning_structure_set in {} with name {}".format(path_file,wf)) 
+            return e
+        # Check if more than one match is found
+        if df_wf.name.count() > 1:
+            e.append(">1 planning_structure_set in {} with name {}".format(path_file,wf))
+            return e
+        # Check contents of planning_structure_set for essential 
+
+
+def load_planning_structures(s):
+
+    test_input_commands(s)
+    file = s.PlanningStructureFile
+    path = s.PlanningStructurePath
+    wf = s.PlanningStructureWorkflow
+    tree_pp = xml.etree.ElementTree.parse(
+                                os.path.join( os.path.dirname(__file__), path,file))
+    # Planning preferences loaded into dict
+    dict_pp = StructureOperations \
+        .iter_planning_structure_etree(tree_pp)
+    # Planning preferences loaded dataframe
+    df_pp = pd.DataFrame(
+            dict_pp['planning_structure_config'])
+    # Slice for the planning structure set matching the input workflow
+    df_wf = df_pp[df_pp.name == wf]
+
+    pp = StructureOperations.planning_structure_preferences()
+    pp.number_of_targets = s.NumberTargets
+    pp.first_target_number = df_wf.first_target_number.values[0]
+    uniform_structures = df_wf.uniform_structures.values[0]
+    underdose_structures = df_wf.underdose_structures.values[0]
+    inner_air_name = df_wf.inner_air_name.values[0]
+
+    if uniform_structures:
+        pp.use_uniform_dose = True
+        pp.uniform_properties['structures'] = df_wf.uniform_structures.values[0]
+        pp.uniform_properties['standoff'] = df_wf.uniform_standoff.values[0]
+    else:
+        pp.use_uniform_dose = False
+    dialog4_response = pp.uniform_properties
+
+    if underdose_structures:
+        pp.use_under_dose = True
+        pp.under_dose_properties['structures'] = df_wf.underdose_structures.values[0]
+        pp.under_dose_properties['standoff'] = df_wf.underdose_standoff.values[0]
+    else:
+        pp.use_under_dose = False
+    dialog3_response = pp.under_dose_properties
+
+    if inner_air_name:
+        pp.use_inner_air = True
+    else:
+        pp.use_inner_air = False
+    # TODO: move all references to dialog response to planning_prefs
+    dialog1_response = {
+        'number_of_targets': pp.number_of_targets,
+        'generate_underdose': pp.use_under_dose,
+        'generate_uniformdose': pp.use_uniform_dose,
+        'generate_inner_air': pp.use_inner_air}
+    dialog2_response = OrderedDict()
+    for k, v in s.Targets.items():
+        dialog2_response[k] = v[0]
+    # Skin-superficial
+    dialog5_response = {}
+    if df_wf.superficial_target_name.values[0]:
+        dialog5_response['target_skin'] = True
+    else:
+        dialog5_response['target_skin'] = False
+    # HD Ring
+    if df_wf.ring_hd_name.values[0]:
+        generate_ring_hd = True
+        dialog5_response['ring_hd'] = generate_ring_hd
+        dialog5_response['thick_hd_ring'] = df_wf.ring_hd_ExpA.values[0][0]
+        dialog5_response['ring_standoff'] = df_wf.ring_hd_standoff.values[0]
+    else:
+        generate_ring_hd = False
+        dialog5_response['ring_hd'] = generate_ring_hd
+        dialog5_response['thick_hd_ring'] = None
+        dialog5_response['ring_standoff'] = None
+    # LD Ring
+    if df_wf.ring_ld_name.values[0]:
+        generate_ring_ld = True
+        dialog5_response['ring_ld'] = generate_ring_ld
+        dialog5_response['thick_ld_ring'] = df_wf.ring_ld_ExpA.values[0][0]
+        dialog5_response['ring_standoff'] = df_wf.ring_hd_standoff.values[0]
+    else:
+        generate_ring_ld = False
+        dialog5_response['ring_ld'] = generate_ring_ld
+        dialog5_response['thick_ld_ring'] = None
+    # Target rings
+    if df_wf.ring_ts_name.values[0]:
+        dialog5_response['target_rings'] = True
+    else:
+        dialog5_response['target_rings'] = False
+    # OTV's
+    if df_wf.otv_name.values[0]:
+        dialog5_response['otv_standoff'] = df_wf.otv_standoff.values[0]
+        generate_otvs = True
+    else:
+        dialog5_response['otv_standoff'] = None
+        generate_otvs = False
+    # Skin evals
+    if df_wf.skin_name.values[0]:
+        generate_skin = True
+        skin_contraction = df_wf.skin_ExpA.values[0][0]
+    else:
+        generate_skin = False
+        skin_contraction = None
+    StructureOperations.planning_structures(
+        generate_ptvs=True,
+        generate_ptv_evals=True,
+        generate_otvs=generate_otvs,
+        generate_skin=generate_skin,
+        generate_inner_air=pp.use_inner_air,
+        generate_field_of_view=True,
+        generate_ring_hd=generate_ring_hd,
+        generate_ring_ld=generate_ring_ld,
+        generate_normal_2cm=True,
+        generate_combined_ptv=True,
+        skin_contraction=skin_contraction,
+        run_status=False,
+        planning_structure_selections=pp,
+        dialog2_response=dialog2_response,
+        dialog3_response=dialog3_response,
+        dialog4_response=dialog4_response,
+        dialog5_response=dialog5_response
+    )
+
+
 def merge_dict(row):
     """
     A variable number of input targets may be used in the csv file
@@ -314,15 +482,22 @@ def main():
             connect.get_current('Plan')
             patient_load = True
 
-        if generate_planning_structures:
+        test_input_commands(row)
+        load_planning_structures(row)
+        if False:
             # Planning preferences loaded into tree
-            planning_preferences_tree = xml.etree.ElementTree.parse(
-                os.path.join(
-                    os.path.dirname(__file__),
-                    row.PlanningStructurePath,
-                    row.PlanningStructureFile
-                )
+            structure_error = load_patient_structures(
+                path=row.PlanningStructurePath,
+                file=row.PlanningStructureFile,
+                workflow_name=row.PlanningStructureWorkflow
             )
+            ## planning_preferences_tree = xml.etree.ElementTree.parse(
+            ##     os.path.join(
+            ##         os.path.dirname(__file__),
+            ##         row.PlanningStructurePath,
+            ##         row.PlanningStructureFile
+            ##     )
+            ## )
             # Planning preferences loaded into dict
             planning_preferences_dict = StructureOperations \
                 .iter_planning_structure_etree(planning_preferences_tree)
