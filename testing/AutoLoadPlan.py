@@ -259,7 +259,6 @@ def test_input_commands(s):
         if df_wf.name.count() > 1:
             e.append(">1 planning_structure_set in {} with name {}".format(path_file,wf))
             return e
-        # Check contents of planning_structure_set for essential 
 
 
 def load_planning_structures(s):
