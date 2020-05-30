@@ -283,6 +283,7 @@ def main():
                                          )
         logging.debug('targets {} are great, type {}, len {}'.format(
             row.Targets,type(row.Targets),len(row.Targets)))
+        logging.debug('plan_data {}'.format(plan_data.Targets.to_string()))
         # Check loading status
         if patient_data['Error']:
             # Go to the next entry
