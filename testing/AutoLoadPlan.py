@@ -281,8 +281,6 @@ def main():
                                          exam_name=row.ExaminationName,
                                          plan_name=plan_name,
                                          )
-        logging.debug('targets {} are great, type {}, len {}'.format(
-            row.Targets,type(row.Targets),len(row.Targets)))
         # Check loading status
         if patient_data['Error']:
             # Go to the next entry
@@ -421,16 +419,7 @@ def main():
         patient.Save()
         rs_beam_set.SetCurrent()
         
-        translation_map=OrderedDict()
-        for k, v in row.Targets.items():
-        ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
-            key = str(v[1])
-            val_1 = int(k)
-            val_2 = float(v[0])/100.
-            translation_map[key] = (val_1, val_2)
-        for k,v in translation_map.items():
-            logging.debug("translatin map {}:{}".format(k,v))
-        break
+        
     
         if generate_planning_structures:
             # Planning preferences loaded into tree
@@ -615,6 +604,10 @@ def main():
         protocol_name = row.ProtocolName
         order_name = row.OrderName
         ## translation_map = OrderedDict()
+        translation_map=OrderedDict()
+        for k, v in row.Targets.items():
+        ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
+            translation_map[v[1]] = (k, float(v[0])/100.)
         for k, v in translation_map.items():
         # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
         ##     translation_map[v[1]] = (k, float(v[0]) /100.)
