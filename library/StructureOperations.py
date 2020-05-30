@@ -2373,7 +2373,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         "ExcludeFromExport": True,
         "VisualizeStructure": False,
         "StructColor": air_color,
-        "OperationA": "Intersect",
+        "OperationA": "Intersection",
         "SourcesA": inner_air_sources,
         "MarginTypeA": "Expand",
         "ExpA": [0] * 6,

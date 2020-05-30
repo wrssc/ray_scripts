@@ -56,6 +56,7 @@ import BeamOperations
 import UserInterface
 from Objectives import add_goals_and_structures_from_protocol_3
 
+
 def output_status(path, input_filename, patient_id, case_name, plan_name, beamset_name,
                   patient_load, planning_structs, beams_load, clinical_goals_load,
                   plan_optimization_strategy_load, optimization_complete, script_status):
@@ -80,7 +81,7 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
 
     # Create the output file
     path = os.path.dirname(input_filename)
-    output_filename = os.path.join(path, input_filename.replace(".csv","_output.txt"))
+    output_filename = os.path.join(path, input_filename.replace(".csv", "_output.txt"))
     # Determine if a filename exists and is empty
     if os.path.exists(output_filename) and os.stat(output_filename).st_size != 0:
         output_file = open(output_filename, "a+")
@@ -90,17 +91,17 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
         output_file = open(output_filename, "w+")
         # Write the header
         output_message = \
-                   "PatientID" + ",\t" \
-                   "Case" + ",\t" \
-                   "Plan" + ",\t" \
-                   "Beamset" + ",\t" \
-                   "Patient Loaded" + ",\t" \
-                   "Planning Structs Loaded" + ",\t" \
-                   "Beams Loaded" + ",\t" \
-                   "Clinical Goals Loaded" + ",\t" \
-                   "Optimization Strategy Loaded" + ",\t" \
-                   "Optimization Completed" + ",\t" \
-                   "Plan Complete" + "\n"
+            "PatientID" + ",\t" \
+                          "Case" + ",\t" \
+                                   "Plan" + ",\t" \
+                                            "Beamset" + ",\t" \
+                                                        "Patient Loaded" + ",\t" \
+                                                                           "Planning Structs Loaded" + ",\t" \
+                                                                                                       "Beams Loaded" + ",\t" \
+                                                                                                                        "Clinical Goals Loaded" + ",\t" \
+                                                                                                                                                  "Optimization Strategy Loaded" + ",\t" \
+                                                                                                                                                                                   "Optimization Completed" + ",\t" \
+                                                                                                                                                                                                              "Plan Complete" + "\n"
         output_file.write(output_message)
         logging.debug('Header written to {}'.format(output_filename))
     #
@@ -108,7 +109,7 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
     if script_status is None:
         script_status = 'success'
     output_message = \
-          patient_id + ",\t" \
+        patient_id + ",\t" \
         + case_name + ",\t" \
         + plan_name + ",\t" \
         + beamset_name + ",\t" \
@@ -118,7 +119,7 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
         + str(clinical_goals_load) + ",\t" \
         + str(plan_optimization_strategy_load) + ",\t" \
         + str(optimization_complete) + ",\t" \
-        + str(script_status) + "\n" 
+        + str(script_status) + "\n"
     output_file.write(output_message)
     output_file.close()
 
@@ -174,8 +175,8 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
     # 
     # Load examination
     try:
-        info = db.QueryExaminationInfo(PatientInfo = patient_info[0],
-                                        Filter = {'Name': exam_name})
+        info = db.QueryExaminationInfo(PatientInfo=patient_info[0],
+                                       Filter={'Name': exam_name})
         if info[0]['Name'] == exam_name:
             ## Raystation sets the value of an anonymized CT ID to -sys.maxint -1
             ##   causing the ID key to be non unique.
@@ -184,13 +185,13 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
             exam = case.Examinations[exam_name]
             patient_data['Exam'] = exam
     except IndexError:
-        patient_data['Error'].append('Exam {} not found'.format(exam_name)) 
+        patient_data['Error'].append('Exam {} not found'.format(exam_name))
         return patient_data
     #
     # Load the plan indicated
     # If the plan is found, cool. just make it current
     try:
-        info = case.QueryPlanInfo(Filter = {'Name': plan_name})
+        info = case.QueryPlanInfo(Filter={'Name': plan_name})
         if info[0]['Name'] == plan_name:
             patient_data['Plan'] = case.TreatmentPlans[plan_name]
     except IndexError:
@@ -212,29 +213,31 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
 
     return patient_data
 
+
 def merge_dict(row):
-        """
-        A variable number of input targets may be used in the csv file
-        this function returns a dictionary that can be used to merge target columns
-        Arguments:
-           row {dataframe row} -- input row from the plan_data dataframe
-        Returns:
-           [dict] -- dictionary of the form {'PTV1_6000': 6000, ...}
-        """
-        target_column_exists = True
-        target_columns = 0 
-        target_dict = OrderedDict()
-        while target_column_exists:
-            try:
-                target_name = 'Target' + str(target_columns+1).zfill(2)
-                target_dose = 'TargetDose' + str(target_columns+1).zfill(2)
-                protocol_name = 'Protocol'+ target_name
-                if not np.isnan(row[target_dose]):
-                    target_dict[row[target_name]] = (row[target_dose],row[protocol_name])
-                target_columns += 1
-            except KeyError:
-                target_column_exists = False
-        return target_dict
+    """
+    A variable number of input targets may be used in the csv file
+    this function returns a dictionary that can be used to merge target columns
+    Arguments:
+       row {dataframe row} -- input row from the plan_data dataframe
+    Returns:
+       [dict] -- dictionary of the form {'PTV1_6000': 6000, ...}
+    """
+    target_column_exists = True
+    target_columns = 0
+    target_dict = OrderedDict()
+    while target_column_exists:
+        try:
+            target_name = 'Target' + str(target_columns + 1).zfill(2)
+            target_dose = 'TargetDose' + str(target_columns + 1).zfill(2)
+            protocol_name = 'Protocol' + target_name
+            if not np.isnan(row[target_dose]):
+                target_dict[row[target_name]] = (row[target_dose], row[protocol_name])
+            target_columns += 1
+        except KeyError:
+            target_column_exists = False
+    return target_dict
+
 
 # def create_beamset(beamset_name, df_input, suffix=):
 #    """Create a beamset from """
@@ -249,10 +252,10 @@ def main():
         # Merge the target rows into a dictionary containing {[Target Name]:Dose}
         plan_data['Targets'] = plan_data.apply(lambda row: merge_dict(row), axis=1)
         # Replace all nan with ''
-        plan_data = plan_data.replace(np.nan, '',regex=True)
+        plan_data = plan_data.replace(np.nan, '', regex=True)
     ## Create the output file
     path = os.path.dirname(file_csv)
-        
+
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
     # Cycle through the input file
     for index, row in plan_data.iterrows():
@@ -263,7 +266,7 @@ def main():
         patient_load = False
         if row.PlanningStructureWorkflow:
             generate_planning_structures = True
-            planning_structs= False
+            planning_structs = False
         else:
             generate_planning_structures = False
             planning_structs = "NA"
@@ -274,30 +277,30 @@ def main():
         #
         # Read the csv into a pandas dataframe
         patient_data = load_patient_data(
-                                         patient_id=patient_id,
-                                         first_name=row.FirstName,
-                                         last_name=row.LastName,
-                                         case_name=case_name,
-                                         exam_name=row.ExaminationName,
-                                         plan_name=plan_name,
-                                         )
+            patient_id=patient_id,
+            first_name=row.FirstName,
+            last_name=row.LastName,
+            case_name=case_name,
+            exam_name=row.ExaminationName,
+            plan_name=plan_name,
+        )
         # Check loading status
         if patient_data['Error']:
             # Go to the next entry
             output_status(
-                      path=path,
-                      input_filename=file_csv,
-                      patient_id=patient_id,
-                      case_name=case_name,
-                      plan_name=plan_name,
-                      beamset_name=beamset_name,
-                      patient_load=patient_load,
-                      planning_structs=planning_structs,
-                      beams_load=beams_load,
-                      clinical_goals_load=clinical_goals_load,
-                      plan_optimization_strategy_load=plan_optimization_strategy_load,
-                      optimization_complete=optimization_complete,
-                      script_status=patient_data['Error']
+                path=path,
+                input_filename=file_csv,
+                patient_id=patient_id,
+                case_name=case_name,
+                plan_name=plan_name,
+                beamset_name=beamset_name,
+                patient_load=patient_load,
+                planning_structs=planning_structs,
+                beams_load=beams_load,
+                clinical_goals_load=clinical_goals_load,
+                plan_optimization_strategy_load=plan_optimization_strategy_load,
+                optimization_complete=optimization_complete,
+                script_status=patient_data['Error']
             )
             continue
         else:
@@ -314,19 +317,21 @@ def main():
         if generate_planning_structures:
             # Planning preferences loaded into tree
             planning_preferences_tree = xml.etree.ElementTree.parse(
-                                            os.path.join(
-                                                         os.path.dirname(__file__),
-                                                         row.PlanningStructurePath,
-                                                         row.PlanningStructureFile
-                                                         )
-                                            )
+                os.path.join(
+                    os.path.dirname(__file__),
+                    row.PlanningStructurePath,
+                    row.PlanningStructureFile
+                )
+            )
             # Planning preferences loaded into dict
             planning_preferences_dict = StructureOperations \
-                                        .iter_planning_structure_etree(planning_preferences_tree)
+                .iter_planning_structure_etree(planning_preferences_tree)
             # Planning preferences loaded dataframe
-            df_planning_preferences = pd.DataFrame(planning_preferences_dict['planning_structure_config'])
+            df_planning_preferences = pd.DataFrame(
+                planning_preferences_dict['planning_structure_config'])
             # Select the dataframe row that matches the workflow name
-            df_workflow = df_planning_preferences[df_planning_preferences.name == row.PlanningStructureWorkflow]
+            df_workflow = df_planning_preferences[
+                df_planning_preferences.name == row.PlanningStructureWorkflow]
             # If we matched, then lets start setting up planning structures
             if df_workflow.empty:
                 planning_structs = False
@@ -337,7 +342,7 @@ def main():
                 uniform_structures = df_workflow.uniform_structures.values[0]
                 underdose_structures = df_workflow.underdose_structures.values[0]
                 inner_air_name = df_workflow.inner_air_name.values[0]
-                
+
                 if uniform_structures:
                     planning_prefs.use_uniform_dose = True
                     dialog4_response = {'structures': df_workflow.uniform_structures.values[0],
@@ -359,10 +364,10 @@ def main():
                 else:
                     planning_prefs.use_inner_air = False
                 dialog1_response = {
-                        'number_of_targets': planning_prefs.number_of_targets,
-                        'generate_underdose': planning_prefs.use_under_dose,
-                        'generate_uniformdose': planning_prefs.use_uniform_dose,
-                        'generate_inner_air': planning_prefs.use_inner_air}
+                    'number_of_targets': planning_prefs.number_of_targets,
+                    'generate_underdose': planning_prefs.use_under_dose,
+                    'generate_uniformdose': planning_prefs.use_uniform_dose,
+                    'generate_inner_air': planning_prefs.use_inner_air}
                 dialog2_response = OrderedDict()
                 for k, v in row.Targets.items():
                     dialog2_response[k] = v[0]
@@ -431,23 +436,22 @@ def main():
                     dialog4_response=dialog4_response,
                     dialog5_response=dialog5_response
                 )
-                 
 
         # If this beamset is found, then append 1-99 to the name and keep going
         beamset_exists = True
         while beamset_exists:
-            info = plan.QueryBeamSetInfo(Filter={'Name':'^{0}'.format(beamset_name)})
+            info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(beamset_name)})
             try:
                 if info[0]['Name'] == beamset_name:
                     beamset_name = (beamset_name[:14]
-                                    + str(random.randint(1,99)).zfill(2)) \
-                                    if len(beamset_name) > 14 \
-                                    else beamset_name + str(random.randint(1,99)).zfill(2)
+                                    + str(random.randint(1, 99)).zfill(2)) \
+                        if len(beamset_name) > 14 \
+                        else beamset_name + str(random.randint(1, 99)).zfill(2)
             except IndexError:
                 beamset_exists = False
         # Resolve the path to the beamset file
         path_protocols = os.path.join(os.path.dirname(__file__),
-                                  row.BeamsetPath)
+                                      row.BeamsetPath)
         # Go grab the beamset called protocol_beamset
         # This step is likely not necessary, just know exact beamset name from protocol
         beamset_etree = BeamOperations.Beams.select_element(
@@ -499,12 +503,14 @@ def main():
                 iso_target=beamset_defs.iso_target,
                 lateral_zero=True)
         except Exception:
-            logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
+            logging.warning(
+                'Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
             sys.exit('Failed to place isocenter')
         # Parse Tomo versus VMAT
         if beamset_defs.technique == 'TomoHelical':
             if len(beams) > 1:
-                logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
+                logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(
+                    beamset_defs.name))
             else:
                 beam = beams[0]
             BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso,
@@ -520,74 +526,71 @@ def main():
             logging.debug('Unsupported beamset technique {}'.format(beamset_defs.technique))
         if not beams_load:
             output_status(
-                          path=path,
-                          input_filename=file_csv,
-                          patient_id=patient_id,
-                          case_name=case_name,
-                          plan_name=plan_name,
-                          beamset_name=beamset_name,
-                          patient_load=patient_load,
-                          planning_structs=planning_structs,
-                          beams_load=beams_load,
-                          clinical_goals_load=clinical_goals_load,
-                          plan_optimization_strategy_load=plan_optimization_strategy_load,
-                          optimization_complete=optimization_complete,
-                          script_status= None
-                )
+                path=path,
+                input_filename=file_csv,
+                patient_id=patient_id,
+                case_name=case_name,
+                plan_name=plan_name,
+                beamset_name=beamset_name,
+                patient_load=patient_load,
+                planning_structs=planning_structs,
+                beams_load=beams_load,
+                clinical_goals_load=clinical_goals_load,
+                plan_optimization_strategy_load=plan_optimization_strategy_load,
+                optimization_complete=optimization_complete,
+                script_status=None
+            )
             continue
 
         patient.Save()
         rs_beam_set.SetCurrent()
-        
-        
-    
-       
+
         # Now add in clinical goals and objectives
         ## GoalPath	GoalFile	ProtocolName	OrderName
         goal_file_name = row.GoalFile
         path_goals = os.path.join(os.path.dirname(__file__),
-								  row.GoalPath)
+                                  row.GoalPath)
         protocol_name = row.ProtocolName
         order_name = row.OrderName
         ## translation_map = OrderedDict()
-        translation_map=OrderedDict()
+        translation_map = OrderedDict()
         for k, v in row.Targets.items():
-        ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
-            translation_map[v[1]] = (k, float(v[0])/100.)
+            ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
+            translation_map[v[1]] = (k, float(v[0]) / 100.)
         for k, v in translation_map.items():
-        # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
-        ##     translation_map[v[1]] = (k, float(v[0]) /100.)
-            logging.debug('Translation3 map key: {} value: {}'.format(k,v))
+            # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
+            ##     translation_map[v[1]] = (k, float(v[0]) /100.)
+            logging.debug('Translation3 map key: {} value: {}'.format(k, v))
         ## for k, v, in translation_map.items():
         ##     logging.debug('translation map post adjustment is {}:{}'.format(k,v))
         add_goals_and_structures_from_protocol_3(
-                                        case=case,
-                                        plan=plan,
-                                        beamset=rs_beam_set,
-                                        exam=exam,
-                                        filename=goal_file_name,
-                                        path_protocols=path_goals,
-                                        protocol_name=protocol_name,
-                                        target_map=translation_map,
-                                        order_name = order_name,
-                                        run_status=False,
+            case=case,
+            plan=plan,
+            beamset=rs_beam_set,
+            exam=exam,
+            filename=goal_file_name,
+            path_protocols=path_goals,
+            protocol_name=protocol_name,
+            target_map=translation_map,
+            order_name=order_name,
+            run_status=False,
         )
         output_status(
-                          path=path,
-                          input_filename=file_csv,
-                          patient_id=patient_id,
-                          case_name=case_name,
-                          plan_name=plan_name,
-                          beamset_name=beamset_name,
-                          patient_load=patient_load,
-                          planning_structs=planning_structs,
-                          beams_load=beams_load,
-                          clinical_goals_load=clinical_goals_load,
-                          plan_optimization_strategy_load=plan_optimization_strategy_load,
-                          optimization_complete=optimization_complete,
-                          script_status= None
-                )
-        
+            path=path,
+            input_filename=file_csv,
+            patient_id=patient_id,
+            case_name=case_name,
+            plan_name=plan_name,
+            beamset_name=beamset_name,
+            patient_load=patient_load,
+            planning_structs=planning_structs,
+            beams_load=beams_load,
+            clinical_goals_load=clinical_goals_load,
+            plan_optimization_strategy_load=plan_optimization_strategy_load,
+            optimization_complete=optimization_complete,
+            script_status=None
+        )
+
         continue
     sys.exit('Done')
 
@@ -682,9 +685,10 @@ def main():
 
     # Dependancies: All_PTVs
     iso_target_exists = StructureOperations.check_structure_exists(
-    case=case, structure_name=iso_target, option='Wait', exam=exam)
+        case=case, structure_name=iso_target, option='Wait', exam=exam)
     if not iso_target_exists:
-        logging.debug('{} does not exist. It must be defined to make this script work'.format(iso_target))
+        logging.debug(
+            '{} does not exist. It must be defined to make this script work'.format(iso_target))
         sys.exit('{} is a required structure'.format(iso_target))
 
     # TODO: Add a plan based on the xml
@@ -766,9 +770,9 @@ def main():
     # For debugging we can bypass the dialog by uncommenting the below lines
     order_name = None
     par_beam_set = BeamOperations.beamset_dialog(case=case,
-                                                filename=file,
-                                                path=path_protocols,
-                                                order_name=order_name)
+                                                 filename=file,
+                                                 path=path_protocols,
+                                                 order_name=order_name)
 
     rs_beam_set = BeamOperations.create_beamset(patient=patient,
                                                 case=case,
@@ -779,12 +783,13 @@ def main():
                                                 create_setup_beams=False)
 
     beams = BeamOperations.load_beams_xml(filename=file,
-                                        beamset_name=par_beam_set.protocol_name,
-                                        path=path_protocols)
+                                          beamset_name=par_beam_set.protocol_name,
+                                          path=path_protocols)
 
     # Now add in clinical goals and objectives
-    add_goals_and_structures_from_protocol( case=case, plan=plan, beamset=rs_beam_set, exam=exam,
-                                        filename=None, path_protocols=None, run_status=False)
+    add_goals_and_structures_from_protocol(case=case, plan=plan, beamset=rs_beam_set, exam=exam,
+                                           filename=None, path_protocols=None, run_status=False)
+
 
 if __name__ == '__main__':
     main()
