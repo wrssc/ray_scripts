@@ -311,13 +311,7 @@ def main():
             connect.get_current('Plan')
             patient_load = True
 
-        translation_map=OrderedDict()
-        for k, v in row['Targets'].items():
-        ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
-            translation_map[v[1]] = (k, float(v[0]) /100.)
-        for k,v in translation_map.items():
-            logging.debug("translatin map {}:{}".format(k,v))
-        break
+        
 
         # If this beamset is found, then append 1-99 to the name and keep going
         beamset_exists = True
@@ -424,6 +418,15 @@ def main():
 
         patient.Save()
         rs_beam_set.SetCurrent()
+        
+        translation_map=OrderedDict()
+        for k, v in row['Targets'].items():
+        ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
+            translation_map[v[1]] = (k, float(v[0]) /100.)
+        for k,v in translation_map.items():
+            logging.debug("translatin map {}:{}".format(k,v))
+        break
+    
         if generate_planning_structures:
             # Planning preferences loaded into tree
             planning_preferences_tree = xml.etree.ElementTree.parse(
