@@ -55,6 +55,7 @@ import StructureOperations
 import BeamOperations
 import UserInterface
 from Objectives import add_goals_and_structures_from_protocol_3
+from OptimizationOperations import optimize_plan, iter_optimization_config_etree
 
 
 def output_status(path, input_filename, patient_id, case_name, plan_name, beamset_name,
@@ -215,15 +216,15 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
 
 
 def test_input_commands(s):
-    e =[] # Errors 
+    e = []  # Errors
     # Planning Structures
-    wf = s.PlanningStructureWorkflow # Named workflow: planning_structure_set>name, or None for skip
+    wf = s.PlanningStructureWorkflow  # Named workflow: planning_structure_set>name, or None for skip
     elem = 'planning_structure_set'
     key_ps = 'planning_structure_config'
     if wf:
         file = s.PlanningStructureFile
         path = s.PlanningStructurePath
-        path_file = os.path.join(os.path.dirname(__file__), path,file) 
+        path_file = os.path.join(os.path.dirname(__file__), path, file)
         if not path:
             e.append("Empty planning structure path.")
         if not file:
@@ -233,9 +234,11 @@ def test_input_commands(s):
         # Check the file for a planning_structure_set
         try:
             tree_pp = xml.etree.ElementTree.parse(
-                                os.path.join( os.path.dirname(__file__), path,file))
+                os.path.join(os.path.dirname(__file__), path, file))
             if not tree_pp.findall(elem):
-                e.append("Planning structure file {} does not contain elements: {}".format(path_file,elem))
+                e.append(
+                    "Planning structure file {} does not contain elements: {}".format(path_file,
+                                                                                      elem))
                 return e
         except:
             e.append('Could not parse {}'.format(path_file))
@@ -254,16 +257,15 @@ def test_input_commands(s):
         df_wf = df_pp[df_pp.name == wf]
         # Check if no match found
         if df_wf.empty:
-            e.append("No planning_structure_set in {} with name {}".format(path_file,wf)) 
+            e.append("No planning_structure_set in {} with name {}".format(path_file, wf))
             return e
         # Check if more than one match is found
         if df_wf.name.count() > 1:
-            e.append(">1 planning_structure_set in {} with name {}".format(path_file,wf))
+            e.append(">1 planning_structure_set in {} with name {}".format(path_file, wf))
             return e
 
 
 def load_planning_structures(s):
-
     key_ps = 'planning_structure_config'
     wf = s.PlanningStructureWorkflow
     # No planning structures needed 
@@ -272,13 +274,13 @@ def load_planning_structures(s):
     file = s.PlanningStructureFile
     path = s.PlanningStructurePath
     tree_pp = xml.etree.ElementTree.parse(
-                                os.path.join( os.path.dirname(__file__), path,file))
+        os.path.join(os.path.dirname(__file__), path, file))
     # Planning preferences loaded into dict
     dict_pp = StructureOperations \
         .iter_planning_structure_etree(tree_pp)
     # Planning preferences loaded dataframe
     df_pp = pd.DataFrame(
-            dict_pp[key_ps])
+        dict_pp[key_ps])
     # Slice for the planning structure set matching the input workflow
     df_wf = df_pp[df_pp.name == wf]
 
@@ -387,6 +389,46 @@ def load_planning_structures(s):
     return success
 
 
+def optimize(s):
+    key_oc = 'optimization_config'
+    wf = s.OptimizationWorkflow
+    # No planning structures needed 
+    if not wf:
+        return 'NA'
+    file = s.OptimizationFile
+    path = s.OptimizationPath
+    tree_oc = xml.etree.ElementTree.parse(
+        os.path.join(os.path.dirname(__file__), path, file))
+    # Planning preferences loaded into dict
+    dict_oc = OptimizationOperations \
+        .iter_planning_structure_etree(tree_oc)
+    # Planning preferences loaded dataframe
+    df_oc = pd.DataFrame(
+        dict_oc[key_oc])
+    # Slice for the planning structure set matching the input workflow
+    df_wf = df_oc[df_pp.name == wf]
+    # Retrieve arguments
+
+    OptimizationParameters = {
+        "initial_max_it": df_wf.initial_max_it.values[0],
+        "initial_int_it": df_wf.initial_int_it.values[0],
+        "second_max_it": df_wf.warmstart_max_it.values[0],
+        "second_int_it": df_wf.warmstart_int_it.values[0],
+        "dose_dim1": df_wf.dose_dim1.values[0],
+        "dose_dim2": df_wf.dose_dim2.values[0],
+        "dose_dim3": df_wf.dose_dim3.values[0],
+        "dose_dim4": df_wf.dose_dim4.values[0],
+        "n_iterations": df_wf.warmstart_n.values[0],
+        "close_status": False}
+    #
+    # Optimize the plan
+    try:
+        optimize_plan(patient, case, plan, rs_beam_set, **OptimizationParameters)
+        return True
+    except Exception as e:
+        return e
+
+
 def merge_dict(row):
     """
     A variable number of input targets may be used in the csv file
@@ -438,10 +480,8 @@ def main():
         case_name = row.Case
         patient_load = False
         if row.PlanningStructureWorkflow:
-            generate_planning_structures = True
             planning_structs = False
         else:
-            generate_planning_structures = False
             planning_structs = "NA"
         beams_load = False
         clinical_goals_load = False
@@ -507,133 +547,7 @@ def main():
             )
             continue
         planning_structs = load_planning_structures(row)
-        if False:
-            # Planning preferences loaded into tree
-            structure_error = load_patient_structures(
-                path=row.PlanningStructurePath,
-                file=row.PlanningStructureFile,
-                workflow_name=row.PlanningStructureWorkflow
-            )
-            ## planning_preferences_tree = xml.etree.ElementTree.parse(
-            ##     os.path.join(
-            ##         os.path.dirname(__file__),
-            ##         row.PlanningStructurePath,
-            ##         row.PlanningStructureFile
-            ##     )
-            ## )
-            # Planning preferences loaded into dict
-            planning_preferences_dict = StructureOperations \
-                .iter_planning_structure_etree(planning_preferences_tree)
-            # Planning preferences loaded dataframe
-            df_planning_preferences = pd.DataFrame(
-                planning_preferences_dict['planning_structure_config'])
-            # Select the dataframe row that matches the workflow name
-            df_workflow = df_planning_preferences[
-                df_planning_preferences.name == row.PlanningStructureWorkflow]
-            # If we matched, then lets start setting up planning structures
-            if df_workflow.empty:
-                planning_structs = False
-            else:
-                planning_prefs = StructureOperations.planning_structure_preferences()
-                planning_prefs.number_of_targets = row.NumberTargets
-                planning_prefs.first_target_number = df_workflow.first_target_number.values[0]
-                uniform_structures = df_workflow.uniform_structures.values[0]
-                underdose_structures = df_workflow.underdose_structures.values[0]
-                inner_air_name = df_workflow.inner_air_name.values[0]
-
-                if uniform_structures:
-                    planning_prefs.use_uniform_dose = True
-                    dialog4_response = {'structures': df_workflow.uniform_structures.values[0],
-                                        'standoff': df_workflow.uniform_standoff.values[0]}
-                else:
-                    planning_prefs.use_uniform_dose = False
-                    dialog4_response = {'structures': [], 'standoff': None}
-
-                if underdose_structures:
-                    planning_prefs.use_under_dose = True
-                    dialog3_response = {'structures': df_workflow.underdose_structures.values[0],
-                                        'standoff': df_workflow.underdose_standoff.values[0]}
-                else:
-                    planning_prefs.use_under_dose = False
-                    dialog3_response = {'structures': [], 'standoff': None}
-
-                if inner_air_name:
-                    planning_prefs.use_inner_air = True
-                else:
-                    planning_prefs.use_inner_air = False
-                dialog1_response = {
-                    'number_of_targets': planning_prefs.number_of_targets,
-                    'generate_underdose': planning_prefs.use_under_dose,
-                    'generate_uniformdose': planning_prefs.use_uniform_dose,
-                    'generate_inner_air': planning_prefs.use_inner_air}
-                dialog2_response = OrderedDict()
-                for k, v in row.Targets.items():
-                    dialog2_response[k] = v[0]
-                # Skin-superficial
-                dialog5_response = {}
-                if df_workflow.superficial_target_name.values[0]:
-                    dialog5_response['target_skin'] = True
-                else:
-                    dialog5_response['target_skin'] = False
-                # HD Ring
-                if df_workflow.ring_hd_name.values[0]:
-                    generate_ring_hd = True
-                    dialog5_response['ring_hd'] = generate_ring_hd
-                    dialog5_response['thick_hd_ring'] = df_workflow.ring_hd_ExpA.values[0][0]
-                    dialog5_response['ring_standoff'] = df_workflow.ring_hd_standoff.values[0]
-                else:
-                    generate_ring_hd = False
-                    dialog5_response['ring_hd'] = generate_ring_hd
-                    dialog5_response['thick_hd_ring'] = None
-                    dialog5_response['ring_standoff'] = None
-                # LD Ring
-                if df_workflow.ring_ld_name.values[0]:
-                    generate_ring_ld = True
-                    dialog5_response['ring_ld'] = generate_ring_ld
-                    dialog5_response['thick_ld_ring'] = df_workflow.ring_ld_ExpA.values[0][0]
-                    dialog5_response['ring_standoff'] = df_workflow.ring_hd_standoff.values[0]
-                else:
-                    generate_ring_ld = False
-                    dialog5_response['ring_ld'] = generate_ring_ld
-                    dialog5_response['thick_ld_ring'] = None
-                # Target rings
-                if df_workflow.ring_ts_name.values[0]:
-                    dialog5_response['target_rings'] = True
-                else:
-                    dialog5_response['target_rings'] = False
-                # OTV's
-                if df_workflow.otv_name.values[0]:
-                    dialog5_response['otv_standoff'] = df_workflow.otv_standoff.values[0]
-                    generate_otvs = True
-                else:
-                    dialog5_response['otv_standoff'] = None
-                    generate_otvs = False
-                # Skin evals
-                if df_workflow.skin_name.values[0]:
-                    generate_skin = True
-                    skin_contraction = df_workflow.skin_ExpA.values[0][0]
-                else:
-                    generate_skin = False
-                    skin_contraction = None
-                StructureOperations.planning_structures(
-                    generate_ptvs=True,
-                    generate_ptv_evals=True,
-                    generate_otvs=generate_otvs,
-                    generate_skin=generate_skin,
-                    generate_inner_air=planning_prefs.use_inner_air,
-                    generate_field_of_view=True,
-                    generate_ring_hd=generate_ring_hd,
-                    generate_ring_ld=generate_ring_ld,
-                    generate_normal_2cm=True,
-                    generate_combined_ptv=True,
-                    skin_contraction=skin_contraction,
-                    run_status=False,
-                    planning_structure_selections=planning_prefs,
-                    dialog2_response=dialog2_response,
-                    dialog3_response=dialog3_response,
-                    dialog4_response=dialog4_response,
-                    dialog5_response=dialog5_response
-                )
+        patient.Save()
 
         # If this beamset is found, then append 1-99 to the name and keep going
         beamset_exists = True
@@ -742,25 +656,17 @@ def main():
 
         patient.Save()
         rs_beam_set.SetCurrent()
-
+        #
         # Now add in clinical goals and objectives
-        ## GoalPath	GoalFile	ProtocolName	OrderName
         goal_file_name = row.GoalFile
         path_goals = os.path.join(os.path.dirname(__file__),
                                   row.GoalPath)
         protocol_name = row.ProtocolName
         order_name = row.OrderName
-        ## translation_map = OrderedDict()
+        # Translation map: {OrderedDict} protocol_target_name:(plan_target_name, dose in Gy)
         translation_map = OrderedDict()
         for k, v in row.Targets.items():
-            ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
             translation_map[v[1]] = (k, float(v[0]) / 100.)
-        for k, v in translation_map.items():
-            # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
-            ##     translation_map[v[1]] = (k, float(v[0]) /100.)
-            logging.debug('Translation3 map key: {} value: {}'.format(k, v))
-        ## for k, v, in translation_map.items():
-        ##     logging.debug('translation map post adjustment is {}:{}'.format(k,v))
         add_goals_and_structures_from_protocol_3(
             case=case,
             plan=plan,
@@ -773,6 +679,18 @@ def main():
             order_name=order_name,
             run_status=False,
         )
+        clinical_goals_load = True
+
+        #
+        # Optimize the plan
+        opt_status = optimize(row)
+        if opt_status:
+            optimization_complete = True
+        else:
+            optimization_complete = opt_status
+        patient.Save()
+        #
+        # Write out results
         output_status(
             path=path,
             input_filename=file_csv,
@@ -788,205 +706,6 @@ def main():
             optimization_complete=optimization_complete,
             script_status=None
         )
-
-        continue
-    sys.exit('Done')
-
-    ## path = os.path.dirname(file_csv)
-    ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
-    ## output_file = open(output_filename, "a+")
-    ## output_message = "PatientID" + "\tPlan Name" + "\tBeamSet Name" + "\tStatus\n"
-    ## output_file.write(output_message)
-    ## output_file.close()
-    ## Get current patient, case, exam, and plan
-    ## note that the interpreter handles a missing plan as an Exception
-    ## patient = GeneralOperations.find_scope(level='Patient')
-    ## case = GeneralOperations.find_scope(level='Case')
-    ## exam = GeneralOperations.find_scope(level='Examination')
-    # plan = GeneralOperations.find_scope(level='Plan')
-    # Get in here and grab a patient specific csv
-    ## protocol_folder = r'../protocols'
-    ## institution_folder = r'UW'
-    ## beamset_folder = ''
-    ## file = 'UWGeneric.xml'
-    ## protocol_beamset = 'Tomo3D-FW5'
-    ## beamset_file = 'UWGeneric.xml'
-    ## path_protocols = os.path.join(os.path.dirname(__file__),
-    ##                             protocol_folder,
-    ##                             institution_folder, beamset_folder)
-    # Targets and dose
-    ## target_1 = 'PTV_60'
-    ## target_1_dose = 6000
-    # target_2 = 'PTV_60'
-    # target_2_dose = 6000
-    # target_3 = 'PTV_54'
-    # target_3_dose = 5400
-    ## rx_target = target_1
-    ## beamset_name = 'Tmplt_20Feb2020'
-    ## number_fractions = 30
-    ## machine = 'HDA0488'
-    ## iso_target = 'All_PTVs'
-    ## #
-    ## planning_struct = True
-    ## if planning_struct:
-    ##     # Define planning structures
-    ##     planning_prefs= StructureOperations.planning_structure_preferences()
-    ##     planning_prefs.number_of_targets = 1
-    ##     planning_prefs.use_uniform_dose = True
-    ##     planning_prefs.use_under_dose = False
-    ##     planning_prefs.use_inner_air = False
-
-    ## dialog1_response = {'number_of_targets': 1,
-    ##                     'generate_underdose': False,
-    ##                     'generate_uniformdose': True,
-    ##                     'generate_inner_air': False}
-    ## targets_dose = {target_1: target_1_dose}
-    ## dialog2_response = targets_dose
-    # dialog1_response = {'number_of_targets': 2,
-    #                     'generate_underdose': False,
-    #                     'generate_uniformdose': True,
-    #                     'generate_inner_air': False}
-    # targets_dose = {target_1: target_1_dose, target_2: target_2_dose, target_3: target_3_dose}
-    # dialog2_response = targets_dose
-    # dialog1_response = None
-    # dialog2_response = None
-    ## dialog3_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
-    ##                     'standoff': 0.4}
-    ## dialog4_response = {'structures': ['Bone_Mandible', 'Larynx', 'Esophagus'],
-    ##                     'standoff': 0.4}
-    ## dialog5_response = {'target_skin': False,
-    ##                     'ring_hd': True,
-    ##                     'target_rings': True,
-    ##                     'thick_hd_ring': 2,
-    ##                     'thick_ld_ring': 5,
-    ##                     'ring_standoff': 0.2,
-    ##                     'otv_standoff': 0.4}
-    ## StructureOperations.planning_structures(
-    ##     generate_ptvs=True,
-    ##     generate_ptv_evals=True,
-    ##     generate_otvs=True,
-    ##     generate_skin=True,
-    ##     generate_inner_air=True,
-    ##     generate_field_of_view=True,
-    ##     generate_ring_hd=True,
-    ##     generate_ring_ld=True,
-    ##     generate_normal_2cm=True,
-    ##     generate_combined_ptv=True,
-    ##     skin_contraction=0.3,
-    ##     run_status=False,
-    ##     planning_structure_selections=planning_prefs,
-    ##     dialog2_response=dialog2_response,
-    ##     dialog3_response=dialog3_response,
-    ##     dialog4_response=dialog4_response,
-    ##     dialog5_response=dialog5_response
-    ## )
-
-    # Dependancies: All_PTVs
-    iso_target_exists = StructureOperations.check_structure_exists(
-        case=case, structure_name=iso_target, option='Wait', exam=exam)
-    if not iso_target_exists:
-        logging.debug(
-            '{} does not exist. It must be defined to make this script work'.format(iso_target))
-        sys.exit('{} is a required structure'.format(iso_target))
-
-    # TODO: Add a plan based on the xml
-    # Go grab the beamset called protocol_beamset
-    # This step is likely not neccessary, just know exact beamset name from protocol
-    available_beamsets = BeamOperations.Beams.select_element(
-        set_level='beamset',
-        set_type=None,
-        set_elements='beam',
-        filename=beamset_file,
-        set_level_name=protocol_beamset,
-        dialog=False,
-        folder=path_protocols,
-        verbose_logging=False)
-
-    # TODO: Retrieve these definitions from the planning protocol.
-    ## beamset_defs = BeamOperations.BeamSet()
-    ## beamset_defs.rx_target = rx_target
-    ## beamset_defs.name = beamset_name
-    ## beamset_defs.DicomName = beamset_name
-    ## beamset_defs.number_of_fractions = number_fractions
-    ## beamset_defs.total_dose = target_1_dose
-    ## beamset_defs.machine = machine
-    ## beamset_defs.modality = 'Photons'
-    ## beamset_defs.technique = 'TomoHelical'
-    ## beamset_defs.iso_target = iso_target
-    ## beamset_defs.protocol_name = available_beamsets
-
-    order_name = None
-    # par_beam_set = BeamOperations.beamset_dialog(case=case,
-    #                                              filename=file,
-    #                                              path=path_protocols,
-    #                                              order_name=order_name)
-
-    ## rs_beam_set = BeamOperations.create_beamset(patient=patient,
-    ##                                             case=case,
-    ##                                             exam=exam,
-    ##                                             plan=plan,
-    ##                                             dialog=False,
-    ##                                             BeamSet=beamset_defs,
-    ##                                             create_setup_beams=False)
-
-    ##  beams = BeamOperations.load_beams_xml(filename=file,
-    ##                                       beamset_name=protocol_beamset,
-    ##                                       path=path_protocols)
-    ## if len(beams) > 1:
-    ##     logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(beamset_defs.name))
-    ## else:
-    ##     beam = beams[0]
-
-    # Place isocenter
-    ## try:
-    ##     beamset_defs.iso = BeamOperations.find_isocenter_parameters(
-    ##         case=case,
-    ##         exam=exam,
-    ##         beamset=rs_beam_set,
-    ##         iso_target=beamset_defs.iso_target,
-    ##         lateral_zero=True)
-    ## except Exception:
-    ##     logging.warning('Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
-    ##     sys.exit('Failed to place isocenter')
-
-    ## BeamOperations.place_tomo_beam_in_beamset(plan=plan, iso=beamset_defs.iso, beamset=rs_beam_set, beam=beam)
-
-    ## patient.Save()
-    ## rs_beam_set.SetCurrent()
-    ## sys.exit('Done')
-
-    dialog_beamset.rx_target = dialog.values['0']
-    dialog_beamset.name = dialog.values['1']
-    dialog_beamset.DicomName = dialog.values['1']
-    dialog_beamset.number_of_fractions = float(dialog.values['2'])
-    dialog_beamset.total_dose = float(dialog.values['3'])
-    dialog_beamset.machine = dialog.values['4']
-    dialog_beamset.modality = 'Photons'
-    dialog_beamset.technique = dialog.values['6']
-    dialog_beamset.iso_target = dialog.values['7']
-    dialog_beamset.protocol_name = dialog.values['8']
-    # For debugging we can bypass the dialog by uncommenting the below lines
-    order_name = None
-    par_beam_set = BeamOperations.beamset_dialog(case=case,
-                                                 filename=file,
-                                                 path=path_protocols,
-                                                 order_name=order_name)
-
-    rs_beam_set = BeamOperations.create_beamset(patient=patient,
-                                                case=case,
-                                                exam=exam,
-                                                plan=plan,
-                                                dialog=False,
-                                                BeamSet=par_beam_set,
-                                                create_setup_beams=False)
-
-    beams = BeamOperations.load_beams_xml(filename=file,
-                                          beamset_name=par_beam_set.protocol_name,
-                                          path=path_protocols)
-
-    # Now add in clinical goals and objectives
-    add_goals_and_structures_from_protocol(case=case, plan=plan, beamset=rs_beam_set, exam=exam,
-                                           filename=None, path_protocols=None, run_status=False)
 
 
 if __name__ == '__main__':

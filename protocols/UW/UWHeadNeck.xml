@@ -14,7 +14,8 @@
     <prescription>
         <frequency>Daily</frequency>
         <imaging>Pre-treatment CBCT</imaging>
-        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT
+        </technique>
     </prescription>
     <order>
         <name>Left Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
@@ -5715,44 +5716,70 @@
     </beamset>
     <planning_structure_set>
         <name>3 Target HN</name>
-        <description>A typical 3 Target planning structure configuration for HN planning</description>
+        <description>A typical 3 Target planning structure configuration for HN planning
+        </description>
         <number_of_targets>3</number_of_targets>
         <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.4">Larynx,Esophagus,Brain</uniform_dose_structs>
         <underdose_structs standoff="0.3">Bone_Mandible</underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-             margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
-             margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD</ring_hd>
+                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
+        </ring_hd>
         <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
-             margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
+        </ring_ld>
         <ring_targets standoff="0.2" margin_type="Expand" margin_sup="1" margin_inf="1"
-             margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring</ring_targets>
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring
+        </ring_targets>
         <inner_air>InnerAir</inner_air>
         <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
-             margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin</superficial_target>
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
+        </superficial_target>
         <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
+        </otv>
     </planning_structure_set>
     <planning_structure_set>
         <name>2 Target HN</name>
-        <description>A typical 2 Target planning structure configuration for HN planning</description>
+        <description>A typical 2 Target planning structure configuration for HN planning
+        </description>
         <number_of_targets>2</number_of_targets>
         <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.4">Larynx,Esophagus,Brain</uniform_dose_structs>
         <underdose_structs standoff="0.3"></underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-             margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
-             margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD</ring_hd>
+                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
+        </ring_hd>
         <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
-             margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
+        </ring_ld>
         <ring_targets standoff="0.2" margin_type="Expand" margin_sup="1" margin_inf="1"
-             margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring</ring_targets>
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring
+        </ring_targets>
         <inner_air>InnerAir</inner_air>
         <superficial_target standoff="0.0" margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-             margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin</superficial_target>
+                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin
+        </superficial_target>
         <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
+        </otv>
     </planning_structure_set>
+    <optimization_config>
+        <name>12 warmstarts</name>
+        <description>12 warmstart optimization with varying dose grid</description>
+        <initial max_it="60" int_it="10">Iteration 0</initial>
+        <warmstart max_it="30" int_it="15" n="12">Iteration_1to12</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">True</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>True</reduce_oar>
+        <segment_weight>True
+        <segment_weight>
+    </optimization_config>
 </protocol>

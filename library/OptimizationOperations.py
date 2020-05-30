@@ -105,6 +105,113 @@ import BeamOperations
 from GeneralOperations import logcrit as logcrit
 
 
+def iter_optimization_config_etree(etree):
+    """Load the elements of the optimization_config tag into a dictionary
+
+    Arguments:
+        etree {[elementtree]} -- optimization_config tag
+    
+    Returns:
+        oc_preferences -- a dictionary for reading into a dataframe
+    """
+    os_config = {'optimization_config': []}
+    for o in etree.iter('optimization_config'):
+        o_c = {}
+        #
+        # Optimization Configuration Name
+        try:
+            o_c["name"] = o.find("name").text
+        except AttributeError:
+            o_c["name"] = ""
+        #
+        # Description
+        try:
+            o_c["description"] = o.find("description").text
+        except AttributeError:
+            o_c["description"] = ""
+        #
+        # Initial iteration
+        try:
+            o_c["initial"] = o.find("initial").text
+            o_c["initial_max_it"] = int(o.find("initial").attrib["max_it"])
+            o_c["initial_int_it"] = int(o.find("initial").attrib["int_it"])
+        except AttributeError:
+            o_c["initial"] = ""
+            o_c["initial_max_it"] = None
+            o_c["initial_int_it"] = None
+        #
+        # Warmstart iteration
+        try:
+            o_c["warmstart"] = o.find("warmstart").text
+            o_c["warmstart_max_it"] = int(o.find("warmstart").attrib["max_it"])
+            o_c["warmstart_int_it"] = int(o.find("warmstart").attrib["int_it"])
+            o_c["warmstart_n"] = int(o.find("warmstart").attrib["n"])
+        except AttributeError:
+            o_c["warmstart"] = ""
+            o_c["warmstart_max_it"] = None
+            o_c["warmstart_int_it"] = None
+            o_c["warmstart_n"] = None
+        #
+        # Vary Dose Grid
+        try:
+            o_c["vary_grid"] = o.find("vary_grid").text
+            if o_c["vary_grid"] == "True":
+                o_c["vary_grid"] = True
+            else:
+                o_c["vary_grid"] = False
+            o_c["dose_dim1"] = float(o.find("vary_grid").attrib["dose_dim1"])
+            o_c["dose_dim2"] = float(o.find("vary_grid").attrib["dose_dim2"])
+            o_c["dose_dim3"] = float(o.find("vary_grid").attrib["dose_dim3"])
+            o_c["dose_dim4"] = float(o.find("vary_grid").attrib["dose_dim4"])
+        except AttributeError:
+            o_c["vary_grid"] = False
+            o_c["dose_dim1"] = None
+            o_c["dose_dim2"] = None
+            o_c["dose_dim3"] = None
+            o_c["dose_dim4"] = None
+        #
+        # Fluence Only
+        try:
+            o_c['fluence_only'] = o.find("fluence_only").text
+            if o_c['fluence_only'] == "True":
+                o_c['fluence_only'] = True
+            else:
+                o_c['fluence_only'] = False
+        except AttributeError:
+            o_c['fluence_only'] = False
+        #
+        # Reset Beams
+        try:
+            o_c['reset_beams'] = o.find("reset_beams").text
+            if o_c['reset_beams'] == "True":
+                o_c['reset_beams'] = True
+            else:
+                o_c['reset_beams'] = False
+        except AttributeError:
+            o_c['reset_beams'] = False
+        #
+        # Reduce OAR
+        try:
+            o_c['reduce_oar'] = o.find("reduce_oar").text
+            if o_c['reduce_oar'] == "True":
+                o_c['reduce_oar'] = True
+            else:
+                o_c['reduce_oar'] = False
+        except AttributeError:
+            o_c['reduce_oar'] = False
+        #
+        # Segment weight
+        try:
+            o_c['segment_weight'] = o.find("segment_weight").text
+            if o_c['segment_weight'] == "True":
+                o_c['segment_weight'] = True
+            else:
+                o_c['segment_weight'] = False
+        except AttributeError:
+            o_c['segment_weight'] = False
+    return os_config
+
+
 def make_variable_grid_list(n_iterations, variable_dose_grid):
     """
     Function will determine, based on the input arguments, which iterations will result in a
@@ -165,29 +272,32 @@ def select_rois_for_treat(plan, beamset, rois=None):
     function_types = ['CompositeDose']
     roi_list = []
     if rois is None:
-        OptIndex = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
+        OptIndex = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
+                                                          verbose_logging=False)
         plan_optimization = plan.PlanOptimizations[OptIndex]
         # Look for co-optimization - Treatment setup settings is an array if there is cooptimization
         if len(plan_optimization.OptimizationParameters.TreatmentSetupSettings) > 1:
-            cooptimization=True
+            cooptimization = True
         else:
-            cooptimization=False
+            cooptimization = False
             objective_beamset_name = None
         for o in plan_optimization.Objective.ConstituentFunctions:
             roi_name = o.ForRegionOfInterest.Name
             try:
                 objective_function_type = o.DoseFunctionParameters.FunctionType
             except AttributeError:
-                logging.debug('Objective type for roi {} is not associated with target and is ignored'.format(
-                    roi_name) + ' from treat settings.')
+                logging.debug(
+                    'Objective type for roi {} is not associated with target and is ignored'.format(
+                        roi_name) + ' from treat settings.')
                 objective_function_type = None
             # Non-cooptimized objectives have no ForBeamSet object
             if cooptimization:
                 try:
                     objective_beamset_name = o.OfDoseDistribution.ForBeamSet.DicomPlanLabel
                 except AttributeError:
-                    logging.debug('Objective for roi {} is not defined on a specific beamset'.format(
-                     roi_name) + ' and is not included in treat settings.')
+                    logging.debug(
+                        'Objective for roi {} is not defined on a specific beamset'.format(
+                            roi_name) + ' and is not included in treat settings.')
                     objective_beamset_name = None
 
             # If not cooptimization the roi is automatically in scope.
@@ -213,8 +323,9 @@ def select_rois_for_treat(plan, beamset, rois=None):
             except Exception as e:
                 try:
                     if 'No ROI named' in e.Message:
-                        logging.info('TreatProtect settings failed for roi {} since it does not exist'.format(
-                            r))
+                        logging.info(
+                            'TreatProtect settings failed for roi {} since it does not exist'.format(
+                                r))
                     else:
                         logging.exception(u'{}'.format(e.Message))
                         sys.exit(u'{}'.format(e.Message))
@@ -296,7 +407,8 @@ def check_min_jaws(plan_opt, min_dim):
                 # If the minimum size in x is smaller than min_dim, set the minimum to a proportion of min_dim
                 # Use floor and ceil functions to ensure rounding to the nearest mm
                 if min_x_aperture <= min_dim * (1 + epsilon):
-                    logging.info('Minimum x-aperture is smaller than {} resetting beams'.format(min_dim))
+                    logging.info(
+                        'Minimum x-aperture is smaller than {} resetting beams'.format(min_dim))
                     logging.debug('x-aperture is X1={}, X2={}'.format(min_x1, min_x2))
                     x2 = (min_dim / (min_x2 - min_x1)) * min_x2
                     x1 = (min_dim / (min_x2 - min_x1)) * min_x1
@@ -309,7 +421,8 @@ def check_min_jaws(plan_opt, min_dim):
                     x1 = s.JawPositions[0]
                 # If the minimum size in y is smaller than min_dim, set the minimum to a proportion of min_dim
                 if min_y_aperture <= min_dim * (1 + epsilon):
-                    logging.info('Minimum y-aperture is smaller than {} resetting beams'.format(min_dim))
+                    logging.info(
+                        'Minimum y-aperture is smaller than {} resetting beams'.format(min_dim))
                     logging.debug('y-aperture is Y1={}, Y2={}'.format(min_y1, min_y2))
                     y2 = (min_dim / (min_y2 - min_y1)) * min_y2
                     y1 = (min_dim / (min_y2 - min_y1)) * min_y1
@@ -321,8 +434,9 @@ def check_min_jaws(plan_opt, min_dim):
                     y2 = s.JawPositions[3]
                     y1 = s.JawPositions[2]
                 if min_x_aperture <= min_dim or min_y_aperture <= min_dim:
-                    logging.info('Jaw size offset necessary on beam: {}, X = {}, Y = {}, with min dimension {}'
-                                 .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
+                    logging.info(
+                        'Jaw size offset necessary on beam: {}, X = {}, Y = {}, with min dimension {}'
+                        .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
                     jaw_change = True
                     try:
                         # Uncomment to automatically set jaw limits
@@ -338,8 +452,9 @@ def check_min_jaws(plan_opt, min_dim):
                     except:
                         logging.warning("Could not change beam settings to change jaw sizes")
                 else:
-                    logging.info('Jaw size offset unnecessary on beam:{}, X={}, Y={}, with min dimension={}'
-                                 .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
+                    logging.info(
+                        'Jaw size offset unnecessary on beam:{}, X={}, Y={}, with min dimension={}'
+                        .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
             else:
                 logging.debug("Beam {} is not optimized".format(b.ForBeam.Name))
     if jaw_change:
@@ -459,7 +574,8 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
             time_iteration_initial = report_inputs.get('time_iteration_initial')
             time_iteration_final = report_inputs.get('time_iteration_final')
             time_iteration_total = datetime.timedelta(0)
-            for iteration, (initial, final) in enumerate(zip(time_iteration_initial, time_iteration_final)):
+            for iteration, (initial, final) in enumerate(
+                    zip(time_iteration_initial, time_iteration_final)):
                 time_iteration_delta = final - initial
                 time_iteration_total = time_iteration_total + time_iteration_delta
                 logging.info("Time: Fluence-based optimization iteration {} (seconds): {}".format(
@@ -475,11 +591,13 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                 time_iteration_initial = report_inputs.get('time_iteration_initial')
                 time_iteration_final = report_inputs.get('time_iteration_final')
                 time_iteration_total = datetime.timedelta(0)
-                for iteration, (initial, final) in enumerate(zip(time_iteration_initial, time_iteration_final)):
+                for iteration, (initial, final) in enumerate(
+                        zip(time_iteration_initial, time_iteration_final)):
                     time_iteration_delta = final - initial
                     time_iteration_total = time_iteration_total + time_iteration_delta
-                    logging.info("Time: Aperture-based optimization iteration {} (seconds): {}".format(
-                        iteration, time_iteration_delta.total_seconds()))
+                    logging.info(
+                        "Time: Aperture-based optimization iteration {} (seconds): {}".format(
+                            iteration, time_iteration_delta.total_seconds()))
                     on_screen_message += "Iteration {}: Time Required {} s\n".format(
                         iteration + 1, time_iteration_delta.total_seconds())
                 logging.info("Time: Total Aperture-based optimization (seconds): {}".format(
@@ -496,7 +614,8 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
                 time_dose_grid = datetime.timedelta(0)
                 time_dose_grid_initial = report_inputs.get('time_dose_grid_initial')
                 time_dose_grid_final = report_inputs.get('time_dose_grid_final')
-                for grid_change, (initial, final) in enumerate(zip(time_dose_grid_initial, time_dose_grid_final)):
+                for grid_change, (initial, final) in enumerate(
+                        zip(time_dose_grid_initial, time_dose_grid_final)):
                     time_dose_grid_delta = final - initial
                     time_dose_grid = time_dose_grid + time_dose_grid_delta
                     logging.info("Time: Dose Grid change {} (seconds): {}".format(
@@ -590,6 +709,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     reduce_oar = optimization_inputs.get('reduce_oar', True)
     segment_weight = optimization_inputs.get('segment_weight', False)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
+    close_status = optimization_inputs.get('close_status', False)
 
     # Reporting
     report_inputs = {
@@ -688,13 +808,14 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
 
     # TODO: Make this a beamset setting in the xml protocols
     if '_SBR_' in beamset.DicomPlanLabel or \
-       '_FSR_' in beamset.DicomPlanLabel:
+            '_FSR_' in beamset.DicomPlanLabel:
         margins = {'Y1': 0.25, 'Y2': 0.25, 'X1': 0.25, 'X2': 0.25}
     else:
         margins = {'Y1': 0.8, 'Y2': 0.8, 'X1': 0.8, 'X2': 0.8}
 
     # Find current Beamset Number and determine plan optimization
-    OptIndex = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
+    OptIndex = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
+                                                      verbose_logging=False)
     plan_optimization = plan.PlanOptimizations[OptIndex]
     plan_optimization_parameters = plan.PlanOptimizations[OptIndex].OptimizationParameters
 
@@ -771,14 +892,16 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 for beams in ts.BeamSettings:
                     mu = beams.ForBeam.BeamMU
                     if mu > 0:
-                        logging.debug('This beamset is already optimized. Not applying treat settings to targets')
+                        logging.debug(
+                            'This beamset is already optimized. Not applying treat settings to targets')
                     else:
                         set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
                 #
                 # Set beam splitting preferences
                 for beams in ts.BeamSettings:
                     if mu > 0:
-                        logging.debug('This beamset is already optimized beam-splitting preferences not applied')
+                        logging.debug(
+                            'This beamset is already optimized beam-splitting preferences not applied')
                     else:
                         beams.AllowBeamSplit = allow_beam_split
                 #
@@ -789,7 +912,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     mu += bs.ForBeam.BeamMU
                     num_beams += 1
                 if mu > 0:
-                    logging.warning('This plan may not have typical SMLC optimization params enforced')
+                    logging.warning(
+                        'This plan may not have typical SMLC optimization params enforced')
                 else:
                     ts.SegmentConversion.MinSegmentArea = min_segment_area
                     ts.SegmentConversion.MinSegmentMUPerFraction = min_segment_mu
@@ -815,10 +939,12 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         if not success:
                             # If there are MU then this field has already been optimized with the wrong jaw limits
                             # For Shame....
-                            logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
-                            UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
-                                                     'jaws failed - check reset beams' +
-                                                     ' on next attempt at this script')
+                            logging.debug(
+                                'This beamset is already optimized with unconstrained jaws. Reset needed')
+                            UserInterface.WarningBox(
+                                'Restart Required: Attempt to limit TrueBeamSTx ' +
+                                'jaws failed - check reset beams' +
+                                ' on next attempt at this script')
                             status.finish('Restart required')
                             sys.exit('Restart Required: Select reset beams on next run of script.')
             elif ts.ForTreatmentSetup.DeliveryTechnique == 'DynamicArc':
@@ -829,7 +955,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                     mu = beams.ForBeam.BeamMU
                     if mu > 0:
                         logging.debug('This beamset is already optimized.' +
-                                      ' Not applying treat settings to Beam {}'.format(beams.ForBeam.Name))
+                                      ' Not applying treat settings to Beam {}'.format(
+                                          beams.ForBeam.Name))
                     else:
                         set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
                 #
@@ -841,12 +968,15 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                             if mu > 0:
                                 # If there are MU then this field has already been optimized with the wrong gantry
                                 # spacing. For shame....
-                                logging.info('This beamset is already optimized with > 2 degrees.  Reset needed')
-                                UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
-                                                         'spacing failed - check reset beams' +
-                                                         ' on next attempt at this script')
+                                logging.info(
+                                    'This beamset is already optimized with > 2 degrees.  Reset needed')
+                                UserInterface.WarningBox(
+                                    'Restart Required: Attempt to correct final gantry ' +
+                                    'spacing failed - check reset beams' +
+                                    ' on next attempt at this script')
                                 status.finish('Restart required')
-                                sys.exit('Restart Required: Select reset beams on next run of script.')
+                                sys.exit(
+                                    'Restart Required: Select reset beams on next run of script.')
                             else:
                                 beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
                                     FinalGantrySpacing=2)
@@ -865,77 +995,14 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         if not success:
                             # If there are MU then this field has already been optimized with the wrong jaw limits
                             # For Shame....
-                            logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
-                            UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
-                                                     'jaws failed - check reset beams' +
-                                                     ' on next attempt at this script')
+                            logging.debug(
+                                'This beamset is already optimized with unconstrained jaws. Reset needed')
+                            UserInterface.WarningBox(
+                                'Restart Required: Attempt to limit TrueBeamSTx ' +
+                                'jaws failed - check reset beams' +
+                                ' on next attempt at this script')
                             status.finish('Restart required')
                             sys.exit('Restart Required: Select reset beams on next run of script.')
-                # for beams in ts.BeamSettings:
-                #     mu = beams.ForBeam.BeamMU
-                #
-                #     if beams.TomoPropertiesPerBeam is not None:
-                #     elif beams.ForBeam.DeliveryTechnique == 'SMLC':
-                #         if mu > 0:
-                #             logging.debug('This beamset is already optimized with beamsplitting not applied')
-                #             logging.debug('This beamset is already optimized. Not applying treat settings to targets')
-                #         else:
-                #             beams.AllowBeamSplit = allow_beam_split
-                #             set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
-                #     elif beams.ArcConversionPropertiesPerBeam is not None:
-                #         # Set the control point spacing for Arc Beams
-                #         if mu > 0:
-                #             logging.debug('This beamset is already optimized. Not applying treat settings to targets')
-                #         else:
-                #             set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
-                #         if beams.ArcConversionPropertiesPerBeam.FinalArcGantrySpacing > 2:
-                #             if mu > 0:
-                #                 # If there are MU then this field has already been optimized with the wrong gantry
-                #                 # spacing. For shame....
-                #                 logging.info('This beamset is already optimized with > 2 degrees.  Reset needed')
-                #                 UserInterface.WarningBox('Restart Required: Attempt to correct final gantry ' +
-                #                                          'spacing failed - check reset beams' +
-                #                                          ' on next attempt at this script')
-                #                 status.finish('Restart required')
-                #                 sys.exit('Restart Required: Select reset beams on next run of script.')
-                #             else:
-                #                 beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
-                #                     FinalGantrySpacing=2)
-                #         # Maximum Jaw Sizes should be limited for STx beams
-                #         # Determine the current machine
-                #     machine_ref = ts.ForTreatmentSetup.MachineReference.MachineName
-                #     if machine_ref == 'TrueBeamSTx':
-                #         logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
-                #
-                #         limit = [-20, 20, -10.8, 10.8]
-                #         # Reference the beamset by the subobject in ForTreatmentSetup
-                #         success = BeamOperations.check_beam_limits(beams.ForBeam.Name,
-                #                                                    plan=plan,
-                #                                                    beamset=ts.ForTreatmentSetup,
-                #                                                    limit=limit,
-                #                                                    change=True,
-                #                                                    verbose_logging=True)
-                #         if not success:
-                #             # If there are MU then this field has already been optimized with the wrong jaw limits
-                #             # For Shame....
-                #             logging.debug('This beamset is already optimized with unconstrained jaws. Reset needed')
-                #             UserInterface.WarningBox('Restart Required: Attempt to limit TrueBeamSTx ' +
-                #                                      'jaws failed - check reset beams' +
-                #                                      ' on next attempt at this script')
-                #             status.finish('Restart required')
-                #             sys.exit('Restart Required: Select reset beams on next run of script.')
-
-                # num_beams += 1
-            # if ts.ForTreatmentSetup.DeliveryTechnique == 'SMLC':
-            #     if mu > 0:
-            #         logging.warning('This plan may not have typical SMLC optimization params enforced')
-            #     else:
-            #         ts.SegmentConversion.MinSegmentArea = min_segment_area
-            #         ts.SegmentConversion.MinSegmentMUPerFraction = min_segment_mu
-            #         maximum_segments = num_beams * maximum_segments_per_beam
-            #         ts.SegmentConversion.MinNumberOfOpenLeafPairs = min_leaf_pairs
-            #         ts.SegmentConversion.MinLeafEndSeparation = min_leaf_end_separation
-            #         ts.SegmentConversion.MaxNumberOfSegments = str(maximum_segments)
 
         while Optimization_Iteration != maximum_iteration:
             if plan_optimization.Objective.FunctionValue is None:
@@ -952,7 +1019,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                         'Running current value of change_dose_grid is {}'.format(change_dose_grid))
                     DoseDim = change_dose_grid[Optimization_Iteration]
                     # Start Clock on the dose grid change
-                    report_inputs.setdefault('time_dose_grid_initial', []).append(datetime.datetime.now())
+                    report_inputs.setdefault('time_dose_grid_initial', []).append(
+                        datetime.datetime.now())
                     plan.SetDefaultDoseGrid(
                         VoxelSize={
                             'x': DoseDim,
@@ -960,13 +1028,16 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                             'z': DoseDim})
                     plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
                     # Stop the clock for the dose grid change
-                    report_inputs.setdefault('time_dose_grid_final', []).append(datetime.datetime.now())
+                    report_inputs.setdefault('time_dose_grid_final', []).append(
+                        datetime.datetime.now())
             # Start the clock
             report_inputs.setdefault('time_iteration_initial', []).append(datetime.datetime.now())
             status.next_step(
-                text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
+                text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1,
+                                                                   maximum_iteration))
             logging.info(
-                'Current iteration = {} of {}'.format(Optimization_Iteration + 1, maximum_iteration))
+                'Current iteration = {} of {}'.format(Optimization_Iteration + 1,
+                                                      maximum_iteration))
             # Run the optimization
             plan.PlanOptimizations[OptIndex].RunOptimization()
             # Stop the clock
@@ -989,7 +1060,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         if segment_weight:
             if beamset.DeliveryTechnique == 'TomoHelical':
                 status.next_step('TomoHelical Plan skipping Segment weight only optimization')
-                logging.warning('Segment weight based optimization is not supported for TomoHelical')
+                logging.warning(
+                    'Segment weight based optimization is not supported for TomoHelical')
                 report_inputs['time_segment_weight_initial'] = datetime.datetime.now()
                 report_inputs['time_segment_weight_final'] = datetime.datetime.now()
             else:
@@ -999,8 +1071,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                 if cooptimization:
                     logging.warning("Co-optimized segment weight-based optimization is" +
                                     " not supported by RaySearch at this time.")
-                    connect.await_user_input("Segment-weight optimization with composite optimization is not supported " +
-                                             "by RaySearch at this time")
+                    connect.await_user_input(
+                        "Segment-weight optimization with composite optimization is not supported " +
+                        "by RaySearch at this time")
                 else:
                     for ts in treatment_setup_settings:
                         for beams in ts.BeamSettings:
@@ -1009,8 +1082,10 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
                                     OptimizationTypes=["SegmentMU"]
                                 )
                     plan.PlanOptimizations[OptIndex].RunOptimization()
-                    logging.info('Current total objective function value at iteration {} is {}'.format(
-                        Optimization_Iteration, plan_optimization.Objective.FunctionValue.FunctionValue))
+                    logging.info(
+                        'Current total objective function value at iteration {} is {}'.format(
+                            Optimization_Iteration,
+                            plan_optimization.Objective.FunctionValue.FunctionValue))
                 report_inputs['time_segment_weight_final'] = datetime.datetime.now()
 
         # Finish with a Reduce OAR Dose Optimization
@@ -1018,7 +1093,8 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         if reduce_oar:
             if beamset.DeliveryTechnique == 'TomoHelical':
                 status.next_step('TomoHelical Plan skipping reduce oar dose optimization')
-                logging.warning('Segment weight based optimization is not supported for TomoHelical')
+                logging.warning(
+                    'Segment weight based optimization is not supported for TomoHelical')
                 report_inputs['time_reduce_oar_initial'] = datetime.datetime.now()
                 report_inputs['time_reduce_oar_final'] = datetime.datetime.now()
             else:
@@ -1050,4 +1126,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
     logging.critical('{} finished at {}'.format(beamset.DicomPlanLabel, datetime.datetime.now()))
 
     status.next_step('Optimization summary')
-    status.finish(on_screen_message)
+    if close_status:
+        status.close()
+    else:
+        status.finish(on_screen_message)

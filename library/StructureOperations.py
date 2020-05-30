@@ -129,8 +129,8 @@ def exists_roi(case, rois):
     for r in rois:
         pattern = r"^" + r + "$"
         if any(
-            re.match(pattern, current_roi, re.IGNORECASE)
-            for current_roi in defined_rois
+                re.match(pattern, current_roi, re.IGNORECASE)
+                for current_roi in defined_rois
         ):
             roi_exists.append(True)
         else:
@@ -212,9 +212,9 @@ def check_roi(case, exam, rois):
 
         for r in rois:
             if (
-                case.PatientModel.StructureSets[exam.Name]
-                .RoiGeometries[r]
-                .HasContours()
+                    case.PatientModel.StructureSets[exam.Name]
+                            .RoiGeometries[r]
+                            .HasContours()
             ):
                 roi_passes.append(True)
             else:
@@ -251,8 +251,8 @@ def max_coordinates(case, exam, rois):
 
     ret = (
         case.PatientModel.StructureSets[exam.Name]
-        .RoiGeometries[rois]
-        .SetRepresentation(Representation="Contours")
+            .RoiGeometries[rois]
+            .SetRepresentation(Representation="Contours")
     )
     logging.debug("ret of operation is {}".format(ret))
 
@@ -265,8 +265,8 @@ def max_coordinates(case, exam, rois):
 
         contours = (
             case.PatientModel.StructureSets[exam]
-            .RoiGeometries[rois]
-            .PrimaryShape.Contours
+                .RoiGeometries[rois]
+                .PrimaryShape.Contours
         )
 
         for contour in contours:
@@ -566,8 +566,8 @@ def exams_containing_roi(case, structure_name, roi_list=None, exam=None):
             logging.debug("type ss {} and rg {}".format(ss, rg))
             e_has_contours = (
                 case.PatientModel.StructureSets[e]
-                .RoiGeometries[structure_name]
-                .HasContours()
+                    .RoiGeometries[structure_name]
+                    .HasContours()
             )
             if e_has_contours:
                 roi_found.append(e)
@@ -575,7 +575,7 @@ def exams_containing_roi(case, structure_name, roi_list=None, exam=None):
 
 
 def check_structure_exists(
-    case, structure_name, roi_list=None, option="Check", exam=None
+        case, structure_name, roi_list=None, option="Check", exam=None
 ):
     """
     Verify if a structure with the exact name specified exists or not
@@ -605,8 +605,8 @@ def check_structure_exists(
         if exam is not None:
             structure_has_contours_on_exam = (
                 case.PatientModel.StructureSets[exam.Name]
-                .RoiGeometries[structure_name]
-                .HasContours()
+                    .RoiGeometries[structure_name]
+                    .HasContours()
             )
         else:
             structure_has_contours_on_exam = False
@@ -735,7 +735,7 @@ def check_overlap(patient, case, exam, structure, rois):
 
 
 def compute_comparison_statistics(
-    patient, case, exam, rois_a, rois_b, compute_distances=False
+        patient, case, exam, rois_a, rois_b, compute_distances=False
 ):
     """
     Compute the statistics of the overlap with a structure and the input rois
@@ -1363,8 +1363,8 @@ def check_derivation(case, examination, **kwargs):
             return False
     except AttributeError:
         if (
-            MarginTypeA != None
-            and current_a_expression.ExpandContractType != MarginTypeA
+                MarginTypeA != None
+                and current_a_expression.ExpandContractType != MarginTypeA
         ):
             logging.debug("A expand/contract type expected to be something")
             return False
@@ -1541,10 +1541,10 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
             )
             # If the operation is a subtraction, then check to see if the result will have a volume
             if (
-                row.OperationResult == "Subtraction"
-                and all(r == 0 for r in row.ExpR)
-                and all(a == 0 for a in row.ExpA)
-                and all(b == 0 for b in row.ExpB)
+                    row.OperationResult == "Subtraction"
+                    and all(r == 0 for r in row.ExpR)
+                    and all(a == 0 for a in row.ExpA)
+                    and all(b == 0 for b in row.ExpB)
             ):
                 specificity = []
                 for a in row.SourcesB:
@@ -1858,9 +1858,9 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                             # k exists only on this exam, so we've copied its geometry and since its
                             if not k_contours_multiple_exams and k_contours_this_exam:
                                 if (
-                                    (geometry_validation["Precision"] - 1) <= epsilon
-                                    and (geometry_validation["Sensitivity"] - 1)
-                                    <= epsilon
+                                        (geometry_validation["Precision"] - 1) <= epsilon
+                                        and (geometry_validation["Sensitivity"] - 1)
+                                        <= epsilon
                                 ):
                                     case.PatientModel.RegionsOfInterest[k].DeleteRoi()
                         else:
@@ -1936,7 +1936,7 @@ def dialog_create_roi():
             "2": "Suffix if needed, e.g. _R1",
         },
         title="Delete geometry or create a new structure?",
-        datatype={"1": "combo", "2": "text",},
+        datatype={"1": "combo", "2": "text", },
         initial={"1": "Delete Geometry", "2": "_R1"},
         options={
             "1": ["Delete Geometry", "Append Suffix"],
@@ -2113,8 +2113,8 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
             "{} is not in the list. Creating {}".format(
                 roi_name_ci,
                 case.PatientModel.StructureSets[examination.Name]
-                .RoiGeometries[roi_name_ci]
-                .OfRoi.Name,
+                    .RoiGeometries[roi_name_ci]
+                    .OfRoi.Name,
             )
         )
         return case.PatientModel.StructureSets[examination.Name].RoiGeometries[
@@ -2216,14 +2216,14 @@ def make_boolean_structure(patient, case, examination, **kwargs):
 
 
 def make_wall(
-    wall,
-    sources,
-    delta,
-    patient,
-    case,
-    examination,
-    inner=True,
-    struct_type="Undefined",
+        wall,
+        sources,
+        delta,
+        patient,
+        case,
+        examination,
+        inner=True,
+        struct_type="Undefined",
 ):
     """
 
@@ -2318,7 +2318,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     i = 0
     temp_air_name = air_name + str(i)
     while check_structure_exists(
-        case=case, structure_name=temp_air_name, exam=examination, option="Check"
+            case=case, structure_name=temp_air_name, exam=examination, option="Check"
     ):
         i += 1
         temp_air_name = air_name + str(i)
@@ -2412,12 +2412,12 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
 
 
 def make_externalclean(
-    patient,
-    case,
-    examination,
-    structure_name="ExternalClean",
-    suffix=None,
-    delete=False,
+        patient,
+        case,
+        examination,
+        structure_name="ExternalClean",
+        suffix=None,
+        delete=False,
 ):
     """
     Makes a cleaned version of the external (body) contour and sets its type appropriately
@@ -2445,7 +2445,7 @@ def make_externalclean(
     i = 0
     temp_ext = "temp_ext" + str(i)
     while check_structure_exists(
-        case=case, structure_name=temp_ext, exam=examination, option="Check"
+            case=case, structure_name=temp_ext, exam=examination, option="Check"
     ):
         i += 1
         temp_ext = "temp_ext" + str(i)
@@ -2467,7 +2467,7 @@ def make_externalclean(
     )
     # Redraw the ExternalClean structure if necessary
     if check_structure_exists(
-        case=case, structure_name=structure_name, exam=examination, option="Check"
+            case=case, structure_name=structure_name, exam=examination, option="Check"
     ):
         roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
             structure_name
@@ -2815,10 +2815,10 @@ class planning_structure_preferences:
         self.targets = {}
         self.use_inner_air = None
         self.use_uniform_dose = None
-        self.uniform_properties = {'structures':[], 'standoff':None}
+        self.uniform_properties = {'structures': [], 'standoff': None}
         self.uniform_dose_oar = {}
         self.use_under_dose = None
-        self.under_dose_properties = {'structures':[], 'standoff':None}
+        self.under_dose_properties = {'structures': [], 'standoff': None}
         self.under_dose_oar = {}
         self.plan_type = None
 
@@ -2902,23 +2902,23 @@ def dialog_number_of_targets():
 
 
 def planning_structures(
-    generate_ptvs=True,
-    generate_ptv_evals=True,
-    generate_otvs=True,
-    generate_skin=True,
-    generate_inner_air=True,
-    generate_field_of_view=True,
-    generate_ring_hd=True,
-    generate_ring_ld=True,
-    generate_normal_2cm=True,
-    generate_combined_ptv=True,
-    skin_contraction=0.3,
-    run_status=True,
-    planning_structure_selections=None,
-    dialog2_response=None,
-    dialog3_response=None,
-    dialog4_response=None,
-    dialog5_response=None,
+        generate_ptvs=True,
+        generate_ptv_evals=True,
+        generate_otvs=True,
+        generate_skin=True,
+        generate_inner_air=True,
+        generate_field_of_view=True,
+        generate_ring_hd=True,
+        generate_ring_ld=True,
+        generate_normal_2cm=True,
+        generate_combined_ptv=True,
+        skin_contraction=0.3,
+        run_status=True,
+        planning_structure_selections=None,
+        dialog2_response=None,
+        dialog3_response=None,
+        dialog4_response=None,
+        dialog5_response=None,
 ):
     """
     Generate Planning Structures
@@ -3558,34 +3558,34 @@ def planning_structures(
                     sotvu_name = sotvu_prefix + "_Mid" + str(MidTargetNumber)
             elif numbered_targets:
                 PTVName = (
-                    PTVPrefix
-                    + str(index + initial_target_offset + 1)
-                    + "_"
-                    + source_doses[index]
+                        PTVPrefix
+                        + str(index + initial_target_offset + 1)
+                        + "_"
+                        + source_doses[index]
                 )
                 PTVEvalName = (
-                    PTVPrefix
-                    + str(index + initial_target_offset + 1)
-                    + "_Eval_"
-                    + source_doses[index]
+                        PTVPrefix
+                        + str(index + initial_target_offset + 1)
+                        + "_Eval_"
+                        + source_doses[index]
                 )
                 PTVEZName = (
-                    PTVPrefix
-                    + str(index + initial_target_offset + 1)
-                    + "_EZ_"
-                    + source_doses[index]
+                        PTVPrefix
+                        + str(index + initial_target_offset + 1)
+                        + "_EZ_"
+                        + source_doses[index]
                 )
                 OTVName = (
-                    OTVPrefix
-                    + str(index + initial_target_offset + 1)
-                    + "_"
-                    + source_doses[index]
+                        OTVPrefix
+                        + str(index + initial_target_offset + 1)
+                        + "_"
+                        + source_doses[index]
                 )
                 sotvu_name = (
-                    sotvu_prefix
-                    + str(index + initial_target_offset + 1)
-                    + "_"
-                    + source_doses[index]
+                        sotvu_prefix
+                        + str(index + initial_target_offset + 1)
+                        + "_"
+                        + source_doses[index]
                 )
             PTVList.append(PTVName)
             translation_mapping[PTVName] = [
@@ -4156,10 +4156,10 @@ def planning_structures(
         logging.debug("Target specific rings being constructed")
         for index, target in enumerate(PTVList):
             ring_name = (
-                "ring"
-                + str(index + initial_target_offset + 1)
-                + "_"
-                + source_doses[index]
+                    "ring"
+                    + str(index + initial_target_offset + 1)
+                    + "_"
+                    + source_doses[index]
             )
             target_ring_defs = {
                 "StructureName": ring_name,
