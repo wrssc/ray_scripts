@@ -399,7 +399,7 @@ def optimize(s):
     tree_oc = xml.etree.ElementTree.parse(
         os.path.join(os.path.dirname(__file__), path, file))
     # Planning preferences loaded into dict
-    dict_oc = iter_planning_structure_etree(tree_oc)
+    dict_oc = iter_optimization_config_etree(tree_oc)
     # Planning preferences loaded dataframe
     df_oc = pd.DataFrame(
         dict_oc[key_oc])
