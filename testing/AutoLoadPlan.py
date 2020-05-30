@@ -420,9 +420,13 @@ def main():
         rs_beam_set.SetCurrent()
         
         translation_map=OrderedDict()
+        logging.debug('targets {} are great, type {}'.format(row['Targets'],type(row['Targets'])))
         for k, v in row['Targets'].items():
         ## # Translation map: {dict} protocol_target_name:(plan_target_name, dose in Gy)
-            translation_map[v[1]] = (k, float(v[0]) /100.)
+            key = str(v[1])
+            val_1 = int(k)
+            val_2 = float(v[0])/100.
+            translation_map[key] = (val_1, val_2)
         for k,v in translation_map.items():
             logging.debug("translatin map {}:{}".format(k,v))
         break
