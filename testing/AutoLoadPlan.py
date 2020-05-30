@@ -404,7 +404,7 @@ def optimize(s):
     df_oc = pd.DataFrame(
         dict_oc[key_oc])
     # Slice for the planning structure set matching the input workflow
-    df_wf = df_oc[df_pp.name == wf]
+    df_wf = df_oc[df_oc.name == wf]
     # Retrieve arguments
 
     OptimizationParameters = {
@@ -654,7 +654,6 @@ def main():
 
         patient.Save()
         rs_beam_set.SetCurrent()
-        #
         # Now add in clinical goals and objectives
         goal_file_name = row.GoalFile
         path_goals = os.path.join(os.path.dirname(__file__),
