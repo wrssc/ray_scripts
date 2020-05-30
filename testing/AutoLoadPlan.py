@@ -219,6 +219,7 @@ def test_input_commands(s):
     # Planning Structures
     wf = s.PlanningStructureWorkflow # Named workflow: planning_structure_set>name, or None for skip
     elem = 'planning_structure_set'
+    key_ps = 'planning_structure_config'
     if wf:
         file = s.PlanningStructureFile
         path = s.PlanningStructurePath
@@ -246,7 +247,7 @@ def test_input_commands(s):
             e.append("Could not convert element-tree in {} to dictionary.".format(path_file))
             return e
         # Convert the dict to pandas dataframe and see if it is empty
-        df_pp = pd.DataFrame(dict_pp)
+        df_pp = pd.DataFrame(dict_pp[key_ps])
         if df_pp.empty:
             e.append("Could not convert dictionary in {} to dataframe.".format(path_file))
         # Slice the dataframe at the workflow name
@@ -263,7 +264,7 @@ def test_input_commands(s):
 
 def load_planning_structures(s):
 
-    test_input_commands(s)
+    key_ps = 'planning_structure_config'
     file = s.PlanningStructureFile
     path = s.PlanningStructurePath
     wf = s.PlanningStructureWorkflow
@@ -274,7 +275,7 @@ def load_planning_structures(s):
         .iter_planning_structure_etree(tree_pp)
     # Planning preferences loaded dataframe
     df_pp = pd.DataFrame(
-            dict_pp['planning_structure_config'])
+            dict_pp[key_ps])
     # Slice for the planning structure set matching the input workflow
     df_wf = df_pp[df_pp.name == wf]
 
