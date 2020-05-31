@@ -436,11 +436,11 @@ def load_configuration_optimize_beamset(s,patient,case,exam,plan,beamset):
         "close_status": False}
     #
     # Optimize the plan
-    ## try:
-    optimize_plan(patient=patient, case=case, exam=exam, plan=plan, beamset=beamset, **OptimizationParameters)
-    return True
-    ##except Exception as e:
-    ##    return e
+    try:
+        optimize_plan(patient=patient, case=case, exam=exam, plan=plan, beamset=beamset, **OptimizationParameters)
+        return True
+    except Exception as e:
+        return e
 
 
 def merge_dict(row):
@@ -545,12 +545,12 @@ def main():
             exam.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=row.CTSystem)
             patient.Save()
         ## Delete this, but temporarily load beamsets and just try to optimize them
-        beamset_name = 'VMAT'
-        rs_beam_set = plan.BeamSets[beamset_name]
-        rs_beam_set.SetCurrent()
-        connect.get_current('BeamSet')
-        err = load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)
-        sys.exit(err)
+        ## beamset_name = 'VMAT'
+        ## rs_beam_set = plan.BeamSets[beamset_name]
+        ## rs_beam_set.SetCurrent()
+        ## connect.get_current('BeamSet')
+        ## err = load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)
+        ## sys.exit(err)
 
         errors_ps = test_inputs_planning_structure(row)
         if errors_ps:
@@ -707,7 +707,7 @@ def main():
 
         #
         # Optimize the plan
-        opt_status = load_configuration_optimize_beamset(row,patient,case,plan,rs_beam_set)
+        opt_status = load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)
         if opt_status:
             optimization_complete = True
         else:
