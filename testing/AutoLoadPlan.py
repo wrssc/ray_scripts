@@ -388,7 +388,7 @@ def load_planning_structures(s):
     return success
 
 
-def load_configuration_optimize_beamset(s,patient,case,plan,beamset):
+def load_configuration_optimize_beamset(s,patient,case,exam,plan,beamset):
     """Optimize the plan
 
     Arguments:
@@ -437,7 +437,9 @@ def load_configuration_optimize_beamset(s,patient,case,plan,beamset):
     #
     # Optimize the plan
     ## try:
-    optimize_plan(patient, case, plan, beamset, **OptimizationParameters)
+    for k, v in OptimizationParameters.items():
+        logging.debug("{}{}".format(k,v))
+    optimize_plan(patient, case, exam, plan, beamset, **OptimizationParameters)
     return True
     ##except Exception as e:
     ##    return e
@@ -549,7 +551,7 @@ def main():
         rs_beam_set = plan.BeamSets[beamset_name]
         rs_beam_set.SetCurrent()
         connect.get_current('BeamSet')
-        load_configuration_optimize_beamset(row,patient,case,plan,rs_beam_set)
+        load_configuration_optimize_beamset(row,patient,exam,case,plan,rs_beam_set)
         sys.exit('Done')
 
         errors_ps = test_inputs_planning_structure(row)
