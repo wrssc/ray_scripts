@@ -209,6 +209,8 @@ def iter_optimization_config_etree(etree):
                 o_c['segment_weight'] = False
         except AttributeError:
             o_c['segment_weight'] = False
+        # Append the resulting configuration to the dictionary
+        os_config['optimization_config'].append(o_c)
     return os_config
 
 

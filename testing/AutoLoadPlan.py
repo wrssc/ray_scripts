@@ -214,7 +214,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
     return patient_data
 
 
-def test_input_commands(s):
+def test_inputs_planning_structure(s):
     e = []  # Errors
     # Planning Structures
     wf = s.PlanningStructureWorkflow  # Named workflow: planning_structure_set>name, or None for skip
@@ -388,7 +388,19 @@ def load_planning_structures(s):
     return success
 
 
-def optimize(s):
+def load_configuration_optimize_beamset(s,patient,case,plan,beamset):
+    """Optimize the plan
+
+    Arguments:
+        s {pandas dataseries} -- contains path and filename for accessing the xml instructions for optimization
+        patient {Patient ScriptObject} -- RS patient 
+        case {Case ScriptObject} -- RS case
+        plan {Plan ScriptObject} -- RS Plan
+        beamset {Beamset ScriptObject} -- RS Beamset
+
+    Returns:
+        Boolean or error -- True if plan optimized, error message if not
+    """
     key_oc = 'optimization_config'
     wf = s.OptimizationWorkflow
     # No planning structures needed 
@@ -398,12 +410,11 @@ def optimize(s):
     path = s.OptimizationPath
     tree_oc = xml.etree.ElementTree.parse(
         os.path.join(os.path.dirname(__file__), path, file))
-    # Planning preferences loaded into dict
+    # Optimization configurations loaded into dict
     dict_oc = iter_optimization_config_etree(tree_oc)
-    # Planning preferences loaded dataframe
-    df_oc = pd.DataFrame(
-        dict_oc[key_oc])
-    # Slice for the planning structure set matching the input workflow
+    # Optimization dict loaded to dataframe
+    df_oc = pd.DataFrame( dict_oc[key_oc])
+    # Slice to match the input workflow
     df_wf = df_oc[df_oc.name == wf]
     # Retrieve arguments
 
@@ -421,7 +432,7 @@ def optimize(s):
     #
     # Optimize the plan
     try:
-        optimize_plan(patient, case, plan, rs_beam_set, **OptimizationParameters)
+        optimize_plan(patient, case, plan, beamset, **OptimizationParameters)
         return True
     except Exception as e:
         return e
@@ -525,8 +536,8 @@ def main():
             connect.get_current('Plan')
             patient_load = True
 
-        input_error = test_input_commands(row)
-        if input_error:
+        errors_ps = test_inputs_planning_structure(row)
+        if errors_ps:
             # Go to the next entry
             output_status(
                 path=path,
@@ -541,7 +552,7 @@ def main():
                 clinical_goals_load=clinical_goals_load,
                 plan_optimization_strategy_load=plan_optimization_strategy_load,
                 optimization_complete=optimization_complete,
-                script_status=input_error
+                script_status=errors_ps
             )
             continue
         planning_structs = load_planning_structures(row)
@@ -680,7 +691,7 @@ def main():
 
         #
         # Optimize the plan
-        opt_status = optimize(row)
+        opt_status = load_configuration_optimize_beamset(row,patient,case,plan,rs_beam_set)
         if opt_status:
             optimization_complete = True
         else:
