@@ -862,13 +862,15 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # it is clear than when co-optimization occurs, we have more than one entry in here...
     
-    # If the dose grid is to be varied during optimization unload the grid parameters
+    # If not set yet, the dose grid needs setting.
     plan.SetDefaultDoseGrid(
                         VoxelSize={
                             'x': dose_dim_initial,
                             'y': dose_dim_initial,
                             'z': dose_dim_initial})
     plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+    logging.debug('Dose grid initialized with voxel size {}'.format(dose_dim_initial))
+    patient.Save()
 
     # Reset
     if reset_beams:
