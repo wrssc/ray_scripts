@@ -439,8 +439,8 @@ def load_configuration_optimize_beamset(s,patient,case,exam,plan,beamset):
     ## try:
     for k, v in OptimizationParameters.items():
         logging.debug("{}{}".format(k,v))
-    
-    optimize_plan(patient, case, exam, plan, beamset, **OptimizationParameters)
+    sys.exit('Somehow not even here')
+    optimize_plan(patient=patient, case=case, exam=exam, plan=plan, beamset=beamset, **OptimizationParameters)
     return True
     ##except Exception as e:
     ##    return e
@@ -553,7 +553,7 @@ def main():
         rs_beam_set.SetCurrent()
         connect.get_current('BeamSet')
         load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)
-        sys.exit('Done')
+        sys.exit('WTFSFSFSFSF')
 
         errors_ps = test_inputs_planning_structure(row)
         if errors_ps:
