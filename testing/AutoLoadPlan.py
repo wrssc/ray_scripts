@@ -545,12 +545,12 @@ def main():
             exam.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=row.CTSystem)
             patient.Save()
         ## Delete this, but temporarily load beamsets and just try to optimize them
-        # beamset_name = 'VMAT'
-        # rs_beam_set = plan.BeamSets[beamset_name]
-        # rs_beam_set.SetCurrent()
-        # connect.get_current('BeamSet')
-        # load_configuration_optimize_beamset(row,patient,case,plan,rs_beam_set)
-        # sys.exit('Done')
+        beamset_name = 'VMAT'
+        rs_beam_set = plan.BeamSets[beamset_name]
+        rs_beam_set.SetCurrent()
+        connect.get_current('BeamSet')
+        load_configuration_optimize_beamset(row,patient,case,plan,rs_beam_set)
+        sys.exit('Done')
 
         errors_ps = test_inputs_planning_structure(row)
         if errors_ps:
