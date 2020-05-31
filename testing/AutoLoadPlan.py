@@ -433,7 +433,7 @@ def load_configuration_optimize_beamset(s,patient,case,exam,plan,beamset):
         'segment_weight': df_wf.segment_weight.values[0],
         'reduce_oar': df_wf.reduce_oar.values[0],
         "save" : True,
-        "close_status": False}
+        "close_status": True}
     #
     # Optimize the plan
     try:
