@@ -728,6 +728,9 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         report_inputs['dose_dim2'] = dose_dim2
         report_inputs['dose_dim3'] = dose_dim3
         report_inputs['dose_dim4'] = dose_dim4
+        dose_dim_initial = dose_dim1
+    else:
+        dose_dim_initial = 0.2
 
     # Start the clock on the script at this time
     # Timing
@@ -737,7 +740,17 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         logging.info('Fluence only: {}'.format(fluence_only))
     else:
         # If the dose grid is to be varied during optimization unload the grid parameters
+        plan.SetDefaultDoseGrid(
+                        VoxelSize={
+                            'x': dose_dim_initial,
+                            'y': dose_dim_initial,
+                            'z': dose_dim_initial})
         if vary_grid:
+            plan.SetDefaultDoseGrid(
+                        VoxelSize={
+                            'x': dose_dim1,
+                            'y': dose_dim1,
+                            'z': dose_dim1})
             variable_dose_grid = {
                 'delta_grid': [dose_dim1,
                                dose_dim2,
@@ -846,6 +859,7 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         logging.debug('Plan is not co-optimized.')
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # it is clear than when co-optimization occurs, we have more than one entry in here...
+    
 
     # Reset
     if reset_beams:
