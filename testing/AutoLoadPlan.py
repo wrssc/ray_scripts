@@ -552,6 +552,7 @@ def main():
         rs_beam_set = plan.BeamSets[beamset_name]
         rs_beam_set.SetCurrent()
         connect.get_current('BeamSet')
+        logging.debug('How is this happening?')
         load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)
         sys.exit('WTFSFSFSFSF')
 
