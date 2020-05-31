@@ -540,6 +540,9 @@ def main():
             plan.SetCurrent()
             connect.get_current('Plan')
             patient_load = True
+        # Check the HU to density status of this exam.
+        if not exam.EquipmentInfo.ImagingSystemReference:
+            exam.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=row.CTSystem)
         ## Delete this, but temporarily load beamsets and just try to optimize them
         beamset_name = 'VMAT'
         rs_beam_set = plan.BeamSets[beamset_name]

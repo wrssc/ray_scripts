@@ -86,6 +86,11 @@ def main():
         raise IOError("No Case loaded. Load patient case and plan.")
 
     try:
+        exam = connect.get_current("Examination")
+    except SystemError:
+        raise IOError("No Examination loaded. Load patient case and plan.")
+    
+    try:
         plan = connect.get_current("Plan")
     except SystemError:
         raise IOError("No plan loaded. Load patient and plan.")
@@ -221,6 +226,7 @@ def main():
 
     OptimizationOperations.optimize_plan(patient=Patient,
                                          case=case,
+                                         exam=exam,
                                          plan=plan,
                                          beamset=beamset,
                                          **optimization_inputs)

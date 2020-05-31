@@ -657,11 +657,12 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
     return on_screen_message
 
 
-def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
+def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     """
     This function will optimize a plan
     :param patient: script requires a current patient
     :param case: a case is needed, though the variable is not used
+    :param exam: an exam is needed to check the CT system
     :param plan: current plan
     :param beamset: current beamset, note composite optimization is supported
     :param optimization_inputs:
@@ -688,6 +689,12 @@ def optimize_plan(patient, case, plan, beamset, **optimization_inputs):
         beamset.SetCurrent()
     except SystemError:
         raise IOError("No beamset loaded")
+    
+    if exam.EquipmentInfo.ImagingSystemReference:
+        logging.debug('Examination has an assigned CT to density table')
+    else:
+        connect.await_user_input(
+            'Set CT imaging system for this examination and continue the script')
 
     # Choose the minimum field size in cm
     min_dim = 2
