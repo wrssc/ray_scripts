@@ -428,6 +428,11 @@ def load_configuration_optimize_beamset(s,patient,case,plan,beamset):
         "dose_dim3": df_wf.dose_dim3.values[0],
         "dose_dim4": df_wf.dose_dim4.values[0],
         "n_iterations": df_wf.warmstart_n.values[0],
+        'fluence_only': df_wf.fluence_only.values[0],
+        'reset_beams': df_wf.reset_beams.values[0],
+        'segment_weight': df_wf.segment_weight.values[0],
+        'reduce_oar': df_wf.reduce_oar.values[0],
+        "save" : True,
         "close_status": False}
     #
     # Optimize the plan
