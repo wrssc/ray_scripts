@@ -743,15 +743,10 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # Timing
     report_inputs['time_total_initial'] = datetime.datetime.now()
 
+        
     if fluence_only:
         logging.info('Fluence only: {}'.format(fluence_only))
     else:
-        # If the dose grid is to be varied during optimization unload the grid parameters
-        plan.SetDefaultDoseGrid(
-                        VoxelSize={
-                            'x': dose_dim_initial,
-                            'y': dose_dim_initial,
-                            'z': dose_dim_initial})
         if vary_grid:
             plan.SetDefaultDoseGrid(
                         VoxelSize={
@@ -867,6 +862,13 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # it is clear than when co-optimization occurs, we have more than one entry in here...
     
+    # If the dose grid is to be varied during optimization unload the grid parameters
+    plan.SetDefaultDoseGrid(
+                        VoxelSize={
+                            'x': dose_dim_initial,
+                            'y': dose_dim_initial,
+                            'z': dose_dim_initial})
+    plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
 
     # Reset
     if reset_beams:
