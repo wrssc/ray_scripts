@@ -436,11 +436,11 @@ def load_configuration_optimize_beamset(s,patient,case,plan,beamset):
         "close_status": False}
     #
     # Optimize the plan
-    try:
-        optimize_plan(patient, case, plan, beamset, **OptimizationParameters)
-        return True
-    except Exception as e:
-        return e
+    ## try:
+    optimize_plan(patient, case, plan, beamset, **OptimizationParameters)
+    return True
+    ##except Exception as e:
+    ##    return e
 
 
 def merge_dict(row):
