@@ -437,9 +437,6 @@ def load_configuration_optimize_beamset(s,patient,case,exam,plan,beamset):
     #
     # Optimize the plan
     ## try:
-    for k, v in OptimizationParameters.items():
-        logging.debug("{}{}".format(k,v))
-    sys.exit('Somehow not even here')
     optimize_plan(patient=patient, case=case, exam=exam, plan=plan, beamset=beamset, **OptimizationParameters)
     return True
     ##except Exception as e:
