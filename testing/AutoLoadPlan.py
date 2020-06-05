@@ -213,6 +213,8 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
 
     return patient_data
 
+def test_inputs_optimization(s):
+    
 
 def test_inputs_planning_structure(s):
     e = []  # Errors
