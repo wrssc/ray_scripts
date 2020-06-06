@@ -213,6 +213,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
 
     return patient_data
 
+
 def test_inputs_optimization(s):
     e = []
     # Optimization configuration
@@ -221,7 +222,6 @@ def test_inputs_optimization(s):
     # No planning structures needed 
     if not wf:
         return 'NA'
-    
 
 def test_inputs_planning_structure(case,s):
     e = []  # Errors
@@ -272,6 +272,17 @@ def test_inputs_planning_structure(case,s):
             e.append(">1 planning_structure_set in {} with name {}".format(path_file, wf))
             return e
         # Check the targets to be used
+        plan_targets = list(s.Targets.keys())
+        if plan_targets:
+            all_targets_exist = StructureOperations.exists_roi(case=case,
+                                                               rois=plan_targets,
+                                                               return_exists=False)
+            if not all(all_targets_exist):
+                target_missing = []
+                for i, t in enumerate(all_targets_exist):
+                    if not t:
+                        target_missing.append(plan_targets[i])
+                e.append("Missing defined targets: {}".format(target_missing))
 
 
 def load_planning_structures(case, s):
