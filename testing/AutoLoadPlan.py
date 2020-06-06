@@ -214,9 +214,16 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
     return patient_data
 
 def test_inputs_optimization(s):
+    e = []
+    # Optimization configuration
+    key_oc = 'optimization_config'
+    wf = s.OptimizationWorkflow
+    # No planning structures needed 
+    if not wf:
+        return 'NA'
     
 
-def test_inputs_planning_structure(s):
+def test_inputs_planning_structure(case,s):
     e = []  # Errors
     # Planning Structures
     wf = s.PlanningStructureWorkflow  # Named workflow: planning_structure_set>name, or None for skip
@@ -264,9 +271,10 @@ def test_inputs_planning_structure(s):
         if df_wf.name.count() > 1:
             e.append(">1 planning_structure_set in {} with name {}".format(path_file, wf))
             return e
+        # Check the targets to be used
 
 
-def load_planning_structures(s):
+def load_planning_structures(case, s):
     key_ps = 'planning_structure_config'
     wf = s.PlanningStructureWorkflow
     # No planning structures needed 
@@ -293,17 +301,29 @@ def load_planning_structures(s):
     inner_air_name = df_wf.inner_air_name.values[0]
 
     if uniform_structures:
-        pp.use_uniform_dose = True
-        pp.uniform_properties['structures'] = df_wf.uniform_structures.values[0]
-        pp.uniform_properties['standoff'] = df_wf.uniform_standoff.values[0]
+        uniform_filtered = StructureOperations.exists_roi(case=case,
+                                                          rois=df_wf.uniform_structures.values[0],
+                                                          return_exists=True)
+        if uniform_filtered:
+            pp.use_uniform_dose = True
+            pp.uniform_properties['structures'] = uniform_filtered
+            pp.uniform_properties['standoff'] = df_wf.uniform_standoff.values[0]
+        else:
+            pp.use_uniform_dose = False
     else:
         pp.use_uniform_dose = False
     dialog4_response = pp.uniform_properties
 
     if underdose_structures:
-        pp.use_under_dose = True
-        pp.under_dose_properties['structures'] = df_wf.underdose_structures.values[0]
-        pp.under_dose_properties['standoff'] = df_wf.underdose_standoff.values[0]
+        under_filtered = StructureOperations.exists_roi(case=case,
+                                                          rois=df_wf.underdose_structures.values[0],
+                                                          return_exists=True)
+        if under_filtered:
+            pp.use_under_dose = True
+            pp.under_dose_properties['structures'] = under_filtered
+            pp.under_dose_properties['standoff'] = df_wf.underdose_standoff.values[0]
+        else:
+            pp.use_under_dose = False
     else:
         pp.use_under_dose = False
     dialog3_response = pp.under_dose_properties
@@ -554,7 +574,7 @@ def main():
         ## err = load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)
         ## sys.exit(err)
 
-        errors_ps = test_inputs_planning_structure(row)
+        errors_ps = test_inputs_planning_structure(case,row)
         if errors_ps:
             # Go to the next entry
             output_status(
@@ -573,7 +593,7 @@ def main():
                 script_status=errors_ps
             )
             continue
-        planning_structs = load_planning_structures(row)
+        planning_structs = load_planning_structures(case, row)
         patient.Save()
 
         # If this beamset is found, then append 1-99 to the name and keep going

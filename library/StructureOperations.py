@@ -115,8 +115,11 @@ def include_in_export(case, rois):
                 logging.warning("Unable to exclude {} from export".format(rois))
 
 
-def exists_roi(case, rois):
-    """See if rois is in the list"""
+def exists_roi(case, rois,return_exists=False):
+    """See if rois is in the list
+    If return_exists is True return the names of the existing rois, 
+    If it is False, return a boolean list of each structure's existence
+    """
     if type(rois) is not list:
         rois = [rois]
 
@@ -132,9 +135,13 @@ def exists_roi(case, rois):
                 re.match(pattern, current_roi, re.IGNORECASE)
                 for current_roi in defined_rois
         ):
-            roi_exists.append(True)
+            if return_exists:
+                roi_exists.append(r)
+            else:
+                roi_exists.append(True)
         else:
-            roi_exists.append(False)
+            if not return_exists:
+                roi_exists.append(False)
 
     return roi_exists
 
