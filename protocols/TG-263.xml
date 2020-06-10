@@ -4817,7 +4817,7 @@
         <TG263ReverseOrderName>L_Eye</TG263ReverseOrderName>
         <FMAID>12515</FMAID>
         <Color red="250" green="57" blue="105" Hex="#FA3969">ChineseNewYear</Color>
-        <Alias>Globe_L</Alias>
+        <Alias>Globe_L, Globe L, GlobeL</Alias>
     </roi>
     <roi>
         <name>Eye_R</name>
@@ -4833,7 +4833,7 @@
         <TG263ReverseOrderName>R_Eye</TG263ReverseOrderName>
         <FMAID>12514</FMAID>
         <Color red="62" green="251" blue="145" Hex="#3EFB91">EvaGreen1</Color>
-        <Alias>Globe_R</Alias>
+        <Alias>Globe_R,GlobeR,Globe R</Alias>
     </roi>
     <roi>
         <name>Eyes</name>
@@ -4849,7 +4849,7 @@
         <TG263ReverseOrderName>Eyes</TG263ReverseOrderName>
         <FMAID>268861</FMAID>
         <Color red="62" green="251" blue="145" Hex="#3EFB91">EvaGreen1</Color>
-        <Alias></Alias>
+        <Alias>Globes</Alias>
     </roi>
     <roi>
         <name>Fossa_Jugular</name>
@@ -11361,7 +11361,7 @@
         <TG263ReverseOrderName>Posterior_Block</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
-        <Alias>post_block,block_posterior, posterior_avoid, avoid_post,post_avoid,post avoid,Post
+        <Alias>post_block,block_posterior,posterior_avoid,avoid_post,post_avoid,post_avoid,Post
             Avoid
         </Alias>
     </roi>
