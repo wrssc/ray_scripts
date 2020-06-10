@@ -1002,9 +1002,18 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
         # make the first element in the ordered list that.
         re_ci_r = re.compile(r, re.IGNORECASE)
         for a_key, a_val in aliases.items():
-            for v in a_val:
-                if re.match(re_ci_r, v):
-                    unsorted_matches.append((alias_distance, a_key))
+            [alias_match, alias_dist] = levenshtein_match(r, a_val, num_matches)
+            if any(ad < len(r)*0.5 * match_threshold for ad in alias_dist):
+                lr_mismatch = False
+                if "_L" in a_key and ("_R" in r or "R_" in r):
+                    lr_mismatch = True
+                if "_R" in a_key and ("_L" in r or "L_" in r):
+                    lr_mismatch = True
+                if not lr_mismatch:
+                    unsorted_matches.append((alias_distance,a_key))
+            ##  for v in a_val:
+            ##      if re.match(re_ci_r, v):
+            ##      unsorted_matches.append((alias_distance, a_key))
         for i, d in enumerate(dist):
             if d < len(r) * match_threshold:
                 # Return Criteria
