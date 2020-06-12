@@ -57,7 +57,7 @@ def main():
     search_distance = 0.35  # cm
     # Specifications of the seed
     seed_radius = 0.15
-    seed_length = 0.4
+    seed_length = 0.5
     prv_radius = 0.4  # half length + 4 mm search diameter
     # Launch a dialog for the number of fiducials
     dialog1 = UserInterface.InputDialog(

@@ -7010,7 +7010,7 @@
         <TG263ReverseOrderName>Soft_Palate</TG263ReverseOrderName>
         <FMAID>55021</FMAID>
         <Color red="62" green="170" blue="254" Hex="#3EAAFE">SkyDancer</Color>
-        <Alias></Alias>
+        <Alias>SoftPalate</Alias>
     </roi>
     <roi>
         <name>Parotid_L</name>
