@@ -1009,9 +1009,9 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
                 # Look for _L_, $_L, ^L_
                 re_r = re.compile(r'.*_R$|^R_.*|.*_R_.*')
                 re_l = re.compile(r'.*_L$|^L_.*|.*_L_.*')
-                if "_L" in a_key and re_r.match(r):
+                if re_l.match(a_key) and re_r.match(r):
                     lr_mismatch = True
-                if "_R" in a_key and re_l.match(r):
+                if re_r.match(a_key) and re_l.match(r):
                     lr_mismatch = True
                 if not lr_mismatch:
                     unsorted_matches.append((alias_distance,a_key))
@@ -1027,9 +1027,9 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
                     # Look for _L_, $_L, ^L_
                     re_r = re.compile(r'.*_R$|^R_.*|.*_R_.*')
                     re_l = re.compile(r'.*_L$|^L_.*|.*_L_.*')
-                    if "_L" in a_key and re_r.match(r):
+                    if re_l.match(a_key) and re_r.match(r):
                         lr_mismatch = True
-                    if "_R" in a_key and re_l.match(r):
+                    if re_r.match(a_key) and re_l.match(r):
                         lr_mismatch = True
                     if not lr_mismatch:
                         unsorted_matches.append((d, match[i]))
