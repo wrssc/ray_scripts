@@ -1013,11 +1013,6 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
                     lr_mismatch = True
                 if not lr_mismatch:
                     unsorted_matches.append((alias_distance,a_key))
-            ##  re_ci_r = re.compile(r, re.IGNORECASE)
-            ##  for a_key, a_val in aliases.items():
-            ##      for v in a_val:
-            ##          if re.match(re_ci_r, v):
-            ##          unsorted_matches.append((alias_distance, a_key))
         for i, d in enumerate(dist):
             if d < len(r) * match_threshold:
                 # Return Criteria
