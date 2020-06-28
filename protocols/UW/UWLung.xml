@@ -759,7 +759,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lungs-ITV/name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1000</volume>
                 <dose units="Gy">16.3</dose>
