@@ -1004,6 +1004,8 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
             [alias_match, alias_dist] = levenshtein_match(r, a_val, num_matches)
             if any(ad < len(r) * 0.5 * match_threshold for ad in alias_dist):
                 lr_mismatch = False
+                # If the structure has a laterality indication,
+                # don't return results that contain the opposite laterality
                 # Look for _L_, $_L, ^L_
                 re_r = re.compile(r'.*_R$|^R_.*|.*_R_.*')
                 re_l = re.compile(r'.*_L$|^L_.*|.*_L_.*')
@@ -1021,10 +1023,13 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
                 # an entry for this organ in our output
                 if match[i] not in matched_rois[r]:
                     # If the structure has a laterality indication,
-                    #   don't return results that contain the opposite laterality
-                    if "_L" in match[i] and ("_R" in r or "R_" in r):
+                    # don't return results that contain the opposite laterality
+                    # Look for _L_, $_L, ^L_
+                    re_r = re.compile(r'.*_R$|^R_.*|.*_R_.*')
+                    re_l = re.compile(r'.*_L$|^L_.*|.*_L_.*')
+                    if "_L" in a_key and re_r.match(r):
                         lr_mismatch = True
-                    if "_R" in match[i] and ("_L" in r or "L_" in r):
+                    if "_R" in a_key and re_l.match(r):
                         lr_mismatch = True
                     if not lr_mismatch:
                         unsorted_matches.append((d, match[i]))
