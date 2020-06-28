@@ -1067,7 +1067,10 @@ def filter_rois(plan_rois, skip_targets=True, skip_planning=True):
         "^InnerAir",
         "z_derived",
         "Uniform",
-        "Underdose",
+        "^UnderDose",
+        "Air",
+        "FieldOfView",
+        "All_PTVs"
     ]
     regex_list = []
     if skip_targets:
@@ -1669,7 +1672,6 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
         standard_names = []
         for f in os.listdir(paths[1]):
             if f.endswith(".xml"):
-                logging.debug('Delete file is {}'.format(f))
                 tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
                 prot_rois = tree.findall(".//roi")
                 for r in prot_rois:
