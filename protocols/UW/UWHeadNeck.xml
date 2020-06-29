@@ -5771,6 +5771,17 @@
         </otv>
     </planning_structure_set>
     <optimization_config>
+        <name>8 warmstarts</name>
+        <description>8 warmstart optimization</description>
+        <initial max_it="60" int_it="10">Iteration 0</initial>
+        <warmstart max_it="30" int_it="15" n="8">Iteration_1to12</warmstart>
+        <vary_grid>False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+    </optimization_config>
+    <optimization_config>
         <name>12 warmstarts</name>
         <description>12 warmstart optimization with varying dose grid</description>
         <initial max_it="60" int_it="10">Iteration 0</initial>
