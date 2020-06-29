@@ -742,7 +742,14 @@ def main():
         # Optimize the plan
         opt_status = load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)
         if opt_status:
-            optimization_complete = True
+            beamset_info = plan.QueryBeamSetInfo(Filter={'Name':beamset_name})
+            try:
+                if beamset_info[0]['HasDose']:
+                    optimization_complete = True
+                else:
+                    optimization_complete = False
+            except ValueError:
+                optimization_complete = False
         else:
             optimization_complete = opt_status
         patient.Save()
