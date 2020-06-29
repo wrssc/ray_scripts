@@ -663,14 +663,14 @@
                 <name>Parotid_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">15</dose>
-                <weight>1</weight>
+                <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Parotid_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-5</weight>
             </roi>
         </objectives>
     </order>
@@ -1164,14 +1164,14 @@
                 <name>Glnd_Submand_R</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">37</dose>
-                <weight>1</weight>
+                <weight>0.01</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_R</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Glnd_Submand_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-6</weight>
             </roi>
             <roi>
                 <name>Larynx</name>
@@ -1190,14 +1190,14 @@
                 <name>Parotid_R</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">15</dose>
-                <weight>1</weight>
+                <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Parotid_R</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Parotid_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-5</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>

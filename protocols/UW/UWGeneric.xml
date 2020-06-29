@@ -362,12 +362,10 @@
             <BackJawPosition>2.1</BackJawPosition>
             <FrontJawPosition>-2.1</FrontJawPosition>
             <JawMode>Dynamic</JawMode>
-        </beam>
-        <optimization_parameters>
             <MaxDeliveryTime>600</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
             <MaxDeliveryTimeFactor>3</MaxDeliveryTimeFactor>
-        </optimization_parameters>
+        </beam>
     </beamset>
     <beamset>
         <name>Tomo3D-FW2.5</name>
@@ -385,11 +383,9 @@
             <BackJawPosition>1.0</BackJawPosition>
             <FrontJawPosition>-1.0</FrontJawPosition>
             <JawMode>Dynamic</JawMode>
-        </beam>
-        <optimization_parameters>
             <MaxDeliveryTime>600</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
             <MaxDeliveryTimeFactor>3</MaxDeliveryTimeFactor>
-        </optimization_parameters>
+        </beam>
     </beamset>
 </protocol>
