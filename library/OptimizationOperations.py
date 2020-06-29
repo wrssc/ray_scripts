@@ -157,12 +157,16 @@ def iter_optimization_config_etree(etree):
             o_c["vary_grid"] = o.find("vary_grid").text
             if o_c["vary_grid"] == "True":
                 o_c["vary_grid"] = True
+                o_c["dose_dim1"] = float(o.find("vary_grid").attrib["dose_dim1"])
+                o_c["dose_dim2"] = float(o.find("vary_grid").attrib["dose_dim2"])
+                o_c["dose_dim3"] = float(o.find("vary_grid").attrib["dose_dim3"])
+                o_c["dose_dim4"] = float(o.find("vary_grid").attrib["dose_dim4"])
             else:
                 o_c["vary_grid"] = False
-            o_c["dose_dim1"] = float(o.find("vary_grid").attrib["dose_dim1"])
-            o_c["dose_dim2"] = float(o.find("vary_grid").attrib["dose_dim2"])
-            o_c["dose_dim3"] = float(o.find("vary_grid").attrib["dose_dim3"])
-            o_c["dose_dim4"] = float(o.find("vary_grid").attrib["dose_dim4"])
+                o_c["dose_dim1"] = None
+                o_c["dose_dim2"] = None
+                o_c["dose_dim3"] = None
+                o_c["dose_dim4"] = None
         except AttributeError:
             o_c["vary_grid"] = False
             o_c["dose_dim1"] = None
