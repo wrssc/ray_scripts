@@ -609,35 +609,53 @@
         <objectives>
             <roi>
                 <name>Glnd_Submand_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.05</weight>
+            </roi>
+            <roi>
+                <name>Glnd_Submand_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">37</dose>
-                <weight>0.01</weight>
+                <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Glnd_Submand_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-6</weight>
+                <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>Glnd_Submand_R</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.5</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_R</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">37</dose>
-                <weight>1</weight>
+                <weight>5</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_R</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Glnd_Submand_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-2</weight>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.5</weight>
             </roi>
             <roi>
                 <name>Larynx</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">30</dose>
-                <weight>1</weight>
+                <weight>1.0</weight>
             </roi>
             <roi>
                 <name>Larynx</name>
@@ -648,16 +666,28 @@
             </roi>
             <roi>
                 <name>Parotid_R</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.5</weight>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">15</dose>
-                <weight>1</weight>
+                <weight>5</weight>
             </roi>
             <roi>
                 <name>Parotid_R</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Parotid_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-2</weight>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
@@ -1151,14 +1181,14 @@
                 <name>Glnd_Submand_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">37</dose>
-                <weight>1</weight>
+                <weight>5</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Glnd_Submand_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-2</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_R</name>
@@ -1171,13 +1201,13 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Glnd_Submand_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-6</weight>
+                <weight>1e-4</weight>
             </roi>
             <roi>
                 <name>Larynx</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">30</dose>
-                <weight>1</weight>
+                <weight>1.5</weight>
             </roi>
             <roi>
                 <name>Larynx</name>
@@ -1203,14 +1233,14 @@
                 <name>Parotid_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">15</dose>
-                <weight>1</weight>
+                <weight>5</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Parotid_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-2</weight>
             </roi>
         </objectives>
     </order>
@@ -1689,35 +1719,53 @@
         <objectives>
             <roi>
                 <name>Glnd_Submand_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.05</weight>
+            </roi>
+            <roi>
+                <name>Glnd_Submand_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">37</dose>
-                <weight>0.1</weight>
+                <weight>0.2</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_L</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Glnd_Submand_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>Glnd_Submand_R</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.05</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_R</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">37</dose>
-                <weight>0.1</weight>
+                <weight>0.2</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_R</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Glnd_Submand_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Larynx</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">30</dose>
-                <weight>1</weight>
+                <weight>1.5</weight>
             </roi>
             <roi>
                 <name>Larynx</name>
@@ -1728,29 +1776,41 @@
             </roi>
             <roi>
                 <name>Parotid_R</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">15</dose>
-                <weight>0.1</weight>
+                <weight>0.5</weight>
             </roi>
             <roi>
                 <name>Parotid_R</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Parotid_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">15</dose>
-                <weight>0.1</weight>
+                <weight>0.5</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Parotid_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-3</weight>
             </roi>
         </objectives>
     </order>
@@ -2229,6 +2289,12 @@
         <objectives>
             <roi>
                 <name>Glnd_Submand_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.5</weight>
+            </roi>
+            <roi>
+                <name>Glnd_Submand_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">37</dose>
                 <weight>1</weight>
@@ -2239,6 +2305,12 @@
                 <volume units="%" roi="Glnd_Submand_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
                 <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>Glnd_Submand_R</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.05</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_R</name>
@@ -2255,6 +2327,12 @@
             </roi>
             <roi>
                 <name>Larynx</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.5</weight>
+            </roi>
+            <roi>
+                <name>Larynx</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">30</dose>
                 <weight>1</weight>
@@ -2268,6 +2346,12 @@
             </roi>
             <roi>
                 <name>Parotid_R</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">15</dose>
                 <weight>1</weight>
@@ -2278,6 +2362,12 @@
                 <volume units="%" roi="Parotid_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
                 <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>Parotid_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.5</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
@@ -4983,6 +5073,12 @@
                 <weight>500</weight>
             </roi>
             <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.68</dose>
+                <weight>2000</weight>
+            </roi>
+            <roi>
                 <name>PTV_p</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
@@ -5102,7 +5198,7 @@
                 <name>OTV3_</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_n2">107.7</dose>
-                <weight>120</weight>
+                <weight>180</weight>
             </roi>
             <roi>
                 <name>PTV_n2</name>
@@ -5286,18 +5382,29 @@
                 <dose units="%" roi="PTV_p" low="5">40</dose>
                 <weight>0.1</weight>
             </roi>
-
+            <roi>
+                <name>Bone_Mandible</name>
+                <type dist="0.5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>0.2</weight>
+            </roi>
             <roi>
                 <name>Bone_Mandible</name>
                 <type>Max</type>
                 <dose units="Gy">66</dose>
-                <weight>10</weight>
+                <weight>20</weight>
             </roi>
             <roi>
                 <name>Brain</name>
                 <type>Max</type>
                 <dose units="Gy">54</dose>
-                <weight>10</weight>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Brain_PRV03</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.05</weight>
             </roi>
             <roi>
                 <name>Brain_PRV03</name>
@@ -5337,6 +5444,12 @@
                 <weight>1</weight>
             </roi>
             <roi>
+                <name>Cavity_Oral</name>
+                <type>Max</type>
+                <dose units="Gy">57</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
                 <name>Cochlea_L</name>
                 <type>Max</type>
                 <dose units="Gy">45</dose>
@@ -5353,7 +5466,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Cochlea_L">5</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-5</weight>
             </roi>
             <roi>
                 <name>Cochlea_L_PRV03</name>
@@ -5378,7 +5491,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Cochlea_R">5</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-5</weight>
             </roi>
             <roi>
                 <name>Cochlea_R_PRV03</name>
@@ -5415,13 +5528,13 @@
                 <name>Eye_L</name>
                 <type>Max</type>
                 <dose units="Gy">3</dose>
-                <weight>1</weight>
+                <weight>2</weight>
             </roi>
             <roi>
                 <name>Eye_R</name>
                 <type>Max</type>
                 <dose units="Gy">3</dose>
-                <weight>1</weight>
+                <weight>2</weight>
             </roi>
             <roi>
                 <name>Glnd_Lacrimal_L</name>
@@ -5509,7 +5622,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Musc_Constrict">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>1e-3</weight>
             </roi>
             <roi>
                 <name>OpticChiasm</name>
