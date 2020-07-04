@@ -947,6 +947,30 @@
                 <weight>10000</weight>
             </roi>
             <roi>
+                <name>Lens_L</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <weight>0.01</weight>
+            </roi>
+            <roi>
+                <name>Lens_L_PRV07</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <weight>0.001</weight>
+            </roi>
+            <roi>
+                <name>Lens_R</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <weight>0.01</weight>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV07</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <weight>0.001</weight>
+            </roi>
+            <roi>
                 <name>OpticChiasm</name>
                 <type>Max</type>
                 <dose units="Gy">30</dose>
@@ -1451,14 +1475,35 @@
         </otv>
     </planning_structure_set>
     <optimization_config>
-        <name>12 warmstarts</name>
-        <description>12 warmstart optimization</description>
+        <name>6 warmstarts</name>
+        <description>6 warmstart optimization</description>
         <initial max_it="60" int_it="10">Iteration 0</initial>
-        <warmstart max_it="30" int_it="15" n="12">Iteration_1to12</warmstart>
+        <warmstart max_it="30" int_it="15" n="6">Iteration_1to6</warmstart>
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
         <reduce_oar>True</reduce_oar>
         <segment_weight>True</segment_weight>
     </optimization_config>
+    <beamset>
+        <name>Tomo-Brain-FW2.5</name>
+        <technique>TomoHelical</technique>
+        <DicomName>Brai_THI_R_A_</DicomName>
+        <description>Protocol for TomoBrain, e.g. Hippocampal avoidance
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.287</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>600</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>3</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
 </protocol>
