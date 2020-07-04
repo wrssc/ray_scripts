@@ -5887,7 +5887,7 @@
         <name>8 warmstarts</name>
         <description>8 warmstart optimization</description>
         <initial max_it="60" int_it="10">Iteration 0</initial>
-        <warmstart max_it="30" int_it="15" n="8">Iteration_1to12</warmstart>
+        <warmstart max_it="30" int_it="15" n="8">Iteration_1to8</warmstart>
         <vary_grid>False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>

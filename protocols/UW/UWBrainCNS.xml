@@ -909,6 +909,80 @@
                 <priority>3</priority>
             </roi>
         </goals>
+        <objectives>
+            <roi>
+                <name>Hippocampus_L_PRV05</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">9</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <weight>10000</weight>
+            </roi>
+              <roi>
+                <name>Hippocampus_R_PRV05</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">9</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <weight>10000</weight>
+            </roi>
+            <roi>
+                <name>OpticChiasm</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OpticChiasm_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <weight>0.01</weight>
+            </roi>
+            <roi>
+                <name>OpticNrv_L</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OpticNrv_L_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <weight>0.01</weight>
+            </roi>
+            <roi>
+                <name>OpticNrv_R</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OpticNrv_R_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <weight>0.01</weight>
+            </roi>
+        </objectives>
     </order>
     <order>
         <name>Brain-WBRT-Hippocampal Avoidance [30Gy CC003]</name>
@@ -1349,4 +1423,42 @@
             <priority>5</priority>
         </goalset>
     </goals>
+    <planning_structure_set>
+        <name>Tomo_WBHA</name>
+        <description>Planning Structure template for automated WBHA on TomoTherapy, requires PTV_Brain, which does not have hippocampi subtracted</description>
+        <number_of_targets>1</number_of_targets>
+        <first_target_number>1</first_target_number>
+        <uniform_dose_structs standoff="0.4">OpticNerv_L_PRV03,OpticNerv_R_PRV03,OpticChiasm_PRV03</uniform_dose_structs>
+        <underdose_structs standoff="0.5">Hippocampus_L,Hippocampus_R</underdose_structs>
+        <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
+        <ring_hd standoff="0.5" margin_type="Expand" margin_sup="1" margin_inf="1"
+                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD
+        </ring_hd>
+        <ring_ld standoff="0.5" margin_type="Expand" margin_sup="5" margin_inf="5"
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
+        </ring_ld>
+        <ring_targets standoff="0.2" margin_type="Expand" margin_sup="1" margin_inf="1"
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring
+        </ring_targets>
+        <inner_air>InnerAir</inner_air>
+        <superficial_target standoff="0.0" margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin
+        </superficial_target>
+        <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
+        </otv>
+    </planning_structure_set>
+    <optimization_config>
+        <name>12 warmstarts</name>
+        <description>12 warmstart optimization</description>
+        <initial max_it="60" int_it="10">Iteration 0</initial>
+        <warmstart max_it="30" int_it="15" n="12">Iteration_1to12</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>True</reduce_oar>
+        <segment_weight>True</segment_weight>
+    </optimization_config>
 </protocol>
