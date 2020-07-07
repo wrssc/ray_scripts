@@ -2768,7 +2768,6 @@
             <JawMode>Dynamic</JawMode>
             <MaxDeliveryTime>600</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
-            <MaxDeliveryTimeFactor>None</MaxDeliveryTimeFactor>
         </beam>
     </beamset>
 </protocol>
