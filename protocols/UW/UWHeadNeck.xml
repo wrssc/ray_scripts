@@ -624,7 +624,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Glnd_Submand_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>3e-4</weight>
             </roi>
             <roi>
                 <name>Glnd_Submand_R</name>
@@ -662,13 +662,13 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Larynx">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>3e-4</weight>
             </roi>
             <roi>
                 <name>Parotid_R</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="10">100</dose>
-                <weight>0.5</weight>
+                <weight>1</weight>
             </roi>
             <roi>
                 <name>Parotid_R</name>
@@ -681,26 +681,26 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Parotid_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-2</weight>
+                <weight>5e-2</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="10">100</dose>
-                <weight>0.1</weight>
+                <weight>0.2</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">15</dose>
-                <weight>0.1</weight>
+                <weight>0.5</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Parotid_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-5</weight>
+                <weight>3e-5</weight>
             </roi>
         </objectives>
     </order>
@@ -5106,13 +5106,20 @@
                 <name>ring1_</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="10">100</dose>
-                <weight>0.05</weight>
+                <weight>0.15</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ring1_">10</volume>
+                <dose units="%" roi="PTV_p">8.3</dose>
+                <weight>5e-4</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_n1">102.5</dose>
-                <weight>200</weight>
+                <weight>300</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
@@ -5131,7 +5138,7 @@
                 <name>OTV2_</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_n1">104.55</dose>
-                <weight>40</weight>
+                <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
@@ -5167,7 +5174,14 @@
                 <name>ring2_</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_n1" low="10">100</dose>
-                <weight>0.05</weight>
+                <weight>0.15</weight>
+            </roi>
+            <roi>
+                <name>ring2_</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ring2_">10</volume>
+                <dose units="%" roi="PTV_n1">8.3</dose>
+                <weight>5e-4</weight>
             </roi>
             <roi>
                 <name>OTV3_</name>
@@ -5228,7 +5242,14 @@
                 <name>ring3_</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_n2" low="10">100</dose>
-                <weight>0.05</weight>
+                <weight>0.15</weight>
+            </roi>
+            <roi>
+                <name>ring3_</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ring3_">10</volume>
+                <dose units="%" roi="PTV_n2">8.3</dose>
+                <weight>5e-4</weight>
             </roi>
             <roi>
                 <name>OTV4_</name>
@@ -5292,6 +5313,13 @@
                 <weight>0.05</weight>
             </roi>
             <roi>
+                <name>ring4_</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ring4_">10</volume>
+                <dose units="%" roi="PTV_n3">8.3</dose>
+                <weight>5e-4</weight>
+            </roi>
+            <roi>
                 <name>OTV5_</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_n4">102.5</dose>
@@ -5353,6 +5381,13 @@
                 <weight>0.05</weight>
             </roi>
             <roi>
+                <name>ring5_</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ring4_">10</volume>
+                <dose units="%" roi="PTV_n4">8.3</dose>
+                <weight>5e-4</weight>
+            </roi>
+            <roi>
                 <name>Ring_HD</name>
                 <type>Max</type>
                 <dose units="Gy">1</dose>
@@ -5369,6 +5404,13 @@
                 <type dist="5" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="5">40</dose>
                 <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Ring_LD">10</volume>
+                <dose units="%" roi="PTV_p">8.3</dose>
+                <weight>5e-4</weight>
             </roi>
             <roi>
                 <name>Ring_LD</name>
@@ -5435,7 +5477,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Cavity_Oral">5</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>5e-4</weight>
             </roi>
             <roi>
                 <name>Cavity_Oral</name>
@@ -5466,7 +5508,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Cochlea_L">5</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-5</weight>
+                <weight>5e-5</weight>
             </roi>
             <roi>
                 <name>Cochlea_L_PRV03</name>
@@ -5491,7 +5533,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Cochlea_R">5</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-5</weight>
+                <weight>5e-5</weight>
             </roi>
             <roi>
                 <name>Cochlea_R_PRV03</name>
@@ -5886,8 +5928,8 @@
     <optimization_config>
         <name>8 warmstarts</name>
         <description>8 warmstart optimization</description>
-        <initial max_it="60" int_it="10">Iteration 0</initial>
-        <warmstart max_it="30" int_it="15" n="8">Iteration_1to8</warmstart>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="18" int_it="2" n="8">Iteration_1to8</warmstart>
         <vary_grid>False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
@@ -5897,8 +5939,8 @@
     <optimization_config>
         <name>12 warmstarts</name>
         <description>12 warmstart optimization with varying dose grid</description>
-        <initial max_it="60" int_it="10">Iteration 0</initial>
-        <warmstart max_it="30" int_it="15" n="12">Iteration_1to12</warmstart>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="18" int_it="5" n="12">Iteration_1to12</warmstart>
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">True</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
