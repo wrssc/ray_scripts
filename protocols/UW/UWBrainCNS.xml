@@ -2762,13 +2762,13 @@
             <Name>1_SITE_THI</Name>
             <FieldWidth>2.51</FieldWidth>
             <Energy>6</Energy>
-            <Pitch>0.287</Pitch>
+            <Pitch>0.215</Pitch>
             <BackJawPosition>1.0</BackJawPosition>
             <FrontJawPosition>-1.0</FrontJawPosition>
             <JawMode>Dynamic</JawMode>
             <MaxDeliveryTime>600</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
-            <MaxDeliveryTimeFactor>3</MaxDeliveryTimeFactor>
+            <MaxDeliveryTimeFactor></MaxDeliveryTimeFactor>
         </beam>
     </beamset>
 </protocol>
