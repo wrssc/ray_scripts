@@ -46,7 +46,7 @@ try:  # for Python 3
     from tkinter import Tk, Frame, Label, StringVar, SUNKEN, X, Button, RIGHT
     from tkinter import messagebox
     from tkinter.ttk import Combobox
-except:  # for Python 2
+except ImportError:  # for Python 2
     from Tkinter import Tk, Frame, Label, StringVar, SUNKEN, X, Button, RIGHT
     import tkMessageBox as messagebox
     from ttk import Combobox
@@ -86,7 +86,8 @@ def get_DIBH_and_FB_exams(case):
             )
             messagebox.showerror(
                 "Image Set Selection Error",
-                "The DIBH image set and the free-breathing image set are the same. Please select a unique image set for each.",
+                "The DIBH image set and the free-breathing image set are the same. "
+                "Please select a unique image set for each.",
             )
         else:
             # Destroy window and continue
@@ -157,20 +158,22 @@ def get_DIBH_and_FB_exams(case):
     # the structure sets for these series are not approved:
     selected_exams = (series_dict[text_DIBH.get()], series_dict[text_FB.get()])
     selected_exam_names = [exam.Name for exam in selected_exams]
-    for structset in case.PatientModel.StructureSets:
-        for _ in structset.ApprovedStructureSets:
+    for structure_set in case.PatientModel.StructureSets:
+        for _ in structure_set.ApprovedStructureSets:
             # If you get to this point, there are approved structures in
             # this structure set.
-            if structset.OnExamination.Name in selected_exam_names:
+            if structure_set.OnExamination.Name in selected_exam_names:
                 logging.error(
-                    "The structure set associated with {} is approved, which will prevent successful execution of the script.".format(
-                        structset.OnExamination.Name
+                    "The structure set associated with {} is approved, which will prevent "
+                    "successful execution of the script.".format(
+                        structure_set.OnExamination.Name
                     )
                 )
                 messagebox.showerror(
                     "Approved Structure Set Error",
-                    "The structure set associated with {} is approved, which will prevent successful execution of the script.".format(
-                        structset.OnExamination.Name,
+                    "The structure set associated with {} is approved, which will prevent "
+                    "successful execution of the script.".format(
+                        structure_set.OnExamination.Name,
                     ),
                 )
                 exit()
@@ -196,24 +199,27 @@ def create_external_fb(case):
 
     # The case must have two or more image sets.
     ## R: ChangeRequest:
-    ##      len(case.Examinations) is undefined as it is an unsized object, in the past I have relied on for loops to determine 
-    ##      the size of RayStation ScriptObjects. I note that both exam names are stores as private variables _CT 1, and _CT 2
+    ##      len(case.Examinations) is undefined as it is an unsized object, in the past I have
+    ## relied on for loops to determine
+    ##      the size of RayStation ScriptObjects. I note that both exam names are stores as private
+    ## variables _CT 1, and _CT 2
     ##      for example. But I do not know how to make use of this property
     if len(case.Examinations) < 2:
         logging.error(
-            "Number of examinations = {}. This script requires two more or image sets (one DIBH and one free-breathing).".format(
-                case.Examinations
-            )
+            "Number of examinations = {}. This script requires two more or image sets "
+            "(one DIBH and one free-breathing).".format(case.Examinations)
         )
         messagebox.showerror(
             "Image Set Error",
-            "This script requires two more or image sets (one DIBH and one free-breathing). Please import DIBH and free-breathing scans.",
+            "This script requires two more or image sets (one DIBH and one free-breathing). "
+            "Please import DIBH and free-breathing scans.",
         )
         exit()
 
     # The case must have a region of interest set to the "External" type
     ## R: Suggestion:
-    ##      An alternative function is available in StructureOperations, and would consolidate lines 215 to 229
+    ##      An alternative function is available in StructureOperations, and would
+    ## consolidate lines 215 to 229
     ##      external_roi = StructureOperations.find_types(case, "External")
     ##      if not external_roi:
     roi_type_list = [roi.Type for roi in case.PatientModel.RegionsOfInterest]
@@ -221,11 +227,13 @@ def create_external_fb(case):
         logging.error("No ROI of type 'External' found.")
         messagebox.showerror(
             "External Structure Error",
-            "The script requires that a structure (usually External or ExternalClean) be set as external in RayStation.",
+            "The script requires that a structure (usually External or ExternalClean) be set as "
+            "external in RayStation.",
         )
         exit()
     ## R: Discussion:
-    ##      I have been using roi_external to indicate object_attribute, but I am fine with attribute_object too.
+    ##      I have been using roi_external to indicate object_attribute, but I am fine with
+    ##  attribute_object too.
     # The name of the ROI of type External should have "External" in the name
     external_roi = None
     for roi in case.PatientModel.RegionsOfInterest:
@@ -234,15 +242,13 @@ def create_external_fb(case):
             break
     if "External" not in external_roi.Name:
         logging.warning(
-            "ROI of type 'External' is called {}, which deviates from standard naming conventions.".format(
-                external_roi.Name
-            )
+            "ROI of type 'External' is called {}, which deviates from standard naming "
+            "conventions.".format(external_roi.Name)
         )
         messagebox.showwarning(
             "External Structure Warning",
-            "The ROI of type 'External' is called {}. Typically, it is called 'External' or 'ExternalClean'.".format(
-                external_roi.Name
-            ),
+            "The ROI of type 'External' is called {}. Typically, it is called 'External' or "
+            "'ExternalClean'.".format(external_roi.Name),
         )
 
     with CompositeAction("Rename DIBH and free-breathing examinations"):
@@ -257,9 +263,9 @@ def create_external_fb(case):
     ##      regardless of the exam on which is belongs (DIBH or FB) will be renamed
     ##      is that the correct behavior? If a user has incorrectly drawn the external
     ##      on the free-breathing, or on both scans, the resulting label will be incorrect.
-    ##      
-    ##      I confirmed the result by defining an External Contour geometry on the 
-    ##      FB scan. The script changes the name of the External ROI for both 
+    ##
+    ##      I confirmed the result by defining an External Contour geometry on the
+    ##      FB scan. The script changes the name of the External ROI for both
     ##      ROI geometries to "External_DIBH"
     ##
     ##      You may wish to add the following:
@@ -288,7 +294,7 @@ def create_external_fb(case):
         roi_names = [roi.Name for roi in case.PatientModel.RegionsOfInterest]
         ## R: Suggestion:
         ##      I have been trying to think of the "info" debugging channel as something a reviewer
-        ##      might want to see, and crafted my message accordingly. As such, it may help to 
+        ##      might want to see, and crafted my message accordingly. As such, it may help to
         ##      change the note to something like: External_FB existed, it was deleted
         if "External_FB" in roi_names:
             logging.info(
@@ -303,7 +309,7 @@ def create_external_fb(case):
         logging.info("Creating an ROI called 'External_FB")
         ## R: Comment and potential Revision Request:
         ##      I note that the attempt is made to specify the ROI type as "External" for the ROI External_FB
-        ##      This will not work as the "External" type can only belong to one ROI in the plan. I am unsure 
+        ##      This will not work as the "External" type can only belong to one ROI in the plan. I am unsure
         ##      of how this affects workflow, but if the "Body" type is required in Eclipse, or the AlignRT system
         ##      no structure of type "External" will be delineated on the Free-Breathing scan.
         external_fb_roi = case.PatientModel.CreateRoi(
@@ -369,7 +375,7 @@ def clean(case):
     ## R: Suggestion
     ##      Consider storing the original external name and passing it in as a parameter
     ##      This will rename the original external "External" regardless of its original name
-    ##      say "ExternalClean." This could have implications for later scripts that assume 
+    ##      say "ExternalClean." This could have implications for later scripts that assume
     ##      "External" is system drawn, and "ExternalClean" is modified, cleaned system-drawn or
     ##      user-drawn (to touch up algorithmic error, like lopping of the patient's ears).
     with CompositeAction("Reverse rename of External_DIBH"):
@@ -378,7 +384,8 @@ def clean(case):
 
     # Undo renaming of examinations
     ## R: Suggestion
-    ##      Same as above, sending original examination names in will be helpful or making the clean function
+    ##      Same as above, sending original examination names in will be helpful
+    ## or making the clean function
     ##      internal to main? to access the global variable names?
     with CompositeAction("Reverse rename of DIBH and free-breathing examinations"):
         logging.info("Renaming examinations to 'CT_1' and 'CT_2'")
