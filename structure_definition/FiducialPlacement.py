@@ -64,7 +64,17 @@ def main():
     search_distance = 0.35  # cm
     # Specifications of the seed
     seed_radius = 0.15
+    """ Review Comments
+    It was recently discovered that the fiducial size is 3 mm, not 5 mm. The
+    seed_length may need to change, or perhaps 5 mm will render better on the
+    TrueBeam. Something to consider.
+    """
     seed_length = 0.5
+    """ Review Comments
+    In Travis' email, he asked "Has the script been revised to use a 4 mm diameter
+    contour for the tolerance volume?" I see a 4 mm radius here, not diameter.
+    Is this value what you intended?
+    """
     prv_radius = 0.4  # half length + 4 mm search diameter
     # Launch a dialog for the number of fiducials
     dialog1 = UserInterface.InputDialog(
