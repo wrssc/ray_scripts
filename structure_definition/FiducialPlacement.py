@@ -12,6 +12,11 @@
 
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
+
+    Review Comments
+    I recommend including the test patient in the text above so that users can
+    validate, if desired".
+
     """
 
 __author__ = "Adam Bayliss"
@@ -74,8 +79,8 @@ def main():
     if dialog1_response == {}:
         sys.exit("Fiducial script cancelled")
     """ Review Comments
-    I recommend putting the following line in a try/except block
-    (unless the InputDialog object already verifies valid input.)
+    I recommend putting the following line in a while loop to ensure you get
+    a valid int input from the user. (Confirmed non-int input causes crash.)
     """
     num_fiducials = int(dialog1_response["1"])
     logging.debug("User selected {} fiducials".format(num_fiducials))
@@ -187,7 +192,7 @@ def main():
             LowThreshold=500,
             HighThreshold=4000,
             PetUnit="",
-            CBCTUnit=None,
+            CbctUnit=None,
             BoundingBox=bounding_box,
         )
         # Grab the new Center
