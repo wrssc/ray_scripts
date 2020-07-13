@@ -63,11 +63,11 @@ def create_external_alignrt_su(case, shift_size=15):
 
     with CompositeAction("Create Ext_AlignRT_SU"):
         # Get external roi
-        external_roi = StructureOperations.find_types(case, "External")
-        assert len(external_roi) == 1, "There must be one and only one External ROI"
-        external_roi = external_roi[0]
+        external_rois = StructureOperations.find_types(case, "External")
+        assert len(external_rois) == 1, "There must be one and only one External ROI"
+        external_roi_name = external_rois[0]
 
-        logging.info("{} identified as external ROI".format(external_roi.Name))
+        logging.info("{} identified as external ROI".format(external_roi_name))
 
         # Create roi for shifted external
         ext_alignrt_su = case.PatientModel.CreateRoi(
@@ -84,7 +84,7 @@ def create_external_alignrt_su(case, shift_size=15):
         exam = get_current("Examination")
         ExpressionA = {
             "Operation": "Union",
-            "SourceRoiNames": [external_roi.Name],
+            "SourceRoiNames": [external_roi_name],
             "MarginSettings": {
                 "Type": "Expand",
                 "Superior": 0,
@@ -126,7 +126,7 @@ def create_external_alignrt_su(case, shift_size=15):
             ResultOperation=ResultOperation,
             ResultMarginSettings=ResultMarginSettings,
         )
-        logging.info("Copied {} into {}".format(external_roi.Name, ext_alignrt_su.Name))
+        logging.info("Copied {} into {}".format(external_roi_name, ext_alignrt_su.Name))
 
         # Finally, shift the contour
         TransformationMatrix = {
