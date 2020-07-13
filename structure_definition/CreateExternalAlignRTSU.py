@@ -82,6 +82,22 @@ def create_external_alignrt_su(case, shift_size=15):
 
         # Copy the external ROI into the shifted external:
         exam = get_current("Examination")
+
+        MarginSettings = {
+            "Type": "Expand",
+            "Superior": 0,
+            "Inferior": 0,
+            "Anterior": 0,
+            "Posterior": 0,
+            "Right": 0,
+            "Left": 0,
+        }
+        ext_alignrt_su.SetMarginExpression(
+            SourceRoiName=external_roi_name, MarginSettings=MarginSettings
+        )
+        ext_alignrt_su.UpdateDerivedGeometry(Examination=exam, Algorithm="Auto")
+
+        """
         ExpressionA = {
             "Operation": "Union",
             "SourceRoiNames": [external_roi_name],
@@ -126,6 +142,7 @@ def create_external_alignrt_su(case, shift_size=15):
             ResultOperation=ResultOperation,
             ResultMarginSettings=ResultMarginSettings,
         )
+        """
         logging.info("Copied {} into {}".format(external_roi_name, ext_alignrt_su.Name))
 
         # Finally, shift the contour
