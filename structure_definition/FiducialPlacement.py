@@ -68,14 +68,11 @@ def main():
     It was recently discovered that the fiducial size is 3 mm, not 5 mm. The
     seed_length may need to change, or perhaps 5 mm will render better on the
     TrueBeam. Something to consider.
+    Response: The seed size going forward has been replaced with 5 mm 
+    to match commissioned procedure.
     """
     seed_length = 0.5
-    """ Review Comments
-    In Travis' email, he asked "Has the script been revised to use a 4 mm diameter
-    contour for the tolerance volume?" I see a 4 mm radius here, not diameter.
-    Is this value what you intended?
-    """
-    prv_radius = 0.4  # half length + 4 mm search diameter
+    prv_radius = 0.2  # This is the search volume first attempted in the fiducial tracking procedure.
     # Launch a dialog for the number of fiducials
     dialog1 = UserInterface.InputDialog(
         inputs={"1": "Enter Number of Fiducials"},
@@ -88,11 +85,16 @@ def main():
     dialog1_response = dialog1.show()
     if dialog1_response == {}:
         sys.exit("Fiducial script cancelled")
-    """ Review Comments
-    I recommend putting the following line in a while loop to ensure you get
-    a valid int input from the user. (Confirmed non-int input causes crash.)
-    """
     num_fiducials = int(dialog1_response["1"])
+    # Loop to ensure an int response.
+    while not isinstance(num_fiducials, int):
+        dialog1_response = dialog1.show()
+        if dialog1_response == {}:
+            sys.exit("Fiducial script cancelled")
+        try:
+            num_fiducials = int(dialog1_response["1"])
+        except:
+            num_fiducials = None
     logging.debug("User selected {} fiducials".format(num_fiducials))
     # Find center of patient
     external_roi = StructureOperations.find_types(case=case, roi_type="External")
@@ -111,70 +113,45 @@ def main():
         .RoiGeometries[external_name]
         .GetCenterOfRoi()
     )
-    """ Review Comments
-    Consider skipping the creation of the initial_position dictionary. It appears that you
-    could just use external_center for all uses of initial_position.
-    """
-    initial_position = {
-        "x": external_center.x,
-        "y": external_center.y,
-        "z": external_center.z,
-    }
     logging.debug(
         "Center of the external at x = {}, y = {}, z = {}".format(
-            initial_position["x"], initial_position["y"], initial_position["z"]
+            external_center.x, external_center.y, external_center.z,
         )
     )
-    """ Review Comments
-    The comment below does not describe the code that follows
-    """
-    # Change the window level
+    # Loop over the number of fiducials.
+    # Prompt the user to place the fiducial using a point of interest
+    # Search in this region for high-Z seeds, and autocontour.
+    # Place the new centroid at this more accurate position.
+    # Drop the cylindrical object and prompt the user to re-position it.
     for n in range(num_fiducials):
         point_name = fiducial_prefix + str(n + 1) + "_POI"
         case.PatientModel.CreatePoi(
             Examination=exam,
-            Point=initial_position,
+            Point={
+                    "x": external_center.x,
+                    "y": external_center.y,
+                    "z": external_center.z,
+                },
             Volume=0,
             Name=point_name,
             Color="Green",
             VisualizationDiameter=0.5,
             Type="Control",
         )
-        """ Review Comments
-        The code block below also appears in the while loop, creating unnecessary
-        duplication. I recommend initializing fiducial_position to be equal to
-        initial position, then enter the loop. fiducial_position = external_center
-        should work.
-        """
-        # Prompt the user to place the poi at the slice intersection
-        connect.await_user_input(
-            "Zoom in on fiducial {}.".format(n + 1)
-            + " Place crosshairs {} at its geometric center.".format(point_name)
-            + " Select 'Set to slice intersection '"
-        )
-        fiducial_position = (
-            case.PatientModel.StructureSets[exam.Name].PoiGeometries[point_name].Point
-        )
-        """ Review Comment:
-        I wonder, does the Point object have a custom equality operator? If it
-        does, you may just be able to write if fiducial_position == external_center:
-        """
+        # Initialize the fiducial_center to be at the same point as external_center
+        fiducial_position = case.PatientModel.StructureSets[exam.Name] \
+                            .RoiGeometries[external_name] \
+                            .GetCenterOfRoi()
         # Check to make sure the user moved the poi
-        while (
-            fiducial_position.x == initial_position["x"]
-            and fiducial_position.y == initial_position["y"]
-            and fiducial_position.z == initial_position["z"]
-        ):
+        while (fiducial_position == external_center):
+            # Prompt the user to place the poi at the slice intersection
             connect.await_user_input(
                 "Zoom in on fiducial {}.".format(n + 1)
                 + " Place crosshairs {} at its geometric center.".format(point_name)
                 + " Select 'Set to slice intersection '"
             )
-            fiducial_position = (
-                case.PatientModel.StructureSets[exam.Name]
-                .PoiGeometries[point_name]
-                .Point
-            )
+            fiducial_position = case.PatientModel.StructureSets[exam.Name] \
+                                .PoiGeometries[point_name].Point
         logging.debug(
             "Point placed at x = {}, y = {}, z = {}".format(
                 fiducial_position.x, fiducial_position.y, fiducial_position.z
@@ -288,12 +265,8 @@ def main():
         msg = StructureOperations.change_to_263_color(case=case, roi_name=prv_name)
         if msg is not None:
             logging.debug(msg)
-    """ Review Comment
-    The logcrit text mentions "Final Dose", is this intended?
-    """
-    logcrit("Final Dose script ran successfully on {} fiducials".format(num_fiducials))
+    logcrit("Fiducial Contouring script ran successfully on {} fiducials".format(num_fiducials))
 
-    # Prompt the user to center the cross-hairs on the fiducial
 
 
 if __name__ == "__main__":
