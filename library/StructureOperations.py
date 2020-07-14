@@ -515,7 +515,7 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
     :param case: raystation case
     :param structure_name:structure name to be tested
     :param roi_list: list of rois to look in, if not specified, use all rois
-    :return: name as defined in RayStation, or None if no match was found.
+    :return: list of names defined in RayStation, or [] if no match was found.
     """
     # If no roi_list is given, build it using all roi in the case
     if roi_list is None:
@@ -525,11 +525,12 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
                 if r.OfRoi.Name not in roi_list:
                     roi_list.append(r.OfRoi.Name)
 
+    matched_rois = []
     for current_roi in roi_list:
         if re.search(r"^" + structure_name + "$", current_roi, re.IGNORECASE):
             if not re.search(r"^" + structure_name + "$", current_roi):
-                return current_roi
-    return None
+                matched_rois.append(current_roi)
+    return matched_rois
 
 
 def exams_containing_roi(case, structure_name, roi_list=None, exam=None):
@@ -1782,7 +1783,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                 case_insensitive_match = case_insensitive_structure_search(
                     case=case, structure_name=k
                 )
-                if case_insensitive_match is None:
+                if not case_insensitive_match:
                     k_case_insensitive_match = False
                 else:
                     k_case_insensitive_match = True
@@ -2007,7 +2008,7 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
         case=case, option="Check", structure_name=roi_name
     )
     # struct_exists is true if the roi_name is already defined
-    if roi_name_ci is not None:
+    if roi_name_ci:
         struct_exists = True
     elif roi_name_exists:
         roi_name_ci = roi_name

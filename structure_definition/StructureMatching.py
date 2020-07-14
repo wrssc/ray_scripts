@@ -65,20 +65,14 @@ import Objectives
 import Beams
 import StructureOperations
 import UserInterface
+from GeneralOperations import find_scope
 
 def main():
-    ## R: StructureOperations is imported twice. I recommend moving all 
-    ## imports outside of the function
-    import StructureOperations
-    from GeneralOperations import find_scope
-
     # Get current patient, case, exam, and plan
     patient = find_scope(level='Patient')
     case = find_scope(level='Case')
     exam = find_scope(level='Examination')
     scope = find_scope()
-    ## R: The plan variable is never used and can be safely omitted
-    plan = scope['Plan']
     beamset = scope['BeamSet']
     # Open the 263 Dataframe
     ## R: PYTHON 3 NOTE: It is considered best practice in Python 3 to replace
@@ -90,6 +84,9 @@ def main():
     ## *****
     ## R: This strikes me as a lot of code for loading a single file,
     ## even for os.path. Why is the loop needed?
+    ## P: I kept this in place in the event that files outside of the TG-263.xml file
+    ##    should be included in the structure matching. If this ends up being not worthwhile
+    ##    I can ditch the loop.
     files = [[r"../protocols", r"", r"TG-263.xml"]]  # , [r"../protocols", r"UW", r""]]
     paths = []
     for i, f in enumerate(files):
@@ -104,50 +101,30 @@ def main():
 
     # Make ExternalClean
     external_name = 'ExternalClean'
-    ## R: Style: The "ext_clean" is never used, so you could use the a 
-    ## single underscore "_ = ". A single standalone underscore is sometimes
-    ## used as a name to indicate that a variable is temporary or insignificant.
-    ext_clean = StructureOperations.make_externalclean(patient=patient,
+    _ = StructureOperations.make_externalclean(patient=patient,
                                                        case=case,
                                                        examination=exam,
                                                        structure_name=external_name,
                                                        suffix=None,
                                                        delete=True)
-    ## R: I am confused by the use of a while loop here.
-    ## The while loop will only get executed once because the loop ends with
-    ## "list_unfiltered = Flase". Seems like the while loop can be removed.
-    list_unfiltered = True
-    while list_unfiltered:
-        plan_rois = StructureOperations.find_types(case=case)
-        # filter the structure list
-        filtered_plan_rois = []
-        for r in plan_rois:
-            # Filter the list to look for duplicates and exit out if undesirable features are found
-            ## R: Will this function work if there are more than one case
-            ## sensitive matches?
-            found_case_sensitive_match = StructureOperations \
-                .case_insensitive_structure_search(case=case, structure_name=r, roi_list=plan_rois)
-            if found_case_sensitive_match is not None:
-                logging.info('Two structures share the same name with different case:' +
-                             '{} matches {}'.format(r, found_case_sensitive_match)
-                             )
-                user_message = 'Two structures share the same name with different case: ' + \
-                               '{} matches {}. '.format(r, found_case_sensitive_match) + \
-                               'Copy the geometry from the incorrect name to the correct ' + \
-                               'structure and continue the script'
-                connect.await_user_input(user_message)
-                ## R: To be clear, using continue here will skip "filtered_plan_rois.append(r)"
-                ## and move to the next contour in plan_rois. Is this intended?
-                continue
+    plan_rois = StructureOperations.find_types(case=case)
+    # filter the structure list
+    filtered_plan_rois = []
+    for r in plan_rois:
+        # Filter the list to look for duplicates and exit out if undesirable features are found
+        found_case_sensitive_match = StructureOperations \
+            .case_insensitive_structure_search(case=case, structure_name=r, roi_list=plan_rois)
+        while found_case_sensitive_match:
+            logging.info('Two structures share the same name with different case:' +
+                         '{} matches {}'.format(r, found_case_sensitive_match)
+                         )
+            user_message = 'At least two structures share the same name with different case: ' + \
+                           '{} matches {}. '.format(r, found_case_sensitive_match) + \
+                           'Copy the geometry from the incorrect name to the correct ' + \
+                           'structure and continue the script'
+            connect.await_user_input(user_message)
+        filtered_plan_rois.append(r)
 
-            filtered_plan_rois.append(r)
-        list_unfiltered = False
-
-    ## R: In the control flow above, if there are structures that are a case-sensitive match,
-    ## then the user manually unifies them into a single structure. When this happens,
-    ## the contour "r" is never appended to filtered_plan_rois because of the continue statement.
-    ## If the user decides to consolodate the duplicate contours into "r", then "r" will never end up in
-    ## filtered_plan_rois when we reach the code below. Is that intended?
     results = StructureOperations.match_roi(patient=patient,
                                             examination=exam,
                                             case=case,
@@ -242,14 +219,9 @@ def main():
         match_file.write('ProtocolName:{},'.format(protocol_name))
         match_file.write('SeriesDescription:{},'.format(series_description))
         match_file.write('Beamset:{},'.format(beamset_name))
-        i# match_file.write(',')
         i = 0
         for k, v in results.iteritems():
-            # if i == len(results) - 1:
-            #     match_file.write('{v}:{k}'.format(k=k, v=v))
-            # else:
             match_file.write('{v}:{k},'.format(k=k, v=v))
-            #i += 1
         match_file.write('\n')
 
     ## with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory)) as csvfile:
