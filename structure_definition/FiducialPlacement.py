@@ -246,7 +246,7 @@ def main():
             .RoiGeometries[fiducial_name]
             .GetCenterOfRoi()
         )
-        prv_name = fiducial_prefix + str(n + 1) + "_PRVxx"
+        prv_name = fiducial_prefix + str(n + 1) + "_PRV02"
         prv_geom = StructureOperations.create_roi(
             case=case, examination=exam, roi_name=prv_name
         )
