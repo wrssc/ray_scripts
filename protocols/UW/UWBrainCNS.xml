@@ -2764,6 +2764,17 @@
         </otv>
     </planning_structure_set>
     <optimization_config>
+        <name>6 warmstarts</name>
+        <description>6 warmstart optimization</description>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="20" int_it="3" n="6">Iteration_1to6</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+    </optimization_config>
+    <optimization_config>
         <name>12 warmstarts Tomo</name>
         <description>12 warmstart optimization</description>
         <initial max_it="30" int_it="10">Iteration 0</initial>
