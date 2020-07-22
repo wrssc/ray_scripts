@@ -1781,10 +1781,34 @@
         </goals>
         <objectives>
             <roi>
+                <name>Eye_L</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">8</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Eye_L</name>
+                <type>Max</type>
+                <dose units="Gy">20</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
                 <name>Hippocampus_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">10.9</dose>
                 <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>Eye_R</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">8</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Eye_R</name>
+                <type>Max</type>
+                <dose units="Gy">20</dose>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Hippocampus_L</name>
@@ -1820,25 +1844,25 @@
                 <name>Lens_L</name>
                 <type>Max</type>
                 <dose units="Gy">10</dose>
-                <weight>0.01</weight>
+                <weight>100<weight>
             </roi>
             <roi>
                 <name>Lens_L_PRV07</name>
                 <type>Max</type>
-                <dose units="Gy">10</dose>
-                <weight>0.001</weight>
+                <dose units="Gy">12</dose>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Lens_R</name>
                 <type>Max</type>
                 <dose units="Gy">10</dose>
-                <weight>0.01</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Lens_R_PRV07</name>
                 <type>Max</type>
-                <dose units="Gy">10</dose>
-                <weight>0.001</weight>
+                <dose units="Gy">12</dose>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Normal_2cm</name>
@@ -1898,13 +1922,13 @@
                 <name>OTV1_</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p">117.9</dose>
-                <weight>200</weight>
+                <weight>2000</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_p">83.3</dose>
-                <weight>300</weight>
+                <weight>1500</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -1929,7 +1953,7 @@
                 <name>ring1_</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="5">100</dose>
-                <weight>1</weight>
+                <weight>2</weight>
             </roi>
             <roi>
                 <name>Ring_HD</name>
