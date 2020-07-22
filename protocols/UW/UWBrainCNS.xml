@@ -1793,12 +1793,6 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>Hippocampus_L</name>
-                <type a="1">MaxEud</type>
-                <dose units="Gy">10.9</dose>
-                <weight>1000</weight>
-            </roi>
-            <roi>
                 <name>Eye_R</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">8</dose>
@@ -1809,6 +1803,12 @@
                 <type>Max</type>
                 <dose units="Gy">20</dose>
                 <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">10.9</dose>
+                <weight>1000</weight>
             </roi>
             <roi>
                 <name>Hippocampus_L</name>
@@ -1844,7 +1844,7 @@
                 <name>Lens_L</name>
                 <type>Max</type>
                 <dose units="Gy">10</dose>
-                <weight>100<weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>Lens_L_PRV07</name>
