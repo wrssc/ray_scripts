@@ -17,4 +17,11 @@ github.xml
 diff.xml
 code.style.schemes.xml
 _windows/
+_windows/laf.xml
 codestyles/
+codestyles/Default.xml
+
+.vscode
+*.history
+.env
+.pylintrc

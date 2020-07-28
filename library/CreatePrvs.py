@@ -75,8 +75,8 @@ def CreatePrvs(case, examination, check_all, **kwargs):
 
         tree = xml.etree.ElementTree.parse(os.path.join(protocol_folder, file_name))
         for s in tree.findall('//planning_structures/derived_roi'):
-            print 'Adding derived struct'
-            print s
+            logging.debug('Adding derived struct')
+            logging.debug(s)
     else:
         for key in kwargs:
             # dict key is the source name from the function call

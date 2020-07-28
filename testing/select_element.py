@@ -1,7 +1,14 @@
-"""Testing xml handling
-Test scripts for matching
+""" Select element
+Testing only
 
-Version Notes: 1.0.0 Original
+Version Notes:
+0.0.0 
+
+Attempt to use the select element function to search any xml file regardless of format
+I think this will be obsolete. I think we ought to move to pandas dataframes like
+structure matching.
+
+Known Issues: 
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -18,31 +25,37 @@ You should have received a copy of the GNU General Public License along with
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '01-Feb-2018'
-__version__ = '1.0.0'
-__status__ = 'Production'
+__date__ = '02-Feb-2020'
+
+__version__ = '0.0.0'
+__status__ = 'Testing'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
+
 __raystation__ = '8.0.B'
-__maintainer__ = 'One maintainer'
+__maintainer__ = 'Adam Bayliss'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/wrssc/ray_scripts/wiki/Test_IO'
-__credits__ = []
+__help__ = ''
 
 import os
 import sys
 import logging
 import random
+import csv
+import xml
+import pandas as pd
+import re
+
+# Local imports
 import connect
 import BeamOperations
 import Objectives
 import Beams
 import StructureOperations
 import UserInterface
-
 
 def test_select_element(patient, case, exam, plan, beamset):
     """Testing for the selection of elements from different levels in a protocol xml file"""
@@ -68,7 +81,8 @@ def test_select_element(patient, case, exam, plan, beamset):
             set_elements='beam',
             filename=file,
             dialog=False,
-            folder=path_protocols)
+            folder=path_protocols
+        )
         logging.debug('Available beamsets include: {}'.format(available_beamsets))
         if not available_beamsets:
             on_screen_message += 'FAIL: Could not Find Beamset at protocol level'
@@ -178,8 +192,9 @@ def test_select_element(patient, case, exam, plan, beamset):
                                              restrict_beamset=None,
                                              checking=True)
                 else:
-                    logging.debug('No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
-                                  .format(o_n, o_r))
+                    logging.debug(
+                        'No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
+                            .format(o_n, o_r))
                     s_dose = 0
                     pass
             else:
@@ -195,51 +210,4 @@ def test_select_element(patient, case, exam, plan, beamset):
                                          restrict_beamset=None,
                                          checking=True)
 
-    # Test to activate the dialog and select in select_element function
-
-
-def main():
-    import StructureOperations
-    from GeneralOperations import find_scope
-
-    # Get current patient, case, exam, and plan
-    patient = find_scope(level='Patient')
-    case = find_scope(level='Case')
-    exam = find_scope(level='Examination')
-    plan = find_scope(level='Plan')
-    beamset = find_scope(level='BeamSet')
-
-    protocol_rois = [
-        'A_Carotid',
-        'A_Carotid_L',
-        'A_Carotid_R',
-        'A_Coronary',
-        'A_Hypophyseal_I',
-        'A_Hypophyseal_S',
-        'Arytenoid',
-        'Arytenoid_L',
-        'Arytenoid_R',
-        'Bone_Ethmoid',
-        'Bone_Frontal',
-        'Bone_Hyoid',
-        'Bone_Incus',
-        'Bone_Incus_L',
-        'Bone_Incus_R',
-        'Bone_Lacrimal',
-        'Bone_Lacrimal_L',
-        'Bone_Lacrimal_R',
-        'Bone_Mandible',
-        'Bone_Mastoid',
-        'Bone_Mastoid_L',
-        'Bone_Mastoid_R',
-        'Bone_Nasal',
-        'Bone_Nasal_L',
-        'Bone_Nasal_R']
-    # plan_rois = ['Cord', 'L_Kidney', 'KidneyL', 'Lkidney']
-    plan_rois = StructureOperations.find_types(case=case, roi_type='Organ')
-
-    StructureOperations.match_roi(case, exam, plan, beamset, plan_rois=plan_rois, protocol_rois=protocol_rois)
-
-
-if __name__ == '__main__':
-    main()
+    # Test to activate the dialog and select in select_element functio

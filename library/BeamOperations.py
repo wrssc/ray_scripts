@@ -469,9 +469,9 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             # PitchTomoDirect=,
             BackJawPosition=beam.back_jaw_position,
             FrontJawPosition=beam.front_jaw_position,
-            MaxDeliveryTime=None,
-            MaxGantryPeriod=None,
-            MaxDeliveryTimeFactor=None)
+            MaxDeliveryTime=beam.max_delivery_time,
+            MaxGantryPeriod=beam.max_gantry_period,
+            MaxDeliveryTimeFactor=beam.max_delivery_time_factor)
 
 
 def check_pa(plan, beam):
@@ -668,7 +668,7 @@ def rename_beams():
     patient_position = beamset.PatientPosition
     # Turn on set-up fields
     beamset.PatientSetup.UseSetupBeams = True
-    logging.debug('Renaming and adding set up fields to Beam Set with name {}, patient position {}, technique {}'.
+    logging.debug('Renaming and adding set up fields to Beam Set with name {}, patdelivery_time_factor {}, technique {}'.
                   format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
     # Rename isocenters
     for b in beamset.Beams:
@@ -2260,12 +2260,32 @@ def load_beams_xml(filename, beamset_name, path):
             if b.find('JawMode') is None:
                 beam.jaw_mode = None
             else:
-                beam.jaw_mode = float(b.find('JawMode').text)
+                beam.jaw_mode = b.find('JawMode').text
 
             if b.find('BackJawPosition') is None:
                 beam.back_jaw_position = None
             else:
                 beam.back_jaw_position = float(b.find('BackJawPosition').text)
+
+            if b.find('FrontJawPosition') is None:
+                beam.front_jaw_position = None
+            else:
+                beam.front_jaw_position = float(b.find('FrontJawPosition').text)
+            
+            if b.find('MaxDeliveryTime') is None:
+                beam.max_delivery_time is None
+            else:
+                beam.max_delivery_time = float(b.find('MaxDeliveryTime').text)
+            
+            if b.find('MaxGantryPeriod') is None:
+                beam.max_gantry_period is None
+            else:
+                beam.max_gantry_period = float(b.find('MaxGantryPeriod').text)
+            
+            if b.find('MaxDeliveryTimeFactor') is None:
+                beam.max_delivery_time_factor is None
+            else:
+                beam.max_delivery_time_factor = float(b.find('MaxDeliveryTimeFactor').text)
 
             beams.append(beam)
     return beams

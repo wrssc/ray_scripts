@@ -357,17 +357,15 @@
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
             <Name>1_SITE_THI</Name>
             <Energy>6</Energy>
-            <FieldWidth>5</FieldWidth>
+            <FieldWidth>5.05</FieldWidth>
             <Pitch>0.287</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
             <JawMode>Dynamic</JawMode>
-            <BackJawPosition>-2.1</BackJawPosition>
-            <FrontJawPosition>2.1</FrontJawPosition>
-        </beam>
-        <optimization_parameters>
             <MaxDeliveryTime>600</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
             <MaxDeliveryTimeFactor>3</MaxDeliveryTimeFactor>
-        </optimization_parameters>
+        </beam>
     </beamset>
     <beamset>
         <name>Tomo3D-FW2.5</name>
@@ -379,17 +377,15 @@
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
             <Name>1_SITE_THI</Name>
-            <FieldWidth>2.5</FieldWidth>
+            <FieldWidth>2.51</FieldWidth>
             <Energy>6</Energy>
             <Pitch>0.287</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
             <JawMode>Dynamic</JawMode>
-            <BackJawPosition>-1</BackJawPosition>
-            <FrontJawPosition>1</FrontJawPosition>
-        </beam>
-        <optimization_parameters>
             <MaxDeliveryTime>600</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
             <MaxDeliveryTimeFactor>3</MaxDeliveryTimeFactor>
-        </optimization_parameters>
+        </beam>
     </beamset>
 </protocol>

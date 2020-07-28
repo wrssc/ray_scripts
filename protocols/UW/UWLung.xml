@@ -151,27 +151,27 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">Mean</type>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="%">37</volume>
                 <dose units="Gy">18</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1500</volume>
                 <dose units="Gy">15.5</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1000</volume>
                 <dose units="Gy">16.3</dose>
@@ -446,27 +446,27 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">Mean</type>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="%">37</volume>
                 <dose units="Gy">18</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1500</volume>
                 <dose units="Gy">15.5</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1000</volume>
                 <dose units="Gy">16.3</dose>
@@ -739,27 +739,27 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">Mean</type>
                 <dose units="Gy">18</dose>
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="%">37</volume>
                 <dose units="Gy">18</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1500</volume>
                 <dose units="Gy">15.5</dose>
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lung_Total</name>
+                <name>Lungs-ITV</name>
                 <type dir="le">VX</type>
                 <volume units="cc">1000</volume>
                 <dose units="Gy">16.3</dose>
