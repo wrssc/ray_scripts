@@ -2272,10 +2272,13 @@ def load_beams_xml(filename, beamset_name, path):
             else:
                 beam.front_jaw_position = float(b.find('FrontJawPosition').text)
             
-            if b.find('MaxDeliveryTime') is None:
-                beam.max_delivery_time is None
-            else:
-                beam.max_delivery_time = float(b.find('MaxDeliveryTime').text)
+            try:
+                if b.find('MaxDeliveryTime') is None:
+                    beam.max_delivery_time = None
+                else:
+                    beam.max_delivery_time = float(b.find('MaxDeliveryTime').text)
+            except AttributeError:
+                beam.max_delivery_time = None
             
             if b.find('MaxGantryPeriod') is None:
                 beam.max_gantry_period is None
