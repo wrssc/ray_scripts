@@ -95,6 +95,9 @@ class Beam(object):
         self.jaw_mode = None
         self.back_jaw_position = None
         self.front_jaw_position = None
+        self.max_gantry_period = None
+        self.max_delivery_time = None
+        self.max_delivery_time_factor = None
         self.dsp = None
 
     def __eq__(self, other):
@@ -112,7 +115,10 @@ class Beam(object):
                and self.pitch == other.pitch \
                and self.jaw_mode == other.jaw_mode \
                and self.back_jaw_position == other.back_jaw_position \
-               and self.front_jaw_position == other.front_jaw_position
+               and self.front_jaw_position == other.front_jaw_position \
+               and self.max_delivery_time == other.max_delivery_time \
+               and self.max_delivery_time_factor == other.max_delivery_time_factor \
+               and self.max_gantry_period == other.max_gantry_period
 
     def __hash__(self):
         return hash((
