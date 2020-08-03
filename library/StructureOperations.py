@@ -2893,7 +2893,7 @@ def dialog_number_of_targets():
             #       "Sequential Primary+Boost(s)",
             #       "Multiple Separate Targets"],
         },
-        required=["1", "2", "6"],
+        required=["1", "2"]#, "6"],
     )
     dialog1_response = dialog1.show()
     if dialog1_response == {}:
