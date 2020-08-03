@@ -2247,30 +2247,45 @@ def load_beams_xml(filename, beamset_name, path):
             else:
                 beam.couch_angle = float(b.find('CouchAngle').text)
 
-            if b.find('FieldWidth') is None:
+            try:
+                if b.find('FieldWidth') is None:
+                    beam.field_width = None
+                else:
+                    beam.field_width = float(b.find('FieldWidth').text)
+            except AttributeError:
                 beam.field_width = None
-            else:
-                beam.field_width = float(b.find('FieldWidth').text)
 
-            if b.find('Pitch') is None:
+            try:
+                if b.find('Pitch') is None:
+                    beam.pitch = None
+                else:
+                    beam.pitch = float(b.find('Pitch').text)
+            except AttributeError:
                 beam.pitch = None
-            else:
-                beam.pitch = float(b.find('Pitch').text)
 
-            if b.find('JawMode') is None:
+            try:
+                if b.find('JawMode') is None:
+                    beam.jaw_mode = None
+                else:
+                    beam.jaw_mode = b.find('JawMode').text
+            except AttributeError:
                 beam.jaw_mode = None
-            else:
-                beam.jaw_mode = b.find('JawMode').text
 
-            if b.find('BackJawPosition') is None:
+            try:
+                if b.find('BackJawPosition') is None:
+                    beam.back_jaw_position = None
+                else:
+                    beam.back_jaw_position = float(b.find('BackJawPosition').text)
+            except AttributeError:
                 beam.back_jaw_position = None
-            else:
-                beam.back_jaw_position = float(b.find('BackJawPosition').text)
 
-            if b.find('FrontJawPosition') is None:
+            try:
+                if b.find('FrontJawPosition') is None:
+                    beam.front_jaw_position = None
+                else:
+                    beam.front_jaw_position = float(b.find('FrontJawPosition').text)
+            except AttributeError:
                 beam.front_jaw_position = None
-            else:
-                beam.front_jaw_position = float(b.find('FrontJawPosition').text)
             
             try:
                 if b.find('MaxDeliveryTime') is None:
@@ -2280,15 +2295,21 @@ def load_beams_xml(filename, beamset_name, path):
             except AttributeError:
                 beam.max_delivery_time = None
             
-            if b.find('MaxGantryPeriod') is None:
+            try:
+                if b.find('MaxGantryPeriod') is None:
+                    beam.max_gantry_period is None
+                else:
+                    beam.max_gantry_period = float(b.find('MaxGantryPeriod').text)
+            except AttributeError:
                 beam.max_gantry_period is None
-            else:
-                beam.max_gantry_period = float(b.find('MaxGantryPeriod').text)
             
-            if b.find('MaxDeliveryTimeFactor') is None:
+            try:
+                if b.find('MaxDeliveryTimeFactor') is None:
+                    beam.max_delivery_time_factor is None
+                else:
+                    beam.max_delivery_time_factor = float(b.find('MaxDeliveryTimeFactor').text)
+            except AttributeError:
                 beam.max_delivery_time_factor is None
-            else:
-                beam.max_delivery_time_factor = float(b.find('MaxDeliveryTimeFactor').text)
 
             beams.append(beam)
     return beams
