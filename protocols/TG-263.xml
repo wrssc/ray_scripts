@@ -1331,7 +1331,7 @@
         <TG263ReverseOrderName>BoneMarrow</TG263ReverseOrderName>
         <FMAID>9608</FMAID>
         <Color red="62" green="170" blue="254" Hex="#3EAAFE">SkyDancer</Color>
-        <Alias>marrow,bone_marrow</Alias>
+        <Alias>marrow,bone_marrow,Bone_Marrow</Alias>
     </roi>
     <roi>
         <name>BoneMarrow_Act</name>
