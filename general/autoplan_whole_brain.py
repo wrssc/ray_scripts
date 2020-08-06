@@ -247,8 +247,14 @@ def main():
                   'input4_choose_machine'])
 
     # Launch the dialog
-    print
-    input_dialog.show()
+    response = input_dialog.show()
+    # Close on cancel
+    if response == {}:
+        logging.info('autoplan whole brain cancelled by user')
+        sys.exit('autoplan whole brain cancelled by user')
+    else:
+        logging.debug('User selected {} for make plan'.format(
+            input_dialog.values['input0_make_plan']))
 
     # Parse the outputs
     # User selected that they want a plan-stub made
