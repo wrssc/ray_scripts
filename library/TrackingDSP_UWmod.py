@@ -76,6 +76,7 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     zsize = plan.TreatmentCourse.TotalDose.InDoseGrid.VoxelSize.z
 
     if np.amax(pd_np) < rx:
+        # TODO Shift to logging
         print('max = {}'.format(str(max(pd))))
         print('target = {}'.format(str(rx)))
         raise ValueError('max beam dose is too low')
