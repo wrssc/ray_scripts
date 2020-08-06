@@ -15,7 +15,7 @@ def main():
 
     tree = xml.etree.ElementTree.parse(protocol_name)
     for g in tree.findall('//goals/roi'):
-        print 'Adding goal ' + Goals.print_goal(g, 'xml')
+        print('Adding goal ' + Goals.print_goal(g, 'xml'))
         Goals.add_goal(g, connect.get_current('Plan'))
     ui = connect.get_current('ui')
     ui.TitleBar.MenuItem['Plan Optimization'].Click()
