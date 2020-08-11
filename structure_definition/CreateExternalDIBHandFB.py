@@ -233,6 +233,9 @@ def create_external_fb(case):
         )
         exit()
 
+    assert len(roi_external) == 1, "Found more than one structure of type External"
+    roi_external = roi_external[0]
+
     # The name of the ROI of type External should have "External" in the name
     original_roi_external_name = roi_external.Name
     if "External" not in roi_external.Name:
@@ -344,6 +347,10 @@ def clean(
         A RayStation ScriptObject corresponding to the current case.
     original_roi_external_name : str
         The original name for the external ROI.
+    original_DIBH_exam_name : str
+        The original name for the DIBH examination.
+    original_FB_exam_name : str
+        The original name for the FB examination.
 
     RETURNS
     -------

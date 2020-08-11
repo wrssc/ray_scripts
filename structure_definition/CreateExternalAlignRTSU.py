@@ -81,7 +81,9 @@ def create_external_alignrt_su(case, shift_size=10):
             )
             exit()
 
-        roi_external_name = roi_external.Name
+        assert len(roi_external) == 1, "Found more than one structure of type External"
+
+        roi_external_name = roi_external[0].Name
 
         logging.info("{} identified as external ROI".format(roi_external_name))
 
