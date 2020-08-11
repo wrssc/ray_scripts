@@ -8,7 +8,8 @@ This script accomplishes the following tasks:
 This script was tested with:
 * Patient: ZZ_OSMS, Practice
 * MRN: 20180717DJJ
-* RayStation: Launcher 8B SP2 - Test (Development Server)
+* RayStation: Launcher
+* Title: Validation
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

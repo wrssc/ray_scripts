@@ -10,6 +10,11 @@ This script was tested with:
 * MRN: 20170327DJJ
 * RayStation: Launcher 8B SP2 - Test (Development Server)
 
+* Patient: Example, OSMS
+* MRN: 20170327DJJ
+* RayStation: Launcher
+* Title: Validation
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -368,6 +373,7 @@ def clean(
 def main():
     """The main function for this file"""
 
+    print("Hi")
     logging.debug("Beginning execution of CreateExternalDIBHandFB.py in main()")
     case = get_current("Case")
     create_external_fb(case)
