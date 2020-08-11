@@ -1,5 +1,4 @@
 """ Create Ext_AlignRT_SU for Prone AlignRT Setup
-Creates a shifted external contour for AlignRT setup
 
 This script accomplishes the following tasks:
 1. Creates a copy of the external contour called Ext_AlignRT_SU
