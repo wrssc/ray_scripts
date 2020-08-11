@@ -215,26 +215,26 @@ def create_external_fb(case):
             "Number of examinations = {}. This script requires two more or image sets "
             "(one DIBH and one free-breathing).".format(case.Examinations)
         )
-        messagebox.showerror(
-            "Image Set Error",
+        message = (
             "This script requires two more or image sets (one DIBH and one free-breathing). "
-            "Please import DIBH and free-breathing scans.",
+            "Please import DIBH and free-breathing scans."
         )
+        messagebox.showerror("Image Set Error", message)
         exit()
 
     # The case must have a region of interest set to the "External" type
-    roi_external = StructureOperations.find_types(case, "External")
-    if not roi_external:
+    roi_external_list = StructureOperations.find_types(case, "External")
+    if not roi_external_list:
         logging.error("No ROI of type 'External' found.")
-        messagebox.showerror(
-            "External Structure Error",
+        message = (
             "The script requires that a structure (usually External or ExternalClean) be set as "
-            "external in RayStation.",
+            "external in RayStation."
         )
+        messagebox.showerror("External Structure Error", message)
         exit()
 
-    assert len(roi_external) == 1, "Found more than one structure of type External"
-    roi_external = roi_external[0]
+    assert len(roi_external_list) == 1, "Found more than one structure of type External"
+    roi_external = case.PatientModel.RegionsOfInterest[roi_external_list[0]]
 
     # The name of the ROI of type External should have "External" in the name
     original_roi_external_name = roi_external.Name
