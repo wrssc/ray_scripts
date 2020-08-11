@@ -1,4 +1,4 @@
-""" Create Ext_AlignRT_SU for AlignRT Setup
+""" Create Ext_AlignRT_SU for Prone AlignRT Setup
 Creates a shifted external contour for AlignRT setup
 
 This script accomplishes the following tasks:
@@ -68,6 +68,18 @@ def create_external_alignrt_su(case, shift_size=10):
 
     """
 
+    # This script is designed to be used for prone breast patients:
+    exam = get_current("Examination")
+
+    if exam.PatientPosition != "HFP":
+        logging.error("Current exam in not in prone position. Exiting script.")
+        messagebox.showerror(
+            "Patient Orientation Error",
+            "The script requires a patient in the head-first prone position. ",
+            "The currently selected exam is not HFP. Exiting script.",
+        )
+        exit()
+
     with CompositeAction("Create Ext_AlignRT_SU"):
 
         # The case must have a region of interest set to the "External" type
@@ -98,7 +110,6 @@ def create_external_alignrt_su(case, shift_size=10):
         logging.info("Created Ext_AlignRT_SU")
 
         # Copy the external ROI into the shifted external:
-        exam = get_current("Examination")
 
         MarginSettings = {
             "Type": "Expand",
