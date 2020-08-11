@@ -1,9 +1,9 @@
-""" Create Ext_AlignRT_SU
+""" Create Ext_AlignRT_SU for AlignRT Setup
 Creates a shifted external contour for AlignRT setup
 
 This script accomplishes the following tasks:
-1. Creates a copy of the external contour called External_Ant150
-2. Shifts External_Ant150 posteriorly 15 cm
+1. Creates a copy of the external contour called Ext_AlignRT_SU
+2. Shifts Ext_AlignRT_SU posteriorly 10 cm
 
 This script was tested with:
 * Patient: ZZ_OSMS, Practice
@@ -42,10 +42,16 @@ __copyright__ = "Copyright (C) 2020, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current
 import StructureOperations
+
+try:  # for Python 3
+    from tkinter import messagebox
+except ImportError:  # for Python 2
+    import tkMessageBox as messagebox
+from sys import exit
 import logging
 
 
-def create_external_alignrt_su(case, shift_size=15):
+def create_external_alignrt_su(case, shift_size=10):
     """ Creates Ext_AlignRT_SU.
 
     PARAMETERS
@@ -53,7 +59,7 @@ def create_external_alignrt_su(case, shift_size=15):
     case : ScriptObject
         A RayStation ScriptObject corresponding to the current case.
     shift_size: float
-        The shift size, in cm, in the posterior direction
+        The shift size, in cm, in the posterior direction (default is 10)
 
     RETURNS
     -------
@@ -62,12 +68,21 @@ def create_external_alignrt_su(case, shift_size=15):
     """
 
     with CompositeAction("Create Ext_AlignRT_SU"):
-        # Get external roi
-        external_rois = StructureOperations.find_types(case, "External")
-        assert len(external_rois) == 1, "There must be one and only one External ROI"
-        external_roi_name = external_rois[0]
 
-        logging.info("{} identified as external ROI".format(external_roi_name))
+        # The case must have a region of interest set to the "External" type
+        roi_external = StructureOperations.find_types(case, "External")
+        if not roi_external:
+            logging.error("No ROI of type 'External' found.")
+            messagebox.showerror(
+                "External Structure Error",
+                "The script requires that a structure (usually External or ExternalClean)",
+                "be set as External in RayStation.",
+            )
+            exit()
+
+        roi_external_name = roi_external.Name
+
+        logging.info("{} identified as external ROI".format(roi_external_name))
 
         # Create roi for shifted external
         ext_alignrt_su = case.PatientModel.CreateRoi(
@@ -93,57 +108,11 @@ def create_external_alignrt_su(case, shift_size=15):
             "Left": 0,
         }
         ext_alignrt_su.SetMarginExpression(
-            SourceRoiName=external_roi_name, MarginSettings=MarginSettings
+            SourceRoiName=roi_external_name, MarginSettings=MarginSettings
         )
         ext_alignrt_su.UpdateDerivedGeometry(Examination=exam, Algorithm="Auto")
 
-        """
-        ExpressionA = {
-            "Operation": "Union",
-            "SourceRoiNames": [external_roi_name],
-            "MarginSettings": {
-                "Type": "Expand",
-                "Superior": 0,
-                "Inferior": 0,
-                "Anterior": 0,
-                "Posterior": 0,
-                "Right": 0,
-                "Left": 0,
-            },
-        }
-        ExpressionB = {
-            "Operation": "Union",
-            "SourceRoiNames": [],
-            "MarginSettings": {
-                "Type": "Expand",
-                "Superior": 0,
-                "Inferior": 0,
-                "Anterior": 0,
-                "Posterior": 0,
-                "Right": 0,
-                "Left": 0,
-            },
-        }
-        ResultOperation = None
-        ResultMarginSettings = {
-            "Type": "Expand",
-            "Superior": 0,
-            "Inferior": 0,
-            "Anterior": 0,
-            "Posterior": 0,
-            "Right": 0,
-            "Left": 0,
-        }
-
-        ext_alignrt_su.CreateAlgebraGeometry(
-            Examination=exam,
-            ExpressionA=ExpressionA,
-            ExpressionB=ExpressionB,
-            ResultOperation=ResultOperation,
-            ResultMarginSettings=ResultMarginSettings,
-        )
-        """
-        logging.info("Copied {} into {}".format(external_roi_name, ext_alignrt_su.Name))
+        logging.info("Copied {} into {}".format(roi_external_name, ext_alignrt_su.Name))
 
         # Finally, shift the contour
         TransformationMatrix = {
@@ -189,8 +158,8 @@ def clean(case):
 
     """
 
-    # Create shift matrix
-
+    # Clean not developed at this time. If there is a problem with Ext_AlignRT_SU, it may be
+    # manually deleted.
     pass
 
 

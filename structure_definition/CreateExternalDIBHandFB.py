@@ -40,7 +40,8 @@ __license__ = "GPLv3"
 __help__ = None
 __copyright__ = "Copyright (C) 2020, University of Wisconsin Board of Regents"
 
-from connect import CompositeAction, get_current, await_user_input
+from connect import CompositeAction, get_current
+import StructureOperations
 
 try:  # for Python 3
     from tkinter import Tk, Frame, Label, StringVar, SUNKEN, X, Button, RIGHT
@@ -132,12 +133,17 @@ def get_DIBH_and_FB_exams(case):
     cmb_FB.grid(row=1, column=1)
 
     # Try to pre-populate correct image sets
-    ## R: Suggestion: Consider extending the SeriesDescription search for JC/East
-    ##      These are the UW standard I believe. Are they the same for East and JC?
+    # These should work for patients scanned at UWHealth
     if "CHEST_MIBH" in series_dict.keys():
         text_DIBH.set("CHEST_MIBH")
     if "CHEST_FREE_BREATHING" in series_dict.keys():
         text_FB.set("CHEST_FREE_BREATHING")
+
+    # These should work for patients scanned at Johnson Creek
+    if "BREATH HOLD" in series_dict.keys():
+        text_DIBH.set("BREATH HOLD")
+    if "FREE BREATHE" in series_dict.keys():
+        text_FB.set("FREE BREATHE")
 
     # Add buttons
     frm_buttons = Frame()
@@ -148,8 +154,7 @@ def get_DIBH_and_FB_exams(case):
     btn_continue = Button(master=frm_buttons, text="Continue", command=continue_func)
     btn_continue.pack(side=RIGHT, padx=10, ipadx=10)
 
-    # Create the "Cancel" button and pack it to the
-    # right side of `frm_buttons`
+    # Create the "Cancel" button and pack it to the right side of "frm_buttons"
     btn_cancel = Button(master=frm_buttons, text="Cancel", command=exit)
     btn_cancel.pack(side=RIGHT, ipadx=10)
     window.mainloop()
@@ -198,12 +203,8 @@ def create_external_fb(case):
     # First, verify that the pre-requisites for the script are present
 
     # The case must have two or more image sets.
-    ## R: ChangeRequest:
-    ##      len(case.Examinations) is undefined as it is an unsized object, in the past I have
-    ## relied on for loops to determine
-    ##      the size of RayStation ScriptObjects. I note that both exam names are stores as private
-    ## variables _CT 1, and _CT 2
-    ##      for example. But I do not know how to make use of this property
+    # Note: case.Examination has type "connect.connect_cpython.PyScriptObjectCollection", and
+    # len() is defined for this object.
     if len(case.Examinations) < 2:
         logging.error(
             "Number of examinations = {}. This script requires two more or image sets "
@@ -217,13 +218,8 @@ def create_external_fb(case):
         exit()
 
     # The case must have a region of interest set to the "External" type
-    ## R: Suggestion:
-    ##      An alternative function is available in StructureOperations, and would
-    ## consolidate lines 215 to 229
-    ##      external_roi = StructureOperations.find_types(case, "External")
-    ##      if not external_roi:
-    roi_type_list = [roi.Type for roi in case.PatientModel.RegionsOfInterest]
-    if "External" not in roi_type_list:
+    roi_external = StructureOperations.find_types(case, "External")
+    if not roi_external:
         logging.error("No ROI of type 'External' found.")
         messagebox.showerror(
             "External Structure Error",
@@ -231,87 +227,62 @@ def create_external_fb(case):
             "external in RayStation.",
         )
         exit()
-    ## R: Discussion:
-    ##      I have been using roi_external to indicate object_attribute, but I am fine with
-    ##  attribute_object too.
+
     # The name of the ROI of type External should have "External" in the name
-    external_roi = None
-    for roi in case.PatientModel.RegionsOfInterest:
-        if roi.Type == "External":
-            external_roi = roi
-            break
-    if "External" not in external_roi.Name:
+    original_roi_external_name = roi_external.Name
+    if "External" not in roi_external.Name:
         logging.warning(
             "ROI of type 'External' is called {}, which deviates from standard naming "
-            "conventions.".format(external_roi.Name)
+            "conventions.".format(roi_external.Name)
         )
         messagebox.showwarning(
             "External Structure Warning",
             "The ROI of type 'External' is called {}. Typically, it is called 'External' or "
-            "'ExternalClean'.".format(external_roi.Name),
+            "'ExternalClean'.".format(roi_external.Name),
         )
 
     with CompositeAction("Rename DIBH and free-breathing examinations"):
         (DIBH_exam, FB_exam) = get_DIBH_and_FB_exams(case)
 
+        original_DIBH_exam_name = DIBH_exam.Name
         logging.info("Renaming exam {} to DIBH".format(DIBH_exam.Name))
         DIBH_exam.Name = "DIBH"
+
+        original_FB_exam_name = FB_exam.Name
         logging.info("Renaming exam {} to Free-breathing".format(FB_exam.Name))
         FB_exam.Name = "Free-breathing"
-    ## R: ChangeRequest:
-    ##      The following statement ensures that any object of type External,
-    ##      regardless of the exam on which is belongs (DIBH or FB) will be renamed
-    ##      is that the correct behavior? If a user has incorrectly drawn the external
-    ##      on the free-breathing, or on both scans, the resulting label will be incorrect.
-    ##
-    ##      I confirmed the result by defining an External Contour geometry on the
-    ##      FB scan. The script changes the name of the External ROI for both
-    ##      ROI geometries to "External_DIBH"
-    ##
-    ##      You may wish to add the following:
-    ##      case.PatientModel.StructureSets['Free-breathing']\
-    ##          .RoiGeometries['External_DIBH'].DeleteGeometry()
+
     with CompositeAction("Rename External on DIBH scan to 'External_DIBH'"):
         logging.info("Renaming the ROI of type 'External' to 'DIBH'.")
-        external_roi.Name = "External_DIBH"
-
-    """
-    ui = get_current("ui")
-    menu_item = ui.TitleBar.MenuItem
-    menu_item["Patient Modeling"].Click()
-    menu_item["Patient Modeling"].Popup.MenuItem["Image Registration"].Click()
-    tab_item = ui.TabControl_ToolBar.TabItem
-    tab_item["Fusion"].Select()
-
-    messagebox.showinfo(
-        title="Please review fusion",
-        message="Please review fusion.",
-    )
-    """
+        roi_external.Name = "External_DIBH"
+        # This action renames the External to External_DIBH on all examinations.
+        # For clarity, let's delete the geometries that may exist on other examinations.
+        # If the user wishes to have an external on another geometry for planning, they will
+        # need to create it manually.
+        for ss in case.PatientModel.StructureSets:
+            if ss.OnExamination.Name != "DIBH":
+                log_str = "Deleting geometry for External_DIBH on {}".format(
+                    ss.OnExamination.Name
+                )
+                logging.info(log_str)
+                ss.RoiGeometries["External_DIBH"].DeleteGeometry()
 
     with CompositeAction("Create External_FB on Free-breathing Image Set"):
 
         roi_names = [roi.Name for roi in case.PatientModel.RegionsOfInterest]
-        ## R: Suggestion:
-        ##      I have been trying to think of the "info" debugging channel as something a reviewer
-        ##      might want to see, and crafted my message accordingly. As such, it may help to
-        ##      change the note to something like: External_FB existed, it was deleted
         if "External_FB" in roi_names:
             logging.info(
-                "A region of interest called External_FB already exists. It will be deleted"
+                "A region of interest called External_FB already existed. It was deleted"
             )
             messagebox.showinfo(
                 title="External_FB already exists ",
-                message="A region of interest called External_FB already exists. It will be deleted",
+                message="A region of interest called External_FB existed. It was deleted",
             )
             case.PatientModel.RegionsOfInterest["External_FB"].DeleteRoi()
 
         logging.info("Creating an ROI called 'External_FB")
-        ## R: Comment and potential Revision Request:
-        ##      I note that the attempt is made to specify the ROI type as "External" for the ROI External_FB
-        ##      This will not work as the "External" type can only belong to one ROI in the plan. I am unsure
-        ##      of how this affects workflow, but if the "Body" type is required in Eclipse, or the AlignRT system
-        ##      no structure of type "External" will be delineated on the Free-Breathing scan.
+        # We will temporarily designate this contour as the External type. Later, we will
+        # explicitly set External_DIBH back to the External type.
         external_fb_roi = case.PatientModel.CreateRoi(
             Name="External_FB",
             Color="Green",
@@ -327,7 +298,7 @@ def create_external_fb(case):
             Examination=case.Examinations["Free-breathing"], ThresholdLevel=-250
         )
         logging.info("Setting External_DIBH as the 'External' ROI.")
-        external_roi.SetAsExternal()
+        roi_external.SetAsExternal()
 
     with CompositeAction("Copy External_FB to DIBH Image Set"):
         logging.info("Copying External_FB to the DIBH examination.")
@@ -347,18 +318,27 @@ def create_external_fb(case):
 
     if not script_result_accepted:
         logging.info("User rejected contours. Running clean() to undo changes.")
-        clean(case)
+        clean(
+            case,
+            original_roi_external_name,
+            original_DIBH_exam_name,
+            original_FB_exam_name,
+        )
     else:
         logging.info("User accepted contours. Script completed.")
 
 
-def clean(case):
+def clean(
+    case, original_roi_external_name, original_DIBH_exam_name, original_FB_exam_name
+):
     """Undo all of the actions done by create_external_fb()
 
     PARAMETERS
     ----------
     case : ScriptObject
         A RayStation ScriptObject corresponding to the current case.
+    original_roi_external_name : str
+        The original name for the external ROI.
 
     RETURNS
     -------
@@ -372,25 +352,17 @@ def clean(case):
         case.PatientModel.RegionsOfInterest["External_FB"].DeleteRoi()
 
     # Undo renaming of external DIBH
-    ## R: Suggestion
-    ##      Consider storing the original external name and passing it in as a parameter
-    ##      This will rename the original external "External" regardless of its original name
-    ##      say "ExternalClean." This could have implications for later scripts that assume
-    ##      "External" is system drawn, and "ExternalClean" is modified, cleaned system-drawn or
-    ##      user-drawn (to touch up algorithmic error, like lopping of the patient's ears).
     with CompositeAction("Reverse rename of External_DIBH"):
         logging.info("Renaming 'External_DIBH' to 'External'")
-        case.PatientModel.RegionsOfInterest["External_DIBH"].Name = "External"
+        case.PatientModel.RegionsOfInterest[
+            "External_DIBH"
+        ].Name = original_roi_external_name
 
     # Undo renaming of examinations
-    ## R: Suggestion
-    ##      Same as above, sending original examination names in will be helpful
-    ## or making the clean function
-    ##      internal to main? to access the global variable names?
     with CompositeAction("Reverse rename of DIBH and free-breathing examinations"):
-        logging.info("Renaming examinations to 'CT_1' and 'CT_2'")
-        case.Examinations["DIBH"].Name = "CT 1"
-        case.Examinations["Free-breathing"].Name = "CT 2"
+        logging.info("Renaming examinations to original names")
+        case.Examinations["DIBH"].Name = original_DIBH_exam_name
+        case.Examinations["Free-breathing"].Name = original_FB_exam_name
 
 
 def main():
