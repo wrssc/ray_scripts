@@ -73,11 +73,11 @@ def create_external_alignrt_su(case, shift_size=10):
 
     if exam.PatientPosition != "HFP":
         logging.error("Current exam in not in prone position. Exiting script.")
-        messagebox.showerror(
-            "Patient Orientation Error",
-            "The script requires a patient in the head-first prone position. ",
-            "The currently selected exam is not HFP. Exiting script.",
+        message = (
+            "The script requires a patient in the head-first prone position. "
+            "The currently selected exam is not HFP. Exiting script."
         )
+        messagebox.showerror("Patient Orientation Error", message)
         exit()
 
     with CompositeAction("Create Ext_AlignRT_SU"):
@@ -86,11 +86,11 @@ def create_external_alignrt_su(case, shift_size=10):
         roi_external = StructureOperations.find_types(case, "External")
         if not roi_external:
             logging.error("No ROI of type 'External' found.")
-            messagebox.showerror(
-                "External Structure Error",
-                "The script requires that a structure (usually External or ExternalClean)",
-                "be set as External in RayStation.",
+            message = (
+                "The script requires that a structure (usually External or ExternalClean)"
+                "be set as External in RayStation."
             )
+            messagebox.showerror("External Structure Error", message)
             exit()
 
         assert len(roi_external) == 1, "Found more than one structure of type External"
@@ -127,7 +127,7 @@ def create_external_alignrt_su(case, shift_size=10):
 
         logging.info("Copied {} into {}".format(roi_external_name, ext_alignrt_su.Name))
 
-        # Finally, shift the contour
+        # Finally, shift the contour. This shift direction will only work for HFP
         TransformationMatrix = {
             "M11": 1,
             "M12": 0,
