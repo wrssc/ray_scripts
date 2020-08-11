@@ -593,6 +593,7 @@
         <AnatomicGroup>Abdomen</AnatomicGroup>
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>L_Kidney-GTV</TG263ReverseOrderName>
+        <Dependencies>Kidney_L,GTV</Dependencies>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
@@ -689,6 +690,7 @@
         <AnatomicGroup>Abdomen</AnatomicGroup>
         <NCharacters>12</NCharacters>
         <TG263ReverseOrderName>R_Kidney-GTV</TG263ReverseOrderName>
+        <Dependencies>Kidney_R,GTV</Dependencies>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
         <Alias></Alias>
@@ -3734,6 +3736,7 @@
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brain-CTV</TG263ReverseOrderName>
+        <Dependencies>Brain,CTV</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Brain
@@ -3762,6 +3765,7 @@
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brain-GTV</TG263ReverseOrderName>
+        <Dependencies>Brain,GTV</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Brain
@@ -3790,6 +3794,7 @@
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Brain-PTV</TG263ReverseOrderName>
+        <Dependencies>Brain,PTV</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Brain
@@ -10209,6 +10214,7 @@
         <AnatomicGroup>Pelvis</AnatomicGroup>
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName></TG263ReverseOrderName>
+        <Dependencies>Rectum,PTV</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Rectum
@@ -10237,6 +10243,7 @@
         <AnatomicGroup>Pelvis</AnatomicGroup>
         <NCharacters>10</NCharacters>
         <TG263ReverseOrderName></TG263ReverseOrderName>
+        <Dependencies>Rectum,CTV</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Rectum
@@ -13179,6 +13186,7 @@
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-CTV</TG263ReverseOrderName>
+        <Dependencies>Lung_L,Lung_R,CTV</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Lung_L,Lung_R
@@ -13207,6 +13215,7 @@
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-GTV</TG263ReverseOrderName>
+        <Dependencies>Lung_L,Lung_R,GTV</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Lung_L,Lung_R
@@ -13235,6 +13244,7 @@
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-ITV</TG263ReverseOrderName>
+        <Dependencies>Lung_L,Lung_R,ITV</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Lung_L,Lung_R
@@ -13263,6 +13273,7 @@
         <AnatomicGroup>Thorax</AnatomicGroup>
         <NCharacters>9</NCharacters>
         <TG263ReverseOrderName>Lungs-PTV</TG263ReverseOrderName>
+        <Dependencies>Lung_L,Lung_R,PTV</Dependencies>
         <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
                   margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
             Lung_L,Lung_R
