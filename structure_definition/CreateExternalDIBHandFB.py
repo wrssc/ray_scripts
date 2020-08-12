@@ -387,15 +387,10 @@ def clean(
 def main():
     """The main function for this file"""
 
-    logging.debug("Beginning execution of CreateExternalDIBHandFB.py in main()")
+    logging.debug("Beginning execution of create_external_fb in main()")
     case = get_current("Case")
     create_external_fb(case)
 
 
 if __name__ == "__main__":
     main()
-
-
-def main():
-    logging.debug("Hi")
-    print("hi")
