@@ -2,7 +2,7 @@
 
 This script accomplishes the following tasks:
 1. Creates a copy of the external contour called Ext_AlignRT_SU
-2. Shifts Ext_AlignRT_SU posteriorly 10 cm
+2. Shifts Ext_AlignRT_SU anteriorly 10 cm
 
 This script was tested with:
 * Patient: ZZ_OSMS, Practice
@@ -59,7 +59,7 @@ def create_external_alignrt_su(case, shift_size=10):
     case : ScriptObject
         A RayStation ScriptObject corresponding to the current case.
     shift_size: float
-        The shift size, in cm, in the posterior direction (default is 10)
+        The shift size, in cm, in the anterior direction (default is 10)
 
     RETURNS
     -------
@@ -150,7 +150,7 @@ def create_external_alignrt_su(case, shift_size=10):
             Examination=exam, TransformationMatrix=TransformationMatrix
         )
         logging.info(
-            "Shifted {} posteriorly by {} cm".format(
+            "Shifted {} anteriorly by {} cm".format(
                 ext_alignrt_su.Name, str(shift_size)
             )
         )
