@@ -48,17 +48,21 @@ __copyright__ = "Copyright (C) 2020, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current
 import StructureOperations
+import logging
 
 try:  # for Python 3
     from tkinter import Tk, Frame, Label, StringVar, SUNKEN, X, Button, RIGHT
     from tkinter import messagebox
     from tkinter.ttk import Combobox
+
+    logging.info("Successful import of tkinter in Python 3")
 except ImportError:  # for Python 2
     from Tkinter import Tk, Frame, Label, StringVar, SUNKEN, X, Button, RIGHT
     import tkMessageBox as messagebox
     from ttk import Combobox
+
+    logging.info("Successful import of tkinter in Python 2")
 from sys import exit
-import logging
 
 
 def get_DIBH_and_FB_exams(case):

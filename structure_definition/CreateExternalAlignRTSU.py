@@ -157,7 +157,7 @@ def create_external_alignrt_su(case, shift_size=10):
 
 
 def clean(case):
-    """Undo all of the actions done by create_external_fb()
+    """Undo all of the actions done by create_external_alignrt_su()
 
     PARAMETERS
     ----------
