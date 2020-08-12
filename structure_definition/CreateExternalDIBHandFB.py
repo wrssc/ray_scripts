@@ -381,6 +381,8 @@ def clean(
         case.Examinations["DIBH"].Name = original_DIBH_exam_name
         case.Examinations["Free-breathing"].Name = original_FB_exam_name
 
+    logging.info("clean() has successfully completed")
+
 
 def main():
     """The main function for this file"""
@@ -392,3 +394,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def main():
+    logging.debug("Hi")
+    print("hi")
