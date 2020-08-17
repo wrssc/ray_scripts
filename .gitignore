@@ -17,5 +17,11 @@ github.xml
 diff.xml
 code.style.schemes.xml
 _windows/
+_windows/*
 codestyles/
-.vscode/settings.json
+codestyles/*
+.vscode
+.vscode/*
+*.history
+.env
+.pylintrc

@@ -95,6 +95,9 @@ class Beam(object):
         self.jaw_mode = None
         self.back_jaw_position = None
         self.front_jaw_position = None
+        self.max_gantry_period = None
+        self.max_delivery_time = None
+        self.max_delivery_time_factor = None
         self.dsp = None
 
     def __eq__(self, other):
@@ -112,7 +115,10 @@ class Beam(object):
                and self.pitch == other.pitch \
                and self.jaw_mode == other.jaw_mode \
                and self.back_jaw_position == other.back_jaw_position \
-               and self.front_jaw_position == other.front_jaw_position
+               and self.front_jaw_position == other.front_jaw_position \
+               and self.max_delivery_time == other.max_delivery_time \
+               and self.max_delivery_time_factor == other.max_delivery_time_factor \
+               and self.max_gantry_period == other.max_gantry_period
 
     def __hash__(self):
         return hash((
@@ -469,9 +475,9 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             # PitchTomoDirect=,
             BackJawPosition=beam.back_jaw_position,
             FrontJawPosition=beam.front_jaw_position,
-            MaxDeliveryTime=None,
-            MaxGantryPeriod=None,
-            MaxDeliveryTimeFactor=None)
+            MaxDeliveryTime=beam.max_delivery_time,
+            MaxGantryPeriod=beam.max_gantry_period,
+            MaxDeliveryTimeFactor=beam.max_delivery_time_factor)
 
 
 def check_pa(plan, beam):
@@ -668,7 +674,7 @@ def rename_beams():
     patient_position = beamset.PatientPosition
     # Turn on set-up fields
     beamset.PatientSetup.UseSetupBeams = True
-    logging.debug('Renaming and adding set up fields to Beam Set with name {}, patient position {}, technique {}'.
+    logging.debug('Renaming and adding set up fields to Beam Set with name {}, patdelivery_time_factor {}, technique {}'.
                   format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
     # Rename isocenters
     for b in beamset.Beams:
@@ -2247,25 +2253,69 @@ def load_beams_xml(filename, beamset_name, path):
             else:
                 beam.couch_angle = float(b.find('CouchAngle').text)
 
-            if b.find('FieldWidth') is None:
+            try:
+                if b.find('FieldWidth') is None:
+                    beam.field_width = None
+                else:
+                    beam.field_width = float(b.find('FieldWidth').text)
+            except AttributeError:
                 beam.field_width = None
-            else:
-                beam.field_width = float(b.find('FieldWidth').text)
 
-            if b.find('Pitch') is None:
+            try:
+                if b.find('Pitch') is None:
+                    beam.pitch = None
+                else:
+                    beam.pitch = float(b.find('Pitch').text)
+            except AttributeError:
                 beam.pitch = None
-            else:
-                beam.pitch = float(b.find('Pitch').text)
 
-            if b.find('JawMode') is None:
+            try:
+                if b.find('JawMode') is None:
+                    beam.jaw_mode = None
+                else:
+                    beam.jaw_mode = b.find('JawMode').text
+            except AttributeError:
                 beam.jaw_mode = None
-            else:
-                beam.jaw_mode = float(b.find('JawMode').text)
 
-            if b.find('BackJawPosition') is None:
+            try:
+                if b.find('BackJawPosition') is None:
+                    beam.back_jaw_position = None
+                else:
+                    beam.back_jaw_position = float(b.find('BackJawPosition').text)
+            except AttributeError:
                 beam.back_jaw_position = None
-            else:
-                beam.back_jaw_position = float(b.find('BackJawPosition').text)
+
+            try:
+                if b.find('FrontJawPosition') is None:
+                    beam.front_jaw_position = None
+                else:
+                    beam.front_jaw_position = float(b.find('FrontJawPosition').text)
+            except AttributeError:
+                beam.front_jaw_position = None
+            
+            try:
+                if b.find('MaxDeliveryTime') is None:
+                    beam.max_delivery_time = None
+                else:
+                    beam.max_delivery_time = float(b.find('MaxDeliveryTime').text)
+            except AttributeError:
+                beam.max_delivery_time = None
+            
+            try:
+                if b.find('MaxGantryPeriod') is None:
+                    beam.max_gantry_period is None
+                else:
+                    beam.max_gantry_period = float(b.find('MaxGantryPeriod').text)
+            except AttributeError:
+                beam.max_gantry_period is None
+            
+            try:
+                if b.find('MaxDeliveryTimeFactor') is None:
+                    beam.max_delivery_time_factor is None
+                else:
+                    beam.max_delivery_time_factor = float(b.find('MaxDeliveryTimeFactor').text)
+            except AttributeError:
+                beam.max_delivery_time_factor is None
 
             beams.append(beam)
     return beams

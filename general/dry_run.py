@@ -145,7 +145,14 @@ def main():
             'input5_target'])
 
     # Launch the dialog
-    print input_dialog.show()
+    response =  input_dialog.show()
+    # Close on cancel
+    if response == {}:
+        logging.info('dry_run cancelled by user')
+        sys.exit('dry_run cancelled by user')
+    else:
+        logging.debug('User selected isocenter in target: {}'.format(
+            input_dialog.values['input5_target']))
 
     # plan_name = input_dialog.values['input1_plan_name']
     # site = input_dialog.values['input2_site']
@@ -295,7 +302,7 @@ def main():
     angles = []
     for k, v in set_up.iteritems():
         angles.append(v[2])
-        print "v2={}".format(v[2])
+        logging.debug("v2={}".format(v[2]))
 
     beamset.UpdateSetupBeams(ResetSetupBeams=True,
                              SetupBeamsGantryAngles=angles)

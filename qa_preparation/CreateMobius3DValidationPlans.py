@@ -691,7 +691,7 @@ def main():
                                                  EnableDynamicTrackingForVero=False)
 
                     # Add beam
-                    print 'Creating beam {}'.format(a)
+                    print('Creating beam {}'.format(a))
                     beam = beamset.CreatePhotonBeam(Energy=e,
                                                     IsocenterData={'Position': {'x': iso[0], 'y': iso[1], 'z': iso[2]},
                                                                    'NameOfIsocenterToRef': '',

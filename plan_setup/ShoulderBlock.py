@@ -119,8 +119,9 @@ def main():
                                           beamset_name=par_beam_set.protocol_name,
                                           path=path_protocols)
 
-    logging.debug('Beamset: {} has beams originating from protocol beamset {} in file {} at {}'.format(
-        rs_beam_set.DicomPlanLabel, par_beam_set.protocol_name, file, path_protocols))
+    logging.debug(
+        'Beamset: {} has beams originating from protocol beamset {} in file {} at {}'.format(
+            rs_beam_set.DicomPlanLabel, par_beam_set.protocol_name, file, path_protocols))
 
     # Place isocenter
     try:
@@ -154,8 +155,10 @@ def main():
     ])))
 
     if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_left)):
-        connect.await_user_input(('Ensure the point {} is at the left acromial-clavicular joint' +
-                                  ' and continue script.').format(shoulder_poi_left))
+        connect.await_user_input(
+            'Ensure the point {} is at the left acromial-clavicular joint'.format(
+                shoulder_poi_left) +
+            ' and continue script.')
     else:
         case.PatientModel.CreatePoi(Examination=exam,
                                     Point=par_beam_set.iso['Position'],
@@ -164,10 +167,13 @@ def main():
                                     Color='Green',
                                     VisualizationDiameter=2,
                                     Type='Control')
-        connect.await_user_input(('Place the point {} at the left acromial-clavicular joint' +
-                                  ' and continue script.'.format(shoulder_poi_left)))
+        connect.await_user_input(
+            'Place the point {} at the left acromial-clavicular joint'.format(shoulder_poi_left) +
+            ' and continue script.')
 
-    shoulder_left_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_left]
+    shoulder_left_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[
+        shoulder_poi_left]
+    # TODO: Check the positions to make sure they are the same still.
     logging.debug('The value of the x={}, y={}, z={}'.format(
         shoulder_left_position.Point.x,
         shoulder_left_position.Point.y,
@@ -175,8 +181,10 @@ def main():
 
     status.next_step('Placing right shoulder blocking point')
     if any(StructureOperations.exists_poi(case=case, pois=shoulder_poi_right)):
-        connect.await_user_input(('Ensure the point {} is at the right acromial-clavicular joint' +
-                                  ' and continue script.').format(shoulder_poi_right))
+        connect.await_user_input(
+            'Ensure the point {} is at the right acromial-clavicular joint'.format(
+                shoulder_poi_right) +
+            ' and continue script.')
     else:
         case.PatientModel.CreatePoi(Examination=exam,
                                     Point=par_beam_set.iso['Position'],
@@ -185,16 +193,19 @@ def main():
                                     Color='Yellow',
                                     VisualizationDiameter=2,
                                     Type='Control')
-        connect.await_user_input(('Place the point {} at the right acromial-clavicular joint' +
-                                  ' and continue script.'.format(shoulder_poi_right)))
+        connect.await_user_input(
+            'Place the point {} at the right acromial-clavicular joint'.format(shoulder_poi_right) +
+            ' and continue script.')
 
-    shoulder_right_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[shoulder_poi_right]
+    shoulder_right_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[
+        shoulder_poi_right]
 
     # Test if right is more negative than left
     left = StructureOperations.convert_poi(shoulder_left_position)
     right = StructureOperations.convert_poi(shoulder_right_position)
     if left[0] < right[0]:
-        UserInterface.WarningBox('Script aborted, left and right shoulder points appear to be flipped')
+        UserInterface.WarningBox(
+            'Script aborted, left and right shoulder points appear to be flipped')
         status.finish('Script aborted, left and right shoulder points appear to be flipped')
         sys.exit('Script aborted, left and right shoulder points appear to be flipped')
 
@@ -221,8 +232,10 @@ def main():
     yi = iso_position['z']
 
     # Add a margin based on the visualization diameter of the point
-    yl_margin = float(case.PatientModel.PointsOfInterest[shoulder_poi_left].VisualizationDiameter) / 2.
-    yr_margin = float(case.PatientModel.PointsOfInterest[shoulder_poi_right].VisualizationDiameter) / 2.
+    yl_margin = float(
+        case.PatientModel.PointsOfInterest[shoulder_poi_left].VisualizationDiameter) / 2.
+    yr_margin = float(
+        case.PatientModel.PointsOfInterest[shoulder_poi_right].VisualizationDiameter) / 2.
 
     xl = shoulder_left_position.Point.x
     yl = shoulder_left_position.Point.z
@@ -240,7 +253,8 @@ def main():
     i = 0
     while i is not None:
         try:
-            opt_setup = plan.PlanOptimizations[opt_index].OptimizationParameters.TreatmentSetupSettings[i]
+            opt_setup = \
+            plan.PlanOptimizations[opt_index].OptimizationParameters.TreatmentSetupSettings[i]
             if opt_setup.ForTreatmentSetup.DicomPlanLabel == rs_beam_set.DicomPlanLabel:
                 i = None
             else:
@@ -272,10 +286,12 @@ def main():
             else:
                 y1_limit = left_y1
 
-            logging.info('Beam {} enters through the shoulder and will have jaw locked to less than y1 = {}'.format(
-                b.ForBeam.Name, y1_limit))
+            logging.info(
+                'Beam {} enters through the shoulder and will have jaw locked to less than y1 = {}'.format(
+                    b.ForBeam.Name, y1_limit))
 
-            success = BeamOperations.check_beam_limits(b.ForBeam.Name, plan=plan, beamset=rs_beam_set,
+            success = BeamOperations.check_beam_limits(b.ForBeam.Name, plan=plan,
+                                                       beamset=rs_beam_set,
                                                        limit=[x1limit, x2limit, y1_limit, y2limit],
                                                        change=True, verbose_logging=False)
             if not success:

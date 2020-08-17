@@ -2,7 +2,28 @@
 
     Contains functions required to load objectives from xml files
     add the beams to RayStation.
-"""
+    
+    Known Issues:
+    
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
+    """
+
+__author__ = 'Adam Bayliss'
+__contact__ = 'rabayliss@wisc.edu'
+__version__ = '1.0.0'
+__license__ = 'GPLv3'
+__help__ = 'https://github.com/wrssc/ray_scripts/wiki/User-Interface'
+__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+
 import sys
 import os
 import logging
@@ -262,7 +283,7 @@ def select_element(set_level, set_type, set_elements,
 
     if et_list is not None:
         for e in et_list:
-            logging.info('Objective list to be loaded {}'.format(
+            logging.info('{} list to be loaded {}'.format(set_level,
                 e.find('name').text))
     else:
         logging.warning('objective files were not found')

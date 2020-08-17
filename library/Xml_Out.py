@@ -46,7 +46,7 @@ def save_structure_map():
     local_dose.text = '40'
     local_dose.set('units','Gy')
 
-    print prettify(top)
+    print(prettify(top))
     xmlstr = minidom.parseString(ET.tostring(top)).toprettyxml(indent="   ")
     full_path_filename = os.path.normpath('{}/{}'.format(m_logs_dir, filename))
     with open(full_path_filename, "w") as f:
