@@ -2560,6 +2560,94 @@
                 <priority>3</priority>
             </roi>
         </goals>
+        <objectives>
+            <roi>
+                <name>PTV_p</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="95">100</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Esophagus_PRV05</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">102.2</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">102.2</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Lungs-CTV</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lungs-CTV">45</volume>
+                <dose units="Gy">5</dose>
+                <weight>0.01</weight>
+            </roi>
+            <roi>
+                <name>Lungs-CTV</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lungs-CTV">20</volume>
+                <dose units="Gy">20</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">53.3</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV03</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">62.2</dose>
+                <weight>0.1</weight>
+            </roi>
+        </objectives>
     </order>
     <order>
         <name>Right Lung [45 Gy]</name>
@@ -2877,6 +2965,94 @@
                 <priority>3</priority>
             </roi>
         </goals>
+        <objectives>
+            <roi>
+                <name>PTV_p</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="95">100</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Esophagus_PRV05</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">102.2</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">102.2</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Lungs-CTV</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lungs-CTV">45</volume>
+                <dose units="Gy">5</dose>
+                <weight>0.01</weight>
+            </roi>
+            <roi>
+                <name>Lungs-CTV</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lungs-CTV">20</volume>
+                <dose units="Gy">20</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">53.3</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV03</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">62.2</dose>
+                <weight>0.1</weight>
+            </roi>
+        </objectives>
     </order>
     <order>
         <name>Medi Lung [45 Gy]</name>
@@ -3194,6 +3370,94 @@
                 <priority>3</priority>
             </roi>
         </goals>
+        <objectives>
+            <roi>
+                <name>PTV_p</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="95">100</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Esophagus_PRV05</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">102.2</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">102.2</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Lungs-CTV</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lungs-CTV">45</volume>
+                <dose units="Gy">5</dose>
+                <weight>0.01</weight>
+            </roi>
+            <roi>
+                <name>Lungs-CTV</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lungs-CTV">20</volume>
+                <dose units="Gy">20</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">53.3</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV03</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">62.2</dose>
+                <weight>0.1</weight>
+            </roi>
+        </objectives>
     </order>
     <objectiveset>
         <name>Standard Fractionation Lung</name>
