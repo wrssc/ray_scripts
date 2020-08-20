@@ -2569,7 +2569,7 @@
             <roi>
                 <name>PTV_p</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">109.7</dose>
+                <dose units="%" roi="PTV_p">105.5</dose>
                 <weight>25</weight>
             </roi>
             <roi>
@@ -2592,7 +2592,7 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="50">100</dose>
                 <weight>1</weight>
             </roi>
@@ -2604,7 +2604,7 @@
             </roi>
             <roi>
                 <name>Heart</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="50">100</dose>
                 <weight>1</weight>
             </roi>
@@ -2974,7 +2974,7 @@
             <roi>
                 <name>PTV_p</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">109.7</dose>
+                <dose units="%" roi="PTV_p">105.5</dose>
                 <weight>25</weight>
             </roi>
             <roi>
@@ -2997,7 +2997,7 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="50">100</dose>
                 <weight>1</weight>
             </roi>
@@ -3009,7 +3009,7 @@
             </roi>
             <roi>
                 <name>Heart</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="50">100</dose>
                 <weight>1</weight>
             </roi>
@@ -3379,7 +3379,7 @@
             <roi>
                 <name>PTV_p</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">109.7</dose>
+                <dose units="%" roi="PTV_p">105.5</dose>
                 <weight>25</weight>
             </roi>
             <roi>
@@ -3402,7 +3402,7 @@
             </roi>
             <roi>
                 <name>Esophagus</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="50">100</dose>
                 <weight>1</weight>
             </roi>
@@ -3414,7 +3414,7 @@
             </roi>
             <roi>
                 <name>Heart</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="50">100</dose>
                 <weight>1</weight>
             </roi>
