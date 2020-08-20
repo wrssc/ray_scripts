@@ -453,7 +453,7 @@ def add_objective(obj, exam, case, plan, beamset,
         logging.debug('DFO object found.  High Dose: {}, Low Dose: {}, Distance: {}'.format(
             high_dose, low_dose, low_dose_dist))
         logging.debug('DFO object cont.  s_dose: {}, Low attrib: {}, percent {}'.format(
-            float(s_dose), obj.find('dose').attrib['low'],float(obj.find('dose').attrib['low'])/100))
+            float(s_dose), obj.find('dose').attrib['low'],100 * float(s_dose) * float(obj.find('dose').attrib['low'])/100))
     if 'robust' in obj.find('type').attrib:
         if obj.find('type').attrib['robust'] == 'False':
             robust = False
