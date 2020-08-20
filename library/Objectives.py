@@ -369,7 +369,7 @@ def add_objective(obj, exam, case, plan, beamset,
             volume = int(obj.find('volume').text)
     # Modify the dose tag if relative
     if s_dose:
-        if obj.find('dose').attrib["units"] == "%":
+        if obj.find('dose').attrib["units"] == "%" and not obj.find('type').text == 'DFO':
             weighted_dose = float(s_dose) * float(obj.find('dose').text) / 100
             logging.debug('ROI: {} Protocol dose {} {} substituted with {} Gy'.format(
                 obj.find('name').text, obj.find('dose').text, obj.find('dose').attrib["units"],
@@ -452,8 +452,6 @@ def add_objective(obj, exam, case, plan, beamset,
             logging.warning('Unknown low dose distance for Dose Fall Off')
         logging.debug('DFO object found.  High Dose: {}, Low Dose: {}, Distance: {}'.format(
             high_dose, low_dose, low_dose_dist))
-        logging.debug('DFO object cont.  s_dose: {}, Low attrib: {}, attrib {}'.format(
-            float(s_dose), obj.find('dose').attrib['low'],obj.find('dose').attrib['units']))
     if 'robust' in obj.find('type').attrib:
         if obj.find('type').attrib['robust'] == 'False':
             robust = False
