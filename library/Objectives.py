@@ -374,8 +374,11 @@ def add_objective(obj, exam, case, plan, beamset,
             logging.debug('ROI: {} Protocol dose {} {} substituted with {} Gy'.format(
                 obj.find('name').text, obj.find('dose').text, obj.find('dose').attrib["units"],
                 weighted_dose))
-            if not obj.find('type').text == 'DFO':
-                obj.find('dose').attrib["units"] = "Gy"
+            if obj.find('type').text == 'DFO':
+                low_dose =  float(s_dose) * float(obj.find('dose').attrib['low']) / 100
+                obj.find('dose').attrib['low'] = low_dose
+                
+            obj.find('dose').attrib["units"] = "Gy"
             # Change the element to the substitute dose times the percentage of the reference
             obj.find('dose').text = weighted_dose
             dose = float(obj.find('dose').text) * 100
