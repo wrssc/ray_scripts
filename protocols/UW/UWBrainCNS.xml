@@ -1807,7 +1807,7 @@
             <roi>
                 <name>Hippocampus_L</name>
                 <type a="1">MaxEud</type>
-                <dose units="Gy">10</dose>
+                <dose units="Gy">9</dose>
                 <weight>1000</weight>
             </roi>
             <roi>
@@ -1819,13 +1819,13 @@
             <roi>
                 <name>Hippocampus_L_PRV05</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
                 <weight>100</weight>
             </roi>
             <roi>
                 <name>Hippocampus_R</name>
                 <type a="1">MaxEud</type>
-                <dose units="Gy">10</dose>
+                <dose units="Gy">9</dose>
                 <weight>1000</weight>
             </roi>
             <roi>
@@ -1837,7 +1837,7 @@
             <roi>
                 <name>Hippocampus_R_PRV05</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <dose units="%" roi="PTV_p" low="5">100</dose>
                 <weight>100</weight>
             </roi>
             <roi>
@@ -1908,15 +1908,15 @@
             </roi>
             <roi>
                 <name>OTV1_</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p">109.7</dose>
-                <weight>30</weight>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">83.3</dose>
+                <weight>5000</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
-                <type>UD</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
-                <weight>0</weight>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">109.7</dose>
+                <weight>30</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -1926,15 +1926,15 @@
             </roi>
             <roi>
                 <name>OTV1_</name>
-                <type>Min</type>
-                <dose units="%" roi="PTV_p">83.3</dose>
-                <weight>5000</weight>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>0</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type dir="gt">DX</type>
-                <volume units="%" roi="OTV_1">98</volume>
-                <dose units="%" roi="PTV_p">83.3</dose>
+                <volume units="%" roi="OTV_1">99</volume>
+                <dose units="%" roi="PTV_p">90</dose>
                 <weight>1200</weight>
             </roi>
             <roi>
@@ -1942,7 +1942,7 @@
                 <type dir="gt">DX</type>
                 <volume units="%" roi="OTV_1">97</volume>
                 <dose units="%" roi="PTV_p">102.5</dose>
-                <weight>1200</weight>
+                <weight>3600</weight>
             </roi>
             <roi>
                 <name>PTV_p</name>
@@ -1971,8 +1971,20 @@
             <roi>
                 <name>sOTVu1_</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
-                <weight>50</weight>
+                <dose units="%" roi="PTV_p">98.0</dose>
+                <weight>2500</weight>
+            </roi>
+            <roi>
+                <name>sOTVu1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">98</dose>
+                <weight>4000</weight>
+            </roi>
+            <roi>
+                <name>sOTVu1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">100</dose>
+                <weight>5000</weight>
             </roi>
             <roi>
                 <name>Ring_LD</name>
