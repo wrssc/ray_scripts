@@ -1935,14 +1935,14 @@
                 <type dir="gt">DX</type>
                 <volume units="%" roi="OTV_1">99</volume>
                 <dose units="%" roi="PTV_p">90</dose>
-                <weight>1200</weight>
+                <weight>400</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="OTV_1">97</volume>
                 <dose units="%" roi="PTV_p">102.5</dose>
-                <weight>3600</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>PTV_p</name>
@@ -1972,19 +1972,19 @@
                 <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">98.0</dose>
-                <weight>2500</weight>
+                <weight>5</weight>
             </roi>
             <roi>
                 <name>sOTVu1_</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_p">98</dose>
-                <weight>4000</weight>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>sOTVu1_</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p">100</dose>
-                <weight>5000</weight>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>Ring_LD</name>
