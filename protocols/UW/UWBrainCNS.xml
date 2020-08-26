@@ -1807,7 +1807,7 @@
             <roi>
                 <name>Hippocampus_L</name>
                 <type a="1">MaxEud</type>
-                <dose units="Gy">10.9</dose>
+                <dose units="Gy">10</dose>
                 <weight>1000</weight>
             </roi>
             <roi>
@@ -1825,7 +1825,7 @@
             <roi>
                 <name>Hippocampus_R</name>
                 <type a="1">MaxEud</type>
-                <dose units="Gy">10.9</dose>
+                <dose units="Gy">10</dose>
                 <weight>1000</weight>
             </roi>
             <roi>
@@ -1873,38 +1873,38 @@
             <roi>
                 <name>OpticChiasm</name>
                 <type>Max</type>
-                <dose units="Gy">29.5</dose>
-                <weight>100</weight>
+                <dose units="Gy">27</dose>
+                <weight>1000</weight>
             </roi>
             <roi>
                 <name>OpticChiasm_PRV03</name>
                 <type>Max</type>
                 <dose units="Gy">30</dose>
-                <weight>0.1</weight>
+                <weight>1</weight>
             </roi>
             <roi>
                 <name>OpticNrv_L</name>
                 <type>Max</type>
-                <dose units="Gy">30</dose>
-                <weight>100</weight>
+                <dose units="Gy">27</dose>
+                <weight>1000</weight>
             </roi>
             <roi>
                 <name>OpticNrv_L_PRV03</name>
                 <type>Max</type>
                 <dose units="Gy">30</dose>
-                <weight>0.1</weight>
+                <weight>1</weight>
             </roi>
             <roi>
                 <name>OpticNrv_R</name>
                 <type>Max</type>
-                <dose units="Gy">30</dose>
-                <weight>100</weight>
+                <dose units="Gy">27</dose>
+                <weight>1000</weight>
             </roi>
             <roi>
                 <name>OpticNrv_R_PRV03</name>
                 <type>Max</type>
                 <dose units="Gy">30</dose>
-                <weight>0.1</weight>
+                <weight>1</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -1916,7 +1916,7 @@
                 <name>OTV1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
-                <weight>25</weight>
+                <weight>0</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -1928,7 +1928,7 @@
                 <name>OTV1_</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_p">83.3</dose>
-                <weight>2500</weight>
+                <weight>5000</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -1940,7 +1940,7 @@
             <roi>
                 <name>OTV1_</name>
                 <type dir="gt">DX</type>
-                <volume units="%" roi="OTV_1">96</volume>
+                <volume units="%" roi="OTV_1">97</volume>
                 <dose units="%" roi="PTV_p">102.5</dose>
                 <weight>1200</weight>
             </roi>
