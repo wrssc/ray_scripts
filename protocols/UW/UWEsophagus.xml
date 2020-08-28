@@ -273,14 +273,28 @@
             <priority>1</priority>
         </roi>
         <roi>
-            <name>Bowel_Small</name>
+            <name>Bag_Bowel</name>
             <type>Max</type>
             <volume units="%">0.1</volume>
             <dose units="Gy">45</dose>
             <priority>3</priority>
         </roi>
         <roi>
-            <name>Bowel_Small</name>
+            <name>Bag_Bowel</name>
+            <type>Max</type>
+            <volume units="%">0.1</volume>
+            <dose units="Gy">52</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Bag_Bowel</name>
+            <type>Max</type>
+            <volume units="%">0.1</volume>
+            <dose units="Gy">45</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Bag_Bowel</name>
             <type>Max</type>
             <volume units="%">0.1</volume>
             <dose units="Gy">52</dose>
