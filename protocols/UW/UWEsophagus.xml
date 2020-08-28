@@ -247,6 +247,18 @@
             <priority>3</priority>
         </roi>
         <roi>
+            <name>Liver</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Liver</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">25</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
             <name>Skin_PRV03</name>
             <type>Max</type>
             <volume units="%">0.1</volume>
