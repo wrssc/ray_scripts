@@ -267,24 +267,38 @@
         <goals>
             <roi>
                 <name>PTV_sib</name>
-                <type dir="ge">VX</type>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_sib">88.89</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">DX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_sib">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_sib">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_sib</name>
                 <type dir="le">VX</type>
-                <volume units="%">98</volume>
+                <volume units="%">2</volume>
                 <dose units="%" roi="PTV_sib">110</dose>
-                <priority>2</priority>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_mOLV</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_mOLV">95</dose>
-                <priority>2</priority>
+                <dose units="%" roi="PTV_p_mOLV">100</dose>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_mOLV</name>
@@ -295,9 +309,23 @@
             </roi>
             <roi>
                 <name>PTV_p_mOLV</name>
-                <type dir="ge">VX</type>
+                <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p_mOLV">87.5</dose>
+                <dose units="%" roi="PTV_p_mOLV">96.5</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_mOLV</name>
+                <type dir="gt" know="resid_vol">VX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_mOLV">96.5</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_OLV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p_OLV">93.8</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -305,6 +333,13 @@
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_OLV">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_OLV</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p_OLV">115.86</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -312,6 +347,13 @@
                 <type dir="le">VX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_OLV">115.86</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_OLV</name>
+                <type dir="gt" know="resid_vol">VX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_mOLV">93.79</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -319,7 +361,7 @@
                 <type dir="ge">VX</type>
                 <volume units="%">98</volume>
                 <dose units="%" roi="PTV_p_OLV">93.79</dose>
-                <priority>2</priority>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>Bladder</name>
@@ -576,9 +618,9 @@
         <goals>
             <roi>
                 <name>PTV_p_mOLV</name>
-                <type dir="ge">VX</type>
+                <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_mOLV">95</dose>
+                <dose units="%" roi="PTV_p_mOLV">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -586,13 +628,20 @@
                 <type dir="le">VX</type>
                 <volume units="%">15</volume>
                 <dose units="%" roi="PTV_p_mOLV">103.33</dose>
-                <priority>2</priority>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_mOLV</name>
-                <type dir="ge">VX</type>
+                <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p_mOLV">93.33</dose>
+                <dose units="%" roi="PTV_p_mOLV">96</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_mOLV</name>
+                <type dir="gt" know="resid_vol">VX</type>
+                <volume units="cc">1</volume>
+                <dose units="%" roi="PTV_p_mOLV">96</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -600,6 +649,13 @@
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_p_OLV">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_OLV</name>
+                <type dir="le">VX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="%" roi="PTV_p_OLV">110.345</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -607,12 +663,19 @@
                 <type dir="le">VX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_OLV">110.345</dose>
-                <priority>2</priority>
+                <priority>4</priority>
             </roi>
             <roi>
                 <name>PTV_p_OLV</name>
-                <type dir="ge">VX</type>
+                <type dir="ge">DX</type>
                 <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p_OLV">93.79</dose>
+                <priority>4</priority>
+            </roi>
+             <roi>
+                <name>PTV_p_OLV</name>
+                <type dir="gt" know="resid_vol">VX</type>
+                <volume units="cc">1</volume>
                 <dose units="%" roi="PTV_p_OLV">93.79</dose>
                 <priority>2</priority>
             </roi>
