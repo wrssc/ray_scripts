@@ -1286,6 +1286,13 @@
         </prescription>
         <goals>
             <roi>
+                <name>OTV1_</name>
+                <type dir="le">VX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p">115</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_p</name>
                 <type dir="le">VX</type>
                 <volume units="%">2</volume>
