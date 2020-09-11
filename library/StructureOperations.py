@@ -1346,9 +1346,13 @@ def check_derivation(case, examination, **kwargs):
     if result_operations is None:
         logging.debug("current_margins is None")
         return False
-    if result_operations.ExpandContractType != MarginTypeR:
-        logging.debug("Result expand contract type mismatch")
-        return False
+    try:
+        if result_operations.ExpandContractType != MarginTypeR:
+            logging.debug("Result expand contract type mismatch")
+            return False
+    except AttributeError:
+        logging.debug('Structure {} does not require MarginTypeR argument, no check performed'
+            .format(StructureName))
     if result_operations.SuperiorDistance != ExpR[0]:
         logging.debug("Result superior distance")
         return False
