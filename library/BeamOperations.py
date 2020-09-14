@@ -577,7 +577,7 @@ def update_set_up(beamset, set_up):
     """
     # Extract the angles
     angles = []
-    for k, v in set_up.iteritems():
+    for k, v in set_up.items():
         angles.append(v[2])
     # Initialize the Setup Beams
     beamset.UpdateSetupBeams(ResetSetupBeams=True, SetupBeamsGantryAngles=angles)

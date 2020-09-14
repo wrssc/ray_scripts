@@ -300,7 +300,7 @@ def main():
               }
     # Extract the angles
     angles = []
-    for k, v in set_up.iteritems():
+    for k, v in set_up.items():
         angles.append(v[2])
         logging.debug("v2={}".format(v[2]))
 

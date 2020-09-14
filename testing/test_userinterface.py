@@ -34,7 +34,7 @@ def test_simple_interface(check_list=True):
             sys.exit('Selection of planning structure options was cancelled')
 
         message = ''
-        for k, v in sample_dialog.values.iteritems():
+        for k, v in sample_dialog.values.items():
             message += k + ' : ' + str(v) + '\n'
 
         UserInterface.MessageBox(message)

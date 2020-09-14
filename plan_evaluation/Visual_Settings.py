@@ -77,11 +77,11 @@ def isodose_reconfig(case, ref_dose, max_dose=None, levels=None):
                        105: so.define_sys_color([255, 0, 127]),
                        max_isodose: so.define_sys_color([128, 20, 20])}
     else:
-        for k, v in levels.iteritems():
+        for k, v in levels.items():
             dose_levels[k] = so.define_sys_color(levels[k])
 
     dose_color_table = {}
-    for k, v in dose_levels.iteritems():
+    for k, v in dose_levels.items():
         dose_color_table[k] = v
 
     case.CaseSettings.DoseColorMap.ColorTable = dose_color_table

@@ -220,14 +220,14 @@ def main():
         match_file.write('SeriesDescription:{},'.format(series_description))
         match_file.write('Beamset:{},'.format(beamset_name))
         i = 0
-        for k, v in results.iteritems():
+        for k, v in results.items():
             match_file.write('{v}:{k},'.format(k=k, v=v))
         match_file.write('\n')
 
     ## with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory)) as csvfile:
     ##     label_data = csv.DictReader(csvfile)
     ##     for row in label_data:
-    ##         for k, v in row.iteritems():
+    ##         for k, v in row.items():
     ##             logging.debug('Match {} to user input {}'.format(k, v))
 
 

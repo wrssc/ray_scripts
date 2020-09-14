@@ -934,7 +934,7 @@ def add_goals_and_structures_from_protocol(patient=None, case=None, plan=None, b
         #  seems like the next two loops could be combined, but
         #  since dict cycling isn't ordered I don't know how to create
         #  a blank element space
-        for k, v in target_dialog.values.iteritems():
+        for k, v in target_dialog.values.items():
             if len(v) > 0:
                 i, p = k.split("_", 1)
                 if p not in translation_map:
@@ -1424,7 +1424,7 @@ def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
     if target_map:
         translation_map = target_map
     ## 	else:
-    ## 		for k, v in target_dialog.values.iteritems():
+    ## 		for k, v in target_dialog.values.items():
     ## 		    if len(v) > 0:
     ## 			    i, p = k.split("_", 1)
     ## 			    if p not in translation_map:

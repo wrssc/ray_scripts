@@ -1118,7 +1118,7 @@ def match_dialog(matches, elements, df_rois=None):
     ] = "Structures that cannot be renamed should have suffix, e.g. (_R or _A):"
     initial[k_copy] = "_R"
     datatype[k_copy] = "text"
-    for k, v in matches.iteritems():
+    for k, v in matches.items():
         inputs[k] = k
         datatype[k] = "combo"
         options[k] = [x[1] for x in v]
@@ -1142,7 +1142,7 @@ def match_dialog(matches, elements, df_rois=None):
     # Figure out if we are copying or renaming.
     dialog_result["Suffix"] = response[k_copy]
     df_matches = {}
-    for r, m in response.iteritems():
+    for r, m in response.items():
         # Manage responses
         if r != k_copy:
             # Change the name of r to m
@@ -1730,7 +1730,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
     potential_matches_exacts_removed = potential_matches.copy()
     exact_match = []
     # Search the match list and if an exact match is found, pop the key
-    for roi, match in potential_matches.iteritems():
+    for roi, match in potential_matches.items():
         if re.match(r"^" + roi + r"$", match[0][1]):
             potential_matches_exacts_removed.pop(roi)
             exact_match.append(match[0][1])
@@ -1745,7 +1745,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
     ##return_rois = {}
     # matched_rois now contains:
     # the keys as the planning structures, and the elementtree element found to match (or None)
-    for k, v in matched_rois.iteritems():
+    for k, v in matched_rois.items():
         # If no match was made, v will be None otherwise,
         # if there is no match in the protocols, a user-supplied
         # value can be used for the name. If it was matched then
@@ -1872,7 +1872,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                                 RoiA=k, RoiB=roi_geom.OfRoi.Name
                             )
                             validation_message = []
-                            for metric, value in geometry_validation.iteritems():
+                            for metric, value in geometry_validation.items():
                                 validation_message.append(
                                     str(metric) + ":" + str(value)
                                 )
@@ -3268,7 +3268,7 @@ def planning_structures(
         input_source_list = [None] * number_of_targets
         source_doses = [None] * number_of_targets
         indx = 0
-        for k, v in dialog2_response.iteritems():
+        for k, v in dialog2_response.items():
             input_source_list[indx] = k
             source_doses[indx] = str(int(v))
             indx += 1
@@ -3314,7 +3314,7 @@ def planning_structures(
         # Process inputs
         input_source_list = [None] * number_of_targets
         source_doses = [None] * number_of_targets
-        for k, v in dialog2_response.iteritems():
+        for k, v in dialog2_response.items():
             # Grab the first two characters in the key and convert to an index
             i_char = k[:2]
             indx = int(i_char) - 1 - initial_target_offset
@@ -3660,7 +3660,7 @@ def planning_structures(
         [179, 179, 128],  # BrewerUnsatYellow
     ]
 
-    for k, v in translation_mapping.iteritems():
+    for k, v in translation_mapping.items():
         logging.debug("The translation map k is {} and v {}".format(k, v))
 
     if generate_skin:
