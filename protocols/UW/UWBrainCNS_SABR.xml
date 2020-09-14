@@ -178,24 +178,10 @@
         </roi>
         <roi>
             <name>Brain-PTV</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="%" roi="PTV_p">105</dose>
-            <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Brain-PTV</name>
             <type>VX</type>
             <dose units="Gy">22</dose>
             <volume units="cc">50</volume>
             <priority>1</priority>
-        </roi>
-        <roi>
-            <name>Brain-PTV</name>
-            <type>Max</type>
-            <volume units="cc">0.03</volume>
-            <dose units="Gy">30</dose>
-            <priority>3</priority>
         </roi>
         <roi>
             <name>Brainstem</name>
@@ -237,7 +223,8 @@
         </roi>
         <roi>
             <name>SpinalCord_PRV05</name>
-            <type>Max</type>
+            <type>VX</type>
+            <volume units="%">2</volume>
             <dose units="Gy">24</dose>
             <priority>3</priority>
         </roi>
@@ -255,7 +242,8 @@
         </roi>
         <roi>
             <name>OpticChiasm_PRV03</name>
-            <type>Max</type>
+            <type>VX</type>
+            <volume units="%">2</volume>
             <dose units="Gy">23</dose>
             <priority>3</priority>
         </roi>
@@ -273,7 +261,8 @@
         </roi>
         <roi>
             <name>OpticNrv_L_PRV03</name>
-            <type>Max</type>
+            <type>VX</type>
+            <volume units="%">2</volume>
             <dose units="Gy">23</dose>
             <priority>3</priority>
         </roi>
@@ -291,7 +280,8 @@
         </roi>
         <roi>
             <name>OpticNrv_R_PRV03</name>
-            <type>Max</type>
+            <type>VX</type>
+            <volume units="%">2</volume>
             <dose units="Gy">23</dose>
             <priority>3</priority>
         </roi>

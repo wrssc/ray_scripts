@@ -1324,7 +1324,7 @@ def iter_standard_rois(etree):
 def check_derivation(case, examination, **kwargs):
     """
     Will need an existing structure where StructureName is
-    
+    TODO: Write a check_derivation for "Wall types"
     """
     StructureName = kwargs.get("StructureName")
     SourcesA = kwargs.get("SourcesA")
@@ -1346,27 +1346,32 @@ def check_derivation(case, examination, **kwargs):
     if result_operations is None:
         logging.debug("current_margins is None")
         return False
-    if result_operations.ExpandContractType != MarginTypeR:
-        logging.debug("Result expand contract type mismatch")
-        return False
-    if result_operations.SuperiorDistance != ExpR[0]:
-        logging.debug("Result superior distance")
-        return False
-    if result_operations.InferiorDistance != ExpR[1]:
-        logging.debug("Result inferior distance")
-        return False
-    if result_operations.AnteriorDistance != ExpR[2]:
-        logging.debug("Result anterior distance")
-        return False
-    if result_operations.PosteriorDistance != ExpR[3]:
-        logging.debug("Result posterior distance")
-        return False
-    if result_operations.RightDistance != ExpR[4]:
-        logging.debug("Result right distance")
-        return False
-    if result_operations.LeftDistance != ExpR[5]:
-        logging.debug("Result left distance")
-        return False
+    try:
+        if result_operations.ExpandContractType != MarginTypeR:
+            logging.debug("Result expand contract type mismatch")
+            return False
+        if result_operations.SuperiorDistance != ExpR[0]:
+            logging.debug("Result superior distance")
+            return False
+        if result_operations.InferiorDistance != ExpR[1]:
+            logging.debug("Result inferior distance")
+            return False
+        if result_operations.AnteriorDistance != ExpR[2]:
+            logging.debug("Result anterior distance")
+            return False
+        if result_operations.PosteriorDistance != ExpR[3]:
+            logging.debug("Result posterior distance")
+            return False
+        if result_operations.RightDistance != ExpR[4]:
+            logging.debug("Result right distance")
+            return False
+        if result_operations.LeftDistance != ExpR[5]:
+            logging.debug("Result left distance")
+            return False
+    except AttributeError:
+        logging.debug('Structure {} does not have a/b/result attributes, no check performed'
+            .format(StructureName))
+        return False # remake struct
     # Check A/B operation
     try:
         if result_operations.Children[0].Operation != OperationResult:
