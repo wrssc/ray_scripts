@@ -5,6 +5,7 @@ import statetree
 import getpass
 import datetime
 import shutil
+import inspect
 
 statetree.RunStateTree()
 
@@ -14,6 +15,13 @@ def get_python_scripts_path():
         if "scripts" in p.lower():
             return Path(p).parent
 
+
+# Determine the directory from which this script is being run.
+# This is not trivial due to the way ray_scripts runs a script. If the script
+# is being run from a dev distribution, it's location will differ each time it
+# is run.
+script_path = inspect.getframeinfo(inspect.currentframe()).filename
+connect_to_raystation_path = Path(script_path).parent
 
 # Generate a filename
 user = getpass.getuser()
