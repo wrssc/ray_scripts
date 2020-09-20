@@ -10,7 +10,7 @@
 #   by default but the versions that are installed are outdated. I have added >= for
 #   these libraries to ensure they are updated when the user installs using pip.
 # * pynetdicom has been added, pynetdicom3 has been removed. The latter, which was
-# * used with our Python 2 ray_scripts, is deprecated.
+#   used with our Python 2 ray_scripts, is deprecated.
 # * PySimpleGUI was installed with bindings for PySide2 (Qt for Python) and tkinter.
 #
 ### Use ###
