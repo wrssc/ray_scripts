@@ -1,6 +1,6 @@
 matplotlib
 notebook
-numpy
+numpy>=1.19
 pandas
 Pillow
 pydicom
@@ -8,7 +8,7 @@ pynetdicom
 PySide2
 PySimpleGUI
 PySimpleGUIQt
-pythonnet
+pythonnet>=2.5
 reportlab
 scipy
 XlsxWriter
