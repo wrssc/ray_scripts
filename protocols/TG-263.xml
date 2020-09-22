@@ -2669,6 +2669,22 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>Avoid_Skin_PRV05</name>
+        <TG263PrimaryName>Skin</TG263PrimaryName>
+        <Description>Avoidance used in breast targets</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>PRV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>Skin</TG263ReverseOrderName>
+        <FMAID>7163</FMAID>
+        <Color red="251" green="218" blue="63" Hex="#FBDA3F">DandelionYellow</Color>
+        <Alias>skin05,skin_prv05</Alias>
+    </roi>
+    <roi>
         <name>Skin_PRVxx</name>
         <TG263PrimaryName>Skin</TG263PrimaryName>
         <Description>Skin</Description>
