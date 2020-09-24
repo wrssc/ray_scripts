@@ -1,9 +1,22 @@
 """ Automated Dry-Run
 
+    This script accomplishes the following tasks:
+    1. Looks through the target list and prompt user in the event it finds none
+    2. Prompts the user to set fiducial simulation points
+    2. Enter plan parameters through a dialog
+    3. Makes a treatment plan for a dry-run
+    4. Makes a copy of this plan to get around a bug in raystation
+       that makes it such that until a new plan is created, the 
+       patient's image data is not visible
+    5. Has the user confirm isocenter placement
     Will prompt user for type of dry-run (breast or lung) and attempt to put beams at the center of a
     "gtv or ctv" target
 
-    Validation Notes: 
+    Validation Notes:
+    "vim.handleKeys": {
+    "<C-c>": false,
+    "<C-v>": false,
+}u
     
     Version Notes: 1.0.0 Original
     1.0.0

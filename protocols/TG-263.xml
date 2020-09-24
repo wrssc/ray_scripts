@@ -99,6 +99,7 @@
             part of the digestive tract), the stomach, and the liver. It is bound by thin membranes.
         </NCIt>
         <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
         <MajorCategory>Bowel</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Abdomen</AnatomicGroup>
@@ -591,12 +592,24 @@
         <MajorCategory>Urinary</MajorCategory>
         <MinorCategory>Kidney</MinorCategory>
         <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>12</NCharacters>
+        <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>L_Kidney-GTV</TG263ReverseOrderName>
         <Dependencies>Kidney_L,GTV</Dependencies>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
+                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Kidney_L
+        </SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
+                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            GTV
+        </SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0"
+                margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Kidney_L-GTV
+        </Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
+        <Alias>Kidneyl-gtv,left kidney-gtv</Alias>
     </roi>
     <roi>
         <name>Kidney_Pelvis_L</name>
@@ -688,12 +701,24 @@
         <MajorCategory>Urinary</MajorCategory>
         <MinorCategory>Kidney</MinorCategory>
         <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>12</NCharacters>
+        <NCharacters>10</NCharacters>
         <TG263ReverseOrderName>R_Kidney-GTV</TG263ReverseOrderName>
         <Dependencies>Kidney_R,GTV</Dependencies>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
+                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Kidney_R
+        </SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
+                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            GTV
+        </SourcesB>
+        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0"
+                margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
+            Kidney_R-GTV
+        </Result>
         <FMAID></FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
+        <Alias>Kidneyr-gtv,right kidney-gtv</Alias>
     </roi>
     <roi>
         <name>Kidneys</name>
@@ -713,7 +738,7 @@
         <Result operation="None" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Kidneys</Result>
         <FMAID>264815</FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
+        <Alias>Kidney_Total,Both_Kidneys</Alias>
     </roi>
     <roi>
         <name>LN_Portahepatis</name>
