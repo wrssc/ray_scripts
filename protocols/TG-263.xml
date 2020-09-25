@@ -91,6 +91,23 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>Avoid</name>
+        <TG263PrimaryName>Avoid</TG263PrimaryName>
+        <Description>Avoidacne region, planning structure.
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory></MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup></AnatomicGroup>
+        <NCharacters>5</NCharacters>
+        <TG263ReverseOrderName></TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
+        <Alias>avoid</Alias>
+    </roi>
+    <roi>
         <name>Bag_Bowel</name>
         <TG263PrimaryName>Bag_Bowel</TG263PrimaryName>
         <Description>Bowel Bag or Peritoneal Cavity.
@@ -13197,7 +13214,7 @@
         </Result>
         <FMAID>68877</FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
+        <Alias>Lung_Total</Alias>
     </roi>
     <roi>
         <name>Lungs-CTV</name>
