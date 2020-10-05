@@ -4932,7 +4932,7 @@
         <TG263ReverseOrderName>L_Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59103</FMAID>
         <Color red="183" green="153" blue="87" Hex="#B79957">OrleansTune</Color>
-        <Alias>Lacrimal_Gland_L,Glnd_Lacrimal_L,Gland_Lacrimal_L,LacrimalGland_L,LacrimalGlnd_L
+        <Alias>Lacrimal_Gland_L,GlandLacrimal_L,LacrimalGland_L,LacrimalGlnd_L
         </Alias>
     </roi>
     <roi>
@@ -4965,7 +4965,7 @@
         <TG263ReverseOrderName>L_Lacrimal_Glnd_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="245" green="222" blue="142" Hex="#F5DE8E">Popcorn</Color>
-        <Alias>lacrimal_gland_L_prv05,prv05_lacrimal_gland_l</Alias>
+        <Alias>lacrimal_gland_L_prv05,prv05lacrimal_gland_l</Alias>
     </roi>
     <roi>
         <name>Glnd_Lacrimal_R</name>
@@ -4981,7 +4981,7 @@
         <TG263ReverseOrderName>R_Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59102</FMAID>
         <Color red="170" green="184" blue="244" Hex="#AAB8F4">Perano</Color>
-        <Alias>Lacrimal_Gland_R,Glnd_Lacrimal_R,Gland_Lacrimal_R,LacrimalGland_R,LacrimalGlnd_R
+        <Alias>Lacrimal_Gland_R,GlndLacrimal_R,GlandLacrimal_R,LacrimalGland_R,LacrimalGlnd_R
         </Alias>
     </roi>
     <roi>
