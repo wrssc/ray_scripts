@@ -582,23 +582,6 @@
         <Alias>lkidney_prv05</Alias>
     </roi>
     <roi>
-        <name>Kidney_L-GTV</name>
-        <TG263PrimaryName>Kidney_L-GTV</TG263PrimaryName>
-        <Description></Description>
-        <NCIt></NCIt>
-        <TargetType>Derived</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Urinary</MajorCategory>
-        <MinorCategory>Kidney</MinorCategory>
-        <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>12</NCharacters>
-        <TG263ReverseOrderName>L_Kidney-GTV</TG263ReverseOrderName>
-        <Dependencies>Kidney_L,GTV</Dependencies>
-        <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
-    </roi>
-    <roi>
         <name>Kidney_Pelvis_L</name>
         <TG263PrimaryName>Kidney_Pelvis_L</TG263PrimaryName>
         <Description>Renal pelvis Left</Description>
@@ -677,23 +660,6 @@
         <FMAID></FMAID>
         <Color red="250" green="154" blue="178" Hex="#fa9ab2">SairaRed</Color>
         <Alias>rkidney_prv05</Alias>
-    </roi>
-    <roi>
-        <name>Kidney_R-GTV</name>
-        <TG263PrimaryName>Kidney_R-GTV</TG263PrimaryName>
-        <Description></Description>
-        <NCIt></NCIt>
-        <TargetType>Derived</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Urinary</MajorCategory>
-        <MinorCategory>Kidney</MinorCategory>
-        <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>12</NCharacters>
-        <TG263ReverseOrderName>R_Kidney-GTV</TG263ReverseOrderName>
-        <Dependencies>Kidney_R,GTV</Dependencies>
-        <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
     </roi>
     <roi>
         <name>Kidneys</name>
