@@ -83,10 +83,15 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
                                         docstring=__doc__,
                                         help=__help__)
 
-    if parent_beamset.Review.ApprovalStatus == 'Approved':
-        logging.debug('Plan status is approved.')
-        status.next_step(text='Plan is approved, proceeding with sending the plan')
-    else:
+    try:
+        if parent_beamset.Review.ApprovalStatus == 'Approved':
+            logging.debug('Plan status is approved.')
+            status.next_step(text='Plan is approved, proceeding with sending the plan')
+        else:
+            status.aborted()
+            logging.warning('Plans must be approved prior to export')
+            sys.exit('Plans must be approved prior to export')
+    except AttributeError:
         status.aborted()
         logging.warning('Plans must be approved prior to export')
         sys.exit('Plans must be approved prior to export')
