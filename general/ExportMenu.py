@@ -89,8 +89,8 @@ def main():
                                                 'approve it prior to export?', 'Approve Plan')
             if approve.yes:
                 ui = connect.get_current('ui')
-                ui.TitleBar.MenuItem['Plan Evaluation'].Click()
-                ui.TitleBar.MenuItem['Plan Evaluation'].Popup.MenuItem['Plan Evaluation'].Click()
+                ui.TitleBar.MenuItem['Plan evaluation'].Click()
+                ui.TitleBar.MenuItem['Plan evaluation'].Popup.MenuItem['Plan evaluation'].Click()
                 ui.TabControl_ToolBar.TabItem._Approval.Select()
                 connect.await_user_input('Approve the plan now, then continue the script')
 
@@ -113,8 +113,8 @@ def main():
                                                 'like to approve it prior to export?', 'Approve Structure Set')
             if approve.yes:
                 ui = connect.get_current('ui')
-                ui.TitleBar.MenuItem['Patient Modeling'].Click()
-                ui.TitleBar.MenuItem['Patient Modeling'].Popup.MenuItem['Structure Definition'].Click()
+                ui.TitleBar.MenuItem['Patient modeling'].Click()
+                ui.TitleBar.MenuItem['Patient modeling'].Popup.MenuItem['Structure definition'].Click()
                 ui.TabControl_ToolBar.Approval.Select()
                 connect.await_user_input('Approve the structure set now, then continue the script')
 
