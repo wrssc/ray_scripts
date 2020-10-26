@@ -25,7 +25,7 @@ __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '01-Feb-2018'
 __version__ = '1.0.0'
-__status__ = 'Validation'
+__status__ = 'Clinical'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
@@ -34,7 +34,7 @@ __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
+__help__ = 'https://github.com/wrssc/ray_scripts'
 __credits__ = []
 
 import connect
