@@ -265,7 +265,7 @@
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Glnd_Lacrimal_L_PRV05</name>
+                pp<name>Glnd_Lacrimal_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">30</dose>
@@ -283,6 +283,44 @@
                 <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type>Mean</type>
+                <dose units="Gy">9</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type>Max</type>
+                <dose units="Gy">16</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">16</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type>Mean</type>
+                <dose units="Gy">9</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type>Max</type>
+                <dose units="Gy">16</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">16</dose>
                 <priority>3</priority>
             </roi>
             <roi>
