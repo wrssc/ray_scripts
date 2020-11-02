@@ -83,13 +83,13 @@ def main():
                                          Point={'x':center_roi.x,
                                                 'y':center_roi.y,
                                                 'z':center_roi.z},
-                                         Name='Bob')
+                                         Name='CouchPt')
                 shifted = center_roi.y + shift_to_couch_edge 
                 c.PatientModel.CreatePoi(Examination=exam, 
                                          Point={'x':center_roi.x,
                                                 'y':shifted,
                                                 'z':center_roi.z},
-                                         Name='Bob2')
+                                         Name='Couchpt2')
 
 
 if __name__ == '__main__':
