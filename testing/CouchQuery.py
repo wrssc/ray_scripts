@@ -89,3 +89,7 @@ def main():
                                                 'y':shifted,
                                                 'z':center_roi.z},
                                          Name='Bob2')
+
+
+if __name__ == '__main__':
+    main()
