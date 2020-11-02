@@ -84,7 +84,7 @@ def main():
                                                 'y':center_roi.y,
                                                 'z':center_roi.z},
                                          Name='Bob')
-                shifted = center_roi + shift_to_couch_edge 
+                shifted = center_roi.y + shift_to_couch_edge 
                 c.PatientModel.CreatePoi(Examination=exam, 
                                          Point={'x':center_roi.x,
                                                 'y':shifted,
