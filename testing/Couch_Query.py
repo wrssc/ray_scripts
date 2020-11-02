@@ -19,6 +19,21 @@
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
+__author__ = 'Adam Bayliss'
+__contact__ = 'rabayliss@wisc.edu'
+__date__ = '2018-Mar-28'
+__version__ = '1.0.1'
+__status__ = 'Production'
+__deprecated__ = False
+__reviewer__ = 'Someone else'
+__reviewed__ = 'YYYY-MM-DD'
+__raystation__ = '6.0.0'
+__maintainer__ = 'One maintainer'
+__email__ = 'rabayliss@wisc.edu'
+__license__ = 'GPLv3'
+__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__credits__ = ['']
+
 import sys
 import os
 import csv
