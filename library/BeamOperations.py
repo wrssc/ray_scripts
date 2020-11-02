@@ -708,7 +708,7 @@ def rename_beams():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                              + '_c' + couch_angle_string.zfill(3))
+                                              + '_t' + couch_angle_string.zfill(3))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
@@ -716,7 +716,7 @@ def rename_beams():
                     if couch_angle != 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
-                                              + 'c' + couch_angle_string.zfill(3))
+                                              + 't' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
                     elif 180 < gantry_angle < 270:
@@ -780,7 +780,7 @@ def rename_beams():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                              + '_c' + couch_angle_string.zfill(3))
+                                              + '_t' + couch_angle_string.zfill(3))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
@@ -788,7 +788,7 @@ def rename_beams():
                     if couch_angle != 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
-                                              + 'c' + couch_angle_string.zfill(3))
+                                              + 't' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
                     elif 180 < gantry_angle < 270:
@@ -851,7 +851,7 @@ def rename_beams():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                              + '_c' + couch_angle_string.zfill(3))
+                                              + '_t' + couch_angle_string.zfill(3))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
@@ -859,7 +859,7 @@ def rename_beams():
                     if couch_angle != 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
-                                              + 'c' + couch_angle_string.zfill(3))
+                                              + 't' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
                     elif 180 < gantry_angle < 270:
@@ -922,7 +922,7 @@ def rename_beams():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                              + '_c' + couch_angle_string.zfill(3))
+                                              + '_t' + couch_angle_string.zfill(3))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
@@ -930,7 +930,7 @@ def rename_beams():
                     if couch_angle != 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
-                                              + 'c' + couch_angle_string.zfill(3))
+                                              + 't' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
                     elif 180 < gantry_angle < 270:
@@ -990,7 +990,7 @@ def rename_beams():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                              + '_c' + couch_angle_string.zfill(3))
+                                              + '_t' + couch_angle_string.zfill(3))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
@@ -998,7 +998,7 @@ def rename_beams():
                     if couch_angle != 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
-                                              + 'c' + couch_angle_string.zfill(3))
+                                              + 't' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
                     elif 180 < gantry_angle < 270:
@@ -1060,7 +1060,7 @@ def rename_beams():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                              + '_c' + couch_angle_string.zfill(3))
+                                              + '_t' + couch_angle_string.zfill(3))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
@@ -1068,7 +1068,7 @@ def rename_beams():
                     if couch_angle != 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
-                                              + 'c' + couch_angle_string.zfill(3))
+                                              + 't' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
                     elif 180 < gantry_angle < 270:
@@ -1131,7 +1131,7 @@ def rename_beams():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                              + '_c' + couch_angle_string.zfill(3))
+                                              + '_t' + couch_angle_string.zfill(3))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
@@ -1139,7 +1139,7 @@ def rename_beams():
                     if couch_angle != 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
-                                              + 'c' + couch_angle_string.zfill(3))
+                                              + 't' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
                     elif 180 < gantry_angle < 270:
@@ -1202,7 +1202,7 @@ def rename_beams():
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc')
                     else:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name + '_Arc'
-                                              + '_c' + couch_angle_string.zfill(3))
+                                              + '_t' + couch_angle_string.zfill(3))
                 else:
                     # Based on convention for billing, e.g. "1 SnS PRDR MLC -- IMRT"
                     # set the beam_description
@@ -1210,7 +1210,7 @@ def rename_beams():
                     if couch_angle != 0:
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
-                                              + 'c' + couch_angle_string.zfill(3))
+                                              + 't' + couch_angle_string.zfill(3))
                     elif gantry_angle == 180:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
                     elif 180 < gantry_angle < 270:
@@ -1272,21 +1272,36 @@ class mlc_properties:
         if self.has_segments:
             current_machine_name = self.beam.MachineReference.MachineName
             current_machine = GeneralOperations.get_machine(current_machine_name)
-            # Maximum motion of a leaf on its own side of the origin
-            self.max_tip = current_machine.Physics.MlcPhysics.MaxTipPosition
-            # Maximum leaf out of carriage distance [cm]
-            self.max_leaf_carriage = current_machine.Physics.MlcPhysics.MaxLeafOutOfCarriageDistance
+            # If the plan is imported then the MlcPhysics methods will not be defined
+            try:
+                mlc_physics = current_machine.Physics.MlcPhysics
+            except AttributeError:
+                mlc_physics = None
+
+            # TODO: This variable changed in 10. Find it
+            if mlc_physics:
+                # Maximum motion of a leaf on its own side of the origin
+                self.max_tip = mlc_physics.MaxTipDifference
+                # Maximum leaf out of carriage distance [cm]
+                self.max_leaf_carriage = mlc_physics.Carriage.MaxLeafOutOfCarriageDistance
+                # Grab the leaf centers and widths
+                self.leaf_centers = current_machine.Physics.MlcPhysics.UpperLayer.LeafCenterPositions
+                self.leaf_widths = current_machine.Physics.MlcPhysics.UpperLayer.LeafWidths
+                # Grab the distance behind the x-jaw a dynamic leaf is supposed to be placed
+                self.leaf_jaw_overlap = current_machine.Physics.MlcPhysics.LeafJawOverlap
+                # Grab the minimum gap allowed for a dynamic leaf
+                self.min_gap_moving = current_machine.Physics.MlcPhysics.MinGapMoving
+            else:
+                self.max_tip = None
+                self.max_leaf_carriage = 15 # Plug a guess in here 
+                self.leaf_centers = None
+                self.leaf_widths = None
+                self.leaf_jaw_overlap = None
+                self.min_gap_moving = 0.05 # Guess in here
 
             # Compute the number of leaves in the bank based on the first segment
             self.num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
 
-            # Grab the leaf centers and widths
-            self.leaf_centers = current_machine.Physics.MlcPhysics.UpperLayer.LeafCenterPositions
-            self.leaf_widths = current_machine.Physics.MlcPhysics.UpperLayer.LeafWidths
-            # Grab the distance behind the x-jaw a dynamic leaf is supposed to be placed
-            self.leaf_jaw_overlap = current_machine.Physics.MlcPhysics.LeafJawOverlap
-            # Grab the minimum gap allowed for a dynamic leaf
-            self.min_gap_moving = current_machine.Physics.MlcPhysics.MinGapMoving
             #
             # Set up a numpy array that will be a combine segments
             # into a single ndarray of size:
@@ -1301,21 +1316,21 @@ class mlc_properties:
                     bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
                     self.banks = np.dstack((self.banks, bank))
                 # Determine if leaves are in retracted position
-                if np.all(self.banks[:, 0, :] <= - self.max_tip):
+                if np.all(self.banks[:, 0, :] <= - self.max_leaf_carriage):
                     x1_bank_retracted = True
                 else:
                     x1_bank_retracted = False
-                if np.all(self.banks[:, 1, :] >= self.max_tip):
+                if np.all(self.banks[:, 1, :] >= self.max_leaf_carriage):
                     x2_bank_retracted = True
                 else:
                     x2_bank_retracted = False
             else:
                 # Determine if leaves are in retracted position
-                if np.all(self.banks[:, 0] <= - self.max_tip):
+                if np.all(self.banks[:, 0] <= - self.max_leaf_carriage):
                     x1_bank_retracted = True
                 else:
                     x1_bank_retracted = False
-                if np.all(self.banks[:, 1] >= self.max_tip):
+                if np.all(self.banks[:, 1] >= self.max_leaf_carriage):
                     x2_bank_retracted = True
                 else:
                     x2_bank_retracted = False
@@ -1519,6 +1534,64 @@ def maximum_leaf_carriage_extent(beam):
     return max_travel
 
 
+def repair_leaf_gap(beam):
+    """ Find all of the closed leaves. Repair the leaf gap rounding problem so that the leaves are spaced
+        by exactly the minimum leaf gap. Return success.
+    """
+    # Adjustment factor is the factor to increment each leaf position by until the
+    # gap condition is met
+    increment = 1.e-6
+
+    # Determine the mlc properties of the beam
+    beam_mlc = mlc_properties(beam)
+
+    # Find the closed leaves
+    closed_leaves = beam_mlc.stationary_leaf_gaps()
+
+    # Store the initial position as a check.  Delete after validated
+    initial_beam_mlc = np.copy(beam_mlc.banks)
+
+    # Loop over the leaves
+    for i in range(beam_mlc.banks.shape[0]):
+        # Loop over control points
+        for j in range(beam_mlc.banks.shape[2]):
+            # If this is part of the closed leaf range, then make sure the gap is greater than or
+            # equal to the machine commissioned gap
+           # if np.all(closed_leaves[i, 0, j]):
+            gap = abs(beam_mlc.banks[i, 0, j]-beam_mlc.banks[i, 1, j])
+            logging.debug('Bank0[{},{}] {}, Bank1 [{},{}] {}: gap {}'.format(
+                    i,j,beam_mlc.banks[i,0,j],i,j,beam_mlc.banks[i,1,j],
+                    gap))
+            if gap < increment:
+                beam_mlc.banks[i,0,j] = 0.
+                beam_mlc.banks[i,1,j] = (1. + increment)*beam_mlc.min_gap_moving
+                logging.debug('Zero leaf gap, moved to {}, {}'.format(
+                        beam_mlc.banks[i,0,j],beam_mlc.banks[i,1,j]))
+            elif gap < beam_mlc.min_gap_moving:
+                while gap < beam_mlc.min_gap_moving:
+                    beam_mlc.banks[i, 0, j] = (1. + increment) * beam_mlc.banks[i, 0, j]
+                    beam_mlc.banks[i, 1, j] = (1. + increment) * beam_mlc.banks[i, 1, j]
+                    gap = abs(beam_mlc.banks[i, 0, j]-beam_mlc.banks[i, 1, j])
+                    logging.debug('Rounded leaf gap moved to bank0 {}, bank1 {}'.format(
+                        beam_mlc.banks[i,0,j],beam_mlc.banks[i,1,j]))
+                logging.debug(
+                    'Beam {}, leaf pair {}, control point {}: Dynamic closed pair '
+                    .format(beam.Name, j + 1, i + 1) +
+                    'should be moved from {} to {}'
+                    .format(initial_beam_mlc[i, 0, j], beam_mlc.banks[i, 0, j]))
+    if np.all(np.equal(initial_beam_mlc, beam_mlc.banks)):
+        logging.debug('Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
+    else:
+        # Set the leaf positions to the np array (one-by-one...ugh)
+        for cp in range(len(beam.Segments)):
+            lp = beam.Segments[cp].LeafPositions
+            for l in range(len(lp[0])):
+                lp[0][l] = beam_mlc.banks[l, 0, cp]
+                lp[1][l] = beam_mlc.banks[l, 1, cp]
+            beam.Segments[cp].LeafPositions = lp
+    return None
+
+
 def filter_leaves(beam):
     """ Examine all leaves that are currently set to be at a minimum leaf gap. If those leaves
         are not moving from control point to control point, then place them such that they will
@@ -1558,7 +1631,7 @@ def filter_leaves(beam):
     offset = beam_mlc.leaf_jaw_overlap + 0.8
     # Find the leaves needing adjustment
     closed_leaves = beam_mlc.stationary_leaf_gaps()
-    # Store the initial position of the leaves to see if filtering will be neccessary
+    # Store the initial position of the leaves to see if filtering will be necessary
     initial_beam_mlc = np.copy(beam_mlc.banks)
     # Loop over leaves
     for i in range(beam_mlc.banks.shape[0]):
