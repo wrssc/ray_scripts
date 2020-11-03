@@ -105,17 +105,28 @@ def main():
                     for t in target_list:
                         if s.RoiGeometries[t].HasContours():
                             b_t = s.RoiGeometries[t].GetBoundingBox()
-                            logging.debug('Support max at {x} cm, min at {n}'.format(
-                                n=min_extent,x=max_extent
-                            ))
-                            logging.debug('Target {name} max at {x} cm, min at {n}'.format(
-                                name=t,n=b_t[0].z,x=b_t[1].z
-                            ))
                             if b_t[0].z < min_extent:
-                                connect.await_user_input('Support structure does not extend past target')
+                                logging.debug('Target {name}: [max, min]=[{x}, {n}] exceeds support [{sx}, {sn}]'.format(
+                                                                                                    name=t,
+                                                                                                    n=b_t[0].z,
+                                                                                                    x=b_t[1].z,
+                                                                                                    sx=min_extent,
+                                                                                                    sn=max_extent))
+                                connect.await_user_input('Target {} exists past the end of {}'.format(t, min_extent))
                             if b_t[1].z > max_extent:
-                                connect.await_user_input('Support structure does not extend past target')
+                                logging.debug('Target {name}: [max, min]=[{x}, {n}] exceeds support [{sx}, {sn}]'.format(
+                                                                                                    name=t,
+                                                                                                    n=b_t[0].z,
+                                                                                                    x=b_t[1].z,
+                                                                                                    sx=min_extent,
+                                                                                                    sn=max_extent))
+                                connect.await_user_input('Target {} exists past the end of {}'.format(t, max_extent))
                             if (b_t[0].z < couch_edge - tolerance) and (b_t[1].z > couch_edge + tolerance):
+                                logging.debug('Target {t}: Couch edge at {e} cm, min at {n}, max at {x}'.format(
+                                                                                                    t=t,
+                                                                                                    e=couch_edge,
+                                                                                                    n=couch_edge-tolerance,
+                                                                                                    x=couch_edge+tolerance))
                                 connect.await_user_input('Structure {} appears to traverse the s-frame/table edge')
                 # c.PatientModel.CreatePoi(Examination=exam,
                 #                          Point={'x':center_roi.x,
