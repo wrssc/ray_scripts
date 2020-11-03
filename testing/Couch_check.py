@@ -44,7 +44,8 @@ import connect
 def main():
     # configs
     roi_name = 'S-frame'
-    shift_to_couch_edge = 17.56
+    # Distance from s-frame center to couch edge
+    shift_to_couch_edge_s_frame = 17.38
     db = connect.get_current('PatientDB')
     male_patients = db.QueryPatientInfo(Filter={'Gender':'Male'})
     female_patients = db.QueryPatientInfo(Filter={'Gender':'Female'})
