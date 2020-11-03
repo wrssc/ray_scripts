@@ -54,6 +54,7 @@ def main():
     all_patients = male_patients + female_patients
     failed_patient_open =[]
     for p in all_patients:
+        # Input a single patient in here to bypass a search
         if p['PatientID'] != 'TPL_000':
             continue
         try:
