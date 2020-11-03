@@ -54,7 +54,7 @@ def main():
     all_patients = male_patients + female_patients
     failed_patient_open =[]
     for p in all_patients:
-        if p['PatientID'] != '0664526':
+        if p['PatientID'] != 'TPL_000':
             continue
         try:
             patient = db.LoadPatient(PatientInfo = p)
