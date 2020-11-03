@@ -88,17 +88,18 @@ def main():
                 max_extent = None
                 for r in c.PatientModel.RegionsOfInterest:
                    if r.Type == 'Support':
-                       support = True
-                       b = s.RoiGeometries[r.Name].GetBoundingBox()
-                       min_extent = min(min_extent,b[0].z)
-                       max_extent = max(max_extent,b[1].z)
+                       if s.RoiGeometries[r.Name].HasContours():
+                           support = True
+                           b = s.RoiGeometries[r.Name].GetBoundingBox()
+                           min_extent = min(min_extent,b[0].z)
+                           max_extent = max(max_extent,b[1].z)
                 if not support:
                     connect.await_user_input('No support structures found, declare a support and continue')
                 else:
                     logging.debug('Support type has min position {} and max position {}'.format(min_extent, max_extent))
                 
                 target_list = StructureOperations.findtargets(c)
-                if target_list:
+                if target_list and support:
                     problem_targets = []
                     for t in target_list:
                         b_t = s.RoiGeometries[t].GetBoundingBox()
