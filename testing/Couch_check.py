@@ -40,6 +40,7 @@ import os
 import csv
 import logging
 import connect
+import StructureOperations
 
 def main():
     # configs
@@ -80,17 +81,44 @@ def main():
                 except SystemError:
                     # roi_name is not in this exam
                     continue
-                c.PatientModel.CreatePoi(Examination=exam,
-                                         Point={'x':center_roi.x,
-                                                'y':center_roi.y,
-                                                'z':center_roi.z},
-                                         Name='CouchPt')
-                shifted = center_roi.z + shift_to_couch_edge
-                c.PatientModel.CreatePoi(Examination=exam,
-                                         Point={'x':center_roi.x,
-                                                'y':center_roi.y,
-                                                'z':shifted},
-                                         Name='Couchpt2')
+
+                couch_edge = center_roi.z + shift_to_couch_edge_s_frame
+                tolerance = 2
+                min_extent = None
+                max_extent = None
+                for r in c.PatientModel.RegionsOfInterest:
+                   if r.Type == 'Support':
+                       support = True
+                       b = s.RoiGeometries[r.Name].GetBoundingBox()
+                       min_extent = min(min_extent,b[0].z)
+                       max_extent = max(max_extent,b[1].z)
+                if not support:
+                    connect.await_user_input('No support structures found, declare a support and continue')
+                else:
+                    logging.debug('Support type has min position {} and max position {}'.format(min_extent, max_extent))
+                
+                target_list = StructureOperations.findtargets(c)
+                if target_list:
+                    problem_targets = []
+                    for t in target_list:
+                        b_t = s.RoiGeometries[t].GetBoundingBox()
+                        if b_t[0].z < min_extent:
+                            connect.await_user_input('Support structure does not extend past target')
+                        if b_t[1].z > max_extent:
+                            connect.await_user_input('Support structure does not extend past target')
+                        if (b_t[0].z < couch_edge - tolerance) and (b_t[1].z > couch_edge + tolerance):
+                            connect.await_user_input('Structure {} appears to traverse the s-frame/table edge')
+            
+                # c.PatientModel.CreatePoi(Examination=exam,
+                #                          Point={'x':center_roi.x,
+                #                                 'y':center_roi.y,
+                #                                 'z':center_roi.z},
+                #                          Name='CouchPt')
+                # c.PatientModel.CreatePoi(Examination=exam,
+                #                          Point={'x':center_roi.x,
+                #                                 'y':center_roi.y,
+                #                                 'z':shifted},
+                #                          Name='Couchpt2')
 
 
 if __name__ == '__main__':
