@@ -98,7 +98,7 @@ def main():
                 else:
                     logging.debug('Support type has min position {} and max position {}'.format(min_extent, max_extent))
                 
-                target_list = StructureOperations.findtargets(c)
+                target_list = StructureOperations.find_targets(c)
                 if target_list and support:
                     problem_targets = []
                     for t in target_list:
