@@ -183,18 +183,40 @@ def gather_tomo_beam_params(beamset):
         # Pitch: Distance traveled in rotation / field width
         
         # Convert sinogram to numpy array
-        sino_array = numpy.asarray(sinogram)
+        sino_array = numpy.array(sinogram)
         # Mod Factor = Average / Max LOT
-        
+        mod_factor = sino_array.max()/numpy.mean(sino_array !=0)
+        # Declare the tomo dataframe
+        dtypes = numpy.dtype([
+                    ('time', float), # Total time of plan [s]
+                    ('total_travel', float), # Couch travel [cm]
+                    ('couch_speed',float), # Speed of couch [cm/s]
+                    ('sinogram', object), # List of leaf openings
+                    ('mod_factor', float) # Max/Ave_Nonzero
+        ])
+        data = numpy.empty(0, dtype=dtypes)
+        df = pd.DataFrame(data)
         # Return a dataframe for json output
-        df = pd.DataFrame({'time': time, 
-                           'rp':rp, 
-                           'total_travel':total_travel,
-                           'couch_speed':couch_speed,
-                           'sinogram':pd.Series(sinogram)},
-                           index=[0])
+        df.at[0,'time'] = time
+        df.at[0,'rp'] = rp
+        df.at[0,'total_travel'] = total_travel
+        df.at[0,'couch_speed'] = couch_speed
+        df.at[0,'sinogram'] = sino_array
+        df.at[0,'mod_factor'] = mod_factor
+                
+    return df
         
-        
+def get_dvh(roi_name, plan, precision=None):
+    # roi_name = name of the roi
+    # precision = relative volume precision
+    if not precision:
+        precision = 0.01 # output 1% increments
+    plan_dose = plan.TreatmentCourse.TotalDose
+    vols = [range(0,100,precision)]
+    dose_values = plan_dose.GetDoseAtRelativeVolumes(RoiName=roi_name, RelativeVolumes=vols)
+    dose_array = numpy.column_stack([vols,dose_values])
+    return dose_array
+    
 
 def main():
     # 
