@@ -102,13 +102,14 @@ def main():
                 if target_list and support:
                     problem_targets = []
                     for t in target_list:
-                        b_t = s.RoiGeometries[t].GetBoundingBox()
-                        if b_t[0].z < min_extent:
-                            connect.await_user_input('Support structure does not extend past target')
-                        if b_t[1].z > max_extent:
-                            connect.await_user_input('Support structure does not extend past target')
-                        if (b_t[0].z < couch_edge - tolerance) and (b_t[1].z > couch_edge + tolerance):
-                            connect.await_user_input('Structure {} appears to traverse the s-frame/table edge')
+                        if s.RoiGeometries[t].HasContours():
+                            b_t = s.RoiGeometries[t].GetBoundingBox()
+                            if b_t[0].z < min_extent:
+                                connect.await_user_input('Support structure does not extend past target')
+                            if b_t[1].z > max_extent:
+                                connect.await_user_input('Support structure does not extend past target')
+                            if (b_t[0].z < couch_edge - tolerance) and (b_t[1].z > couch_edge + tolerance):
+                                connect.await_user_input('Structure {} appears to traverse the s-frame/table edge')
             
                 # c.PatientModel.CreatePoi(Examination=exam,
                 #                          Point={'x':center_roi.x,
