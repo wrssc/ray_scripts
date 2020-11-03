@@ -47,6 +47,7 @@ def main():
     roi_name = 'S-frame'
     # Distance from s-frame center to couch edge
     shift_to_couch_edge_s_frame = 17.38
+    tolerance = 2
     db = connect.get_current('PatientDB')
     male_patients = db.QueryPatientInfo(Filter={'Gender':'Male'})
     female_patients = db.QueryPatientInfo(Filter={'Gender':'Female'})
@@ -88,18 +89,15 @@ def main():
                 try:
                     if s.RoiGeometries[roi_name].HasContours():
                         # Get the center of the roi in question in Dicom Coordinates.
+                        # exam = s.OnExamination
                         center_roi = s.RoiGeometries[roi_name].GetCenterOfRoi()
-                        exam = s.OnExamination
+                        couch_edge = center_roi.z + shift_to_couch_edge_s_frame
                     #else:
                     #    continue
                 except SystemError:
                     logging.debug('No structure called {} found'.format(roi_name))
                     # roi_name is not in this exam
                     # continue
-
-                couch_edge = center_roi.z + shift_to_couch_edge_s_frame
-
-                tolerance = 2
                 
                 target_list = StructureOperations.find_targets(c)
                 if target_list and support:
@@ -107,13 +105,18 @@ def main():
                     for t in target_list:
                         if s.RoiGeometries[t].HasContours():
                             b_t = s.RoiGeometries[t].GetBoundingBox()
+                            logging.debug('Support max at {x} cm, min at {n}'.format(
+                                n=min_extent,x=max_extent
+                            ))
+                            logging.debug('Target {name} max at {x} cm, min at {n}'.format(
+                                name=t,n=b_t[0].z,x=b_t[1].z
+                            ))
                             if b_t[0].z < min_extent:
                                 connect.await_user_input('Support structure does not extend past target')
                             if b_t[1].z > max_extent:
                                 connect.await_user_input('Support structure does not extend past target')
                             if (b_t[0].z < couch_edge - tolerance) and (b_t[1].z > couch_edge + tolerance):
                                 connect.await_user_input('Structure {} appears to traverse the s-frame/table edge')
-            
                 # c.PatientModel.CreatePoi(Examination=exam,
                 #                          Point={'x':center_roi.x,
                 #                                 'y':center_roi.y,
