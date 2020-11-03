@@ -72,8 +72,8 @@ def main():
             # case_name has an instance of the structure we are looking for
             # now find the examination
             for s in c.PatientModel.StructureSets:
-                min_extent = None
-                max_extent = None
+                min_extent = 1000
+                max_extent = -1000
                 for r in c.PatientModel.RegionsOfInterest:
                    if r.Type == 'Support':
                        if s.RoiGeometries[r.Name].HasContours():
