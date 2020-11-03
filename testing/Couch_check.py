@@ -79,16 +79,16 @@ def main():
                 except SystemError:
                     # roi_name is not in this exam
                     continue
-                c.PatientModel.CreatePoi(Examination=exam, 
+                c.PatientModel.CreatePoi(Examination=exam,
                                          Point={'x':center_roi.x,
                                                 'y':center_roi.y,
                                                 'z':center_roi.z},
                                          Name='CouchPt')
-                shifted = center_roi.y + shift_to_couch_edge 
-                c.PatientModel.CreatePoi(Examination=exam, 
+                shifted = center_roi.z + shift_to_couch_edge
+                c.PatientModel.CreatePoi(Examination=exam,
                                          Point={'x':center_roi.x,
-                                                'y':shifted,
-                                                'z':center_roi.z},
+                                                'y':center_roi.y,
+                                                'z':shifted},
                                          Name='Couchpt2')
 
 
