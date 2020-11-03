@@ -71,19 +71,6 @@ def main():
             # case_name has an instance of the structure we are looking for
             # now find the examination
             for s in c.PatientModel.StructureSets:
-                try:
-                    if s.RoiGeometries[roi_name].HasContours():
-                        # Get the center of the roi in question in Dicom Coordinates.
-                        center_roi = s.RoiGeometries[roi_name].GetCenterOfRoi()
-                        exam = s.OnExamination
-                    else:
-                        continue
-                except SystemError:
-                    # roi_name is not in this exam
-                    continue
-
-                couch_edge = center_roi.z + shift_to_couch_edge_s_frame
-                tolerance = 2
                 min_extent = None
                 max_extent = None
                 for r in c.PatientModel.RegionsOfInterest:
@@ -97,6 +84,22 @@ def main():
                     connect.await_user_input('No support structures found, declare a support and continue')
                 else:
                     logging.debug('Support type has min position {} and max position {}'.format(min_extent, max_extent))
+                # S-frame loop
+                try:
+                    if s.RoiGeometries[roi_name].HasContours():
+                        # Get the center of the roi in question in Dicom Coordinates.
+                        center_roi = s.RoiGeometries[roi_name].GetCenterOfRoi()
+                        exam = s.OnExamination
+                    #else:
+                    #    continue
+                except SystemError:
+                    logging.debug('No structure called {} found'.format(roi_name))
+                    # roi_name is not in this exam
+                    # continue
+
+                couch_edge = center_roi.z + shift_to_couch_edge_s_frame
+
+                tolerance = 2
                 
                 target_list = StructureOperations.find_targets(c)
                 if target_list and support:
