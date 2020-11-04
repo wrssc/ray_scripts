@@ -29,6 +29,7 @@ import logging
 import pandas as pd
 import numpy
 import UserInterface
+import json
 
 def output_plan_data(path, input_filename, patient_id, case_name, plan_name, beamset_name,
                   ):
@@ -203,20 +204,19 @@ def gather_tomo_beam_params(beamset):
         df.at[0,'couch_speed'] = couch_speed
         df.at[0,'sinogram'] = sino_array
         df.at[0,'mod_factor'] = mod_factor
-                
     return df
-        
+
 def get_dvh(roi_name, plan, precision=None):
     # roi_name = name of the roi
     # precision = relative volume precision
     if not precision:
         precision = 0.01 # output 1% increments
     plan_dose = plan.TreatmentCourse.TotalDose
-    vols = [range(0,100,precision)]
+    number_dvh_points = int(1./precision) + 1
+    vols = [precision * x for x in range(0,number_dvh_points)]
     dose_values = plan_dose.GetDoseAtRelativeVolumes(RoiName=roi_name, RelativeVolumes=vols)
     dose_array = numpy.column_stack([vols,dose_values])
     return dose_array
-    
 
 def main():
     # 
@@ -255,7 +255,20 @@ def main():
                                             + '_'
                                             + beamset_name
                                             + '.json')
-        
+        roi_name = 'PTV1_7000'
+        data = get_dvh(roi_name=roi_name, plan = patient_data['Plan'],precision=0.01)
+        list_data = data.tolist()
+        data_dict = {'PatientID': patient_id,
+                     'Case':case_name,
+                     'PlanName':plan_name,
+                     'BeamsetName':beamset_name,
+                     roi_name: list_data}
+        with open(output_filename, 'w') as fp:
+            json.dump(data_dict, fp)
+        pd.read_json(output_filename)
+
+
+
 
     # Clinical goals
     
