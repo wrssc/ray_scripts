@@ -30,6 +30,7 @@ import pandas as pd
 import numpy
 import UserInterface
 import json
+import StructureOperations
 
 def output_plan_data(path, input_filename, patient_id, case_name, plan_name, beamset_name,
                   ):
@@ -218,6 +219,42 @@ def get_dvh(roi_name, plan, precision=None):
     dose_array = numpy.column_stack([vols,dose_values])
     return dose_array
 
+def clinical_goal_rois(plan):
+    # return all roi's which have a clinical goal
+    goal_rois = []
+    for e in plan.EvaluationSetup.EvaluationFunctions:
+        e_roi = e.ForRegionOfInterest.Name
+        if e_roi not in goal_rois:
+            goal_rois.append(e_roi)
+    return goal_rois
+
+def get_clinical_goal(plan, roi_name=None):
+    # Return all clinical goals for an roi or all rois as a dictionary of dictionary
+    # Need the Roi, acceptance level, parameter value, type, priority
+    # clinical goal value, evaluate clinical goal
+    clinical_goal = {}
+    i_g = 0
+
+    # Search the list of evaluation functions 
+    evaluation_functions = plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions
+    for e in evaluation_functions:
+        logging.debug('Tracking eval function {}'.format(e.ForRegionOfInterest.Name))
+        if roi_name == e.ForRegionOfInterest.Name or not roi_name: 
+            clinical_goal[i_g] = {}
+            clinical_goal[i_g]['roi'] = e.ForRegionOfInterest.Name
+            clinical_goal[i_g]['roi_type'] = e.ForRegionOfInterest.Type
+            clinical_goal[i_g]['acceptance_level'] = e.PlanningGoal.AcceptanceLevel
+            clinical_goal[i_g]['goal_criteria'] = e.PlanningGoal.GoalCriteria
+            clinical_goal[i_g]['parameter_value'] = e.PlanningGoal.ParameterValue
+            clinical_goal[i_g]['priority'] = e.PlanningGoal.Priority
+            clinical_goal[i_g]['type'] = e.PlanningGoal.Type
+            clinical_goal[i_g]['goal_value'] = e.GetClinicalGoalValue()
+            clinical_goal[i_g]['goal_evaluation'] = e.EvaluateClinicalGoal()
+            logging.debug('Goal found for roi {}'.format(e.ForRegionOfInterest.Name))
+            i_g += 1
+    return clinical_goal
+
+
 def main():
     # 
     # Load the current RS database
@@ -251,21 +288,51 @@ def main():
             plan_name=plan_name,
             beamset_name = beamset_name
         )
+        if not patient_data['Error']:
+            logging.debug('Loading Patient:{pt}, Case:{c}, Exam{e}, Plan:{p}, Beamset{b}'.format(
+                pt = patient_data['Patient'].Name,
+                c = patient_data['Case'].CaseName,
+                e = patient_data['Exam'].Name,
+                p = patient_data['Plan'].Name,
+                b = patient_data['Beamset'].DicomPlanLabel
+            ))
+        else:
+            logging.debug('Error in loading. {e}'.format(e=patient_data['Error']))
+            continue
         output_filename = os.path.join(path, patient_id
+                                            + '_'
+                                            + case_name
+                                            + '_'
+                                            + plan_name
                                             + '_'
                                             + beamset_name
                                             + '.json')
-        roi_name = 'PTV1_7000'
-        data = get_dvh(roi_name=roi_name, plan = patient_data['Plan'],precision=0.01)
-        list_data = data.tolist()
+        # Start building the data dictionary
         data_dict = {'PatientID': patient_id,
                      'Case':case_name,
                      'PlanName':plan_name,
-                     'BeamsetName':beamset_name,
-                     roi_name: list_data}
+                     'BeamsetName':beamset_name}
+        # Update patient dose data
+        patient_data['Beamset'].FractionDose.UpdateDoseGridStructures()
+        patient_data['Plan'].TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+        # Find any structure for which there was a clinical goal
+        data_dict['goals']= get_clinical_goal(patient_data['Plan'], roi_name=None)
+        # Get target and roi DVH data
+        target_list = StructureOperations.find_targets(patient_data['Case'])
+        rois_list = StructureOperations.find_organs_at_risk(patient_data['Case'])
+        for t in target_list:
+           data = get_dvh(roi_name=t, plan = patient_data['Plan'],precision=0.001)
+           list_data = data.tolist()
+           data_dict[t + '_DVH'] = list_data
+        for r in rois_list:
+           data = get_dvh(roi_name=r, plan = patient_data['Plan'],precision=0.001)
+           list_data = data.tolist()
+           data_dict[r + '_DVH'] = list_data
+
         with open(output_filename, 'w') as fp:
             json.dump(data_dict, fp)
-        pd.read_json(output_filename)
+        with open(output_filename, 'r') as fp:
+            in_data_dict = json.load(fp)
 
 
 
