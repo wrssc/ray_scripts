@@ -479,6 +479,19 @@ def change_roi_type(case, roi_name, roi_type):
                     )
     return error_message
 
+def find_organs_at_risk(case):
+    """
+    Find all structures with OrganType "OrganAtRisk"
+    and return a list
+    :param: case: RS Case object
+    :return: plan_oars: a list of organs at risk
+    """
+    # Declare return list
+    plan_oars = []
+    for r in case.PatientModel.RegionsOfInterest:
+        if r.OrganData.OrganType == "OrganAtRisk":
+                plan_oars.append(r.Name)
+    return plan_oars
 
 def find_targets(case):
     """
