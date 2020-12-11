@@ -54,7 +54,6 @@ def main():
     all_patients = male_patients + female_patients
     failed_patient_open =[]
     for p in all_patients:
-        # Input a single patient in here to bypass a search
         if p['PatientID'] != 'TPL_000':
             continue
         try:
@@ -80,7 +79,6 @@ def main():
                        if s.RoiGeometries[r.Name].HasContours():
                            support = True
                            b = s.RoiGeometries[r.Name].GetBoundingBox()
-                           logging.debug('Support {} has min/max [{}, {}]'.format(r.Name,b[0].z,b[1].z))
                            min_extent = min(min_extent,b[0].z)
                            max_extent = max(max_extent,b[1].z)
                 if not support:
