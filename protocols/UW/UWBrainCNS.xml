@@ -2048,7 +2048,7 @@
             <roi>
                 <name>OTV1_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">125</dose>
+                <dose units="%" roi="PTV_p">123.3</dose>
                 <weight>1600</weight>
             </roi>
             <roi>
@@ -2110,13 +2110,13 @@
             </roi>
             <roi>
                 <name>ring1_</name>
-                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="93.3">100</dose>
                 <weight>5</weight>
             </roi>
             <roi>
                 <name>ring1_</name>
-                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <type dist="0.5" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="50">93.3</dose>
                 <weight>2</weight>
             </roi>
@@ -2718,6 +2718,17 @@
         <initial max_it="30" int_it="10">Iteration 0</initial>
         <warmstart max_it="20" int_it="3" n="6">Iteration_1to6</warmstart>
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+    </optimization_config>
+    <optimization_config>
+        <name>8 warmstarts</name>
+        <description>6 warmstart optimization</description>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="30" int_it="10" n="8">Iteration_1to8</warmstart>
+        <vary_grid dose_dim1="0.2" dose_dim2="0.2" dose_dim3="0.2" dose_dim4="0.2">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
         <reduce_oar>False</reduce_oar>
