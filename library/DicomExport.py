@@ -862,6 +862,7 @@ def send(case,
     return status
 
 
+
 def machines(beamset=None):
     """machine_list = DicomExport.machines(beamset=get_current('BeamSet'))"""
 
@@ -874,9 +875,18 @@ def machines(beamset=None):
             beam_list.append([])
             for c in filter_xml.findall('filter'):
                 if c.find('from/machine').text == beamset.Beams[b].MachineReference.MachineName:
+                    # RayStation version 10A moves the MachineReference.Energy field to Null
+                    # This is now a beamset property
+                    # 8: Beam->MachineReference->Energy : float
+                    # 10A: Beam->Beam->BeamQualityId: string
+                    logging.debug('filter type {}'.format(c.attrib['type']))
+                    logging.debug('matching filter energy:{}, RS {}'.format(c.find('from/energy').text.lower(),
+                                                                            beamset.Beams[b].BeamQualityId).lower())
+                    logging.debug('matching filter modality:{}, RS {}'.format(c.find('from/energy').attrib['type'].lower(),
+                                                                        beamset.Modality.lower()))
                     for t in c.findall('to'):
                         if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
-                                beamset.Beams[b].MachineReference.Energy == float(c.find('from/energy').text) \
+                                beamset.Beams[b].BeamQualityId.lower() == c.find('from/energy').text.lower() \
                                 and c.find('from/energy').attrib['type'].lower() == beamset.Modality.lower():
                             beam_list[b].append(t.find('machine').text)
 
@@ -915,13 +925,13 @@ def energies(beamset=None, machine=None):
                 if machine is None or t.find('machine').text == machine and 'type' in \
                         t.find('energy').attrib and \
                         (beamset is None or t.find('energy').attrib['type'].lower() == beamset.Modality.lower()):
-                    energy_list[float(c.find('from/energy').text)] = t.find('energy').text
+                    energy_list[c.find('from/energy').text] = t.find('energy').text
 
         # Otherwise, if only an energy filter
         elif 'type' in c.attrib and c.attrib['type'] == 'energy' and \
                 (beamset is None or c.find('from/energy').attrib['type'].lower() == beamset.Modality.lower()):
             for t in c.findall('to'):
-                energy_list[float(c.find('from/energy').text)] = t.find('energy').text
+                energy_list[c.find('from/energy').text] = t.find('energy').text
 
     return energy_list
 
