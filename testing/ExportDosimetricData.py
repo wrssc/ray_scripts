@@ -274,6 +274,8 @@ def main():
         plan_name = row.PlanName
         patient_id = row.PatientID
         case_name = row.Case
+        source_plan = row.SourcePlan
+        source_beamset = row.SourceBeamset
         patient_load = False
         #
         # Read the csv into a pandas dataframe
@@ -312,6 +314,24 @@ def main():
                      'Case':case_name,
                      'PlanName':plan_name,
                      'BeamsetName':beamset_name}
+        # If there are no goals in this plan, look for another copy of this plan with
+        # the optional name given in the input.
+        # Copy goals to clinical plan
+        dest_eval = patient_data['Plan'].TreatmentCourse.EvaluationSetup
+        try:
+            dest_eval.EvaluationFunctions[0]
+            clinical_goals_missing = False
+        except ValueError:
+            clinical_goals_missing = True
+            
+        if clinical_goals_missing:
+            try:
+                source_eval = patient_data['Case'].TreatmentPlans[source_plan].TreatmentCourse.EvaluationSetup
+                for e in source_eval.EvaluationFunctions:
+                    dest_eval.CopyClinicalGoal(FunctionToCopy=e)
+            except KeyError:
+                logging.debug('Unable to find plan {} for goal copy'.format(source_plan))
+        patient_data['Patient'].Save()
         # Update patient dose data
         patient_data['Beamset'].FractionDose.UpdateDoseGridStructures()
         patient_data['Plan'].TreatmentCourse.TotalDose.UpdateDoseGridStructures()
