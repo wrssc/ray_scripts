@@ -321,7 +321,7 @@ def main():
         try:
             dest_eval.EvaluationFunctions[0]
             clinical_goals_missing = False
-        except ValueError:
+        except:
             clinical_goals_missing = True
             
         if clinical_goals_missing:
