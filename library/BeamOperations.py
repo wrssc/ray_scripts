@@ -416,7 +416,7 @@ def place_beams_in_beamset(iso, beamset, beams):
                               Name=b.name,
                               Description=b.name,
                               GantryAngle=b.gantry_start_angle,
-                              CouchAngle=b.couch_angle,
+                              CouchRotationAngle=b.couch_angle,
                               CollimatorAngle=b.collimator_angle)
 
 
@@ -604,23 +604,6 @@ def update_set_up(beamset, set_up):
 
 
 def rename_beams():
-    # These are the techniques associated with billing codes in the clinic
-    # they will be imported
-    available_techniques = [
-        'Static MLC -- 2D',
-        'Static NoMLC -- 2D',
-        'Electron -- 2D',
-        'Static MLC -- 3D',
-        'Static NoMLC -- 3D',
-        'Electron -- 3D',
-        'FiF MLC -- 3D',
-        'Static PRDR MLC -- 3D',
-        'SnS MLC -- IMRT',
-        'SnS PRDR MLC -- IMRT',
-        'Conformal Arc -- 2D',
-        'Conformal Arc -- 3D',
-        'VMAT Arc -- IMRT',
-        'Tomo Helical -- IMRT']
     supported_rs_techniques = [
         'SMLC',
         'DynamicArc',
@@ -637,6 +620,39 @@ def rename_beams():
         UserInterface.WarningBox('This script requires a Beam Set to be loaded')
         sys.exit('This script requires a Beam Set to be loaded')
 
+    #
+    # Electrons, 3D, and VMAT Arcs are all that are supported.  Reject plans that aren't
+    technique = beamset.DeliveryTechnique
+    #
+    # Oddly enough, Electrons are DeliveryTechnique = 'SMLC'
+    if technique not in supported_rs_techniques:
+        logging.warning('Technique: {} unsupported in renaming script'.format(technique))
+        raise IOError("Technique unsupported, manually name beams according to clinical convention.")
+    # These are the techniques associated with billing codes in the clinic
+    # they will be imported
+    # Separate the billing list by technique
+    if technique == 'SMLC':
+        available_techniques = [
+            'Static MLC -- 2D',
+            'Static NoMLC -- 2D',
+            'Electron -- 2D',
+            'Static MLC -- 3D',
+            'Static NoMLC -- 3D',
+            'Electron -- 3D',
+            'FiF MLC -- 3D',
+            'Static PRDR MLC -- 3D',
+            'SnS MLC -- IMRT',
+            'SnS PRDR MLC -- IMRT']
+    elif technique == 'DynamicArc':
+        available_techniques = [
+            'Conformal Arc -- 2D',
+            'Conformal Arc -- 3D',
+            'VMAT Arc -- IMRT']
+    elif technique == 'TomoHelical':
+        available_techniques = [
+            'Tomo Helical -- IMRT']
+
+
     initial_sitename = beamset.DicomPlanLabel[:4]
     # Prompt the user for Site Name and Billing technique
     dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
@@ -652,14 +668,6 @@ def rename_beams():
 
     site_name = dialog.values['Site']
     input_technique = dialog.values['Technique']
-    #
-    # Electrons, 3D, and VMAT Arcs are all that are supported.  Reject plans that aren't
-    technique = beamset.DeliveryTechnique
-    #
-    # Oddly enough, Electrons are DeliveryTechnique = 'SMLC'
-    if technique not in supported_rs_techniques:
-        logging.warning('Technique: {} unsupported in renaming script'.format(technique))
-        raise IOError("Technique unsupported, manually name beams according to clinical convention.")
 
     # Tomo Helical naming
     if technique == 'TomoHelical':
@@ -677,9 +685,15 @@ def rename_beams():
     logging.debug('Renaming and adding set up fields to Beam Set with name {}, patdelivery_time_factor {}, technique {}'.
                   format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
     # Rename isocenters
+    # Isocenter number is no longer tracked within the beamset.
+    iso_count = 0
+    beamset_isocenters = []
     for b in beamset.Beams:
-        iso_n = int(b.Isocenter.IsocenterNumber)
-        b.Isocenter.Annotation.Name = 'Iso_' + beamset.DicomPlanLabel + '_' + str(iso_n + 1)
+        if not b.Isocenter.Annotation.Name in beamset_isocenters:
+            beamset_isocenters.append(str(b.Isocenter.Annotation.Name))
+            iso_count += 1
+            iso_name = 'Iso_' + beamset.DicomPlanLabel + '_' + str(iso_count)
+        b.Isocenter.Annotation.Name = iso_name
     #
     # HFS
     if patient_position == 'HeadFirstSupine':
@@ -687,7 +701,7 @@ def rename_beams():
         for b in beamset.Beams:
             try:
                 gantry_angle = round(float(b.GantryAngle), 1)
-                couch_angle = round(float(b.CouchAngle), 1)
+                couch_angle = round(float(b.CouchRotationAngle), 1)
                 gantry_angle_string = str(int(gantry_angle))
                 couch_angle_string = str(int(couch_angle))
                 # 
@@ -759,7 +773,7 @@ def rename_beams():
         for b in beamset.Beams:
             try:
                 gantry_angle = round(float(b.GantryAngle), 1)
-                couch_angle = round(float(b.CouchAngle), 1)
+                couch_angle = round(float(b.CouchRotationAngle), 1)
                 gantry_angle_string = str(int(gantry_angle))
                 couch_angle_string = str(int(couch_angle))
                 #
@@ -830,7 +844,7 @@ def rename_beams():
         for b in beamset.Beams:
             try:
                 gantry_angle = round(float(b.GantryAngle), 1)
-                couch_angle = round(float(b.CouchAngle), 1)
+                couch_angle = round(float(b.CouchRotationAngle), 1)
                 gantry_angle_string = str(int(gantry_angle))
                 couch_angle_string = str(int(couch_angle))
                 #
@@ -901,7 +915,7 @@ def rename_beams():
         for b in beamset.Beams:
             try:
                 gantry_angle = round(float(b.GantryAngle), 1)
-                couch_angle = round(float(b.CouchAngle), 1)
+                couch_angle = round(float(b.CouchRotationAngle), 1)
                 gantry_angle_string = str(int(gantry_angle))
                 couch_angle_string = str(int(couch_angle))
                 #
@@ -969,7 +983,7 @@ def rename_beams():
         for b in beamset.Beams:
             try:
                 gantry_angle = round(float(b.GantryAngle), 1)
-                couch_angle = round(float(b.CouchAngle), 1)
+                couch_angle = round(float(b.CouchRotationAngle), 1)
                 gantry_angle_string = str(int(gantry_angle))
                 couch_angle_string = str(int(couch_angle))
                 #
@@ -1039,7 +1053,7 @@ def rename_beams():
         for b in beamset.Beams:
             try:
                 gantry_angle = round(float(b.GantryAngle), 1)
-                couch_angle = round(float(b.CouchAngle), 1)
+                couch_angle = round(float(b.CouchRotationAngle), 1)
                 gantry_angle_string = str(int(gantry_angle))
                 couch_angle_string = str(int(couch_angle))
                 #
@@ -1110,7 +1124,7 @@ def rename_beams():
         for b in beamset.Beams:
             try:
                 gantry_angle = round(float(b.GantryAngle), 1)
-                couch_angle = round(float(b.CouchAngle), 1)
+                couch_angle = round(float(b.CouchRotationAngle), 1)
                 gantry_angle_string = str(int(gantry_angle))
                 couch_angle_string = str(int(couch_angle))
                 #
@@ -1181,7 +1195,7 @@ def rename_beams():
             standard_beam_name = 'Naming Error'
             try:
                 gantry_angle = round(float(b.GantryAngle), 1)
-                couch_angle = round(float(b.CouchAngle), 1)
+                couch_angle = round(float(b.CouchRotationAngle), 1)
                 gantry_angle_string = str(int(gantry_angle))
                 couch_angle_string = str(int(couch_angle))
                 #
