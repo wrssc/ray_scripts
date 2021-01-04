@@ -830,7 +830,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # TODO: Make this a beamset setting in the xml protocols
     small_field_names = ['_SRS_','_SBR_','_FSR_','_LLL_','_LUL_','_RLL_','_RML_','_RUL_']
     if any(a in beamset.DicomPlanLabel for a in small_field_names):
-        margins = {'Y1': 0.25, 'Y2': 0.25, 'X1': 0.25, 'X2': 0.25}
+        margins = {'Y1': 0.15, 'Y2': 0.15, 'X1': 0.15, 'X2': 0.15}
     else:
         margins = {'Y1': 0.8, 'Y2': 0.8, 'X1': 0.8, 'X2': 0.8}
 

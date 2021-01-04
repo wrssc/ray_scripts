@@ -33,8 +33,13 @@
     Script Created by RAB 12Dec2019
     Prerequisites:
 
+    Validation Notes:
+    Test Patient: MR# ZZUWQA_ScTest_30Dec2020, 
+                  Name: Script_Testing^Automated Plan – Whole Brain
+    TomoTherapy, VMAT (seg weight, reduce OAR, variable dose grid)
     Version history:
     1.0.0 Moved Most functions to the OptimizeOperations library
+    1.1.0 Updated to RayStation Version 10A SP1
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -52,18 +57,18 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2019-Dec-10'
-__version__ = '2.0.0'
-__status__ = 'Development'
+__date__ = '2021-Jan-05'
+__version__ = '1.1.0'
+__status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
-__raystation__ = '7.0.0'
+__raystation__ = '10A.SP1'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
 __credits__ = ['']
 #
 
@@ -179,7 +184,7 @@ def main():
     except KeyError:
         reset_beams = False
 
-    # Perform a segment weight optimization after the aperature optimization
+    # Perform a segment weight optimization after the aperture optimization
     try:
         if 'Perform Segment Weighted optimization' in optimization_dialog.values['input09_segment_weight']:
             segment_weight = True
