@@ -9,6 +9,9 @@
     tpo.load_protocols(os.path.join(os.path.dirname(__file__), '../../protocols/'))
     tpo.show(connect.get_current('Case'), connect.get_current('Examination'))
 
+    Versions:
+    1.0.0 Original
+    1.1.0 Update to RS 10A, SP1
     This program is free software: you can redistribute it and/or modify it under the
     terms of the GNU General Public License as published by the Free Software Foundation,
     either version 3 of the License, or (at your option) any later version.
@@ -23,10 +26,10 @@
 
 __author__ = 'Mark Geurts'
 __contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/Create-TPO'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2020, University of Wisconsin Board of Regents'
 
 # Import packages
 import clr
@@ -861,8 +864,8 @@ class TpoDialog:
         self.diagnosis = System.Windows.Forms.ComboBox()
         self.diagnosis.Width = self.form.MaximumSize.Width / 3 - 50
         self.diagnosis.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
-        sorted_diagnoses = self.diagnosis_list.values()
-        sorted_diagnoses.sort()
+        sorted_diagnoses = sorted(self.diagnosis_list.values())
+        # sorted_diagnoses = sorted(sorted_diagnoses.items())
         self.diagnosis.Items.AddRange(sorted_diagnoses)
         self.left.Controls.Add(self.diagnosis)
 
@@ -1376,7 +1379,7 @@ class TpoDialog:
         # Populate protocol list
         self.protocol_list = self.protocols.keys()
         if len(self.protocol_list) > 0:
-            self.protocol_list.sort()
+            self.protocol_list = sorted(self.protocol_list)
             if self.protocol.Items.Count > 0:
                 self.protocol.Items.Clear()
 
@@ -1389,8 +1392,7 @@ class TpoDialog:
                 self.order_list.append(o.text)
 
         if len(self.order_list) > 0:
-            self.order_list = list(set(self.order_list))
-            self.order_list.sort()
+            self.order_list = sorted(list(set(self.order_list)))
             logging.debug('{} orders identified from protocols'.format(len(self.order_list)))
             if self.order.Items.Count > 0:
                 self.order.Items.Clear()

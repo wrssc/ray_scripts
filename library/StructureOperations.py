@@ -941,7 +941,7 @@ def levenshtein_match(item, arr, num_matches=None):
 
     # Loop through array of options
     for a in arr:
-        v0 = range(len(a) + 1) + [0]
+        v0 = list(range(len(a) + 1)) + [0]
         v1 = [0] * len(v0)
         for b in range(len(item)):
             v1[0] = b + 1

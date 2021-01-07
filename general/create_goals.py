@@ -23,11 +23,12 @@
     1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
     1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
     2.0.0 Adding the clinical objectives for IMRT
+    2.1.0 Python 3.6 conversion and update to RS 10A SP1
 
 """
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '2.0.0'
+__version__ = '2.1.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
