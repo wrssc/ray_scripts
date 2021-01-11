@@ -197,15 +197,20 @@ def has_coordinates_poi(case, exam, poi):
     """
 
     poi_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[poi]
-    test_points = [
-        abs(poi_position.Point.x) < 1e5,
-        abs(poi_position.Point.y) < 1e5,
-        abs(poi_position.Point.z < 1e5),
-    ]
-    if all(test_points):
-        return True
-    else:
-        return False
+    try:
+        coords = [poi_position.Point.x, poi_position.Point.y, poi_position.Point.z]
+        if all(abs(c) < 1.e5 for c in coords ):
+            return True
+        else:
+            return False
+    except AttributeError as e:
+        e_message = "'NoneType' object has no attribute 'x'"
+        if e_message in str(e):
+            return False
+        else:
+            logging.debug('Unhandled exception: {}'.format(e))
+            sys.exit("Script cancelled")
+
 
 
 def check_roi(case, exam, rois):

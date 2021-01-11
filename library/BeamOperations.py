@@ -632,17 +632,20 @@ def rename_beams():
     # they will be imported
     # Separate the billing list by technique
     if technique == 'SMLC':
-        available_techniques = [
-            'Static MLC -- 2D',
-            'Static NoMLC -- 2D',
-            'Electron -- 2D',
-            'Static MLC -- 3D',
-            'Static NoMLC -- 3D',
-            'Electron -- 3D',
-            'FiF MLC -- 3D',
-            'Static PRDR MLC -- 3D',
-            'SnS MLC -- IMRT',
-            'SnS PRDR MLC -- IMRT']
+        if beamset.Modality == 'Electrons':
+            available_techniques = [
+                'Electron -- 2D',
+                'Electron -- 3D']
+        else:
+            available_techniques = [
+                'Static MLC -- 2D',
+                'Static NoMLC -- 2D',
+                'Static MLC -- 3D',
+                'Static NoMLC -- 3D',
+                'FiF MLC -- 3D',
+                'Static PRDR MLC -- 3D',
+                'SnS MLC -- IMRT',
+                'SnS PRDR MLC -- IMRT']
     elif technique == 'DynamicArc':
         available_techniques = [
             'Conformal Arc -- 2D',

@@ -16,6 +16,10 @@
 
     Dependencies::
         Note that protocols are assumed to have even priorities describing targets
+    
+    Validation Notes:
+    Test Patient: MR# ZZUWQA_ScTest_05Jan2020, Name: Script_testing^Planning Structures Clinical Goals and Objectives
+    -Anal_THI - sets clinical goals and objectives for AnoRectal-TPO
 
     TODO: Change the main to a callable function taking the protocol path as an input`
     TODO: Add goal loop for secondary - unspecified target goals
