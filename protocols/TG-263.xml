@@ -1549,6 +1549,7 @@
         <Description>Fiducial markers for tracking</Description>
         <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1566,6 +1567,7 @@
         </Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1581,6 +1583,7 @@
         <Description>Fiducial markers for tracking</Description>
         <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1598,6 +1601,7 @@
         </Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1613,6 +1617,7 @@
         <Description>Fiducial markers for tracking</Description>
         <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1629,6 +1634,7 @@
             tracking
         </Description>
         <NCIt></NCIt>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <TargetType>PRV</TargetType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
@@ -1644,6 +1650,7 @@
         <TG263PrimaryName>Fiducial4</TG263PrimaryName>
         <Description>Fiducial markers for tracking</Description>
         <NCIt></NCIt>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <TargetType>Non_Anatomic</TargetType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
@@ -1662,6 +1669,7 @@
         </Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>

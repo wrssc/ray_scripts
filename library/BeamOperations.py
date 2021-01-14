@@ -374,9 +374,7 @@ def create_beamset(patient, case, exam, plan,
         RbeModelReference=None,
         EnableDynamicTrackingForVero=False,
         NewDoseSpecificationPointNames=[],
-        NewDoseSpecificationPoints=[],
-        RespiratoryMotionCompensationTechnique="Disabled",
-        RespiratorySignalSource="Disabled")
+        NewDoseSpecificationPoints=[])
 
     beamset = plan.BeamSets[b.DicomName]
     patient.Save()
@@ -411,7 +409,7 @@ def place_beams_in_beamset(iso, beamset, beams):
 
         beamset.CreateArcBeam(ArcStopGantryAngle=b.gantry_stop_angle,
                               ArcRotationDirection=b.rotation_dir,
-                              Energy=b.energy,
+                              BeamQualityId=b.energy,
                               IsocenterData=iso,
                               Name=b.name,
                               Description=b.name,
@@ -435,7 +433,7 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
         beam.energy, beam.field_width, beam.pitch))
 
     beamset.CreatePhotonBeam(Name=beam.name,
-                             Energy=beam.energy,
+                             BeamQualityId=beam.energy,
                              IsocenterData=iso,
                              Description=beam.name,
                              )
@@ -2311,7 +2309,7 @@ def load_beams_xml(filename, beamset_name, path):
             beam.number = int(b.find('BeamNumber').text)
             beam.name = str(b.find('Name').text)
             beam.technique = str(b.find('DeliveryTechnique').text)
-            beam.energy = int(b.find('Energy').text)
+            beam.energy = str(b.find('Energy').text)
 
             if b.find('GantryAngle') is None:
                 beam.gantry_start_angle = None

@@ -563,4 +563,32 @@
             <MaxDeliveryTimeFactor>3</MaxDeliveryTimeFactor>
         </beam>
     </beamset>
+    <beamset>
+        <name>2 Arc VMAT</name>
+        <technique>VMAT</technique>
+        <DicomName>____VMA_R_A_</DicomName>
+        <description>Two full arc VMAT Beams</description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+        </beam>
+    </beamset>
 </protocol>

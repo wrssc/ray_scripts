@@ -424,6 +424,10 @@ def change_roi_type(case, roi_name, roi_type):
         "TreatedVolume",
         "Undefined",
     ]
+    # without a specified type the structure will be set to "Unknown"
+    if roi_type =='None':
+        roi_type = "Undefined"
+        
     if structure_approved(case=case, roi_name=roi_name):
         error_message.append(
             "Structure {} is approved, cannot change type {}".format(roi_name, roi_type)
@@ -466,7 +470,9 @@ def change_roi_type(case, roi_name, roi_type):
             )
     # Set the organ type if necessary
     for k, v in type_dict.items():
-        if any(roi_type in types for types in v):
+        if not roi_type:
+            error_message.append('Could not change organ type of {} to {}'.format(roi_name, roi_type))
+        elif any(roi_type in types for types in v):
             if current_organ_type == k:
                 error_message.append(
                     "Structure {} is already organ type {}".format(
@@ -520,7 +526,8 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
     :param case: raystation case
     :param structure_name:structure name to be tested
     :param roi_list: list of rois to look in, if not specified, use all rois
-    :return: list of names defined in RayStation, or [] if no match was found.
+    :return: list of names defined in RayStation, if only one structure is found return a string
+             or [] if no match was found.
     """
     # If no roi_list is given, build it using all roi in the case
     if roi_list is None:
@@ -535,6 +542,8 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
         if re.search(r"^" + structure_name + "$", current_roi, re.IGNORECASE):
             if not re.search(r"^" + structure_name + "$", current_roi):
                 matched_rois.append(current_roi)
+    if len(matched_rois)==1:
+        matched_rois = matched_rois[0]
     return matched_rois
 
 
@@ -629,45 +638,33 @@ def check_structure_exists(
                 case.PatientModel.StructureSets[exam.Name].RoiGeometries[
                     structure_name
                 ].DeleteGeometry()
-                logging.warning(structure_name + " found - deleting geometry")
+                logging.warning("{} found - deleting geometry".format(structure_name))
                 return False
             else:
                 case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-                logging.warning(structure_name + " found - deleting and creating")
+                logging.warning("{} found - deleting and creating".format(structure_name))
                 return True
         elif option == "Check":
             if exam is not None and structure_has_contours_on_exam:
-                # logging.info(
-                #     "Structure {} has contours on exam {}".format(structure_name, exam.Name)
-                # )
+                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
                 return True
             elif exam is not None:
-                # logging.info(
-                #     "Structure {} has no contours on exam {}".format(structure_name, exam.Name)
-                # )
+                # logging.info("Structure {} has no contours on exam {}".format(structure_name, exam.Name))
                 return False
             else:
-                # logging.info("Structure {} exists in this Case {}"
-                #              .format(structure_name, case.Name)
-                # )
+                # logging.info("Structure {} exists in this Case {}".format(structure_name, case.Name))
                 return True
         elif option == "Wait":
             if structure_has_contours_on_exam:
-                # logging.info( "Structure {} has contours on exam {}".format(structure_name, exam.Name))
+                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
                 return True
             else:
-                logging.info(
-                    "Structure {} not found on exam {}, prompted user to create".format(
-                        structure_name, exam.Name
-                    )
-                )
-                connect.await_user_input(
-                    "Create the structure {} and continue script.".format(
-                        structure_name
-                    )
-                )
+                logging.info("Structure {} not found on exam {}, prompted user to create"
+                            .format(structure_name, exam.Name))
+                connect.await_user_input("Create the structure {} and continue script."
+                                         .format(structure_name))
     else:
-        logging.info(structure_name + " not found")
+        logging.info("{} not found".format(structure_name))
         return False
 
 
@@ -912,22 +909,10 @@ def translate_roi(case, exam, roi, shifts):
     y = shifts["y"]
     z = shifts["z"]
     transform_matrix = {
-        "M11": 1,
-        "M12": 0,
-        "M13": 0,
-        "M14": x,
-        "M21": 0,
-        "M22": 1,
-        "M23": 0,
-        "M24": y,
-        "M31": 0,
-        "M32": 0,
-        "M33": 1,
-        "M34": z,
-        "M41": 0,
-        "M42": 0,
-        "M43": 0,
-        "M44": 1,
+        "M11": 1, "M12": 0, "M13": 0, "M14": x,
+        "M21": 0, "M22": 1, "M23": 0, "M24": y,
+        "M31": 0, "M32": 0, "M33": 1, "M34": z,
+        "M41": 0, "M42": 0, "M43": 0, "M44": 1,
     }
     case.PatientModel.RegionsOfInterest["TomoCouch"].TransformROI3D(
         Examination=exam, TransformationMatrix=transform_matrix
@@ -2014,6 +1999,7 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
     """
     # First we want to work with the case insensitive match to the structure name supplied
     roi_name_ci = case_insensitive_structure_search(case=case, structure_name=roi_name)
+    # Convert this from a list to an individual structure
     roi_name_exists = check_structure_exists(
         case=case, option="Check", structure_name=roi_name
     )

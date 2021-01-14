@@ -739,24 +739,32 @@ def main():
             plan = case.TreatmentPlans[p]
             plan.SetCurrent()
             connect.get_current('Plan')
+            # Creating a common call to a create beamset wrapper
+            # will help the next time the function calls are changed 
+            # by RaySearch
+            beamset_defs = BeamOperations.BeamSet()
+            beamset_defs.rx_target = 'PTV_WB_xxxx'
+            beamset_defs.number_of_fractions = number_of_fractions
+            beamset_defs.total_dose = total_dose
+            beamset_defs.machine = plan_machine
+            beamset_defs.iso_target = 'PTV_WB_xxxx'
+            beamset_defs.name = p
+            beamset_defs.DicomName = p
+            beamset_defs.modality = 'Photons'
+            # Beamset elements derived from the protocol
+            beamset_defs.technique = "Conformal"
+            beamset_defs.protocol_name = "WBRT"
+            
+            beamset = BeamOperations.create_beamset(
+                patient=patient,
+                exam = examination,
+                case=case,
+                plan=plan,
+                dialog=False,
+                BeamSet=beamset_defs,
+                create_setup_beams=False
+            )
 
-            plan.AddNewBeamSet(
-                Name=p,
-                ExaminationName=examination.Name,
-                MachineName=plan_machine,
-                Modality="Photons",
-                TreatmentTechnique="Conformal",
-                PatientPosition="HeadFirstSupine",
-                NumberOfFractions=number_of_fractions,
-                CreateSetupBeams=False,
-                UseLocalizationPointAsSetupIsocenter=False,
-                Comment="",
-                RbeModelReference=None,
-                EnableDynamicTrackingForVero=False,
-                NewDoseSpecificationPointNames=[],
-                NewDoseSpecificationPoints=[])
-
-            beamset = plan.BeamSets[p]
             patient.Save()
 
             beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',

@@ -720,6 +720,7 @@ def add_goals_and_structures_from_protocol(patient=None, case=None, plan=None, b
     __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
     __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+    error_message = []
     # Potential inputs, patient, case, exam, beamset, protocol path, filename
     if run_status:
         status = UserInterface.ScriptStatus(
@@ -1132,9 +1133,9 @@ def add_goals_and_structures_from_protocol(patient=None, case=None, plan=None, b
                               checking=True)
 
 
-def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
-                                             filename, path_protocols, protocol_name, target_map,
-                                             order_name=None, run_status=False):
+def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
+                                           filename=None, path_protocols=None, protocol_name=None,
+                                           target_map=None, order_name=None, run_status=True):
     """Add Clinical Goals and Objectives from Protocol
 
     Add clinical goals and objectives in RayStation given user supplied inputs
@@ -1185,11 +1186,12 @@ def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
     __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
     __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+    # Adding error handling
+    error_message = []
     # Potential inputs, patient, case, exam, beamset, protocol path, filename
-    if not target_map:
-        return False
-    for k, v in target_map.items():
-        logging.debug('Targets are {}:{}'.format(k, v))
+    if target_map:
+        for k, v in target_map.items():
+            logging.debug('Targets are {}:{}'.format(k, v))
     if run_status:
         status = UserInterface.ScriptStatus(
             steps=['Finding correct protocol',
@@ -1218,8 +1220,11 @@ def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
     # 		dataframes, it would help reduce the overhead in messing with these
     # 		unsearchable elementrees
     if filename:
-        logcrit('Protocol selected: {}'.format(
-            filename))
+        logcrit('Protocol selected: {}'.format(filename))
+        if not os.path.exists(os.path.join(path_protocols,filename)):
+            error_message.append('Path {} not found. No goals could be added'
+                                 .format(os.path.join(path_protocols,filename)))
+            return error_message
         if protocol_name:
             tree = xml.etree.ElementTree.parse(os.path.join(path_protocols, filename))
             if tree.getroot().tag == 'protocol':
@@ -1232,6 +1237,58 @@ def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
                     order = o
                     use_orders = True
                     break
+    else:
+        # Find the protocol the user wants to use through a dialog
+        input_dialog = UserInterface.InputDialog(
+            inputs={'i': 'Select Protocol'},
+            title='Protocol Selection',
+            datatype={'i': 'combo'},
+            initial={},
+            options={'i': list(tpo.protocols.keys())},
+            required=['i'])
+        # Launch the dialog
+        response = input_dialog.show()
+        # Link root to selected protocol ElementTree
+        logging.info("Protocol selected: {}".format(
+            input_dialog.values['i']))
+        # Store the protocol name and optional order name
+        protocol_name = input_dialog.values['i']
+        order_name = None
+        order_list = []
+        protocol = tpo.protocols[input_dialog.values['i']]
+        for o in protocol.findall('order/name'):
+            order_list.append(o.text)
+
+        if len(order_list) >= 1:
+            use_orders = True
+            # Find the protocol the user wants to use.
+            input_dialog = UserInterface.InputDialog(
+                inputs={'i': 'Select Order'},
+                title='Order Selection',
+                datatype={'i': 'combo'},
+                initial={'i': order_list[0]},
+                options={'i': order_list},
+                required=['i'])
+            # Launch the dialog
+            response = input_dialog.show()
+            # Link root to selected protocol ElementTree
+            logging.critical("Treatment Planning Order selected: {}".format(
+                input_dialog.values['i']))
+            # Update the order name
+
+            # I believe this loop can be eliminated with we can use a different function
+            # to match protocol.find('order') with input_dialog.values['i']
+            for o in protocol.findall('order'):
+                if o.find('name').text == input_dialog.values['i']:
+                    order = o
+                    logging.debug('Matching protocol ElementTag found for {}'.format(
+                        input_dialog.values['i']))
+                    break
+            order_name = input_dialog.values['i']
+
+        else:
+            logging.debug('No orders in protocol')
+            use_orders = False
 
     # Match the list of structures found in the objective protocols and protocols
     #
@@ -1299,8 +1356,8 @@ def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
 
     # Launch the matching script here. Then check for any missing that remain. Supply function with rois and
     # protocol_rois
-    if False:
-        if missing_contours and not target_map:
+    if not filename:
+        if missing_contours:
             mc_list = ',\n'.join(missing_contours)
             missing_message = 'Missing structures, continue script or cancel \n' + mc_list
             if run_status:
@@ -1328,10 +1385,40 @@ def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
                 mc_list = ',\n'.join(m_c)
                 missing_message = 'Missing structures remain: ' + mc_list
                 logging.warning('Missing contours from this order: {}'.format(m_c))
-    if run_status:
-        status.next_step(text="Getting target doses from user.", num=2)
-    for k, v in target_map.items():
-        logging.debug('Targets are {}{}'.format(k, v))
+        if run_status:
+            status.next_step(text="Getting target doses from user.", num=2)
+        target_dialog = UserInterface.InputDialog(
+            inputs=target_inputs,
+            title='Input Target Dose Levels',
+            datatype=target_datatype,
+            initial=target_initial,
+            options=target_options,
+            required=[])
+        print
+        target_dialog.show()
+        # Process inputs
+        # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
+        nominal_dose = 0
+        translation_map = {}
+        # TODO Add a dict element that is just key and dose
+        #  seems like the next two loops could be combined, but
+        #  since dict cycling isn't ordered I don't know how to create
+        #  a blank element space
+        for k, v in target_dialog.values.items():
+            if len(v) > 0:
+                i, p = k.split("_", 1)
+                if p not in translation_map:
+                    translation_map[p] = [None] * 2
+                if 'name' in i:
+                    # Key name will be the protocol target name
+                    translation_map[p][0] = v
+
+                if 'dose' in i:
+                    # Append _dose to the key name
+                    pd = p + '_dose'
+                    # Not sure if this loop is still needed
+                    translation_map[p][1] = (float(v) / 100.)
+
 
     # Process inputs
     # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
@@ -1342,6 +1429,12 @@ def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
     #  a blank element space
     if target_map:
         translation_map = target_map
+        for k, v in target_map.items():
+            logging.debug('Targets are {}{}'.format(k, v))
+    else:
+        for k, v in translation_map.items():
+            logging.debug('Targets are {}{}'.format(k, v))
+
 
     if run_status:
         status.next_step(text="Adding goals.", num=3)
@@ -1516,3 +1609,4 @@ def add_goals_and_structures_from_protocol_3(case, plan, beamset, exam,
                               s_weight=None,
                               restrict_beamset=None,
                               checking=True)
+    return error_message

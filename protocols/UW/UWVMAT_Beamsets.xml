@@ -127,7 +127,7 @@
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc</Name>
-            <Energy>6</Energy>
+            <Energy>6 FFF</Energy>
             <GantryAngle>192</GantryAngle>
             <GantryStopAngle>168</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
@@ -138,7 +138,7 @@
             <BeamNumber>2</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc</Name>
-            <Energy>6</Energy>
+            <Energy>6 FFF</Energy>
             <GantryAngle>163</GantryAngle>
             <GantryStopAngle>187</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>

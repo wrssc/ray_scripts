@@ -48,13 +48,14 @@ import numpy as np
 import random
 import logging
 from collections import OrderedDict
+from io import BytesIO
 
 import connect
 import GeneralOperations
 import StructureOperations
 import BeamOperations
 import UserInterface
-from Objectives import add_goals_and_structures_from_protocol_3
+from Objectives import add_goals_and_objectives_from_protocol
 from OptimizationOperations import optimize_plan, iter_optimization_config_etree
 
 
@@ -125,7 +126,7 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
 
 
 def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, plan_name):
-    """ Query's database for plan, case, and exam. Returns them as a dict. Saves patient if a 
+    """ Query's database for plan, case, and exam. Returns them as a dict. Saves patient if a
         new plan is created.
 
     Arguments:
@@ -501,21 +502,20 @@ def merge_dict(row):
     return target_dict
 
 
-# def create_beamset(beamset_name, df_input, suffix=):
-#    """Create a beamset from """
 def main():
-    # Load the current RS database
-    ## db = connect.get_current("PatientDB")
     # Prompt the user to open a file
     browser = UserInterface.CommonDialog()
     file_csv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
+    print('Looking in file {}'.format(file_csv))
     if file_csv != '':
         plan_data = pd.read_csv(file_csv)
+        #plan_data = pd.read_csv(BytesIO(file_csv))
         # Merge the target rows into a dictionary containing {[Target Name]:Dose}
         plan_data['Targets'] = plan_data.apply(lambda row: merge_dict(row), axis=1)
         # Replace all nan with ''
         plan_data = plan_data.replace(np.nan, '', regex=True)
     ## Create the output file
+    print('The pandas array is {}'.format(plan_data))
     path = os.path.dirname(file_csv)
 
     ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
@@ -534,6 +534,7 @@ def main():
         clinical_goals_load = False
         plan_optimization_strategy_load = False
         optimization_complete = False
+        status_message =''
         #
         # Read the csv into a pandas dataframe
         patient_data = load_patient_data(
@@ -577,16 +578,10 @@ def main():
         if not exam.EquipmentInfo.ImagingSystemReference:
             exam.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=row.CTSystem)
             patient.Save()
-        ## Delete this, but temporarily load beamsets and just try to optimize them
-        ## beamset_name = 'VMAT'
-        ## rs_beam_set = plan.BeamSets[beamset_name]
-        ## rs_beam_set.SetCurrent()
-        ## connect.get_current('BeamSet')
-        ## err = load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)
-        ## sys.exit(err)
 
         errors_ps = test_inputs_planning_structure(case,row)
         if errors_ps:
+            status_message.append(errors_ps)
             # Go to the next entry
             output_status(
                 path=path,
@@ -601,7 +596,7 @@ def main():
                 clinical_goals_load=clinical_goals_load,
                 plan_optimization_strategy_load=plan_optimization_strategy_load,
                 optimization_complete=optimization_complete,
-                script_status=errors_ps
+                script_status=status_message
             )
             continue
         planning_structs = load_planning_structures(case, row)
@@ -693,6 +688,7 @@ def main():
             # Beams loaded successfully
             beams_load = True
         else:
+            status_message.append('Unsupported beamset technique {}'.format(beamset_defs.technique))
             logging.debug('Unsupported beamset technique {}'.format(beamset_defs.technique))
         if not beams_load:
             output_status(
@@ -708,7 +704,7 @@ def main():
                 clinical_goals_load=clinical_goals_load,
                 plan_optimization_strategy_load=plan_optimization_strategy_load,
                 optimization_complete=optimization_complete,
-                script_status=None
+                script_status=status_message
             )
             continue
 
@@ -724,7 +720,7 @@ def main():
         translation_map = OrderedDict()
         for k, v in row.Targets.items():
             translation_map[v[1]] = (k, float(v[0]) / 100.)
-        add_goals_and_structures_from_protocol_3(
+        goals_added = add_goals_and_objectives_from_protocol(
             case=case,
             plan=plan,
             beamset=rs_beam_set,
@@ -736,7 +732,13 @@ def main():
             order_name=order_name,
             run_status=False,
         )
-        clinical_goals_load = True
+        if not goals_added:
+            clinical_goals_load = True
+            logging.info('Clinical goals/objectives added successfully')
+        else:
+            for e in goals_added:
+                status_message.append('{} '.format(e))
+            clinical_goals_load = False
 
         #
         # Optimize the plan
@@ -748,8 +750,10 @@ def main():
                     optimization_complete = True
                 else:
                     optimization_complete = False
+                    status_message.append('Optimization unsuccessful')
             except ValueError:
                 optimization_complete = False
+                status_message.append('Optimization unsuccessful')
         else:
             optimization_complete = opt_status
         patient.Save()
@@ -768,7 +772,7 @@ def main():
             clinical_goals_load=clinical_goals_load,
             plan_optimization_strategy_load=plan_optimization_strategy_load,
             optimization_complete=optimization_complete,
-            script_status=None
+            script_status=status_message
         )
 
 
