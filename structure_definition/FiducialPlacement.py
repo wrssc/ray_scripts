@@ -1,6 +1,15 @@
 """ Fiducial Contouring
 
+    User guided contouring of gold markers for fiducial trackingdatetime A combination of a date and a time. Attributes: ()
     0.0.0 Guides user through fiducial placement for prostate SBRT
+
+    Validation Notes:
+    Test Patient: MR# ZZUWQA_ScTest_14Jan2021
+                  Name: Script_Testing^FiducialContouring
+    
+    Version History:
+    0.0.0 Testing and validation in 8.0 B SP2
+    1.1.0 Update and validation in RS 10A and python 3
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -14,22 +23,23 @@
     this program. If not, see <http://www.gnu.org/licenses/>.
 
     Review Comments
-    I recommend including the test patient in the text above so that users can
+    DJJ: I recommend including the test patient in the text above so that users can
     validate, if desired".
+        RAB: Added 14Jan2021
 
     """
 
 __author__ = "Adam Bayliss"
 __contact__ = "rabayliss@wisc.edu"
-__date__ = "2019-09-05"
+__date__ = "2021-01-14"
 
-__version__ = "0.0.0"
-__status__ = "Validation"
+__version__ = "1.1.0"
+__status__ = "Production"
 __deprecated__ = False
 __reviewer__ = "Dustin Jacqmin"
 
 __reviewed__ = "2020-JUL-11"
-__raystation__ = "8.0 SP B"
+__raystation__ = "10A SP1"
 __maintainer__ = "Adam Bayliss"
 
 __email__ = "rabayliss@wisc.edu"
@@ -125,19 +135,24 @@ def main():
     # Drop the cylindrical object and prompt the user to re-position it.
     for n in range(num_fiducials):
         point_name = fiducial_prefix + str(n + 1) + "_POI"
-        case.PatientModel.CreatePoi(
-            Examination=exam,
-            Point={
-                    "x": external_center.x,
-                    "y": external_center.y,
-                    "z": external_center.z,
-                },
-            Volume=0,
-            Name=point_name,
-            Color="Green",
-            VisualizationDiameter=0.5,
-            Type="Control",
+        point_coords = [external_center.x, external_center.y, external_center.z]
+        create_poi_error = StructureOperations.create_poi(
+            case=case,
+            exam=exam,
+            coords=point_coords,
+            name=point_name,
+            color='Green',
+            diameter=0.5,
+            rs_type="Control"
         )
+        if create_poi_error:
+            message = ""
+            for e in create_poi_error:
+                message.append(e)
+            logging.warning('Failed to set {}: {}'.format(point_name,message))
+        else:
+            logging.info('POI {} created'.format(point_name))
+
         # Initialize the fiducial_center to be at the same point as external_center
         fiducial_position = case.PatientModel.StructureSets[exam.Name] \
                             .RoiGeometries[external_name] \

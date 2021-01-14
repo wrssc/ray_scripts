@@ -212,6 +212,58 @@ def has_coordinates_poi(case, exam, poi):
             sys.exit("Script cancelled")
 
 
+def create_poi(case, exam, coords=None, name=None, color='Green',diameter=1, rs_type='Undefined'):
+    """
+    Add a point of interest to the patient model in raystation
+    :param case: req: <RS Case>: current case from RS
+    :param exam: req: <RS Exam>: current examination
+    :param coords: opt: <list>: of DICOM coordinates [x, y, z]
+    :param name: opt: <str>: name of point
+    :param color: opt: <Color>: color name or hex
+    :param diameter: opt: <float>: diameter of point visualization in cm
+    :param rs_type: opt: <str>: ROI Type Possible values;
+      * Marker: Patient marker or marker on a localizer.
+      * Isocenter: Treatment isocenter to be used for external beam therapy.
+      * Registration.
+      * Control: To be used in control of dose optimization and calculation.
+      * DoseRegion: To be used as a dose reference.
+      * LocalizationPoint: Laser coordinate system origin.
+      * AcquisitionIsocenter: Acquisition isocenter, the position during acquisition.
+      * InitialLaserIsocenter: Initial laser isocenter, the position before acquisition.
+      * InitialMatchIsocenter: Initial match isocenter, the position after acquisition.
+      * Undefined.
+
+    :return: error_message: list or None
+    """
+    if coords:
+        coordinate_dict = {"x": coords[0],
+                           "y": coords[1],
+                           "z": coords[2]}
+    else:
+        coordinate_dict = {}
+        exam=None
+    
+    if not name:
+        indx = 0
+        while exists_poi(case=case, pois=['POI'+str(indx)]):
+            indx += 1
+        point_name='POI'+ str(indx)
+    else:
+        point_name = name
+    
+    try:
+        case.PatientModel.CreatePoi(
+            Examination=exam,
+            Point=coordinate_dict,
+            Name=point_name,
+            Color=color,
+            VisualizationDiameter=diameter,
+            Type=rs_type,
+        )
+        return None
+    except Exception as e:
+        error_message = [str(e)]
+        return error_message 
 
 def check_roi(case, exam, rois):
     """ See if the provided rois has contours, later check for contiguous"""

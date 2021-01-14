@@ -45,7 +45,7 @@ __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 
 __reviewed__ = '2019-Nov-12'
-__raystation__ = '8.0 SP B'
+__raystation__ = '10A SP 1'
 __maintainer__ = 'Adam Bayliss'
 
 __email__ = 'rabayliss@wisc.edu'
