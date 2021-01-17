@@ -333,7 +333,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -353,7 +353,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -441,7 +441,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -455,7 +455,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_R_PRV05</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -903,7 +903,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -923,7 +923,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -1011,7 +1011,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -1025,7 +1025,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_R_PRV05</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -1178,6 +1178,31 @@
         </goals>
         <objectives>
             <roi>
+                <name>Glnd_Submand_R</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.05</weight>
+            </roi>
+            <roi>
+                <name>Glnd_Submand_R</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">37</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>Glnd_Submand_R</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Glnd_Submand_L">30</volume>
+                <dose units="%" roi="PTV_p">3</dose>
+                <weight>3e-4</weight>
+            </roi>
+            <roi>
+                <name>Glnd_Submand_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.5</weight>
+            </roi>
+            <roi>
                 <name>Glnd_Submand_L</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">37</dose>
@@ -1186,48 +1211,34 @@
             <roi>
                 <name>Glnd_Submand_L</name>
                 <type dir="lt">DX</type>
-                <volume units="%" roi="Glnd_Submand_L">30</volume>
+                <volume units="%" roi="Glnd_Submand_R">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
                 <weight>1e-2</weight>
             </roi>
             <roi>
-                <name>Glnd_Submand_R</name>
-                <type a="1">MaxEud</type>
-                <dose units="Gy">37</dose>
-                <weight>0.01</weight>
-            </roi>
-            <roi>
-                <name>Glnd_Submand_R</name>
-                <type dir="lt">DX</type>
-                <volume units="%" roi="Glnd_Submand_R">30</volume>
-                <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <name>Larynx</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.5</weight>
             </roi>
             <roi>
                 <name>Larynx</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">30</dose>
-                <weight>1.5</weight>
+                <weight>1.0</weight>
             </roi>
             <roi>
                 <name>Larynx</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Larynx">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-4</weight>
+                <weight>3e-4</weight>
             </roi>
             <roi>
-                <name>Parotid_R</name>
-                <type a="1">MaxEud</type>
-                <dose units="Gy">15</dose>
-                <weight>0.1</weight>
-            </roi>
-            <roi>
-                <name>Parotid_R</name>
-                <type dir="lt">DX</type>
-                <volume units="%" roi="Parotid_R">30</volume>
-                <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-5</weight>
+                <name>Parotid_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>1</weight>
             </roi>
             <roi>
                 <name>Parotid_L</name>
@@ -1238,9 +1249,28 @@
             <roi>
                 <name>Parotid_L</name>
                 <type dir="lt">DX</type>
+                <volume units="%" roi="Parotid_R">30</volume>
+                <dose units="%" roi="PTV_p">3</dose>
+                <weight>5e-2</weight>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="10">100</dose>
+                <weight>0.2</weight>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">15</dose>
+                <weight>0.5</weight>
+            </roi>
+            <roi>
+                <name>Parotid_R</name>
+                <type dir="lt">DX</type>
                 <volume units="%" roi="Parotid_L">30</volume>
                 <dose units="%" roi="PTV_p">3</dose>
-                <weight>1e-2</weight>
+                <weight>3e-5</weight>
             </roi>
         </objectives>
     </order>
@@ -1443,7 +1473,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -1463,7 +1493,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -1551,7 +1581,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -1565,7 +1595,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_R_PRV05</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -2013,7 +2043,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -2033,7 +2063,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -2121,7 +2151,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -2135,7 +2165,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_R_PRV05</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -2583,7 +2613,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -2603,7 +2633,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -2691,7 +2721,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -2705,7 +2735,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_R_PRV05</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -3123,7 +3153,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -3143,7 +3173,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -3231,7 +3261,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -3245,7 +3275,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_R_PRV05</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -3663,7 +3693,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -3683,7 +3713,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -3771,7 +3801,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -3785,7 +3815,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_R_PRV05</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -4206,7 +4236,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -4226,7 +4256,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -4314,7 +4344,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -4328,7 +4358,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_R_PRV05</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -4770,7 +4800,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -4790,7 +4820,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">45</dose>
@@ -4878,7 +4908,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -4892,7 +4922,7 @@
                 <priority>3</priority>
             </roi>
             <roi>
-                <name>Lens_R_PRV05</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">2</dose>
@@ -5504,6 +5534,12 @@
             </roi>
             <roi>
                 <name>Cavity_Oral</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">20</dose>
+                <weight>0.05</weight>
+            </roi>
+            <roi>
+                <name>Cavity_Oral</name>
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Cavity_Oral">5</volume>
                 <dose units="%" roi="PTV_p">3</dose>
@@ -5541,7 +5577,7 @@
                 <weight>5e-5</weight>
             </roi>
             <roi>
-                <name>Cochlea_L_PRV03</name>
+                <name>Cochlea_L_PRV05</name>
                 <type>Max</type>
                 <dose units="Gy">45</dose>
                 <weight>0.1</weight>
@@ -5566,7 +5602,7 @@
                 <weight>5e-5</weight>
             </roi>
             <roi>
-                <name>Cochlea_R_PRV03</name>
+                <name>Cochlea_R_PRV05</name>
                 <type>Max</type>
                 <dose units="Gy">45</dose>
                 <weight>0.1</weight>
@@ -5640,7 +5676,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <dose units="Gy">2</dose>
                 <weight>1</weight>
@@ -5652,7 +5688,7 @@
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>Lens_L_PRV05</name>
+                <name>Lens_L_PRV07</name>
                 <type>Max</type>
                 <dose units="Gy">2</dose>
                 <weight>1</weight>

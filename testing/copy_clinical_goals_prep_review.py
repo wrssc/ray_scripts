@@ -1,5 +1,7 @@
 """ Copy Goals
-
+Script for copying goals to a clinical case in prep for export
+Copies goals from one plan to another. Defines dose levels
+Toggles to plan evaluation.
 """
 import connect
 import sys
@@ -120,16 +122,23 @@ def main():
         if r not in roi_list:
             roi_list.append(r)
     patient.Save()
-    case.TreatmentPlans[destination_plan].BeamSets[destination_beamset].DicomPlanLabel = clinical_plan_name
-    case.TreatmentPlans[destination_plan].Name = clinical_plan_name
-    patient.Save()
-    if clinical_plan_name == 'A':
-        case.TreatmentPlans[source_plan].BeamSets[source_beamset].DicomPlanLabel = 'B'
-        case.TreatmentPlans[source_plan].Name = "B"
-    else:
-        case.TreatmentPlans[source_plan].BeamSets[source_beamset].DicomPlanLabel = 'A'
-        case.TreatmentPlans[source_plan].Name = "A"
-    patient.Save()
+    if rename:
+        case.TreatmentPlans[destination_plan].BeamSets[destination_beamset].DicomPlanLabel = clinical_plan_name
+        case.TreatmentPlans[destination_plan].Name = clinical_plan_name
+        patient.Save()
+        if clinical_plan_name == 'A':
+            case.TreatmentPlans[source_plan].BeamSets[source_beamset].DicomPlanLabel = 'B'
+            case.TreatmentPlans[source_plan].Name = "B"
+        else:
+            case.TreatmentPlans[source_plan].BeamSets[source_beamset].DicomPlanLabel = 'A'
+            case.TreatmentPlans[source_plan].Name = "A"
+        patient.Save()
+    # Update Dose Grid structures in both plans
+    # Update patient dose data
+    case.TreatmentPlans[source_plan].BeamSets[source_beamset].FractionDose.UpdateDoseGridStructures()
+    case.TreatmentPlans[source_plan].TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+    case.TreatmentPlans[destination_plan].BeamSets[destination_beamset].FractionDose.UpdateDoseGridStructures()
+    case.TreatmentPlans[destination_plan].TreatmentCourse.TotalDose.UpdateDoseGridStructures()
     # go to plan evaluation
     ui.TitleBar.MenuItem['Plan Evaluation'].Button_Plan_Evaluation.Click()
 

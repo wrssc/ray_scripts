@@ -304,18 +304,6 @@
                 <dose units="Gy">4</dose>
                 <priority>1</priority>
             </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">2.4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
-                <priority>1</priority>
-            </roi>
         </goals>
     </order>
     <order>
@@ -445,18 +433,6 @@
                 <type dir="le">VX</type>
                 <volume units="%">15</volume>
                 <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">2.4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
                 <priority>1</priority>
             </roi>
         </goals>
@@ -670,18 +646,6 @@
                 <dose units="Gy">4</dose>
                 <priority>1</priority>
             </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">2.4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
-                <priority>1</priority>
-            </roi>
         </goals>
     </order>
     <order>
@@ -810,18 +774,6 @@
                 <type dir="le">VX</type>
                 <volume units="%">15</volume>
                 <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">2.4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
                 <priority>1</priority>
             </roi>
         </goals>
@@ -3316,18 +3268,6 @@
                 <volume units="%">10</volume>
                 <priority>3</priority>
             </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">1</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
-                <priority>1</priority>
-            </roi>
         </goals>
     </order>
     <order>
@@ -3393,18 +3333,6 @@
                 <dose units="Gy">5</dose>
                 <volume units="%">10</volume>
                 <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">1</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">2.64</dose>
-                <priority>1</priority>
             </roi>
         </goals>
     </order>

@@ -740,6 +740,9 @@ def main():
                 status_message.append('{} '.format(e))
             clinical_goals_load = False
 
+        # Manually add directional blocking
+        # if beamset_defs.technique == 'TomoHelical':
+        #     connect.await_user_input('Add any directional blocking')
         #
         # Optimize the plan
         opt_status = load_configuration_optimize_beamset(s=row,patient=patient,case=case,exam=exam,plan=plan,beamset=rs_beam_set)

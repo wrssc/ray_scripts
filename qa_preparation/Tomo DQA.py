@@ -1,10 +1,26 @@
 """ Export Tomo DQA Plan to QA Destination
 
-    Prompts user for Gantry Period for running a TomoDQA
+    The delta4 software needs the gantry period to load the plan, however 
+    it doesn't live as a native object in RS. The user is prompted to enter it
+    then the data is exported to a temporary directory and this information is 
+    input. 
+    This script:
+    -Checks for a beamset to be loaded
+    -Finds all QA plans which have the OfRadiationSet-DicomPlanLabel matching
+     the current beamset.
+    -Prompts the user to choose the desired plan for export, gantry period and
+     dicom destination
+    -Exports using the ValidationPlan.ScriptableQADicomExport method.
+    TODO: When export to the RayGateWay is supported using the above method, 
+          enable multiple destinations to be selected. 
 
     Version:
     1.0 Modify RS RTPlans to include a gantry period, needed by the Delta4 software,
         then send them to the specified destination with scp.
+    
+    1.0.1 Modify to allow for multiple qa plans. Prompt user for gantry period and directly 
+          send data. User is now asked to match the treatment plan they wish to send and no longer
+          need delete multiple plans.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -21,8 +37,8 @@
 
 __author__ = 'Adam Bayliss and Patrick Hill'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '29-Jul-2019'
-__version__ = '1.0.0'
+__date__ = '25-Sep-2020'
+__version__ = '1.0.1'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
@@ -67,48 +83,24 @@ def main():
         plan.Name, beamset.DicomPlanLabel))
 
     verification_plans = plan.VerificationPlans
-    qa_plan = None
+    matched_qa_plans = {}
     # TODO: Extend for multiple verification plans
     for vp in verification_plans:
         logging.debug('vp is {}'.format(vp.BeamSet.DicomPlanLabel))
         if vp.OfRadiationSet.DicomPlanLabel == beamset.DicomPlanLabel:
-            qa_plan = vp
-            break
+            matched_qa_plans[vp.BeamSet.DicomPlanLabel] = vp
 
-    # indx = 0
-    # index_not_found = True
-    # try:
-    #     for vbs in plan.VerificationPlans[str(indx)].ForTreatmentPlan.BeamSets:
-    #         while index_not_found:
-    #             vp_plan_name = plan.VerificationPlans[str(indx)].ForTreatmentPlan.Name
-    #             vp_beamset_name = vbs.DicomPlanLabel
-    #             logging.debug('Current verif plan is {} and beamset {}'.format(vp_plan_name,vp_beamset_name))
-    #             if vp_beamset_name == beamset.DicomPlanLabel and vp_plan_name == plan.Name:
-    #                 index_not_found = False
-    #                 logging.debug('Verification index found {}'.format(indx))
-    #                 break
-    #             else:
-    #                 indx += 1
-
-    # except KeyError:
-    #     logging.debug('All plans searched through indx = {}'.format(indx))
-    #     index_not_found = True
-
-    if qa_plan is None:
+    if not matched_qa_plans:
         logging.warning("verification plan for {} could not be found.".format(beamset.DicomPlanLabel))
         sys.exit("Could not find beamset optimization")
 
-    # else:
-    #     qa_plan = plan.VerificationPlans[indx]
-    #     logging.info('verification plan found, exporting {} for beamset {}'.format(
-    #         plan.VerificationPlans[indx].BeamSet.DicomPlanLabel, beamset.DicomPlanLabel))
-
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
-    inputs = {'a': 'Enter the Gantry period as [ss.ff]:',
+    inputs = {'0': 'Select the DQA Plan to export',
+              'a': 'Enter the Gantry period as [ss.ff]:',
               'b': 'Check one or more DICOM destinations to export to:'}
-    required = ['a', 'b']
-    types = {'b': 'check'}
-    options = {'b': DicomExport.destinations()}
+    required = ['0', 'a', 'b']
+    types = {'0':'combo','b': 'check'}
+    options = {'0':matched_qa_plans.keys(),'b': DicomExport.destinations()}
     initial = {}
 
     dialog = UserInterface.InputDialog(inputs=inputs,
@@ -123,13 +115,15 @@ def main():
     # Link root to selected protocol ElementTree
     logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
         response['a']))
+    selected_qa_plan = matched_qa_plans[response['0']]
+    logging.info("Selected Beamset:QAPlan {}:{}"
+                 .format(beamset.DicomPlanLabel,selected_qa_plan.BeamSet.DicomPlanLabel))
+    
 
-    daughter_beamset = qa_plan.BeamSet
-    # daughter_beamset.SetCurrent()
-    # connect.get_current('BeamSet')
+    daughter_beamset = selected_qa_plan.BeamSet
     success = DicomExport.send(case=case,
                                destination=response['b'],
-                               qa_plan=qa_plan,
+                               qa_plan=selected_qa_plan,
                                exam=False,
                                beamset=False,
                                ct=False,

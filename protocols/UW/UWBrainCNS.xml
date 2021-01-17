@@ -265,7 +265,7 @@
                 <priority>1</priority>
             </roi>
             <roi>
-                <name>Glnd_Lacrimal_L_PRV05</name>
+                pp<name>Glnd_Lacrimal_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">30</dose>
@@ -283,6 +283,44 @@
                 <type dir="lt">VX</type>
                 <volume units="%">1</volume>
                 <dose units="Gy">30</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type>Mean</type>
+                <dose units="Gy">9</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L</name>
+                <type>Max</type>
+                <dose units="Gy">16</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">16</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type>Mean</type>
+                <dose units="Gy">9</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R</name>
+                <type>Max</type>
+                <dose units="Gy">16</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Hippocampus_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">16</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1860,7 +1898,7 @@
             <roi>
                 <name>Eye_L</name>
                 <type a="1">MaxEud</type>
-                <dose units="Gy">8</dose>
+                <dose units="Gy">5.5</dose>
                 <weight>10</weight>
             </roi>
             <roi>
@@ -1872,7 +1910,7 @@
             <roi>
                 <name>Eye_R</name>
                 <type a="1">MaxEud</type>
-                <dose units="Gy">8</dose>
+                <dose units="Gy">5.5</dose>
                 <weight>10</weight>
             </roi>
             <roi>
@@ -1884,7 +1922,7 @@
             <roi>
                 <name>Hippocampus_L</name>
                 <type a="1">MaxEud</type>
-                <dose units="Gy">10</dose>
+                <dose units="Gy">9.75</dose>
                 <weight>750</weight>
             </roi>
             <roi>
@@ -1902,7 +1940,7 @@
             <roi>
                 <name>Hippocampus_R</name>
                 <type a="1">MaxEud</type>
-                <dose units="Gy">10</dose>
+                <dose units="Gy">9.75</dose>
                 <weight>1000</weight>
             </roi>
             <roi>
@@ -1930,6 +1968,12 @@
                 <weight>100</weight>
             </roi>
             <roi>
+                <name>Lens_L_PRV07</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
                 <name>Lens_R</name>
                 <type>Max</type>
                 <dose units="Gy">10</dose>
@@ -1940,6 +1984,12 @@
                 <type>Max</type>
                 <dose units="Gy">12</dose>
                 <weight>100</weight>
+            </roi>
+            <roi>
+                <name>Lens_R_PRV07</name>
+                <type>Max</type>
+                <dose units="Gy">7</dose>
+                <weight>1</weight>
             </roi>
             <roi>
                 <name>Normal_2cm</name>
@@ -1993,33 +2043,39 @@
                 <name>OTV1_</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p">120.0</dose>
-                <weight>20</weight>
+                <weight>1200</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">125</dose>
-                <weight>400</weight>
+                <dose units="%" roi="PTV_p">123.3</dose>
+                <weight>1600</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
-                <weight>0.3</weight>
+                <weight>30</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="OTV_1">99</volume>
                 <dose units="%" roi="PTV_p">90</dose>
-                <weight>400</weight>
+                <weight>1600</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="OTV_1">96</volume>
                 <dose units="%" roi="PTV_p">102.5</dose>
-                <weight>720</weight>
+                <weight>2900</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -2038,19 +2094,31 @@
                 <name>PTV1_EZ_3000</name>
                 <type a="1">MinEud</type>
                 <dose units="%" roi="PTV_p">100</dose>
-                <weight>0.1</weight>
+                <weight>0.2</weight>
             </roi>
             <roi>
                 <name>Ring_LD</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="5">40</dose>
-                <weight>0.2</weight>
+                <weight>1.2</weight>
             </roi>
             <roi>
                 <name>ring1_</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="5">100</dose>
-                <weight>0.1</weight>
+                <dose units="%" roi="PTV_p" low="16.7">100</dose>
+                <weight>2</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="93.3">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dist="0.5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">93.3</dose>
+                <weight>2</weight>
             </roi>
             <roi>
                 <name>Ring_HD</name>
@@ -2062,7 +2130,7 @@
                 <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">98.0</dose>
-                <weight>5</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>sOTVu1_</name>
@@ -2074,13 +2142,7 @@
                 <name>sOTVu1_</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p">100</dose>
-                <weight>500</weight>
-            </roi>
-            <roi>
-                <name>Ring_LD</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="5">40</dose>
-                <weight>1</weight>
+                <weight>2500</weight>
             </roi>
         </objectives>
     </order>
@@ -2656,6 +2718,17 @@
         <initial max_it="30" int_it="10">Iteration 0</initial>
         <warmstart max_it="20" int_it="3" n="6">Iteration_1to6</warmstart>
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+    </optimization_config>
+    <optimization_config>
+        <name>8 warmstarts</name>
+        <description>6 warmstart optimization</description>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="30" int_it="10" n="8">Iteration_1to8</warmstart>
+        <vary_grid dose_dim1="0.2" dose_dim2="0.2" dose_dim3="0.2" dose_dim4="0.2">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
         <reduce_oar>False</reduce_oar>

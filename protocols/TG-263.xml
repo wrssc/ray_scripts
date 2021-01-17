@@ -600,35 +600,6 @@
         <Alias>lkidney_prv05</Alias>
     </roi>
     <roi>
-        <name>Kidney_L-GTV</name>
-        <TG263PrimaryName>Kidney_L-GTV</TG263PrimaryName>
-        <Description></Description>
-        <NCIt></NCIt>
-        <TargetType>Derived</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Urinary</MajorCategory>
-        <MinorCategory>Kidney</MinorCategory>
-        <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>10</NCharacters>
-        <TG263ReverseOrderName>L_Kidney-GTV</TG263ReverseOrderName>
-        <Dependencies>Kidney_L,GTV</Dependencies>
-        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
-                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
-            Kidney_L
-        </SourcesA>
-        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
-                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
-            GTV
-        </SourcesB>
-        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0"
-                margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
-            Kidney_L-GTV
-        </Result>
-        <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias>Kidneyl-gtv,left kidney-gtv</Alias>
-    </roi>
-    <roi>
         <name>Kidney_Pelvis_L</name>
         <TG263PrimaryName>Kidney_Pelvis_L</TG263PrimaryName>
         <Description>Renal pelvis Left</Description>
@@ -707,35 +678,6 @@
         <FMAID></FMAID>
         <Color red="250" green="154" blue="178" Hex="#fa9ab2">SairaRed</Color>
         <Alias>rkidney_prv05</Alias>
-    </roi>
-    <roi>
-        <name>Kidney_R-GTV</name>
-        <TG263PrimaryName>Kidney_R-GTV</TG263PrimaryName>
-        <Description></Description>
-        <NCIt></NCIt>
-        <TargetType>Derived</TargetType>
-        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
-        <MajorCategory>Urinary</MajorCategory>
-        <MinorCategory>Kidney</MinorCategory>
-        <AnatomicGroup>Abdomen</AnatomicGroup>
-        <NCharacters>10</NCharacters>
-        <TG263ReverseOrderName>R_Kidney-GTV</TG263ReverseOrderName>
-        <Dependencies>Kidney_R,GTV</Dependencies>
-        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
-                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
-            Kidney_R
-        </SourcesA>
-        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0"
-                  margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
-            GTV
-        </SourcesB>
-        <Result operation="Subtraction" margin_type="Expand" margin_sup="0" margin_inf="0"
-                margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">
-            Kidney_R-GTV
-        </Result>
-        <FMAID></FMAID>
-        <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias>Kidneyr-gtv,right kidney-gtv</Alias>
     </roi>
     <roi>
         <name>Kidneys</name>
@@ -2717,6 +2659,22 @@
         <FMAID></FMAID>
         <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Avoid_Skin_PRV05</name>
+        <TG263PrimaryName>Skin</TG263PrimaryName>
+        <Description>Avoidance used in breast targets</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>PRV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>Skin</TG263ReverseOrderName>
+        <FMAID>7163</FMAID>
+        <Color red="251" green="218" blue="63" Hex="#FBDA3F">DandelionYellow</Color>
+        <Alias>skin05,skin_prv05</Alias>
     </roi>
     <roi>
         <name>Skin_PRVxx</name>
@@ -4966,7 +4924,7 @@
         <TG263ReverseOrderName>L_Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59103</FMAID>
         <Color red="183" green="153" blue="87" Hex="#B79957">OrleansTune</Color>
-        <Alias>Lacrimal_Gland_L,Glnd_Lacrimal_L,Gland_Lacrimal_L,LacrimalGland_L,LacrimalGlnd_L
+        <Alias>Lacrimal_Gland_L,GlandLacrimal_L,LacrimalGland_L,LacrimalGlnd_L
         </Alias>
     </roi>
     <roi>
@@ -4999,7 +4957,7 @@
         <TG263ReverseOrderName>L_Lacrimal_Glnd_PRV05</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="245" green="222" blue="142" Hex="#F5DE8E">Popcorn</Color>
-        <Alias>lacrimal_gland_L_prv05,prv05_lacrimal_gland_l</Alias>
+        <Alias>lacrimal_gland_L_prv05,prv05lacrimal_gland_l</Alias>
     </roi>
     <roi>
         <name>Glnd_Lacrimal_R</name>
@@ -5015,7 +4973,7 @@
         <TG263ReverseOrderName>R_Lacrimal_Glnd</TG263ReverseOrderName>
         <FMAID>59102</FMAID>
         <Color red="170" green="184" blue="244" Hex="#AAB8F4">Perano</Color>
-        <Alias>Lacrimal_Gland_R,Glnd_Lacrimal_R,Gland_Lacrimal_R,LacrimalGland_R,LacrimalGlnd_R
+        <Alias>Lacrimal_Gland_R,GlndLacrimal_R,GlandLacrimal_R,LacrimalGland_R,LacrimalGlnd_R
         </Alias>
     </roi>
     <roi>

@@ -354,11 +354,15 @@ def set_treat_margins(beam, rois, margins=None):
     for r in rois:
         logging.debug('{} treat margins used [X1, X2, Y1, Y2] = [{}, {}, {}, {}]'.format(
             r, margins['X1'], margins['X2'], margins['Y1'], margins['Y2']))
-        beam.SetTreatAndProtectMarginsForBeam(TopMargin=margins['Y2'],
+        try:
+            beam.SetTreatAndProtectMarginsForBeam(TopMargin=margins['Y2'],
                                               BottomMargin=margins['Y1'],
                                               RightMargin=margins['X2'],
                                               LeftMargin=margins['X1'],
                                               Roi=r)
+        except Exception as e:
+            logging.exception(u'{}'.format(e.Message))
+            sys.exit(u'{}'.format(e.Message))
 
 
 def check_min_jaws(plan_opt, min_dim):

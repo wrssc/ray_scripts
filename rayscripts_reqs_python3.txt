@@ -1,0 +1,34 @@
+##### Requirements.txt for ray_scripts in Python 3 #####
+#
+### Notes ###
+## 9/20/2020
+# * Instantiation
+# * I added two libraries to the list given to me by Craig Fitzwilliams
+# ** Jupyter notebooks (notebook) for interactive development
+# ** Matplotlib (matplotlib) for basic plotting functionality (nice for Jupyter)
+# * When an environment is created in RayStation, numpy and pythonnet are installed
+#   by default but the versions that are installed are outdated. I have added >= for
+#   these libraries to ensure they are updated when the user installs using pip.
+# * pynetdicom has been added, pynetdicom3 has been removed. The latter, which was
+#   used with our Python 2 ray_scripts, is deprecated.
+# * PySimpleGUI was installed with bindings for PySide2 (Qt for Python) and tkinter.
+#
+### Use ###
+# pip install -r rayscripts_reqs_python3.txt
+#
+#####
+
+matplotlib
+notebook
+numpy>=1.19
+pandas
+Pillow
+pydicom
+pynetdicom
+PySide2
+PySimpleGUI
+PySimpleGUIQt
+pythonnet>=2.5
+reportlab
+scipy
+XlsxWriter
