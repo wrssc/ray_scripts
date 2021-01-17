@@ -4,6 +4,10 @@
     the minimum leaf gap for the commissioned machine. Increment the gap until the 
     minimum leaf gap condition is met.
 
+    Version History:
+    1.0.0 Released in 8.0 b
+    1.1.0 Released in 10A SP1
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
@@ -18,9 +22,9 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2020-01-29'
+__date__ = '2021-01-17'
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'

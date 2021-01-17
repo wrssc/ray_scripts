@@ -4,6 +4,15 @@
     gantry angles, collimator angles, and couch angles may be slightly rounded to create
     an exact match to ARIA.
 
+    Validation:
+    Test Patient: MR# ZZUWQA_ScTest_17Jan2021
+                  Name: Script_Testing^RenameBeams
+    
+
+    Version History:
+    1.0.4 Released
+    1.1.0 Updated and validated in 10A SP1
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
@@ -20,12 +29,12 @@ __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2018-09-05'
 
-__version__ = '1.0.4'
+__version__ = '1.1.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 
-__reviewed__ = '2018-Sep-05'
+__reviewed__ = '2021-Jan-05'
 __raystation__ = '7.0.0.19'
 __maintainer__ = 'Adam Bayliss'
 
