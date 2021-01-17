@@ -283,20 +283,20 @@ class InputDialog:
         if self.status:
             for t in self.inputs:
                 if self.datatype[t] == 'text':
-                    self.values[t] = self.inputs[t].Text.encode('ascii', 'ignore')
+                    self.values[t] = self.inputs[t].Text.encode('ascii', 'ignore').decode()
 
                 elif self.datatype[t] == 'check':
                     self.values[t] = []
                     for o in self.inputs[t]:
                         if self.inputs[t][o].Checked:
-                            self.values[t].append(o.encode('ascii', 'ignore'))
+                            self.values[t].append(o.encode('ascii','ignore').decode())
 
                 elif self.datatype[t] == 'combo':
                     # Selected available item or an entered response
                     if self.inputs[t].SelectedIndex >= 0:
-                        self.values[t] = self.inputs[t].SelectedItem.encode('ascii', 'ignore')
+                        self.values[t] = self.inputs[t].SelectedItem.encode('ascii','ignore').decode()
                     elif self.inputs[t].SelectedIndex == -1 and self.inputs[t].Text != '':
-                        self.values[t] = self.inputs[t].Text.encode('ascii', 'ignore')
+                        self.values[t] = self.inputs[t].Text.encode('ascii','ignore').decode()
 
                 # elif self.datatype[t] == 'radio':
 

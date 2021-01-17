@@ -16,6 +16,10 @@ This script was tested with:
 * RayStation: Launcher
 * Title: Validation
 
+Version History:
+0.0.0 Submitted and reviewed
+1.1.0 Production and validated in RS 10A, SP1
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -33,13 +37,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
-__date__ = "2020-05-21"
-__version__ = "1.0.0"
-__status__ = "Development"
+__date__ = "2021-01-14"
+__version__ = "1.1.0"
+__status__ = "Production"
 __deprecated__ = False
 __reviewer__ = "Adam Bayliss"
 __reviewed__ = "Commit:2eb335d, 28May2020"
-__raystation__ = "8.0 SP B"
+__raystation__ = "10A SP1"
 __maintainer__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
 __license__ = "GPLv3"

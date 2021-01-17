@@ -1,11 +1,27 @@
 """ Final Dose
 
+    Script does multiple operations critical to finishing a plan that are often forgotten
+    before the plan is locked and export. The functionality is different for treatment
+    techniques. Essentially, the critical components are establishing a dose grid,
+    establishing dose specification points (DSPs), renaming beams, adding set-up
+    fields, and checking parameters within the plan.
+
+    Version History:
+
     1.0.4 Currently this simply is a wrapper for the rename_beams function. In future versions
         gantry angles, collimator angles, and couch angles may be slightly rounded to create
         an exact match to ARIA.
 
     1.0.5 Added rounding for jaw positions, MU, checks on overlap of external, dose grid,
         control point spacing, and sim fiducial point
+
+    1.1.0 Added RS10 support and updated to python 3.6
+
+    Validation Notes:
+    Test Patient: MR# ZZUWQA_ScTest_06Jan2021, Name: Script_testing^Final Dose
+    -VMAT: Pros_VMA: VMAT Prostate test
+    -SNS+emc: ChwL_3DC: 3D photon case with electron boost
+    -THI: Anal
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -21,21 +37,21 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2019-09-05'
+__date__ = '2020-01-07'
 
-__version__ = '1.0.5'
+__version__ = '1.1.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 
 __reviewed__ = '2019-Nov-12'
-__raystation__ = '8.0 SP B'
+__raystation__ = '10A SP 1'
 __maintainer__ = 'Adam Bayliss'
 
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__help__ = 'https://github.com/wrrsc/ray_scripts/wiki/Final_Dose'
+__copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
 
 import logging
 import sys
@@ -78,8 +94,8 @@ def main():
     external_test = True
     grid_test = True
     # Let the statements below change as needed
-    tomo_couch_test = False
-    check_lateral_pa = False
+    tomo_couch_test = False # This gets flagged to True if the plan technique does not contain 'Tomo'
+    check_lateral_pa = False 
     cps_test = False
     # Set up the workflow steps.
     steps = []
@@ -91,7 +107,7 @@ def main():
         steps.append('Check SimFiducials have coordinates')
         steps.append('Check the dose grid size')
         steps.append('Check for control Point Spacing')
-        steps.append('Compute Dose if neccessary')
+        steps.append('Compute Dose if necessary')
         steps.append('Set DSP')
         steps.append('Round MU')
         steps.append('Round Jaws')
@@ -104,7 +120,7 @@ def main():
         steps.append('Check Tomo Couch position relative to isocenter')
         steps.append('Check SimFiducials have coordinates')
         steps.append('Check the dose grid size')
-        steps.append('Compute Dose if neccessary')
+        steps.append('Compute Dose if necessary')
         steps.append('Set DSP')
         tomo_couch_test = True
 
@@ -113,7 +129,7 @@ def main():
         steps.append('Check for external structure integrity')
         steps.append('Check SimFiducials have coordinates')
         steps.append('Check the dose grid size')
-        steps.append('Compute Dose if neccessary')
+        steps.append('Compute Dose if necessary')
         steps.append('Set DSP')
 
     status = UserInterface.ScriptStatus(steps=steps,
@@ -152,7 +168,6 @@ def main():
 
     # TOMO COUCH TEST
     if tomo_couch_test:
-        tomo_couch_error = False
         couch_name = 'TomoCouch'
         couch = PlanQualityAssuranceTests.tomo_couch_check(case=case,
                                                            exam=exam,

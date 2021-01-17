@@ -37,6 +37,8 @@
     1.0.5 Exclude InnerAir and FOV from Export, add IGRT Alignment Structure
     1.0.6 Added the Normal_1cm structure to the list
 
+    1.1.0 Updated to python3
+
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -55,10 +57,10 @@ from pickle import FALSE
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '1.0.5'
+__version__ = '1.1.0'
 __license__ = 'GPLv3'
-__help__ = ''
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__help__ = 'https://github.com/wrrsc/ray_scripts/wiki/Planning_Structures'
+__copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
 
 import StructureOperations
 

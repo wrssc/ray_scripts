@@ -10,13 +10,14 @@
     How To Use: After insertion of S-frame this script is run to generate the blocking 
                 structures for a whole brain plan
 
-    TODO: Add a better module for creating the brain/Globes
     TODO: Get rid of the second plan - it is only for correcting the GUI and can be dumped in
             RS8
     TODO: Add timing measurements to the planning process
     TODO: Eliminate S-frame use and extend dose grid based on BTV limits
+    TODO: Add clinical goals 
 
     Validation Notes: 
+    Test Patient: MR# ZZUWQA_ScTest_30Dec2020, Name: Script_Testing^Automated Plan - Whole Brain
     
     Version Notes: 1.0.0 Original
     1.0.1 Hot Fix to apparent error in version 7 (related to connect being used instead of a
@@ -30,6 +31,7 @@
     1.0.4 Changed the export structure settings to reflect the new required method in RS 8.0a
             and up.
     1.0.5 Repaired local template structures to reflect S-Frame location
+    1.1.0 Update to Python 3.6 and RS 10A SP1
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -139,8 +141,8 @@ def main():
 
     visible_structures = ['PTV_WB_xxxx', 'Lens_L', 'Lens_R']
     invisible_stuctures = [
-        'Globe_L',
-        'Globe_R',
+        'Eye_L',
+        'Eye_R',
         'External',
         'S-frame',
         'Avoid',
@@ -152,8 +154,8 @@ def main():
         'BTV',
         'Brain']
     export_exclude_structs = [
-        'Globe_L',
-        'Globe_R',
+        'Eye_L',
+        'Eye_R',
         'Avoid',
         'Avoid_Face',
         'Lens_R_PRV05',
@@ -161,6 +163,15 @@ def main():
         'BTV_Brain',
         'BTV_Flash_20',
         'BTV']
+    # Try navigating to the points tab
+    try:
+        ui = connect.get_current('ui')
+        ui.TitleBar.MenuItem['Patient modeling'].Button_Patient_modeling.Click()
+        ui.TabControl_ToolBar.TabItem['POI tools'].Select()
+        ui.ToolPanel.TabItem['POIs'].Select()
+    except:
+        logging.debug("Could not click on the patient modeling window")
+
     # Look for the sim point, if not create a point
     sim_point_found = any(poi.Name == 'SimFiducials' for poi in pois)
     if sim_point_found:
@@ -203,8 +214,16 @@ def main():
             Examination=examination,
             CustomStatistics=None,
             CustomSettings=[{'ShapeWeight': 0.5,
-                             'TargetWeight': 1,
-                             'MaxIterations': 100,
+                             'TargetWeight': 0.7,
+                             'MaxIterations': 70,
+                             'OnlyRigidAdaptation': False,
+                             'ConvergenceCheck': False}])
+        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].AdaptMbsMesh(
+            Examination=examination,
+            CustomStatistics=None,
+            CustomSettings=[{'ShapeWeight': 0.5,
+                             'TargetWeight': 0.5,
+                             'MaxIterations': 50,
                              'OnlyRigidAdaptation': False,
                              'ConvergenceCheck': False}])
         status.next_step(text="The target was auto-generated based on the brain," +
@@ -215,6 +234,14 @@ def main():
     case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Type = "Ptv"
 
     case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].OrganData.OrganType = "Target"
+
+    try:
+        ui = connect.get_current('ui')
+        ui.TitleBar.MenuItem['Patient modeling'].Button_Patient_modeling.Click()
+        ui.TabControl_ToolBar.TabItem['ROI tools'].Select()
+        ui.ToolPanel.TabItem['ROIs'].Select()
+    except:
+        logging.debug("Could not click on the patient modeling window")
 
     connect.await_user_input(
         'Ensure the PTV_WB_xxxx encompasses the brain and C1 and continue playing the script')
@@ -270,7 +297,7 @@ def main():
     ## patient.Save()
 
     # MBS generate the globes. Manually draw lenses
-    status.next_step(text="Regions at risk will be created including Globes, Lenses, and Brain.")
+    status.next_step(text="Regions at risk will be created including Eyes, Lenses, and Brain.")
     brain_exists = check_structure_exists(case=case,
                                           structure_name='Brain',
                                           roi_list=rois,
@@ -284,28 +311,68 @@ def main():
             CreateNewRois=True,
             Examination=examination,
             UseAtlasBasedInitialization=True)
-    if any(roi.OfRoi.Name == 'Globe_L' for roi in rois):
-        connect.await_user_input('Globe_L Contour Exists - Verify its accuracy and continue script')
+        case.PatientModel.RegionsOfInterest['Brain'].AdaptMbsMesh(
+            Examination=examination,
+            CustomSettings=[{
+                'ShapeWeight': 4.0, 
+                'TargetWeight': 0.75, 
+                'MaxIterations': 50, 
+                'OnlyRigidAdaptation': False, 
+                'ConvergenceCheck': False}])
+    if any(roi.OfRoi.Name == 'Eye_L' for roi in rois):
+        connect.await_user_input('Eye_L Contour Exists - Verify its accuracy and continue script')
     else:
         case.PatientModel.MBSAutoInitializer(
             MbsRois=[{'CaseType': "HeadNeck",
                       'ModelName': "Eye (Left)",
-                      'RoiName': "Globe_L",
+                      'RoiName': "Eye_L",
                       'RoiColor': "255, 128, 0"}],
             CreateNewRois=True,
             Examination=examination,
             UseAtlasBasedInitialization=True)
-    if any(roi.OfRoi.Name == 'Globe_R' for roi in rois):
-        connect.await_user_input('Globe_R Contour Exists - Verify its accuracy and continue script')
+        case.PatientModel.RegionsOfInterest['Eye_L'].AdaptMbsMesh(
+            Examination=examination,
+            CustomSettings=[{
+                'ShapeWeight': 2.0, 
+                'TargetWeight': 0.75, 
+                'MaxIterations': 50, 
+                'OnlyRigidAdaptation': False, 
+                'ConvergenceCheck': False}])
+        case.PatientModel.RegionsOfInterest['Eye_L'].AdaptMbsMesh(
+            Examination=examination,
+            CustomSettings=[{
+                'ShapeWeight': 4.25, 
+                'TargetWeight': 0.75, 
+                'MaxIterations': 50, 
+                'OnlyRigidAdaptation': False, 
+                'ConvergenceCheck': False}])
+    if any(roi.OfRoi.Name == 'Eye_R' for roi in rois):
+        connect.await_user_input('Eye_R Contour Exists - Verify its accuracy and continue script')
     else:
         case.PatientModel.MBSAutoInitializer(
             MbsRois=[{'CaseType': "HeadNeck",
                       'ModelName': "Eye (Right)",
-                      'RoiName': "Globe_R",
+                      'RoiName': "Eye_R",
                       'RoiColor': "255, 128, 0"}],
             CreateNewRois=True,
             Examination=examination,
             UseAtlasBasedInitialization=True)
+        case.PatientModel.RegionsOfInterest['Eye_R'].AdaptMbsMesh(
+            Examination=examination,
+            CustomSettings=[{
+                'ShapeWeight': 2.0, 
+                'TargetWeight': 1, 
+                'MaxIterations': 50, 
+                'OnlyRigidAdaptation': False, 
+                'ConvergenceCheck': False}])
+        case.PatientModel.RegionsOfInterest['Eye_R'].AdaptMbsMesh(
+            Examination=examination,
+            CustomSettings=[{
+                'ShapeWeight': 4.25, 
+                'TargetWeight': 1, 
+                'MaxIterations': 50, 
+                'OnlyRigidAdaptation': False, 
+                'ConvergenceCheck': False}])
 
     if not check_structure_exists(case=case, structure_name='Lens_L', roi_list=rois,
                                   option='Check'):
@@ -639,15 +706,6 @@ def main():
         ExcludeFromExport=True,
         RegionOfInterests=export_exclude_structs,
         PointsOfInterests=[])
-    # for s in export_exclude_structs:
-    #    roi_name = str(s)
-    #    try:
-    #        case.PatientModel.ToggleExcludeFromExport(
-    #            ExcludeFromExport=True,
-    #            RegionOfInterests=[roi_name],
-    #            PointsofInterest=[])
-    #    except:
-    #        logging.warning('Unable to exclude {} from export'.format(roi_name))
 
     if make_plan:
         try:
@@ -681,26 +739,32 @@ def main():
             plan = case.TreatmentPlans[p]
             plan.SetCurrent()
             connect.get_current('Plan')
+            # Creating a common call to a create beamset wrapper
+            # will help the next time the function calls are changed 
+            # by RaySearch
+            beamset_defs = BeamOperations.BeamSet()
+            beamset_defs.rx_target = 'PTV_WB_xxxx'
+            beamset_defs.number_of_fractions = number_of_fractions
+            beamset_defs.total_dose = total_dose
+            beamset_defs.machine = plan_machine
+            beamset_defs.iso_target = 'PTV_WB_xxxx'
+            beamset_defs.name = p
+            beamset_defs.DicomName = p
+            beamset_defs.modality = 'Photons'
+            # Beamset elements derived from the protocol
+            beamset_defs.technique = "Conformal"
+            beamset_defs.protocol_name = "WBRT"
+            
+            beamset = BeamOperations.create_beamset(
+                patient=patient,
+                exam = examination,
+                case=case,
+                plan=plan,
+                dialog=False,
+                BeamSet=beamset_defs,
+                create_setup_beams=False
+            )
 
-            plan.AddNewBeamSet(
-                Name=p,
-                ExaminationName=examination.Name,
-                MachineName=plan_machine,
-                Modality="Photons",
-                TreatmentTechnique="Conformal",
-                PatientPosition="HeadFirstSupine",
-                NumberOfFractions=number_of_fractions,
-                CreateSetupBeams=False,
-                UseLocalizationPointAsSetupIsocenter=False,
-                Comment="",
-                RbeModelReference=None,
-                EnableDynamicTrackingForVero=False,
-                NewDoseSpecificationPointNames=[],
-                NewDoseSpecificationPoints=[],
-                RespiratoryMotionCompensationTechnique="Disabled",
-                RespiratorySignalSource="Disabled")
-
-            beamset = plan.BeamSets[p]
             patient.Save()
 
             beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
@@ -735,22 +799,25 @@ def main():
                              ptv_wb_xxxx_center['z'],
                              isocenter_parameters['Name']))
 
-            beamset.CreatePhotonBeam(Energy=6,
-                                     IsocenterData=isocenter_parameters,
-                                     Name='1_Brai_RLat',
-                                     Description='1 3DC: MLC Static Field',
-                                     GantryAngle=270.0,
-                                     CouchAngle=0,
-                                     CollimatorAngle=0)
+            beam_ener = [6, 6]
+            beam_names = ['1_Brai_RLat', '2_Brai_LLat']
+            beam_descrip = ['1 3DC: MLC Static Field', '2 3DC: MLC Static Field']
+            beam_gant = [270, 90]
+            beam_col = [0, 0]
+            beam_couch = [0, 0]
 
-            beamset.CreatePhotonBeam(Energy=6,
+            for i, b in enumerate(beam_names):
+                beamset.CreatePhotonBeam(BeamQualityId=beam_ener[i],
                                      IsocenterData=isocenter_parameters,
-                                     Name='2_Brai_LLat',
-                                     Description='2 3DC: MLC Static Field',
-                                     GantryAngle=90,
-                                     CouchAngle=0,
-                                     CollimatorAngle=0)
+                                     Name=b,
+                                     Description=beam_descrip[i],
+                                     GantryAngle=beam_gant[i],
+                                     CouchRotationAngle=beam_couch[i],
+                                     CollimatorAngle=beam_col[i])
+            beamset.PatientSetup.UseSetupBeams = True
+            # Set treat/protect and minimum MU
             for beam in beamset.Beams:
+                beam.BeamMU = 1
                 beam.SetTreatOrProtectRoi(RoiName='BTV')
                 beam.SetTreatOrProtectRoi(RoiName='Avoid')
 
@@ -759,7 +826,7 @@ def main():
             beamset.ComputeDose(
                 ComputeBeamDoses=True,
                 DoseAlgorithm="CCDose",
-                ForceRecompute=False)
+                ForceRecompute=True)
 
         # RS 8 delete next three lines
         plan_name_regex = '^' + plan_names[0] + '$'

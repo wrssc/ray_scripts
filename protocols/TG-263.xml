@@ -91,6 +91,23 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>Avoid</name>
+        <TG263PrimaryName>Avoid</TG263PrimaryName>
+        <Description>Avoidacne region, planning structure.
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory></MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup></AnatomicGroup>
+        <NCharacters>5</NCharacters>
+        <TG263ReverseOrderName></TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
+        <Alias>avoid</Alias>
+    </roi>
+    <roi>
         <name>Bag_Bowel</name>
         <TG263PrimaryName>Bag_Bowel</TG263PrimaryName>
         <Description>Bowel Bag or Peritoneal Cavity.
@@ -99,6 +116,7 @@
             part of the digestive tract), the stomach, and the liver. It is bound by thin membranes.
         </NCIt>
         <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
         <MajorCategory>Bowel</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Abdomen</AnatomicGroup>
@@ -679,7 +697,7 @@
         <Result operation="None" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Kidneys</Result>
         <FMAID>264815</FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
+        <Alias>Kidney_Total,Both_Kidneys</Alias>
     </roi>
     <roi>
         <name>LN_Portahepatis</name>
@@ -1473,6 +1491,7 @@
         <Description>Fiducial markers for tracking</Description>
         <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1490,6 +1509,7 @@
         </Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1505,6 +1525,7 @@
         <Description>Fiducial markers for tracking</Description>
         <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1522,6 +1543,7 @@
         </Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1537,6 +1559,7 @@
         <Description>Fiducial markers for tracking</Description>
         <NCIt></NCIt>
         <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -1553,6 +1576,7 @@
             tracking
         </Description>
         <NCIt></NCIt>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <TargetType>PRV</TargetType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
@@ -1568,6 +1592,7 @@
         <TG263PrimaryName>Fiducial4</TG263PrimaryName>
         <Description>Fiducial markers for tracking</Description>
         <NCIt></NCIt>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <TargetType>Non_Anatomic</TargetType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
@@ -1586,6 +1611,7 @@
         </Description>
         <NCIt></NCIt>
         <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
         <MajorCategory>Devices</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
@@ -13154,7 +13180,7 @@
         </Result>
         <FMAID>68877</FMAID>
         <Color red="255" green="255" blue="153" Hex="#ffff99">BrewerLightYellow</Color>
-        <Alias></Alias>
+        <Alias>Lung_Total</Alias>
     </roi>
     <roi>
         <name>Lungs-CTV</name>

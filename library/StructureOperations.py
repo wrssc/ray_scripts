@@ -197,16 +197,73 @@ def has_coordinates_poi(case, exam, poi):
     """
 
     poi_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[poi]
-    test_points = [
-        abs(poi_position.Point.x) < 1e5,
-        abs(poi_position.Point.y) < 1e5,
-        abs(poi_position.Point.z < 1e5),
-    ]
-    if all(test_points):
-        return True
-    else:
-        return False
+    try:
+        coords = [poi_position.Point.x, poi_position.Point.y, poi_position.Point.z]
+        if all(abs(c) < 1.e5 for c in coords ):
+            return True
+        else:
+            return False
+    except AttributeError as e:
+        e_message = "'NoneType' object has no attribute 'x'"
+        if e_message in str(e):
+            return False
+        else:
+            logging.debug('Unhandled exception: {}'.format(e))
+            sys.exit("Script cancelled")
 
+
+def create_poi(case, exam, coords=None, name=None, color='Green',diameter=1, rs_type='Undefined'):
+    """
+    Add a point of interest to the patient model in raystation
+    :param case: req: <RS Case>: current case from RS
+    :param exam: req: <RS Exam>: current examination
+    :param coords: opt: <list>: of DICOM coordinates [x, y, z]
+    :param name: opt: <str>: name of point
+    :param color: opt: <Color>: color name or hex
+    :param diameter: opt: <float>: diameter of point visualization in cm
+    :param rs_type: opt: <str>: ROI Type Possible values;
+      * Marker: Patient marker or marker on a localizer.
+      * Isocenter: Treatment isocenter to be used for external beam therapy.
+      * Registration.
+      * Control: To be used in control of dose optimization and calculation.
+      * DoseRegion: To be used as a dose reference.
+      * LocalizationPoint: Laser coordinate system origin.
+      * AcquisitionIsocenter: Acquisition isocenter, the position during acquisition.
+      * InitialLaserIsocenter: Initial laser isocenter, the position before acquisition.
+      * InitialMatchIsocenter: Initial match isocenter, the position after acquisition.
+      * Undefined.
+
+    :return: error_message: list or None
+    """
+    if coords:
+        coordinate_dict = {"x": coords[0],
+                           "y": coords[1],
+                           "z": coords[2]}
+    else:
+        coordinate_dict = {}
+        exam=None
+    
+    if not name:
+        indx = 0
+        while exists_poi(case=case, pois=['POI'+str(indx)]):
+            indx += 1
+        point_name='POI'+ str(indx)
+    else:
+        point_name = name
+    
+    try:
+        case.PatientModel.CreatePoi(
+            Examination=exam,
+            Point=coordinate_dict,
+            Name=point_name,
+            Color=color,
+            VisualizationDiameter=diameter,
+            Type=rs_type,
+        )
+        return None
+    except Exception as e:
+        error_message = [str(e)]
+        return error_message 
 
 def check_roi(case, exam, rois):
     """ See if the provided rois has contours, later check for contiguous"""
@@ -419,6 +476,10 @@ def change_roi_type(case, roi_name, roi_type):
         "TreatedVolume",
         "Undefined",
     ]
+    # without a specified type the structure will be set to "Unknown"
+    if roi_type =='None':
+        roi_type = "Undefined"
+        
     if structure_approved(case=case, roi_name=roi_name):
         error_message.append(
             "Structure {} is approved, cannot change type {}".format(roi_name, roi_type)
@@ -461,7 +522,9 @@ def change_roi_type(case, roi_name, roi_type):
             )
     # Set the organ type if necessary
     for k, v in type_dict.items():
-        if any(roi_type in types for types in v):
+        if not roi_type:
+            error_message.append('Could not change organ type of {} to {}'.format(roi_name, roi_type))
+        elif any(roi_type in types for types in v):
             if current_organ_type == k:
                 error_message.append(
                     "Structure {} is already organ type {}".format(
@@ -528,7 +591,8 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
     :param case: raystation case
     :param structure_name:structure name to be tested
     :param roi_list: list of rois to look in, if not specified, use all rois
-    :return: list of names defined in RayStation, or [] if no match was found.
+    :return: list of names defined in RayStation, if only one structure is found return a string
+             or [] if no match was found.
     """
     # If no roi_list is given, build it using all roi in the case
     if roi_list is None:
@@ -543,6 +607,8 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
         if re.search(r"^" + structure_name + "$", current_roi, re.IGNORECASE):
             if not re.search(r"^" + structure_name + "$", current_roi):
                 matched_rois.append(current_roi)
+    if len(matched_rois)==1:
+        matched_rois = matched_rois[0]
     return matched_rois
 
 
@@ -637,45 +703,33 @@ def check_structure_exists(
                 case.PatientModel.StructureSets[exam.Name].RoiGeometries[
                     structure_name
                 ].DeleteGeometry()
-                logging.warning(structure_name + " found - deleting geometry")
+                logging.warning("{} found - deleting geometry".format(structure_name))
                 return False
             else:
                 case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-                logging.warning(structure_name + " found - deleting and creating")
+                logging.warning("{} found - deleting and creating".format(structure_name))
                 return True
         elif option == "Check":
             if exam is not None and structure_has_contours_on_exam:
-                # logging.info(
-                #     "Structure {} has contours on exam {}".format(structure_name, exam.Name)
-                # )
+                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
                 return True
             elif exam is not None:
-                # logging.info(
-                #     "Structure {} has no contours on exam {}".format(structure_name, exam.Name)
-                # )
+                # logging.info("Structure {} has no contours on exam {}".format(structure_name, exam.Name))
                 return False
             else:
-                # logging.info("Structure {} exists in this Case {}"
-                #              .format(structure_name, case.Name)
-                # )
+                # logging.info("Structure {} exists in this Case {}".format(structure_name, case.Name))
                 return True
         elif option == "Wait":
             if structure_has_contours_on_exam:
-                # logging.info( "Structure {} has contours on exam {}".format(structure_name, exam.Name))
+                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
                 return True
             else:
-                logging.info(
-                    "Structure {} not found on exam {}, prompted user to create".format(
-                        structure_name, exam.Name
-                    )
-                )
-                connect.await_user_input(
-                    "Create the structure {} and continue script.".format(
-                        structure_name
-                    )
-                )
+                logging.info("Structure {} not found on exam {}, prompted user to create"
+                            .format(structure_name, exam.Name))
+                connect.await_user_input("Create the structure {} and continue script."
+                                         .format(structure_name))
     else:
-        logging.info(structure_name + " not found")
+        logging.info("{} not found".format(structure_name))
         return False
 
 
@@ -920,22 +974,10 @@ def translate_roi(case, exam, roi, shifts):
     y = shifts["y"]
     z = shifts["z"]
     transform_matrix = {
-        "M11": 1,
-        "M12": 0,
-        "M13": 0,
-        "M14": x,
-        "M21": 0,
-        "M22": 1,
-        "M23": 0,
-        "M24": y,
-        "M31": 0,
-        "M32": 0,
-        "M33": 1,
-        "M34": z,
-        "M41": 0,
-        "M42": 0,
-        "M43": 0,
-        "M44": 1,
+        "M11": 1, "M12": 0, "M13": 0, "M14": x,
+        "M21": 0, "M22": 1, "M23": 0, "M24": y,
+        "M31": 0, "M32": 0, "M33": 1, "M34": z,
+        "M41": 0, "M42": 0, "M43": 0, "M44": 1,
     }
     case.PatientModel.RegionsOfInterest["TomoCouch"].TransformROI3D(
         Examination=exam, TransformationMatrix=transform_matrix
@@ -954,7 +996,7 @@ def levenshtein_match(item, arr, num_matches=None):
 
     # Loop through array of options
     for a in arr:
-        v0 = range(len(a) + 1) + [0]
+        v0 = list(range(len(a) + 1)) + [0]
         v1 = [0] * len(v0)
         for b in range(len(item)):
             v1[0] = b + 1
@@ -1131,7 +1173,7 @@ def match_dialog(matches, elements, df_rois=None):
     ] = "Structures that cannot be renamed should have suffix, e.g. (_R or _A):"
     initial[k_copy] = "_R"
     datatype[k_copy] = "text"
-    for k, v in matches.iteritems():
+    for k, v in matches.items():
         inputs[k] = k
         datatype[k] = "combo"
         options[k] = [x[1] for x in v]
@@ -1155,7 +1197,7 @@ def match_dialog(matches, elements, df_rois=None):
     # Figure out if we are copying or renaming.
     dialog_result["Suffix"] = response[k_copy]
     df_matches = {}
-    for r, m in response.iteritems():
+    for r, m in response.items():
         # Manage responses
         if r != k_copy:
             # Change the name of r to m
@@ -1743,7 +1785,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
     potential_matches_exacts_removed = potential_matches.copy()
     exact_match = []
     # Search the match list and if an exact match is found, pop the key
-    for roi, match in potential_matches.iteritems():
+    for roi, match in potential_matches.items():
         if re.match(r"^" + roi + r"$", match[0][1]):
             potential_matches_exacts_removed.pop(roi)
             exact_match.append(match[0][1])
@@ -1758,7 +1800,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
     ##return_rois = {}
     # matched_rois now contains:
     # the keys as the planning structures, and the elementtree element found to match (or None)
-    for k, v in matched_rois.iteritems():
+    for k, v in matched_rois.items():
         # If no match was made, v will be None otherwise,
         # if there is no match in the protocols, a user-supplied
         # value can be used for the name. If it was matched then
@@ -1885,7 +1927,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                                 RoiA=k, RoiB=roi_geom.OfRoi.Name
                             )
                             validation_message = []
-                            for metric, value in geometry_validation.iteritems():
+                            for metric, value in geometry_validation.items():
                                 validation_message.append(
                                     str(metric) + ":" + str(value)
                                 )
@@ -2022,6 +2064,7 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
     """
     # First we want to work with the case insensitive match to the structure name supplied
     roi_name_ci = case_insensitive_structure_search(case=case, structure_name=roi_name)
+    # Convert this from a list to an individual structure
     roi_name_exists = check_structure_exists(
         case=case, option="Check", structure_name=roi_name
     )
@@ -3281,7 +3324,7 @@ def planning_structures(
         input_source_list = [None] * number_of_targets
         source_doses = [None] * number_of_targets
         indx = 0
-        for k, v in dialog2_response.iteritems():
+        for k, v in dialog2_response.items():
             input_source_list[indx] = k
             source_doses[indx] = str(int(v))
             indx += 1
@@ -3327,7 +3370,7 @@ def planning_structures(
         # Process inputs
         input_source_list = [None] * number_of_targets
         source_doses = [None] * number_of_targets
-        for k, v in dialog2_response.iteritems():
+        for k, v in dialog2_response.items():
             # Grab the first two characters in the key and convert to an index
             i_char = k[:2]
             indx = int(i_char) - 1 - initial_target_offset
@@ -3673,7 +3716,7 @@ def planning_structures(
         [179, 179, 128],  # BrewerUnsatYellow
     ]
 
-    for k, v in translation_mapping.iteritems():
+    for k, v in translation_mapping.items():
         logging.debug("The translation map k is {} and v {}".format(k, v))
 
     if generate_skin:

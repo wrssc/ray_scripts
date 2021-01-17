@@ -1,7 +1,7 @@
 """ DICOM Export Functions
 
     The DicomExport.send() function uses the RayStation ScriptableDicomExport()
-    function, pydicom, and pynetdicom3 to export DICOM RT data to a temporary folder
+    function, pydicom, and pynetdicom to export DICOM RT data to a temporary folder
     then modify the contents of the DICOM files, and finally to send the modified
     files to one or more destinations. In this manner, machine names and non-standard
     beam energies (FFF) can be corrected during export to the Record & Verify system.
@@ -38,6 +38,7 @@
     1.0.0 Original Release
     1.0.1 Update with TomoTherapy support for IDMS and RayGateway (without DICOM filtering)
     1.0.2 Added support for sending a TomoTherapy-based QA Plan with a filter for gantry period
+    1.1.0 Changed to pynetdicom from pynetdicom3
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -51,12 +52,12 @@
     this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-__author__ = 'Mark Geurts'
-__contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.0.0'
+__author__ = 'Mark Geurts and Adam Bayliss'
+__contact__ = 'rabayliss@gmail.com'
+__version__ = '1.1.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/DICOM-Export'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2020, University of Wisconsin Board of Regents'
 
 import os
 import sys
@@ -66,7 +67,10 @@ import tempfile
 import logging
 import UserInterface
 import pydicom
-import pynetdicom3
+# import pynetdicom
+from pynetdicom import AE 
+from pynetdicom.sop_class import RTPlanStorage, RTStructureSetStorage, CTImageStorage, RTDoseStorage
+from pydicom.uid import ImplicitVRLittleEndian
 import shutil
 import re
 import math
@@ -171,6 +175,8 @@ def send(case,
     for d in destination:
         info = destination_info(d)
 
+        # If the plan is a TomoTherapy plan, it will be sent to the RayGateway. However, if it is a QA plan, it cannot be sent 
+        # to the RayGateway via script as of version 8.0b SP2
         if 'RayGateway' in info['type']:
             if qa_plan:
                 # TODO: QA RayGateway delete the sys exit when QA Plans are supported
@@ -180,18 +186,19 @@ def send(case,
                 raygateway_args = info['aet']
                 logging.debug('Incorrect argument sent RayGateWay Title: {}, should be {}'.format(raygateway_args, d))
             else:
-                # TODO: Export Patient plan delete the following to enable export
-                # sys.exit('RayGateway Export is not supported at this time')
                 logging.debug('RayGateway to be used in {} to export patient plan, association unsupported.'
                               .format(info['host']))
                 raygateway_args = info['aet']
 
         elif len({'host', 'aet', 'port'}.difference(info.keys())) == 0:
             raygateway_args = None
-            ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.1.1'],
-                                ae_title=local_AET,
-                                port=local_port)
+            # Open a DICOM AE requestor for RayStation at RayStation_SSCP
+            #   Note that the local port is no longer required.
+            ae = AE(ae_title=local_AET)
+            # Add the requested context (Verification Service Object pair)
+            ae.add_requested_context('1.2.840.10008.1.1')
             logging.debug('Requesting Association with {}'.format(info['host']))
+            # Associate the requestor AE
             assoc = ae.associate(info['host'], int(info['port']), ae_title=info['aet'])
 
             # Throw errors unless C-ECHO responds
@@ -348,15 +355,6 @@ def send(case,
                     bar.close()
 
                 UserInterface.MessageBox('DICOM export was successful', 'Export Success')
-            #            except InvalidOperationException as error:
-            #                if 'already exist' in error.message:
-            #                    logging.debug('This plan {} has already been sent'.format(parent_plan.Name))
-            #                    status = True
-            #                else:
-            #                    status = False
-            #                    logging.error('DicomExport failed {}'.format(error.message))
-            #                    UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
-            #                    raise
             except Exception as error:
                 if hasattr(error, 'message'):
                     status = False
@@ -681,7 +679,7 @@ def send(case,
             logging.debug('Export destination {} is anonymous, patient will be stored under name {} and ID {}'.
                           format(d, random_name, random_id))
 
-        # If an AE destination, establish pynetdicom3 association
+        # If an AE destination, establish pynetdicom association
         if 'RayGateway' in info['type']:
             logging.debug('Multiple destinations, ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
             rg_args = args
@@ -707,14 +705,12 @@ def send(case,
             assoc = None
 
         elif len({'host', 'aet', 'port'}.difference(info)) == 0:
-            ae = pynetdicom3.AE(scu_sop_class=['1.2.840.10008.5.1.4.1.1.481.5',
-                                               '1.2.840.10008.5.1.4.1.1.481.3',
-                                               '1.2.840.10008.5.1.4.1.1.481.2',
-                                               '1.2.840.10008.5.1.4.1.1.2'],
-                                ae_title=local_AET,
-                                port=local_port,
-                                transfer_syntax=['1.2.840.10008.1.2'])
-
+            # Establish an AE
+            ae = AE(ae_title=local_AET)
+            ae.add_requested_context(CTImageStorage, ImplicitVRLittleEndian)
+            ae.add_requested_context(RTStructureSetStorage, ImplicitVRLittleEndian)
+            ae.add_requested_context(RTPlanStorage, ImplicitVRLittleEndian)
+            ae.add_requested_context(RTDoseStorage, ImplicitVRLittleEndian)
             assoc = ae.associate(info['host'], int(info['port']), ae_title=info['aet'])
 
         else:
@@ -774,7 +770,7 @@ def send(case,
                 if 'RAYGATEWAY' in info['type']:
                     logging.debug('{} is a RayGateway, skipping SCP'.format(info['host']))
 
-                # Send to SCP via pynetdicom3
+                # Send to SCP via pynetdicom
                 elif assoc is not None:
                     if assoc.is_established:
                         response = assoc.send_c_store(dataset=ds,
@@ -866,6 +862,7 @@ def send(case,
     return status
 
 
+
 def machines(beamset=None):
     """machine_list = DicomExport.machines(beamset=get_current('BeamSet'))"""
 
@@ -878,9 +875,18 @@ def machines(beamset=None):
             beam_list.append([])
             for c in filter_xml.findall('filter'):
                 if c.find('from/machine').text == beamset.Beams[b].MachineReference.MachineName:
+                    # RayStation version 10A moves the MachineReference.Energy field to Null
+                    # This is now a beamset property
+                    # 8: Beam->MachineReference->Energy : float
+                    # 10A: Beam->Beam->BeamQualityId: string
+                    logging.debug('filter type {}'.format(c.attrib['type']))
+                    logging.debug('matching filter energy:{}, RS {}'.format(c.find('from/energy').text.lower(),
+                                                                            beamset.Beams[b].BeamQualityId).lower())
+                    logging.debug('matching filter modality:{}, RS {}'.format(c.find('from/energy').attrib['type'].lower(),
+                                                                        beamset.Modality.lower()))
                     for t in c.findall('to'):
                         if 'type' in c.attrib and c.attrib['type'] == 'machine/energy' and \
-                                beamset.Beams[b].MachineReference.Energy == float(c.find('from/energy').text) \
+                                beamset.Beams[b].BeamQualityId.lower() == c.find('from/energy').text.lower() \
                                 and c.find('from/energy').attrib['type'].lower() == beamset.Modality.lower():
                             beam_list[b].append(t.find('machine').text)
 
@@ -889,7 +895,7 @@ def machines(beamset=None):
 
         if len(beam_list) > 0:
             sets = iter(map(set, beam_list))
-            machine_list = sets.next()
+            machine_list = next(sets)
             for s in sets:
                 machine_list = machine_list.intersection(s)
 
@@ -919,13 +925,13 @@ def energies(beamset=None, machine=None):
                 if machine is None or t.find('machine').text == machine and 'type' in \
                         t.find('energy').attrib and \
                         (beamset is None or t.find('energy').attrib['type'].lower() == beamset.Modality.lower()):
-                    energy_list[float(c.find('from/energy').text)] = t.find('energy').text
+                    energy_list[c.find('from/energy').text] = t.find('energy').text
 
         # Otherwise, if only an energy filter
         elif 'type' in c.attrib and c.attrib['type'] == 'energy' and \
                 (beamset is None or c.find('from/energy').attrib['type'].lower() == beamset.Modality.lower()):
             for t in c.findall('to'):
-                energy_list[float(c.find('from/energy').text)] = t.find('energy').text
+                energy_list[c.find('from/energy').text] = t.find('energy').text
 
     return energy_list
 

@@ -142,7 +142,7 @@ def external_overlap_test(patient, case, exam):
                                                        exam=exam,
                                                        structure=structure,
                                                        rois=supports)
-        if overlap_volume > 1:
+        if (0. if overlap_volume is None else overlap_volume) > 1.:
             error += 'Significant overlap exists between {} and {}'.format(structure, supports)
     else:
         logging.debug('No support structures exist for evaluation of overlap')

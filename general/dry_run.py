@@ -1,12 +1,21 @@
 """ Automated Dry-Run
 
+    This script accomplishes the following tasks:
+    1. Looks through the target list and prompt user in the event it finds none
+    2. Prompts the user to set fiducial simulation points
+    2. Enter plan parameters through a dialog
+    3. Makes a treatment plan for a dry-run
+    4. Makes a copy of this plan to get around a bug in raystation
+       that makes it such that until a new plan is created, the 
+       patient's image data is not visible
+    5. Has the user confirm isocenter placement
     Will prompt user for type of dry-run (breast or lung) and attempt to put beams at the center of a
     "gtv or ctv" target
 
-    Validation Notes: 
-    
+    Validation Notes:
+    Test Patient: MR# ZZUWQA_ScTest_29Dec2020, Name: Script_Testing^Automated Dry Run 
     Version Notes: 1.0.0 Original
-    1.0.0
+    1.1.0 Update to python 3.6
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -23,18 +32,18 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '01-Feb-2018'
-__version__ = '1.0.0'
-__status__ = 'Clinical'
+__date__ = '29-Dec-2020'
+__version__ = '1.1.0'
+__status__ = 'Validation'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '7.0.0'
+__raystation__ = '10A.SP1'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/wrssc/ray_scripts'
+__copyright__ = 'Copyright (C) 2020, University of Wisconsin Board of Regents'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __credits__ = []
 
 import connect
@@ -66,6 +75,13 @@ def main():
         UserInterface.WarningBox('This script requires a patient, case, and exam to be loaded')
         sys.exit('This script requires a patient, case, and exam to be loaded')
 
+    try:
+        ui = connect.get_current('ui')
+        ui.TitleBar.MenuItem['Patient modeling'].Button_Patient_modeling.Click()
+        ui.TabControl_ToolBar.TabItem['POI tools'].Select()
+        ui.ToolPanel.TabItem['POIs'].Select()
+    except:
+        logging.debug("Could not click on the patient modeling window")
     # Capture the current list of ROI's to avoid saving over them in the future
     rois = case.PatientModel.StructureSets[examination.Name].RoiGeometries
 
@@ -100,12 +116,13 @@ def main():
                                     Point={'x': 0,
                                            'y': 0,
                                            'z': 0},
-                                    Volume=0,
+                                    VisualizationDiameter=1,
                                     Name="SimFiducials",
                                     Color="Green",
                                     Type="LocalizationPoint")
         status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
         connect.await_user_input('Ensure Correct placement of the SimFiducials Point and continue script.')
+
 
         # Get some user data
     status.next_step(text="Complete plan information - check the TPO for doses " +
@@ -174,15 +191,15 @@ def main():
 
     try:
         ui = connect.get_current('ui')
-        ui.TitleBar.MenuItem['Plan Design'].Button_Plan_Design.Click()
+        ui.TitleBar.MenuItem['Plan design'].Button_Plan_design.Click()
     except:
-        logging.debug("Could not click on the plan Design MenuItem")
+        logging.debug("Could not click on the plan design window")
 
     plan_names = [plan_name, 'backup_delete']
     used_plan_names = []
-    # RS 8: plan_names = [plan_name]
+    # RS 11?: plan_names = [plan_name]
     patient.Save()
-    # RS 8: eliminate for loop
+    # RS 11?: eliminate for loop
     for p in plan_names:
         try:
             case.AddNewPlan(
@@ -222,9 +239,7 @@ def main():
             RbeModelReference=None,
             EnableDynamicTrackingForVero=False,
             NewDoseSpecificationPointNames=[],
-            NewDoseSpecificationPoints=[],
-            RespiratoryMotionCompensationTechnique="Disabled",
-            RespiratorySignalSource="Disabled")
+            NewDoseSpecificationPoints=[])
 
         beamset = plan.BeamSets[p]
         patient.Save()
@@ -261,12 +276,12 @@ def main():
         beam_couch = [0, 0, 0]
 
         for i, b in enumerate(beam_names):
-            beamset.CreatePhotonBeam(Energy=beam_ener[i],
+            beamset.CreatePhotonBeam(BeamQualityId=beam_ener[i],
                                      IsocenterData=isocenter_parameters,
                                      Name=b,
                                      Description=beam_descrip[i],
                                      GantryAngle=beam_gant[i],
-                                     CouchAngle=beam_couch[i],
+                                     CouchRotationAngle=beam_couch[i],
                                      CollimatorAngle=beam_col[i])
             beamset.PatientSetup.UseSetupBeams = True
         for beam in beamset.Beams:
@@ -300,7 +315,7 @@ def main():
               }
     # Extract the angles
     angles = []
-    for k, v in set_up.iteritems():
+    for k, v in set_up.items():
         angles.append(v[2])
         logging.debug("v2={}".format(v[2]))
 
@@ -314,6 +329,8 @@ def main():
         b.Segments[0].DoseRate = set_up[i][3]
 
     status.next_step(text="Confirm correct placement of isocenter and delete that pesky Backup Plan")
+
+    status.finish(text="Delete that pesky Backup Plan, and close this dialog")
 
 
 if __name__ == '__main__':

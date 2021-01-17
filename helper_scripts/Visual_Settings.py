@@ -1,14 +1,46 @@
-""" Copy Goals
-Script for copying goals to a clinical case in prep for export
-Copies goals from one plan to another. Defines dose levels
-Toggles to plan evaluation.
-"""
+""" Load isodose and target visualization
+    Loads some simple visual settings for targets and isodoses since this is not a sticky
+    property of the RayStation (RS) software
+
+    Version:
+    1.0 Load targets as filled. Normalize isodose to prescription, and try to normalize to the
+        maximum dose in External or External_Clean
+
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+    
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
+    """
+
+__author__ = 'Adam Bayliss'
+__contact__ = 'rabayliss@wisc.edu'
+__date__ = '29-Jul-2019'
+__version__ = '1.0.0'
+__status__ = 'Production'
+__deprecated__ = False
+__reviewer__ = ''
+__reviewed__ = ''
+__raystation__ = '8.b.SP2'
+__maintainer__ = 'One maintainer'
+__email__ = 'rabayliss@wisc.edu'
+__license__ = 'GPLv3'
+__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
+__credits__ = []
+
 import connect
+import logging
 import sys
+import UserInterface
 import platform
 import clr
-import logging
-import UserInterface
 import StructureOperations as so
 
 
@@ -72,75 +104,23 @@ def find_max_dose_in_plan(examination, case, plan):
     else:
         max_dose = None
 
+    return max_dose
+
+
 def main():
-    """ Temp chunk of code to try to open an xml file"""
     try:
-        ui = connect.get_current("ui")
         patient = connect.get_current('Patient')
-        case = connect.get_current("Case")
+        case = connect.get_current('Case')
         examination = connect.get_current("Examination")
-    except:
-        logging.warning("patient, case and examination must be loaded")
-
-    # Configs
-    source_plan = 'Script'
-    source_beamset = 'HN_21Oct'
-    destination_plan = 'Clinical'
-    destination_beamset = 'Clinical'
-    # Open a dialog and ask what the clinical plan name will be
-    input_dialog = UserInterface.InputDialog(
-        inputs ={'input0':'Clinical Plan is A or B'},
-        title='Choose input',
-        datatype={'input0':'combo'},
-        options={'input0':['A','B']}
-    )
-    response = input_dialog.show()
-    if response == {}:
-        sys.exit('dry_run cancelled by user')
-    clinical_plan_name = input_dialog.values['input0']
-    # Save any user changes
-    patient.Save()
-    case.TreatmentPlans[source_plan].SetCurrent()
-    plan = connect.get_current("Plan")
-    case.TreatmentPlans[source_plan].BeamSets[source_beamset].SetCurrent()
-    beamset = connect.get_current('BeamSet')
-    clinical_beamset = case.TreatmentPlans[destination_plan].BeamSets[destination_plan]
-
-    # Turn beamset visualization off
-    for b in beamset.Beams:
-        beamset.SetBeamIsVisible(BeamName = b.Name, IsVisible=False)
-    for b in clinical_beamset.Beams:
-        clinical_beamset.SetBeamIsVisible(BeamName = b.Name, IsVisible=False)
-
-    # Copy goals to clinical plan
-    source_eval = case.TreatmentPlans[source_plan].TreatmentCourse.EvaluationSetup
-    dest_eval = case.TreatmentPlans[destination_plan].TreatmentCourse.EvaluationSetup
-    roi_list = []
-    for e in source_eval.EvaluationFunctions:
-        dest_eval.CopyClinicalGoal(FunctionToCopy=e)
-        r = e.ForRegionOfInterest.Name
-        if r not in roi_list:
-            roi_list.append(r)
-    patient.Save()
-    if rename:
-        case.TreatmentPlans[destination_plan].BeamSets[destination_beamset].DicomPlanLabel = clinical_plan_name
-        case.TreatmentPlans[destination_plan].Name = clinical_plan_name
-        patient.Save()
-        if clinical_plan_name == 'A':
-            case.TreatmentPlans[source_plan].BeamSets[source_beamset].DicomPlanLabel = 'B'
-            case.TreatmentPlans[source_plan].Name = "B"
-        else:
-            case.TreatmentPlans[source_plan].BeamSets[source_beamset].DicomPlanLabel = 'A'
-            case.TreatmentPlans[source_plan].Name = "A"
-        patient.Save()
-    # Update Dose Grid structures in both plans
-    # Update patient dose data
-    case.TreatmentPlans[source_plan].BeamSets[source_beamset].FractionDose.UpdateDoseGridStructures()
-    case.TreatmentPlans[source_plan].TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-    case.TreatmentPlans[destination_plan].BeamSets[destination_beamset].FractionDose.UpdateDoseGridStructures()
-    case.TreatmentPlans[destination_plan].TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-    # go to plan evaluation
-    ui.TitleBar.MenuItem['Plan Evaluation'].Button_Plan_Evaluation.Click()
+        patient_db = connect.get_current('PatientDB')
+        plan = connect.get_current('Plan')
+        beamset = connect.get_current('BeamSet')
+    except Exception as ex:
+        template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+        message = template.format(type(ex).__name__, ex.args)
+        UserInterface.WarningBox(message)
+        UserInterface.WarningBox('This script requires a patient, case, and beamset to be loaded')
+        sys.exit('This script requires a patient, case, and beamset to be loaded')
 
     # Capture the current list of ROI's to avoid saving over them in the future
     targets = so.find_targets(case)
@@ -161,15 +141,6 @@ def main():
     isodose_reconfig(case=case,
                      ref_dose=ref_dose,
                      max_dose=max_dose)
-    # Turn visualization on for anything in the above list, and off for everything else
-    for r in case.PatientModel.RegionsOfInterest:
-        if r.Name in roi_list:
-            patient.SetRoiVisibility(RoiName=r.Name,IsVisible=True)
-        else:
-            patient.SetRoiVisibility(RoiName=r.Name,IsVisible=False)
-    # Save visibility settings presumably
-    patient.Save()
-
 
 
 if __name__ == '__main__':

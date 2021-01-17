@@ -1,5 +1,5 @@
 <protocol>
-    <name>UW Prostate</name>
+    <name>UW Prostate SBRT</name>
     <ct>
         <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
         <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
@@ -800,4 +800,43 @@
             </roi>
         </goals>
     </order>
+    <planning_structure_set>
+        <name>4 Target Prostate SBRT</name>
+        <description>Placeholder 4 target protocol for SBRT
+        </description>
+        <number_of_targets>1</number_of_targets>
+        <first_target_number>1</first_target_number>
+        <uniform_dose_structs standoff="0.2">Rectum,Bladder,Urethra</uniform_dose_structs>
+        <underdose_structs standoff="0.0"></underdose_structs>
+        <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
+        <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
+                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
+        </ring_hd>
+        <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
+        </ring_ld>
+        <ring_targets standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
+                      margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring
+        </ring_targets>
+        <inner_air>InnerAir</inner_air>
+        <superficial_target standoff="0.0" margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin
+        </superficial_target>
+        <otv standoff="0.3" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
+        </otv>
+    </planning_structure_set>
+     <optimization_config>
+        <name>1 warmstarts</name>
+        <description>1 warmstart optimization</description>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="12" int_it="2" n="1">Iteration_1to2</warmstart>
+        <vary_grid>False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+    </optimization_config>
 </protocol>

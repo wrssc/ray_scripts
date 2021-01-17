@@ -52,7 +52,7 @@ class CommonDialog:
             raise OSError(2, 'No such file or directory', self.ipy)
 
         # Create folder_browser script
-        self.__folder_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
+        self.__folder_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False, mode="w")
         self.__folder_script.write("""
 # Import modules and assemblies
 import sys
@@ -72,7 +72,7 @@ if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
         self.__folder_script.close()
 
         # Create open_file script
-        self.__openfile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
+        self.__openfile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False, mode="w")
         self.__openfile_script.write("""
 # Import modules and assemblies
 import sys
@@ -103,7 +103,7 @@ if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
         self.__openfile_script.close()
 
         # Create save_file script
-        self.__savefile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False)
+        self.__savefile_script = tempfile.NamedTemporaryFile(suffix='.py', delete=False, mode="w")
         self.__savefile_script.write("""
 # Import modules and assemblies
 import sys
@@ -128,19 +128,22 @@ if dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK:
     # folder_browser function
     def folder_browser(self, title='Folder Browser'):
         """path = common.folder_browser(title='title')"""
-        return subprocess.check_output('"{}" {} "{}"'.format(self.ipy, self.__folder_script.name, title)).strip()
+        byte_path = subprocess.check_output('"{}" {} "{}"'.format(self.ipy, self.__folder_script.name, title)).strip() 
+        return byte_path.decode("utf-8")
 
     # open_file function
     def open_file(self, title='File Browser', filters='All Files (*.*)|*.*', multi=False):
         """file = common.open_file(title='title', filters='filter', multi=False)"""
-        return subprocess.check_output('"{}" {} "{}" "{}" "{}"'.format(self.ipy, self.__openfile_script.name, title,
+        byte_file= subprocess.check_output('"{}" {} "{}" "{}" "{}"'.format(self.ipy, self.__openfile_script.name, title,
                                                                        filters, multi)).strip()
+        return byte_file.decode("utf-8")
 
     # save_file function
     def save_file(self, title='Save File', filters='All Files (*.*)|*.*'):
         """file = common.save_file(title='title', filters='filter', multi=False)"""
-        return subprocess.check_output('"{}" {} "{}" "{}"'.format(self.ipy, self.__savefile_script.name, title,
+        byte_save_file = subprocess.check_output('"{}" {} "{}" "{}"'.format(self.ipy, self.__savefile_script.name, title,
                                                                   filters)).strip()
+        return byte_save_file.decode("utf-8")
 
     # Class destructor
     def __del__(self):
