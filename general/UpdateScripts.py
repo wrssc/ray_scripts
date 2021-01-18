@@ -100,6 +100,9 @@ def main():
 
     # Loop through folders in branch, creating folders and pulling content
     for l in file_list:
+        logging.debug('each l {}'.format(l))
+    sys.exit('Exiting')
+    for l in file_list:
         if l.get('type'):
             if l['type'] == u'dir':
                 if selector.token != '':
