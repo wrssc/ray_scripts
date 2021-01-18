@@ -20,6 +20,7 @@
                          50cmCube for the clinical institution.  Added autorecompute and deleted incorrect
                          plan recomputation syntax.
                    1.0.2 Added main function call, eliminated blanket connect import, autoclick QA prep
+                   1.1.0 Update to Rs 10A
   
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -36,17 +37,17 @@
 
 __author__ = 'Jessie Huang-Vredevoogd'
 __contact__ = 'jyhuang4@wisc.edu'
-__date__ = '2018-01-18'
+__date__ = '2021-01-17'
 __version__ = '1.0.2'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 __reviewed__ = '2018-01-26'
-__raystation__ = '6.0.0'
+__raystation__ = '10A SP1'
 __maintainer__ = 'Huang-Vredevoogd and Bayliss'
 __email__ =  'jyhuang4@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
 __credits__ = []
 
 def main():
@@ -71,7 +72,7 @@ def main():
 
     # Click magic
     ui = connect.get_current('ui')
-    ui.TitleBar.MenuItem['QA Preparation'].Button_QA_Preparation.Click()
+    ui.TitleBar.MenuItem['QA preparation'].Button_QA_preparation.Click()
 
     try:
         beamset.CreateQAPlan(
