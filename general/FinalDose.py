@@ -262,7 +262,7 @@ def main():
             except Exception as e:
                 logging.debug(u'Message is {}'.format(e.Message))
                 try:
-                    if 'Dose has already been computed (with the current parameters)' in e.Message:
+                    if 'Dose has already been computed with the current parameters' in e.Message:
                         status.next_step('Dose re-computation unnecessary, finding DSP')
                         logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
                     else:
