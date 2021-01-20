@@ -1,9 +1,9 @@
 """ Export Tomo DQA Plan to QA Destination
 
-    The delta4 software needs the gantry period to load the plan, however 
+    The delta4 software needs the gantry period to load the plan, however
     it doesn't live as a native object in RS. The user is prompted to enter it
-    then the data is exported to a temporary directory and this information is 
-    input. 
+    then the data is exported to a temporary directory and this information is
+    input.
     This script:
     -Checks for a beamset to be loaded
     -Finds all QA plans which have the OfRadiationSet-DicomPlanLabel matching
@@ -11,14 +11,14 @@
     -Prompts the user to choose the desired plan for export, gantry period and
      dicom destination
     -Exports using the ValidationPlan.ScriptableQADicomExport method.
-    TODO: When export to the RayGateWay is supported using the above method, 
-          enable multiple destinations to be selected. 
+    TODO: When export to the RayGateWay is supported using the above method,
+          enable multiple destinations to be selected.
 
     Version:
     1.0 Modify RS RTPlans to include a gantry period, needed by the Delta4 software,
         then send them to the specified destination with scp.
-    
-    1.0.1 Modify to allow for multiple qa plans. Prompt user for gantry period and directly 
+
+    1.0.1 Modify to allow for multiple qa plans. Prompt user for gantry period and directly
           send data. User is now asked to match the treatment plan they wish to send and no longer
           need delete multiple plans.
 
@@ -26,11 +26,11 @@
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later
     version.
-    
+
     This program is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
@@ -99,7 +99,7 @@ def main():
               'a': 'Enter the Gantry period as [ss.ff]:',
               'b': 'Check one or more DICOM destinations to export to:'}
     required = ['0', 'a', 'b']
-    types = {'0':'combo','b': 'check'}
+    types = {'0':'combo','a': 'text', 'b': 'check'}
     options = {'0':matched_qa_plans.keys(),'b': DicomExport.destinations()}
     initial = {}
 
@@ -113,12 +113,12 @@ def main():
     if response == {}:
         sys.exit('DICOM export was cancelled')
     # Link root to selected protocol ElementTree
+    formatted_response = str(response['a']).strip()
     logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
-        response['a']))
+        formatted_response))
     selected_qa_plan = matched_qa_plans[response['0']]
     logging.info("Selected Beamset:QAPlan {}:{}"
                  .format(beamset.DicomPlanLabel,selected_qa_plan.BeamSet.DicomPlanLabel))
-    
 
     daughter_beamset = selected_qa_plan.BeamSet
     success = DicomExport.send(case=case,
@@ -133,7 +133,7 @@ def main():
                                beam_dose=False,
                                ignore_warnings=False,
                                ignore_errors=False,
-                               gantry_period=response['a'],
+                               gantry_period=formatted_response,
                                filters=['tomo_dqa'],
                                bar=False)
 

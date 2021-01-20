@@ -68,8 +68,8 @@ import logging
 import UserInterface
 import pydicom
 # import pynetdicom
-from pynetdicom import AE 
-from pynetdicom.sop_class import RTPlanStorage, RTStructureSetStorage, CTImageStorage, RTDoseStorage
+from pynetdicom import AE
+from pynetdicom.sop_class import RTPlanStorage, RTStructureSetStorage, CTImageStorage, RTDoseStorage, VerificationSOPClass
 from pydicom.uid import ImplicitVRLittleEndian
 import shutil
 import re
@@ -175,7 +175,7 @@ def send(case,
     for d in destination:
         info = destination_info(d)
 
-        # If the plan is a TomoTherapy plan, it will be sent to the RayGateway. However, if it is a QA plan, it cannot be sent 
+        # If the plan is a TomoTherapy plan, it will be sent to the RayGateway. However, if it is a QA plan, it cannot be sent
         # to the RayGateway via script as of version 8.0b SP2
         if 'RayGateway' in info['type']:
             if qa_plan:
@@ -346,11 +346,14 @@ def send(case,
 
                     logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
                 else:
-                    beamset.SendTransferredPlanToRayGateway(RayGatewayTitle='RAYGATEWAY',
-                                                            PreviousBeamSet=parent_plan,
-                                                            OriginalBeamSet=parent_plan,
-                                                            IgnorePreConditionWarnings=ignore_warnings)
-
+                    try:
+                        beamset.SendTransferredPlanToRayGateway(RayGatewayTitle='RAYGATEWAY',
+                                                                PreviousBeamSet=parent_plan,
+                                                                OriginalBeamSet=parent_plan,
+                                                                IgnorePreConditionWarnings=ignore_warnings)
+                    except SystemError as e:
+                        logging.exception('Error in exporting Parent {}: Transfer plan {}:{}'
+                            .format(parent_plan, beamset.DicomPlanLabel, e))
                 if isinstance(bar, UserInterface.ProgressBar):
                     bar.close()
 
@@ -554,8 +557,7 @@ def send(case,
                         str_gantry_period = gantry_period + ' '
 
                         # add attribute to beam sequence
-                        b.add_new(t1, 'UN', str_gantry_period)
-                        # b.add_new(0x300d1040, 'UN', str_gantry_period)
+                        b.add_new(t1, 'DS', gantry_period)
                         expected.add(b[t1], beam=b)
 
                 # If adding reference points
@@ -711,6 +713,9 @@ def send(case,
             ae.add_requested_context(RTStructureSetStorage, ImplicitVRLittleEndian)
             ae.add_requested_context(RTPlanStorage, ImplicitVRLittleEndian)
             ae.add_requested_context(RTDoseStorage, ImplicitVRLittleEndian)
+            ae.add_requested_context(VerificationSOPClass)
+            # MIM and Delta4 appear to timeout on a setting called ARTIM
+            ae.network_timeout = 300.
             assoc = ae.associate(info['host'], int(info['port']), ae_title=info['aet'])
 
         else:
@@ -723,6 +728,9 @@ def send(case,
             if isinstance(bar, UserInterface.ProgressBar):
                 bar.update(text='Validating and Exporting Files to {} ({} of {})'.format(d, i, total))
 
+            # send a message to the ae
+            message = assoc.send_c_echo()
+            logging.debug('Echo request returned {}'.format(message))
             try:
                 logging.debug('Reading modified file {}'.format(os.path.join(modified, m)))
                 ds = pydicom.dcmread(os.path.join(modified, m))
@@ -731,7 +739,6 @@ def send(case,
                 if m in edited:
                     logging.debug('Validating edits against {}'.format(os.path.join(original, m)))
                     dso = pydicom.dcmread(os.path.join(original, m))
-
                     try:
                         # The Edits list should match the expected list generated above
                         if edited[m].matches(compare(ds, dso)):
@@ -746,15 +753,14 @@ def send(case,
                                 raise KeyError('DICOM Export modification inconsistency detected')
 
                     except KeyError:
-                        if ignore_errors:
-                            logging.warning('DICOM validation encountered too many nested sequences')
-                            status = False
+                         if ignore_errors:
+                             logging.warning('DICOM validation encountered too many nested sequences')
+                             status = False
 
-                        else:
-                            if isinstance(bar, UserInterface.ProgressBar):
-                                bar.close()
-
-                            raise
+                         else:
+                             if isinstance(bar, UserInterface.ProgressBar):
+                                 bar.close()
+                             raise
 
                 # If destination has a anonymize tag, remove personal info
                 if 'anonymize' in info and info['anonymize']:
@@ -796,7 +802,6 @@ def send(case,
                     elif assoc.is_aborted and not ignore_errors:
                         if isinstance(bar, UserInterface.ProgressBar):
                             bar.close()
-
                         raise IOError('Received A-ABORT from the peer during association to {}'.format(info['host']))
 
                     else:
@@ -823,7 +828,7 @@ def send(case,
                             raise
 
             # If pydicom fails, stop export unless ignore_errors flag is set
-            except pydicom.errors.InvalidDicomError:
+            except pydicom.errors.InvalidDicomError as e:
                 if ignore_errors:
                     logging.warning('File {} could not be read during modification, skipping'.format(m))
                     status = False
@@ -831,6 +836,7 @@ def send(case,
                 else:
                     if isinstance(bar, UserInterface.ProgressBar):
                         bar.close()
+                    logging.warning('File {} contains a dicom error {}'.format(m, e))
 
                     raise
 
