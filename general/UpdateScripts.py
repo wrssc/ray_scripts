@@ -1,17 +1,17 @@
 """ Refresh Production Scripts
-    
-    This script refreshes the local list of scripts from the online repository. This is 
-    only applicable if a local variable was set in the version of ScriptSelector imported 
+
+    This script refreshes the local list of scripts from the online repository. This is
+    only applicable if a local variable was set in the version of ScriptSelector imported
     into RayStation.
-    
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
-    
+
     This program is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
@@ -99,9 +99,6 @@ def main():
 
 
     # Loop through folders in branch, creating folders and pulling content
-    for l in file_list:
-        logging.debug('each l {}'.format(l))
-    sys.exit('Exiting')
     for l in file_list:
         if l.get('type'):
             if l['type'] == u'dir':
