@@ -3,7 +3,7 @@ import sys
 
 clr.AddReference("System")
 clr.AddReference(
-    "C:Program Files\RaySearch Laboratories\RayStation 8B SP2\ScriptClient\ScriptClient.dll"
+    "C:Program Files\RaySearch Laboratories\RayStation 10A SP1\ScriptClient\ScriptClient.dll"
 )
 
 import ScriptClient
@@ -12,6 +12,6 @@ import ScriptClient
 print("Running connect_to_raystation")
 # Uncomment the following section to connect to RayStation
 # -------------------------------------------------------
-sys.path.append("C:Program Files\RaySearch Laboratories\RayStation 8B SP2")
-sys.path.append("C:Program Files\RaySearch Laboratories\RayStation 8B SP2\ScriptClient")
+sys.path.append("C:Program Files\RaySearch Laboratories\RayStation 10A SP1")
+sys.path.append("C:Program Files\RaySearch Laboratories\RayStation 10A SP1\ScriptClient")
 # -------------------------------------------------------
