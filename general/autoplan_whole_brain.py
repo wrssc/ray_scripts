@@ -183,18 +183,14 @@ def main():
     else:
         poi_status = StructureOperations.create_poi(
             case=case, exam=examination, coords=[0., 0., 0.],
-            name="SimFiducials",color="Green", rs_type='Localization_Point')
-        # case.PatientModel.CreatePoi(Examination=examination,
-        #                            Point={'x': 0,
-        #                                   'y': 0,
-        #                                   'z': 0},
-        #                            Volume=0,
-        #                            Name="SimFiducials",
-        #                            Color="Green",
-        #                            Type="LocalizationPoint")
-        status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
-        connect.await_user_input(
-            'Ensure Correct placement of the SimFiducials Point and continue script.')
+            name="SimFiducials",color="Green", rs_type='LocalizationPoint')
+        if poi_status:
+            logging.warning('Error detected creating SimFiducial point{}'.format(poi_status))
+            sys.exit('Error detected creating SimFiducial point{}'.format(poi_status))
+        else:
+            status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
+            connect.await_user_input(
+                'Ensure Correct placement of the SimFiducials Point and continue script.')
 
     # Generate the target based on an MBS brain contour
     status.next_step(text="The PTV_WB_xxxx target is being generated")
