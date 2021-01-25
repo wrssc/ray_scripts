@@ -1,24 +1,24 @@
 """ Automated Plan - Whole Brain
 
     Creates the structures required for the auto-whole brain block.
-    
-    This python script will generate a PTV_WB_xxxx that attempts to capture the whole brain
-    contour to the C1 interface.  In the first iteration, this will simply generate the 
-    structures that will be used to populate the UW Template.  In future iterations we 
-    will be updating this script to load beam templates and create the actual plan.   
 
-    How To Use: After insertion of S-frame this script is run to generate the blocking 
+    This python script will generate a PTV_WB_xxxx that attempts to capture the whole brain
+    contour to the C1 interface.  In the first iteration, this will simply generate the
+    structures that will be used to populate the UW Template.  In future iterations we
+    will be updating this script to load beam templates and create the actual plan.
+
+    How To Use: After insertion of S-frame this script is run to generate the blocking
                 structures for a whole brain plan
 
     TODO: Get rid of the second plan - it is only for correcting the GUI and can be dumped in
             RS8
     TODO: Add timing measurements to the planning process
     TODO: Eliminate S-frame use and extend dose grid based on BTV limits
-    TODO: Add clinical goals 
+    TODO: Add clinical goals
 
-    Validation Notes: 
+    Validation Notes:
     Test Patient: MR# ZZUWQA_ScTest_30Dec2020, Name: Script_Testing^Automated Plan - Whole Brain
-    
+
     Version Notes: 1.0.0 Original
     1.0.1 Hot Fix to apparent error in version 7 (related to connect being used instead of a
             full import)
@@ -37,11 +37,11 @@
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later
     version.
-    
+
     This program is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
@@ -69,6 +69,7 @@ import random
 import sys
 import BeamOperations
 import PlanOperations
+import StructureOperations
 
 
 def check_external(roi_list):
@@ -180,14 +181,17 @@ def main():
         connect.await_user_input(
             'Ensure Correct placement of the SimFiducials Point and continue script.')
     else:
-        case.PatientModel.CreatePoi(Examination=examination,
-                                    Point={'x': 0,
-                                           'y': 0,
-                                           'z': 0},
-                                    Volume=0,
-                                    Name="SimFiducials",
-                                    Color="Green",
-                                    Type="LocalizationPoint")
+        poi_status = StructureOperations.create_poi(
+            case=case, exam=examination, coords=[0., 0., 0.],
+            name="SimFiducials",color="Green", rs_type='Localization_Point')
+        # case.PatientModel.CreatePoi(Examination=examination,
+        #                            Point={'x': 0,
+        #                                   'y': 0,
+        #                                   'z': 0},
+        #                            Volume=0,
+        #                            Name="SimFiducials",
+        #                            Color="Green",
+        #                            Type="LocalizationPoint")
         status.next_step(text="SimFiducials POI created, ensure that it is placed properly")
         connect.await_user_input(
             'Ensure Correct placement of the SimFiducials Point and continue script.')
@@ -314,10 +318,10 @@ def main():
         case.PatientModel.RegionsOfInterest['Brain'].AdaptMbsMesh(
             Examination=examination,
             CustomSettings=[{
-                'ShapeWeight': 4.0, 
-                'TargetWeight': 0.75, 
-                'MaxIterations': 50, 
-                'OnlyRigidAdaptation': False, 
+                'ShapeWeight': 4.0,
+                'TargetWeight': 0.75,
+                'MaxIterations': 50,
+                'OnlyRigidAdaptation': False,
                 'ConvergenceCheck': False}])
     if any(roi.OfRoi.Name == 'Eye_L' for roi in rois):
         connect.await_user_input('Eye_L Contour Exists - Verify its accuracy and continue script')
@@ -333,18 +337,18 @@ def main():
         case.PatientModel.RegionsOfInterest['Eye_L'].AdaptMbsMesh(
             Examination=examination,
             CustomSettings=[{
-                'ShapeWeight': 2.0, 
-                'TargetWeight': 0.75, 
-                'MaxIterations': 50, 
-                'OnlyRigidAdaptation': False, 
+                'ShapeWeight': 2.0,
+                'TargetWeight': 0.75,
+                'MaxIterations': 50,
+                'OnlyRigidAdaptation': False,
                 'ConvergenceCheck': False}])
         case.PatientModel.RegionsOfInterest['Eye_L'].AdaptMbsMesh(
             Examination=examination,
             CustomSettings=[{
-                'ShapeWeight': 4.25, 
-                'TargetWeight': 0.75, 
-                'MaxIterations': 50, 
-                'OnlyRigidAdaptation': False, 
+                'ShapeWeight': 4.25,
+                'TargetWeight': 0.75,
+                'MaxIterations': 50,
+                'OnlyRigidAdaptation': False,
                 'ConvergenceCheck': False}])
     if any(roi.OfRoi.Name == 'Eye_R' for roi in rois):
         connect.await_user_input('Eye_R Contour Exists - Verify its accuracy and continue script')
@@ -360,18 +364,18 @@ def main():
         case.PatientModel.RegionsOfInterest['Eye_R'].AdaptMbsMesh(
             Examination=examination,
             CustomSettings=[{
-                'ShapeWeight': 2.0, 
-                'TargetWeight': 1, 
-                'MaxIterations': 50, 
-                'OnlyRigidAdaptation': False, 
+                'ShapeWeight': 2.0,
+                'TargetWeight': 1,
+                'MaxIterations': 50,
+                'OnlyRigidAdaptation': False,
                 'ConvergenceCheck': False}])
         case.PatientModel.RegionsOfInterest['Eye_R'].AdaptMbsMesh(
             Examination=examination,
             CustomSettings=[{
-                'ShapeWeight': 4.25, 
-                'TargetWeight': 1, 
-                'MaxIterations': 50, 
-                'OnlyRigidAdaptation': False, 
+                'ShapeWeight': 4.25,
+                'TargetWeight': 1,
+                'MaxIterations': 50,
+                'OnlyRigidAdaptation': False,
                 'ConvergenceCheck': False}])
 
     if not check_structure_exists(case=case, structure_name='Lens_L', roi_list=rois,
@@ -740,7 +744,7 @@ def main():
             plan.SetCurrent()
             connect.get_current('Plan')
             # Creating a common call to a create beamset wrapper
-            # will help the next time the function calls are changed 
+            # will help the next time the function calls are changed
             # by RaySearch
             beamset_defs = BeamOperations.BeamSet()
             beamset_defs.rx_target = 'PTV_WB_xxxx'
@@ -754,7 +758,7 @@ def main():
             # Beamset elements derived from the protocol
             beamset_defs.technique = "Conformal"
             beamset_defs.protocol_name = "WBRT"
-            
+
             beamset = BeamOperations.create_beamset(
                 patient=patient,
                 exam = examination,
