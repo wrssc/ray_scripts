@@ -78,12 +78,12 @@ def main():
             DoseGrid={'x': 0.25, 'y': 0.25, 'z': 0.25},
             GantryAngle=0,
             CollimatorAngle=None,
-            CouchAngle=0,
+            CouchRotationAngle=0,
             ComputeDoseWhenPlanIsCreated=True,
             NumberOfMonteCarloHistories=500000)
-    except Exception:
-        UserInterface.WarningBox('QA Plan failed to create')
-        sys.exit('QA Plan failed to create')
+    except Exception as e:
+        UserInterface.WarningBox('QA Plan failed to create: {}'.format(e))
+        sys.exit('QA Plan failed to create {}'.format(e))
 
 
 if __name__ == '__main__':
