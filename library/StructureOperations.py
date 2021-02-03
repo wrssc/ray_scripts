@@ -12,6 +12,9 @@
 	max_roi
 	checks for maximum extent of an roi
 
+    visualize_none
+    turns all contour visualization off
+
 	Versions:
 	01.00.00 Original submission
 
@@ -117,7 +120,7 @@ def include_in_export(case, rois):
 
 def exists_roi(case, rois,return_exists=False):
     """See if rois is in the list
-    If return_exists is True return the names of the existing rois, 
+    If return_exists is True return the names of the existing rois,
     If it is False, return a boolean list of each structure's existence
     """
     if type(rois) is not list:
@@ -242,7 +245,7 @@ def create_poi(case, exam, coords=None, name=None, color='Green',diameter=1, rs_
     else:
         coordinate_dict = {}
         exam=None
-    
+
     if not name:
         indx = 0
         while exists_poi(case=case, pois=['POI'+str(indx)]):
@@ -250,7 +253,7 @@ def create_poi(case, exam, coords=None, name=None, color='Green',diameter=1, rs_
         point_name='POI'+ str(indx)
     else:
         point_name = name
-    
+
     try:
         case.PatientModel.CreatePoi(
             Examination=exam,
@@ -262,8 +265,16 @@ def create_poi(case, exam, coords=None, name=None, color='Green',diameter=1, rs_
         )
         return None
     except Exception as e:
+        logging.debug('Error creating point {}'.format(e))
         error_message = [str(e)]
-        return error_message 
+        return error_message
+
+
+def visualize_none(patient, case):
+    roi_names = find_types(case=case, roi_type=None)
+    for r in roi_names:
+        patient.SetRoiVisibility(RoiName=r,IsVisible=False)
+
 
 def check_roi(case, exam, rois):
     """ See if the provided rois has contours, later check for contiguous"""
@@ -479,7 +490,7 @@ def change_roi_type(case, roi_name, roi_type):
     # without a specified type the structure will be set to "Unknown"
     if roi_type =='None':
         roi_type = "Undefined"
-        
+
     if structure_approved(case=case, roi_name=roi_name):
         error_message.append(
             "Structure {} is approved, cannot change type {}".format(roi_name, roi_type)

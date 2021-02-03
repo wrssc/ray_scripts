@@ -1,27 +1,27 @@
-""" Script Selector Py3
-    
-    This script downloads a copy of the ray_scripts GitHub repository, then displays a 
+""" Script Selector
+
+    This script downloads a copy of the ray_scripts GitHub repository, then displays a
     list to the user of each script present in the specified sub-folder. This script will
-    then execute the script that the user selects. With this approach, this is the only 
-    script that needs to be loaded into RayStation, while all of the actual scripts are 
+    then execute the script that the user selects. With this approach, this is the only
+    script that needs to be loaded into RayStation, while all of the actual scripts are
     dynamically queried and run from this one. See the repository README and wiki for
-    additional information. 
-    
+    additional information.
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
-    
+
     This program is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
 
-__author__ = 'Mark Geurts'
-__contact__ = 'mark.w.geurts@gmail.com'
-__version__ = '1.2.0'
+__author__ = 'Mark Geurts and Adam Bayliss'
+__contact__ = 'rabayliss@wisc.edu'
+__version__ = '1.3.0'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/Installation'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
@@ -40,9 +40,10 @@ import importlib
 import time
 import multiprocessing
 
-# Specify the location of a local repository containing all scripts (leave blank to 
+# Specify the location of a local repository containing all scripts (leave blank to
 # download a fresh copy each time)
-local = r''
+# Master branch
+local = r'<path to branch>'
 
 # Specify sub-folder to scan (to list all, leave blank)
 module = r'general'
@@ -51,10 +52,10 @@ module = r'general'
 library = r'library'
 
 # Specify log folder location (leave blank to not use logging)
-logs = r'Q:\\RadOnc\RayStation\RayScripts\dev_logs'
+logs = r'<path to logs>'
 
 # Specify GitHub access token
-token = 'c7d05ec5547c2e5ed8065f0fd38e1c8e521e60e5'
+token = ''
 
 # Specify GitHub contents API
 api = 'https://api.github.com/repos/wrssc/ray_scripts'
@@ -78,11 +79,10 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     # Configure file logging
     logging.captureWarnings(True)
     if m_logs != '':
-        mlogs_dir = os.path.join(m_logs,pat_id)
-        if not os.path.isdir(mlogs_dir):
-            os.mkdir(mlogs_dir)
-        
-        logging.basicConfig(filename=os.path.normpath('{}/{}/{}.txt'.format(m_logs,pat_id,pat_id)),
+        m_logs_dir = os.path.join(m_logs,pat_id)
+        if not os.path.isdir(m_logs_dir):
+            os.mkdir(m_logs_dir)
+        logging.basicConfig(filename=os.path.normpath('{}/{}.txt'.format(m_logs_dir,pat_id)),
                             level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S', filemode='a',
                             format='%(asctime)s\t%(levelname)s\t%(filename)s: %(message)s')
 
@@ -125,7 +125,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
     if m_local == '':
         m_local = tempfile.mkdtemp()
 
-        # Get list of branches 
+        # Get list of branches
         import requests
 
         if m_token != '':
@@ -225,7 +225,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         # Loop through branches
         for l in branch_list:
             button = System.Windows.Forms.Button()
-            button.Text = '{} ({})'.format(l['name'].decode('utf-8'), l['commit']['sha'][:7].decode('utf-8'))
+            button.Text = '{} ({})'.format(l['name'], l['commit']['sha'][:7])
             button.Height = 50
             button.Width = form.MaximumSize.Width - 50
             button.Margin = System.Windows.Forms.Padding(10, 10, 10, 0)
@@ -335,7 +335,7 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
             raise
 
     # List directory contents
-    for name in sorted(iter(scripts.keys)):
+    for name in sorted(iter(scripts)):
         button = System.Windows.Forms.Button()
         button.Text = name
         button.Height = 50
@@ -349,14 +349,10 @@ def main(m_local, m_module, m_library, m_logs, m_api, m_token):
         tooltip = System.Windows.Forms.ToolTip()
         tooltip.SetToolTip(button, scripts[name]['tooltip'])
 
-    # Open window  
+    # Open window
     form.ShowDialog()
     logging.shutdown()
 
 
 if __name__ == '__main__':
     main(local, module, library, logs, api, token)
-
-
-
-
