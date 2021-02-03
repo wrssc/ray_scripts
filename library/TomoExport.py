@@ -59,7 +59,7 @@ import DicomExport
 import PlanOperations
 
 
-def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_status, rs_test_only=False):
+def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_status, rs_test_only=False, tr_test_only=False):
     # Script will, determine the current machine set for which this beamset is planned
     # Submit the first plan via export method
     # Copy the beamset using the RS CopyAndAdjust method
@@ -78,7 +78,10 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
         steps.append('Approve the transfer plan for {}'.format(b.DicomPlanLabel))
     for b in parent_plan.BeamSets:
         steps.append('Export transfer version of {} to iDMS'.format(b.DicomPlanLabel))
-
+    if tr_test_only:
+        steps = []
+        for b in parent_plan.Beamsets:
+            steps.append('Export transfer version of {} to iDMS'.format(b.DicomPlanLabel))
     status = UserInterface.ScriptStatus(steps=steps,
                                         docstring=__doc__,
                                         help=__help__)
@@ -274,6 +277,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
         if rs_test_only:
             success = True
         else:
+            logging.debug('Sending {}_{} to iDMS'.format(parent_plan_iDMS_name,daughter_beamset.DicomPlanLabel))
             success = DicomExport.send(case=case,
                                        destination='RayGateway',
                                        parent_plan=parent_plan_iDMS_name,
