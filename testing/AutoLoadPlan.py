@@ -1,6 +1,6 @@
 """ Multi-Patient Planning Study
-    
-    Automatic generation of a curative Head and Neck Plan.  
+
+    Automatic generation of a curative Head and Neck Plan.
     -Load the patient and case from a user-selected csv file
     -Loads planning structures
     -Loads Beams (or templates)
@@ -14,11 +14,11 @@
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later
     version.
-    
+
     This program is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
@@ -170,10 +170,10 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
     try:
         case = patient.Cases[case_name]
         patient_data['Case'] = case
-    except SystemError:
-        patient_data['Error'].append('Case {} not found'.format(case_name))
+    except Exception as e:
+        patient_data['Error'].append('Case {} not found: {}'.format(case_name,e))
         return patient_data
-    # 
+    #
     # Load examination
     try:
         info = db.QueryExaminationInfo(PatientInfo=patient_info[0],
@@ -220,7 +220,7 @@ def test_inputs_optimization(s):
     # Optimization configuration
     key_oc = 'optimization_config'
     wf = s.OptimizationWorkflow
-    # No planning structures needed 
+    # No planning structures needed
     if not wf:
         return 'NA'
 
@@ -289,7 +289,7 @@ def test_inputs_planning_structure(case,s):
 def load_planning_structures(case, s):
     key_ps = 'planning_structure_config'
     wf = s.PlanningStructureWorkflow
-    # No planning structures needed 
+    # No planning structures needed
     if not wf:
         return 'NA'
     file = s.PlanningStructureFile
@@ -310,7 +310,10 @@ def load_planning_structures(case, s):
     pp.first_target_number = df_wf.first_target_number.values[0]
     uniform_structures = df_wf.uniform_structures.values[0]
     underdose_structures = df_wf.underdose_structures.values[0]
-    inner_air_name = df_wf.inner_air_name.values[0]
+    try:
+        inner_air_name = df_wf.inner_air_name.values[0]
+    except AttributeError:
+        inner_air_name = None
 
     if uniform_structures:
         uniform_filtered = StructureOperations.exists_roi(case=case,
@@ -427,7 +430,7 @@ def load_configuration_optimize_beamset(s,patient,case,exam,plan,beamset):
 
     Arguments:
         s {pandas dataseries} -- contains path and filename for accessing the xml instructions for optimization
-        patient {Patient ScriptObject} -- RS patient 
+        patient {Patient ScriptObject} -- RS patient
         case {Case ScriptObject} -- RS case
         plan {Plan ScriptObject} -- RS Plan
         beamset {Beamset ScriptObject} -- RS Beamset
@@ -437,7 +440,7 @@ def load_configuration_optimize_beamset(s,patient,case,exam,plan,beamset):
     """
     key_oc = 'optimization_config'
     wf = s.OptimizationWorkflow
-    # No planning structures needed 
+    # No planning structures needed
     if not wf:
         return 'NA'
     file = s.OptimizationFile
@@ -508,8 +511,12 @@ def main():
     file_csv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
     print('Looking in file {}'.format(file_csv))
     if file_csv != '':
-        plan_data = pd.read_csv(file_csv)
-        #plan_data = pd.read_csv(BytesIO(file_csv))
+        plan_data = pd.read_csv(file_csv,converters={
+            'PatientID': lambda x: str(x),
+            'Case': lambda x: str(x),
+            'PlanName': lambda x: str(x),
+            'BeamsetName': lambda x: str(x),
+            })
         # Merge the target rows into a dictionary containing {[Target Name]:Dose}
         plan_data['Targets'] = plan_data.apply(lambda row: merge_dict(row), axis=1)
         # Replace all nan with ''
@@ -518,14 +525,20 @@ def main():
     print('The pandas array is {}'.format(plan_data))
     path = os.path.dirname(file_csv)
 
-    ## output_filename = os.path.join(path, file_csv.replace(".csv","_output.txt"))
     # Cycle through the input file
     for index, row in plan_data.iterrows():
         beamset_name = row.BeamsetName
         plan_name = row.PlanName
         patient_id = row.PatientID
         case_name = row.Case
+        print('loading PatientID: {i}, Case: {c}, Plan: {p}, Beamset: {b}'.format(
+            i=patient_id,
+            c=case_name,
+            p=plan_name,
+            b=beamset_name
+        ))
         patient_load = False
+        # If the planning structure workflow element is blank, skip planning structures
         if row.PlanningStructureWorkflow:
             planning_structs = False
         else:
@@ -544,7 +557,7 @@ def main():
             case_name=case_name,
             exam_name=row.ExaminationName,
             plan_name=plan_name,
-        )
+            )
         # Check loading status
         if patient_data['Error']:
             # Go to the next entry
@@ -581,7 +594,7 @@ def main():
 
         errors_ps = test_inputs_planning_structure(case,row)
         if errors_ps:
-            status_message.append(errors_ps)
+            status_message = errors_ps
             # Go to the next entry
             output_status(
                 path=path,
@@ -641,6 +654,10 @@ def main():
         # Beamset elements derived from the protocol
         beamset_defs.technique = beamset_etree.find('technique').text
         beamset_defs.protocol_name = beamset_etree.find('name').text
+        if beamset_defs.technique == "TomoHelical":
+            lateral_zero = True
+        else:
+            lateral_zero = False
 
         order_name = None
 
@@ -666,7 +683,7 @@ def main():
                 exam=exam,
                 beamset=rs_beam_set,
                 iso_target=beamset_defs.iso_target,
-                lateral_zero=True)
+                lateral_zero=lateral_zero)
         except Exception:
             logging.warning(
                 'Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
