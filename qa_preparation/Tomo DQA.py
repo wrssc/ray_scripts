@@ -97,10 +97,14 @@ def main():
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'0': 'Select the DQA Plan to export',
               'a': 'Enter the Gantry period as [ss.ff]:',
-              'b': 'Check one or more DICOM destinations to export to:'}
-    required = ['0', 'a', 'b']
-    types = {'0':'combo','a': 'text', 'b': 'check'}
-    options = {'0':matched_qa_plans.keys(),'b': DicomExport.destinations()}
+              'b': 'Check one or more DICOM destinations to export to:',
+              'c': 'Ignore export validation'}
+    ## required = ['0', 'a', 'b']
+    ## types = {'0':'combo','a': 'text', 'b': 'check'}
+    ## options = {'0':matched_qa_plans.keys(),'b': DicomExport.destinations()}
+    required = ['0', 'a', 'b', 'c']
+    types = {'0':'combo','a': 'text', 'b': 'check', 'c':'combo'}
+    options = {'0':matched_qa_plans.keys(),'b': DicomExport.destinations(), 'c': ['Yes', 'No']}
     initial = {}
 
     dialog = UserInterface.InputDialog(inputs=inputs,
@@ -114,6 +118,10 @@ def main():
         sys.exit('DICOM export was cancelled')
     # Link root to selected protocol ElementTree
     formatted_response = str(response['a']).strip()
+    if response['c'] == 'Yes':
+        bypass_export_check =True
+    else:
+        bypass_export_check = False
     logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
         formatted_response))
     selected_qa_plan = matched_qa_plans[response['0']]
@@ -133,6 +141,8 @@ def main():
                                beam_dose=False,
                                ignore_warnings=False,
                                ignore_errors=False,
+                               bypass_export_check = bypass_export_check,
+                               rename=None,
                                gantry_period=formatted_response,
                                filters=['tomo_dqa'],
                                bar=False)
