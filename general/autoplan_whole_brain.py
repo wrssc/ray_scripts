@@ -48,18 +48,18 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '01-Feb-2018'
+__date__ = '01-Feb-2021'
 __version__ = '1.0.5'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '8B.SP2'
+__raystation__ = '10A SP1'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
+__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/AutoPlanWholeBrain'
 __credits__ = []
 
 import connect

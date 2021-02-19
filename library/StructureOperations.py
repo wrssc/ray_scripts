@@ -3937,14 +3937,14 @@ def planning_structures(
             )
         except:
             # TODO Move to an internal create call
-            case.PatientModel.CreateRoi(
-                Name="InnerAir",
-                Color="SaddleBrown",
-                Type="Undefined",
-                TissueName=None,
-                RbeCellTypeName=None,
-                RoiMaterial=None,
-            )
+            roi_geom = create_roi(
+                case=case,
+                examination=examination,
+                roi_name="InnerAir",
+                delete_existing=True,
+                )
+            change_roi_color(case=case,roi_name="InnerAir",rgb=[139, 69, 19])
+
 
     # Generate a rough field of view contour.
     # It should really be put in with the dependent structures

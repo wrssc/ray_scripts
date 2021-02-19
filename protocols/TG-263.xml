@@ -13107,7 +13107,7 @@
         <TG263ReverseOrderName>R_Lung</TG263ReverseOrderName>
         <FMAID>7309</FMAID>
         <Color red="54" green="247" blue="223" Hex="#36F7DF">FreshTurquoise</Color>
-        <Alias></Alias>
+        <Alias>Right Lung, R_Lung, Right lung</Alias>
     </roi>
     <roi>
         <name>Lung_RLL</name>
@@ -14096,7 +14096,7 @@
         <NCharacters>7</NCharacters>
         <TG263ReverseOrderName>Trachea</TG263ReverseOrderName>
         <FMAID>7394</FMAID>
-        <Color red="255" green="255" blue="255">#</Color>
+        <Color red="247" green="236" blue="20" Hex="#F7EC14">A12</Color>
         <Alias></Alias>
     </roi>
     <roi>

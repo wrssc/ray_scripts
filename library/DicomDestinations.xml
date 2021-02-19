@@ -56,6 +56,6 @@
     <destination type="folder">
         <name type="text">Transfer Folder</name>
         <path type="text">\\uwhis.hosp.wisc.edu\UFS\UWHealth\RadOnc\ShareAll\Transfer</path>
-        <anonymize type="bool">True</anonymize>
+        <anonymize type="bool">False</anonymize>
     </destination>
 </destinations>

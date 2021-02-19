@@ -105,6 +105,7 @@ def send(case,
          qa_plan=None,
          ignore_warnings=False,
          ignore_errors=False,
+         bypass_export_check=False,
          rename=None,
          filters=None,
          machine=None,
@@ -715,7 +716,7 @@ def send(case,
             ae.add_requested_context(RTDoseStorage, ImplicitVRLittleEndian)
             ae.add_requested_context(VerificationSOPClass)
             # MIM and Delta4 appear to timeout on a setting called ARTIM
-            ae.network_timeout = 300.
+            ae.network_timeout = 600.
             assoc = ae.associate(info['host'], int(info['port']), ae_title=info['aet'])
 
         else:
@@ -729,14 +730,17 @@ def send(case,
                 bar.update(text='Validating and Exporting Files to {} ({} of {})'.format(d, i, total))
 
             # send a message to the ae
-            message = assoc.send_c_echo()
-            logging.debug('Echo request returned {}'.format(message))
+            try:
+                message = assoc.send_c_echo()
+                logging.debug('Echo request returned {}'.format(message))
+            except AttributeError:
+                logging.debug('Selected destination does not have echo properties')
             try:
                 logging.debug('Reading modified file {}'.format(os.path.join(modified, m)))
                 ds = pydicom.dcmread(os.path.join(modified, m))
 
                 # Validate changes against original file, recursively searching through sequences
-                if m in edited:
+                if m in edited and not bypass_export_check:
                     logging.debug('Validating edits against {}'.format(os.path.join(original, m)))
                     dso = pydicom.dcmread(os.path.join(original, m))
                     try:

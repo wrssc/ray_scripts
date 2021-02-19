@@ -22,6 +22,9 @@
           send data. User is now asked to match the treatment plan they wish to send and no longer
           need delete multiple plans.
 
+    1.0.2 Always bypass the diff checking on the tomo DQA plans. For long treatment fields
+          this was taking a really long time and causing the association to time out.
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later
@@ -114,6 +117,7 @@ def main():
         sys.exit('DICOM export was cancelled')
     # Link root to selected protocol ElementTree
     formatted_response = str(response['a']).strip()
+    bypass_export_check =True
     logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
         formatted_response))
     selected_qa_plan = matched_qa_plans[response['0']]
@@ -133,6 +137,8 @@ def main():
                                beam_dose=False,
                                ignore_warnings=False,
                                ignore_errors=False,
+                               bypass_export_check = bypass_export_check,
+                               rename=None,
                                gantry_period=formatted_response,
                                filters=['tomo_dqa'],
                                bar=False)
