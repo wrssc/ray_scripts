@@ -22,6 +22,9 @@
           send data. User is now asked to match the treatment plan they wish to send and no longer
           need delete multiple plans.
 
+    1.0.2 Always bypass the diff checking on the tomo DQA plans. For long treatment fields
+          this was taking a really long time and causing the association to time out.
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later
@@ -97,14 +100,10 @@ def main():
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'0': 'Select the DQA Plan to export',
               'a': 'Enter the Gantry period as [ss.ff]:',
-              'b': 'Check one or more DICOM destinations to export to:',
-              'c': 'Ignore export validation'}
-    ## required = ['0', 'a', 'b']
-    ## types = {'0':'combo','a': 'text', 'b': 'check'}
-    ## options = {'0':matched_qa_plans.keys(),'b': DicomExport.destinations()}
-    required = ['0', 'a', 'b', 'c']
-    types = {'0':'combo','a': 'text', 'b': 'check', 'c':'combo'}
-    options = {'0':matched_qa_plans.keys(),'b': DicomExport.destinations(), 'c': ['Yes', 'No']}
+              'b': 'Check one or more DICOM destinations to export to:'}
+    required = ['0', 'a', 'b']
+    types = {'0':'combo','a': 'text', 'b': 'check'}
+    options = {'0':matched_qa_plans.keys(),'b': DicomExport.destinations()}
     initial = {}
 
     dialog = UserInterface.InputDialog(inputs=inputs,
@@ -118,10 +117,7 @@ def main():
         sys.exit('DICOM export was cancelled')
     # Link root to selected protocol ElementTree
     formatted_response = str(response['a']).strip()
-    if response['c'] == 'Yes':
-        bypass_export_check =True
-    else:
-        bypass_export_check = False
+    bypass_export_check =True
     logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
         formatted_response))
     selected_qa_plan = matched_qa_plans[response['0']]
