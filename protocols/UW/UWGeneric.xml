@@ -257,6 +257,20 @@
                 <dose units="%" roi="PTV_p">115</dose>
                 <priority>4</priority>
             </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p">120</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Pacemaker</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
         </goals>
         <objectives>
             <roi>
@@ -269,37 +283,178 @@
                 <name>OTV1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p">102.5</dose>
-                <weight>10</weight>
+                <weight>1</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p">105</dose>
-                <weight>1</weight>
+                <weight>25</weight>
             </roi>
             <roi>
-                <name>Ring_HD</name>
+                <name>ExternalClean</name>
                 <type dist="0.2" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="95">100</dose>
-                <weight>0.1</weight>
+                <weight>150</weight>
             </roi>
             <roi>
-                <name>Ring_HD</name>
+                <name>ExternalClean</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="90">100</dose>
-                <weight>1</weight>
+                <weight>100</weight>
             </roi>
             <roi>
-                <name>Ring_HD</name>
+                <name>ExternalClean</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p" low="50">100</dose>
-                <weight>0.01</weight>
+                <weight>50</weight>
+            </roi>
+        </objectives>
+    </order>
+    <order>
+        <name>Tomo_Rapid_IMRT_Multitarget</name>
+        <prefix>Tomo_3DC</prefix>
+        <prescription>
+            <roi>
+                <name>PTV1_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
             </roi>
             <roi>
-                <name>Ring_LD</name>
+                <name>PTV2_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100"></dose>
+            </roi>
+            <fractions></fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p1</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p1">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p1</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p1">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p1</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p1">120</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p1</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p1">115</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p2">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p2">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p2">120</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p2">115</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p1">120</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Pacemaker</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">40</dose>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
+        </goals>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p1">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p1">102.5</dose>
                 <weight>1</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p1">105</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p1">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p1">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p1">105</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="95">100</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>50</weight>
             </roi>
         </objectives>
     </order>
@@ -543,6 +698,153 @@
         </beam>
     </beamset>
     <beamset>
+        <name>Tomo-FW5-P433</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>5.05</FieldWidth>
+            <Pitch>0.433</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-FW5-P297</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>5.05</FieldWidth>
+            <Pitch>0.297</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-FW5-P225</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>5.05</FieldWidth>
+            <Pitch>0.225</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-FW5-P182</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>5.05</FieldWidth>
+            <Pitch>0.182</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-FW5-P167</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>5.05</FieldWidth>
+            <Pitch>0.167</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-FW5-P134</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>5.05</FieldWidth>
+            <Pitch>0.134</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-FW5-P119</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>5.05</FieldWidth>
+            <Pitch>0.119</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
         <name>Tomo3D-FW2.5</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
@@ -561,6 +863,90 @@
             <MaxDeliveryTime>600</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
             <MaxDeliveryTimeFactor>3</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-FW2.5-P211</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.211</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-FW2.5-P168</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.168</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-FW2.5-P140</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.140</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+     <beamset>
+        <name>Tomo-FW2.5-P120</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>XXXX
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.120</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
         </beam>
     </beamset>
     <beamset>
