@@ -13,8 +13,11 @@
 #   used with our Python 2 ray_scripts, is deprecated.
 # * PySimpleGUI was installed with bindings for PySide2 (Qt for Python) and tkinter.
 #
+## 1/18/2021
+# * Added "requests" explicitly to list
+#
 ### Use ###
-# pip install -r rayscripts_reqs_python3.txt
+# path/to/python -m pip install -r rayscripts_reqs_python3.txt
 #
 #####
 
@@ -30,5 +33,6 @@ PySimpleGUI
 PySimpleGUIQt
 pythonnet>=2.5
 reportlab
+requests
 scipy
 XlsxWriter
