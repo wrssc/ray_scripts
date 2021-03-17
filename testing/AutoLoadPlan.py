@@ -215,6 +215,15 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
     return patient_data
 
 
+def invalidate_doses(case):
+    # Invalidate all doses in the plan to avoid the prompt to invalidate doses
+    for p in case.TreatmentPlans:
+        for bs in p.BeamSets:
+            for b in bs.Beams:
+                original_mu = b.BeamMU
+                b.BeamMU = original_mu
+
+
 def test_inputs_optimization(s):
     e = []
     # Optimization configuration
@@ -223,6 +232,7 @@ def test_inputs_optimization(s):
     # No planning structures needed
     if not wf:
         return 'NA'
+
 
 def test_inputs_planning_structure(case,s):
     e = []  # Errors
@@ -510,6 +520,7 @@ def main():
     browser = UserInterface.CommonDialog()
     file_csv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
     print('Looking in file {}'.format(file_csv))
+    dtypes = {'PatientID': str, 'Case': str, 'PlanName': str, 'BeamsetName': str}
     if file_csv != '':
         plan_data = pd.read_csv(file_csv,converters={
             'PatientID': lambda x: str(x),
@@ -591,6 +602,9 @@ def main():
         if not exam.EquipmentInfo.ImagingSystemReference:
             exam.EquipmentInfo.SetImagingSystemReference(ImagingSystemName=row.CTSystem)
             patient.Save()
+
+        # Invalidate all previous doses:
+        invalidate_doses(case=case)
 
         errors_ps = test_inputs_planning_structure(case,row)
         if errors_ps:
