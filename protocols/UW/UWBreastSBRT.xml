@@ -1,0 +1,675 @@
+<protocol>
+    <name>UW Breast SBRT</name>
+    <ct>
+        <protocol institution="UWHC">XRT_CHEST</protocol>
+        <protocol institution="UWHC">XRT_L_BREAST_GATING</protocol>
+        <protocol institution="UWHC">XRT_PRONE_BREAST</protocol>
+        <protocol institution="UWHC">XRT_SUPINE_PRONE_BREAST</protocol>
+        <protocol institution="JC">5.1 Lung without contrast 0.8sec</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+        <icd version="10">C50011</icd>
+        <icd version="10">C50012</icd>
+        <icd version="10">C50019</icd>
+        <icd version="10">C50021</icd>
+        <icd version="10">C50022</icd>
+        <icd version="10">C50029</icd>
+        <icd version="10">C50111</icd>
+        <icd version="10">C50112</icd>
+        <icd version="10">C50119</icd>
+        <icd version="10">C50121</icd>
+        <icd version="10">C50122</icd>
+        <icd version="10">C50129</icd>
+        <icd version="10">C50211</icd>
+        <icd version="10">C50212</icd>
+        <icd version="10">C50219</icd>
+        <icd version="10">C50221</icd>
+        <icd version="10">C50222</icd>
+        <icd version="10">C50229</icd>
+        <icd version="10">C50311</icd>
+        <icd version="10">C50312</icd>
+        <icd version="10">C50319</icd>
+        <icd version="10">C50321</icd>
+        <icd version="10">C50322</icd>
+        <icd version="10">C50329</icd>
+        <icd version="10">C50411</icd>
+        <icd version="10">C50412</icd>
+        <icd version="10">C50419</icd>
+        <icd version="10">C50421</icd>
+        <icd version="10">C50422</icd>
+        <icd version="10">C50429</icd>
+        <icd version="10">C50511</icd>
+        <icd version="10">C50512</icd>
+        <icd version="10">C50519</icd>
+        <icd version="10">C50521</icd>
+        <icd version="10">C50522</icd>
+        <icd version="10">C50529</icd>
+        <icd version="10">C50611</icd>
+        <icd version="10">C50612</icd>
+        <icd version="10">C50619</icd>
+        <icd version="10">C50621</icd>
+        <icd version="10">C50622</icd>
+        <icd version="10">C50629</icd>
+        <icd version="10">C50811</icd>
+        <icd version="10">C50812</icd>
+        <icd version="10">C50819</icd>
+        <icd version="10">C50821</icd>
+        <icd version="10">C50822</icd>
+        <icd version="10">C50829</icd>
+        <icd version="10">C50911</icd>
+        <icd version="10">C50912</icd>
+        <icd version="10">C50919</icd>
+        <icd version="10">C50921</icd>
+        <icd version="10">C50922</icd>
+        <icd version="10">C50929</icd>
+    </diagnoses>
+    <prescription>
+        <frequency>Daily</frequency>
+        <imaging>Weekly kV</imaging>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
+        </technique>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+    </prescription>
+    <order>
+        <name>Left Breast SBRT</name>
+        <prefix>BreL_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <fractions>5</fractions>
+            <motion>Free breathing</motion>
+            <motion default="true">RPM MIBH gating</motion>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p_Lump</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Lump">93.33</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">100</volume>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Lump_Eval">93.33</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Lump_Eval">105</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">3</dose>
+                <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">2.64</dose>
+                <volume units="Gy">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Uninvolved_Breast</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">15</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">10</dose>
+                <volume units="%">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">5</dose>
+                <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Skin_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">27</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
+        <objectives>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">2.5</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>Max</type>
+                <dose units="Gy">5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Heart">5</volume>
+                <dose units="Gy">3</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_L">30</volume>
+                <dose units="Gy">3</dose>
+                <weight>2e-1</weight>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_L">5</volume>
+                <dose units="Gy">10</dose>
+                <weight>9e-1</weight>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_R">30</volume>
+                <dose units="Gy">2</dose>
+                <weight>2e-1</weight>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_R">5</volume>
+                <dose units="Gy">5</dose>
+                <weight>5e-1</weight>
+            </roi>
+        </objectives>
+    </order>
+     <order>
+        <name>Right Breast SBRT</name>
+        <prefix>BreR_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <fractions>5</fractions>
+            <motion>Free breathing</motion>
+            <motion default="true">RPM MIBH gating</motion>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p_Lump</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Lump">93.33</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type dir="ge">VX</type>
+                <volume units="%">100</volume>
+                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Lump_Eval">93.33</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump_Eval</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Lump_Eval">105</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">3</dose>
+                <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">2.64</dose>
+                <volume units="Gy">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Uninvolved_Breast</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">15</dose>
+                <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">10</dose>
+                <volume units="%">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">5</dose>
+                <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Skin_PRV03</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">27</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
+        <objectives>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">2.5</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">0.9</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>Max</type>
+                <dose units="Gy">4</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Heart">5</volume>
+                <dose units="Gy">3</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_L">10</volume>
+                <dose units="Gy">5</dose>
+                <weight>5e-1</weight>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_L">30</volume>
+                <dose units="Gy">3</dose>
+                <weight>5e-1</weight>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_L">5</volume>
+                <dose units="Gy">10</dose>
+                <weight>9e-1</weight>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_R">30</volume>
+                <dose units="Gy">2</dose>
+                <weight>2e-1</weight>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_R">5</volume>
+                <dose units="Gy">5</dose>
+                <weight>5e-1</weight>
+            </roi>
+        </objectives>
+    </order>
+    <planning_structure_set>
+        <name>Breast SBRT Livi</name>
+        <description>Planning targets for the breast SBRT Livi protocol
+        </description>
+        <number_of_targets>1</number_of_targets>
+        <first_target_number>1</first_target_number>
+        <uniform_dose_structs standoff="1.0">Chestwall,Heart</uniform_dose_structs>
+        <underdose_structs standoff="0.3"></underdose_structs>
+        <skin_structure margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
+                        margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">Skin_PRV05
+        </skin_structure>
+        <ring_hd standoff="0.2" margin_type="Expand" margin_sup="1.5" margin_inf="1.5"
+                 margin_ant="1.5" margin_pos="1.5" margin_r="1.5" margin_l="1.5">Ring_HD
+        </ring_hd>
+        <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
+        </ring_ld>
+        <ring_targets standoff="0.2" margin_type="Expand" margin_sup="1" margin_inf="1"
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">
+        </ring_targets>
+        <inner_air></inner_air>
+        <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
+        </superficial_target>
+        <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
+        </otv>
+    </planning_structure_set>
+    <optimization_config>
+        <name>8 warmstarts</name>
+        <description>8 warmstart optimization</description>
+        <treatment_technique>VMAT</treatment_technique>
+        <initial max_it="40" int_it="10">Iteration 0</initial>
+        <warmstart max_it="25" int_it="3" n="8">Iteration_1to8</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+    </optimization_config>
+    <optimization_config>
+        <name>Tomo 4 warmstarts</name>
+        <description>4 warmstart optimization</description>
+        <treatment_technique>TomoHelical</treatment_technique>
+        <initial max_it="60" int_it="10">Iteration 0</initial>
+        <warmstart max_it="20" int_it="3" n="4">Iteration_1to4</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+    </optimization_config>
+    <optimization_config>
+        <name>1 warmstarts</name>
+        <description>1 warmstart optimization</description>
+        <treatment_technique>VMAT</treatment_technique>
+        <initial max_it="45" int_it="10">Iteration 0</initial>
+        <warmstart max_it="30" int_it="3" n="1">Iteration_1to1</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+    </optimization_config>
+    <objectiveset>
+        <name>Breast SBRT Unilateral Objectives</name>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Lump">102.5</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Lump">107.6</dose>
+                <weight>250</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p_Lump">102.5</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Lump">109.6</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>PTV_p_Lump</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Lump">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+             <roi>
+                <name>sOTVu1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p_Lump">102.5</dose>
+                <weight>250</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p_Lump">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Lump" low="50">100</dose>
+                <weight>1.2</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="0.6" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Lump" low="83.3">98</dose>
+                <weight>2.0</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Lump" low="33.3">90</dose>
+                <weight>1.2</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Lump" low="20">60</dose>
+                <weight>0.5</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Lump" low="50">60</dose>
+                <weight>1.2</weight>
+            </roi>
+            <roi>
+                <name>Normal_2cm</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Lump">45</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Skin_PRV03</name>
+                <type>Max</type>
+                <dose units="Gy">27</dose>
+                <weight>10</weight>
+            </roi>
+        </objectives>
+    </objectiveset>
+    <beamset>
+       <name>Bre SBRT Left 4Arc</name>
+       <technique>VMAT</technique>
+       <DicomName>BCLt4A_VMA_R_A_</DicomName>
+       <description>4 Arc arrangement for treating the left breast or chestwall.
+       </description>
+       <beam>
+           <BeamNumber>1</BeamNumber>
+           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+           <Name>1_SITE_Arc_c020</Name>
+           <Energy>6 FFF</Energy>
+           <GantryAngle>330</GantryAngle>
+           <GantryStopAngle>050</GantryStopAngle>
+           <ArcRotationDirection>Clockwise</ArcRotationDirection>
+           <CollimatorAngle>020</CollimatorAngle>
+           <CouchAngle>020</CouchAngle>
+       </beam>
+       <beam>
+           <BeamNumber>2</BeamNumber>
+           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+           <Name>2_SITE_Arc_c340</Name>
+           <Energy>6 FFF</Energy>
+           <GantryAngle>060</GantryAngle>
+           <GantryStopAngle>330</GantryStopAngle>
+           <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+           <CollimatorAngle>350</CollimatorAngle>
+           <CouchAngle>340</CouchAngle>
+       </beam>
+       <beam>
+           <BeamNumber>3</BeamNumber>
+           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+           <Name>3_SITE_Arc_c000</Name>
+           <Energy>6 FFF</Energy>
+           <GantryAngle>320</GantryAngle>
+           <GantryStopAngle>178</GantryStopAngle>
+           <ArcRotationDirection>Clockwise</ArcRotationDirection>
+           <CollimatorAngle>020</CollimatorAngle>
+           <CouchAngle>000</CouchAngle>
+       </beam>
+       <beam>
+           <BeamNumber>4</BeamNumber>
+           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+           <Name>4_SITE_Arc_c000</Name>
+           <Energy>6 FFF</Energy>
+           <GantryAngle>178</GantryAngle>
+           <GantryStopAngle>320</GantryStopAngle>
+           <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+           <CollimatorAngle>330</CollimatorAngle>
+           <CouchAngle>000</CouchAngle>
+       </beam>
+    </beamset>
+    <beamset>
+       <name>Bre SBRT Right 4Arc</name>
+       <technique>VMAT</technique>
+       <DicomName>BCRt4A_VMA_R_A_</DicomName>
+       <description>4 Arc arrangement for treating the right breast
+       </description>
+       <beam>
+           <BeamNumber>1</BeamNumber>
+           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+           <Name>1_SITE_Arc_c340</Name>
+           <Energy>6 FFF</Energy>
+           <GantryAngle>300</GantryAngle>
+           <GantryStopAngle>030</GantryStopAngle>
+           <ArcRotationDirection>Clockwise</ArcRotationDirection>
+           <CollimatorAngle>340</CollimatorAngle>
+           <CouchAngle>340</CouchAngle>
+       </beam>
+       <beam>
+           <BeamNumber>2</BeamNumber>
+           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+           <Name>2_SITE_Arc_c020</Name>
+           <Energy>6 FFF</Energy>
+           <GantryAngle>030</GantryAngle>
+           <GantryStopAngle>310</GantryStopAngle>
+           <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+           <CollimatorAngle>010</CollimatorAngle>
+           <CouchAngle>020</CouchAngle>
+       </beam>
+       <beam>
+           <BeamNumber>3</BeamNumber>
+           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+           <Name>3_SITE_Arc_c000</Name>
+           <Energy>6 FFF</Energy>
+           <GantryAngle>182</GantryAngle>
+           <GantryStopAngle>040</GantryStopAngle>
+           <ArcRotationDirection>Clockwise</ArcRotationDirection>
+           <CollimatorAngle>200</CollimatorAngle>
+           <CouchAngle>000</CouchAngle>
+       </beam>
+       <beam>
+           <BeamNumber>4</BeamNumber>
+           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+           <Name>4_SITE_Arc_c000</Name>
+           <Energy>6 FFF</Energy>
+           <GantryAngle>040</GantryAngle>
+           <GantryStopAngle>182</GantryStopAngle>
+           <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+           <CollimatorAngle>235</CollimatorAngle>
+           <CouchAngle>000</CouchAngle>
+       </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo-SBRT-FW2.5</name>
+        <technique>TomoHelical</technique>
+        <DicomName>BreX_THI_R_A_</DicomName>
+        <description>Tomotherapy for right sided PBI
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>2.51</FieldWidth>
+            <Pitch>0.172</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>600</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>4</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <goals>
+        <goalset>
+            <name>QUANTEC</name>
+            <priority>5</priority>
+        </goalset>
+    </goals>
+</protocol>
