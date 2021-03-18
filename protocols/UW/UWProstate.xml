@@ -2367,13 +2367,6 @@
             </roi>
             <roi>
                 <name>PTV_p</name>
-                <type dir="le">VX</type>
-                <volume units="%">1</volume>
-                <dose units="%" roi="PTV_p">105</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p</name>
                 <type dir="ge">VX</type>
                 <volume units="%">50</volume>
                 <dose units="%" roi="PTV_p">99</dose>
