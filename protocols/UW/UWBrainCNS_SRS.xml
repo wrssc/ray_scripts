@@ -25,7 +25,7 @@
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Brain-SRS</name>
+        <name>Brain SRS</name>
         <prefix>Brai_</prefix>
     </order>
     <goals>

@@ -284,7 +284,7 @@
     </order>
 
     <order>
-        <name>Gyn [45 Gy]</name>
+        <name>Gyn [25Fx]</name>
         <prefix>Pelv_</prefix>
         <prescription>
             <roi>
@@ -547,7 +547,7 @@
         </goals>
     </order>
     <order>
-        <name>Gyn [50.4 Gy]</name>
+        <name>Gyn [28Fx]</name>
         <prefix>Pelv_</prefix>
         <prescription>
             <roi>
