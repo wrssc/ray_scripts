@@ -20,7 +20,7 @@
         <technique modality="Photons" technique="VMAT" code="3DC" machine="TrueBeam">3DCRT</technique>
     </prescription>
     <order>
-        <name>Left Lung-Hypo [15Fx 6000cGy]</name>
+        <name>Left Lung Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>LunL_</prefix>
         <prescription>
             <roi>
@@ -313,7 +313,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Lung-Hypo [15Fx 6000cGy]</name>
+        <name>Right Lung Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>LunR_</prefix>
         <name>Left Lung</name>
         <prefix>LunL_</prefix>
@@ -608,7 +608,7 @@
         </goals>
     </order>
     <order>
-        <name>Bilateral Lung-Hypo [15Fx 6000cGy]</name>
+        <name>Bilateral Lung Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>LunB_</prefix>
         <prescription>
             <roi>
@@ -901,7 +901,7 @@
         </goals>
     </order>
     <order>
-        <name>Mediastinum-Hypo [15Fx 6000cGy]</name>
+        <name>Mediastinum Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>Medi_</prefix>
         <prescription>
             <roi>
@@ -1194,7 +1194,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Lung-Standard [30Fx 6000cGy]</name>
+        <name>Left Lung Standard [30Fx] [6000cGy]</name>
         <prefix>LunL_</prefix>
         <prescription>
             <roi>
@@ -1455,7 +1455,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Lung-Standard [30Fx 6000cGy]</name>
+        <name>Right Lung Standard [30Fx] [6000cGy]</name>
         <prefix>LunR_</prefix>
         <prescription>
             <roi>
@@ -1716,7 +1716,7 @@
         </goals>
     </order>
     <order>
-        <name>Bilateral Lung-Standard [30Fx 6000cGy]</name>
+        <name>Bilateral Lung Standard [30Fx] [6000cGy]</name>
         <prefix>LunB_</prefix>
         <prescription>
             <roi>
@@ -1977,7 +1977,7 @@
         </goals>
     </order>
     <order>
-        <name>Mediastinum-Standard [30Fx 6000cGy]</name>
+        <name>Mediastinum Standard [30Fx] [6000cGy]</name>
         <prefix>Medi_</prefix>
         <prescription>
             <roi>
@@ -2238,7 +2238,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Lung [45 Gy]</name>
+        <name>Left Lung BID [30Fx]</name>
         <prefix>LunL_</prefix>
         <prescription>
             <roi>
@@ -2643,7 +2643,7 @@
         </objectives>
     </order>
     <order>
-        <name>Right Lung [45 Gy]</name>
+        <name>Right Lung BID [30Fx]</name>
         <prefix>LunR_</prefix>
         <prescription>
             <roi>
@@ -3048,7 +3048,7 @@
         </objectives>
     </order>
     <order>
-        <name>Medi Lung [45 Gy]</name>
+        <name>Medi Lung BID [30Fx]</name>
         <prefix>Medi_</prefix>
         <prescription>
             <roi>

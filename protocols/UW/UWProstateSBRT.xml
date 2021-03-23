@@ -14,7 +14,7 @@
         <icd version="10">C61</icd>
     </diagnoses>
     <order>
-        <name>Prostate-SBRT-ArmA [5Fx 4500cGy]</name>
+        <name>Prostate SBRT ArmA [5Fx 4500cGy]</name>
         <prefix>Pros_</prefix>
         <prescription>
             <fractions>5</fractions>
@@ -485,7 +485,7 @@
         </goals>
     </order>
     <order>
-        <name>Prostate-SBRT-ArmB [5Fx 4500cGy]</name>
+        <name>Prostate SBRT ArmB [5Fx 4500cGy]</name>
         <prefix>Pros_</prefix>
         <prescription>
             <fractions>5</fractions>

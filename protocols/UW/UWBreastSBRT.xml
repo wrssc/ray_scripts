@@ -76,7 +76,7 @@
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Left Breast SBRT</name>
+        <name>Left Breast PBI [5Fx]</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -230,7 +230,7 @@
         </objectives>
     </order>
      <order>
-        <name>Right Breast SBRT</name>
+        <name>Right Breast PBI [5Fx]</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
