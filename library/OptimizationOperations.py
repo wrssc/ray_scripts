@@ -110,7 +110,7 @@ def iter_optimization_config_etree(etree):
 
     Arguments:
         etree {[elementtree]} -- optimization_config tag
-    
+
     Returns:
         oc_preferences -- a dictionary for reading into a dataframe
     """
@@ -697,13 +697,16 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         beamset.SetCurrent()
     except SystemError:
         raise IOError("No beamset loaded")
-    
+
     if exam.EquipmentInfo.ImagingSystemReference:
         logging.debug('Examination has an assigned CT to density table')
     else:
         connect.await_user_input(
             'Set CT imaging system for this examination and continue the script')
 
+    # TODO: Make this a beamset setting in the xml protocols
+    small_field_names = ['_SRS_','_SBR_','_FSR_','_LLL_','_LUL_','_RLL_','_RML_','_RUL_']
+    large_field_names = ['TBI_FFS', 'TBI_HFS', 'HFS_TBI', 'FFS_TBI']
     # Choose the minimum field size in cm
     min_dim = 2
     # Parameters used for iteration number
@@ -744,6 +747,8 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         report_inputs['dose_dim3'] = dose_dim3
         report_inputs['dose_dim4'] = dose_dim4
         dose_dim_initial = dose_dim1
+    elif any(a in beamset.DicomPlanLabel for a in large_field_names):
+        dose_dim_initial = 0.4
     else:
         dose_dim_initial = 0.2
 
@@ -751,7 +756,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # Timing
     report_inputs['time_total_initial'] = datetime.datetime.now()
 
-        
+
     if fluence_only:
         logging.info('Fluence only: {}'.format(fluence_only))
     else:
@@ -831,8 +836,6 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         logging.info('PRDR plan detected, setting minimum area to {} and minimum mu to {}'.format(
             min_segment_area, min_segment_mu))
 
-    # TODO: Make this a beamset setting in the xml protocols
-    small_field_names = ['_SRS_','_SBR_','_FSR_','_LLL_','_LUL_','_RLL_','_RML_','_RUL_']
     if any(a in beamset.DicomPlanLabel for a in small_field_names):
         margins = {'Y1': 0.15, 'Y2': 0.15, 'X1': 0.15, 'X2': 0.15}
     else:
@@ -869,7 +872,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         logging.debug('Plan is not co-optimized.')
     # Note: pretty worried about the hard-coded zero above. I don't know when it gets incremented
     # it is clear than when co-optimization occurs, we have more than one entry in here...
-    
+
     # If not set yet, the dose grid needs setting.
     plan.SetDefaultDoseGrid(
                         VoxelSize={
