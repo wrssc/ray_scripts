@@ -7489,6 +7489,22 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>Retina_R_PRV03</name>
+        <TG263PrimaryName>Retina_R_PRV03</TG263PrimaryName>
+        <Description>PRV constructed as 03 millimeter expansion on Retina</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Eye</MajorCategory>
+        <MinorCategory>Retina</MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>R_Retina_PRV03</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="170" green="184" blue="244" Hex="#AAB8F4">Perano</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>Retinas</name>
         <TG263PrimaryName>Retinas</TG263PrimaryName>
         <Description>Both Retinas</Description>
