@@ -1,0 +1,10 @@
+pandas==1.0.3
+XlsxWriter==1.2.7
+pydicom==2.0.0
+scipy==1.4.1
+numpy==1.18.1
+requests==2.22.0
+clr==1.0.3
+connect==0.2
+pynetdicom==1.5.5
+reportlab==3.5.59
