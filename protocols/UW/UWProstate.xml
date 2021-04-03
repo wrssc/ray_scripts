@@ -322,7 +322,7 @@
         </goals>
     </order>
     <order>
-        <name>Prostate+Nodes-Hypo [28Fx 7000cGy]</name>
+        <name>Prostate and Nodes Hypofractionated [28Fx 7000cGy]</name>
         <prefix>ProN_</prefix>
         <prescription>
             <fractions>28</fractions>
@@ -647,7 +647,7 @@
         </goals>
     </order>
     <order>
-        <name>Prostate Fossa+Nodes-Conventional</name>
+        <name>ProstateFossa and Nodes Conventional</name>
         <prefix>PFoN_</prefix>
         <prescription>
             <fractions>33</fractions>
@@ -924,7 +924,7 @@
         </goals>
     </order>
     <order>
-        <name>Prostate Fossa-Conventional</name>
+        <name>ProstateFossa Conventional</name>
         <prefix>PFos_</prefix>
         <prescription>
             <fractions>37</fractions>
@@ -1187,7 +1187,7 @@
         </goals>
     </order>
     <order>
-        <name>Prostate Fossa + Nodes-Hypo [25Fx 6250cGy]</name>
+        <name>ProstateFossa + Nodes Hypofrac [25Fx] [6250cGy]</name>
         <prefix>PFoN _</prefix>
         <prescription>
             <fractions>25</fractions>
@@ -1547,7 +1547,7 @@
         </goals>
     </order>
     <order>
-        <name>Prostate+Nodes+HDR [23Fx 4600cGy]</name>
+        <name>Prostate and Nodes + HDR [23Fx 4600cGy]</name>
         <prefix>Pros_</prefix>
         <prescription>
             <roi>
@@ -1805,7 +1805,7 @@
         </goals>
     </order>
     <order>
-        <name>Prostate+Nodes-RTOG0924 [Sequential Boost]</name>
+        <name>Prostate and Nodes Primary+Bst [RTOG0924]</name>
         <prefix>ProN_</prefix>
         <prescription>
             <roi>
@@ -2220,7 +2220,7 @@
         </goals>
     </order>
     <order>
-        <name>Prostate-CHHIP/PROFIT [20Fx 6000cGy]</name>
+        <name>Prostate [CHHiP-PROFIT] [20Fx 6000cGy]</name>
         <prefix>Pros_</prefix>
         <prescription>
             <roi>

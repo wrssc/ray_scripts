@@ -377,7 +377,7 @@ def add_objective(obj, exam, case, plan, beamset,
             if obj.find('type').text == 'DFO':
                 low_dose =  float(s_dose) * float(obj.find('dose').attrib['low']) / 100
                 obj.find('dose').attrib['low'] = low_dose
-                
+
             obj.find('dose').attrib["units"] = "Gy"
             # Change the element to the substitute dose times the percentage of the reference
             obj.find('dose').text = weighted_dose
@@ -499,6 +499,23 @@ def add_objective(obj, exam, case, plan, beamset,
                   "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
                       roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
 
+
+def add_robust_optimization(plan_optimization, position_uncertainty,
+    density_uncertainty = 0, postion_uncertainty_setting="Universal", compute_exact=False,nonplanning_exams=[] ):
+    # Oodles of good stuff
+    plan_optimization.OptimizationParameters.SaveRobustnessParameters(PositionUncertaintyAnterior=0.3,
+        PositionUncertaintyPosterior=0,
+        PositionUncertaintySuperior=0,
+        PositionUncertaintyInferior=0,
+        PositionUncertaintyLeft=0,
+        PositionUncertaintyRight=0.3,
+        DensityUncertainty=0,
+        PositionUncertaintySetting="Universal",
+        IndependentLeftRight=True,
+        IndependentAnteriorPosterior=True,
+        IndependentSuperiorInferior=True,
+        ComputeExactScenarioDoses=False,
+        NamesOfNonPlanningExaminations=[])
 
 def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     """

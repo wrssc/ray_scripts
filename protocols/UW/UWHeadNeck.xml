@@ -18,7 +18,7 @@
         </technique>
     </prescription>
     <order>
-        <name>Left Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
+        <name>Left Head and Neck Definitive [7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecL_</prefix>
         <prescription>
             <roi>
@@ -705,7 +705,7 @@
         </objectives>
     </order>
     <order>
-        <name>Right Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
+        <name>Right Head and Neck Definitive [7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecR_</prefix>
         <prescription>
             <roi>
@@ -1275,7 +1275,7 @@
         </objectives>
     </order>
     <order>
-        <name>Bilat Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
+        <name>Bilat Head and Neck Definitive [7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecB_</prefix>
         <prescription>
             <roi>
@@ -1845,7 +1845,7 @@
         </objectives>
     </order>
     <order>
-        <name>Right Head and Neck [Adjuvant 6300, 6000, 5400cGy 30Fx]</name>
+        <name>Right Head and Neck Adjuvant [6300, 6000, 5400cGy 30Fx]</name>
         <prefix>NecR_</prefix>
         <prescription>
             <roi>
@@ -2415,7 +2415,7 @@
         </objectives>
     </order>
     <order>
-        <name>Left Head and Neck [Adjuvant 6300, 6000, 5400cGy 30Fx]</name>
+        <name>Left Head and Neck Adjuvant [6300, 6000, 5400cGy 30Fx]</name>
         <prefix>NecL_</prefix>
         <prescription>
             <roi>
@@ -2955,7 +2955,7 @@
         </objectives>
     </order>
     <order>
-        <name>BiLat Head and Neck [Adjuvant 6300, 6000, 5400cGy 30Fx]</name>
+        <name>BiLat Head and Neck Adjuvant [6300, 6000, 5400cGy 30Fx]</name>
         <prefix>NecB_</prefix>
         <prescription>
             <roi>

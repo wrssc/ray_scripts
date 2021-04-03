@@ -1,13 +1,13 @@
 """Test modules and dependencies for RS"""
 
-import scipy
-import numpy
-import pydicom
-import requests
 import pandas
+import scipy
+import requests
+import numpy
+import clr
+import pydicom
 import reportlab
 import xlsxwriter
-import pynetdicom3
 #import scikit-learn
 
 help('modules')

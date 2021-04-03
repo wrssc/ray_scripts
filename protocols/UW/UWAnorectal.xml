@@ -29,7 +29,7 @@
         </technique>
     </prescription>
     <order>
-        <name>Anorectal-RTOG 0529</name>
+        <name>Anorectal RTOG 0529</name>
         <prefix>Rect_</prefix>
     </order>
     <goals>

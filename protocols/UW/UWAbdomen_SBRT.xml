@@ -18,7 +18,7 @@
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Abdomen-SBRT</name>
+        <name>Abdomen SBRT [5Fx]</name>
         <prefix>Abdo_</prefix>
         <prescription>
             <roi>
@@ -31,7 +31,7 @@
         </prescription>
     </order>
     <order>
-        <name>Liver-SBRT-5Fx</name>
+        <name>Liver SBRT [5Fx]</name>
         <prefix>Abdo_</prefix>
         <prescription>
             <roi>

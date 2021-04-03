@@ -17,7 +17,7 @@
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Brain-SABR-5Fx or less</name>
+        <name>Brain SBRT [5Fx or fewer]</name>
         <prefix>Brai_</prefix>
         <prescription>
             <roi>

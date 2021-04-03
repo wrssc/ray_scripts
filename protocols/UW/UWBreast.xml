@@ -76,7 +76,7 @@
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Left Breast-Hypo [with Boost]</name>
+        <name>Left Breast Hypofractionated [with Boost]</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -307,7 +307,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Breast-Hypo [no Boost]</name>
+        <name>Left Breast Hypofractionated [no Boost]</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -438,7 +438,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast-Hypo [with Boost]</name>
+        <name>Right Breast Hypofractionated [with Boost]</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
@@ -649,7 +649,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast Hypo-fractionation [no Boost]</name>
+        <name>Right Breast Hypofractionated [no Boost]</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
@@ -779,7 +779,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Breast-Conventional [with Boost]</name>
+        <name>Left Breast Conventional [with Boost]</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -1088,7 +1088,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Breast-Conventional [no Boost]</name>
+        <name>Left Breast Conventional [no Boost]</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -1305,7 +1305,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Chestwall-Conventional [with Boost]</name>
+        <name>Left Chestwall Conventional [with Boost]</name>
         <prefix>ChwL_</prefix>
         <prescription>
             <roi>
@@ -1614,7 +1614,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Chestwall-Conventional [no Boost]</name>
+        <name>Left Chestwall Conventional [no Boost]</name>
         <prefix>ChwL_</prefix>
         <prescription>
             <roi>
@@ -1831,7 +1831,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast-Conventional [with Boost]</name>
+        <name>Right Breast Conventional [with Boost]</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
@@ -2120,7 +2120,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast-Conventional [no Boost]</name>
+        <name>Right Breast Conventional [no Boost]</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
@@ -2320,7 +2320,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Chestwall-Conventional [with Boost]</name>
+        <name>Right Chestwall Conventional [with Boost]</name>
         <prefix>ChwR_</prefix>
         <prescription>
             <roi>
@@ -2609,7 +2609,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Chestwall-Conventional [no Boost]</name>
+        <name>Right Chestwall Conventional [no Boost]</name>
         <prefix>ChwR_</prefix>
         <prescription>
             <roi>
@@ -2809,7 +2809,7 @@
         </goals>
     </order>
     <order>
-        <name>Left Breast/CW-Hypo-Alliance</name>
+        <name>Left Breast or Chestwall Hypofrac - Alliance</name>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
@@ -3007,7 +3007,7 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast/CW-Hypo-Alliance</name>
+        <name>Right Breast or Chestwall Hypofrac - Alliance</name>
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
@@ -3201,138 +3201,6 @@
                 <dose units="Gy">5</dose>
                 <volume units="%">10</volume>
                 <priority>1</priority>
-            </roi>
-        </goals>
-    </order>
-    <order>
-        <name>Left Breast SBRT</name>
-        <prefix>BreL_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">30</dose>
-            </roi>
-            <fractions>5</fractions>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        </prescription>
-        <goals>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">100</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Min</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">93.33</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">105</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <dose units="Gy">3</dose>
-                <volume units="%">10</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Uninvolved Breast</name>
-                <type dir="le">VX</type>
-                <dose units="Gy">15</dose>
-                <volume units="%">50</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <dose units="Gy">10</dose>
-                <volume units="%">20</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <dose units="Gy">5</dose>
-                <volume units="%">10</volume>
-                <priority>3</priority>
-            </roi>
-        </goals>
-    </order>
-    <order>
-        <name>Right Breast SBRT</name>
-        <prefix>BreR_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">30</dose>
-            </roi>
-            <fractions>5</fractions>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        </prescription>
-        <goals>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">100</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Min</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">93.33</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">105</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <dose units="Gy">3</dose>
-                <volume units="%">10</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Uninvolved Breast</name>
-                <type dir="le">VX</type>
-                <dose units="Gy">15</dose>
-                <volume units="%">50</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <dose units="Gy">10</dose>
-                <volume units="%">20</volume>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <dose units="Gy">5</dose>
-                <volume units="%">10</volume>
-                <priority>3</priority>
             </roi>
         </goals>
     </order>
@@ -3659,7 +3527,6 @@
             </roi>
         </objectives>
     </objectiveset>
-
     <goals>
         <goalset>
             <name>QUANTEC</name>
