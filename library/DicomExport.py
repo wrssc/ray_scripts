@@ -112,8 +112,9 @@ def send(case,
          table=None,
          pa_threshold=None,
          gantry_period=None,
-         prescription=False,
          round_jaws=False,
+         prescription=False,
+         ref_point_location=False,
          block_accessory=False,
          block_tray_id=False,
          parent_plan=None,
@@ -581,12 +582,13 @@ def send(case,
                     else:
                         ref.add_new(0x300a0016, 'LO', 'Target')
 
-                    if 'BeamDoseSpecificationPoint' in ds.FractionGroupSequence[0].ReferencedBeamSequence[0]:
-                        ref.add_new(0x300a0018, 'DS',
-                                    ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint)
+                    if ref_point_location:
+                        if 'BeamDoseSpecificationPoint' in ds.FractionGroupSequence[0].ReferencedBeamSequence[0]:
+                            ref.add_new(0x300a0018, 'DS',
+                                        ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint)
 
-                    else:
-                        ref.add_new(0x300a0018, 'DS', [0, 0, 0])
+                        else:
+                            ref.add_new(0x300a0018, 'DS', [0, 0, 0])
 
                     ref.add_new(0x300a0020, 'CS', 'ORGAN_AT_RISK')
                     ref.add_new(0x300a0023, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
@@ -606,10 +608,12 @@ def send(case,
                                 ds.DoseReferenceSequence[0].DoseReferenceDescription != ref.DoseReferenceDescription:
                             expected.add(ref[0x300a0016])
 
-                        if 'DoseReferencePointCoordinates' not in ds.DoseReferenceSequence[0] or \
-                                ds.DoseReferenceSequence[0].DoseReferencePointCoordinates != \
-                                ref.DoseReferencePointCoordinates:
-                            expected.add(ref[0x300a0018])
+                        # Set primary reference point to locationless
+                        if ref_point_location:
+                            if 'DoseReferencePointCoordinates' not in ds.DoseReferenceSequence[0] or \
+                                    ds.DoseReferenceSequence[0].DoseReferencePointCoordinates != \
+                                    ref.DoseReferencePointCoordinates:
+                                expected.add(ref[0x300a0018])
 
                         if 'DoseReferenceType' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferenceType != ref.DoseReferenceType:

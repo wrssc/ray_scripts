@@ -148,10 +148,11 @@ def main():
         filters = ['Create Transfer Plan']
     else:
         filters = ['Convert machine name',
-                   'Convert machine energy (FFF)',
+                   # 'Convert machine energy (FFF)',
                    'Set couch to (0, 100, 0)',
-                   'Round jaw positions to 0.1 mm',
+                   # 'Round jaw positions to 0.1 mm',
                    'Create reference point',
+                   'Reference point has a geometric location',
                    'Set block tray and slot ID (electrons only)',
                    #'180E'
                     'PRDR Dose Rate']
@@ -221,13 +222,13 @@ def main():
             if filters[0] in response['e']:
                 f.append('machine')
 
-            if filters[1] in response['e']:
-                f.append('energy')
+            # if filters[1] in response['e']:
+            #     f.append('energy')
 
-            if filters[2] in response['e']:
+            if filters[1] in response['e']:
                 t = [0, 1000, 0]
 
-            if filters[6] in response['e']:
+            if filters[5] in response['e']:
                 if '_PRD_' in beamset.DicomPlanLabel:
                     prdr_dr = True
                 else:
@@ -258,12 +259,13 @@ def main():
                                filters=f,
                                machine=response['c'],
                                table=t,
-                               round_jaws=filters[3] in response['e'],
-                               prescription=filters[4] in response['e'],
-                               block_accessory=filters[5] in response['e'],
-                               block_tray_id=filters[5] in response['e'],
+                               #round_jaws=filters[2] in response['e'],
+                               prescription=filters[2] in response['e'],
+                               ref_point_location = filters[3] in response['e'],
+                               block_accessory=filters[4] in response['e'],
+                               block_tray_id=filters[4] in response['e'],
                                pa_threshold=pa_threshold,
-                               prdr_dr=filters[6] in response['e'],
+                               prdr_dr=filters[5] in response['e'],
                                bar=True)
 
     # Finish up
