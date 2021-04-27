@@ -7087,8 +7087,8 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Override_Artifact</name>
-        <TG263PrimaryName>Override_Artifact</TG263PrimaryName>
+        <name>Artifact_Override_Adipose</name>
+        <TG263PrimaryName>Artifact_Override_Adipose</TG263PrimaryName>
         <Description>Artifact due to beam hardening requiring an override to nearby tissue
         </Description>
         <NCIt></NCIt>
@@ -7096,15 +7096,31 @@
         <MajorCategory>Density Override</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>Artifact_Override</TG263ReverseOrderName>
+        <NCharacters>24</NCharacters>
+        <TG263ReverseOrderName>Adipose_Artifact_Override</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
-        <Alias>scatter, scatter_</Alias>
+        <Alias>scatter,scatter_</Alias>
     </roi>
     <roi>
-        <name>Override_Contrast</name>
-        <TG263PrimaryName>Override_Contrast</TG263PrimaryName>
+        <name>Artifact_Override_TissueSoft</name>
+        <TG263PrimaryName>Artifact_Override_TissueSoft</TG263PrimaryName>
+        <Description>Artifact due to beam hardening requiring an override to nearby tissue
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>Density Override</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>24</NCharacters>
+        <TG263ReverseOrderName>TissueSoft_Artifact_Override</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
+        <Alias>scatter,scatter_</Alias>
+    </roi>
+    <roi>
+        <name>Contrast_Override_TissueSoft</name>
+        <TG263PrimaryName>Contrast_Override_TissueSoft</TG263PrimaryName>
         <Description>Misrepresentation of density due to photoelectric interaction of contrast
             material with CT-kV photons
         </Description>
@@ -7114,10 +7130,10 @@
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>Contrast_Override</TG263ReverseOrderName>
+        <TG263ReverseOrderName>TissueSoft_Contrast_Override</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
-        <Alias>scattercontrast,contrast,constrast override,contrast_ovveride,override_contrast
+        <Alias>scattercontrast,contrast,constrastoverride,contrast_ovveride,override_contrast
         </Alias>
     </roi>
     <roi>
@@ -7180,9 +7196,13 @@
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Parotids</TG263ReverseOrderName>
+        <Dependencies>Parotid_L,Parotid_R</Dependencies>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Parotid_L,Parotid_R</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0"></SourcesB>
+        <Result operation="None" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Parotids</Result>
         <FMAID>320436</FMAID>
         <Color red="252" green="201" blue="87" Hex="#FCC957">AngryPasta</Color>
-        <Alias></Alias>
+        <Alias>Parotid_Total,Total_Parotid,BothParotids</Alias>
     </roi>
     <roi>
         <name>Pharynx</name>
