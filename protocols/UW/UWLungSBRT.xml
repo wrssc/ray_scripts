@@ -3375,7 +3375,6 @@
             </roi>
             -->
             <roi>
-            <roi>
                 <name>Chestwall</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p">115</dose>
