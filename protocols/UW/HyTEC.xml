@@ -1,0 +1,584 @@
+<goalsets>
+    <set>
+        <name>HyTEC-1Fx</name>
+        <roi>
+            <name>Brain</name>
+            <type dir="le">VX</type>
+            <volume units="cc">5</volume>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Symptomatic necrosis risk up to 10%</description>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type dir="le">VX</type>
+            <volume units="cc">10</volume>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Symptomatic necrosis risk up to 15%, 10% for AVM</description>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type dir="le">VX</type>
+            <volume units="cc">15</volume>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Symptomatic necrosis risk up to 20%</description>
+        </roi>
+        <roi>
+            <name>OpticChiasm</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>OpticChiasm</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">10</dose>
+            <fractions>1</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>OpticNrv_L</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">10</dose>
+            <fractions>1</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>OpticNrv_L</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>OpticNrv_R</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">10</dose>
+            <fractions>1</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>OpticNrv_R</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">12.4</dose>
+            <fractions>1</fractions>
+            <description>Myelopathy up to 1-5% </description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">14.0</dose>
+            <fractions>1</fractions>
+            <description>Myelopathy up to 1-5% </description>
+        </roi>
+    </set>
+    <set>
+        <name>HyTEC-3Fx</name>
+        <roi>
+            <name>Brain</name>
+            <type dir="le">VX</type>
+            <volume units="cc">20</volume>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Symptomatic necrosis risk up to 10%</description>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type dir="le">VX</type>
+            <volume units="cc">30</volume>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Symptomatic necrosis risk up to 20%</description>
+        </roi>
+        <roi>
+            <name>Lungs-GTV</name>
+            <type>Mean</type>
+            <dose units="Gy">8</dose>
+            <fractions>3</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-GTV</name>
+            <type dir="le">VX</type>
+            <volume units="%">10</volume>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-GTV</name>
+            <type dir="le">VX</type>
+            <volume units="%">15</volume>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-ITV</name>
+            <type>Mean</type>
+            <dose units="Gy">8</dose>
+            <fractions>3</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-ITV</name>
+            <type dir="le">VX</type>
+            <volume units="%">10</volume>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-ITV</name>
+            <type dir="le">VX</type>
+            <volume units="%">15</volume>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>OpticChiasm</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>OpticNrv_L</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>OpticNrv_R</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">20.3</dose>
+            <fractions>3</fractions>
+            <description>Myelopathy up to 1-5% </description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">23.1</dose>
+            <fractions>3</fractions>
+            <description>Myelopathy up to 1-5% </description>
+        </roi>
+    </set>
+    <set>
+        <name>HyTEC-3Fx-Liver-Primary</name>
+        <roi>
+            <name>Liver-GTV</name>
+            <type>Mean</type>
+            <dose units="Gy">13</dose>
+            <fractions>3</fractions>
+            <description>Grade >= 3 liver enzyme change up to 20% </description>
+        </roi>
+    </set>
+    <set>
+        <name>HyTEC-3Fx-Liver-Metastatic</name>
+        <roi>
+            <name>Liver-GTV</name>
+            <type>Mean</type>
+            <dose units="Gy">15</dose>
+            <fractions>3</fractions>
+            <description>Grade >= 3 liver enzyme change up to 20% </description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt" know="resid_vol">DX</type>
+            <volume units="cc">700</volume>
+            <dose units="Gy">15</dose>
+            <fractions>3</fractions>
+            <description>Liver dysfunction and grade 3-5 general GI toxicity up to 13% </description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt" know="resid_vol">DX</type>
+            <volume units="cc">700</volume>
+            <dose units="Gy">17</dose>
+            <fractions>3</fractions>
+            <description>Liver dysfunction and grade 3-5 general GI toxicity up to 13% </description>
+        </roi>
+    </set>
+    <set>
+        <name>HyTEC-4Fx</name>
+        <roi>
+            <name>Bladder</name>
+            <type dir="le">VX</type>
+            <volume units="cc">5</volume>
+            <dose units="Gy">35</dose>
+            <fractions>4</fractions>
+            <description>Late grade >= 2 urinary toxicity up to 20% </description>
+        </roi>
+        <roi>
+            <name>Bladder</name>
+            <type dir="le">VX</type>
+            <volume units="cc">5</volume>
+            <dose units="Gy">40</dose>
+            <fractions>4</fractions>
+            <description>Late grade >= 2 urinary toxicity up to 20% </description>
+        </roi>
+        <roi>
+            <name>Lungs-GTV</name>
+            <type>Mean</type>
+            <dose units="Gy">8</dose>
+            <fractions>4</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-GTV</name>
+            <type dir="le">VX</type>
+            <volume units="%">10</volume>
+            <dose units="Gy">20</dose>
+            <fractions>4</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-GTV</name>
+            <type dir="le">VX</type>
+            <volume units="%">15</volume>
+            <dose units="Gy">20</dose>
+            <fractions>4</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-ITV</name>
+            <type>Mean</type>
+            <dose units="Gy">8</dose>
+            <fractions>4</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-ITV</name>
+            <type dir="le">VX</type>
+            <volume units="%">10</volume>
+            <dose units="Gy">20</dose>
+            <fractions>4</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-ITV</name>
+            <type dir="le">VX</type>
+            <volume units="%">15</volume>
+            <dose units="Gy">20</dose>
+            <fractions>4</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">35</dose>
+            <fractions>4</fractions>
+            <description>Late grade >= 3 bowel toxicity up to 3% </description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">38</dose>
+            <fractions>4</fractions>
+            <description>Late grade >= 3 bowel toxicity up to 3% </description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">23</dose>
+            <fractions>4</fractions>
+            <description>Myelopathy up to 1-5% </description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">26.2</dose>
+            <fractions>4</fractions>
+            <description>Myelopathy up to 1-5% </description>
+        </roi>
+        <roi>
+            <name>Urethra</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">38</dose>
+            <fractions>4</fractions>
+            <description>Late grade >= 2 urinary toxicity up to 20% </description>
+        </roi>
+        <roi>
+            <name>Urethra</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">42</dose>
+            <fractions>4</fractions>
+            <description>Late grade >= 2 urinary toxicity up to 20% </description>
+        </roi>
+    </set>
+    <set>
+        <name>HyTEC-5Fx</name>
+        <roi>
+            <name>A_Carotid_L</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">20</dose>
+            <fractions>5</fractions>
+            <description>Grade 3-5 bleeding up to 2-12%</description>
+        </roi>
+        <roi>
+            <name>A_Carotid_L</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">30</dose>
+            <fractions>5</fractions>
+            <description>Grade 3-5 bleeding up to 2-12%</description>
+        </roi>
+        <roi>
+            <name>A_Carotid_L</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.5</volume>
+            <dose units="Gy">20</dose>
+            <fractions>5</fractions>
+            <description>Grade 3-5 bleeding up to 2-12%</description>
+        </roi>
+        <roi>
+            <name>A_Carotid_R</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">20</dose>
+            <fractions>5</fractions>
+            <description>Grade 3-5 bleeding up to 2-12%</description>
+        </roi>
+        <roi>
+            <name>A_Carotid_R</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">30</dose>
+            <fractions>5</fractions>
+            <description>Grade 3-5 bleeding up to 2-12%</description>
+        </roi>
+        <roi>
+            <name>A_Carotid_R</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.5</volume>
+            <dose units="Gy">20</dose>
+            <fractions>5</fractions>
+            <description>Grade 3-5 bleeding up to 2-12%</description>
+        </roi>
+        <roi>
+            <name>Bladder</name>
+            <type dir="le">VX</type>
+            <volume units="cc">5</volume>
+            <dose units="Gy">35</dose>
+            <fractions>5</fractions>
+            <description>Late grade >= 2 urinary toxicity up to 20% </description>
+        </roi>
+        <roi>
+            <name>Bladder</name>
+            <type dir="le">VX</type>
+            <volume units="cc">5</volume>
+            <dose units="Gy">40</dose>
+            <fractions>4</fractions>
+            <description>Late grade >= 2 urinary toxicity up to 20% </description>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type dir="le">VX</type>
+            <volume units="cc">20</volume>
+            <dose units="Gy">24</dose>
+            <fractions>5</fractions>
+            <description>Symptomatic necrosis risk up to 10%</description>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type dir="le">VX</type>
+            <volume units="cc">30</volume>
+            <dose units="Gy">24</dose>
+            <fractions>5</fractions>
+            <description>Symptomatic necrosis risk up to 20%</description>
+        </roi>
+        <roi>
+            <name>OpticChiasm</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">25</dose>
+            <fractions>5</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>OpticNrv_L</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">25</dose>
+            <fractions>5</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>OpticNrv_R</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">25</dose>
+            <fractions>5</fractions>
+            <description>Optic neuropathy risk up to 1%</description>
+        </roi>
+        <roi>
+            <name>Lungs-GTV</name>
+            <type>Mean</type>
+            <dose units="Gy">8</dose>
+            <fractions>5</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-GTV</name>
+            <type dir="le">VX</type>
+            <volume units="%">10</volume>
+            <dose units="Gy">20</dose>
+            <fractions>5</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-GTV</name>
+            <type dir="le">VX</type>
+            <volume units="%">15</volume>
+            <dose units="Gy">20</dose>
+            <fractions>5</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-ITV</name>
+            <type>Mean</type>
+            <dose units="Gy">8</dose>
+            <fractions>5</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-ITV</name>
+            <type dir="le">VX</type>
+            <volume units="%">10</volume>
+            <dose units="Gy">20</dose>
+            <fractions>5</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Lungs-ITV</name>
+            <type dir="le">VX</type>
+            <volume units="%">15</volume>
+            <dose units="Gy">20</dose>
+            <fractions>5</fractions>
+            <description>Grade >= 2 toxicity up to 10-15% </description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">35</dose>
+            <fractions>5</fractions>
+            <description>Late grade >= 3 bowel toxicity up to 3% </description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">38</dose>
+            <fractions>5</fractions>
+            <description>Late grade >= 3 bowel toxicity up to 3% </description>
+        </roi>
+        <roi>
+            <name>Urethra</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">38</dose>
+            <fractions>5</fractions>
+            <description>Late grade >= 2 urinary toxicity up to 20% </description>
+        </roi>
+        <roi>
+            <name>Urethra</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">42</dose>
+            <fractions>5</fractions>
+            <description>Late grade >= 2 urinary toxicity up to 20% </description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">25.3</dose>
+            <fractions>5</fractions>
+            <description>Myelopathy up to 1-5% </description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type dir="le">DX</type>
+            <volume units="cc">0.035</volume>
+            <dose units="Gy">28.8</dose>
+            <fractions>5</fractions>
+            <description>Myelopathy up to 1-5% </description>
+        </roi>
+    </set>
+    <set>
+        <name>HyTEC-6Fx-Liver-Primary</name>
+        <roi>
+            <name>Liver-GTV</name>
+            <type>Mean</type>
+            <dose units="Gy">18</dose>
+            <fractions>6</fractions>
+            <description>Grade >= 3 liver enzyme change up to 20% </description>
+        </roi>
+    </set>
+    <set>
+        <name>HyTEC-6Fx-Liver-Metastatic</name>
+        <roi>
+            <name>Liver-GTV</name>
+            <type>Mean</type>
+            <dose units="Gy">20</dose>
+            <fractions>6</fractions>
+            <description>Grade >= 3 liver enzyme change up to 20% </description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt" know="resid_vol">DX</type>
+            <volume units="cc">700</volume>
+            <dose units="Gy">15</dose>
+            <fractions>6</fractions>
+            <description>Liver dysfunction and grade 3-5 general GI toxicity up to 13% </description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt" know="resid_vol">DX</type>
+            <volume units="cc">700</volume>
+            <dose units="Gy">17</dose>
+            <fractions>6</fractions>
+            <description>Liver dysfunction and grade 3-5 general GI toxicity up to 13% </description>
+        </roi>
+    </set>
+</goalsets>
