@@ -944,6 +944,13 @@
                 <priority>4</priority>
             </roi>
             <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n1_SCV</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
@@ -1180,6 +1187,13 @@
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -1491,6 +1505,13 @@
                 <priority>4</priority>
             </roi>
             <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
                 <volume units="%">5</volume>
@@ -1706,6 +1727,13 @@
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -2012,6 +2040,13 @@
                 <priority>4</priority>
             </roi>
             <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>Heart</name>
                 <type>Max</type>
                 <dose units="Gy">20</dose>
@@ -2210,6 +2245,13 @@
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>Heart</name>
@@ -2501,6 +2543,13 @@
                 <priority>4</priority>
             </roi>
             <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>Heart</name>
                 <type>Max</type>
                 <dose units="Gy">20</dose>
@@ -2699,6 +2748,13 @@
                 <volume units="%">95</volume>
                 <dose units="%" roi="PTV_n2_Axillary">95</dose>
                 <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
             </roi>
             <roi>
                 <name>Heart</name>
