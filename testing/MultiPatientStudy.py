@@ -1,4 +1,4 @@
-""" Multi-Patient Planning Study
+""" Multipatient Planning Study
 
     Automatic generation of a curative Head and Neck Plan.
     -Load the patient and case from a user-selected csv file
@@ -405,6 +405,16 @@ def load_planning_structures(case, s):
     else:
         dialog5_response['otv_standoff'] = None
         generate_otvs = False
+    # Normal_2cm
+    if df_wf.normal.values[0] == "Normal_2cm":
+        generate_normal_2cm = True
+        generate_normal_1cm = False
+    elif df_wf.normal.values[0] == "Normal_1cm":
+        generate_normal_1cm = True
+        generate_normal_2cm = False
+    else:
+        generate_normal_2cm = False
+        generate_normal_1cm = False
     # Skin evals
     if df_wf.skin_name.values[0]:
         generate_skin = True
@@ -421,7 +431,8 @@ def load_planning_structures(case, s):
         generate_field_of_view=True,
         generate_ring_hd=generate_ring_hd,
         generate_ring_ld=generate_ring_ld,
-        generate_normal_2cm=True,
+        generate_normal_1cm=generate_normal_1cm,
+        generate_normal_2cm=generate_normal_2cm,
         generate_combined_ptv=True,
         skin_contraction=skin_contraction,
         run_status=False,
@@ -517,6 +528,7 @@ def merge_dict(row):
 
 def main():
     # Prompt the user to open a file
+    block_prompt = True
     browser = UserInterface.CommonDialog()
     file_csv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
     print('Looking in file {}'.format(file_csv))
@@ -668,7 +680,8 @@ def main():
         # Beamset elements derived from the protocol
         beamset_defs.technique = beamset_etree.find('technique').text
         beamset_defs.protocol_name = beamset_etree.find('name').text
-        if beamset_defs.technique == "TomoHelical":
+        if beamset_defs.technique == "TomoHelical" or \
+            beamset_defs.technique == "TomoDirect":
             lateral_zero = True
         else:
             lateral_zero = False
@@ -713,6 +726,12 @@ def main():
                                                       beamset=rs_beam_set, beam=beam)
             # Beams loaded successfully
             beams_load = True
+        elif beamset_defs.technique == 'TomoDirect':
+            BeamOperations.place_tomodirect_beams_in_beamset(plan=plan, iso=beamset_defs.iso,
+                                                      beamset=rs_beam_set, beams=beams)
+            # Beams loaded successfully
+            beams_load = True
+
         elif beamset_defs.technique == 'VMAT':
             BeamOperations.place_beams_in_beamset(iso=beamset_defs.iso, beamset=rs_beam_set,
                                                   beams=beams)
@@ -741,6 +760,18 @@ def main():
 
         patient.Save()
         rs_beam_set.SetCurrent()
+        # TODO: Add to the plan_optimization selection
+        if block_prompt:
+            try:
+                ui = connect.get_current('ui')
+                ui.TitleBar.MenuItem['Plan optimization'].Button_Plan_optimization.Click()
+                ui.TabControl_Modules.TabItem['Plan optimization'].Button_Plan_optimization.Click()
+                ui.Workspace.TabControl['Objectives/constraints'].TabItem['Protect'].Select()
+            except:
+                logging.debug("Could not click on the patient protection window")
+            connect.await_user_input(
+                'Navigate to the Plan design page and set any blocking.')
+
         # Now add in clinical goals and objectives
         goal_file_name = row.GoalFile
         path_goals = os.path.join(os.path.dirname(__file__),
