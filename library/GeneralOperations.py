@@ -1,7 +1,7 @@
 """ General Operations
-    GeneralOperations is a set of functions that operate on the patient and API level 
+    GeneralOperations is a set of functions that operate on the patient and API level
     within RayStation.
-    
+
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
@@ -42,8 +42,8 @@ class InvalidDataException(Exception):
 def find_scope(level=None):
     """
     Find the current available scope in RS at the level of level.
-        If level is used, and the level is not in the current scope, produce 
-        a faultdatetime A combination of a date and a time. 
+        If level is used, and the level is not in the current scope, produce
+        a faultdatetime A combination of a date and a time.
     If find_scope is used, go as deep as possible and return a dictionary of all levels
             with None used for those not in current scope.
     :param level: if specified, return the RS object at level if it exists
@@ -54,10 +54,9 @@ def find_scope(level=None):
 
     # Find the deepest available scope and return a dict with available names
     scope = {}
-    scope_levels = ["ui", "Patient", "Case", "Examination", "Plan", "BeamSet"]
+    scope_levels = ["ui", "PatientDB", "Patient", "Case", "Examination", "Plan", "BeamSet"]
 
     for l in scope_levels:
-        logging.debug("current level is {}".format(l))
         try:
             rs_obj = connect.get_current(l)
         except Exception as error:
@@ -88,6 +87,32 @@ def get_machine(machine_name):
     machine_db = connect.get_current("MachineDB")
     machine = machine_db.GetTreatmentMachine(machineName=machine_name, lockMode=None)
     return machine
+
+def get_all_commissioned(machine_type=None):
+    """Find all machines that have the status commissioned and are not deprecated.
+        return: machine_names: List of machine names"""
+    machine_db = connect.get_current("MachineDB")
+    mm = machine_db.QueryCommissionedMachineInfo(Filter={'IsCommissioned':True, 'IsDeprecated':False})
+    machine_names = []
+    if machine_type:
+        for m in mm:
+            test_machine = get_machine(machine_name = m['Name'])
+            if machine_type == 'Tomo':
+                try:
+                    test_machine.TomoBeamQualities._0
+                    machine_names.append(m)
+                except AttributeError:
+                    pass
+            elif machine_type == 'VMAT':
+                try:
+                    test_machine.ArcProperties.MaxGantryAngleSpeed()
+                    machine_names.append(m)
+                except AttributeError:
+                    pass
+    else:
+        machine_names = [m['Name'] for m in mm]
+
+    return machine_names
 
 
 def logcrit(message):
