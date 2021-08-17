@@ -571,7 +571,7 @@ class TpoDialog:
                         motion_list.sort()
                         if self.motion[c].Items.Count > 0:
                             self.motion[c].Items.Clear()
-                            
+
                         self.motion[c].Items.AddRange(motion_list)
                         if len(motion_list) == 1:
                             self.motion[c].SelectedItem = motion_list[0]
