@@ -1,5 +1,5 @@
 """ Perform beam operations on Raystation plans
-    
+
     rename_beams:
     Automatically label beams in Raystation according to UW Standard
 
@@ -8,13 +8,13 @@
     If the user supplies more than 4 chars, the name is cropped
     The script will test the orientation of the patient and rename the beams accordingly
     If the beamset contains a couch kick the beams are named using the gXXCyy convention
-    
-    Versions: 
+
+    Versions:
     01.00.00 Original submission
     01.00.01 PH reviewed, suggested eliminating an unused variable, changing integer
-             floating point comparison, and embedding set-up beam creation as a 
+             floating point comparison, and embedding set-up beam creation as a
              "try" to prevent a script failure if set-up beams were not selected
-    01.00.02 PH Reviewed, correct FFP positioning issue.  Changed Beamset failure to 
+    01.00.02 PH Reviewed, correct FFP positioning issue.  Changed Beamset failure to
              load to read the same as other IO-Faults
     01.00.03 RAB Modified for new naming convention on plans and to add support for the
              field descriptions to be used for billing.
@@ -34,11 +34,11 @@
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later version.
-    
+
     This program is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
@@ -62,6 +62,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import math
 import numpy as np
+import pandas as pd
 import math
 import logging
 import sys
@@ -136,6 +137,7 @@ class BeamSet(object):
     def __init__(self):
         self.name = None
         self.DicomName = None
+        self.description = None
         self.iso = {}
         self.number_of_fractions = None
         self.total_dose = None
@@ -143,7 +145,9 @@ class BeamSet(object):
         self.modality = None
         self.technique = None
         self.rx_target = None
+        self.rx_volume = 95
         self.iso_target = None
+        self.support_roi = None
         self.protocol_name = None
         self.origin_file = None
         self.origin_folder = None
@@ -152,7 +156,8 @@ class BeamSet(object):
         return other and self.iso == other.iso and self.number_of_fractions \
                == other.number_of_fractions and self.total_dose == other.total_dose \
                and self.machine == other.machine and self.modality == other.modality \
-               and self.technique == other.technique and self.rx_target == other.rx_target
+               and self.technique == other.technique and self.rx_target == other.rx_target \
+               and self.rx_volume == other.rx_volume and self.support_roi == other.support_roi
 
     def __hash__(self):
         return hash((
@@ -342,7 +347,8 @@ def create_beamset(patient, case, exam, plan,
                    filename=None,
                    path=None,
                    order_name=None,
-                   create_setup_beams=True):
+                   create_setup_beams=True,
+                   rename_existing=False):
     """ Create a beamset by opening a dialog with user or loading from scratch
     Currently relies on finding out information via a dialog. I would like it to optionally take the elements
     from the BeamSet class and return the result
@@ -360,6 +366,36 @@ def create_beamset(patient, case, exam, plan,
     else:
         logging.warning('Cannot load beamset due to incorrect argument list')
 
+    # Evaluate for an existing beamset. If rename_existing, add a suffix, otherwise fail
+    info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(b.DicomName)})
+    if not info:
+        beamset_exists=False
+    else:
+        if not rename_existing:
+            logging.debug('Beamset {} exists and cannot be renamed'.format(b.DicomName))
+            return None
+        else:
+            beamset_exists = True
+            # If this beamset is found, then append 1-99 to the name and keep going
+            i = 0
+            new_bs_name = b.DicomName
+            while beamset_exists:
+                try:
+                    info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(new_bs_name)})
+                    if info[0]['Name'] == new_bs_name:
+                        # Ensure the maximum DicomPlanLabel length of 16 chars is not exceeded
+                        if len(new_bs_name) > 14:
+                            new_bs_name = b.DicomName[:14] + str(i).zfill(2)
+                        else:
+                            new_bs_name = b.DicomName + str(i).zfill(2)
+                        i += 1
+                except IndexError:
+                    beamset_exists = False
+            # Replace input beamset_defs name with update
+            if b.DicomName != new_bs_name:
+                logging.debug('Beamset {} exists! Replacing with {}'.format(b.DicomName, new_bs_name))
+                b.DicomName = new_bs_name
+
     plan.AddNewBeamSet(
         Name=b.DicomName,
         ExaminationName=exam.Name,
@@ -374,14 +410,15 @@ def create_beamset(patient, case, exam, plan,
         RbeModelReference=None,
         EnableDynamicTrackingForVero=False,
         NewDoseSpecificationPointNames=[],
-        NewDoseSpecificationPoints=[])
+        NewDoseSpecificationPoints=[],
+        MotionSynchronizationTechniqueSettings=None)
 
     beamset = plan.BeamSets[b.DicomName]
     patient.Save()
 
     try:
         beamset.AddDosePrescriptionToRoi(RoiName=b.rx_target,
-                                         DoseVolume=95,
+                                         DoseVolume=b.rx_volume,
                                          PrescriptionType='DoseAtVolume',
                                          DoseValue=b.total_dose,
                                          RelativePrescriptionLevel=1,
@@ -477,6 +514,174 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             MaxGantryPeriod=beam.max_gantry_period,
             MaxDeliveryTimeFactor=beam.max_delivery_time_factor)
 
+
+def place_tomodirect_beams_in_beamset(plan, iso, beamset, beams):
+    """
+    Put beams in place based on a list of Beam objects
+    :param iso: isocenter data dictionary
+    :param beamset: beamset to which to add beams
+    :param beams: list of Beam objects
+    :return:
+    """
+    verbose_logging = False
+    for b in beams:
+        logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, ' +
+                          'Gantry Angle {}, Field Width {}, Pitch {}').format(
+                b.number, b.technique, b.name,
+                b.energy, b.gantry_start_angle, b.field_width, b.pitch))
+
+        beamset.CreatePhotonBeam(Name=b.name,
+                             BeamQualityId=b.energy,
+                             IsocenterData=iso,
+                             Description=b.name,
+                             GantryAngle=b.gantry_start_angle,
+                             )
+        opt_index = PlanOperations.find_optimization_index(plan=plan,
+                                                       beamset=beamset,
+                                                       verbose_logging=False)
+        plan_optimization_parameters = plan.PlanOptimizations[opt_index].OptimizationParameters
+        for tss in plan_optimization_parameters.TreatmentSetupSettings:
+            if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
+                ts_settings = tss
+                if verbose_logging:
+                    logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                        tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, b.name))
+                for bs in ts_settings.BeamSettings:
+                    if bs.ForBeam.Name == b.name:
+                        beam_found = True
+                        current_beam_settings = bs
+                        break
+                    else:
+                        continue
+            else:
+                continue
+        if ts_settings is None:
+            logging.exception('No treatment set up settings could be found for beamset {}'.format(
+                beamset.DicomPlanLabel) + 'Contact script administrator')
+
+        if not beam_found:
+            logging.warning('Beam {} not found in beam list from {}'.format(
+                b.name, beamset.DicomPlanLabel))
+            sys.exit('Could not find a beam match for setting aperture limits')
+
+        if ts_settings is not None and current_beam_settings is not None:
+            current_beam_settings.TomoPropertiesPerBeam.EditTomoBasedBeamOptimizationSettings(
+                JawMode=b.jaw_mode,
+                #PitchTomoHelical=beam.pitch,
+                PitchTomoDirect=b.pitch,
+                BackJawPosition=b.back_jaw_position,
+                FrontJawPosition=b.front_jaw_position,
+                MaxDeliveryTime=b.max_delivery_time,
+                MaxGantryPeriod=b.max_gantry_period,
+                MaxDeliveryTimeFactor=b.max_delivery_time_factor)
+
+def modify_tomo_beam_properties(settings, plan, beamset, beam):
+    # Allow modification of a single tomotherapy optimization setting
+    # settings: Dict: {'back_jaw_position': Float,
+    #                  'front_jaw_position': Float,
+    #                  'jaw_mode' : Dynamic/Static
+    #                  'max_delivery_time': Float
+    #                  'max_delivery_time_factor' : Float
+    #                  'max_gantry_period' : Float
+    #                  'pitch_tomo_direct' : Float
+    #                  'pitch_tomo_helical': Float
+    #                        '}
+    for o in plan.PlanOptimizations:
+        for t in o.OptimizationParameters.TreatmentSetupSettings:
+            if t.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
+                for bs in t.BeamSettings:
+                    if bs.ForBeam.Name == beam.Name:
+                        if 'jaw_mode' in settings.keys():
+                            jaw_mode = settings['jaw_mode']
+                        else:
+                            jaw_mode = bs.TomoPropertiesPerBeam.JawMode
+                        if 'pitch_tomo_direct' in settings.keys():
+                            pitch_tomo_direct = settings['pitch_tomo_direct']
+                        else:
+                            pitch_tomo_direct = bs.TomoPropertiesPerBeam.PitchTomoDirect
+                        if 'pitch_tomo_helical' in settings.keys():
+                            pitch_tomo_helical = settings['pitch_tomo_helical']
+                        else:
+                            pitch_tomo_helical = bs.TomoPropertiesPerBeam.PitchTomoHelical
+                        if 'back_jaw_position' in settings.keys():
+                            back_jaw_position = settings['back_jaw_position']
+                        else:
+                            back_jaw_position = bs.TomoPropertiesPerBeam.BackJawPosition
+                        if 'front_jaw_position' in settings.keys():
+                            front_jaw_position = settings['front_jaw_position']
+                        else:
+                            front_jaw_position = bs.TomoPropertiesPerBeam.FrontJawPosition
+                        if 'max_delivery_time' in settings.keys():
+                            max_delivery_time = settings['max_delivery_time']
+                        else:
+                            max_delivery_time = bs.TomoPropertiesPerBeam.MaxDeliveryTime
+                        if 'max_gantry_period' in settings.keys():
+                            max_gantry_period = settings['max_gantry_period']
+                        else:
+                            max_gantry_period = bs.TomoPropertiesPerBeam.MaxGantryPeriod
+                        if 'max_delivery_time_factor' in settings.keys():
+                            max_delivery_time_factor = settings['max_delivery_time_factor']
+                        else:
+                            max_delivery_time_factor = bs.TomoPropertiesPerBeam.MaxDeliveryTimeFactor
+                        bs.TomoPropertiesPerBeam.EditTomoBasedBeamOptimizationSettings(
+                            JawMode=jaw_mode,
+                            PitchTomoHelical=pitch_tomo_helical,
+                            PitchTomoDirect=pitch_tomo_direct,
+                            BackJawPosition=back_jaw_position,
+                            FrontJawPosition=front_jaw_position,
+                            MaxDeliveryTime=max_delivery_time,
+                            MaxGantryPeriod=max_gantry_period,
+                            MaxDeliveryTimeFactor=max_delivery_time_factor)
+
+def gather_tomo_beam_params(beamset):
+    # Compute time, rotation period, couch speed, pitch
+    #   mod factor
+    for b in beamset.Beams:
+        number_segments = 0
+        total_travel = 0
+        max_lot = 0
+        sinogram = []
+        for s in b.Segments:
+            number_segments += 1
+            leaf_pos = []
+            for l in s.LeafOpenFraction:
+                leaf_pos.append(l)
+            sinogram.append(leaf_pos)
+        # Total Time: Projection time x Number of Segments = Total Time
+        time = b.BeamMU * number_segments
+        # Rotation period: Projection Time * 51
+        rp = b.BeamMU * 51.
+        # Couch Speed: Total Distance Traveled / Total Time
+        total_travel = b.Segments[number_segments-1].CouchYOffset \
+                      -b.Segments[0].CouchYOffset
+        couch_speed = total_travel / time
+        # Pitch: Distance traveled in rotation / field width
+
+        # Convert sinogram to numpy array
+        sino_array = np.array(sinogram)
+        # Find non-zero elements
+        non_zero = np.where(sino_array != 0)
+        sino_non_zero = sino_array[non_zero]
+        # Mod Factor = Average / Max LOT
+        mod_factor = np.max(sino_non_zero)/np.mean(sino_non_zero)
+        # Declare the tomo dataframe
+        dtypes = np.dtype([
+                    ('time', float), # Total time of plan [s]
+                    ('total_travel', float), # Couch travel [cm]
+                    ('couch_speed',float), # Speed of couch [cm/s]
+                    ('sinogram', object), # List of leaf openings
+                    ('mod_factor', float) # Max/Ave_Nonzero
+        ])
+        data = np.empty(0, dtype=dtypes)
+        df = pd.DataFrame(data)
+        # Return a dataframe for json output
+        df.at[0,'time'] = time
+        df.at[0,'rp'] = rp
+        df.at[0,'total_travel'] = total_travel
+        df.at[0,'couch_speed'] = couch_speed
+        df.at[0,'sinogram'] = sino_array
+        df.at[0,'mod_factor'] = mod_factor
+    return df
 
 def check_pa(plan, beam):
     """Determine if any fields are pa, and return true if the gantry is unlikely to clear from
@@ -601,7 +806,7 @@ def update_set_up(beamset, set_up):
         i += 1
 
 
-def rename_beams():
+def rename_beams(site_name=None, input_technique=None):
     supported_rs_techniques = [
         'SMLC',
         'DynamicArc',
@@ -651,29 +856,33 @@ def rename_beams():
             'VMAT Arc -- IMRT']
     elif technique == 'TomoHelical':
         available_techniques = [
-            'Tomo Helical -- IMRT']
+            'TomoHelical -- IMRT',
+            'TomoHelical -- 3D Conformal']
 
 
     initial_sitename = beamset.DicomPlanLabel[:4]
-    # Prompt the user for Site Name and Billing technique
-    dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
-                                               'Technique': 'Select Treatment Technique (Billing)'},
-                                       datatype={'Technique': 'combo'},
-                                       initial={'Technique': 'Select',
-                                                'Site': initial_sitename},
-                                       options={'Technique': available_techniques},
-                                       required=['Site', 'Technique'])
-    # Show the dialog
-    print
-    dialog.show()
+    if not site_name and not input_technique:
+        # Prompt the user for Site Name and Billing technique
+        dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
+                                                'Technique': 'Select Treatment Technique (Billing)'},
+                                        datatype={'Technique': 'combo'},
+                                        initial={'Technique': 'Select',
+                                                    'Site': initial_sitename},
+                                        options={'Technique': available_techniques},
+                                        required=['Site', 'Technique'])
+        # Show the dialog
+        response = dialog.show()
+        if response == {}:
+            logging.info('Beam rename cancelled by user')
+            sys.exit('Beam rename cancelled')
 
-    site_name = dialog.values['Site']
-    input_technique = dialog.values['Technique']
+        site_name = dialog.values['Site']
+        input_technique = dialog.values['Technique']
 
     # Tomo Helical naming
     if technique == 'TomoHelical':
         for b in beamset.Beams:
-            beam_description = 'TomoHelical' + site_name
+            beam_description = 'TomoHelical_' + site_name
             b.Name = beam_description
             b.Description = input_technique
         return
@@ -705,7 +914,7 @@ def rename_beams():
                 couch_angle = round(float(b.CouchRotationAngle), 1)
                 gantry_angle_string = str(int(gantry_angle))
                 couch_angle_string = str(int(couch_angle))
-                # 
+                #
                 # Determine if the type is an Arc or SMLC
                 # Name arcs as #_Arc_<Site>_<Direction>_<Couch>
                 if technique == 'DynamicArc':
@@ -1308,7 +1517,7 @@ class mlc_properties:
                 self.min_gap_moving = current_machine.Physics.MlcPhysics.MinGapMoving
             else:
                 self.max_tip = None
-                self.max_leaf_carriage = 15 # Plug a guess in here 
+                self.max_leaf_carriage = 15 # Plug a guess in here
                 self.leaf_centers = None
                 self.leaf_widths = None
                 self.leaf_jaw_overlap = None
@@ -2380,7 +2589,7 @@ def load_beams_xml(filename, beamset_name, path):
                     beam.front_jaw_position = float(b.find('FrontJawPosition').text)
             except AttributeError:
                 beam.front_jaw_position = None
-            
+
             try:
                 if b.find('MaxDeliveryTime') is None:
                     beam.max_delivery_time = None
@@ -2388,7 +2597,7 @@ def load_beams_xml(filename, beamset_name, path):
                     beam.max_delivery_time = float(b.find('MaxDeliveryTime').text)
             except AttributeError:
                 beam.max_delivery_time = None
-            
+
             try:
                 if b.find('MaxGantryPeriod') is None:
                     beam.max_gantry_period is None
@@ -2396,7 +2605,7 @@ def load_beams_xml(filename, beamset_name, path):
                     beam.max_gantry_period = float(b.find('MaxGantryPeriod').text)
             except AttributeError:
                 beam.max_gantry_period is None
-            
+
             try:
                 if b.find('MaxDeliveryTimeFactor') is None:
                     beam.max_delivery_time_factor is None
