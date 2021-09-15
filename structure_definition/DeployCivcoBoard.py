@@ -48,14 +48,21 @@ __help__ = None
 __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current
-import StructureOperations
+# import StructureOperations
+
+from tkinter import messagebox
+from sys import exit
+import logging
+
+# Magic numbers for shifts
+COUCH_Y_SHIFT = 7
+
 
 def deploy_truebeam_couch(
-    case,
-    support_structure_template = "UW Support Structures",
-    support_structures_examination = "CT 1",
-    source_roi_names = ['Couch']
-    ):
+        case,
+        support_structure_template="UW Support Structures",
+        support_structures_examination="CT 1",
+        source_roi_name='Couch'):
     """ Deploys the TrueBeam couch
 
     PARAMETERS
@@ -81,7 +88,7 @@ def deploy_truebeam_couch(
     # This script is designed to be used for HFS patients:
     examination = get_current("Examination")
 
-    if exam.PatientPosition != "HFS":
+    if examination.PatientPosition != "HFS":
         logging.error("Current exam in not in HFS position. Exiting script.")
         message = (
             "The script requires a patient in the head-first supine position. "
@@ -93,16 +100,20 @@ def deploy_truebeam_couch(
     with CompositeAction("Drop TrueBeam Couch"):
 
         # Load the source template for the couch structure:
+        patient_db = get_current("PatientDB")
         try:
             support_template = patient_db.LoadTemplatePatientModel(
                 templateName=support_structure_template,
                 lockMode='Read'
             )
-        except InvalidOperationException:
-            logging.error(f"Could not load support_structure_template = {support_structure_template}. Exiting.")
+        except:
+            logging.error(
+                "Could not load support_structure_template = "
+                f"{support_structure_template}. Exiting."
+            )
             message = (
-                "The script attempted to load a support_structure_template
-                "called {support_structure_template}. This was not successful. "
+                "The script attempted to load a support_structure_template "
+                f"called {support_structure_template}. This was not successful. "
                 "Verify that a structure template with this name exists. "
                 "Exiting script."
             )
@@ -110,12 +121,23 @@ def deploy_truebeam_couch(
             exit()
 
         # Check for Couch already in plan
+        if source_roi_name in case.PatientModel.StructureSets[examination.Name].RoiGeometries:
+            logging.info(
+                f"A structure called {source_roi_name} already exists. "
+                f"Its geometry will be cleared on examination {examination}"
+            )
+            message = (
+                f"A structure called {source_roi_name} already exists. "
+                f"Its geometry will be cleared on examination {examination}"
+            )
+            messagebox.showwarning("Table structure will be cleared", message)
+            case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_name].DeleteGeometry()
 
         # Add the TrueBeam Couch
         case.PatientModel.CreateStructuresFromTemplate(
             SourceTemplate=support_template,
             SourceExaminationName=support_structures_examination,
-            SourceRoiNames=source_roi_names,
+            SourceRoiNames=[source_roi_name],
             SourcePoiNames=[],
             AssociateStructuresByName=True,
             TargetExamination=examination,
@@ -125,81 +147,127 @@ def deploy_truebeam_couch(
 
     with CompositeAction("Shift TrueBeam Couch"):
 
-        COUCH_Y_SHIFT = 7
-
-        couch = case.PatientModel.StructureSets[examination.Name].RoiGeometries["Couch"]
+        couch = case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_name]
 
         top_of_couch = couch.GetBoundingBox()[0]["y"]
-        TransformationMatrix = {'M11':1, 'M12':0, 'M13':0, 'M14':0,
-                                'M21':0, 'M22':1, 'M23':0, 'M24':-(top_of_couch+COUCH_Y_SHIFT),
-                                'M31':0, 'M32':0, 'M33':1, 'M34':0,
-                                'M41':0, 'M42':0, 'M43':0, 'M44':1}
-        couch.OfRoi.TransformROI3D(Examination=examination, TransformationMatrix=TransformationMatrix)
-
-    with CompositeAction("Create Temporary ImageVolume ROI")
-    
-
-        # Create roi for shifted external
-        ext_alignrt_su = case.PatientModel.CreateRoi(
-            Name="Ext_AlignRT_SU",
-            Color="Green",
-            Type="Organ",
-            TissueName="",
-            RbeCellTypeName=None,
-            RoiMaterial=None,
-        )
-        logging.info("Created Ext_AlignRT_SU")
-
-        # Copy the external ROI into the shifted external:
-
-        MarginSettings = {
-            "Type": "Expand",
-            "Superior": 0,
-            "Inferior": 0,
-            "Anterior": 0,
-            "Posterior": 0,
-            "Right": 0,
-            "Left": 0,
-        }
-        ext_alignrt_su.SetMarginExpression(
-            SourceRoiName=roi_external_name, MarginSettings=MarginSettings
-        )
-        ext_alignrt_su.UpdateDerivedGeometry(Examination=exam, Algorithm="Auto")
-
-        logging.info("Copied {} into {}".format(roi_external_name, ext_alignrt_su.Name))
-
-        # Finally, shift the contour. This shift direction will only work for HFP
         TransformationMatrix = {
-            "M11": 1,
-            "M12": 0,
-            "M13": 0,
-            "M14": 0,  # end row
-            "M21": 0,
-            "M22": 1,
-            "M23": 0,
-            "M24": -shift_size,  # end row
-            "M31": 0,
-            "M32": 0,
-            "M33": 1,
-            "M34": 0,  # end row
-            "M41": 0,
-            "M42": 0,
-            "M43": 0,
-            "M44": 1,  # end row
-        }
+            'M11': 1, 'M12': 0, 'M13': 0, 'M14': 0,
+            'M21': 0, 'M22': 1, 'M23': 0, 'M24': -(top_of_couch+COUCH_Y_SHIFT),
+            'M31': 0, 'M32': 0, 'M33': 1, 'M34': 0,
+            'M41': 0, 'M42': 0, 'M43': 0, 'M44': 1
+            }
+        couch.OfRoi.TransformROI3D(
+            Examination=examination,
+            TransformationMatrix=TransformationMatrix
+        )
+        logging.info("Successfully translated the TrueBeam Couch")
 
-        ext_alignrt_su.TransformROI3D(
-            Examination=exam, TransformationMatrix=TransformationMatrix
-        )
-        logging.info(
-            "Shifted {} anteriorly by {} cm".format(
-                ext_alignrt_su.Name, str(shift_size)
+    with CompositeAction("Create Temporary _ImageVolume ROI"):
+
+        image_volume = case.PatientModel.CreateRoi(Name='_ImageVolume')
+        # I don't like leaning on "Series[0]". I wonder if there is a way to say get
+        # the currently displayed image stack?
+        image_bb = examination.Series[0].ImageStack.GetBoundingBox()
+
+        Size = {
+            "x": image_bb[1]["x"] - image_bb[0]["x"],
+            "y": image_bb[1]["y"] - image_bb[0]["y"],
+            "z": image_bb[1]["z"] - image_bb[0]["z"]
+            }
+        Center = {
+            "x": (image_bb[1]["x"] + image_bb[0]["x"])/2,
+            "y": (image_bb[1]["y"] + image_bb[0]["y"])/2,
+            "z": (image_bb[1]["z"] + image_bb[0]["z"])/2
+            }
+
+        image_volume.CreateBoxGeometry(
+            Size=Size,
+            Examination=examination,
+            Center=Center,
+            Representation='Voxels',
+            VoxelSize=None)
+        logging.info("Created temporary ROI _ImageVolume")
+
+        with CompositeAction("Extend Table Longitudinally"):
+            while couch.GetBoundingBox()[0]["z"] > image_bb[0]["z"]:
+                MarginSettings = {
+                    'Type': "Expand",
+                    'Superior': 0,
+                    'Inferior': 15,
+                    'Anterior': 0,
+                    'Posterior': 0,
+                    'Right': 0,
+                    'Left': 0
+                    }
+                couch.OfRoi.CreateMarginGeometry(
+                    Examination=examination,
+                    SourceRoiName=source_roi_name,
+                    MarginSettings=MarginSettings)
+
+            logging.info("Successfully extended the TrueBeam Couch inferiorly")
+
+            while couch.GetBoundingBox()[1]["z"] < image_bb[1]["z"]:
+                MarginSettings = {
+                    'Type': "Expand",
+                    'Superior': 15,
+                    'Inferior': 0,
+                    'Anterior': 0,
+                    'Posterior': 0,
+                    'Right': 0,
+                    'Left': 0
+                    }
+                couch.OfRoi.CreateMarginGeometry(
+                    Examination=examination,
+                    SourceRoiName=source_roi_name,
+                    MarginSettings=MarginSettings
+                )
+            logging.info("Successfully extended the TrueBeam Couch superiorly")
+
+        with CompositeAction("Truncate Couch at S-I boundaries of image"):
+
+            MarginSettingsA = {
+                'Type': "Expand",
+                'Superior': 0,
+                'Inferior': 0,
+                'Anterior': 0,
+                'Posterior': 0,
+                'Right': 0,
+                'Left': 0,
+            }
+
+            MarginSettingsB = {
+                'Type': "Expand",
+                'Superior': 0,
+                'Inferior': 0,
+                'Anterior': 10,
+                'Posterior': 10,
+                'Right': 10,
+                'Left': 10,
+            }
+
+            couch.OfRoi.CreateAlgebraGeometry(
+                Examination=examination,
+                ExpressionA={
+                    'Operation': "Union",
+                    'SourceRoiNames': [source_roi_name],
+                    'MarginSettings': MarginSettingsA
+                },
+                ExpressionB={
+                    'Operation': "Union",
+                    'SourceRoiNames': ["_ImageVolume"],
+                    'MarginSettings': MarginSettingsB
+                },
+                ResultOperation="Intersection",
             )
-        )
+            logging.info("Successfully completed TrueBeam Couch deployment")
+
+        with CompositeAction("Delete _ImageVolume"):
+            image_volume.DeleteRoi()
+            logging.info("Deleting _ImageVolume")
 
 
 def clean(case):
-    """Undo all of the actions done by create_external_alignrt_su()
+    """Undo all actions
 
     PARAMETERS
     ----------
@@ -212,8 +280,7 @@ def clean(case):
 
     """
 
-    # Clean not developed at this time. If there is a problem with Ext_AlignRT_SU, it may be
-    # manually deleted.
+    # Clean not developed at this time.
     pass
 
 
