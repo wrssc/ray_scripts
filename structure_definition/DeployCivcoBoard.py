@@ -121,17 +121,18 @@ def deploy_truebeam_couch(
             exit()
 
         # Check for Couch already in plan
-        if source_roi_name in case.PatientModel.StructureSets[examination.Name].RoiGeometries:
-            logging.info(
-                f"A structure called {source_roi_name} already exists. "
-                f"Its geometry will be cleared on examination {examination}"
-            )
-            message = (
-                f"A structure called {source_roi_name} already exists. "
-                f"Its geometry will be cleared on examination {examination}"
-            )
-            messagebox.showwarning("Table structure will be cleared", message)
-            case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_name].DeleteGeometry()
+        if len(case.PatientModel.RegionsOfInterest) > 0:
+            if source_roi_name in case.PatientModel.StructureSets[examination.Name].RoiGeometries:
+                logging.info(
+                    f"A structure called {source_roi_name} already exists. "
+                    f"Its geometry will be cleared on examination {examination}"
+                )
+                message = (
+                    f"A structure called {source_roi_name} already exists. "
+                    f"Its geometry will be cleared on examination {examination}"
+                )
+                messagebox.showwarning("Table structure will be cleared", message)
+                case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_name].DeleteGeometry()
 
         # Add the TrueBeam Couch
         case.PatientModel.CreateStructuresFromTemplate(
