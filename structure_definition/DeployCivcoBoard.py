@@ -48,7 +48,7 @@ __help__ = None
 __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current
-# import StructureOperations
+from StructureOperations import exists_roi
 
 from tkinter import messagebox
 from sys import exit
@@ -121,8 +121,7 @@ def deploy_truebeam_couch(
             exit()
 
         # Check for Couch already in plan
-        if len(case.PatientModel.RegionsOfInterest) > 0:
-            if source_roi_name in case.PatientModel.StructureSets[examination.Name].RoiGeometries:
+        if exists_roi(case, source_roi_name):
                 logging.info(
                     f"A structure called {source_roi_name} already exists. "
                     f"Its geometry will be cleared on examination {examination}"
