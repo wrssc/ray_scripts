@@ -48,15 +48,46 @@ __help__ = None
 __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current
-from StructureOperations import exists_roi
+# from StructureOperations import exists_roi
 
 from tkinter import messagebox
 from sys import exit
 import logging
+import re
 
 # Magic numbers for shifts
 COUCH_Y_SHIFT = 7
 
+
+def exists_roi(case, rois, return_exists=False):
+    """See if rois is in the list
+    If return_exists is True return the names of the existing rois,
+    If it is False, return a boolean list of each structure's existence
+    """
+    if type(rois) is not list:
+        rois = [rois]
+
+    defined_rois = []
+    for r in case.PatientModel.RegionsOfInterest:
+        defined_rois.append(r.Name)
+
+    roi_exists = []
+
+    for r in rois:
+        pattern = r"^" + r + "$"
+        if any(
+                re.match(pattern, current_roi, re.IGNORECASE)
+                for current_roi in defined_rois
+        ):
+            if return_exists:
+                roi_exists.append(r)
+            else:
+                roi_exists.append(True)
+        else:
+            if not return_exists:
+                roi_exists.append(False)
+
+    return roi_exists
 
 def deploy_truebeam_couch(
         case,
@@ -122,16 +153,16 @@ def deploy_truebeam_couch(
 
         # Check for Couch already in plan
         if exists_roi(case, source_roi_name):
-                logging.info(
-                    f"A structure called {source_roi_name} already exists. "
-                    f"Its geometry will be cleared on examination {examination}"
-                )
-                message = (
-                    f"A structure called {source_roi_name} already exists. "
-                    f"Its geometry will be cleared on examination {examination}"
-                )
-                messagebox.showwarning("Table structure will be cleared", message)
-                case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_name].DeleteGeometry()
+            logging.info(
+                f"A structure called {source_roi_name} already exists. "
+                f"Its geometry will be cleared on examination {examination.Name}"
+            )
+            message = (
+                f"A structure called {source_roi_name} already exists. "
+                f"Its geometry will be cleared on examination {examination.Na}"
+            )
+            messagebox.showwarning("Table structure will be cleared", message)
+            case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_name].DeleteGeometry()
 
         # Add the TrueBeam Couch
         case.PatientModel.CreateStructuresFromTemplate(
@@ -162,108 +193,45 @@ def deploy_truebeam_couch(
         )
         logging.info("Successfully translated the TrueBeam Couch")
 
-    with CompositeAction("Create Temporary _ImageVolume ROI"):
+    with CompositeAction("Extend Table Longitudinally"):
 
-        image_volume = case.PatientModel.CreateRoi(Name='_ImageVolume')
-        # I don't like leaning on "Series[0]". I wonder if there is a way to say get
-        # the currently displayed image stack?
         image_bb = examination.Series[0].ImageStack.GetBoundingBox()
+        extent_inf = image_bb[0]["z"]
+        extent_sub = image_bb[1]["z"]
 
-        Size = {
-            "x": image_bb[1]["x"] - image_bb[0]["x"],
-            "y": image_bb[1]["y"] - image_bb[0]["y"],
-            "z": image_bb[1]["z"] - image_bb[0]["z"]
-            }
-        Center = {
-            "x": (image_bb[1]["x"] + image_bb[0]["x"])/2,
-            "y": (image_bb[1]["y"] + image_bb[0]["y"])/2,
-            "z": (image_bb[1]["z"] + image_bb[0]["z"])/2
-            }
-
-        image_volume.CreateBoxGeometry(
-            Size=Size,
-            Examination=examination,
-            Center=Center,
-            Representation='Voxels',
-            VoxelSize=None)
-        logging.info("Created temporary ROI _ImageVolume")
-
-        with CompositeAction("Extend Table Longitudinally"):
-            while couch.GetBoundingBox()[0]["z"] > image_bb[0]["z"]:
-                MarginSettings = {
-                    'Type': "Expand",
-                    'Superior': 0,
-                    'Inferior': 15,
-                    'Anterior': 0,
-                    'Posterior': 0,
-                    'Right': 0,
-                    'Left': 0
-                    }
-                couch.OfRoi.CreateMarginGeometry(
-                    Examination=examination,
-                    SourceRoiName=source_roi_name,
-                    MarginSettings=MarginSettings)
-
-            logging.info("Successfully extended the TrueBeam Couch inferiorly")
-
-            while couch.GetBoundingBox()[1]["z"] < image_bb[1]["z"]:
-                MarginSettings = {
-                    'Type': "Expand",
-                    'Superior': 15,
-                    'Inferior': 0,
-                    'Anterior': 0,
-                    'Posterior': 0,
-                    'Right': 0,
-                    'Left': 0
-                    }
-                couch.OfRoi.CreateMarginGeometry(
-                    Examination=examination,
-                    SourceRoiName=source_roi_name,
-                    MarginSettings=MarginSettings
-                )
-            logging.info("Successfully extended the TrueBeam Couch superiorly")
-
-        with CompositeAction("Truncate Couch at S-I boundaries of image"):
-
-            MarginSettingsA = {
+        while couch.GetBoundingBox()[0]["z"] > extent_inf:
+            MarginSettings = {
                 'Type': "Expand",
                 'Superior': 0,
+                'Inferior': 15,
+                'Anterior': 0,
+                'Posterior': 0,
+                'Right': 0,
+                'Left': 0
+                }
+            couch.OfRoi.CreateMarginGeometry(
+                Examination=examination,
+                SourceRoiName=source_roi_name,
+                MarginSettings=MarginSettings)
+
+        logging.info("Successfully extended the TrueBeam Couch inferiorly")
+
+        while couch.GetBoundingBox()[1]["z"] < extent_sub:
+            MarginSettings = {
+                'Type': "Expand",
+                'Superior': 15,
                 'Inferior': 0,
                 'Anterior': 0,
                 'Posterior': 0,
                 'Right': 0,
-                'Left': 0,
-            }
-
-            MarginSettingsB = {
-                'Type': "Expand",
-                'Superior': 0,
-                'Inferior': 0,
-                'Anterior': 10,
-                'Posterior': 10,
-                'Right': 10,
-                'Left': 10,
-            }
-
-            couch.OfRoi.CreateAlgebraGeometry(
+                'Left': 0
+                }
+            couch.OfRoi.CreateMarginGeometry(
                 Examination=examination,
-                ExpressionA={
-                    'Operation': "Union",
-                    'SourceRoiNames': [source_roi_name],
-                    'MarginSettings': MarginSettingsA
-                },
-                ExpressionB={
-                    'Operation': "Union",
-                    'SourceRoiNames': ["_ImageVolume"],
-                    'MarginSettings': MarginSettingsB
-                },
-                ResultOperation="Intersection",
+                SourceRoiName=source_roi_name,
+                MarginSettings=MarginSettings
             )
-            logging.info("Successfully completed TrueBeam Couch deployment")
-
-        with CompositeAction("Delete _ImageVolume"):
-            image_volume.DeleteRoi()
-            logging.info("Deleting _ImageVolume")
+        logging.info("Successfully extended the TrueBeam Couch superiorly")
 
 
 def clean(case):
