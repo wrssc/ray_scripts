@@ -142,7 +142,7 @@ def get_support_structures_GUI(examination):
                             'TrueBeam',
                             "RADIOCOUCH",
                             default=True,
-                            size=(10,1),
+                            size=(10, 1),
                             key="-COUCH TRUEBEAM-"
                         )
                     ],
@@ -150,15 +150,15 @@ def get_support_structures_GUI(examination):
                         sg.Radio(
                             'TomoTherapy',
                             "RADIOCOUCH",
-                            size=(10,1),
+                            size=(10, 1),
                             key="-COUCH TOMO-"
                         )
                     ],
-                                        [
+                    [
                         sg.Radio(
                             'None',
                             "RADIOCOUCH",
-                            size=(10,1),
+                            size=(10, 1),
                             key="-COUCH NONE-"
                         )
                     ],
@@ -367,7 +367,7 @@ def add_structures_from_template(
     case.PatientModel.CreateStructuresFromTemplate(
         SourceTemplate=support_template,
         SourceExaminationName=support_structures_examination,
-        SourceRoiNames=[source_roi_names],
+        SourceRoiNames=source_roi_names,
         SourcePoiNames=[],
         AssociateStructuresByName=True,
         TargetExamination=examination,
@@ -442,6 +442,7 @@ def deploy_couch_model(
     with CompositeAction("Shift Couch Model"):
 
         couch = case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_names[0]]
+        couch_roi_name = source_roi_names[0]
 
         top_of_couch = couch.GetBoundingBox()[0]["y"]
         TransformationMatrix = {
@@ -474,7 +475,7 @@ def deploy_couch_model(
                 }
             couch.OfRoi.CreateMarginGeometry(
                 Examination=examination,
-                SourceRoiName=source_roi_name,
+                SourceRoiName=couch_roi_name,
                 MarginSettings=MarginSettings)
 
         logging.info("Successfully extended the TrueBeam Couch inferiorly")
@@ -491,14 +492,14 @@ def deploy_couch_model(
                 }
             couch.OfRoi.CreateMarginGeometry(
                 Examination=examination,
-                SourceRoiName=source_roi_name,
+                SourceRoiName=couch_roi_name,
                 MarginSettings=MarginSettings
             )
         logging.info("Successfully extended the TrueBeam Couch superiorly")
 
         # Perform one final contraction to match image boundaries
-        contract_inf =  extent_inf - couch.GetBoundingBox()[0]["z"]
-        contract_sup =  couch.GetBoundingBox()[1]["z"] - extent_sub
+        contract_inf = extent_inf - couch.GetBoundingBox()[0]["z"]
+        contract_sup = couch.GetBoundingBox()[1]["z"] - extent_sub
 
         MarginSettings = {
             'Type': "Contract",
@@ -511,58 +512,17 @@ def deploy_couch_model(
             }
         couch.OfRoi.CreateMarginGeometry(
             Examination=examination,
-            SourceRoiName=source_roi_name,
+            SourceRoiName=couch_roi_name,
             MarginSettings=MarginSettings
         )
         logging.info(
             "Successfully matched the treatment couch to image extent."
         )
         sg.popup_notify(
-            f"The table structure called {source_roi_name} was added successfully.",
+            f"The table structure called {couch_roi_name} was added successfully.",
             title="Table structure successfully added",
             display_duration_in_ms=DISPLAY_DURATION_IN_MS
         )
-
-    def deploy_civco_breastboard_model(
-        case,
-        incline_angle,
-        use_wingboard,
-        wingboard_index,
-    ):
-        """ Deploys the Civco C-Qual Breastboard
-
-        The function is hard-coded with the current parameters for loading the required structures.
-
-        PARAMETERS
-        ----------
-        case : ScriptObject
-            A RayStation ScriptObject corresponding to the current case.
-        incline_angle: str
-            A key from CIVCO_INCLINE_BOARD_ANGLES corresponding to an incline angle.
-        use_wingboard: bool
-            True if user wants to add the Civco Monarch board to the image, else False.
-        wingboard_index: int or float or None
-            The index of the wingboard position (0-75), or None.
-
-        RETURNS
-        -------
-        None
-
-        """
-
-        # This script is designed to be used for HFS patients:
-        examination = get_current("Examination")
-
-        if examination.PatientPosition != "HFS":
-            message = (
-                "The script requires a patient in the head-first supine position. "
-                "The currently selected exam is not HFS. Exiting script."
-            )
-            logging.error(message)
-            sg.popup_error(message, title="Patient Orientation Error")
-            exit()
-
-        with CompositeAction("Drop Breastboard Model Components"):
 
 
 def deploy_civco_breastboard_model(
@@ -621,8 +581,6 @@ def deploy_civco_breastboard_model(
                 source_roi_names=MONARCH_SOURCE_ROI_NAMES,
                 derived_roi_names=MONARCH_DERIVED_ROI_NAMES
             )
-
-
 
 
 def clean(case):
@@ -695,7 +653,7 @@ def main():
             case,
             incline_angle=values["-INCLINE ANGLE-"],
             use_wingboard=values["-USE WINGBOARD-"],
-            wingboard_index=values["-WINGBOARD INDEX"]
+            wingboard_index=values["-WINGBOARD INDEX-"]
         )
 
 
