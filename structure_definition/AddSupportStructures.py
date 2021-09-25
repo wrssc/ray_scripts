@@ -3,7 +3,7 @@
 Currently supported
 * TrueBeam Couch
 * TomoTherapy Couch
-* Civco Breast Board (w/ and w/o Wingboard)
+* Civco Breast Board (w/ and w/o Monarch board)
 
 This script accomplishes the following tasks:
 1. Asks used for desired support structures
@@ -15,7 +15,7 @@ Civco Incline Board
 1. Create and automatically place Civco incline board base
 2. Create and automatically place Civco incline board body
     (with user-supplied angle)
-3. Create and automatically place Civco wingboard (with user-supplied index)
+3. Create and automatically place Civco Monarch board (with user-supplied index)
 
 This script was tested with:
 * Patient: INCLINE BOARD
@@ -75,7 +75,25 @@ COUCH_SOURCE_ROI_NAMES = {
     "TrueBeam": "Couch",
 }
 
+BREASTBOARD_SUPPORT_STRUCTURE_TEMPLATE = "Test_CivcoBoard"
+BREASTBOARD_SUPPORT_STRUCTURE_EXAMINATION = "Wingboard"
+BREASTBOARD_SOURCE_ROI_NAMES = ["CivcoWingBoard", "NFZ_WB_Basis"]
+BREASTBOARD_DERIVED_ROI_NAMES = []
 
+MONARCH_SUPPORT_STRUCTURE_TEMPLATE = "Test_CivcoBoard"
+MONARCH_SUPPORT_STRUCTURE_EXAMINATION = "InclineBoard"
+MONARCH_SOURCE_ROI_NAMES = [
+    "CivcoBaseBody",
+    "NFZ_Base",
+    "CivcoInclineBody",
+    "NFZ_Incline"
+]
+MONARCH_DERIVED_ROI_NAMES = [
+    "CivcoBaseShell",
+    "NFZone_Base",
+    "CivcoInclineShell",
+    "NFZone_Incline"
+]
 
 # Magic numbers for shifts
 COUCH_SHIFT = [0, 6.8, 0]
@@ -95,9 +113,7 @@ CIVCO_INCLINE_BOARD_ANGLES = {
 }
 
 
-def get_support_structures_GUI(
-    examination,
-):
+def get_support_structures_GUI(examination):
 
     support_structure_values = None
 
@@ -173,7 +189,7 @@ def get_support_structures_GUI(
                     ],
                     [
                         sg.Checkbox(
-                            'Use Wingboard',
+                            'Use Monarch Wingboard',
                             enable_events=True,
                             key="-USE WINGBOARD-"
                         )
@@ -182,7 +198,7 @@ def get_support_structures_GUI(
                         sg.Frame(
                             layout=[
                                 [
-                                    sg.Text('Wingboard Index'),
+                                    sg.Text('Monarch Wingboard Index'),
                                     sg.Slider(
                                         range=(0, 75),
                                         orientation='h',
@@ -192,7 +208,7 @@ def get_support_structures_GUI(
                                     )
                                 ]
                             ],
-                            title='Wingboard Options',
+                            title='Monarch Wingboard Options',
                             relief=sg.RELIEF_SUNKEN,
                             tooltip='Select a wingboard position',
                             visible=False,
@@ -274,11 +290,103 @@ def exists_roi(case, rois, return_exists=False):
     return roi_exists
 
 
+def add_structures_from_template(
+    case,
+    support_structure_template,
+    support_structures_examination,
+    source_roi_names,
+    derived_roi_names=[],
+):
+    """Loads template and deploys structures on the current examination
+
+    PARAMETERS
+    ----------
+    case : ScriptObject
+        A RayStation ScriptObject corresponding to the current case.
+    support_structure_template: str
+        The name of the support structure template in RayStation
+    support_structures_examination: str
+        The name of the examination associated with support_structure_template
+        from which you will load the source ROIs
+    source_roi_names : list of str
+        The names of the ROIs from support_structures_examination that you wish
+        to load
+    derived_roi_names : list of str
+        The names of the ROIs that are created from source_roi_names which you
+        also want to clear
+    """
+    # Load the source template for the couch structure:
+    patient_db = get_current("PatientDB")
+    try:
+        support_template = patient_db.LoadTemplatePatientModel(
+            templateName=support_structure_template,
+            lockMode='Read'
+        )
+    except:
+
+        message = (
+            "The script attempted to load a support_structure_template "
+            f"called {support_structure_template}. This was not successful. "
+            "Verify that a structure template with this name exists. "
+            "Exiting script."
+        )
+        logging.error(message)
+        sg.popup_error(message, title="Structure Template Error")
+        exit()
+
+    # Check to see if structures already exist. If so, warn the user that they
+    # will be cleared.
+    examination = get_current("Examination")
+    rois_that_exist = exists_roi(
+        case=case,
+        rois=source_roi_names+derived_roi_names,
+        return_exists=True
+    )
+
+    message = (
+            f"The following structures already exist: {', '.join(rois_that_exist)}. "
+            f"The geometries will be cleared on examination {examination.Name}"
+        )
+    sg.popup_notify(
+        message,
+        title="Structures will be cleared",
+        display_duration_in_ms=DISPLAY_DURATION_IN_MS
+    )
+
+    for roi in rois_that_exist:
+        message = (
+            f"A structure called {roi} already exists. "
+            f"Its geometry will be cleared on examination {examination.Name}"
+        )
+        logging.info(message)
+
+        case.PatientModel.StructureSets[examination.Name] \
+            .RoiGeometries[roi].DeleteGeometry()
+
+    # Add the TrueBeam Couch
+    case.PatientModel.CreateStructuresFromTemplate(
+        SourceTemplate=support_template,
+        SourceExaminationName=support_structures_examination,
+        SourceRoiNames=[source_roi_names],
+        SourcePoiNames=[],
+        AssociateStructuresByName=True,
+        TargetExamination=examination,
+        InitializationOption='AlignImageCenters'
+    )
+    message = f"Successfully added {', '.join(source_roi_names)}"
+    logging.info(message)
+    sg.popup_notify(
+        message,
+        title="Structures added successfully",
+        display_duration_in_ms=DISPLAY_DURATION_IN_MS
+    )
+
+
 def deploy_couch_model(
         case,
-        support_structure_template="UW Support Structures",
-        support_structures_examination="CT 1",
-        source_roi_name='Couch'):
+        support_structure_template,
+        support_structures_examination,
+        source_roi_names):
     """ Deploys the TrueBeam couch
 
     PARAMETERS
@@ -287,19 +395,28 @@ def deploy_couch_model(
         A RayStation ScriptObject corresponding to the current case.
     support_structure_template: str
         The name of the support structure template in RayStation
-        (default is "UW Support Structures")
     support_structures_examination: str
         The name of the examination associated with support_structure_template
-        from which you will load the source ROIs (default is "CT 1")
+        from which you will load the source ROIs
     source_roi_names : list of str
         The names of the ROIs from support_structures_examination that you wish
-        to load (default is ["Couch"]
+        to load)
 
     RETURNS
     -------
     None
 
     """
+
+    # There should only be one source ROI:
+    if len(source_roi_names) != 1:
+        message = (
+            "The list 'source_roi_names' does not have length 1 "
+            f"(length is {len(source_roi_names)}. Exiting script."
+        )
+        logging.error(message)
+        sg.popup_error(message, title="Incorrect source ROIs")
+        exit()
 
     # This script is designed to be used for HFS patients:
     examination = get_current("Examination")
@@ -313,58 +430,18 @@ def deploy_couch_model(
         sg.popup_error(message, title="Patient Orientation Error")
         exit()
 
-    with CompositeAction("Drop TrueBeam Couch"):
+    with CompositeAction("Drop Couch Model"):
 
-        # Load the source template for the couch structure:
-        patient_db = get_current("PatientDB")
-        try:
-            support_template = patient_db.LoadTemplatePatientModel(
-                templateName=support_structure_template,
-                lockMode='Read'
-            )
-        except:
-
-            message = (
-                "The script attempted to load a support_structure_template "
-                f"called {support_structure_template}. This was not successful. "
-                "Verify that a structure template with this name exists. "
-                "Exiting script."
-            )
-            logging.error(message)
-            sg.popup_error(message, title="Structure Template Error")
-            exit()
-
-        # Check for Couch already in plan
-        if exists_roi(case, source_roi_name):
-            message = (
-                f"A structure called {source_roi_name} already exists. "
-                f"Its geometry will be cleared on examination {examination.Name}"
-            )
-            logging.info(message)
-            sg.popup_notify(
-                message,
-                title="Table structure will be cleared",
-                display_duration_in_ms=DISPLAY_DURATION_IN_MS
-            )
-
-            case.PatientModel.StructureSets[examination.Name] \
-                .RoiGeometries[source_roi_name].DeleteGeometry()
-
-        # Add the TrueBeam Couch
-        case.PatientModel.CreateStructuresFromTemplate(
-            SourceTemplate=support_template,
-            SourceExaminationName=support_structures_examination,
-            SourceRoiNames=[source_roi_name],
-            SourcePoiNames=[],
-            AssociateStructuresByName=True,
-            TargetExamination=examination,
-            InitializationOption='AlignImageCenters'
+        add_structures_from_template(
+            case=case,
+            support_structure_template=support_structure_template,
+            support_structures_examination=support_structures_examination,
+            source_roi_names=source_roi_names
         )
-        logging.info("Successfully dropped the TrueBeam Couch")
 
-    with CompositeAction("Shift TrueBeam Couch"):
+    with CompositeAction("Shift Couch Model"):
 
-        couch = case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_name]
+        couch = case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_names[0]]
 
         top_of_couch = couch.GetBoundingBox()[0]["y"]
         TransformationMatrix = {
@@ -377,9 +454,9 @@ def deploy_couch_model(
             Examination=examination,
             TransformationMatrix=TransformationMatrix
         )
-        logging.info("Successfully translated the TrueBeam Couch")
+        logging.info("Successfully translated the couch model")
 
-    with CompositeAction("Extend Table Longitudinally"):
+    with CompositeAction("Extend Couch Model Longitudinally"):
 
         image_bb = examination.Series[0].ImageStack.GetBoundingBox()
         extent_inf = image_bb[0]["z"]
@@ -446,6 +523,107 @@ def deploy_couch_model(
             display_duration_in_ms=DISPLAY_DURATION_IN_MS
         )
 
+    def deploy_civco_breastboard_model(
+        case,
+        incline_angle,
+        use_wingboard,
+        wingboard_index,
+    ):
+        """ Deploys the Civco C-Qual Breastboard
+
+        The function is hard-coded with the current parameters for loading the required structures.
+
+        PARAMETERS
+        ----------
+        case : ScriptObject
+            A RayStation ScriptObject corresponding to the current case.
+        incline_angle: str
+            A key from CIVCO_INCLINE_BOARD_ANGLES corresponding to an incline angle.
+        use_wingboard: bool
+            True if user wants to add the Civco Monarch board to the image, else False.
+        wingboard_index: int or float or None
+            The index of the wingboard position (0-75), or None.
+
+        RETURNS
+        -------
+        None
+
+        """
+
+        # This script is designed to be used for HFS patients:
+        examination = get_current("Examination")
+
+        if examination.PatientPosition != "HFS":
+            message = (
+                "The script requires a patient in the head-first supine position. "
+                "The currently selected exam is not HFS. Exiting script."
+            )
+            logging.error(message)
+            sg.popup_error(message, title="Patient Orientation Error")
+            exit()
+
+        with CompositeAction("Drop Breastboard Model Components"):
+
+
+def deploy_civco_breastboard_model(
+    case,
+    incline_angle,
+    use_wingboard,
+    wingboard_index
+):
+    """ Deploys the Civco C-Qual Breastboard
+
+    The function is hard-coded with the current parameters for loading the required structures.
+
+    PARAMETERS
+    ----------
+    case : ScriptObject
+        A RayStation ScriptObject corresponding to the current case.
+    incline_angle: str
+        A key from CIVCO_INCLINE_BOARD_ANGLES corresponding to an incline angle.
+    use_wingboard: bool
+        True if user wants to add the Civco Monarch board to the image, else False.
+    wingboard_index: int or float or None
+        The index of the wingboard position (0-75), or None.
+
+    RETURNS
+    -------
+    None
+
+    """
+    # This script is designed to be used for HFS patients:
+    examination = get_current("Examination")
+
+    if examination.PatientPosition != "HFS":
+        message = (
+            "The script requires a patient in the head-first supine position. "
+            "The currently selected exam is not HFS. Exiting script."
+        )
+        logging.error(message)
+        sg.popup_error(message, title="Patient Orientation Error")
+        exit()
+
+    with CompositeAction("Add Breastboard components"):
+
+        add_structures_from_template(
+            case=case,
+            support_structure_template=BREASTBOARD_SUPPORT_STRUCTURE_TEMPLATE,
+            support_structures_examination=BREASTBOARD_SUPPORT_STRUCTURE_EXAMINATION,
+            source_roi_names=BREASTBOARD_SOURCE_ROI_NAMES,
+            derived_roi_names=BREASTBOARD_DERIVED_ROI_NAMES
+        )
+
+        if use_wingboard:
+            add_structures_from_template(
+                case=case,
+                support_structure_template=MONARCH_SUPPORT_STRUCTURE_TEMPLATE,
+                support_structures_examination=MONARCH_SUPPORT_STRUCTURE_EXAMINATION,
+                source_roi_names=MONARCH_SOURCE_ROI_NAMES,
+                derived_roi_names=MONARCH_DERIVED_ROI_NAMES
+            )
+
+
+
 
 def clean(case):
     """Undo all actions
@@ -488,6 +666,18 @@ def main():
         )
         exit()
 
+    """ Structure of "values" dictionary (example)
+    {
+        '-COUCH TRUEBEAM-': True,
+        '-COUCH TOMO-': False,
+        '-COUCH NONE-': False,
+        '-USE CIVCO-': True,
+        '-INCLINE ANGLE-': '7.5 deg',
+        '-USE WINGBOARD-': True,
+        '-WINGBOARD INDEX-': 5.0
+        }
+    """
+
     if values['-COUCH TRUEBEAM-']:
 
         # Deploy the TrueBeam couch
@@ -495,13 +685,18 @@ def main():
             case,
             support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
             support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION,
-            source_roi_name=COUCH_SOURCE_ROI_NAMES['TrueBeam']
+            source_roi_names=[COUCH_SOURCE_ROI_NAMES['TrueBeam']]
         )
     elif values['-COUCH TOMO-']:
         pass
 
     if values["-USE CIVCO-"]:
-        print("Use civco board")
+        deploy_civco_breastboard_model(
+            case,
+            incline_angle=values["-INCLINE ANGLE-"],
+            use_wingboard=values["-USE WINGBOARD-"],
+            wingboard_index=values["-WINGBOARD INDEX"]
+        )
 
 
 if __name__ == "__main__":
