@@ -849,19 +849,19 @@ def deploy_civco_breastboard_model(
     with CompositeAction("Prepare Shell Structures and Composites"):
 
         # Create final ROIs
-        if not exists_roi(case, "CivcoBaseShell"):
+        if not exists_roi(case, "CivcoBaseShell")[0]:
             case.PatientModel.CreateRoi(
                 Name='CivcoBaseShell',
                 Color="Pink",
                 Type="Support"
             )
-        if not exists_roi(case, "CivcoInclineShell"):
+        if not exists_roi(case, "CivcoInclineShell")[0]:
             case.PatientModel.CreateRoi(
                 Name='CivcoInclineShell',
                 Color="Pink",
                 Type="Support"
             )
-        if not exists_roi(case, "NoFlyZone_PRV"):
+        if not exists_roi(case, "NoFlyZone_PRV")[0]:
             case.PatientModel.CreateRoi(
                 Name='NoFlyZone_PRV',
                 Color="Green",
