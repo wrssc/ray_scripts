@@ -86,9 +86,8 @@ BREASTBOARD_SOURCE_ROI_NAMES = [
 ]
 BREASTBOARD_DERIVED_ROI_NAMES = [
     "CivcoBaseShell",
-    "NFZone_Base",
     "CivcoInclineShell",
-    "NFZone_Incline"
+    "NoFlyZone_PRV"
 ]
 
 MONARCH_SUPPORT_STRUCTURE_TEMPLATE = "Test_CivcoBoard"
@@ -127,8 +126,9 @@ CIVCO_INCLINE_BOARD_ANGLES = {
 }
 
 # Constants for ROIs
-BASE_CONTRACTION = 0.2
-INCLINE_CONTRACTION = 0.3
+BASE_CONTRACTION = 0.2  # cm
+INCLINE_CONTRACTION = 0.3  # cm
+NOFLYZONE_EXPANSION = 1.5  # cm
 
 
 def get_support_structures_GUI(examination):
@@ -842,6 +842,122 @@ def deploy_civco_breastboard_model(
                 f"The board was inclined to {incline_angle}."
             )
         logging.info(message)
+
+    with CompositeAction("Address overlaps"):
+        pass
+
+    with CompositeAction("Prepare Shell Structures and Composites"):
+
+        # Create final ROIs
+        case.PatientModel.CreateRoi(
+            Name='CivcoBaseShell',
+            Color="Pink",
+            Type="Support"
+        )
+        case.PatientModel.CreateRoi(
+            Name='CivcoInclineShell',
+            Color="Pink",
+            Type="Support"
+        )
+        case.PatientModel.CreateRoi(
+            Name='NoFlyZone_PRV',
+            Color="Green",
+            Type="Avoidance"
+        )
+
+        base_shell = ss.RoiGeometries["CivcoBaseShell"]
+        incline_shell = ss.RoiGeometries["CivcoInclineShell"]
+        nfz_expanded = ss.RoiGeometries["NoFlyZone_PRV"]
+
+        # Assign density override to the shells
+        water = None
+
+        patient_db = get_current("PatientDB")
+        for material in patient_db.GetTemplateMaterial().Materials:
+            if material.Name == "Water":
+                water = material
+
+        assert water is not None, "Could not find a material called Water"
+        base_shell.OfRoi.SetRoiMaterial(Material=water)
+        incline_shell.OfRoi.SetRoiMaterial(Material=water)
+
+        # Expand NoFlyZone
+        MarginSettings = {
+            'Type': "Expand",
+            'Superior' : NOFLYZONE_EXPANSION,
+            'Inferior': NOFLYZONE_EXPANSION,
+            'Anterior': NOFLYZONE_EXPANSION,
+            'Posterior': NOFLYZONE_EXPANSION,
+            'Right': NOFLYZONE_EXPANSION,
+            'Left': NOFLYZONE_EXPANSION
+        }
+
+        source_roi_names = ["NFZ_Base", "NFZ_Incline"]
+        if use_wingboard:
+            source_roi_names += ["NFZ_WB_Basis"]
+
+        nfz_expanded.OfRoi.CreateAlgebraGeometry(
+            Examination=examination,
+            ExpressionA={
+                'Operation': "Union",
+                'SourceRoiNames': source_roi_names,
+                'MarginSettings': MarginSettings
+            }
+        )
+
+        # Create shells for incline board components
+        zipped_parameters = zip(
+            [base_shell, incline_shell],
+            ["CivcoBaseBody", "CivcoInclineBody"],
+            [BASE_CONTRACTION, INCLINE_CONTRACTION]
+        )
+
+        for shell, body_name, contraction in zipped_parameters:
+
+            # Create Shell
+            MarginSettingsA = {
+                'Type': "Expand",
+                'Superior': 0,
+                'Inferior': 0,
+                'Anterior': 0,
+                'Posterior': 0,
+                'Right': 0,
+                'Left': 0
+            }
+
+            MarginSettingsB = {
+                'Type': "Contract",
+                'Superior': contraction,
+                'Inferior': contraction,
+                'Anterior': contraction,
+                'Posterior': contraction,
+                'Right': contraction,
+                'Left': contraction
+            }
+
+            shell.OfRoi.CreateAlgebraGeometry(
+                Examination=examination,
+                ExpressionA={
+                    'Operation': "Union",
+                    'SourceRoiNames': [body_name],
+                    'MarginSettings': MarginSettingsA
+                },
+                ExpressionB={
+                    'Operation': "Union",
+                    'SourceRoiNames': [body_name],
+                    'MarginSettings': MarginSettingsB
+                },
+                ResultOperation="Subtraction"
+            )
+
+    with CompositeAction("Delete Extra Structures"):
+
+        base_body.OfRoi.DeleteRoi()
+        base_nfz.OfRoi.DeleteRoi()
+        incline_body.OfRoi.DeleteRoi()
+        incline_nfz.OfRoi.DeleteRoi()
+        if use_wingboard:
+            wingboard_nfz.OfRoi.DeleteRoi()
 
 
 def clean(case):
