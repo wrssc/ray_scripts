@@ -77,24 +77,24 @@ COUCH_SOURCE_ROI_NAMES = {
 }
 
 BREASTBOARD_SUPPORT_STRUCTURE_TEMPLATE = "Test_CivcoBoard"
-BREASTBOARD_SUPPORT_STRUCTURE_EXAMINATION = "Wingboard"
-BREASTBOARD_SOURCE_ROI_NAMES = ["CivcoWingBoard", "NFZ_WB_Basis"]
-BREASTBOARD_DERIVED_ROI_NAMES = []
-
-MONARCH_SUPPORT_STRUCTURE_TEMPLATE = "Test_CivcoBoard"
-MONARCH_SUPPORT_STRUCTURE_EXAMINATION = "InclineBoard"
-MONARCH_SOURCE_ROI_NAMES = [
+BREASTBOARD_SUPPORT_STRUCTURE_EXAMINATION = "InclineBoard"
+BREASTBOARD_SOURCE_ROI_NAMES = [
     "CivcoBaseBody",
     "NFZ_Base",
     "CivcoInclineBody",
     "NFZ_Incline"
 ]
-MONARCH_DERIVED_ROI_NAMES = [
+BREASTBOARD_DERIVED_ROI_NAMES = [
     "CivcoBaseShell",
     "NFZone_Base",
     "CivcoInclineShell",
     "NFZone_Incline"
 ]
+
+MONARCH_SUPPORT_STRUCTURE_TEMPLATE = "Test_CivcoBoard"
+MONARCH_SUPPORT_STRUCTURE_EXAMINATION = "Wingboard"
+MONARCH_SOURCE_ROI_NAMES = ["CivcoWingBoard", "NFZ_WB_Basis"]
+MONARCH_DERIVED_ROI_NAMES = []
 
 # Magic numbers for shifts
 COUCH_SHIFT = [0, 6.8, 0]
@@ -363,8 +363,8 @@ def add_structures_from_template(
 
     roi_list = '\n'.join(rois_that_exist)
     message = (
-            f"The following structures already exist:\n {roi_list}. "
-            f"\nThe geometries will be cleared on examination {examination.Name}"
+            f"The following structures already exist:\n{roi_list}. "
+            f"\n\nThe geometries will be cleared on examination {examination.Name}"
         )
     sg.popup_notify(
         message,
@@ -392,7 +392,8 @@ def add_structures_from_template(
         TargetExamination=examination,
         InitializationOption='AlignImageCenters'
     )
-    message = f"Successfully added {', '.join(source_roi_names)}"
+    roi_list = '\n'.join(source_roi_names)
+    message = f"Successfully added the following ROIs:\n{roi_list}"
     logging.info(message)
     sg.popup_notify(
         message,
