@@ -61,6 +61,7 @@ from connect import CompositeAction, get_current
 # from StructureOperations import exists_roi
 
 import PySimpleGUI as sg
+import numpy as np
 from sys import exit
 import logging
 import re
@@ -96,11 +97,22 @@ MONARCH_DERIVED_ROI_NAMES = [
 ]
 
 # Magic numbers for shifts
-COUCH_SHIFT = [0, 6.8, 0]
-INCLINE_BASE_SHIFT = [0, 6.9, 0]
+INCLINE_BASE_SHIFT = [-0.05, -6.65, -14.95]  # Lat, Long, Vrt in cm
+INCLINE_BASE_PITCH = -0.188  # deg 0]
+
+WINGBOARD_SHIFT = [-0.2, -22.8, 7.35]  # cm
+WINGBOARD_ROLL = 0.3  # deg
+WINGBOARD_PITCH = 0.4  # deg
+
+INCLINE_CENTER_TO_HINGE = [0.0 , -2.18, 45.09]  # cm
+
+INCLINE_ZERO_PITCH = 0.884  # deg, the pitch at flat position
+INCLINE_PITCH_BIAS = -0.25  # deg, the difference between measured and actual pitch
+
+WINGBOARD_INDEX_DIST = 225.5/75/10  # cm, 75 markings over 225.5 mm
 
 CIVCO_INCLINE_BOARD_ANGLES = {
-    'Flat': 0,
+    'Flat': INCLINE_ZERO_PITCH,
     '5 deg': 5,
     '7.5 deg': 7.5,
     '10 deg': 10,
@@ -111,6 +123,10 @@ CIVCO_INCLINE_BOARD_ANGLES = {
     '22.5 deg': 22.5,
     '25 deg': 25,
 }
+
+# Constants for ROIs
+BASE_CONTRACTION = 0.2
+INCLINE_CONTRACTION = 0.3
 
 
 def get_support_structures_GUI(examination):
@@ -382,6 +398,81 @@ def add_structures_from_template(
     )
 
 
+def transform_structure(
+    examination,
+    roi,
+    translations=[0.0, 0.0, 0.0],
+    pitch=0.0,
+    yaw=0.0,
+    roll=0.0,
+):
+    """Transform an ROI with translation and rotations.
+
+    All rotations happen about DICOM (0,0,0).
+
+    PARAMETERS
+    ----------
+    examination
+        The examination on which to perform rotations
+    roi
+        The ROI which you would like to transform
+    translations : list of float
+        A 3x1 array listing the [x, y, z] translations (default is [0.0,0.0,0.0])
+    pitch : float
+        The pitch (x-axis) rotation, in degrees (default is 0.0)
+    yaw : float
+        The yaw (y-axis) rotation, in degrees (default is 0.0)
+    roll : float
+        The roll (z-axis) rotation, in degrees (default is 0.0)
+    """
+
+    # Convert to radians
+    pitch_r, yaw_r, roll_r = np.pi/180.0*np.array([pitch, yaw, roll])
+
+    # Generate rotation matrices
+    M_pitch = np.array([
+        [1, 0, 0],
+        [0, np.cos(pitch_r), -np.sin(pitch_r)],
+        [0, np.sin(pitch_r), np.cos(pitch_r)],
+    ])
+
+    M_yaw = np.array([
+        [np.cos(yaw_r), 0, np.sin(yaw_r)],
+        [0, 1, 0],
+        [-np.sin(yaw_r), 0, np.cos(yaw_r)],
+
+    ])
+
+    M_roll = np.array([
+        [np.cos(roll_r), -np.sin(roll_r), 0],
+        [np.sin(roll_r), np.cos(roll_r), 0],
+        [0 ,0, 1],
+
+    ])
+
+    # Compute composite rotation matrix (and relabel translations)
+    T = translations
+    M = np.matmul(M_roll, np.matmul(M_yaw, M_pitch))
+
+    TransformationMatrix = {
+        'M11': M[0, 0],
+        'M12': M[0, 1],
+        'M13': M[0, 2],
+        'M14': T[0],  # x left-right
+        'M21': M[1, 0],
+        'M22': M[1, 1],
+        'M23': M[1, 2],
+        'M24': T[1],  # y = anterior-posterior
+        'M31': M[2, 0],
+        'M32': M[2, 1],
+        'M33': M[2, 2],
+        'M34': T[2],  # z superior-inferior
+        'M41': 0, 'M42': 0, 'M43': 0, 'M44': 1
+    }
+
+    roi.OfRoi.TransformROI3D(Examination=examination, TransformationMatrix=TransformationMatrix)
+
+
 def deploy_couch_model(
         case,
         support_structure_template,
@@ -581,6 +672,172 @@ def deploy_civco_breastboard_model(
                 source_roi_names=MONARCH_SOURCE_ROI_NAMES,
                 derived_roi_names=MONARCH_DERIVED_ROI_NAMES
             )
+
+        message = (
+            "Civco Breastboard structures added to examination."
+        )
+        logging.info(message)
+
+    with CompositeAction("Move ROIs to Initial Position"):
+
+        # Grab ROIs and create groups
+        ss = case.PatientModel.StructureSets[examination.Name]
+        base_body = ss.RoiGeometries["CivcoBaseBody"]
+        base_nfz = ss.RoiGeometries["NFZ_Base"]
+        incline_body = ss.RoiGeometries["CivcoInclineBody"]
+        incline_nfz = ss.RoiGeometries["NFZ_Incline"]
+
+        # This group of ROIs has the same shifts from initial postion to "Flat" position
+        initial_shifts_rois = [base_body, base_nfz, incline_body, incline_nfz]
+
+        # Compute translations to move from image center to "Flat" position
+        base_bb = base_body.GetBoundingBox()
+        bottom_of_base = base_bb[1]["y"]
+        z_position = (base_bb[1]["z"] + base_bb[0]["z"])/2
+
+        T = [
+            INCLINE_BASE_SHIFT[0],
+            INCLINE_BASE_SHIFT[1]-bottom_of_base,
+            INCLINE_BASE_SHIFT[2]-z_position,
+        ]
+
+        # Translate ROIs to correct position for a "Flat" incline
+        for roi in initial_shifts_rois:
+            transform_structure(
+                examination=examination,
+                roi=roi,
+                translations=T,
+                pitch=INCLINE_BASE_PITCH
+            )
+
+        message = (
+            "Civco Breastboard structures translated to Flat incline postion."
+        )
+        logging.info(message)
+
+        if use_wingboard:
+
+            # The wingboard ROI comes from a different exam than the rest of
+            # the board, so it has unique translations to get to a
+            # "Flat incline at index 50" location.
+
+            # Grab ROIs and create groups
+            wingboard_body = ss.RoiGeometries["CivcoWingBoard"]
+            wingboard_nfz = ss.RoiGeometries["NFZ_WB_Basis"]
+
+            # This group of ROIs participates in rotation during incline and
+            # translations due to wingboard movements
+            wingboard_shifts_rois = [wingboard_body, wingboard_nfz]
+
+            T = [
+                WINGBOARD_SHIFT[0],
+                WINGBOARD_SHIFT[1]-bottom_of_base,
+                WINGBOARD_SHIFT[2]-z_position,
+            ]
+
+            # Translate ROIs to correct position for a "Flat incline, WB 50"
+            for roi in wingboard_shifts_rois:
+                transform_structure(
+                    examination=examination,
+                    roi=roi,
+                    translations=T,
+                    pitch=WINGBOARD_PITCH,
+                    roll=WINGBOARD_ROLL,
+                )
+
+            message = (
+                "Civco Monarch wingboard structures have been translated to "
+                " a 'Flat' incline postion with the wingboard at index 50."
+            )
+            logging.info(message)
+
+    with CompositeAction("Incline and Shift Wingboard"):
+
+        # This group of ROIs participates in rotation during incline
+        incline_shifts_rois = [incline_body, incline_nfz]
+        if use_wingboard:
+            incline_shifts_rois += wingboard_shifts_rois
+
+        # Shift the incline board hinge to the origin
+        incline_body_center = incline_body.GetCenterOfRoi()
+
+        T_hinge = np.array([
+            INCLINE_CENTER_TO_HINGE[0],
+            INCLINE_CENTER_TO_HINGE[1]-incline_body_center["y"],
+            INCLINE_CENTER_TO_HINGE[2]-incline_body_center["z"],
+        ])
+
+        for roi in incline_shifts_rois:
+            transform_structure(
+                examination=examination,
+                roi=roi,
+                translations=T_hinge,
+            )
+
+        if use_wingboard:
+
+            # Translate the Monarch wingboard
+
+            # The "Flat" position of the board leaves the incline portion at
+            # INCLINE_ZERO_PITCH degrees. The wingboard is at the same pitch.
+            # We're going to rotate it to a true zero pitch, translate the
+            # wingboard longitudinally to the correct indexed location, then
+            # Rotate it back up to the "Flat" angle.
+
+            # Rotate wingboard to true 0 degree orientation
+            for roi in wingboard_shifts_rois:
+                transform_structure(
+                    examination=examination,
+                    roi=roi,
+                    pitch=-INCLINE_ZERO_PITCH,
+                )
+
+            # Shift wingboard to indexed position
+            translation_dist = (wingboard_index-50)*WINGBOARD_INDEX_DIST
+            T = [0, 0, -translation_dist]
+
+            for roi in wingboard_shifts_rois:
+                transform_structure(
+                    examination=examination,
+                    roi=roi,
+                    translations=T,
+                )
+
+            # Rotate back to "Flat" incline
+            for roi in wingboard_shifts_rois:
+                transform_structure(
+                    examination=examination,
+                    roi=roi,
+                    pitch=INCLINE_ZERO_PITCH,
+                )
+
+            message = (
+                f"Civco Monarch wingboard moved to index {wingboard_index}."
+            )
+            logging.info(message)
+
+        # Rotate to incline board (and wingboard) to correct angle
+        incline_board_angle = CIVCO_INCLINE_BOARD_ANGLES[incline_angle]
+        incline_rotation = incline_board_angle - INCLINE_ZERO_PITCH + INCLINE_PITCH_BIAS
+        for roi in incline_shifts_rois:
+            transform_structure(
+                examination=examination,
+                roi=roi,
+                pitch=incline_rotation,
+            )
+
+        # Reverse the translations
+        for roi in incline_shifts_rois:
+            transform_structure(
+                examination=examination,
+                roi=roi,
+                translations=-T_hinge,
+            )
+
+        message = (
+                f"The board was inclined to {incline_angle}."
+            )
+        logging.info(message)
 
 
 def clean(case):
