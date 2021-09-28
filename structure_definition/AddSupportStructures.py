@@ -106,7 +106,7 @@ WINGBOARD_SHIFT = [-0.2, -22.8, 7.35]  # cm
 WINGBOARD_ROLL = 0.3  # deg
 WINGBOARD_PITCH = 0.4  # deg
 
-INCLINE_CENTER_TO_HINGE = [0.0 , -2.18, 45.09]  # cm
+INCLINE_CENTER_TO_HINGE = [0.0, -2.18, 45.09]  # cm
 
 INCLINE_ZERO_PITCH = 0.884  # deg, the pitch at flat position
 INCLINE_PITCH_BIAS = -0.25  # deg, the difference between measured and actual pitch
@@ -114,7 +114,7 @@ INCLINE_PITCH_BIAS = -0.25  # deg, the difference between measured and actual pi
 WINGBOARD_INDEX_DIST = 225.5/75/10  # cm, 75 markings over 225.5 mm
 
 CIVCO_INCLINE_BOARD_ANGLES = {
-    'Flat': INCLINE_ZERO_PITCH,
+    'Flat': INCLINE_ZERO_PITCH-INCLINE_PITCH_BIAS,
     '5 deg': 5,
     '7.5 deg': 7.5,
     '10 deg': 10,
@@ -361,9 +361,10 @@ def add_structures_from_template(
         return_exists=True
     )
 
+    roi_list = '\n'.join(rois_that_exist)
     message = (
-            f"The following structures already exist: {', '.join(rois_that_exist)}. "
-            f"The geometries will be cleared on examination {examination.Name}"
+            f"The following structures already exist:\n {roi_list}. "
+            f"\nThe geometries will be cleared on examination {examination.Name}"
         )
     sg.popup_notify(
         message,
