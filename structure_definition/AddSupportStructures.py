@@ -849,21 +849,24 @@ def deploy_civco_breastboard_model(
     with CompositeAction("Prepare Shell Structures and Composites"):
 
         # Create final ROIs
-        case.PatientModel.CreateRoi(
-            Name='CivcoBaseShell',
-            Color="Pink",
-            Type="Support"
-        )
-        case.PatientModel.CreateRoi(
-            Name='CivcoInclineShell',
-            Color="Pink",
-            Type="Support"
-        )
-        case.PatientModel.CreateRoi(
-            Name='NoFlyZone_PRV',
-            Color="Green",
-            Type="Avoidance"
-        )
+        if not exists_roi(case, "CivcoBaseShell"):
+            case.PatientModel.CreateRoi(
+                Name='CivcoBaseShell',
+                Color="Pink",
+                Type="Support"
+            )
+        if not exists_roi(case, "CivcoInclineShell"):
+            case.PatientModel.CreateRoi(
+                Name='CivcoInclineShell',
+                Color="Pink",
+                Type="Support"
+            )
+        if not exists_roi(case, "NoFlyZone_PRV"):
+            case.PatientModel.CreateRoi(
+                Name='NoFlyZone_PRV',
+                Color="Green",
+                Type="Avoidance"
+            )
 
         base_shell = ss.RoiGeometries["CivcoBaseShell"]
         incline_shell = ss.RoiGeometries["CivcoInclineShell"]
@@ -884,7 +887,7 @@ def deploy_civco_breastboard_model(
         # Expand NoFlyZone
         MarginSettings = {
             'Type': "Expand",
-            'Superior' : NOFLYZONE_EXPANSION,
+            'Superior': NOFLYZONE_EXPANSION,
             'Inferior': NOFLYZONE_EXPANSION,
             'Anterior': NOFLYZONE_EXPANSION,
             'Posterior': NOFLYZONE_EXPANSION,
@@ -958,6 +961,13 @@ def deploy_civco_breastboard_model(
         incline_nfz.OfRoi.DeleteRoi()
         if use_wingboard:
             wingboard_nfz.OfRoi.DeleteRoi()
+
+        message = ("Deleted extra ROIs.")
+        logging.error(message)
+
+        message = ("The Civco C-Qual Breastboard was added successfully.")
+        logging.error(message)
+        sg.popup_notify(message, title="Added Breastboard Successfully")
 
 
 def clean(case):
