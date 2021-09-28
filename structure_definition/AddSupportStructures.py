@@ -97,6 +97,8 @@ MONARCH_DERIVED_ROI_NAMES = [
 ]
 
 # Magic numbers for shifts
+COUCH_SHIFT = [0, 6.8, 0]
+
 INCLINE_BASE_SHIFT = [-0.05, -6.65, -14.95]  # Lat, Long, Vrt in cm
 INCLINE_BASE_PITCH = -0.188  # deg 0]
 
