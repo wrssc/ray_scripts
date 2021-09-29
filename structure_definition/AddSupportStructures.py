@@ -497,7 +497,7 @@ def deploy_couch_model(
         sg.popup_error(message, title="Patient Orientation Error")
         exit()
 
-    with CompositeAction("Drop Couch Model"):
+    with CompositeAction("Add Couch Model"):
 
         add_structures_from_template(
             case=case,
@@ -524,33 +524,111 @@ def deploy_couch_model(
         )
         logging.info("Successfully translated the couch model")
 
-    with CompositeAction("Extend Couch Model Longitudinally"):
+    with CompositeAction("Fill Couch Model Longitudinally"):
 
         image_bb = examination.Series[0].ImageStack.GetBoundingBox()
         extent_inf = image_bb[0]["z"]
         extent_sub = image_bb[1]["z"]
 
-        while couch.GetBoundingBox()[0]["z"] > extent_inf:
+        # If inferior edge of couch is inside image boundary
+        if couch.GetBoundingBox()[0]["z"] > extent_inf:
+            # Extend couch until it exceeds image boundary
+            while couch.GetBoundingBox()[0]["z"] > extent_inf:
+                MarginSettings = {
+                    'Type': "Expand",
+                    'Superior': 0,
+                    'Inferior': 15,
+                    'Anterior': 0,
+                    'Posterior': 0,
+                    'Right': 0,
+                    'Left': 0
+                    }
+                couch.OfRoi.CreateMarginGeometry(
+                    Examination=examination,
+                    SourceRoiName=couch_roi_name,
+                    MarginSettings=MarginSettings)
+
+            # Perform a single contraction to match image boundaries
+            contract_inf = extent_inf - couch.GetBoundingBox()[0]["z"]
+
             MarginSettings = {
-                'Type': "Expand",
+                'Type': "Contract",
                 'Superior': 0,
-                'Inferior': 15,
+                'Inferior': contract_inf,
                 'Anterior': 0,
                 'Posterior': 0,
                 'Right': 0,
                 'Left': 0
-                }
+            }
             couch.OfRoi.CreateMarginGeometry(
                 Examination=examination,
                 SourceRoiName=couch_roi_name,
-                MarginSettings=MarginSettings)
+                MarginSettings=MarginSettings
+            )
+        # If inferior edge of couch is outside image boundary
+        elif couch.GetBoundingBox()[0]["z"] < extent_inf:
+            # Contract couch until it is within image boundary
+            while couch.GetBoundingBox()[0]["z"] < extent_inf:
+                MarginSettings = {
+                    'Type': "Contract",
+                    'Superior': 0,
+                    'Inferior': 15,
+                    'Anterior': 0,
+                    'Posterior': 0,
+                    'Right': 0,
+                    'Left': 0
+                }
+                couch.OfRoi.CreateMarginGeometry(
+                    Examination=examination,
+                    SourceRoiName=couch_roi_name,
+                    MarginSettings=MarginSettings)
 
-        logging.info("Successfully extended the TrueBeam Couch inferiorly")
+            # Perform a single expansion to match image boundaries
+            expand_inf = couch.GetBoundingBox()[0]["z"] - extent_inf
 
-        while couch.GetBoundingBox()[1]["z"] < extent_sub:
             MarginSettings = {
                 'Type': "Expand",
-                'Superior': 15,
+                'Superior': 0,
+                'Inferior': expand_inf,
+                'Anterior': 0,
+                'Posterior': 0,
+                'Right': 0,
+                'Left': 0
+            }
+            couch.OfRoi.CreateMarginGeometry(
+                Examination=examination,
+                SourceRoiName=couch_roi_name,
+                MarginSettings=MarginSettings
+            )
+            logging.info(
+                "Successfully matched the TrueBeam Couch to the inferior image boundary"
+            )
+
+        # If superior edge of couch is inside image boundary
+        if couch.GetBoundingBox()[1]["z"] < extent_sub:
+            # Extend couch until it exceeds image boundary
+            while couch.GetBoundingBox()[1]["z"] < extent_sub:
+                MarginSettings = {
+                    'Type': "Expand",
+                    'Superior': 15,
+                    'Inferior': 0,
+                    'Anterior': 0,
+                    'Posterior': 0,
+                    'Right': 0,
+                    'Left': 0
+                    }
+                couch.OfRoi.CreateMarginGeometry(
+                    Examination=examination,
+                    SourceRoiName=couch_roi_name,
+                    MarginSettings=MarginSettings
+                )
+
+            # Perform a single contraction to match image boundaries
+            contract_sup = couch.GetBoundingBox()[1]["z"] - extent_sub
+
+            MarginSettings = {
+                'Type': "Contract",
+                'Superior': contract_sup,
                 'Inferior': 0,
                 'Anterior': 0,
                 'Posterior': 0,
@@ -562,29 +640,47 @@ def deploy_couch_model(
                 SourceRoiName=couch_roi_name,
                 MarginSettings=MarginSettings
             )
-        logging.info("Successfully extended the TrueBeam Couch superiorly")
+        # If superior edge of couch is outside image boundary
+        elif couch.GetBoundingBox()[1]["z"] > extent_sub:
+            # Contract couch until it is within image boundary
+            while couch.GetBoundingBox()[1]["z"] > extent_sub:
+                MarginSettings = {
+                    'Type': "Contract",
+                    'Superior': 15,
+                    'Inferior': 0,
+                    'Anterior': 0,
+                    'Posterior': 0,
+                    'Right': 0,
+                    'Left': 0
+                    }
+                couch.OfRoi.CreateMarginGeometry(
+                    Examination=examination,
+                    SourceRoiName=couch_roi_name,
+                    MarginSettings=MarginSettings
+                )
 
-        # Perform one final contraction to match image boundaries
-        contract_inf = extent_inf - couch.GetBoundingBox()[0]["z"]
-        contract_sup = couch.GetBoundingBox()[1]["z"] - extent_sub
+            # Perform a single expansion to match image boundaries
+            expand_sup = extent_sub - couch.GetBoundingBox()[1]["z"]
 
-        MarginSettings = {
-            'Type': "Contract",
-            'Superior': contract_sup,
-            'Inferior': contract_inf,
-            'Anterior': 0,
-            'Posterior': 0,
-            'Right': 0,
-            'Left': 0
-            }
-        couch.OfRoi.CreateMarginGeometry(
-            Examination=examination,
-            SourceRoiName=couch_roi_name,
-            MarginSettings=MarginSettings
-        )
-        logging.info(
-            "Successfully matched the treatment couch to image extent."
-        )
+            MarginSettings = {
+                'Type': "Expand",
+                'Superior': expand_sup,
+                'Inferior': 0,
+                'Anterior': 0,
+                'Posterior': 0,
+                'Right': 0,
+                'Left': 0
+                }
+            couch.OfRoi.CreateMarginGeometry(
+                Examination=examination,
+                SourceRoiName=couch_roi_name,
+                MarginSettings=MarginSettings
+            )
+
+            logging.info(
+                "Successfully matched the treatment couch to image extent."
+            )
+
         if NOTIFY:
             sg.popup_notify(
                 f"The table structure called {couch_roi_name} was added successfully.",
