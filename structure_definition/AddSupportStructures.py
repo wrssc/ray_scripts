@@ -1090,7 +1090,52 @@ def deploy_civco_breastboard_model(
             }
         )
 
-    with CompositeAction("Update Derived Geometries"):
+    with CompositeAction("Create Derived Geometries"):
+
+        zipped_parameters = zip(
+            [base_shell, incline_shell],
+            ["CivcoBaseBody", "CivcoInclineBody"],
+            [BASE_CONTRACTION, INCLINE_CONTRACTION]
+        )
+
+        for shell, body_name, contraction in zipped_parameters:
+
+            # Create Shell
+            MarginSettingsA = {
+                'Type': "Expand",
+                'Superior': 0,
+                'Inferior': 0,
+                'Anterior': 0,
+                'Posterior': 0,
+                'Right': 0,
+                'Left': 0
+            }
+
+            MarginSettingsB = {
+                'Type': "Contract",
+                'Superior': contraction,
+                'Inferior': contraction,
+                'Anterior': contraction,
+                'Posterior': contraction,
+                'Right': contraction,
+                'Left': contraction
+            }
+
+            shell.OfRoi.CreateAlgebraGeometry(
+                Examination=examination,
+                ExpressionA={
+                    'Operation': "Union",
+                    'SourceRoiNames': [body_name],
+                    'MarginSettings': MarginSettingsA
+                },
+                ExpressionB={
+                    'Operation': "Union",
+                    'SourceRoiNames': [body_name],
+                    'MarginSettings': MarginSettingsB
+                },
+                ResultOperation="Subtraction"
+            )
+
         base_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
         incline_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
 
