@@ -67,6 +67,7 @@ import logging
 import re
 
 # GUI Settings
+NOTIFY = False
 DISPLAY_DURATION_IN_MS = 3000
 
 # Structure template defaults
@@ -366,11 +367,12 @@ def add_structures_from_template(
             f"The following structures already exist:\n{roi_list}. "
             f"\n\nThe geometries will be cleared on examination {examination.Name}"
         )
-    sg.popup_notify(
-        message,
-        title="Structures will be cleared",
-        display_duration_in_ms=DISPLAY_DURATION_IN_MS
-    )
+    if NOTIFY:
+        sg.popup_notify(
+            message,
+            title="Structures will be cleared",
+            display_duration_in_ms=DISPLAY_DURATION_IN_MS
+        )
 
     for roi in rois_that_exist:
         message = (
@@ -395,11 +397,12 @@ def add_structures_from_template(
     roi_list = '\n'.join(source_roi_names)
     message = f"Successfully added the following ROIs:\n{roi_list}"
     logging.info(message)
-    sg.popup_notify(
-        message,
-        title="Structures added successfully",
-        display_duration_in_ms=DISPLAY_DURATION_IN_MS
-    )
+    if NOTIFY:
+        sg.popup_notify(
+            message,
+            title="Structures added successfully",
+            display_duration_in_ms=DISPLAY_DURATION_IN_MS
+        )
 
 
 def transform_structure(
@@ -613,11 +616,14 @@ def deploy_couch_model(
         logging.info(
             "Successfully matched the treatment couch to image extent."
         )
-        sg.popup_notify(
-            f"The table structure called {couch_roi_name} was added successfully.",
-            title="Table structure successfully added",
-            display_duration_in_ms=DISPLAY_DURATION_IN_MS
-        )
+        if NOTIFY:
+            sg.popup_notify(
+                f"The table structure called {couch_roi_name} was added successfully.",
+                title="Table structure successfully added",
+                display_duration_in_ms=DISPLAY_DURATION_IN_MS
+            )
+
+    get_current("Patient").Save()
 
 
 def deploy_civco_breastboard_model(
@@ -681,6 +687,8 @@ def deploy_civco_breastboard_model(
             "Civco Breastboard structures added to examination."
         )
         logging.info(message)
+
+    get_current("Patient").Save()
 
     with CompositeAction("Move ROIs to Initial Position"):
 
@@ -843,10 +851,12 @@ def deploy_civco_breastboard_model(
             )
         logging.info(message)
 
+    get_current("Patient").Save()
+
     with CompositeAction("Address overlaps"):
         pass
 
-    with CompositeAction("Prepare Shell Structures and Composites"):
+    with CompositeAction("Create Final ROIS (if needed)"):
 
         # Create final ROIs
         if not exists_roi(case, "CivcoBaseShell")[0]:
@@ -872,6 +882,8 @@ def deploy_civco_breastboard_model(
         incline_shell = ss.RoiGeometries["CivcoInclineShell"]
         nfz_expanded = ss.RoiGeometries["NoFlyZone_PRV"]
 
+    with CompositeAction("Apply Material Overrides"):
+
         # Assign density override to the shells
         water = None
 
@@ -884,6 +896,7 @@ def deploy_civco_breastboard_model(
         base_shell.OfRoi.SetRoiMaterial(Material=water)
         incline_shell.OfRoi.SetRoiMaterial(Material=water)
 
+    with CompositeAction("Expand No-fly Zone"):
         # Expand NoFlyZone
         MarginSettings = {
             'Type': "Expand",
@@ -907,6 +920,8 @@ def deploy_civco_breastboard_model(
                 'MarginSettings': MarginSettings
             }
         )
+
+    with CompositeAction("Create Incline Board Shells"):
 
         # Create shells for incline board components
         zipped_parameters = zip(
@@ -967,7 +982,8 @@ def deploy_civco_breastboard_model(
 
         message = ("The Civco C-Qual Breastboard was added successfully.")
         logging.error(message)
-        sg.popup_notify(message, title="Added Breastboard Successfully")
+        if NOTIFY:
+            sg.popup_notify(message, title="Added Breastboard Successfully")
 
 
 def clean(case):
@@ -1003,12 +1019,12 @@ def main():
             "support structures."
         )
         logging.info(message)
-
-        sg.popup_notify(
-            message,
-            title="Structure selection window closed",
-            display_duration_in_ms=DISPLAY_DURATION_IN_MS
-        )
+        if NOTIFY:
+            sg.popup_notify(
+                message,
+                title="Structure selection window closed",
+                display_duration_in_ms=DISPLAY_DURATION_IN_MS
+            )
         exit()
 
     """ Structure of "values" dictionary (example)
