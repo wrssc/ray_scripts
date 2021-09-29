@@ -941,8 +941,13 @@ def deploy_civco_breastboard_model(
                 ResultOperation="Subtraction"
             )
 
-        # Would be smart to add CivcoBaseBody -= Table, but need to create
-        # "find table" logic.
+    with CompositeAction("Clean External"):
+        ss.SimplifyContours(
+            RoiNames=[roi_external.Name],
+            RemoveHoles3D=True,
+            RemoveSmallContours=True,
+            AreaThreshold=0.1
+        )
 
     with CompositeAction("Create Final ROIS (if needed)"):
 
