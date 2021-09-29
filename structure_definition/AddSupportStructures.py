@@ -881,19 +881,19 @@ def deploy_civco_breastboard_model(
                 Examination=examination,
                 ExpressionA={
                     'Operation': "Union",
-                    'SourceRoiNames': [incline_body.Name],
+                    'SourceRoiNames': [incline_body.OfRoi.Name],
                     'MarginSettings': NoExpansion
                 },
                 ExpressionB={
                     'Operation': "Union",
-                    'SourceRoiNames': [wingboard_body.Name],
+                    'SourceRoiNames': [wingboard_body.OfRoi.Name],
                     'MarginSettings': NoExpansion
                 },
                 ResultOperation="Subtraction"
             )
 
             # Subtract CivcoWingBoard from External
-            roi_external.OfRoi.CreateAlgebraGeometry(
+            roi_external.CreateAlgebraGeometry(
                 Examination=examination,
                 ExpressionA={
                     'Operation': "Union",
@@ -902,7 +902,7 @@ def deploy_civco_breastboard_model(
                 },
                 ExpressionB={
                     'Operation': "Union",
-                    'SourceRoiNames': [wingboard_body.Name],
+                    'SourceRoiNames': [wingboard_body.OfRoi.Name],
                     'MarginSettings': PostExpansion
                 },
                 ResultOperation="Subtraction"
@@ -910,7 +910,7 @@ def deploy_civco_breastboard_model(
 
         # Second, address overlap with the incline board.
         # Subtract CivcoInclineBody from External
-        roi_external.OfRoi.CreateAlgebraGeometry(
+        roi_external.CreateAlgebraGeometry(
             Examination=examination,
             ExpressionA={
                 'Operation': "Union",
@@ -919,7 +919,7 @@ def deploy_civco_breastboard_model(
             },
             ExpressionB={
                 'Operation': "Union",
-                'SourceRoiNames': [incline_body.Name],
+                'SourceRoiNames': [incline_body.OfRoi.Name],
                 'MarginSettings': PostExpansion
             },
             ResultOperation="Subtraction"
@@ -930,28 +930,12 @@ def deploy_civco_breastboard_model(
                 Examination=examination,
                 ExpressionA={
                     'Operation': "Union",
-                    'SourceRoiNames': [base_body.Name],
+                    'SourceRoiNames': [base_body.OfRoi.Name],
                     'MarginSettings': NoExpansion
                 },
                 ExpressionB={
                     'Operation': "Union",
-                    'SourceRoiNames': [incline_body.Name],
-                    'MarginSettings': NoExpansion
-                },
-                ResultOperation="Subtraction"
-            )
-
-        # Subtract CivcoInclineBody from CivcoBaseBody
-        base_body.OfRoi.CreateAlgebraGeometry(
-                Examination=examination,
-                ExpressionA={
-                    'Operation': "Union",
-                    'SourceRoiNames': [base_body.Name],
-                    'MarginSettings': NoExpansion
-                },
-                ExpressionB={
-                    'Operation': "Union",
-                    'SourceRoiNames': [incline_body.Name],
+                    'SourceRoiNames': [incline_body.OfRoi.Name],
                     'MarginSettings': NoExpansion
                 },
                 ResultOperation="Subtraction"
