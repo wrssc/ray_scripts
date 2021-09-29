@@ -57,7 +57,7 @@ __license__ = "GPLv3"
 __help__ = None
 __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
-from connect import CompositeAction, get_current
+from connect import CompositeAction, get_current, await_user_input
 from StructureOperations import exists_roi, find_types
 
 import PySimpleGUI as sg
@@ -835,6 +835,12 @@ def deploy_civco_breastboard_model(
         logging.info(message)
 
     get_current("Patient").Save()
+
+    message = (
+        "Please use the Translate and Rotate tools to adjust the "
+        "CivcoWingBoard and CivcoInclineBody, as needed."
+    )
+    await_user_input(message)
 
     with CompositeAction("Address overlaps"):
 
