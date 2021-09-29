@@ -20,9 +20,9 @@ Civco Incline Board
 This script was tested with:
 * Patient: INCLINE BOARD
 * MRN: 20210713
-* Case: 5
+* Case: 1
 * RayStation: Launcher
-* Title: Sandbox
+* Title: Clinical
 
 Version History:
 v0.1.0: First working edition
@@ -945,17 +945,20 @@ def deploy_civco_breastboard_model(
 
     # Make shiftable ROIs visible
     patient.SetRoiVisibility(RoiName=incline_body.OfRoi.Name, IsVisible=True)
+    # patient.SetRoiVisibility(RoiName=base_body.OfRoi.Name, IsVisible=True)
+
     if use_wingboard:
         patient.SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=True)
 
     message = (
         "Please use the Translate and Rotate tools to adjust the "
-        "CivcoWingBoard and CivcoInclineBody, as needed."
+        "CivcoWingBoard, CivcoBaseBody and CivcoInclineBody, as needed."
     )
     await_user_input(message)
 
     # Make invisible again
     patient.SetRoiVisibility(RoiName=incline_body.OfRoi.Name, IsVisible=False)
+    # patient.SetRoiVisibility(RoiName=base_body.OfRoi.Name, IsVisible=False)
     if use_wingboard:
         patient.SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=False)
 
@@ -1179,6 +1182,7 @@ def deploy_civco_breastboard_model(
     patient.SetRoiVisibility(RoiName=base_shell.OfRoi.Name, IsVisible=True)
     patient.SetRoiVisibility(RoiName=incline_shell.OfRoi.Name, IsVisible=True)
     patient.SetRoiVisibility(RoiName=nfz_expanded.OfRoi.Name, IsVisible=True)
+    patient.SetRoiVisibility(RoiName=roi_external.Name, IsVisible=True)
     if use_wingboard:
         patient.SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=True)
 
