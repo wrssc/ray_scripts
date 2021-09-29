@@ -1161,8 +1161,8 @@ def deploy_civco_breastboard_model(
                 ResultOperation="Subtraction"
             )
 
-        base_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
-        incline_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
+        # base_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
+        # incline_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
 
     with CompositeAction("Delete Extra Structures"):
 
