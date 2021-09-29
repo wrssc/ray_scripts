@@ -58,40 +58,40 @@ __help__ = None
 __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current
-# from StructureOperations import exists_roi
+from StructureOperations import exists_roi, find_types
 
 import PySimpleGUI as sg
 import numpy as np
 from sys import exit
 import logging
-import re
 
 # GUI Settings
 NOTIFY = False
 DISPLAY_DURATION_IN_MS = 3000
 
 # Structure template defaults
-COUCH_SUPPORT_STRUCTURE_TEMPLATE = "UW Support Structures"
-COUCH_SUPPORT_STRUCTURE_EXAMINATION = "CT 1"
+COUCH_SUPPORT_STRUCTURE_TEMPLATE = "UW Support"
+COUCH_SUPPORT_STRUCTURE_EXAMINATION = "Supine Patient"
 COUCH_SOURCE_ROI_NAMES = {
-    "TrueBeam": "Couch",
+    "TrueBeam": "TrueBeamCouch",
+    "TomoTherapy": "TomoCouch"
 }
 
-BREASTBOARD_SUPPORT_STRUCTURE_TEMPLATE = "Test_CivcoBoard"
+BREASTBOARD_SUPPORT_STRUCTURE_TEMPLATE = "UW Civco C-Qual Breastboard"
 BREASTBOARD_SUPPORT_STRUCTURE_EXAMINATION = "InclineBoard"
 BREASTBOARD_SOURCE_ROI_NAMES = [
     "CivcoBaseBody",
     "NFZ_Base",
     "CivcoInclineBody",
-    "NFZ_Incline"
-]
-BREASTBOARD_DERIVED_ROI_NAMES = [
+    "NFZ_Incline",
     "CivcoBaseShell",
     "CivcoInclineShell",
-    "NoFlyZone_PRV"
+]
+BREASTBOARD_DERIVED_ROI_NAMES = [
+    "NoFlyZone_PRV",
 ]
 
-MONARCH_SUPPORT_STRUCTURE_TEMPLATE = "Test_CivcoBoard"
+MONARCH_SUPPORT_STRUCTURE_TEMPLATE = "UW Civco C-Qual Breastboard"
 MONARCH_SUPPORT_STRUCTURE_EXAMINATION = "Wingboard"
 MONARCH_SOURCE_ROI_NAMES = ["CivcoWingBoard", "NFZ_WB_Basis"]
 MONARCH_DERIVED_ROI_NAMES = []
@@ -278,37 +278,6 @@ def get_support_structures_GUI(examination):
     return support_structure_values
 
 
-def exists_roi(case, rois, return_exists=False):
-    """See if rois is in the list
-    If return_exists is True return the names of the existing rois,
-    If it is False, return a boolean list of each structure's existence
-    """
-    if type(rois) is not list:
-        rois = [rois]
-
-    defined_rois = []
-    for r in case.PatientModel.RegionsOfInterest:
-        defined_rois.append(r.Name)
-
-    roi_exists = []
-
-    for r in rois:
-        pattern = r"^" + r + "$"
-        if any(
-                re.match(pattern, current_roi, re.IGNORECASE)
-                for current_roi in defined_rois
-        ):
-            if return_exists:
-                roi_exists.append(r)
-            else:
-                roi_exists.append(True)
-        else:
-            if not return_exists:
-                roi_exists.append(False)
-
-    return roi_exists
-
-
 def add_structures_from_template(
     case,
     support_structure_template,
@@ -453,7 +422,7 @@ def transform_structure(
     M_roll = np.array([
         [np.cos(roll_r), -np.sin(roll_r), 0],
         [np.sin(roll_r), np.cos(roll_r), 0],
-        [0 ,0, 1],
+        [0, 0, 1],
 
     ])
 
@@ -664,6 +633,20 @@ def deploy_civco_breastboard_model(
         sg.popup_error(message, title="Patient Orientation Error")
         exit()
 
+    # The case must have a region of interest set to the "External" type
+    roi_external_list = find_types(case, "External")
+    if not roi_external_list:
+        message = (
+            "The script requires that a structure (usually External or ExternalClean) be set as "
+            "external in RayStation."
+        )
+        logging.error(message)
+        sg.popup_error(message, title="Patient Orientation Error")
+        exit()
+
+    assert len(roi_external_list) == 1, "Found more than one structure of type External"
+    roi_external = case.PatientModel.RegionsOfInterest[roi_external_list[0]]
+
     with CompositeAction("Add Breastboard components"):
 
         add_structures_from_template(
@@ -854,23 +837,132 @@ def deploy_civco_breastboard_model(
     get_current("Patient").Save()
 
     with CompositeAction("Address overlaps"):
-        pass
+
+        """
+        There will inevitably be overlap between the External, wingboard,
+        incline board and, perhaps, the couch too. RayStation does not permit
+        support structures with density overrides to overlap one another, nor
+        the External. We will manage this with subtractions to ensure no
+        overlaps. The subtractions will occur before preparation of the final
+        shelled structures to ensure they maintain the same attenuation.
+
+        Order of priority
+        1. CivcoWingBoard (if in use)
+        2. CivcoInclineBody
+        3. External
+        4. Treatment Table
+        5. CivcoBaseBody
+        """
+        NoExpansion = {
+            'Type': "Expand",
+            'Superior': 0,
+            'Inferior': 0,
+            'Anterior': 0,
+            'Posterior': 0,
+            'Right': 0,
+            'Left': 0
+        }
+
+        PostExpansion = {
+            'Type': "Expand",
+            'Superior': 0,
+            'Inferior': 0,
+            'Anterior': 0,
+            'Posterior': 15,  # Capture tissue under the structure.
+            'Right': 0,
+            'Left': 0
+        }
+
+        # First, address overlap with the wingboard.
+        if use_wingboard:
+            # Subtract CivcoWingBoard from CivcoInclineBody
+
+            incline_body.OfRoi.CreateAlgebraGeometry(
+                Examination=examination,
+                ExpressionA={
+                    'Operation': "Union",
+                    'SourceRoiNames': [incline_body.Name],
+                    'MarginSettings': NoExpansion
+                },
+                ExpressionB={
+                    'Operation': "Union",
+                    'SourceRoiNames': [wingboard_body.Name],
+                    'MarginSettings': NoExpansion
+                },
+                ResultOperation="Subtraction"
+            )
+
+            # Subtract CivcoWingBoard from External
+            roi_external.OfRoi.CreateAlgebraGeometry(
+                Examination=examination,
+                ExpressionA={
+                    'Operation': "Union",
+                    'SourceRoiNames': [roi_external.Name],
+                    'MarginSettings': NoExpansion
+                },
+                ExpressionB={
+                    'Operation': "Union",
+                    'SourceRoiNames': [wingboard_body.Name],
+                    'MarginSettings': PostExpansion
+                },
+                ResultOperation="Subtraction"
+            )
+
+        # Second, address overlap with the incline board.
+        # Subtract CivcoInclineBody from External
+        roi_external.OfRoi.CreateAlgebraGeometry(
+            Examination=examination,
+            ExpressionA={
+                'Operation': "Union",
+                'SourceRoiNames': [roi_external.Name],
+                'MarginSettings': NoExpansion
+            },
+            ExpressionB={
+                'Operation': "Union",
+                'SourceRoiNames': [incline_body.Name],
+                'MarginSettings': PostExpansion
+            },
+            ResultOperation="Subtraction"
+        )
+
+        # Subtract CivcoInclineBody from CivcoBaseBody
+        base_body.OfRoi.CreateAlgebraGeometry(
+                Examination=examination,
+                ExpressionA={
+                    'Operation': "Union",
+                    'SourceRoiNames': [base_body.Name],
+                    'MarginSettings': NoExpansion
+                },
+                ExpressionB={
+                    'Operation': "Union",
+                    'SourceRoiNames': [incline_body.Name],
+                    'MarginSettings': NoExpansion
+                },
+                ResultOperation="Subtraction"
+            )
+
+        # Subtract CivcoInclineBody from CivcoBaseBody
+        base_body.OfRoi.CreateAlgebraGeometry(
+                Examination=examination,
+                ExpressionA={
+                    'Operation': "Union",
+                    'SourceRoiNames': [base_body.Name],
+                    'MarginSettings': NoExpansion
+                },
+                ExpressionB={
+                    'Operation': "Union",
+                    'SourceRoiNames': [incline_body.Name],
+                    'MarginSettings': NoExpansion
+                },
+                ResultOperation="Subtraction"
+            )
+
+        # Would be smart to add CivcoBaseBody -= Table, but need to create
+        # "find table" logic.
 
     with CompositeAction("Create Final ROIS (if needed)"):
 
         # Create final ROIs
-        if not exists_roi(case, "CivcoBaseShell")[0]:
-            case.PatientModel.CreateRoi(
-                Name='CivcoBaseShell',
-                Color="Pink",
-                Type="Support"
-            )
-        if not exists_roi(case, "CivcoInclineShell")[0]:
-            case.PatientModel.CreateRoi(
-                Name='CivcoInclineShell',
-                Color="Pink",
-                Type="Support"
-            )
         if not exists_roi(case, "NoFlyZone_PRV")[0]:
             case.PatientModel.CreateRoi(
                 Name='NoFlyZone_PRV',
@@ -881,20 +973,6 @@ def deploy_civco_breastboard_model(
         base_shell = ss.RoiGeometries["CivcoBaseShell"]
         incline_shell = ss.RoiGeometries["CivcoInclineShell"]
         nfz_expanded = ss.RoiGeometries["NoFlyZone_PRV"]
-
-    with CompositeAction("Apply Material Overrides"):
-
-        # Assign density override to the shells
-        water = None
-
-        patient_db = get_current("PatientDB")
-        for material in patient_db.GetTemplateMaterial().Materials:
-            if material.Name == "Water":
-                water = material
-
-        assert water is not None, "Could not find a material called Water"
-        base_shell.OfRoi.SetRoiMaterial(Material=water)
-        incline_shell.OfRoi.SetRoiMaterial(Material=water)
 
     with CompositeAction("Expand No-fly Zone"):
         # Expand NoFlyZone
@@ -921,52 +999,9 @@ def deploy_civco_breastboard_model(
             }
         )
 
-    with CompositeAction("Create Incline Board Shells"):
-
-        # Create shells for incline board components
-        zipped_parameters = zip(
-            [base_shell, incline_shell],
-            ["CivcoBaseBody", "CivcoInclineBody"],
-            [BASE_CONTRACTION, INCLINE_CONTRACTION]
-        )
-
-        for shell, body_name, contraction in zipped_parameters:
-
-            # Create Shell
-            MarginSettingsA = {
-                'Type': "Expand",
-                'Superior': 0,
-                'Inferior': 0,
-                'Anterior': 0,
-                'Posterior': 0,
-                'Right': 0,
-                'Left': 0
-            }
-
-            MarginSettingsB = {
-                'Type': "Contract",
-                'Superior': contraction,
-                'Inferior': contraction,
-                'Anterior': contraction,
-                'Posterior': contraction,
-                'Right': contraction,
-                'Left': contraction
-            }
-
-            shell.OfRoi.CreateAlgebraGeometry(
-                Examination=examination,
-                ExpressionA={
-                    'Operation': "Union",
-                    'SourceRoiNames': [body_name],
-                    'MarginSettings': MarginSettingsA
-                },
-                ExpressionB={
-                    'Operation': "Union",
-                    'SourceRoiNames': [body_name],
-                    'MarginSettings': MarginSettingsB
-                },
-                ResultOperation="Subtraction"
-            )
+    with CompositeAction("Update Derived Geometries"):
+        base_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
+        incline_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
 
     with CompositeAction("Delete Extra Structures"):
 
@@ -1049,7 +1084,12 @@ def main():
             source_roi_names=[COUCH_SOURCE_ROI_NAMES['TrueBeam']]
         )
     elif values['-COUCH TOMO-']:
-        pass
+        deploy_couch_model(
+            case,
+            support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
+            support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION,
+            source_roi_names=[COUCH_SOURCE_ROI_NAMES['TomoTherapy']]
+        )
 
     if values["-USE CIVCO-"]:
         deploy_civco_breastboard_model(
