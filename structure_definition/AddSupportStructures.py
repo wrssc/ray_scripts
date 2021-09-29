@@ -57,7 +57,7 @@ __license__ = "GPLv3"
 __help__ = None
 __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
-from connect import CompositeAction, get_current, await_user_input, SetRoiVisibility
+from connect import CompositeAction, get_current, await_user_input
 from StructureOperations import exists_roi, find_types
 
 import PySimpleGUI as sg
@@ -487,6 +487,7 @@ def deploy_couch_model(
 
     # This script is designed to be used for HFS patients:
     examination = get_current("Examination")
+    patient = get_current("Patient")
 
     if examination.PatientPosition != "HFS":
         logging.error("Current exam in not in HFS position. Exiting script.")
@@ -510,7 +511,7 @@ def deploy_couch_model(
 
         couch = case.PatientModel.StructureSets[examination.Name].RoiGeometries[source_roi_names[0]]
         couch_roi_name = source_roi_names[0]
-        SetRoiVisibility(RoiName=couch_roi_name, IsVisible=False)
+        patient.SetRoiVisibility(RoiName=couch_roi_name, IsVisible=False)
 
         top_of_couch = couch.GetBoundingBox()[0]["y"]
         TransformationMatrix = {
@@ -720,6 +721,7 @@ def deploy_civco_breastboard_model(
     """
     # This script is designed to be used for HFS patients:
     examination = get_current("Examination")
+    patient = get_current("Patient")
 
     if examination.PatientPosition != "HFS":
         message = (
@@ -784,7 +786,7 @@ def deploy_civco_breastboard_model(
 
         # Make invisible
         for roi in initial_shifts_rois:
-            SetRoiVisibility(RoiName=roi.OfRoi.Name, IsVisible=False)
+            patient.SetRoiVisibility(RoiName=roi.OfRoi.Name, IsVisible=False)
 
         # Compute translations to move from image center to "Flat" position
         base_bb = base_body.GetBoundingBox()
@@ -827,7 +829,7 @@ def deploy_civco_breastboard_model(
 
             # Make invisible
             for roi in wingboard_shifts_rois:
-                SetRoiVisibility(RoiName=roi.OfRoi.Name, IsVisible=False)
+                patient.SetRoiVisibility(RoiName=roi.OfRoi.Name, IsVisible=False)
 
             T = [
                 WINGBOARD_SHIFT[0],
@@ -942,9 +944,9 @@ def deploy_civco_breastboard_model(
     get_current("Patient").Save()
 
     # Make shiftable ROIs visible
-    SetRoiVisibility(RoiName=incline_body.OfRoi.Name, IsVisible=True)
+    patient.SetRoiVisibility(RoiName=incline_body.OfRoi.Name, IsVisible=True)
     if use_wingboard:
-        SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=True)
+        patient.SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=True)
 
     message = (
         "Please use the Translate and Rotate tools to adjust the "
@@ -953,9 +955,9 @@ def deploy_civco_breastboard_model(
     await_user_input(message)
 
     # Make invisible again
-    SetRoiVisibility(RoiName=incline_body.OfRoi.Name, IsVisible=False)
+    patient.SetRoiVisibility(RoiName=incline_body.OfRoi.Name, IsVisible=False)
     if use_wingboard:
-        SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=False)
+        patient.SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=False)
 
     with CompositeAction("Address overlaps"):
 
@@ -1084,9 +1086,9 @@ def deploy_civco_breastboard_model(
         incline_shell = ss.RoiGeometries["CivcoInclineShell"]
         nfz_expanded = ss.RoiGeometries["NoFlyZone_PRV"]
 
-        SetRoiVisibility(RoiName=base_shell.OfRoi.Name, IsVisible=False)
-        SetRoiVisibility(RoiName=incline_shell.OfRoi.Name, IsVisible=False)
-        SetRoiVisibility(RoiName=nfz_expanded.OfRoi.Name, IsVisible=False)
+        patient.SetRoiVisibility(RoiName=base_shell.OfRoi.Name, IsVisible=False)
+        patient.SetRoiVisibility(RoiName=incline_shell.OfRoi.Name, IsVisible=False)
+        patient.SetRoiVisibility(RoiName=nfz_expanded.OfRoi.Name, IsVisible=False)
 
     with CompositeAction("Expand No-fly Zone"):
         # Expand NoFlyZone
@@ -1174,11 +1176,11 @@ def deploy_civco_breastboard_model(
         message = ("Deleted extra ROIs.")
         logging.error(message)
 
-    SetRoiVisibility(RoiName=base_shell.OfRoi.Name, IsVisible=True)
-    SetRoiVisibility(RoiName=incline_shell.OfRoi.Name, IsVisible=True)
-    SetRoiVisibility(RoiName=nfz_expanded.OfRoi.Name, IsVisible=True)
+    patient.SetRoiVisibility(RoiName=base_shell.OfRoi.Name, IsVisible=True)
+    patient.SetRoiVisibility(RoiName=incline_shell.OfRoi.Name, IsVisible=True)
+    patient.SetRoiVisibility(RoiName=nfz_expanded.OfRoi.Name, IsVisible=True)
     if use_wingboard:
-        SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=True)
+        patient.SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=True)
 
     message = ("The Civco C-Qual Breastboard was added successfully.")
     logging.error(message)
