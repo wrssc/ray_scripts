@@ -1072,7 +1072,7 @@ def deploy_civco_breastboard_model(
             RoiNames=[roi_external.Name],
             RemoveHoles3D=True,
             RemoveSmallContours=True,
-            AreaThreshold=0.1
+            AreaThreshold=1.0,
         )
 
     with CompositeAction("Create Final ROIS (if needed)"):
