@@ -4909,7 +4909,7 @@
         <TG263ReverseOrderName>L_Eye</TG263ReverseOrderName>
         <FMAID>12515</FMAID>
         <Color red="250" green="57" blue="105" Hex="#FA3969">ChineseNewYear</Color>
-        <Alias>Globe_L, Globe L, GlobeL</Alias>
+        <Alias>Eye_Left,Globe_L, Globe L, GlobeL</Alias>
     </roi>
     <roi>
         <name>Eye_R</name>
@@ -4925,7 +4925,7 @@
         <TG263ReverseOrderName>R_Eye</TG263ReverseOrderName>
         <FMAID>12514</FMAID>
         <Color red="62" green="251" blue="145" Hex="#3EFB91">EvaGreen1</Color>
-        <Alias>Globe_R,GlobeR,Globe R</Alias>
+        <Alias>Eye_Right,Globe_R,GlobeR,Globe R</Alias>
     </roi>
     <roi>
         <name>Eyes</name>
@@ -7214,7 +7214,7 @@
         <TG263ReverseOrderName>L_Parotid</TG263ReverseOrderName>
         <FMAID>59798</FMAID>
         <Color red="252" green="201" blue="87" Hex="#FCC957">AngryPasta</Color>
-        <Alias>left_parotid,parotid_l,L_parotid</Alias>
+        <Alias>left_parotid,parotid_l,L_parotid,ParotidGland_Left</Alias>
     </roi>
     <roi>
         <name>Parotid_R</name>
@@ -7230,7 +7230,7 @@
         <TG263ReverseOrderName>R_Parotid</TG263ReverseOrderName>
         <FMAID>59797</FMAID>
         <Color red="62" green="170" blue="254" Hex="#3EAAFE">SkyDancer</Color>
-        <Alias>right_parotid,parotid_r,R_Parotid</Alias>
+        <Alias>ParotidGland_R,right_parotid,parotid_r,R_Parotid</Alias>
     </roi>
     <roi>
         <name>Parotids</name>
