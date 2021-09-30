@@ -105,13 +105,6 @@
             </roi>
             <roi>
                 <name>Bag_Bowel</name>
-                <type dir="lt">VX</type>
-                <dose units="Gy">46.5</dose>
-                <volume units="cc">2</volume>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Bag_Bowel</name>
                 <type dir="lt">DX</type>
                 <dose units="Gy">52</dose>
                 <volume units="cc">0.03</volume>
@@ -129,6 +122,13 @@
                 <type dir="lt">VX</type>
                 <dose units="Gy">40</dose>
                 <volume units="cc">175</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bag_Bowel</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">46.5</dose>
+                <volume units="cc">2</volume>
                 <priority>3</priority>
             </roi>
             <roi>
