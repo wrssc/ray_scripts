@@ -941,9 +941,9 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
                                               + 't' + couch_angle_string.zfill(3))
-                    elif gantry_angle == 180:
+                    elif 179.8 < gantry_angle < 180.2:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
-                    elif 180 < gantry_angle < 270:
+                    elif 180.2 < gantry_angle < 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
                     elif gantry_angle == 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
@@ -955,7 +955,7 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
                     elif gantry_angle == 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
-                    elif 90 < gantry_angle < 180:
+                    elif 90 < gantry_angle < 179.8:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
 
                 # Set the beamset names and description according to the convention above
@@ -1013,9 +1013,9 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
                                               + 't' + couch_angle_string.zfill(3))
-                    elif gantry_angle == 180:
+                    elif 179.8 < gantry_angle < 180.2:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
-                    elif 180 < gantry_angle < 270:
+                    elif 180.2 < gantry_angle < 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
                     elif gantry_angle == 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
@@ -1027,7 +1027,7 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
                     elif gantry_angle == 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
-                    elif 90 < gantry_angle < 180:
+                    elif 90 < gantry_angle < 179.8:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
 
                 # Set the beamset names and description according to the convention above
@@ -1084,9 +1084,9 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
                                               + 't' + couch_angle_string.zfill(3))
-                    elif gantry_angle == 180:
+                    elif 179.8 < gantry_angle < 180.2:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
-                    elif 180 < gantry_angle < 270:
+                    elif 180.2 < gantry_angle < 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
                     elif gantry_angle == 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
@@ -1098,7 +1098,7 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
                     elif gantry_angle == 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
-                    elif 90 < gantry_angle < 180:
+                    elif 90 < gantry_angle < 179.8:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
 
                 # Set the beamset names and description according to the convention above
@@ -1155,9 +1155,9 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
                                               + 't' + couch_angle_string.zfill(3))
-                    elif gantry_angle == 180:
+                    elif 179.8 < gantry_angle < 180.2:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
-                    elif 180 < gantry_angle < 270:
+                    elif 180.2 < gantry_angle < 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
                     elif gantry_angle == 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
@@ -1169,7 +1169,7 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
                     elif gantry_angle == 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
-                    elif 90 < gantry_angle < 180:
+                    elif 90 < gantry_angle < 179.8:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
                 # Set the beamset names and description according to the convention above
                 b.Name = standard_beam_name
@@ -1223,9 +1223,9 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
                                               + 't' + couch_angle_string.zfill(3))
-                    elif gantry_angle == 180:
+                    elif 179.8 < gantry_angle < 180.2:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
-                    elif 180 < gantry_angle < 270:
+                    elif 180.2 < gantry_angle < 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
                     elif gantry_angle == 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
@@ -1237,7 +1237,7 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
                     elif gantry_angle == 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
-                    elif 90 < gantry_angle < 180:
+                    elif 90 < gantry_angle < 179.8:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
                 # Set the beamset names and description according to the convention above
                 b.Name = standard_beam_name
@@ -1293,9 +1293,9 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
                                               + 't' + couch_angle_string.zfill(3))
-                    elif gantry_angle == 180:
+                    elif 179.8 < gantry_angle < 180.2:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
-                    elif 180 < gantry_angle < 270:
+                    elif 180.2 < gantry_angle < 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
                     elif gantry_angle == 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
@@ -1307,7 +1307,7 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
                     elif gantry_angle == 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
-                    elif 90 < gantry_angle < 180:
+                    elif 90 < gantry_angle < 179.8:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
 
                 # Set the beamset names and description according to the convention above
@@ -1364,9 +1364,9 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
                                               + 't' + couch_angle_string.zfill(3))
-                    elif gantry_angle == 180:
+                    elif 179.8 < gantry_angle < 180.2:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
-                    elif 180 < gantry_angle < 270:
+                    elif 180.2 < gantry_angle < 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
                     elif gantry_angle == 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
@@ -1378,7 +1378,7 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RPO'
                     elif gantry_angle == 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_PA'
-                    elif 90 < gantry_angle < 180:
+                    elif 90 < gantry_angle < 179.8:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
 
                 # Set the beamset names and description according to the convention above
@@ -1435,9 +1435,9 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = (str(beam_index + 1) + '_' + site_name
                                               + '_g' + gantry_angle_string.zfill(3)
                                               + 't' + couch_angle_string.zfill(3))
-                    elif gantry_angle == 180:
+                    elif 179.8 < gantry_angle < 180.2:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_AP'
-                    elif 180 < gantry_angle < 270:
+                    elif 180.2 < gantry_angle < 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RAO'
                     elif gantry_angle == 270:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_RLAT'
@@ -1449,7 +1449,7 @@ def rename_beams(site_name=None, input_technique=None):
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LPO'
                     elif gantry_angle == 90:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LLAT'
-                    elif 90 < gantry_angle < 180:
+                    elif 90 < gantry_angle < 179.8:
                         standard_beam_name = str(beam_index + 1) + '_' + site_name + '_LAO'
                 # Set the beamset names and description according to the convention above
                 b.Name = standard_beam_name
