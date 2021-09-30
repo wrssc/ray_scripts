@@ -5682,13 +5682,13 @@
                 <weight>1</weight>
             </roi>
             <roi>
-                <name>Lens_L</name>
+                <name>Lens_R</name>
                 <type>Max</type>
                 <dose units="Gy">2</dose>
                 <weight>10</weight>
             </roi>
             <roi>
-                <name>Lens_L_PRV07</name>
+                <name>Lens_R_PRV07</name>
                 <type>Max</type>
                 <dose units="Gy">2</dose>
                 <weight>1</weight>
@@ -5946,6 +5946,7 @@
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
                         margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
         </skin_structure>
+        <normal>Normal_2cm</normal>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
                  margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
         </ring_hd>
@@ -5974,6 +5975,7 @@
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
                         margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
         </skin_structure>
+        <normal>Normal_2cm</normal>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
                  margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
         </ring_hd>
