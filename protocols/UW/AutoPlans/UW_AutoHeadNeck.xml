@@ -14,8 +14,10 @@
     <prescription>
         <frequency>Daily</frequency>
         <imaging>Pre-treatment CBCT</imaging>
-        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT
-        </technique>
+        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
     </prescription>
     <order>
         <name>Left Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
@@ -40,6 +42,10 @@
                 <dose units="Gy" idl="100">56</dose>
             </roi>
             <fractions>33</fractions>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
         <beamset>
             <name>2 Arc VMAT - HN Shoulder</name>
@@ -727,6 +733,10 @@
                 <dose units="Gy" idl="100">56</dose>
             </roi>
             <fractions>33</fractions>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -1297,6 +1307,10 @@
                 <dose units="Gy" idl="100">56</dose>
             </roi>
             <fractions>33</fractions>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -2590,17 +2604,18 @@
         </objectives>
     </objectiveset>
     <beamset>
-        <name>2 Arc VMAT - HN Shoulder Block</name>
+        <name>2 Arc VMAT - HN</name>
         <technique>VMAT</technique>
         <DicomName>____VMA_R_A_</DicomName>
-        <description>Arc set designed to allow lateral blocking of the shoulders</description>
+        <description>Arc set for head and neck planning</description>
+        <roi_support>Sframe_F1_TBCouch_HN</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc</Name>
             <Energy>6</Energy>
             <GantryAngle>182</GantryAngle>
-            <GantryStopAngle>230</GantryStopAngle>
+            <GantryStopAngle>178</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>15</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
@@ -2610,99 +2625,32 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc</Name>
             <Energy>6</Energy>
-            <GantryAngle>230</GantryAngle>
-            <GantryStopAngle>290</GantryStopAngle>
-            <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
-            <CouchAngle>0</CouchAngle>
-        </beam>
-        <beam>
-            <BeamNumber>3</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>3_SITE_Arc</Name>
-            <Energy>6</Energy>
-            <GantryAngle>290</GantryAngle>
-            <GantryStopAngle>70</GantryStopAngle>
-            <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>15</CollimatorAngle>
-            <CouchAngle>0</CouchAngle>
-        </beam>
-        <beam>
-            <BeamNumber>4</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>4_SITE_Arc</Name>
-            <Energy>6</Energy>
-            <GantryAngle>70</GantryAngle>
-            <GantryStopAngle>130</GantryStopAngle>
-            <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
-            <CouchAngle>0</CouchAngle>
-        </beam>
-        <beam>
-            <BeamNumber>5</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>5_SITE_Arc</Name>
-            <Energy>6</Energy>
-            <GantryAngle>130</GantryAngle>
-            <GantryStopAngle>178</GantryStopAngle>
-            <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>15</CollimatorAngle>
-            <CouchAngle>0</CouchAngle>
-        </beam>
-        <beam>
-            <BeamNumber>6</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>6_SITE_Arc</Name>
-            <Energy>6</Energy>
-            <GantryAngle>179</GantryAngle>
-            <GantryStopAngle>130</GantryStopAngle>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>355</CollimatorAngle>
+            <CollimatorAngle>345</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
         </beam>
+     </beamset>
+    <beamset>
+        <name>Tomo-Brain-FW2.5</name>
+        <technique>TomoHelical</technique>
+        <DicomName>NecX_THI_R_A_</DicomName>
+        <description>Protocol for Head and Neck </description>
+        <roi_support>TomoCouch,S-frame</roi_support>
         <beam>
-            <BeamNumber>7</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>7_SITE_Arc</Name>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
             <Energy>6</Energy>
-            <GantryAngle>130</GantryAngle>
-            <GantryStopAngle>70</GantryStopAngle>
-            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
-            <CouchAngle>0</CouchAngle>
-        </beam>
-        <beam>
-            <BeamNumber>8</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>8_SITE_Arc</Name>
-            <Energy>6</Energy>
-            <GantryAngle>70</GantryAngle>
-            <GantryStopAngle>290</GantryStopAngle>
-            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>355</CollimatorAngle>
-            <CouchAngle>0</CouchAngle>
-        </beam>
-        <beam>
-            <BeamNumber>9</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>9_SITE_Arc</Name>
-            <Energy>6</Energy>
-            <GantryAngle>290</GantryAngle>
-            <GantryStopAngle>230</GantryStopAngle>
-            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>0</CollimatorAngle>
-            <CouchAngle>0</CouchAngle>
-        </beam>
-        <beam>
-            <BeamNumber>10</BeamNumber>
-            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-            <Name>10_SITE_Arc</Name>
-            <Energy>6</Energy>
-            <GantryAngle>230</GantryAngle>
-            <GantryStopAngle>181</GantryStopAngle>
-            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-            <CollimatorAngle>355</CollimatorAngle>
-            <CouchAngle>0</CouchAngle>
+            <Pitch>0.43</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>400</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>5</MaxDeliveryTimeFactor>
         </beam>
     </beamset>
     <planning_structure_set>
@@ -2716,6 +2664,7 @@
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
                         margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
         </skin_structure>
+        <normal>Normal_2cm</normal>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
                  margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
         </ring_hd>
@@ -2764,17 +2713,21 @@
     <optimization_config>
         <name>8 warmstarts</name>
         <description>8 warmstart optimization</description>
+        <technique>TomoHelical</technique>
         <initial max_it="30" int_it="10">Iteration 0</initial>
         <warmstart max_it="12" int_it="2" n="8">Iteration_1to8</warmstart>
         <vary_grid>False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
+        <reduce_mod mod_target="2.3">True</reduce_mod>
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
+        <block_prompt>True</block_prompt>
     </optimization_config>
     <optimization_config>
         <name>12 warmstarts</name>
         <description>12 warmstart optimization with varying dose grid</description>
+        <technique>VMAT</technique>
         <initial max_it="30" int_it="10">Iteration 0</initial>
         <warmstart max_it="12" int_it="5" n="12">Iteration_1to12</warmstart>
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">True</vary_grid>

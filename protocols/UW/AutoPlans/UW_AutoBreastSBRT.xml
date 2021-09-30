@@ -96,6 +96,7 @@
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
         </prescription>
         <goals>
             <roi>
@@ -250,6 +251,7 @@
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
             <laterality>Right</laterality>
         </prescription>
         <goals>
@@ -395,13 +397,14 @@
         <name>Breast SBRT Livi</name>
         <description>Planning targets for the breast SBRT Livi protocol
         </description>
-        <number_of_targets>1</number_of_targets>
+        <number_of_targets>2</number_of_targets>
         <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="1.0">Chestwall,Heart</uniform_dose_structs>
         <underdose_structs standoff="0.3"></underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
                         margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">Skin_PRV05
         </skin_structure>
+        <normal>Normal_2cm</normal>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="1.5" margin_inf="1.5"
                  margin_ant="1.5" margin_pos="1.5" margin_r="1.5" margin_l="1.5">Ring_HD
         </ring_hd>
@@ -446,7 +449,7 @@
     <optimization_config>
         <name>1 warmstarts</name>
         <description>1 warmstart optimization</description>
-        <technique>VMAT</technique>
+        <technique></technique>
         <initial max_it="45" int_it="10">Iteration 0</initial>
         <warmstart max_it="30" int_it="3" n="1">Iteration_1to1</warmstart>
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
@@ -551,6 +554,7 @@
        <DicomName>BCLt4A_VMA_R_A_</DicomName>
        <description>4 Arc arrangement for treating the left breast or chestwall.
        </description>
+       <roi_support>TrueBeamCouch</roi_support>
        <beam>
            <BeamNumber>1</BeamNumber>
            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
@@ -603,6 +607,7 @@
        <DicomName>BCRt4A_VMA_R_A_</DicomName>
        <description>4 Arc arrangement for treating the right breast
        </description>
+       <roi_support>TrueBeamCouch</roi_support>
        <beam>
            <BeamNumber>1</BeamNumber>
            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
@@ -654,6 +659,7 @@
         <DicomName>BreX_THI_R_A_</DicomName>
         <description>Tomotherapy for right sided PBI
         </description>
+       <roi_support>TomoCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>

@@ -1,0 +1,21 @@
+<protocol>
+    <name>UW WholeBrain</name>
+    <ct>
+        <protocol institution="UWHC">XRT_HEAD</protocol>
+        <protocol institution="UWHC">XRT_HEAD_WITH_CONTRAST</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+    </diagnoses>
+    <prescription>
+        <frequency>Daily</frequency>
+        <imaging>Daily CBCT</imaging>
+        <imaging default="true">Weekly kV</imaging>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
+        </technique>
+    </prescription>
+</protocol>
