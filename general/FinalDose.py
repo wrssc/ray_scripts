@@ -68,8 +68,29 @@ import clr
 clr.AddReference("System.Xml")
 import System
 
+def compute_dose(beamset, dose_algorithm):
+    # Computes the dose if necessary and returns success message or
+    # failure
+    try:
+        beamset.ComputeDose(ComputeBeamDoses=True,
+                            DoseAlgorithm=dose_algorithm,
+                            ForceRecompute=False)
+        message = 'Recomputed Dose, finding DSP'
+    except Exception as e:
+        logging.debug(u'Message is {}'.format(e.Message))
+        try:
+            if 'Dose has already been computed with the current parameters' in e.Message:
+                message = 'Dose re-computation unnecessary'
+                logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+            else:
+                logging.exception(u'{}'.format(e.Message))
+                sys.exit(u'{}'.format(e.Message))
+        except:
+            logging.exception(u'{}'.format(e.Message))
+            sys.exit(u'{}'.format(e.Message))
+        return message
 
-def main():
+def final_dose(site=None, technique=None):
     # Get current patient, case, exam, and plan
     # note that the interpreter handles a missing plan as an Exception
     patient = GeneralOperations.find_scope(level='Patient')
@@ -95,7 +116,7 @@ def main():
     grid_test = True
     # Let the statements below change as needed
     tomo_couch_test = False # This gets flagged to True if the plan technique does not contain 'Tomo'
-    check_lateral_pa = False 
+    check_lateral_pa = False
     cps_test = False
     # Set up the workflow steps.
     steps = []
@@ -108,9 +129,9 @@ def main():
         steps.append('Check the dose grid size')
         steps.append('Check for control Point Spacing')
         steps.append('Compute Dose if necessary')
-        steps.append('Set DSP')
         steps.append('Round MU')
         steps.append('Round Jaws')
+        steps.append('Set DSP')
         steps.append('Recompute Dose')
         cps_test = True
 
@@ -147,7 +168,7 @@ def main():
 
     if rename_beams:
         # Rename the beams
-        BeamOperations.rename_beams()
+        BeamOperations.rename_beams(site_name=site, input_technique=technique)
         status.next_step('Renamed Beams, checking external integrity')
 
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
@@ -231,20 +252,22 @@ def main():
         cps_error = PlanQualityAssuranceTests.cps_test(beamset, nominal_cps=2)
         if len(cps_error) != 0:
             sys.exit(cps_error)
-        status.next_step('Reviewed Control Point Spacing, computing dose if neccessary')
+        status.next_step('Reviewed Control Point Spacing, computing dose if necessary')
 
     if beamset.Modality == 'Photons':
         dose_algorithm = 'CCDose'
         if 'Tomo' in beamset.DeliveryTechnique:
             # TODO: Better exception handling here.
-            try:
-                beamset.ComputeDose(ComputeBeamDoses=True,
-                                    DoseAlgorithm=dose_algorithm,
-                                    ForceRecompute=False)
-                status.next_step('Recomputed Dose, finding DSP')
-            except Exception:
-                status.next_step('Dose recomputation unneccessary, finding DSP')
-                logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+            message = compute_dose(beamset,dose_algorithm=dose_algorithm)
+            status.next_step(message)
+            #try:
+            #    beamset.ComputeDose(ComputeBeamDoses=True,
+            #                        DoseAlgorithm=dose_algorithm,
+            #                        ForceRecompute=False)
+            #    status.next_step('Recomputed Dose, finding DSP')
+            #except Exception:
+            #    status.next_step('Dose recomputation unnecessary, finding DSP')
+            #    logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
             # Set the DSP for the plan and recompute dose to force an update of the DSP
             BeamOperations.set_dsp(plan=plan,
                                    beam_set=beamset)
@@ -253,28 +276,8 @@ def main():
                                 ForceRecompute=True)
             status.next_step('DSP set. Script complete')
         else:
-            # TODO: Better exception handling here.
-            try:
-                beamset.ComputeDose(ComputeBeamDoses=True,
-                                    DoseAlgorithm=dose_algorithm,
-                                    ForceRecompute=False)
-                status.next_step('Recomputed Dose, finding DSP')
-            except Exception as e:
-                logging.debug(u'Message is {}'.format(e.Message))
-                try:
-                    if 'Dose has already been computed with the current parameters' in e.Message:
-                        status.next_step('Dose re-computation unnecessary, finding DSP')
-                        logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
-                    else:
-                        logging.exception(u'{}'.format(e.Message))
-                        sys.exit(u'{}'.format(e.Message))
-                except:
-                    logging.exception(u'{}'.format(e.Message))
-                    sys.exit(u'{}'.format(e.Message))
-
-            # Set the DSP for the plan
-            BeamOperations.set_dsp(plan=plan, beam_set=beamset)
-            status.next_step('Set DSP, rounding MU')
+            # Compute dose in case it hasn't been done yet
+            message = compute_dose(beamset=beamset,dose_algorithm=dose_algorithm)
 
             # Round MU
             # The Autoscale hides in the plan optimization hierarchy. Find the correct index.
@@ -286,10 +289,35 @@ def main():
             # Round jaws to nearest mm
             logging.debug('Checking for jaw rounding')
             BeamOperations.round_jaws(beamset=beamset)
-            status.next_step('Jaws Rounded.')
+            status.next_step('Jaws Rounded. Setting DSP')
+
+            # Recompute dose if needed
+            message = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
+            #try:
+            #    beamset.ComputeDose(ComputeBeamDoses=True,
+            #                        DoseAlgorithm=dose_algorithm,
+            #                        ForceRecompute=False)
+            #    status.next_step('Recomputed Dose, finding DSP')
+            #except Exception as e:
+            #    logging.debug(u'Message is {}'.format(e.Message))
+            #    try:
+            #        if 'Dose has already been computed with the current parameters' in e.Message:
+            #            status.next_step('Dose re-computation unnecessary, finding DSP')
+            #            logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+            #        else:
+            #            logging.exception(u'{}'.format(e.Message))
+            #            sys.exit(u'{}'.format(e.Message))
+            #    except:
+            #        logging.exception(u'{}'.format(e.Message))
+            #        sys.exit(u'{}'.format(e.Message))
+
+            # Set the DSP for the plan
+            BeamOperations.set_dsp(plan=plan, beam_set=beamset)
+            status.next_step('Set DSP, Checking Dose Computation')
+
 
             # Recompute dose
-            status.next_step('Recomputing Dose')
+            status.next_step('Recomputing Dose if needed')
             # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)
             try:
                 beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
@@ -330,6 +358,8 @@ def main():
 
     logcrit('Final Dose Script Run Successfully')
 
+def main():
+    final_dose()
 
 if __name__ == '__main__':
     main()
