@@ -1194,15 +1194,13 @@ def deploy_civco_breastboard_model(
             )
             logging.info(message)
 
-        else:
+        # Find the CIVCOBOARD_MATERIAL_NAME material
+        material_CB = None
+        for material in case.PatientModel.Materials:
 
-            # Find the CIVCOBOARD_MATERIAL_NAME material
-            material_CB = None
-            for material in case.PatientModel.Materials:
-
-                if material.Name == CIVCOBOARD_MATERIAL_NAME:
-                    material_water = material
-                    break
+            if material.Name == CIVCOBOARD_MATERIAL_NAME:
+                material_water = material
+                break
 
         # Set the material for the shells
         base_shell.OfRoi.SetRoiMaterial(Material=material_CB)
