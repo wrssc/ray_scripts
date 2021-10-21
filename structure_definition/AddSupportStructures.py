@@ -1199,7 +1199,7 @@ def deploy_civco_breastboard_model(
         for material in case.PatientModel.Materials:
 
             if material.Name == CIVCOBOARD_MATERIAL_NAME:
-                material_water = material
+                material_CB = material
                 break
 
         # Set the material for the shells
