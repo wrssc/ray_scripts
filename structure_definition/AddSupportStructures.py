@@ -131,6 +131,9 @@ BASE_CONTRACTION = 0.2  # cm
 INCLINE_CONTRACTION = 0.3  # cm
 NOFLYZONE_EXPANSION = 1.5  # cm
 
+CIVCOBOARD_MATERIAL_NAME = "CivcoBoard"
+CIVCOBOARD_MATERIAL_DENS = 0.73
+
 
 def get_support_structures_GUI(examination):
 
@@ -1164,8 +1167,49 @@ def deploy_civco_breastboard_model(
                 ResultOperation="Subtraction"
             )
 
-        # base_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
-        # incline_shell.OfRoi.UpdateDerivedGeometry(Examination=examination)
+    with CompositeAction("Apply Special Density Override"):
+
+        # Check if CIVCOBOARD_MATERIAL_NAME already exists
+        material_names = [x.Name for x in case.PatientModel.Materials]
+
+        if CIVCOBOARD_MATERIAL_NAME not in material_names:
+
+            # Find the Water material
+            material_water = None
+            for material in case.PatientModel.Materials:
+
+                if material.Name == "Water":
+                    material_water = material
+                    break
+
+            # Create a new material
+            material_CB = case.PatientModel.CreateMaterial(
+                BaseOnMaterial=material_water,
+                Name=CIVCOBOARD_MATERIAL_NAME,
+                MassDensityOverride=CIVCOBOARD_MATERIAL_DENS,
+            )
+
+            message = (
+                f"A material called {CIVCOBOARD_MATERIAL_NAME} was created."
+            )
+            logging.info(message)
+
+        else:
+
+            # Find the CIVCOBOARD_MATERIAL_NAME material
+            material_CB = None
+            for material in case.PatientModel.Materials:
+
+                if material.Name == CIVCOBOARD_MATERIAL_NAME:
+                    material_water = material
+                    break
+
+        # Set the material for the shells
+        base_shell.OfRoi.SetRoiMaterial(Material=material_CB)
+        incline_shell.OfRoi.SetRoiMaterial(Material=material_CB)
+
+        message = ("The base shell and incline shell have been overridden.")
+        logging.info(message)
 
     with CompositeAction("Delete Extra Structures"):
 
@@ -1187,7 +1231,7 @@ def deploy_civco_breastboard_model(
         patient.SetRoiVisibility(RoiName=wingboard_body.OfRoi.Name, IsVisible=True)
 
     message = ("The Civco C-Qual Breastboard was added successfully.")
-    logging.error(message)
+    logging.info(message)
     if NOTIFY:
         sg.popup_notify(message, title="Added Breastboard Successfully")
 
