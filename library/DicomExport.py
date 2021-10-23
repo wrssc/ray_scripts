@@ -76,6 +76,7 @@ import re
 import math
 import random
 import string
+from copy import deepcopy
 
 # Parse destination and filters XML files
 dest_xml = xml.etree.ElementTree.parse(os.path.join(os.path.dirname(__file__), 'DicomDestinations.xml'))
@@ -112,6 +113,7 @@ def send(case,
          table=None,
          pa_threshold=None,
          gantry_period=None,
+         couch_speed=None,
          round_jaws=False,
          prescription=False,
          ref_point_location=False,
@@ -119,6 +121,7 @@ def send(case,
          block_tray_id=False,
          parent_plan=None,
          prdr_dr=False,
+         rpm_gating=False,
          bar=True):
     """DicomExport.send(case=get_current('Case'), destination='MIM', exam=get_current('Examination'),
                         beamset=get_current('BeamSet'))"""
@@ -551,6 +554,27 @@ def send(case,
                                     expected.add(b[0x30020052], beam=b, cp=c)
 
                     # If adding gantry period to TomoTherapy QA Plans
+                    if couch_speed is not None:
+                        # format and set tag to change
+                        t1 = pydicom.tag.Tag('300d1080')
+                        # find a tag match
+                        for n in couch_speed.keys():
+                            if n == b.BeamName:
+                                speed = couch_speed[n]
+                                break
+                        if speed:
+                            str_couch_speed = '{:.6f}'.format(round(speed,6))
+                        else:
+                            logging.warning('Unable to add couch speed for beam {}'.format(b.BeamName))
+
+                        # Add some white-space to the end of gantry period
+                        str_couch_speed = str_couch_speed + ' '
+
+                        # add attribute to beam sequence
+                        b.add_new(t1, 'DS', str_couch_speed)
+                        expected.add(b[t1], beam=b)
+
+                    # If adding gantry period to TomoTherapy QA Plans
                     if gantry_period is not None:
                         # format and set tag to change
                         t1 = pydicom.tag.Tag('300d1040')
@@ -569,28 +593,54 @@ def send(case,
                     # Create reference point for primary dose prescription
                     ref = pydicom.Dataset()
                     ref.add_new(0x300a0012, 'IS', 1)
-                    ref.add_new(0x300a0014, 'CS', 'COORDINATES')
-                    if hasattr(beamset.Prescription.PrimaryDosePrescription, 'OnStructure') and \
-                            hasattr(beamset.Prescription.PrimaryDosePrescription.OnStructure, 'Name'):
-                        ref.add_new(0x300a0016, 'LO', beamset.Prescription.PrimaryDosePrescription.OnStructure.Name)
+                    # This is the "Dose Reference Description in ARIA"
+                    # if hasattr(beamset.Prescription.PrimaryDosePrescription, 'OnStructure') and \
+                    #         hasattr(beamset.Prescription.PrimaryDosePrescription.OnStructure, 'Name'):
+                    #    ref.add_new(0x300a0016, 'LO', beamset.Prescription.PrimaryDosePrescription.OnStructure.Name)
+                    # elif hasattr(beamset.Prescription.PrimaryDosePrescription, 'OnDoseSpecificationPoint') and \
+                    #         hasattr(beamset.Prescription.PrimaryDosePrescription.OnDoseSpecificationPoint, 'Name'):
+                    #    ref.add_new(0x300a0016, 'LO',
+                    #                beamset.Prescription.PrimaryDosePrescription.OnDoseSpecificationPoint.Name)
+                    # else:
+                    #     ref.add_new(0x300a0014, 'LO', 'Target')
+                    dose_ref_desc = str(beamset.DicomPlanLabel) + '.0'
+                    ref.add_new(0x300a0016, 'LO', dose_ref_desc)
 
-                    elif hasattr(beamset.Prescription.PrimaryDosePrescription, 'OnDoseSpecificationPoint') and \
-                            hasattr(beamset.Prescription.PrimaryDosePrescription.OnDoseSpecificationPoint, 'Name'):
-                        ref.add_new(0x300a0016, 'LO',
-                                    beamset.Prescription.PrimaryDosePrescription.OnDoseSpecificationPoint.Name)
-
-                    else:
-                        ref.add_new(0x300a0016, 'LO', 'Target')
-
+                    # Add coordinates to the primary reference point
                     if ref_point_location:
+                        ref.add_new(0x300a0014, 'CS', 'COORDINATES')
                         if 'BeamDoseSpecificationPoint' in ds.FractionGroupSequence[0].ReferencedBeamSequence[0]:
                             ref.add_new(0x300a0018, 'DS',
                                         ds.FractionGroupSequence[0].ReferencedBeamSequence[0].BeamDoseSpecificationPoint)
-
                         else:
                             ref.add_new(0x300a0018, 'DS', [0, 0, 0])
+                    else:
+                        # If no reference_point location should be used, set the Rx type to site
+                        ref.add_new(0x300a0014, 'CS', 'SITE')
+                        # Set the Varian internal tag designating the Target Volume in ARIA
+                        if hasattr(beamset.Prescription.PrimaryDosePrescription,'OnStructure'):
+                            ref.add_new(0x32671000, 'UT', beamset.Prescription.PrimaryDosePrescription.OnStructure.Name)
+                        # Address "Site"-based prescriptions
+                        elif hasattr(beamset.Prescription.PrimaryDosePrescription,'Description'):
+                            ref.add_new(0x32671000, 'UT', beamset.Prescription.PrimaryDosePrescription.Description)
+                        else:
+                            sys.exit('Unsupported prescription type for locationless reference point. Report to developer')
 
-                    ref.add_new(0x300a0020, 'CS', 'ORGAN_AT_RISK')
+                        expected.add(ref[0x32671000])
+                        # Add the private tag indicator
+                        ref.add_new(0x32670010, 'LO', 'UW Madison RayScripts 3267')
+                        expected.add(ref[0x32670010])
+
+                    # Build Dose Reference UID
+                    series_uid = str(ds.SeriesInstanceUID).split('.', 4)
+                    prefix_uid = ""
+                    for i in range(4):
+                        prefix_uid += series_uid[i] + '.'
+                    dose_reference_uid = pydicom.uid.generate_uid(prefix=prefix_uid)
+                    ref.add_new(0x300a0013, 'UI', dose_reference_uid)
+
+
+                    ref.add_new(0x300a0020, 'CS', 'TARGET')
                     ref.add_new(0x300a0023, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
                     ref.add_new(0x300a002c, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
 
@@ -599,6 +649,12 @@ def send(case,
                         expected.add(ds[0x300a0010])
 
                     else:
+                        # Generate a DICOM UID for tracking the prescription to the same volume
+                        if 'DoseReferenceUID' not in ds.DoseReferenceSequence[0] or \
+                                ds.DoseReferenceSequence[0].DoseReferenceUID != \
+                                ref.DoseReferenceUID:
+                            expected.add(ref[0x300a0013])
+
                         if 'DoseReferenceStructureType' not in ds.DoseReferenceSequence[0] or \
                                 ds.DoseReferenceSequence[0].DoseReferenceStructureType != \
                                 ref.DoseReferenceStructureType:
@@ -608,7 +664,6 @@ def send(case,
                                 ds.DoseReferenceSequence[0].DoseReferenceDescription != ref.DoseReferenceDescription:
                             expected.add(ref[0x300a0016])
 
-                        # Set primary reference point to locationless
                         if ref_point_location:
                             if 'DoseReferencePointCoordinates' not in ds.DoseReferenceSequence[0] or \
                                     ds.DoseReferenceSequence[0].DoseReferencePointCoordinates != \
@@ -637,10 +692,25 @@ def send(case,
                         if hasattr(b, 'BeamDose'):
                             total_dose += b.BeamDose
 
-                        if 'BeamDoseSpecificationPoint' not in b:
+                        if 'BeamDoseSpecificationPoint' not in b and ref_point_location:
+                            logging.debug('Adding reference point location to b {}'.format(b.ReferencedBeamNumber))
                             b.add_new(0x300a0082, 'DS', ref.DoseReferencePointCoordinates)
                             expected.add(b[0x300a0082], beam=b)
-
+                        elif 'BeamDoseSpecificationPoint' in b and not ref_point_location:
+                            # Following the varian private tag method of making beam points track to a
+                            # "<DoseReferenceUID>\00"
+                            # reference_beam_sequence_uid = str(dose_reference_uid) + r"\00"
+                            # Add in private tags indicating primary reference point UID
+                            # b.add_new(0x32491010,'UT',reference_beam_sequence_uid)
+                            # expected.add(b[0x32491010], beam=b)
+                            # Add the private tag indicator
+                            # b.add_new(0x32490010, 'LO', 'UW Madison RayScripts 3249')
+                            # expected.add(b[0x32490010])
+                            logging.debug('Deleting ref point location from b {}'.format(b.ReferencedBeamNumber))
+                            del b[0x300a0082] # Beam Dose Point Specification Coordinates
+                            del b[0x300a0088] # Beam Dose Point Depth
+                            del b[0x300a0089] # Beam Dose Point Equivalent Depth
+                            del b[0x300a0090] # Beam Dose Type
                     if total_dose == 0:
                         for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
                             b.add_new(0x300a0084, 'DS', ref.DeliveryMaximumDose /
@@ -654,6 +724,16 @@ def send(case,
                                 b.BeamDose = b.BeamDose * ref.DeliveryMaximumDose / \
                                              (total_dose * ds.FractionGroupSequence[0].NumberOfFractionsPlanned)
                                 expected.add(b[0x300a0084], beam=b)
+
+                if rpm_gating:
+                   for p in ds.PatientSetupSequence:
+                       if 'MotionSynchronizationSequence' not in p:
+                           motn = pydicom.Dataset()
+                           motn.add_new(0x00189170,'CS','GATING')
+                           motn.add_new(0x00189171,'CS','EXTERNAL_MARKER')
+                           p.add_new(0x300a0410, 'SQ', pydicom.Sequence([motn]))
+                           expected.add(p[0x300a0410])
+                           logging.debug('Added gating params')
 
             # If no edits are needed, copy the file to the modified directory
             if expected.length() == 0:
