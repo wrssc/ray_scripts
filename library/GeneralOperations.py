@@ -100,13 +100,13 @@ def get_all_commissioned(machine_type=None):
             if machine_type == 'Tomo':
                 try:
                     test_machine.TomoBeamQualities._0
-                    machine_names.append(m)
+                    machine_names.append(m['Name'])
                 except AttributeError:
                     pass
             elif machine_type == 'VMAT':
                 try:
-                    test_machine.ArcProperties.MaxGantryAngleSpeed()
-                    machine_names.append(m)
+                    test_machine.ArcProperties.MaxGantryAngleSpeed
+                    machine_names.append(m['Name'])
                 except AttributeError:
                     pass
     else:
