@@ -1126,6 +1126,8 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                        'PTV1_', 'PTV2_', 'PTV3_', 'PTV4_',
                        'PTV5_', 'PTV6_', 'PTV7_', 'PTV8_',
                        'PTV9_', 'PTV10_', 'PTV11_', 'PTV12_',
+                       'PTV1_EZ_', 'PTV2_EZ_', 'PTV3_EZ_',
+                       'PTV4_EZ_', 'PTV5_EZ_', 'PTV6_EZ_',
                        'sOTVu1', 'sOTVu2', 'sOTVu3',
                        'sOTVu4', 'sOTVu5',
                        'ring1_', 'ring2_', 'ring3_', 'ring4_', 'ring5_']
