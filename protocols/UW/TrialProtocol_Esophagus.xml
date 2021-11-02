@@ -1,0 +1,286 @@
+<protocol>
+    <name>Esophagus KN975</name>
+    <ct>
+        <protocol institution="UWHC">XRT_CHEST</protocol>
+        <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+    </diagnoses>
+    <prescription>
+        <frequency default="true">Daily</frequency>
+        <frequency>Twice daily</frequency>
+        <imaging>Daily CBCT</imaging>
+        <imaging>Weekly kV</imaging>
+        <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
+    </prescription>
+      <order>
+        <name>KN975 Esophageal Trial [Esophags 5000 25Fx]</name>
+        <prefix>Esop_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_50</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">50</dose>
+            </roi>
+            <fractions>25</fractions>
+        </prescription>
+        <required>
+            <roi>
+                <name>GTV_p</name>
+                <RTROIInterpretedType>GTV</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>GTV_n</name>
+                <RTROIInterpretedType>GTV</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>CTV</name>
+                <RTROIInterpretedType>CTV</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>PTV_50</name>
+                <RTROIInterpretedType>PTV</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <RTROIInterpretedType>Organ</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV05</name>
+                <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>Lungs</name>
+                <RTROIInterpretedType>Organ</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <RTROIInterpretedType>Organ</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>Liver</name>
+                <RTROIInterpretedType>Organ</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>Kidney_L</name>
+                <RTROIInterpretedType>Organ</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>Kidney_R</name>
+                <RTROIInterpretedType>Organ</RTROIInterpretedType>
+            </roi>
+            <roi>
+                <name>Stomach-PTV</name>
+                <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+            </roi>
+        </required>
+        <!--Goals for KN975-->
+        <goals>
+        <roi>
+            <name>PTV_50</name>
+            <type dir="ge">DX</type>
+            <volume units="%">95</volume>
+            <dose units="%" roi="PTV_50">95</dose>
+            <priority>2</priority>
+        </roi>
+        <roi>
+            <name>PTV_50</name>
+            <type dir="ge">DX</type>
+            <volume units="%">95</volume>
+            <dose units="%" roi="PTV_50">98</dose>
+            <priority>4</priority>
+        </roi>
+        <roi>
+            <name>PTV_50</name>
+            <type dir="ge">DX</type>
+            <volume units="%">99</volume>
+            <dose units="%" roi="PTV_50">90</dose>
+            <priority>2</priority>
+        </roi>
+        <roi>
+            <name>PTV_50</name>
+            <type dir="ge">DX</type>
+            <volume units="%">99</volume>
+            <dose units="%" roi="PTV_50">95</dose>
+            <priority>4</priority>
+        </roi>
+        <roi>
+            <name>PTV_50</name>
+            <type dir="le">Max</type>
+            <volume units="cc">0.03</volume>
+            <dose units="%" roi="PTV_50">120</dose>
+            <priority>2</priority>
+        </roi>
+        <roi>
+            <name>PTV_50</name>
+            <type dir="le">Max</type>
+            <volume units="cc">0.03</volume>
+            <dose units="%" roi="PTV_50">110</dose>
+            <priority>4</priority>
+        </roi>
+        <roi>
+            <name>Lungs</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">19</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Lungs</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">15</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Lungs</name>
+            <type dir="le">VX</type>
+            <volume units="%">25</volume>
+            <dose units="Gy">20</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Lungs</name>
+            <type dir="le">VX</type>
+            <volume units="%">20</volume>
+            <dose units="Gy">20</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Lungs</name>
+            <type dir="le">VX</type>
+            <volume units="%">75</volume>
+            <dose units="Gy">5</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Lungs</name>
+            <type dir="le">VX</type>
+            <volume units="%">70</volume>
+            <dose units="Gy">5</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">25</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">20</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type dir="le">VX</type>
+            <volume units="%">45</volume>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Kidney_L</name>
+            <type dir="le">VX</type>
+            <volume units="%">30</volume>
+            <dose units="Gy">20</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Kidney_L</name>
+            <type dir="le">VX</type>
+            <volume units="%">25</volume>
+            <dose units="Gy">20</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Kidney_R</name>
+            <type dir="le">VX</type>
+            <volume units="%">30</volume>
+            <dose units="Gy">20</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Kidney_R</name>
+            <type dir="le">VX</type>
+            <volume units="%">25</volume>
+            <dose units="Gy">20</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Bowel</name>
+            <type dir="le">Max</type>
+            <volume units="cc">0.03</volume>
+            <dose units="Gy">45</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Bowel_Large</name>
+            <type dir="le">Max</type>
+            <volume units="cc">0.03</volume>
+            <dose units="Gy">45</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Bowel_Small</name>
+            <type dir="le">Max</type>
+            <volume units="cc">0.03</volume>
+            <dose units="Gy">45</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Liver</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Liver</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">25</dose>
+            <priority>3</priority>
+        </roi>
+        <roi>
+            <name>Liver</name>
+            <type dir="le">VX</type>
+            <volume units="%">30</volume>
+            <dose units="Gy">30</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type dir="le">Max</type>
+            <volume units="cc">0.03</volume>
+            <dose units="Gy">45</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>SpinalCord_PRV05</name>
+            <type dir="le">Max</type>
+            <volume units="cc">0.03</volume>
+            <dose units="Gy">50</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Stomach-PTV</name>
+            <type dir="le">VX</type>
+            <volume units="cc">25</volume>
+            <dose units="Gy">50</dose>
+            <priority>1</priority>
+        </roi>
+        <roi>
+            <name>Stomach-PTV</name>
+            <type dir="le">VX</type>
+            <volume units="cc">16</volume>
+            <dose units="Gy">50</dose>
+            <priority>3</priority>
+        </roi>
+        </goals>
+
+    </order>
+</protocol>

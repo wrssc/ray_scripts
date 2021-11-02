@@ -28,6 +28,16 @@
             </roi>
             <fractions>5</fractions>
         </prescription>
+        <goals>
+            <goalset>
+                <name>QUANTEC-SBRT</name>
+                <priority>5</priority>
+            </goalset>
+            <goalset>
+                <name>HyTEC-5Fx</name>
+                <priority>5</priority>
+            </goalset>
+        </goals>
     </order>
     <goals>
         <roi>
@@ -423,10 +433,6 @@
             <dose units="Gy">13.5</dose>
             <priority>3</priority>
         </roi>
-        <goalset>
-            <name>QUANTEC-SBRT</name>
-            <priority>5</priority>
-        </goalset>
     </goals>
     <objectiveset>
         <name>FSRT Brain</name>

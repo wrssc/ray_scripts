@@ -18,34 +18,7 @@
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Abdomen SBRT [5Fx]</name>
-        <prefix>Abdo_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p</name>
-                <type>DX</type>
-                <volume units="%">90</volume>
-                <dose units="Gy" idl="100"></dose>
-            </roi>
-            <fractions>5</fractions>
-        </prescription>
-        <goals>
-            <goalset>
-                <name>QUANTEC-SBRT</name>
-                <priority>5</priority>
-            </goalset>
-            <goalset>
-                <name>TG-101</name>
-                <priority>5</priority>
-            </goalset>
-            <goalset>
-                <name>HyTEC-5Fx</name>
-                <priority>5</priority>
-            </goalset>
-        </goals>
-    </order>
-    <order>
-        <name>Liver SBRT [5Fx]</name>
+        <name>Abdo-Liver SBRT [5Fx]</name>
         <prefix>Abdo_</prefix>
         <prescription>
             <roi>
