@@ -76,7 +76,7 @@ def output_plan_data(path, input_filename, patient_id, case_name, plan_name, bea
     output_file.close()
 
 def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, plan_name, beamset_name):
-    """ Query's database for plan, case, and exam. Returns them as a dict. Saves patient if a 
+    """ Query's database for plan, case, and exam. Returns them as a dict. Saves patient if a
         new plan is created.
 
     Arguments:
@@ -125,7 +125,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
     except SystemError:
         patient_data['Error'].append('Case {} not found'.format(case_name))
         return patient_data
-    # 
+    #
     # Load examination
     try:
         info = db.QueryExaminationInfo(PatientInfo=patient_info[0],
@@ -163,6 +163,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
 def gather_tomo_beam_params(beamset):
     # Compute time, rotation period, couch speed, pitch
     #   mod factor
+    # TODO: This probably doesn't work for multiple beams, aka tomo-direct
     for b in beamset.Beams:
         number_segments = 0
         total_travel = 0
@@ -183,7 +184,7 @@ def gather_tomo_beam_params(beamset):
                       -b.Segments[0].CouchYOffset
         couch_speed = total_travel / time
         # Pitch: Distance traveled in rotation / field width
-        
+
         # Convert sinogram to numpy array
         sino_array = numpy.array(sinogram)
         # Mod Factor = Average / Max LOT
@@ -235,11 +236,11 @@ def get_clinical_goal(plan, roi_name=None):
     clinical_goal = {}
     i_g = 0
 
-    # Search the list of evaluation functions 
+    # Search the list of evaluation functions
     evaluation_functions = plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions
     for e in evaluation_functions:
         logging.debug('Tracking eval function {}'.format(e.ForRegionOfInterest.Name))
-        if roi_name == e.ForRegionOfInterest.Name or not roi_name: 
+        if roi_name == e.ForRegionOfInterest.Name or not roi_name:
             clinical_goal[i_g] = {}
             clinical_goal[i_g]['roi'] = e.ForRegionOfInterest.Name
             clinical_goal[i_g]['roi_type'] = e.ForRegionOfInterest.Type
@@ -256,14 +257,21 @@ def get_clinical_goal(plan, roi_name=None):
 
 
 def main():
-    # 
+    #
     # Load the current RS database
     ## db = connect.get_current("PatientDB")
     # Prompt the user to open a file
     browser = UserInterface.CommonDialog()
     file_csv = browser.open_file('Select a plan list file', 'CSV Files (*.csv)|*.csv')
     if file_csv != '':
-        plan_data = pd.read_csv(file_csv)
+        plan_data = pd.read_csv(file_csv,converters={
+            'PatientID': lambda x: str(x),
+            'Case': lambda x: str(x),
+            'PlanName': lambda x: str(x),
+            'BeamsetName': lambda x: str(x),
+            'SourcePlan': lambda x: str(x),
+            'SourceBeamset': lambda x: str(x),
+            })
     ## Create the output file
     path = os.path.dirname(file_csv)
 
@@ -323,7 +331,7 @@ def main():
             clinical_goals_missing = False
         except:
             clinical_goals_missing = True
-            
+
         if clinical_goals_missing:
             try:
                 source_eval = patient_data['Case'].TreatmentPlans[source_plan].TreatmentCourse.EvaluationSetup
@@ -358,4 +366,3 @@ def main():
 
 
     # Clinical goals
-    
