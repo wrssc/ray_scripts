@@ -241,22 +241,23 @@ def beamset_dialog(protocol, order_targets):
     machine = selected_beam_parameters.values['m']
     return (beamset_name, iso_target, machine)
 
-def autoplan(input_params = {}):
+def autoplan(testing_bypass_dialogs = {}):
 
-    input_protocol_name = None
-    input_order_name = None
     ap_report = {}
     #
     # In testing mode, skip the dialog prompts
-    if input_params:
-        input_protocol_name = input_params['protocol_name']
-        input_order_name=input_params['order_name']
-        num_fx =input_params['num_fx']
-        site = input_params['site']
-        translation_map = input_params['translation_map']
-        beamset_name = input_params['beamset_name']
-        iso_target = input_params['iso_target']
-        machine = input_params['machine']
+    if testing_bypass_dialogs:
+        input_protocol_name = testing_bypass_dialogs['protocol_name']
+        input_order_name=testing_bypass_dialogs['order_name']
+        num_fx =testing_bypass_dialogs['num_fx']
+        site = testing_bypass_dialogs['site']
+        translation_map = testing_bypass_dialogs['translation_map']
+        beamset_name = testing_bypass_dialogs['beamset_name']
+        iso_target = testing_bypass_dialogs['iso_target']
+        machine = testing_bypass_dialogs['machine']
+    else:
+        input_protocol_name = None
+        input_order_name = None
     #
     # Hard-coded path to protocols
     protocol_folder = r'../protocols'
@@ -264,6 +265,7 @@ def autoplan(input_params = {}):
     autoplan_folder = r'AutoPlans'
     path_protocols = os.path.join(os.path.dirname(__file__),
                                   protocol_folder, institution_folder, autoplan_folder)
+    #
     # Create status steps for dialog
     script_steps = {
         0:('Select Protocol (Site)','Choose main protocol for autoplan'),
@@ -344,10 +346,11 @@ def autoplan(input_params = {}):
     # Match the protocol targets and doses to the beamset the user is making
     auto_status.next_step(text=script_steps[i][1])
     i += 1
-    if not input_params:
+    if not testing_bypass_dialogs:
         # Prompt user for target map
         (site, num_fx, translation_map) = target_dialog(case=pd.case,protocol=protocol, order=order, use_orders=True)
-    # Log results
+    #
+    # Log results of the user target/dose assignments
     log_str = ""
     translation_map = AutoPlanOperations.convert_translation_map(translation_map,unit=r'cGy')
     for k, v in rx.rois.items():
@@ -358,7 +361,6 @@ def autoplan(input_params = {}):
             log_str += '[{p}->Unmapped, {pd}->Unmapped]'.format(p=k,pd=v)
     logcrit('Number of fractions protocol->beamset: [{}->{}]'.format(rx.fx, num_fx))
     logcrit('Target mapping of [protocol->beamset]: {}'.format(log_str))
-
     #
     # Find all target names to be used
     assigned_targets=[v[0] for v in translation_map.values() if v[0] ]
@@ -383,12 +385,9 @@ def autoplan(input_params = {}):
     machines = GeneralOperations.get_all_commissioned(machine_type=None)
     auto_status.next_step(text=script_steps[i][1])
     i += 1
-
-    #
-
     #
     # Add beamset
-    if not input_params:
+    if not testing_bypass_dialogs:
         (beamset_name, iso_target, machine) = beamset_dialog(protocol, available_targets)
     logcrit('User selected Beamset:{bs}, machine:{m}, Isocenter Position:{iso}'.format(
                 bs=beamset_name, m=machine, iso=iso_target))
@@ -505,8 +504,7 @@ def autoplan(input_params = {}):
     pd.patient.Save()
     rs_beam_set.SetCurrent()
     pd = pd._replace(beamset = connect.get_current('BeamSet'))
-    # TODO move beam creation to a function. Input rs plan data, file, beamset name
-    # Output success or fail
+    # Set beams from the protocol
     beams = BeamOperations.load_beams_xml(filename=protocol_file,
                                           beamset_name=beamset_name,
                                           path=path_protocols)
@@ -557,7 +555,7 @@ def autoplan(input_params = {}):
     # Place the SimFiducial Point
     auto_status.next_step(text=script_steps[i][1])
     i += 1
-    if input_params:
+    if testing_bypass_dialogs:
         logging.debug('SimFiducial placement skipped for test')
     else:
         AutoPlanOperations.place_fiducial(pd=pd, poi_name='SimFiducials')
@@ -572,13 +570,13 @@ def autoplan(input_params = {}):
         ui.Workspace.TabControl['Objectives/constraints'].TabItem['Protect'].Select()
     except:
         logging.debug("Could not click on the patient protection window")
-    if input_params:
+    if testing_bypass_dialogs:
         logging.info('Blocking page skipped for testing')
     else:
         connect.await_user_input(
             'Navigate to the Plan design page, set any blocking.')
     #
-    if input_params:
+    if testing_bypass_dialogs:
         logging.info('Custom goal additions skipped for debugging.')
     else:
         connect.await_user_input( 'Add any custom goals from the TPO.')
@@ -591,7 +589,7 @@ def autoplan(input_params = {}):
     strip_roi_support = strip_roi_support.replace(" ","")
     strip_roi_support = strip_roi_support.strip()
     beamset_defs.support_roi = strip_roi_support.split(",")
-    if input_params:
+    if testing_bypass_dialogs:
         logging.info('Loading support {} skipped for testing'.format(beamset_defs.support_roi))
     else:
         AutoPlanOperations.load_supports(pd=pd,supports=beamset_defs.support_roi)
