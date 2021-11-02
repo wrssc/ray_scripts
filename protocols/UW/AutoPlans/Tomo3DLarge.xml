@@ -1,0 +1,481 @@
+<protocol>
+    <name>UW Tomo3D Large Target</name>
+    <ct>
+        <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
+        <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+    </diagnoses>
+    <prescription>
+        <frequency>Daily</frequency>
+        <imaging>Pre-treatment CBCT</imaging>
+        <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
+        <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0477">TomoHelical</technique>
+    </prescription>
+
+    <order>
+        <name>Multiple Target Tomo3D</name>
+        <prefix>Site</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <fractions>10</fractions>
+            <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0477">TomoHelical</technique>
+        </prescription>
+        <commissioned_range>
+            <fraction_dose upper="5" lower="1.8"></fraction_dose>
+        </commissioned_range>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p">120</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p">115</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p2">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p2">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p2">120</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p2">115</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p3">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p3">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p3">120</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p3">115</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p1">120</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Pacemaker</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
+            <goalset>
+                <name>QUANTEC</name>
+                <priority>5</priority>
+            </goalset>
+        </goals>
+        <objectives>
+            <roi>
+                <name>PTV_p</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>PTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>PTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>PTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>PTV_p2</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>PTV2_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>PTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>PTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p2">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>PTV3_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>PTV3_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>PTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p3">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="95">100</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>50</weight>
+            </roi>
+        </objectives>
+    </order>
+    <planning_structure_set>
+        <name>Tomo_3DC_MultiTarget</name>
+        <description>Planning Structure template for rapid IMRT on TomoTherapy, requires PTV</description>
+        <number_of_targets>3</number_of_targets>
+        <first_target_number>1</first_target_number>
+        <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
+        <normal></normal>
+        <uniform_dose_structs></uniform_dose_structs>
+        <underdose_structs></underdose_structs>
+        <ring_hd></ring_hd>
+        <ring_ld></ring_ld>
+        <ring_targets></ring_targets>
+        <inner_air></inner_air>
+        <superficial_target></superficial_target>
+        <otv></otv>
+    </planning_structure_set>
+    <beamset>
+        <name>Tomo3D_FW50</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Simplified TomoTherapy beam to mimic Tomo3D in Accuray</description>
+        <roi_support>TomoCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>5.05</FieldWidth>
+            <Pitch>0.287</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>1.6</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <optimization_config>
+        <name>8 warmstarts Tomo</name>
+        <description>8 warmstart optimization</description>
+        <technique>TomoHelical</technique>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="15" int_it="3" n="8">Iteration_1to4</warmstart>
+    <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_mod mod_target="1.6">True</reduce_mod>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+        <block_prompt>True</block_prompt>
+    </optimization_config>
+   <!--
+    <beamset>
+        <name>Tomo3D_FW25_Multi</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Simplified TomoTherapy beam to mimic Tomo3D in Accuray</description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.287</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>1.6</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    -->
+    <!--
+    <order>
+        <name>Single Target Tomo3D</name>
+        <prefix>Site</prefix>
+        <prescription>
+            <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0488">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0477">TomoHelical</technique>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">30</dose>
+            </roi>
+            <fractions>10</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p">120</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p">115</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dir="le">DX</type>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p">120</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Pacemaker</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
+        </goals>
+        <objectives>
+            <roi>
+                <name>PTV_p</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>1000</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="95">100</dose>
+                <weight>150</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ExternalClean</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <weight>50</weight>
+            </roi>
+        </objectives>
+    </order>
+    <planning_structure_set>
+        <name>Tomo_3DC_SingleTarget</name>
+        <description>Planning Structure template for rapid IMRT on TomoTherapy, requires PTV</description>
+        <number_of_targets>1</number_of_targets>
+        <first_target_number>1</first_target_number>
+        <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
+        <normal></normal>
+        <uniform_dose_structs></uniform_dose_structs>
+        <underdose_structs></underdose_structs>
+        <ring_hd></ring_hd>
+        <ring_ld></ring_ld>
+        <ring_targets></ring_targets>
+        <inner_air></inner_air>
+        <superficial_target></superficial_target>
+        <otv></otv>
+    </planning_structure_set>
+    <beamset>
+        <name>Tomo3D_FW25_Single</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Simplified TomoTherapy beam to mimic Tomo3D in Accuray</description>
+        <roi_support>TomoCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.287</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>600</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>2.2</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Tomo3D_FW50_Single</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Simplified TomoTherapy beam to mimic Tomo3D in Accuray</description>
+        <roi_support>TomoCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <Energy>6</Energy>
+            <FieldWidth>5.05</FieldWidth>
+            <Pitch>0.287</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>600</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>2.2</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    -->
+</protocol>

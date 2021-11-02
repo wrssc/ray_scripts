@@ -1,9 +1,9 @@
 """ Automated Plan Optimization
-    
+
     Automatically optimize the current case, examination, plan, beamset using
     input optimization parameters
-    
-    Scope: Requires RayStation "Case" and "Examination" to be loaded.  They are 
+
+    Scope: Requires RayStation "Case" and "Examination" to be loaded.  They are
            passed to the function as an argument
 
     Example Usage:
@@ -34,7 +34,7 @@
     Prerequisites:
 
     Validation Notes:
-    Test Patient: MR# ZZUWQA_ScTest_30Dec2020, 
+    Test Patient: MR# ZZUWQA_ScTest_30Dec2020,
                   Name: Script_Testing^Automated Plan – Whole Brain
     TomoTherapy, VMAT (seg weight, reduce OAR, variable dose grid)
     Version history:
@@ -46,11 +46,11 @@
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later
     version.
-    
+
     This program is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
@@ -94,7 +94,7 @@ def main():
         exam = connect.get_current("Examination")
     except SystemError:
         raise IOError("No Examination loaded. Load patient case and plan.")
-    
+
     try:
         plan = connect.get_current("Plan")
     except SystemError:
@@ -229,12 +229,14 @@ def main():
         # 'small_target': small_target,
         'n_iterations': int(optimization_dialog.values['input08_n_iterations'])}
 
-    OptimizationOperations.optimize_plan(patient=Patient,
+    error = OptimizationOperations.optimize_plan(patient=Patient,
                                          case=case,
                                          exam=exam,
                                          plan=plan,
                                          beamset=beamset,
                                          **optimization_inputs)
+    if error:
+        raise IOError("{}".format(error))
 
 
 if __name__ == '__main__':

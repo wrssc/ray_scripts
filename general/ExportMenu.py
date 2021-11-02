@@ -147,15 +147,18 @@ def main():
     if 'Tomo' in beamset.DeliveryTechnique:
         filters = ['Create Transfer Plan']
     else:
-        filters = ['Convert machine name',
+        filters = ['Ignore machine name',
+                   'Internal Target RPM Gated Treatment (NOT ALIGN RT) ',
+                   'Reference Point has no geometric location',
+                   'No Filters']
                    # 'Convert machine energy (FFF)',
-                   'Set couch to (0, 100, 0)',
+                   # 'Set couch to (0, 100, 0)',
                    # 'Round jaw positions to 0.1 mm',
-                   'Create reference point',
-                   'Reference point has a geometric location',
-                   'Set block tray and slot ID (electrons only)',
+                   # 'Create reference point',
+                   # 'Reference point has a geometric location',
+                   #'Set block tray and slot ID (electrons only)',
                    #'180E'
-                    'PRDR Dose Rate']
+                   # 'PRDR Dose Rate']
 
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'a': 'Select which data elements to export:',
@@ -183,7 +186,7 @@ def main():
         inputs['e'] = 'Export options:'
         types['e'] = 'check'
         options['e'] = filters
-        initial['e'] = filters
+        initial['e'] = [False,False,False,False]
 
     dialog = UserInterface.InputDialog(inputs=inputs,
                                        datatype=types,
@@ -209,7 +212,7 @@ def main():
 
         # Disable filtering for Tomo and RayGateway
         if 'Tomo' in beamset.DeliveryTechnique:
-            if filters[0] in response['e']:
+            if not filters[0] in response['e']:
                 f.append('duplicate')
             else:
                 f = None
@@ -219,24 +222,57 @@ def main():
             response['c'] = None
 
         else:
-            if filters[0] in response['e']:
-                f.append('machine')
-
-            # if filters[1] in response['e']:
-            #     f.append('energy')
-
-            if filters[1] in response['e']:
-                t = [0, 1000, 0]
-
-            if filters[5] in response['e']:
+            # No filters if option 3 selected
+            if filters[3] in response['e']:
+                f = None
+                response['e'] = []
+                response['c'] = None
+                # PRDR Dose Rate
+                prdr_dr = None
+                # Set Couch
+                t = None
+                # No reference point
+                create_reference_point=None
+                # No reference point location
+                ref_point_location = None
+                # No block names
+                block_accessory=None
+                block_tray_id=None
+                # TODO: PA setting
+                # No autopa
+                pa_threshold = None
+            else:
+                if not filters[0] in response['e']:
+                    f.append('machine')
+                if filters[1] in response['e']:
+                    rpm_gating = True
+                else:
+                    rpm_gating = False
+                if filters[2] in response['e']:
+                    ref_point_location = False
+                else:
+                    ref_point_location = True
+                #
+                # Filters to always be applied
+                # PRDR Dose Rate
                 if '_PRD_' in beamset.DicomPlanLabel:
                     prdr_dr = True
                 else:
                     prdr_dr = False
+                # Set Couch
+                t = [0, 1000, 0]
+                # Create a reference point
+                create_reference_point=True
+                # Convert Block names
+                block_accessory=True
+                block_tray_id=True
+                # TODO: PA setting
+                pa_threshold = None
+                #
+                # Obsolete FFF filtering
+                # if filters[1] in response['e']:
+                #     f.append('energy')
 
-            # if filters[6] in response['e']:
-            pa_threshold = None
-            #else:
 
     else:
         f = None
@@ -260,12 +296,13 @@ def main():
                                machine=response['c'],
                                table=t,
                                #round_jaws=filters[2] in response['e'],
-                               prescription=filters[2] in response['e'],
-                               ref_point_location = filters[3] in response['e'],
-                               block_accessory=filters[4] in response['e'],
-                               block_tray_id=filters[4] in response['e'],
+                               prescription=create_reference_point,
+                               ref_point_location = filters[2] in response['e'],
+                               block_accessory=block_accessory,
+                               block_tray_id=block_tray_id,
                                pa_threshold=pa_threshold,
-                               prdr_dr=filters[5] in response['e'],
+                               prdr_dr=prdr_dr,
+                               rpm_gating=rpm_gating,
                                bar=True)
 
     # Finish up

@@ -83,46 +83,74 @@ def main():
         logging.warning("patient, case and examination must be loaded")
 
     # Configs
-    source_plan = 'Script'
-    source_beamset = 'HN_21Oct'
+    source_plan = 'PBI-EBRT'
+    source_beamset = 'Bre_SBR_VMA'
     destination_plan = 'Clinical'
-    destination_beamset = 'Clinical'
+    destination_beamset = 'Clinical_VMAT'
     # Open a dialog and ask what the clinical plan name will be
-    input_dialog = UserInterface.InputDialog(
-        inputs ={'input0':'Clinical Plan is A or B'},
-        title='Choose input',
-        datatype={'input0':'combo'},
-        options={'input0':['A','B']}
-    )
-    response = input_dialog.show()
-    if response == {}:
-        sys.exit('dry_run cancelled by user')
-    clinical_plan_name = input_dialog.values['input0']
-    # Save any user changes
-    patient.Save()
-    case.TreatmentPlans[source_plan].SetCurrent()
-    plan = connect.get_current("Plan")
-    case.TreatmentPlans[source_plan].BeamSets[source_beamset].SetCurrent()
-    beamset = connect.get_current('BeamSet')
-    clinical_beamset = case.TreatmentPlans[destination_plan].BeamSets[destination_plan]
+    mask_names = False
+    for c in patient.Cases:
 
-    # Turn beamset visualization off
-    for b in beamset.Beams:
-        beamset.SetBeamIsVisible(BeamName = b.Name, IsVisible=False)
-    for b in clinical_beamset.Beams:
-        clinical_beamset.SetBeamIsVisible(BeamName = b.Name, IsVisible=False)
+        c.SetCurrent()
+        input_dialog = UserInterface.InputDialog(
+            inputs ={'input0':'Clinical Plan is Left or Right'},
+            title='Choose input',
+            datatype={'input0':'combo'},
+            options={'input0':['Left','Right']}
+        )
+        response = input_dialog.show()
+        if response == {}:
+           sys.exit('Script cancelled by user')
+        clinical_plan_name = input_dialog.values['input0']
+        if clinical_plan_name == 'Left':
+            left_breast = True
+        else:
+            left_breast = False
+        # Save any user changes
+        patient.Save()
+        c.TreatmentPlans[source_plan].SetCurrent()
+        plan = connect.get_current("Plan")
+        c.TreatmentPlans[source_plan].BeamSets[source_beamset].SetCurrent()
+        beamset = connect.get_current('BeamSet')
+        clinical_beamset = c.TreatmentPlans[destination_plan].BeamSets[destination_beamset]
+        # Goals
+        if left_breast:
+            try:
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=r"Lung_L", GoalCriteria="AtMost", GoalType="VolumeAtDose", AcceptanceLevel=0.1, ParameterValue=1610, IsComparativeGoal=False, Priority=5)
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=r"Lung_L", GoalCriteria="AtMost", GoalType="VolumeAtDose", AcceptanceLevel=0.5, ParameterValue=600, IsComparativeGoal=False, Priority=5)
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=r"Lung_R", GoalCriteria="AtMost", GoalType="VolumeAtDose", AcceptanceLevel=0.1, ParameterValue=600, IsComparativeGoal=False, Priority=5)
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=r"Heart", GoalCriteria="AtMost", GoalType="VolumeAtDose", AcceptanceLevel=0.1, ParameterValue=400, IsComparativeGoal=False, Priority=5)
+            except:
+                pass
+        else:
+            try:
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=r"Lung_R", GoalCriteria="AtMost", GoalType="VolumeAtDose", AcceptanceLevel=0.1, ParameterValue=1610, IsComparativeGoal=False, Priority=5)
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=r"Lung_R", GoalCriteria="AtMost", GoalType="VolumeAtDose", AcceptanceLevel=0.5, ParameterValue=600, IsComparativeGoal=False, Priority=5)
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=r"Lung_L", GoalCriteria="AtMost", GoalType="VolumeAtDose", AcceptanceLevel=0.1, ParameterValue=600, IsComparativeGoal=False, Priority=5)
+                plan.TreatmentCourse.EvaluationSetup.AddClinicalGoal(RoiName=r"Heart", GoalCriteria="AtMost", GoalType="VolumeAtDose", AcceptanceLevel=0.1, ParameterValue=400, IsComparativeGoal=False, Priority=5)
+            except:
+                pass
 
-    # Copy goals to clinical plan
-    source_eval = case.TreatmentPlans[source_plan].TreatmentCourse.EvaluationSetup
-    dest_eval = case.TreatmentPlans[destination_plan].TreatmentCourse.EvaluationSetup
-    roi_list = []
-    for e in source_eval.EvaluationFunctions:
-        dest_eval.CopyClinicalGoal(FunctionToCopy=e)
-        r = e.ForRegionOfInterest.Name
-        if r not in roi_list:
-            roi_list.append(r)
-    patient.Save()
-    if rename:
+
+
+        # Turn beamset visualization off
+        for b in beamset.Beams:
+            beamset.SetBeamIsVisible(BeamName = b.Name, IsVisible=False)
+        for b in clinical_beamset.Beams:
+            clinical_beamset.SetBeamIsVisible(BeamName = b.Name, IsVisible=False)
+
+        # Copy goals to clinical plan
+        source_eval = c.TreatmentPlans[source_plan].TreatmentCourse.EvaluationSetup
+        dest_eval = c.TreatmentPlans[destination_plan].TreatmentCourse.EvaluationSetup
+        roi_list = []
+        for e in source_eval.EvaluationFunctions:
+            dest_eval.CopyClinicalGoal(FunctionToCopy=e)
+            r = e.ForRegionOfInterest.Name
+            if r not in roi_list:
+                roi_list.append(r)
+        patient.Save()
+    sys.exit()
+    if mask_names:
         case.TreatmentPlans[destination_plan].BeamSets[destination_beamset].DicomPlanLabel = clinical_plan_name
         case.TreatmentPlans[destination_plan].Name = clinical_plan_name
         patient.Save()
@@ -140,7 +168,7 @@ def main():
     case.TreatmentPlans[destination_plan].BeamSets[destination_beamset].FractionDose.UpdateDoseGridStructures()
     case.TreatmentPlans[destination_plan].TreatmentCourse.TotalDose.UpdateDoseGridStructures()
     # go to plan evaluation
-    ui.TitleBar.MenuItem['Plan Evaluation'].Button_Plan_Evaluation.Click()
+    ui.TitleBar.MenuItem['Plan evaluation'].Button_Plan_evaluation.Click()
 
     # Capture the current list of ROI's to avoid saving over them in the future
     targets = so.find_targets(case)

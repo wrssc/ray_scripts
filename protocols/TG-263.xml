@@ -4909,7 +4909,7 @@
         <TG263ReverseOrderName>L_Eye</TG263ReverseOrderName>
         <FMAID>12515</FMAID>
         <Color red="250" green="57" blue="105" Hex="#FA3969">ChineseNewYear</Color>
-        <Alias>Globe_L, Globe L, GlobeL</Alias>
+        <Alias>Eye_Left,Globe_L, Globe L, GlobeL</Alias>
     </roi>
     <roi>
         <name>Eye_R</name>
@@ -4925,7 +4925,7 @@
         <TG263ReverseOrderName>R_Eye</TG263ReverseOrderName>
         <FMAID>12514</FMAID>
         <Color red="62" green="251" blue="145" Hex="#3EFB91">EvaGreen1</Color>
-        <Alias>Globe_R,GlobeR,Globe R</Alias>
+        <Alias>Eye_Right,Globe_R,GlobeR,Globe R</Alias>
     </roi>
     <roi>
         <name>Eyes</name>
@@ -7087,8 +7087,40 @@
         <Alias></Alias>
     </roi>
     <roi>
-        <name>Override_Artifact</name>
-        <TG263PrimaryName>Override_Artifact</TG263PrimaryName>
+        <name>Artifact_Override_Adipose</name>
+        <TG263PrimaryName>Artifact_Override_Adipose</TG263PrimaryName>
+        <Description>Artifact due to beam hardening requiring an override to adipose
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>Density Override</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>24</NCharacters>
+        <TG263ReverseOrderName>Adipose_Artifact_Override</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
+        <Alias>scatter,cutoff,override_adipose</Alias>
+    </roi>
+    <roi>
+        <name>Artifact_Override_Air</name>
+        <TG263PrimaryName>Artifact_Override_Air</TG263PrimaryName>
+        <Description>Artifact due to beam hardening requiring an override to air
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>Density Override</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>24</NCharacters>
+        <TG263ReverseOrderName>Air_Artifact_Override</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
+        <Alias>air_override,air,override_air</Alias>
+    </roi>
+    <roi>
+        <name>Artifact_Override_TissueSoft</name>
+        <TG263PrimaryName>Artifact_Override_TissueSoft</TG263PrimaryName>
         <Description>Artifact due to beam hardening requiring an override to nearby tissue
         </Description>
         <NCIt></NCIt>
@@ -7096,15 +7128,15 @@
         <MajorCategory>Density Override</MajorCategory>
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
-        <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>Artifact_Override</TG263ReverseOrderName>
+        <NCharacters>24</NCharacters>
+        <TG263ReverseOrderName>TissueSoft_Artifact_Override</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
-        <Alias>scatter, scatter_</Alias>
+        <Alias>tissue,override_tissue,override_softtissue,</Alias>
     </roi>
     <roi>
-        <name>Override_Contrast</name>
-        <TG263PrimaryName>Override_Contrast</TG263PrimaryName>
+        <name>Contrast_Override_TissueSoft</name>
+        <TG263PrimaryName>Contrast_Override_TissueSoft</TG263PrimaryName>
         <Description>Misrepresentation of density due to photoelectric interaction of contrast
             material with CT-kV photons
         </Description>
@@ -7114,11 +7146,43 @@
         <MinorCategory></MinorCategory>
         <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>17</NCharacters>
-        <TG263ReverseOrderName>Contrast_Override</TG263ReverseOrderName>
+        <TG263ReverseOrderName>TissueSoft_Contrast_Override</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
-        <Alias>scattercontrast,contrast,constrast override,contrast_ovveride,override_contrast
+        <Alias>scattercontrast,contrast,constrastoverride,contrast_ovveride,override_contrast
         </Alias>
+    </roi>
+    <roi>
+        <name>Marker_Override_Air</name>
+        <TG263PrimaryName>Marker_Override_Air</TG263PrimaryName>
+        <Description>Marker requiring an override to air
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>Density Override</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>24</NCharacters>
+        <TG263ReverseOrderName>Air_Override_Marker</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
+        <Alias>Marker_air_override,Marker_air,Marker_override,override_marker_air</Alias>
+    </roi>
+    <roi>
+        <name>Wire_Override_Air</name>
+        <TG263PrimaryName>Wire_Override_Air</TG263PrimaryName>
+        <Description>Wire requiring an override to air
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>Density Override</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>24</NCharacters>
+        <TG263ReverseOrderName>Air_Wire_Override</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
+        <Alias>wire_air_override,wire_air,wire_override</Alias>
     </roi>
     <roi>
         <name>Palate_Soft</name>
@@ -7150,7 +7214,7 @@
         <TG263ReverseOrderName>L_Parotid</TG263ReverseOrderName>
         <FMAID>59798</FMAID>
         <Color red="252" green="201" blue="87" Hex="#FCC957">AngryPasta</Color>
-        <Alias>left_parotid,parotid_l,L_parotid</Alias>
+        <Alias>left_parotid,parotid_l,L_parotid,ParotidGland_Left</Alias>
     </roi>
     <roi>
         <name>Parotid_R</name>
@@ -7166,7 +7230,7 @@
         <TG263ReverseOrderName>R_Parotid</TG263ReverseOrderName>
         <FMAID>59797</FMAID>
         <Color red="62" green="170" blue="254" Hex="#3EAAFE">SkyDancer</Color>
-        <Alias>right_parotid,parotid_r,R_Parotid</Alias>
+        <Alias>ParotidGland_R,right_parotid,parotid_r,R_Parotid</Alias>
     </roi>
     <roi>
         <name>Parotids</name>
@@ -7180,9 +7244,13 @@
         <AnatomicGroup>Head and Neck</AnatomicGroup>
         <NCharacters>8</NCharacters>
         <TG263ReverseOrderName>Parotids</TG263ReverseOrderName>
+        <Dependencies>Parotid_L,Parotid_R</Dependencies>
+        <SourcesA operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Parotid_L,Parotid_R</SourcesA>
+        <SourcesB operation="Union" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0"></SourcesB>
+        <Result operation="None" margin_type="Expand" margin_sup="0" margin_inf="0" margin_ant="0" margin_pos="0" margin_r="0" margin_l="0">Parotids</Result>
         <FMAID>320436</FMAID>
         <Color red="252" green="201" blue="87" Hex="#FCC957">AngryPasta</Color>
-        <Alias></Alias>
+        <Alias>Parotid_Total,Total_Parotid,BothParotids</Alias>
     </roi>
     <roi>
         <name>Pharynx</name>
@@ -11555,6 +11623,166 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>Block_Site</name>
+        <TG263PrimaryName>Block_Site</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>10</NCharacters>
+        <TG263ReverseOrderName>Block_Site</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>Block</Alias>
+    </roi>
+    <roi>
+        <name>Block_Arm_L</name>
+        <TG263PrimaryName>Block_Arm_L</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>11</NCharacters>
+        <TG263ReverseOrderName>L_Arm_Block</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>Block_Left_Arm,Block_Arm_Left,Left_Arm_Block</Alias>
+    </roi>
+    <roi>
+        <name>Block_Arm_R</name>
+        <TG263PrimaryName>Block_Arm_R</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>11</NCharacters>
+        <TG263ReverseOrderName>R_Arm_Block</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>Block_Right_Arm,Block_Arm_Right,Right_Arm_Block</Alias>
+    </roi>
+    <roi>
+        <name>Block_Arms</name>
+        <TG263PrimaryName>Block_Arms</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>10</NCharacters>
+        <TG263ReverseOrderName>Arms_Block</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>Block_Arms</Alias>
+    </roi>
+    <roi>
+        <name>Block_Kidney_L</name>
+        <TG263PrimaryName>Block_Kidney_L</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>11</NCharacters>
+        <TG263ReverseOrderName>L_Kidney_Block</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>Block_Left_Kidney,Block_Kidney_Left,Left_Kidney_Block</Alias>
+    </roi>
+    <roi>
+        <name>Block_Kidney_R</name>
+        <TG263PrimaryName>Block_Kidney_R</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>11</NCharacters>
+        <TG263ReverseOrderName>R_Kidney_Block</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>Block_Right_Kidney,Block_Kidney_Right,Right_Kidney_Block</Alias>
+    </roi>
+    <roi>
+        <name>Block_Kidneys</name>
+        <TG263PrimaryName>Block_Kidneys</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>13</NCharacters>
+        <TG263ReverseOrderName>Kidneys_Block</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>KidneyBlock</Alias>
+    </roi>
+    <roi>
+        <name>Block_Leg_L</name>
+        <TG263PrimaryName>Block_Leg_L</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>11</NCharacters>
+        <TG263ReverseOrderName>L_Leg_Block</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>Block_Left_Leg,Block_Leg_Left,Left_Leg_Block</Alias>
+    </roi>
+    <roi>
+        <name>Block_Leg_R</name>
+        <TG263PrimaryName>Block_Leg_R</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>11</NCharacters>
+        <TG263ReverseOrderName>R_Leg_Block</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>Block_Right_Leg,Block_Leg_Right,Right_Leg_Block</Alias>
+    </roi>
+    <roi>
+        <name>Block_Legs</name>
+        <TG263PrimaryName>Block_Legs</TG263PrimaryName>
+        <Description>An entrance dose block to avoid dose</Description>
+        <NCIt></NCIt>
+        <TargetType>Non-Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Body</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>10</NCharacters>
+        <TG263ReverseOrderName>Legs_Block</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231" Hex="#FCB3E7">HotAquarellePink</Color>
+        <Alias>BlockLegs</Alias>
+    </roi>
+    <roi>
         <name>Block_Posterior</name>
         <TG263PrimaryName>Block_Posterior</TG263PrimaryName>
         <Description>An entrance dose block to avoid posterior dose</Description>
@@ -11563,7 +11791,7 @@
         <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
         <MajorCategory>Body</MajorCategory>
         <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
+        <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>15</NCharacters>
         <TG263ReverseOrderName>Posterior_Block</TG263ReverseOrderName>
         <FMAID></FMAID>

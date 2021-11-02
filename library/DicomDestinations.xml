@@ -11,12 +11,6 @@
         <aet type="text">MOBIUS3D</aet>
         <port type="int">104</port>
     </destination>
-    <destination type="scp">
-        <name type="text">Tomo (Room C)</name>
-        <host type="text">10.151.1.73</host>
-        <aet type="text">TomoProvider1</aet>
-        <port type="int">104</port>
-    </destination>
     <destination type="RayGateway">
         <name type="text">RayGateway</name>
         <host type="text">10.151.28.149</host>
@@ -28,18 +22,6 @@
         <host type="text">10.105.10.25</host>
         <aet type="text">VIEWRAY_STORAGE</aet>
         <port type="int">11115</port>
-    </destination>
-    <destination type="scp">
-        <name type="text">OSMS (East)</name>
-        <host type="text">10.32.16.32</host>
-        <aet type="text">OSMS_EAST</aet>
-        <port type="int">104</port>
-    </destination>
-    <destination type="scp">
-        <name type="text">OSMS (Room A)</name>
-        <host type="text">10.105.10.31</host>
-        <aet type="text">OSMS0490</aet>
-        <port type="int">104</port>
     </destination>
     <destination type="scp">
         <name type="text">ARIA</name>

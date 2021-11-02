@@ -1,4 +1,4 @@
-""" Multi-Patient Planning Study
+""" Planning Study
 
     Automatic generation of a curative Head and Neck Plan.
     -Load the patient and case from a user-selected csv file

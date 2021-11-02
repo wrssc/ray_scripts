@@ -401,6 +401,7 @@
         <skin_structure margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
                         margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">Skin_PRV05
         </skin_structure>
+        <normal>Normal_2cm</normal>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="1.5" margin_inf="1.5"
                  margin_ant="1.5" margin_pos="1.5" margin_r="1.5" margin_l="1.5">Ring_HD
         </ring_hd>

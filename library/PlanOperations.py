@@ -113,3 +113,25 @@ def find_used_structures(case, exam, plan, beamset):
     # Search the plan evaluation functions
     for e in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
         used_rois.append(e.ForRegionOfInterest.Name)
+
+def compute_dose(beamset, dose_algorithm):
+    # Computes the dose if necessary and returns success message or
+    # failure
+    try:
+        beamset.ComputeDose(ComputeBeamDoses=True,
+                            DoseAlgorithm=dose_algorithm,
+                            ForceRecompute=False)
+        message = 'Recomputed Dose'
+    except Exception as e:
+        logging.debug(u'Message is {}'.format(e.Message))
+        try:
+            if 'Dose has already been computed with the current parameters' in e.Message:
+                message = 'Dose re-computation unnecessary'
+                logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+            else:
+                logging.exception(u'{}'.format(e.Message))
+                sys.exit(u'{}'.format(e.Message))
+        except:
+            logging.exception(u'{}'.format(e.Message))
+            sys.exit(u'{}'.format(e.Message))
+        return message

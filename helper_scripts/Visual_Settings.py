@@ -10,11 +10,11 @@
     the terms of the GNU General Public License as published by the Free Software
     Foundation, either version 3 of the License, or (at your option) any later
     version.
-    
+
     This program is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
     FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
@@ -105,6 +105,38 @@ def find_max_dose_in_plan(examination, case, plan):
         max_dose = None
 
     return max_dose
+
+def goal_matches_priority(e,priority):
+    if not priority:
+        return True
+
+    if int(e.PlanningGoal.Priority) in priority:
+        return True
+    else:
+        return False
+
+def parse_dose_from_goal(e):
+    goal_type = e.PlanningGoal.Type
+    if goal_type == 'DoseAtAbsoluteVolume':
+        return int(e.PlanningGoal.AcceptanceLevel)
+    elif goal_type == 'VolumeAtDose':
+        return int(e.PlanningGoal.ParameterValue)
+    elif goal_type == 'AverageDose':
+        return int(e.PlanningGoal.AcceptanceLevel)
+    else:
+        k=logging.warning('unknown goal type {}'.format(goal_type))
+
+def find_goal_dose_levels(plan, priority=None):
+    # Find the dose levels used in the evaluation of the goals and return list of isodoses
+    # priority is a list of priority levels. If present, then only return dose levels of
+    # those groups.
+    doses = []
+    for e in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
+        if goal_matches_priority(e,priority):
+            d = parse_dose_from_goal(e)
+            if d and d not in doses:
+                doses.append(d)
+    return sorted(doses)
 
 
 def main():
