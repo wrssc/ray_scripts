@@ -2459,6 +2459,37 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         suffix=None,
     )
     temp_air_roi = case.PatientModel.RegionsOfInterest[temp_air_name]
+    # TODO: This is taking too long. Suggest making a bounding box on all targets to speed this up
+    # Function would get a bounding box for each target
+    #    b = []
+    #    a = None
+    # funct absolute_max(a,b):
+    #    if abs(a) < abs(b)
+    #       return b
+    #    else:
+    #       return a
+
+    # for p in PTV_List:
+    #    target_geom = case.PatientModel.StructureSets[exam.Name].RoiGeometries[p]
+    #    b = target_geom.GetBoundingBox()
+    #    if not a:
+    #       a = b
+    #    a[0].x = absolute_max(a[0].x,b[0].x)
+    #    a[1].x = absolute_max(a[1].x,b[1].x)
+    #    a[0].y = absolute_max(a[0].y,b[0].y)
+    #    a[1].y = absolute_max(a[1].y,b[1].y)
+    #    a[0].z = absolute_max(a[0].z,b[0].z)
+    #    a[1].z = absolute_max(a[1].z,b[1].z)
+    # box_geom.OfRoi.CreateBoxGeometry(Size={'x': abs(b[0].x - b[1].x)+1.,
+    #                                            'y': abs(b[0].y - b[1].y)+1.,
+    #                                           'z': abs(z1-z0)},
+    #                                     Examination=exam,
+    #                                     Center=c,
+    #                                     Representation='Voxels',
+    #                                     VoxelSize=None)
+    # Find the maximum in each direction
+    # Add/Subtract a fixed value away from the targets
+    # This bounding box would be fed into the GrayLevel thresholding below
     # Build the temporary air volume
     temp_air_roi.GrayLevelThreshold(
         Examination=examination,
@@ -3318,7 +3349,8 @@ def planning_structures(
         "Brainstem",
         "Bronchus",
         "Bronchus_L",
-        "Bronchus_R" "CaudaEquina",
+        "Bronchus_R",
+        "CaudaEquina",
         "Cochlea_L",
         "Cochlea_R",
         "Duodenum",
@@ -3331,12 +3363,16 @@ def planning_structures(
         "Hippocampus_L_PRV05",
         "Hippocampus_R",
         "Hippocampus_R_PRV05",
+        "Larynx",
         "Lens_R",
         "Lens_L",
+        "Bone_Mandible",
         "OpticChiasm",
-        "OpticNerv_L",
-        "OpticNerv_R",
+        "OpticNrv_L",
+        "OpticNrv_R",
         "Rectum",
+        "Retina_L",
+        "Retina_R",
         "SpinalCord",
         "SpinalCord_PRV02",
         "Trachea",
@@ -3357,6 +3393,7 @@ def planning_structures(
         "Bronchus_L_PRV05",
         "Bronchus_R_PRV05",
         "CaudaEquina_PRV05",
+        "Cavity_Oral",
         "Cochlea_L_PRV05",
         "Cochlea_R_PRV05",
         "Esophagus",
