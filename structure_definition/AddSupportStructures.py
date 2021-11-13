@@ -46,10 +46,10 @@ __author__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
 __date__ = "2021-09-14"
 __version__ = "0.1.0"
-__status__ = "Development"
+__status__ = "Released"
 __deprecated__ = False
-__reviewer__ = None
-__reviewed__ = None
+__reviewer__ = "Adam Bayliss"
+__reviewed__ = "11/2/2021"
 __raystation__ = "10A SP1"
 __maintainer__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
@@ -356,6 +356,8 @@ def add_structures_from_template(
         case.PatientModel.StructureSets[examination.Name] \
             .RoiGeometries[roi].DeleteGeometry()
 
+    ## RAB_Comment: How is couch insertion affected by padding of image sets in MIM?
+    ## RAB_Comment: Are there other implications of the AlignToImageCenter we might be missing?
     # Add the TrueBeam Couch
     case.PatientModel.CreateStructuresFromTemplate(
         SourceTemplate=support_template,
@@ -391,6 +393,7 @@ def transform_structure(
 
     PARAMETERS
     ----------
+    ## RAB_Comment: might want to mention it is a RayStation examination object
     examination
         The examination on which to perform rotations
     roi
@@ -492,6 +495,10 @@ def deploy_couch_model(
     examination = get_current("Examination")
     patient = get_current("Patient")
 
+## RAB_Comment: the prone couch is supported in the template. If you made the template examination an
+##              argument then it would be a matter of loading the prone support_structures_examination below
+##              Not sure if that will have an impact on the get-bounding box below, but anything
+##              using patient DICOM instead of image DICOM will break.
     if examination.PatientPosition != "HFS":
         logging.error("Current exam in not in HFS position. Exiting script.")
         message = (
@@ -529,6 +536,9 @@ def deploy_couch_model(
         )
         logging.info("Successfully translated the couch model")
 
+    ## RAB_Comment: rather than a while loop, why not just compute the exact inferior and superior expansion?
+    ##              Inferior = extent_inf - min(couch.GetBoundingBox()[0]["z"],couch.GetBoundingBox()[1]["z"] )
+    ##              Superior = extent_sup + max(couch.GetBoundingBox()[0]["z"],couch.GetBoundingBox()[1]["z"])
     with CompositeAction("Fill Couch Model Longitudinally"):
 
         image_bb = examination.Series[0].ImageStack.GetBoundingBox()
@@ -1123,6 +1133,8 @@ def deploy_civco_breastboard_model(
 
     with CompositeAction("Create Derived Geometries"):
 
+    ## RAB_comment: Nice, I like this method of making a loop when multiple parameters
+    ## are changing with each iteration.
         zipped_parameters = zip(
             [base_shell, incline_shell],
             ["CivcoBaseBody", "CivcoInclineBody"],
@@ -1182,6 +1194,9 @@ def deploy_civco_breastboard_model(
                     material_water = material
                     break
 
+## RAB_Comment: We should test that this material Creation is still compatible with electron calculation
+## otherwise we may find that we can't generate electron plans. If it does, then awesome! RaySearch told me
+## there was no work around to the material missing issue.
             # Create a new material
             material_CB = case.PatientModel.CreateMaterial(
                 BaseOnMaterial=material_water,
