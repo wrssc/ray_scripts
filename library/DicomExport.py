@@ -707,10 +707,14 @@ def send(case,
                             # b.add_new(0x32490010, 'LO', 'UW Madison RayScripts 3249')
                             # expected.add(b[0x32490010])
                             logging.debug('Deleting ref point location from b {}'.format(b.ReferencedBeamNumber))
-                            del b[0x300a0082] # Beam Dose Point Specification Coordinates
-                            del b[0x300a0088] # Beam Dose Point Depth
-                            del b[0x300a0089] # Beam Dose Point Equivalent Depth
-                            del b[0x300a0090] # Beam Dose Type
+                            if hasattr(b,'BeamDoseSpecificationPoint'):
+                                del b[0x300a0082] # Beam Dose Point Specification Coordinates
+                            if hasattr(b,'BeamDosePointDepth'):
+                                del b[0x300a0088] # Beam Dose Point Depth
+                            if hasattr(b,'RadiologicalDepth'):
+                                del b[0x300a0089] # Beam Dose Point Equivalent Depth
+                            if hasattr(b,'BeamDoseType'):
+                                del b[0x300a0090] # Beam Dose Type
                     if total_dose == 0:
                         for b in ds.FractionGroupSequence[0].ReferencedBeamSequence:
                             b.add_new(0x300a0084, 'DS', ref.DeliveryMaximumDose /

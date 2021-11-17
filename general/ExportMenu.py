@@ -224,6 +224,7 @@ def main():
         else:
             # No filters if option 3 selected
             if filters[3] in response['e']:
+                logging.info('User selected to disable all filters in export')
                 f = None
                 response['e'] = []
                 response['c'] = None
@@ -244,14 +245,19 @@ def main():
             else:
                 if not filters[0] in response['e']:
                     f.append('machine')
+                    logging.info('User will apply machine name change to exported plans')
                 if filters[1] in response['e']:
                     rpm_gating = True
+                    logging.info('User will apply Use Gated tag to RTPlan')
                 else:
                     rpm_gating = False
+                    logging.info('No internal gating selected for RTPlan')
                 if filters[2] in response['e']:
                     ref_point_location = False
+                    logging.info('User disabled reference point location definition in export')
                 else:
                     ref_point_location = True
+                    logging.info('Reference point location preserved in export')
                 #
                 # Filters to always be applied
                 # PRDR Dose Rate
@@ -297,7 +303,7 @@ def main():
                                table=t,
                                #round_jaws=filters[2] in response['e'],
                                prescription=create_reference_point,
-                               ref_point_location = filters[2] in response['e'],
+                               ref_point_location = ref_point_location,
                                block_accessory=block_accessory,
                                block_tray_id=block_tray_id,
                                pa_threshold=pa_threshold,
