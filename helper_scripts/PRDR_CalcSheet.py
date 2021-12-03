@@ -12,15 +12,19 @@
 
     Validation:
     PRDR Beamtables have been populated manually by Dosimetry since RayStation
-    was commissioned. Several patients were opened, and this table was generated
+    was commissioned. 5 were opened, and this table was generated
     for them using the 1% maximum dose convention we adopted for evaluating the
-    13.3 cGy/Min maximum dose to target limit set by Ma. Now that the script
-    is written, we will switch to the more conventional max dose evaluation at
-    0.03 cc.
+    13.3 cGy/Min maximum dose to target limit set by Ma.
+    This data was compared to the clinically used PRDR calcsheet. No deviations were
+    found.
 
     Version:
     0.0.0 Validation with Dmax evaluated at 1%
     0.0.1 Switch to Dmax evaluated at 0.03 cc to prescribing target
+          When this process was done manually, evaluating each beam's contribution
+          to the maximum dose to 0.03 cc volume of the target was prohibitively time
+          consuming. Now that the script is written, we will switch to the more
+          conventional max dose evaluation at 0.03 cc.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -37,8 +41,8 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '02-Dec-2021'
-__version__ = '0.0.0'
+__date__ = '03-Dec-2021'
+__version__ = '0.0.1'
 __status__ = 'Testing'
 __deprecated__ = False
 __reviewer__ = ''
@@ -47,7 +51,7 @@ __raystation__ = '10.A.SP1'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
 __help__ = ''
 __credits__ = []
 
@@ -224,6 +228,8 @@ def pd_to_header_table(df):
 def display_beam_worksheet(df_plan,df_fraction):
     """
     Build the sg table for the user
+    df_plan: data frame containing the beamset level PRDR calculation data
+    df_fraction: data frame containing the fraction dose PRDR calculation data
     """
     sg.theme('Dark')
     (headings_fraction, table_fraction) = pd_to_header_table(df_fraction)
@@ -247,8 +253,10 @@ def display_beam_worksheet(df_plan,df_fraction):
               [sg.Text('Toggle Plan/Fraction Data = Toggle Between Plan and Fractional Data : (MU Sheet uses Plan)')]]
 
     # ------ Create Window ------
-    window = sg.Window('PRDR Dose Data', layout, # font='Helvetica 25',
-                       )
+    # Add the version of the script to the header window
+    # This will be matched with the excel spreadsheet version
+    window = sg.Window("".join(( 'PRDR Dose Data (Version: ',__version__, ')')),
+                       layout, font='Garamond 12')
 
     # ------ Event Loop ------
     while True:
@@ -295,8 +303,8 @@ def main():
             beamset = GeneralOperations.find_scope(level='BeamSet'))
     # Determine how max doses should be reported
     volume_units = {
-        'UNITS':'%',
-        'VOLUME': 0.01
+        'UNITS':'cc',
+        'VOLUME': 0.03
         }
     # Get the dose per fraction mean, max and dose to isocenter
     df_fraction = get_fraction_dose_dataframe(rs_obj, volume_units)
