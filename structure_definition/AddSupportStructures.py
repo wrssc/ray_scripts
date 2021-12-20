@@ -1113,6 +1113,8 @@ def deploy_civco_breastboard_model(
                 roi=couch.OfRoi,
                 translations=[0, shift_couch_y, 0],
             )
+            message = (f"The couch structure had been lowered {shift_couch_y} cm.")
+            logging.info(message)
 
     with CompositeAction("Clean External"):
         ss.SimplifyContours(
