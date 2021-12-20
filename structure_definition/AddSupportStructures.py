@@ -710,6 +710,16 @@ def deploy_couch_model(
                 display_duration_in_ms=DISPLAY_DURATION_IN_MS
             )
 
+    patient.SetRoiVisibility(RoiName=couch.OfRoi.Name, IsVisible=True)
+
+    message = (
+        "Please use the Translate and Rotate tools to adjust the "
+        f"{couch_roi_name}, as needed."
+    )
+    await_user_input(message)
+
+    patient.SetRoiVisibility(RoiName=couch.OfRoi.Name, IsVisible=False)
+
     get_current("Patient").Save()
     return couch
 
