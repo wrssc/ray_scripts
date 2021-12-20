@@ -59,7 +59,6 @@ __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current, await_user_input
 from StructureOperations import exists_roi, find_types
-from PlanOperations import check_localization
 
 import PySimpleGUI as sg
 import numpy as np
@@ -135,6 +134,36 @@ SMALL_EXPANSION_SIZE = 0.05  # cm
 
 CIVCOBOARD_MATERIAL_NAME = "CivcoBoard"
 CIVCOBOARD_MATERIAL_DENS = 0.73
+
+
+def check_localization(case, exam, create=False, confirm=False):
+    # Look for the sim point, if not create a point
+    # Capture the current list of POI's to avoid a crash
+    pois = case.PatientModel.PointsOfInterest
+    sim_point_found = any(poi.Type == 'LocalizationPoint' for poi in pois)
+
+    if sim_point_found:
+        if confirm:
+            logging.info("POI SimFiducials Exists")
+            await_user_input(
+                'Ensure Correct placement of the SimFiducials Point and continue script.')
+            return True
+        else:
+            return True
+    else:
+        if create and not sim_point_found:
+            case.PatientModel.CreatePoi(Examination=exam,
+                                        Point={'x': 0,
+                                               'y': 0,
+                                               'z': 0},
+                                        Name="SimFiducials",
+                                        Color="Green",
+                                        Type="LocalizationPoint")
+            await_user_input(
+                'Ensure Correct placement of the SimFiducials Point and continue script.')
+            return True
+        else:
+            return False
 
 
 def get_support_structures_GUI(examination):
@@ -1349,7 +1378,7 @@ def main():
     # Add the localization point, if missing:
     check_localization(case=case, exam=examination, create=True, confirm=False)
 
-    couch=None
+    couch = None
     if values['-COUCH TRUEBEAM-']:
 
         # Deploy the TrueBeam couch
