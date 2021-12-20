@@ -59,6 +59,7 @@ __copyright__ = "Copyright (C) 2021, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current, await_user_input
 from StructureOperations import exists_roi, find_types
+from PlanOperations import check_localization
 
 import PySimpleGUI as sg
 import numpy as np
@@ -1301,6 +1302,9 @@ def main():
         '-WINGBOARD INDEX-': 5.0
         }
     """
+
+    # Add the localization point, if missing:
+    check_localization(case=case, exam=examination, create=True, confirm=False)
 
     if values['-COUCH TRUEBEAM-']:
 
