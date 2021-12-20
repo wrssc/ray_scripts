@@ -131,6 +131,7 @@ CIVCO_INCLINE_BOARD_ANGLES = {
 BASE_CONTRACTION = 0.2  # cm
 INCLINE_CONTRACTION = 0.3  # cm
 NOFLYZONE_EXPANSION = 1.5  # cm
+SMALL_EXPANSION_SIZE = 0.05  # cm
 
 CIVCOBOARD_MATERIAL_NAME = "CivcoBoard"
 CIVCOBOARD_MATERIAL_DENS = 0.73
@@ -357,9 +358,10 @@ def add_structures_from_template(
         case.PatientModel.StructureSets[examination.Name] \
             .RoiGeometries[roi].DeleteGeometry()
 
-    ## RAB_Comment: How is couch insertion affected by padding of image sets in MIM?
-    ## RAB_Comment: Are there other implications of the AlignToImageCenter we might be missing?
-    # Add the TrueBeam Couch
+    # Add structure from template
+    # Notes: The use of AlignToImageCenter drops structures in center of image.
+    # This is usually not the correct location, so your script must either
+    # prompt the user to correct the location, or automate the correct location.
     case.PatientModel.CreateStructuresFromTemplate(
         SourceTemplate=support_template,
         SourceExaminationName=support_structures_examination,
@@ -478,7 +480,16 @@ def deploy_couch_model(
 
     RETURNS
     -------
-    None
+    The RayStation Geometry object corresponding to the couch 
+
+    NOTES
+    -----
+    This function assumes that the top of the treatment couch is 7 cm above
+    the DICOM y=0 plane. This is true of scans acquired on our UWHC Siemens scanner.
+    This is likely to be true for the Johnson Creek scanner, but has not been tested.
+    This assumption will not work for the East Clinic GE scanner.
+    This function has not been tested with padded images. This function will prompt
+    the user to evaluate and correct couch placement if necessary.
 
     """
 
@@ -496,10 +507,6 @@ def deploy_couch_model(
     examination = get_current("Examination")
     patient = get_current("Patient")
 
-## RAB_Comment: the prone couch is supported in the template. If you made the template examination an
-##              argument then it would be a matter of loading the prone support_structures_examination below
-##              Not sure if that will have an impact on the get-bounding box below, but anything
-##              using patient DICOM instead of image DICOM will break.
     if examination.PatientPosition != "HFS":
         logging.error("Current exam in not in HFS position. Exiting script.")
         message = (
@@ -537,9 +544,6 @@ def deploy_couch_model(
         )
         logging.info("Successfully translated the couch model")
 
-    ## RAB_Comment: rather than a while loop, why not just compute the exact inferior and superior expansion?
-    ##              Inferior = extent_inf - min(couch.GetBoundingBox()[0]["z"],couch.GetBoundingBox()[1]["z"] )
-    ##              Superior = extent_sup + max(couch.GetBoundingBox()[0]["z"],couch.GetBoundingBox()[1]["z"])
     with CompositeAction("Fill Couch Model Longitudinally"):
 
         image_bb = examination.Series[0].ImageStack.GetBoundingBox()
@@ -549,6 +553,8 @@ def deploy_couch_model(
         # If inferior edge of couch is inside image boundary
         if couch.GetBoundingBox()[0]["z"] > extent_inf:
             # Extend couch until it exceeds image boundary
+            # Note: A while loop is necessary because the maximum expansion is
+            # 15 cm. This expansion may need to be repeated, hence the loop.
             while couch.GetBoundingBox()[0]["z"] > extent_inf:
                 MarginSettings = {
                     'Type': "Expand",
@@ -705,13 +711,15 @@ def deploy_couch_model(
             )
 
     get_current("Patient").Save()
+    return couch
 
 
 def deploy_civco_breastboard_model(
     case,
     incline_angle,
     use_wingboard,
-    wingboard_index
+    wingboard_index,
+    couch=None
 ):
     """ Deploys the Civco C-Qual Breastboard
 
@@ -727,6 +735,8 @@ def deploy_civco_breastboard_model(
         True if user wants to add the Civco Monarch board to the image, else False.
     wingboard_index: int or float or None
         The index of the wingboard position (0-75), or None.
+    couch: ScriptObject
+        A RayStation ScriptObject corresponding to the treatment couch.
 
     RETURNS
     -------
@@ -1003,14 +1013,24 @@ def deploy_civco_breastboard_model(
             'Left': 0
         }
 
+        SmallExpansion = {
+            'Type': "Expand",
+            'Superior': SMALL_EXPANSION_SIZE,
+            'Inferior': SMALL_EXPANSION_SIZE,
+            'Anterior': SMALL_EXPANSION_SIZE,
+            'Posterior': SMALL_EXPANSION_SIZE,
+            'Right': SMALL_EXPANSION_SIZE,
+            'Left': SMALL_EXPANSION_SIZE
+        }
+
         PostExpansion = {
             'Type': "Expand",
-            'Superior': 0,
-            'Inferior': 0,
-            'Anterior': 0,
+            'Superior': SMALL_EXPANSION_SIZE,
+            'Inferior': SMALL_EXPANSION_SIZE,
+            'Anterior': SMALL_EXPANSION_SIZE,
             'Posterior': 15,  # Capture tissue under the structure.
-            'Right': 0,
-            'Left': 0
+            'Right': SMALL_EXPANSION_SIZE,
+            'Left': SMALL_EXPANSION_SIZE
         }
 
         # First, address overlap with the wingboard.
@@ -1076,9 +1096,22 @@ def deploy_civco_breastboard_model(
                 ExpressionB={
                     'Operation': "Union",
                     'SourceRoiNames': [incline_body.OfRoi.Name],
-                    'MarginSettings': NoExpansion
+                    'MarginSettings': SmallExpansion
                 },
                 ResultOperation="Subtraction"
+            )
+
+        # Check for table-base overlap:
+        top_of_couch = couch.GetBoundingBox()[0]["y"]
+
+        if top_of_couch > bottom_of_base:
+            shift_couch_y = -(top_of_couch-bottom_of_base+0.05)
+
+            # Shift the couch to below the base
+            transform_structure(
+                examination=examination,
+                roi=couch.OfRoi,
+                translations=[0, shift_couch_y, 0],
             )
 
     with CompositeAction("Clean External"):
@@ -1134,8 +1167,6 @@ def deploy_civco_breastboard_model(
 
     with CompositeAction("Create Derived Geometries"):
 
-    ## RAB_comment: Nice, I like this method of making a loop when multiple parameters
-    ## are changing with each iteration.
         zipped_parameters = zip(
             [base_shell, incline_shell],
             ["CivcoBaseBody", "CivcoInclineBody"],
@@ -1306,17 +1337,18 @@ def main():
     # Add the localization point, if missing:
     check_localization(case=case, exam=examination, create=True, confirm=False)
 
+    couch=None
     if values['-COUCH TRUEBEAM-']:
 
         # Deploy the TrueBeam couch
-        deploy_couch_model(
+        couch = deploy_couch_model(
             case,
             support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
             support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION,
             source_roi_names=[COUCH_SOURCE_ROI_NAMES['TrueBeam']]
         )
     elif values['-COUCH TOMO-']:
-        deploy_couch_model(
+        couch = deploy_couch_model(
             case,
             support_structure_template=COUCH_SUPPORT_STRUCTURE_TEMPLATE,
             support_structures_examination=COUCH_SUPPORT_STRUCTURE_EXAMINATION,
@@ -1328,7 +1360,8 @@ def main():
             case,
             incline_angle=values["-INCLINE ANGLE-"],
             use_wingboard=values["-USE WINGBOARD-"],
-            wingboard_index=values["-WINGBOARD INDEX-"]
+            wingboard_index=values["-WINGBOARD INDEX-"],
+            couch=couch
         )
 
 
