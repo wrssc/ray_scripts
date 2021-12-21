@@ -994,7 +994,7 @@ def deploy_civco_breastboard_model(
             )
             logging.info(message)
 
-        get_current("Patient").Save()
+    get_current("Patient").Save()
 
     with CompositeAction("User correction of initial position"):
 
