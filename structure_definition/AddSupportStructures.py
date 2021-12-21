@@ -994,6 +994,8 @@ def deploy_civco_breastboard_model(
             )
             logging.info(message)
 
+        get_current("Patient").Save()
+
     with CompositeAction("User correction of initial position"):
 
         # Next, we will let the user correct the location of the base. This
@@ -1022,10 +1024,10 @@ def deploy_civco_breastboard_model(
 
         # First, reset the base_body position
         transform_structure(
-                examination=examination,
-                geometry=base_body,
-                translations=-manual_translation,  # minus sign
-            )
+            examination=examination,
+            geometry=base_body,
+            translations=-manual_translation,  # minus sign
+        )
 
         # Finally, translate all structures in bulk.
         for roi in initial_shifts_rois:
