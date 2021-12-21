@@ -136,34 +136,109 @@ CIVCOBOARD_MATERIAL_NAME = "CivcoBoard"
 CIVCOBOARD_MATERIAL_DENS = 0.73
 
 
-def check_localization(case, exam, create=False, confirm=False):
-    # Look for the sim point, if not create a point
-    # Capture the current list of POI's to avoid a crash
-    pois = case.PatientModel.PointsOfInterest
-    sim_point_found = any(poi.Type == 'LocalizationPoint' for poi in pois)
+def verify_localization_point(case, exam):
+    """ Checks for a localization point called SimFiducials
 
-    if sim_point_found:
-        if confirm:
-            logging.info("POI SimFiducials Exists")
-            await_user_input(
-                'Ensure Correct placement of the SimFiducials Point and continue script.')
-            return True
+    This function searchs for two conditions:
+    (1) Is there already a localization point?
+    (2) Is there already a point called "SimFiducials"
+
+    Different combinations of True and False can occur, and we handle each case
+    as well as possible.
+
+    PARAMETERS
+    ----------
+    case : ScriptObject
+        A RayStation ScriptObject corresponding to the current case.
+    exam : ScriptObject
+        A RayStation ScriptObject corresponding to the current exam.
+
+    RETURNS
+    -------
+    None
+
+    """
+
+    pois = case.PatientModel.PointsOfInterest
+
+    # First, check for a point called "SimFiducials"
+    sim_fiducials_exists = any(poi.Name == 'SimFiducials' for poi in pois)
+    loc_point_exists = any(poi.Type == 'LocalizationPoint' for poi in pois)
+
+    # Case 1: True and True
+    if sim_fiducials_exists and loc_point_exists:
+        # Check to make sure the localization point is "SimFiducials"
+        loc_poi = [poi for poi in pois if poi.Type == 'LocalizationPoint']
+        assert len(loc_poi) == 1
+        loc_poi = loc_poi[0]
+
+        if loc_poi.Name == 'SimFiducials':
+            logging.info("POI SimFiducials exists and is the localization point.")
+            return None
         else:
-            return True
-    else:
-        if create and not sim_point_found:
-            case.PatientModel.CreatePoi(Examination=exam,
-                                        Point={'x': 0,
-                                               'y': 0,
-                                               'z': 0},
-                                        Name="SimFiducials",
-                                        Color="Green",
-                                        Type="LocalizationPoint")
-            await_user_input(
-                'Ensure Correct placement of the SimFiducials Point and continue script.')
-            return True
-        else:
-            return False
+            message = (
+                f"A localization point called {loc_poi.Name} exists, as does another "
+                "POI called 'SimFiducials'. Normally, 'SimFiducials' is the "
+                "localization point. Please correct this to ensure the correct point "
+                "is used for localization."
+            )
+            await_user_input(message)
+            return None
+
+    # Case 2: True and False
+    if sim_fiducials_exists and not loc_point_exists:
+
+        sim_poi = [poi for poi in pois if poi.Name == 'SimFiducials']
+        assert len(sim_poi) == 1
+        sim_poi = sim_poi[0]
+
+        sim_poi.Type = "LocalizationPoint"
+
+        message = (
+            "A POI called 'SimFiducials' exists, but it is not the "
+            "localization point. A localization point does not exists, so "
+            "the script has changed the 'Type' of 'SimFiducials' to a "
+            "localization point."
+        )
+        logging.info(message)
+        sg.popup_quick_message(message)
+        return None
+
+    # Case 3: False and True
+    if not sim_fiducials_exists and loc_point_exists:
+
+        loc_poi = [poi for poi in pois if poi.Type == 'LocalizationPoint']
+        assert len(loc_poi) == 1
+        loc_poi = loc_poi[0]
+
+        loc_poi.Type = "SimFiducials"
+
+        message = (
+            "A localization point exists, but it is not called 'SimFiducials'. "
+            "The script has changed the 'Name' of the localization point to "
+            "'SimFiducials'."
+        )
+        logging.info(message)
+        sg.popup_quick_message(message)
+        return None
+
+    # Case 4: False and False
+    if not sim_fiducials_exists and not loc_point_exists:
+
+        case.PatientModel.CreatePoi(
+            Examination=exam,
+            Point={'x': 0, 'y': 0, 'z': 0},
+            Name="SimFiducials",
+            Color="Green",
+            Type="LocalizationPoint"
+        )
+        await_user_input(
+            'Ensure correct placement of the SimFiducials point and continue script.')
+        message = (
+            "Created a localization point called 'SimFiducials'."
+        )
+        logging.info(message)
+        return None
 
 
 def get_support_structures_GUI(examination):
@@ -1376,7 +1451,7 @@ def main():
     """
 
     # Add the localization point, if missing:
-    check_localization(case=case, exam=examination, create=True, confirm=False)
+    verify_localization_point(case=case, exam=examination)
 
     couch = None
     if values['-COUCH TRUEBEAM-']:
