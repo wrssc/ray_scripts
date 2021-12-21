@@ -488,7 +488,7 @@ def add_structures_from_template(
 
 def transform_structure(
     examination,
-    roi,
+    geometry,
     translations=[0.0, 0.0, 0.0],
     pitch=0.0,
     yaw=0.0,
@@ -500,11 +500,11 @@ def transform_structure(
 
     PARAMETERS
     ----------
-    ## RAB_Comment: might want to mention it is a RayStation examination object
-    examination
-        The examination on which to perform rotations
-    roi
-        The ROI which you would like to transform
+    examination : ScriptObject
+        A RayStation ScriptObject corresponding to the current examination.
+    geometry: ScriptObject
+        A RayStation ScriptObject corresponding to the geometry which you would
+        like to transform
     translations : list of float
         A 3x1 array listing the [x, y, z] translations (default is [0.0,0.0,0.0])
     pitch : float
@@ -559,7 +559,10 @@ def transform_structure(
         'M41': 0, 'M42': 0, 'M43': 0, 'M44': 1
     }
 
-    roi.OfRoi.TransformROI3D(Examination=examination, TransformationMatrix=TransformationMatrix)
+    geometry.OfRoi.TransformROI3D(
+        Examination=examination,
+        TransformationMatrix=TransformationMatrix
+    )
 
 
 def deploy_couch_model(
@@ -941,7 +944,7 @@ def deploy_civco_breastboard_model(
         for roi in initial_shifts_rois:
             transform_structure(
                 examination=examination,
-                roi=roi,
+                geometry=roi,
                 translations=T,
                 pitch=INCLINE_BASE_PITCH
             )
@@ -979,7 +982,7 @@ def deploy_civco_breastboard_model(
             for roi in wingboard_shifts_rois:
                 transform_structure(
                     examination=examination,
-                    roi=roi,
+                    geometry=roi,
                     translations=T,
                     pitch=WINGBOARD_PITCH,
                     roll=WINGBOARD_ROLL,
@@ -1010,7 +1013,7 @@ def deploy_civco_breastboard_model(
         for roi in incline_shifts_rois:
             transform_structure(
                 examination=examination,
-                roi=roi,
+                geometry=roi,
                 translations=T_hinge,
             )
 
@@ -1028,7 +1031,7 @@ def deploy_civco_breastboard_model(
             for roi in wingboard_shifts_rois:
                 transform_structure(
                     examination=examination,
-                    roi=roi,
+                    geometry=roi,
                     pitch=-INCLINE_ZERO_PITCH,
                 )
 
@@ -1039,7 +1042,7 @@ def deploy_civco_breastboard_model(
             for roi in wingboard_shifts_rois:
                 transform_structure(
                     examination=examination,
-                    roi=roi,
+                    geometry=roi,
                     translations=T,
                 )
 
@@ -1047,7 +1050,7 @@ def deploy_civco_breastboard_model(
             for roi in wingboard_shifts_rois:
                 transform_structure(
                     examination=examination,
-                    roi=roi,
+                    geometry=roi,
                     pitch=INCLINE_ZERO_PITCH,
                 )
 
@@ -1062,7 +1065,7 @@ def deploy_civco_breastboard_model(
         for roi in incline_shifts_rois:
             transform_structure(
                 examination=examination,
-                roi=roi,
+                geometry=roi,
                 pitch=incline_rotation,
             )
 
@@ -1070,7 +1073,7 @@ def deploy_civco_breastboard_model(
         for roi in incline_shifts_rois:
             transform_structure(
                 examination=examination,
-                roi=roi,
+                geometry=roi,
                 translations=-T_hinge,
             )
 
@@ -1224,7 +1227,7 @@ def deploy_civco_breastboard_model(
             # Shift the couch to below the base
             transform_structure(
                 examination=examination,
-                roi=couch.OfRoi,
+                geometry=couch,
                 translations=[0, shift_couch_y, 0],
             )
             message = (f"The couch structure had been lowered {shift_couch_y} cm.")
