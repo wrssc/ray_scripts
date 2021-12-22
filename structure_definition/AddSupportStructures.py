@@ -130,7 +130,7 @@ CIVCO_INCLINE_BOARD_ANGLES = {
 BASE_CONTRACTION = 0.2  # cm
 INCLINE_CONTRACTION = 0.3  # cm
 NOFLYZONE_EXPANSION = 1.5  # cm
-SMALL_EXPANSION_SIZE = 0.05  # cm
+SMALL_EXPANSION_SIZE = 0.5  # cm
 
 CIVCOBOARD_MATERIAL_NAME = "CivcoBoard"
 CIVCOBOARD_MATERIAL_DENS = 0.73
@@ -995,6 +995,8 @@ def deploy_civco_breastboard_model(
             logging.info(message)
             pass
 
+    get_current("Patient").Save()
+
     with CompositeAction("Incline and Shift Wingboard"):
 
         # This group of ROIs participates in rotation during incline
@@ -1094,7 +1096,7 @@ def deploy_civco_breastboard_model(
 
     message = (
         "Please use the Translate and Rotate tools to adjust the "
-        "CivcoWingBoard, CivcoBaseBody and CivcoInclineBody, as needed."
+        "CivcoWingBoard and CivcoInclineBody, as needed."
     )
     await_user_input(message)
 
@@ -1221,6 +1223,7 @@ def deploy_civco_breastboard_model(
 
         # Check for table-base overlap:
         top_of_couch = couch.GetBoundingBox()[0]["y"]
+        base_bb = base_body.GetBoundingBox()[1]["y"]
 
         if top_of_couch > bottom_of_base:
             shift_couch_y = -(top_of_couch-bottom_of_base+0.05)
