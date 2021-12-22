@@ -130,7 +130,7 @@ CIVCO_INCLINE_BOARD_ANGLES = {
 BASE_CONTRACTION = 0.2  # cm
 INCLINE_CONTRACTION = 0.3  # cm
 NOFLYZONE_EXPANSION = 1.5  # cm
-SMALL_EXPANSION_SIZE = 0.5  # cm
+SMALL_EXPANSION_SIZE = 0.1  # cm
 
 CIVCOBOARD_MATERIAL_NAME = "CivcoBoard"
 CIVCOBOARD_MATERIAL_DENS = 0.73
@@ -1278,8 +1278,11 @@ def deploy_civco_breastboard_model(
         top_of_couch = couch.GetBoundingBox()[0]["y"]
         bottom_of_base = base_body.GetBoundingBox()[1]["y"]
 
-        if top_of_couch > bottom_of_base:
-            shift_couch_y = -(top_of_couch-bottom_of_base+0.05)
+        # Anterior is more negative in DICOM image coordinates.
+        if top_of_couch < bottom_of_base:
+
+            # We want shift the couch in the positive direction
+            shift_couch_y = bottom_of_base-top_of_couch+0.05
 
             # Shift the couch to below the base
             transform_structure(
@@ -1442,7 +1445,7 @@ def deploy_civco_breastboard_model(
             wingboard_nfz.OfRoi.DeleteRoi()
 
         message = ("Deleted extra ROIs.")
-        logging.error(message)
+        logging.info(message)
 
     patient.SetRoiVisibility(RoiName=base_shell.OfRoi.Name, IsVisible=True)
     patient.SetRoiVisibility(RoiName=incline_shell.OfRoi.Name, IsVisible=True)
