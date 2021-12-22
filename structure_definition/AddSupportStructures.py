@@ -996,61 +996,6 @@ def deploy_civco_breastboard_model(
 
     get_current("Patient").Save()
 
-    with CompositeAction("User correction of initial position"):
-
-        # Next, we will let the user correct the location of the base. This
-        # will be used to create a shift vector that can be used to correct the
-        # position of other items.
-
-        incline_body_center_initial = base_body.GetCenterOfRoi()
-
-        patient.SetRoiVisibility(RoiName=base_body.OfRoi.Name, IsVisible=True)
-
-        message = (
-            "Please use the Translate and Rotate tools to adjust the "
-            f"{base_body.OfRoi.Name}, as needed."
-        )
-        await_user_input(message)
-
-        patient.SetRoiVisibility(RoiName=base_body.OfRoi.Name, IsVisible=False)
-
-        incline_body_center_final = base_body.GetCenterOfRoi()
-
-        manual_translation = [
-            incline_body_center_final["x"] - incline_body_center_initial["x"],
-            incline_body_center_final["y"] - incline_body_center_initial["y"],
-            incline_body_center_final["z"] - incline_body_center_initial["z"],
-        ]
-
-        # First, reset the base_body position
-        transform_structure(
-            examination=examination,
-            geometry=base_body,
-            translations=-manual_translation,  # minus sign
-        )
-
-        # Finally, translate all structures in bulk.
-        for roi in initial_shifts_rois:
-            transform_structure(
-                examination=examination,
-                geometry=roi,
-                translations=manual_translation
-            )
-
-        if use_wingboard:
-            for roi in wingboard_shifts_rois:
-                transform_structure(
-                    examination=examination,
-                    geometry=roi,
-                    translations=manual_translation,
-                )
-
-        message = (
-            f"User-defined manual shift, {manual_translation}, "
-            "was applied to all structures."
-        )
-        logging.info(message)
-
     with CompositeAction("Incline and Shift Wingboard"):
 
         # This group of ROIs participates in rotation during incline
