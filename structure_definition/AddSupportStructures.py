@@ -196,12 +196,12 @@ def verify_localization_point(case, exam):
 
         message = (
             "A POI called 'SimFiducials' exists, but it is not the "
-            "localization point. A localization point does not exists, so "
+            "localization point. A localization point does not exist, so "
             "the script has changed the 'Type' of 'SimFiducials' to a "
             "localization point."
         )
         logging.info(message)
-        sg.popup_quick_message(message)
+        sg.popup_ok(message)
         return None
 
     # Case 3: False and True
@@ -219,7 +219,7 @@ def verify_localization_point(case, exam):
             "'SimFiducials'."
         )
         logging.info(message)
-        sg.popup_quick_message(message)
+        sg.popup_ok(message)
         return None
 
     # Case 4: False and False
