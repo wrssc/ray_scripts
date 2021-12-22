@@ -994,6 +994,32 @@ def deploy_civco_breastboard_model(
             )
             logging.info(message)
 
+    # Next, we will let the user correct the location of the base. This
+    # will be used to create a shift vector that can be used to correct the
+    # position of other items.
+
+    incline_body_center_initial = base_body.GetCenterOfRoi()
+
+    patient.SetRoiVisibility(RoiName=base_body.OfRoi.Name, IsVisible=True)
+
+    message = (
+        "Please use the Translate and Rotate tools to adjust the "
+        f"{base_body.OfRoi.Name}, as needed."
+    )
+    await_user_input(message)
+
+    patient.SetRoiVisibility(RoiName=base_body.OfRoi.Name, IsVisible=False)
+    get_current("Patient").Save()
+
+    incline_body_center_final = base_body.GetCenterOfRoi()
+
+    manual_translation = [
+        incline_body_center_final["x"] - incline_body_center_initial["x"],
+        incline_body_center_final["y"] - incline_body_center_initial["y"],
+        incline_body_center_final["z"] - incline_body_center_initial["z"],
+    ]
+    print(manual_translation)
+
     with CompositeAction("Incline and Shift Wingboard"):
 
         # This group of ROIs participates in rotation during incline
