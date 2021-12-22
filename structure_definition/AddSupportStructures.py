@@ -1013,11 +1013,11 @@ def deploy_civco_breastboard_model(
 
     incline_body_center_final = base_body.GetCenterOfRoi()
 
-    manual_translation = [
+    manual_translation = np.array([
         incline_body_center_final["x"] - incline_body_center_initial["x"],
         incline_body_center_final["y"] - incline_body_center_initial["y"],
         incline_body_center_final["z"] - incline_body_center_initial["z"],
-    ]
+    ])
 
     with CompositeAction("Apply Manual Corrections"):
 
@@ -1025,7 +1025,7 @@ def deploy_civco_breastboard_model(
         transform_structure(
             examination=examination,
             geometry=base_body,
-            translations=-manual_translation,  # minus sign
+            translations=-1*manual_translation,  # minus sign
         )
 
         # Finally, translate all structures in bulk.
