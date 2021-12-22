@@ -993,6 +993,7 @@ def deploy_civco_breastboard_model(
                 " a 'Flat' incline postion with the wingboard at index 50."
             )
             logging.info(message)
+            pass
 
     with CompositeAction("Incline and Shift Wingboard"):
 
