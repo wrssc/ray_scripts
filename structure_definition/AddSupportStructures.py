@@ -130,7 +130,7 @@ CIVCO_INCLINE_BOARD_ANGLES = {
 BASE_CONTRACTION = 0.2  # cm
 INCLINE_CONTRACTION = 0.3  # cm
 NOFLYZONE_EXPANSION = 1.5  # cm
-SMALL_EXPANSION_SIZE = 0.05  # cm
+SMALL_EXPANSION_SIZE = 0.5  # cm
 
 CIVCOBOARD_MATERIAL_NAME = "CivcoBoard"
 CIVCOBOARD_MATERIAL_DENS = 0.73
@@ -1018,7 +1018,37 @@ def deploy_civco_breastboard_model(
         incline_body_center_final["y"] - incline_body_center_initial["y"],
         incline_body_center_final["z"] - incline_body_center_initial["z"],
     ]
-    print(manual_translation)
+
+    with CompositeAction("Apply Manual Corrections"):
+
+        # First, reset the base_body position
+        transform_structure(
+            examination=examination,
+            geometry=base_body,
+            translations=-manual_translation,  # minus sign
+        )
+
+        # Finally, translate all structures in bulk.
+        for roi in initial_shifts_rois:
+            transform_structure(
+                examination=examination,
+                geometry=roi,
+                translations=manual_translation
+            )
+
+        if use_wingboard:
+            for roi in wingboard_shifts_rois:
+                transform_structure(
+                    examination=examination,
+                    geometry=roi,
+                    translations=manual_translation,
+                )
+
+        message = (
+            f"User-defined manual shift, {manual_translation}, "
+            "was applied to all structures."
+        )
+        logging.info(message)
 
     with CompositeAction("Incline and Shift Wingboard"):
 
@@ -1246,6 +1276,7 @@ def deploy_civco_breastboard_model(
 
         # Check for table-base overlap:
         top_of_couch = couch.GetBoundingBox()[0]["y"]
+        bottom_of_base = base_body.GetBoundingBox()[1]["y"]
 
         if top_of_couch > bottom_of_base:
             shift_couch_y = -(top_of_couch-bottom_of_base+0.05)
