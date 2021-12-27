@@ -1390,7 +1390,14 @@ def deploy_civco_breastboard_model(
                 ResultOperation="Subtraction"
             )
 
-    with CompositeAction("Apply Special Density Override"):
+    """
+
+    This section of code produces a more accurate model of the incline board
+    than the Wax/Cork model found in the next "with" block. However, the
+    creation of custom materials prevents electron dose calculations in version
+    10 of RayStation. We may reintroduce this override technique in version 11.
+
+    with CompositeAction("Apply Custom Material Density Override"):
 
         # Check if CIVCOBOARD_MATERIAL_NAME already exists
         material_names = [x.Name for x in case.PatientModel.Materials]
@@ -1405,9 +1412,7 @@ def deploy_civco_breastboard_model(
                     material_water = material
                     break
 
-## RAB_Comment: We should test that this material Creation is still compatible with electron calculation
-## otherwise we may find that we can't generate electron plans. If it does, then awesome! RaySearch told me
-## there was no work around to the material missing issue.
+
             # Create a new material
             material_CB = case.PatientModel.CreateMaterial(
                 BaseOnMaterial=material_water,
@@ -1434,6 +1439,36 @@ def deploy_civco_breastboard_model(
 
         message = ("The base shell and incline shell have been overridden.")
         logging.info(message)
+    """
+
+    with CompositeAction("Set Incline Board to Wax/Cork combo"):
+
+        # Find the Wax material
+        material_wax = None
+        for material in case.PatientModel.Materials:
+
+            if material.Name == "Wax":
+                material_wax = material
+                break
+
+        # Find the Cork material
+        material_cork = None
+        for material in case.PatientModel.Materials:
+
+            if material.Name == "Cork":
+                material_cork = material
+                break
+
+        assert material_wax is not None, "Wax material was not found."
+        assert material_cork is not None, "Cork material was not found."
+
+        # Set the material for the shells
+        incline_shell.OfRoi.SetRoiMaterial(Material=material_wax)
+        base_shell.OfRoi.SetRoiMaterial(Material=material_cork)
+
+        message = ("The base shell and incline shell have been overridden.")
+        logging.info(message)
+
 
     with CompositeAction("Delete Extra Structures"):
 
