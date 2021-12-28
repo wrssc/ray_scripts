@@ -1443,9 +1443,12 @@ def deploy_civco_breastboard_model(
 
     with CompositeAction("Set Incline Board to Wax/Cork combo"):
 
+        patient_db = get_current("PatientDB")
+        list_of_materials = patient_db.GetTemplateMaterial().Materials
+
         # Find the Wax material
         material_wax = None
-        for material in case.PatientModel.Materials:
+        for material in list_of_materials:
 
             if material.Name == "Wax":
                 material_wax = material
@@ -1453,7 +1456,7 @@ def deploy_civco_breastboard_model(
 
         # Find the Cork material
         material_cork = None
-        for material in case.PatientModel.Materials:
+        for material in list_of_materials:
 
             if material.Name == "Cork":
                 material_cork = material
