@@ -1472,7 +1472,6 @@ def deploy_civco_breastboard_model(
         message = ("The base shell and incline shell have been overridden.")
         logging.info(message)
 
-
     with CompositeAction("Delete Extra Structures"):
 
         base_body.OfRoi.DeleteRoi()
