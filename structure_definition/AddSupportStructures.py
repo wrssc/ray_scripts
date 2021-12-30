@@ -1444,26 +1444,58 @@ def deploy_civco_breastboard_model(
     with CompositeAction("Set Incline Board to Wax/Cork combo"):
 
         patient_db = get_current("PatientDB")
-        list_of_materials = patient_db.GetTemplateMaterial().Materials
 
         # Find the Wax material
-        material_wax = None
-        for material in list_of_materials:
+        try:
+            list_of_materials = case.PatientModel.Materials
 
-            if material.Name == "Wax":
-                material_wax = material
-                break
+            material_wax = None
+            for material in list_of_materials:
+
+                if material.Name == "Wax":
+                    material_wax = material
+                    break
+
+            assert material_wax is not None, "Wax material was not found in Patient Model."
+
+        except AssertionError:
+
+            list_of_materials = patient_db.GetTemplateMaterial().Materials
+
+            material_wax = None
+            for material in list_of_materials:
+
+                if material.Name == "Wax":
+                    material_wax = material
+                    break
+
+            assert material_wax is not None, "Wax material was not found in Template Materials."
 
         # Find the Cork material
-        material_cork = None
-        for material in list_of_materials:
+        try:
+            list_of_materials = case.PatientModel.Materials
 
-            if material.Name == "Cork":
-                material_cork = material
-                break
+            material_cork = None
+            for material in list_of_materials:
 
-        assert material_wax is not None, "Wax material was not found."
-        assert material_cork is not None, "Cork material was not found."
+                if material.Name == "Cork":
+                    material_cork = material
+                    break
+
+            assert material_cork is not None, "Cork material was not found in Patient Model."
+
+        except AssertionError:
+
+            list_of_materials = patient_db.GetTemplateMaterial().Materials
+
+            material_cork = None
+            for material in list_of_materials:
+
+                if material.Name == "Cork":
+                    material_cork = material
+                    break
+
+            assert material_wax is not None, "Cork material was not found in Template Materials."
 
         # Set the material for the shells
         incline_shell.OfRoi.SetRoiMaterial(Material=material_wax)
