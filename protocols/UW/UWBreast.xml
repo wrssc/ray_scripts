@@ -989,6 +989,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
                 <volume units="%">5</volume>
@@ -1209,6 +1223,20 @@
                 <name>PTV_n3_IMN</name>
                 <type dir="ge">VX</type>
                 <volume units="%">80</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
@@ -1571,6 +1599,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n2_Axillary</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
@@ -1805,6 +1847,20 @@
                 <name>PTV_n3_IMN</name>
                 <type dir="ge">VX</type>
                 <volume units="%">80</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
@@ -2162,6 +2218,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n2_Axillary</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
@@ -2379,6 +2449,20 @@
                 <name>PTV_n3_IMN</name>
                 <type dir="ge">VX</type>
                 <volume units="%">80</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
@@ -2721,6 +2805,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n2_Axillary</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
@@ -2938,6 +3036,20 @@
                 <name>PTV_n3_IMN</name>
                 <type dir="ge">VX</type>
                 <volume units="%">80</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
@@ -3220,6 +3332,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
                 <dose units="Gy">22.5</dose>
@@ -3415,6 +3541,20 @@
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">80</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
