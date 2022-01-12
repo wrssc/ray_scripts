@@ -1,4 +1,7 @@
-<protocol>
+<protocol version="1">
+    <notes date="12Jan2022">Updated TPO for improved coverage of IMN in higher than 2 Gy per fraction cases\n
+        More stringent esopagheal constraints added to conventional, hypofrac, and alliance.
+    </notes>
     <name>UW Breast</name>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
@@ -972,6 +975,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
                 <volume units="%">5</volume>
@@ -1089,7 +1106,21 @@
             <roi>
                 <name>Esophagus</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">30</dose>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -1178,6 +1209,20 @@
                 <name>PTV_n3_IMN</name>
                 <type dir="ge">VX</type>
                 <volume units="%">80</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
@@ -1313,7 +1358,21 @@
             <roi>
                 <name>Esophagus</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">30</dose>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -1498,6 +1557,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n2_Axillary</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
@@ -1629,7 +1702,21 @@
             <roi>
                 <name>Esophagus</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">30</dose>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -1722,6 +1809,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n2_Axillary</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
@@ -1853,7 +1954,21 @@
             <roi>
                 <name>Esophagus</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">30</dose>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -2033,6 +2148,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n2_Axillary</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
@@ -2149,7 +2278,21 @@
             <roi>
                 <name>Esophagus</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">30</dose>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -2240,6 +2383,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n2_Axillary</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
@@ -2356,7 +2513,21 @@
             <roi>
                 <name>Esophagus</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">30</dose>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -2536,6 +2707,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n2_Axillary</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
@@ -2652,7 +2837,21 @@
             <roi>
                 <name>Esophagus</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">30</dose>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -2743,6 +2942,20 @@
                 <priority>2</priority>
             </roi>
             <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
                 <name>PTV_n2_Axillary</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
@@ -2859,7 +3072,21 @@
             <roi>
                 <name>Esophagus</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">30</dose>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
         </goals>
@@ -2976,6 +3203,20 @@
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">80</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -3174,6 +3415,20 @@
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_n3_IMN">80</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
