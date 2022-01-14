@@ -84,8 +84,8 @@ BREASTBOARD_SOURCE_ROI_NAMES = [
     "NFZ_Base",
     "CivcoInclineBody",
     "NFZ_Incline",
-    "CivcoBaseShell",
-    "CivcoInclineShell",
+    "CivcoBaseShell_Cork",
+    "CivcoInclineShell_Wax",
 ]
 BREASTBOARD_DERIVED_ROI_NAMES = [
     "NoFlyZone_PRV",
@@ -93,7 +93,7 @@ BREASTBOARD_DERIVED_ROI_NAMES = [
 
 MONARCH_SUPPORT_STRUCTURE_TEMPLATE = "UW Civco C-Qual Breastboard"
 MONARCH_SUPPORT_STRUCTURE_EXAMINATION = "Wingboard"
-MONARCH_SOURCE_ROI_NAMES = ["CivcoWingBoard", "NFZ_WB_Basis"]
+MONARCH_SOURCE_ROI_NAMES = ["CivcoWingBoard_PMMA", "NFZ_WB_Basis"]
 MONARCH_DERIVED_ROI_NAMES = []
 
 # Magic numbers for shifts
@@ -961,7 +961,7 @@ def deploy_civco_breastboard_model(
             # "Flat incline at index 50" location.
 
             # Grab ROIs and create groups
-            wingboard_body = ss.RoiGeometries["CivcoWingBoard"]
+            wingboard_body = ss.RoiGeometries["CivcoWingBoard_PMMA"]
             wingboard_nfz = ss.RoiGeometries["NFZ_WB_Basis"]
 
             # This group of ROIs participates in rotation during incline and
@@ -1149,7 +1149,7 @@ def deploy_civco_breastboard_model(
 
     message = (
         "Please use the Translate and Rotate tools to adjust the "
-        "CivcoWingBoard, CivcoBaseBody and CivcoInclineBody, as needed."
+        "CivcoWingBoard_PMMA and CivcoInclineBody_Wax, as needed."
     )
     await_user_input(message)
 
@@ -1170,7 +1170,7 @@ def deploy_civco_breastboard_model(
         shelled structures to ensure they maintain the same attenuation.
 
         Order of priority
-        1. CivcoWingBoard (if in use)
+        1. CivcoWingBoard_PMMA (if in use)
         2. CivcoInclineBody
         3. External
         4. Treatment Table
@@ -1208,7 +1208,7 @@ def deploy_civco_breastboard_model(
 
         # First, address overlap with the wingboard.
         if use_wingboard:
-            # Subtract CivcoWingBoard from CivcoInclineBody
+            # Subtract CivcoWingBoard_PMMA from CivcoInclineBody
 
             incline_body.OfRoi.CreateAlgebraGeometry(
                 Examination=examination,
@@ -1225,7 +1225,7 @@ def deploy_civco_breastboard_model(
                 ResultOperation="Subtraction"
             )
 
-            # Subtract CivcoWingBoard from External
+            # Subtract CivcoWingBoard_PMMA from External
             roi_external.CreateAlgebraGeometry(
                 Examination=examination,
                 ExpressionA={
@@ -1311,8 +1311,8 @@ def deploy_civco_breastboard_model(
                 Type="Avoidance"
             )
 
-        base_shell = ss.RoiGeometries["CivcoBaseShell"]
-        incline_shell = ss.RoiGeometries["CivcoInclineShell"]
+        base_shell = ss.RoiGeometries["CivcoBaseShell_Cork"]
+        incline_shell = ss.RoiGeometries["CivcoInclineShell_Wax"]
         nfz_expanded = ss.RoiGeometries["NoFlyZone_PRV"]
 
         patient.SetRoiVisibility(RoiName=base_shell.OfRoi.Name, IsVisible=False)
