@@ -80,12 +80,12 @@ COUCH_SOURCE_ROI_NAMES = {
 BREASTBOARD_SUPPORT_STRUCTURE_TEMPLATE = "UW Civco C-Qual Breastboard"
 BREASTBOARD_SUPPORT_STRUCTURE_EXAMINATION = "InclineBoard"
 BREASTBOARD_SOURCE_ROI_NAMES = [
-    "CivcoBaseBody",
     "NFZ_Base",
-    "CivcoInclineBody",
     "NFZ_Incline",
     "CivcoBaseShell_Cork",
     "CivcoInclineShell_Wax",
+    "CivcoInclineBody",
+    "CivcoBaseBody",
 ]
 BREASTBOARD_DERIVED_ROI_NAMES = [
     "NoFlyZone_PRV",
@@ -889,14 +889,6 @@ def deploy_civco_breastboard_model(
 
     with CompositeAction("Add Breastboard components"):
 
-        add_structures_from_template(
-            case=case,
-            support_structure_template=BREASTBOARD_SUPPORT_STRUCTURE_TEMPLATE,
-            support_structures_examination=BREASTBOARD_SUPPORT_STRUCTURE_EXAMINATION,
-            source_roi_names=BREASTBOARD_SOURCE_ROI_NAMES,
-            derived_roi_names=BREASTBOARD_DERIVED_ROI_NAMES
-        )
-
         if use_wingboard:
             add_structures_from_template(
                 case=case,
@@ -905,6 +897,14 @@ def deploy_civco_breastboard_model(
                 source_roi_names=MONARCH_SOURCE_ROI_NAMES,
                 derived_roi_names=MONARCH_DERIVED_ROI_NAMES
             )
+
+        add_structures_from_template(
+            case=case,
+            support_structure_template=BREASTBOARD_SUPPORT_STRUCTURE_TEMPLATE,
+            support_structures_examination=BREASTBOARD_SUPPORT_STRUCTURE_EXAMINATION,
+            source_roi_names=BREASTBOARD_SOURCE_ROI_NAMES,
+            derived_roi_names=BREASTBOARD_DERIVED_ROI_NAMES
+        )
 
         message = (
             "Civco Breastboard structures added to examination."
@@ -1149,7 +1149,7 @@ def deploy_civco_breastboard_model(
 
     message = (
         "Please use the Translate and Rotate tools to adjust the "
-        "CivcoWingBoard_PMMA and CivcoInclineBody_Wax, as needed."
+        f"{incline_body.OfRoi.Name} and {wingboard_body.OfRoi.Name}, as needed."
     )
     await_user_input(message)
 
