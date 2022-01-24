@@ -22,7 +22,7 @@
 #####
 
 matplotlib
-notebook
+# notebook
 numpy>=1.19
 pandas
 Pillow
