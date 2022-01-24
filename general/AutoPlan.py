@@ -241,6 +241,7 @@ def beamset_dialog(protocol, order_targets):
     machine = selected_beam_parameters.values['m']
     return (beamset_name, iso_target, machine)
 
+
 def autoplan(testing_bypass_dialogs = {}):
 
     ap_report = {}
@@ -265,6 +266,8 @@ def autoplan(testing_bypass_dialogs = {}):
     autoplan_folder = r'AutoPlans'
     path_protocols = os.path.join(os.path.dirname(__file__),
                                   protocol_folder, institution_folder, autoplan_folder)
+
+    path_to_output = os.path.normpath("Q:\\RadOnc\\RayStation\\RayScripts\\AutoPlanData")
     #
     # Create status steps for dialog
     script_steps = {
@@ -646,6 +649,7 @@ def autoplan(testing_bypass_dialogs = {}):
         path = path_protocols,
         pd = pd,
         technique = beamset_defs.technique,
+        output_data_dir = path_to_output,
         bypass_user_prompts = True
     )
     ap_report['time_opt'][1] = timer()
