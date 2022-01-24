@@ -75,11 +75,378 @@ def check_structure_exists(case, structure_name, roi_list, option):
                      'Structure {} not found, and will be created'.format(structure_name))
         return False
 
+def get_most_inferior(case, exam, roi_name):
+    # Given a structure name, depending on the patient orientation
+    # solve for the most inferior extent of the roi and return that coordinate
+    #
+    # Check for an empty contour
+    [roi_check] = StructureOperations.check_roi(case,exam,rois=roi_name)
+    if not roi_check:
+        return None
+    bb_roi = case.PatientModel.StructureSets[exam.Name]\
+                 .RoiGeometries[roi_name].GetBoundingBox()
+    position = case.Examinations[exam.Name].PatientPosition
+    if position == 'HFS':
+        return bb_roi[0].z
+    elif position == 'FFS':
+        return bb_roi[1].z
+    else:
+        return None
+
+def get_center(case, exam, roi_name):
+    # Given a structure name, depending on the patient orientation
+    # solve for the most inferior extent of the roi and return that coordinate
+    #
+    # Check for an empty contour
+    [roi_check] = StructureOperations.check_roi(case,exam,rois=roi_name)
+    if not roi_check:
+        return None
+    bb_roi = case.PatientModel.StructureSets[exam.Name]\
+                 .RoiGeometries[roi_name].GetBoundingBox()
+    c = {'x': bb_roi[0].x +(bb_roi[1].x - bb_roi[0].x)/2,
+         'y': bb_roi[0].y +(bb_roi[1].y - bb_roi[0].y)/2,
+         'z': bb_roi[0].z +(bb_roi[1].z - bb_roi[0].z)/2}
+    return c
+
+
+def find_junction_coords(pd_hfs):
+    # Find which kidney is lower
+    # Move this to a function that runs first with Kidneys already defined.
+    roi_1 = 'Kidney_L'
+    roi_2 = 'Kidney_R'
+    [external_name] = StructureOperations.find_types(pd_hfs.case,roi_type='External')
+    hfs_roi_1_z = get_most_inferior(pd_hfs.case, pd_hfs.exam, roi_1)
+    hfs_roi_2_z = get_most_inferior(pd_hfs.case, pd_hfs.exam, roi_2)
+    center = get_center(pd_hfs.case,pd_hfs.exam,external_name)
+    return {
+        'x': center['x'],
+        'y': center['y'],
+        'z': min(hfs_roi_1_z, hfs_roi_2_z)
+    }
+
+def place_poi(pd_hfs, coord_hfs):
+    # Create a junction point and use the coordinates determined above
+
+    poi_status = StructureOperations.create_poi(
+        case = pd_hfs.case,
+        exam = pd_hfs.exam,
+        coords = [coord_hfs['x'], coord_hfs['y'], coord_hfs['z']],
+        name = 'Junction',
+        color = 'Red',
+        diameter=1,
+        rs_type = 'Control'
+        )
+
+def convert_array_to_transform(t):
+    # Converts into the expected values for an RS transform dictionary
+    return {'M11':  t[0], 'M12':  t[1], 'M13':  t[2], 'M14':  t[3],
+            'M21':  t[4], 'M22':  t[5], 'M23':  t[6], 'M24':  t[7],
+            'M31':  t[8], 'M32':  t[9], 'M33': t[10], 'M34': t[11],
+            'M41': t[12], 'M42': t[13], 'M43': t[14], 'M44': t[15]}
+
+def determine_prefix(exam):
+    # Return HFS or FFS depending on exam orientation
+    if exam.PatientPosition == 'HFS':
+        return 'hfs'
+    elif exam.PatientPosition == 'FFS':
+        return 'ffs'
+
+def find_roi_prefix(case, roi_match):
+    # Return all structures who's name contains roi_prefix
+    found_roi = []
+    for r in case.PatientModel.RegionsOfInterest:
+        if roi_match in r.Name:
+            found_roi.append(r.Name)
+    return found_roi
+
+def update_all_remove_expression(pdata,roi_name):
+    # Update the expression for a contour on all exams then remove expression
+    for e in pdata.case.PatientModel.StructureSets:
+        pdata.case.PatientModel.RegionsOfInterest[roi_name].UpdateDerivedGeometry(
+            Examination=pdata.case.Examinations[e.OnExamination.Name],
+            Algorithm="Auto"
+        )
+    try:
+        pdata.case.PatientModel.RegionsOfInterest[roi_name].DeleteExpression()
+    except:
+        pass
+
+def make_junction_contour(pdata,junct_name,z_start, dim_si, dose_level, color=[192, 192, 192]):
+    #  Make the Box Roi and junction region in the area of interest
+    #
+    # Get exam orientation
+    prefix = determine_prefix(pdata.exam)
+    if prefix =='ffs':
+        si = -1.
+    elif prefix == 'hfs':
+        si =  1.
+    # Find the name of the external contour
+    external_name = StructureOperations.find_types(pdata.case,roi_type='External')[0]
+    #
+    # Get the Bounding box of the External contour
+    bb_external = pdata.case.PatientModel.StructureSets[pdata.exam.Name]\
+                 .RoiGeometries[external_name].GetBoundingBox()
+    c_external = get_center(pdata.case,pdata.exam,roi_name=external_name)
+    #
+    # Make a box ROI that starts at z_start and ends at z_start + dim_si
+    box_name = 'box_'+str(round(z_start,1))
+    box_geom = StructureOperations.create_roi(
+        case=pdata.case,
+        examination=pdata.exam,
+        roi_name=box_name,
+        delete_existing=True)
+    StructureOperations.exclude_from_export(pdata.case,box_name)
+    #
+    # Make the box geometry
+    box_geom.OfRoi.CreateBoxGeometry(
+                Size={'x': abs(bb_external[1].x-bb_external[0].x)+1,
+                      'y': abs(bb_external[1].y-bb_external[0].y)+1,
+                      'z': dim_si},
+                Examination=pdata.exam,
+                Center={'x': c_external['x'],
+                        'y': c_external['y'],
+                        'z': z_start + si * dim_si/2.},
+                Representation='Voxels',
+                VoxelSize=None)
+    junction_name = prefix+"_junction_"+str(dose_level)
+    #
+    # Boolean Definitions
+    temp_defs = {
+                "StructureName": junction_name,
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                "StructColor": color,
+                "OperationA": "Intersection",
+                "SourcesA": [external_name, box_name],
+                "MarginTypeA": "Expand",
+                "ExpA": [0] * 6,
+                "OperationB": "Union",
+                "SourcesB": [],
+                "MarginTypeB": "Expand",
+                "ExpB": [0] * 6,
+                "OperationResult": "None",
+                "MarginTypeR": "Expand",
+                "ExpR": [0] * 6,
+                "StructType": "Undefined",
+            }
+    StructureOperations.make_boolean_structure(
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
+    type_msg = StructureOperations.change_roi_type(
+               case=pdata.case,
+               roi_name=junction_name,
+               roi_type='Ptv')
+    # update_all_remove_expression(pdata=pdata,roi_name=box_name)
+    update_all_remove_expression(pdata=pdata,roi_name=junction_name)
+    pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
+
+def make_avoid(pdata,z_start, avoid_name,color=[192, 192, 192]):
+    # Take the z_start, build a box that is everything above this position
+    # Find the intersection with the external. This is the avoidance volume:
+    # avoid_name
+    # Find the name of the external contour
+    external_name = StructureOperations.find_types(pdata.case,roi_type='External')[0]
+    # Get exam orientation
+    prefix = determine_prefix(pdata.exam)
+    if prefix =='ffs':
+        si = -1.
+        bb_index = 1
+    elif prefix == 'hfs':
+        si =  1.
+        bb_index = 0
+    #
+    # Get the Bounding box of the External contour
+    bb_external = pdata.case.PatientModel.StructureSets[pdata.exam.Name]\
+                 .RoiGeometries[external_name].GetBoundingBox()
+    c_external = get_center(pdata.case,pdata.exam,roi_name=external_name)
+    #
+    # Make a box ROI that starts at z_start and ends at z_start + dim_si
+    box_name = 'avoid_box_'+str(round(z_start,1))
+    box_geom = StructureOperations.create_roi(
+        case=pdata.case,
+        examination=pdata.exam,
+        roi_name=box_name,
+        delete_existing=True)
+    StructureOperations.exclude_from_export(pdata.case,box_name)
+    logging.debug('ROI name is {}'.format(box_geom.OfRoi.Name))
+    si_box_size = abs(bb_external[bb_index].z + si * z_start)
+    box_geom.OfRoi.CreateBoxGeometry(
+                Size={'x': abs(bb_external[1].x-bb_external[0].x)+1,
+                      'y': abs(bb_external[1].y-bb_external[0].y)+1,
+                      'z': si_box_size},
+                Examination=pdata.exam,
+                Center={'x': c_external['x'],
+                        'y': c_external['y'],
+                        'z': z_start - si * si_box_size/2.},
+                Representation='Voxels',
+                VoxelSize=None)
+    #
+    # Boolean Definitions
+    temp_defs = {
+                "StructureName": avoid_name,
+                "ExcludeFromExport": True,
+                "VisualizeStructure": False,
+                "StructColor": color,
+                "OperationA": "Intersection",
+                "SourcesA": [external_name, box_name],
+                "MarginTypeA": "Expand",
+                "ExpA": [0] * 6,
+                "OperationB": "Union",
+                "SourcesB": [Lung_L,Lung_R],
+                "MarginTypeB": "Contract",
+                "ExpB": [0.7] * 6,
+                "OperationResult": "None",
+                "MarginTypeR": "Expand",
+                "ExpR": [0] * 6,
+                "StructType": "Undefined",
+            }
+    StructureOperations.make_boolean_structure(
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
+    # update_all_remove_expression(pdata=pdata,roi_name=box_name)
+    update_all_remove_expression(pdata=pdata,roi_name=avoid_name)
+    pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
+
+
+def make_PTV(pdata, junction_prefix, avoid_name,color=[192, 192, 192]):
+    # Find all contours matching prefix and along with avoid_name return the external minus these objects
+    #
+    # Get exam orientation
+    prefix = determine_prefix(pdata.exam)
+    if prefix =='ffs':
+        si = -1.
+    elif prefix == 'hfs':
+        si =  1.
+    #
+    # PTV_name
+    ptv_name = "PTV_p_" + prefix.upper()
+    external_name = StructureOperations.find_types(pdata.case,roi_type='External')[0]
+    roi_exclude = find_roi_prefix(pdata.case, roi_match=junction_prefix)
+    roi_exclude.append(avoid_name)
+    #
+    # Boolean Definitions
+    temp_defs = {
+                "StructureName": ptv_name,
+                "ExcludeFromExport": False,
+                "VisualizeStructure": False,
+                "StructColor": color,
+                "OperationA": "Intersection",
+                "SourcesA": [external_name],
+                "MarginTypeA": "Expand",
+                "ExpA": [0] * 6,
+                "OperationB": "Union",
+                "SourcesB": roi_exclude,
+                "MarginTypeB": "Expand",
+                "ExpB": [0] * 6,
+                "OperationResult": "Subtraction",
+                "MarginTypeR": "Expand",
+                "ExpR": [0] * 6,
+                "StructType": "Undefined",
+            }
+    StructureOperations.make_boolean_structure(
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
+    type_msg = StructureOperations.change_roi_type(
+               case=pdata.case,
+               roi_name=ptv_name,
+               roi_type='Ptv')
+
+
+def make_dose_structs(pdata,isodoses, rx):
+    # make doses from structs and return names of created rois
+    # The resulting structs will be structures of at least the
+    # defined isodose and at most the next highest level
+    # isodoses {junction_name_on_ffs_scan: (110%, 100%, 95% Desired Dose in Junction)}
+    #
+    subtract_higher = False # Used to skip the boolean on the highest level isodose
+    #
+    # Resort isodoses, highest to lowest
+    isodose_contours = []
+    # sorted_isodoses = sorted(isodoses, reverse=True)
+    # Avoid circular dependencies by storing raw doses, and delete when finished
+    unsubtracted_doses = []
+    # The output: subtracted doses
+    subtracted_isodoses =[] #TODO: Test with just the highest level
+    for k, v in isodoses.items():
+        # Make a subtracted dose to roi
+        subtract_higher = False
+        for d in v:
+            threshold_level = (float(d)/100.) * rx #in cGy
+            unsubtracted_roi_name = str(d) +'%Rx'
+            # Make unsubtracted (raw) dose
+            unsubtracted_doses.append(unsubtracted_roi_name)
+            raw_geometry = StructureOperations.create_roi(
+                case=pdata.case,
+                examination=pdata.exam,
+                roi_name=unsubtracted_roi_name,
+                delete_existing=True)
+            raw = pdata.case.PatientModel.RegionsOfInterest[unsubtracted_roi_name]
+            raw.CreateRoiGeometryFromDose(
+                    DoseDistribution=pdata.plan.TreatmentCourse.TotalDose,
+                    ThresholdLevel=threshold_level)
+            roi_name = 'ffs_'+ k + '_dose_' + str(d) + '%Rx'
+            roi_geometry = StructureOperations.create_roi(
+                case=pdata.case,
+                examination=pdata.exam,
+                roi_name=roi_name,
+                delete_existing=True)
+            # Boolean Definitions
+            if subtract_higher:
+                temp_defs = {
+                            "StructureName": roi_name,
+                            "ExcludeFromExport": False,
+                            "VisualizeStructure": False,
+                            "StructColor": [192, 192, 192],
+                            "OperationA": "Intersection",
+                            "SourcesA": [k, unsubtracted_roi_name],
+                            "MarginTypeA": "Expand",
+                            "ExpA": [0] * 6,
+                            "OperationB": "Union",
+                            "SourcesB": subtracted_isodoses,
+                            "MarginTypeB": "Expand",
+                            "ExpB": [0] * 6,
+                            "OperationResult": "Subtraction",
+                            "MarginTypeR": "Expand",
+                            "ExpR": [0] * 6,
+                            "StructType": "Control",
+                        }
+            else:
+                temp_defs = {
+                            "StructureName": roi_name,
+                            "ExcludeFromExport": False,
+                            "VisualizeStructure": False,
+                            "StructColor": [192, 192, 192],
+                            "OperationA": "Union",
+                            "SourcesA": [k, unsubtracted_roi_name],
+                            "MarginTypeA": "Expand",
+                            "ExpA": [0] * 6,
+                            "OperationB": "Union",
+                            "SourcesB": [],
+                            "MarginTypeB": "Expand",
+                            "ExpB": [0] * 6,
+                            "OperationResult": "None",
+                            "MarginTypeR": "Expand",
+                            "ExpR": [0] * 6,
+                            "StructType": "Control",
+                        }
+            StructureOperations.make_boolean_structure(
+                patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
+            subtract_higher = True # Skip First isodose
+            subtracted_isodoses.append(roi_name)
+            isodose_contours.append(roi_name)
+    for d in unsubtracted_doses:
+        pdata.case.PatientModel.RegionsOfInterest[d].DeleteRoi()
+    return isodose_contours
+
+
+
 
 def main():
     # TODO: Replace with user prompt
+    # Add lungs - 7mm
+
     hfs_scan_name = 'CT 1'
     ffs_scan_name = 'CT 2'
+    # TODO: Target dialog build
+    rx = 800. # cGy
+    nfx = 4 # Num fraction
     #
     # Initialize return variable
     Pd = namedtuple('Pd', ['error','db', 'case', 'patient', 'exam', 'plan', 'beamset'])
@@ -98,11 +465,12 @@ def main():
             db = GeneralOperations.find_scope(level='PatientDB'),
             plan = None,
             beamset = None)
+
     # TODO: Get Exam2 loaded as a pd2
     # Load the Tomo Supports for the couch
     AutoPlanOperations.load_supports(pd=pd_hfs,supports=["TomoCouch"])
     AutoPlanOperations.load_supports(pd=pd_ffs,supports=["TomoCouch"])
-    # TODO: Extend the couch
+    # TODO: Use DJ's couch script
     # Make external clean on both
     external_name = "ExternalClean"
     ext_clean = StructureOperations.make_externalclean(
@@ -113,20 +481,23 @@ def main():
          suffix=None,
          delete=True,
      )
-    ext_clean.CreateExternalGeometries(
-        ReferenceExamination=hfs_scan_name,
+    externals = StructureOperations.find_types(case=pd_hfs.case, roi_type="External")
+    if externals:
+        current_external = pd_hfs.case.PatientModel.RegionsOfInterest[externals[0]]
+    current_external.CreateExternalGeometries(
+        ReferenceExamination=pd_hfs.exam,
         AdditionalExaminationNames=[ffs_scan_name],
         ReferenceThresholdLevel=-250)
 
     # TODO: No external contour is created on the ffs scan.
-    ext_clean = StructureOperations.make_externalclean(
-        patient=pd_ffs.patient,
-        case=pd_ffs.case,
-        examination=pd_ffs.exam,
-        structure_name=external_name,
-        suffix=None,
-        delete=False,
-    )
+    #ext_clean = StructureOperations.make_externalclean(
+    #    patient=pd_ffs.patient,
+    #    case=pd_ffs.case,
+    #    examination=pd_ffs.exam,
+    #    structure_name=external_name,
+    #    suffix=None,
+    #    delete=False,
+    #)
 
     """
     with connect.CompositeAction('Create external (External, Image set: CT 1, CT 2)'):
@@ -162,8 +533,9 @@ def main():
         InitializeImages=False,
         FocusRoisNames=[],
         RegistrationName=None)
-    # TODO:
-    # Add a prompt to check hips
+    # TODO: Move to fusion view and create a suitable view for reviewing fusion at hips
+    connect.await_user_input(
+        'Check the fusion alignment of the boney anatomy in the hips. Then continue script.')
 
     pd_hfs.case.PatientModel.MBSAutoInitializer(
         MbsRois=[{'CaseType': "Abdomen",
@@ -195,6 +567,39 @@ def main():
         CustomStatistics=None,
         CustomSettings=None)
 
+    # Try a repeat on FFS
+    pd_hfs.case.PatientModel.MBSAutoInitializer(
+        MbsRois=[{'CaseType': "Abdomen",
+                'ModelName': r"Kidney (Left)",
+                'RoiName': r"Kidney_L",
+                'RoiColor': "58, 251, 170" },
+                {'CaseType': "Abdomen",
+                'ModelName': r"Kidney (Right)",
+                'RoiName': r"Kidney_R",
+                'RoiColor': "250, 57, 105" },
+                {'CaseType': "Thorax",
+                'ModelName': r"Lung (Left)",
+                'RoiName': r"Lung_L",
+                'RoiColor': "253, 122, 9" },
+                {'CaseType': "Thorax",
+                'ModelName': r"Lung (Right)",
+                'RoiName': r"Lung_R",
+                'RoiColor': "54, 247, 223" }],
+                CreateNewRois=False,
+                Examination=pd_ffs.exam,
+                UseAtlasBasedInitialization=True)
+
+    pd_hfs.case.PatientModel.AdaptMbsMeshes(
+        Examination=pd_ffs.exam,
+        RoiNames=[r"Lung_L",
+                  r"Lung_R",
+                  r"Kidney_L",
+                  r"Kidney_R"],
+        CustomStatistics=None,
+        CustomSettings=None)
+
+    # TODO: Add a check on all contours
+    # Add a prefix_avoid_lung_m07
     # Make skin subtraction
     StructureOperations.make_wall(
             wall="Avoid_Skin_PRV05",
@@ -217,8 +622,143 @@ def main():
             struct_type="Organ")
 
     #
+    pd_hfs.case.PatientModel.CreateRoi(
+        Name="External_PRV10",
+        Color="255, 128, 0",
+        Type="IrradiatedVolume",
+        TissueName=None,
+        RbeCellTypeName=None,
+        RoiMaterial=None)
+    pd_hfs.case.PatientModel.RegionsOfInterest['External_PRV10'].SetMarginExpression(
+        SourceRoiName=external_name,
+        MarginSettings={'Type': "Expand",
+                        'Superior': 1.0,
+                        'Inferior': 1.0,
+                        'Anterior': 1.0,
+                        'Posterior': 1.0,
+                        'Right': 1.0,
+                        'Left': 1.0})
+    pd_hfs.case.PatientModel.RegionsOfInterest['External_PRV10'].UpdateDerivedGeometry(
+        Examination=pd_hfs.exam, Algorithm="Auto")
+
+# TODO: Rename Sensibly
+    lower_point = find_junction_coords(pd_hfs)
+    place_poi(pd_hfs=pd_hfs, coord_hfs=lower_point)
+    # Get the rigid registration
+    hfs_to_ffs = pd_hfs.case.GetTransformForExaminations(
+        FromExamination=hfs_scan_name,
+        ToExamination=ffs_scan_name)
+    # Convert it to the transform dictionary
+    trans_h2f = convert_array_to_transform(hfs_to_ffs)
+    # Map the junction point
+    pd_hfs.case.MapPoiGeometriesRigidly(
+        PoiGeometryNames=['Junction'],
+        CreateNewPois=False,
+        ReferenceExaminationName=hfs_scan_name,
+        TargetExaminationNames=[ffs_scan_name],
+        Transformations=[trans_h2f])
+
+    #
+    # FFS Junction
+    ffs_poi_junction = pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name]\
+                  .PoiGeometries['Junction']
+    # IsoDose levels:
+    j_i = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    dim_si = 2.5
+    dose_levels = {10:  [127, 0, 255],
+                   20:  [0, 0, 255],
+                   30:  [0, 127, 255],
+                   40:  [0, 255, 255],
+                   50:  [0, 255, 127],
+                   60:  [0, 255, 0],
+                   70:  [127, 255, 0],
+                   80:  [255, 255, 0],
+                   90:  [255, 127, 0],
+                   95:  [255, 0, 0],
+                   100: [255, 0, 255]}
+
+    for i in range(len(j_i)):
+        make_junction_contour(pd_ffs,
+                              junct_name='Junction',
+                              z_start=ffs_poi_junction.Point.z - float(i)*dim_si,
+                              dim_si = dim_si,
+                              dose_level = str(int(j_i[i]))+"%Rx",
+                              color=dose_levels[j_i[i]])
+    # TODO: Set junction colors to the optimal isodose color
+    make_avoid(pd_ffs,z_start=ffs_poi_junction.Point.z,avoid_name="avoid_FFS")
+    make_PTV(pdata=pd_ffs,junction_prefix="ffs_junction_",avoid_name="avoid_FFS")
+    #
+    # HFS Junction
+    hfs_poi_junction = pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name]\
+                      .PoiGeometries['Junction']
+    for i in range(len(j_i)):
+        make_junction_contour(pd_hfs,
+                              junct_name='Junction',
+                              z_start=hfs_poi_junction.Point.z - dim_si * float(len(j_i) - i),
+                              dim_si = dim_si,
+                              dose_level = str(int(j_i[i]))+"%Rx",
+                              color=dose_levels[j_i[i]])
+    #
+    # HFS avoid starts at junction point - number of dose levels * dim_si
+    hfs_avoid_start = hfs_poi_junction.Point.z - dim_si * float(len(j_i))
+    # TODO: underive and delete geometry on avoid volumes defined on incorrect scans
+    # then map them over
+    make_avoid(pd_hfs,z_start=hfs_avoid_start,avoid_name="avoid_HFS")
+    make_PTV(pdata=pd_hfs,junction_prefix="hfs_junction_",avoid_name="avoid_HFS")
+
+
+# Get isodoses
+    pd_ffs = Pd(error = [],
+            patient = GeneralOperations.find_scope(level='Patient'),
+            case = GeneralOperations.find_scope(level='Case'),
+            exam = pd_hfs.case.Examinations[ffs_scan_name],
+            db = GeneralOperations.find_scope(level='PatientDB'),
+            plan = GeneralOperations.find_scope(level='Plan'),
+            beamset = GeneralOperations.find_scope(level='BeamSet'))
+
+    ffs_to_hfs = pd_ffs.case.GetTransformForExaminations(
+        FromExamination=ffs_scan_name,
+        ToExamination=hfs_scan_name)
+    # Convert it to the transform dictionary
+    trans_f2h = convert_array_to_transform(ffs_to_hfs)
+    # If we pair the junctions and isodoses up front we can do this as one iteration
+    # d_i = {<junction_region>: (low95%, med100%, high110%)}
+    # Isodoses to get:
+    j_i = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    d_i = [5, 10, 15, 20, 25, 30, 35, 40, 45,
+           50, 55, 60, 65, 70, 75, 80, 85, 90,
+           95, 100, 105, 110, 115]
+    # construct pairs
+    j_names = {}
+    for n in j_i:
+        name = 'ffs_junction_'+str(n)+'%Rx'
+        j_names[name] = (n-5, n, n+10)
+        isodose_names = make_dose_structs(pd_ffs, isodoses=j_names, rx=rx)
+        break
+    # Map the junction point
+    pd_hfs.case.MapRoiGeometriesRigidly(
+        RoiGeometryNames=isodose_names,
+        CreateNewRois=False,
+        ReferenceExaminationName=ffs_scan_name,
+        TargetExaminationNames=[hfs_scan_name],
+        Transformations=[trans_f2h])
+
+
+    sys.exit('Done')
 
     sys.exit('Script Complete')
+    # Determine the inferior most part of the kidneys in both examinations
+    box = case.PatientModel.CreateRoi(Name='Box_1',
+                                    Color='Red',
+                                    Type='Organ',
+                                    TissueName=None,
+                                    RbeCellTypeName=None,
+                                    RoiMaterial=None)
+
+
+
+
+
 
     # Script will run through the following steps.  We have a logical inconsistency here with making a plan
     # this is likely an optional step

@@ -79,13 +79,13 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2018-Sep-27'
+__date__ = '2021-Dec-12'
 __version__ = '2.0.0'
 __status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
-__raystation__ = '7.0.0'
+__raystation__ = '10A SP1'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
@@ -99,7 +99,10 @@ import connect
 import UserInterface
 import datetime
 import sys
+import os
 import math
+import pandas as pd
+import numpy
 import PlanOperations
 import BeamOperations
 from GeneralOperations import logcrit as logcrit
@@ -690,6 +693,156 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
     return on_screen_message
 
 
+def parse_evaluation_function(progress_of_optimization, rtp_function, rf_i):
+    # Take in a given objective from the optimizer and return the a dictionary
+    # of the important features
+    dfp_data = {}
+    # Determine kind of objective we have
+    RTPFunction = rtp_function
+    composite = False
+    dfo = False
+    regular = False
+    # Catch composites
+    try:
+        RTPFunction.FunctionType
+        composite = True
+    except AttributeError:
+        composite = False
+    # Catch dfo
+    try:
+        RTPFunction.DoseFunctionParameters.FunctionType
+        regular = True
+        dfo=False
+    except AttributeError:
+        regular=False
+        dfo = True
+
+    objective_values = progress_of_optimization.ObjectiveValues
+
+
+    if composite:
+        dfp_data['Roi']='Composite'
+        dfp_data['FunctionType']=RTPFunction.FunctionType
+        dfp_data['DoseLevel']= None
+        dfp_data['PercentVolume']= None
+        dfp_data['Weight'] = None
+        dfp_data['HighDose'] = None
+        dfp_data['LowDose'] = None
+        dfp_data['Distance'] = None
+        dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+    elif regular:
+        dfp_data['Roi']=RTPFunction.ForRegionOfInterest.Name
+        dfp_data['FunctionType']=RTPFunction.DoseFunctionParameters.FunctionType
+        dfp_data['DoseLevel']=RTPFunction.DoseFunctionParameters.DoseLevel
+        dfp_data['PercentVolume']=RTPFunction.DoseFunctionParameters.PercentVolume
+        dfp_data['Weight'] = RTPFunction.DoseFunctionParameters.Weight
+        dfp_data['HighDose'] = None
+        dfp_data['LowDose'] = None
+        dfp_data['Distance'] = None
+        dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+    elif dfo:
+        dfp_data['Roi']=RTPFunction.ForRegionOfInterest.Name
+        dfp_data['FunctionType']='DFO'
+        dfp_data['DoseLevel']=None
+        dfp_data['PercentVolume']=None
+        dfp_data['Weight'] = RTPFunction.DoseFunctionParameters.Weight
+        dfp_data['HighDose'] = RTPFunction.DoseFunctionParameters.HighDoseLevel
+        dfp_data['LowDose'] = RTPFunction.DoseFunctionParameters.LowDoseLevel
+        dfp_data['Distance'] = RTPFunction.DoseFunctionParameters.LowDoseDistance
+        dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+
+    # Columns of iteration number for each function
+    iterations = progress_of_optimization.Iterations
+    its_list = []
+    its_data = {}
+    for i in iterations.tolist():
+        its_list.append(int(i))
+        its_data[int(i)] = progress_of_optimization.FunctionValues[int(i)-1][rf_i]
+    dfp_data.update(its_data)
+
+    return dfp_data
+
+def filename_iteration_output(iteration_number, beamset,patient,iteration_dir):
+    # Construct the output filename string
+    # Get the time
+    now = datetime.datetime.now()
+    dt_string = now.strftime("%m%d%Y_%H%M%S")
+    #
+    # Create patient specific string
+    patient_string = patient.PatientID+"_" + beamset.DicomPlanLabel
+    #
+    # Join Strings
+    filename = patient_string + "_" + dt_string
+    #
+    # Resolve dir
+    try:
+        if not os.path.isdir(iteration_dir):
+            os.mkdir(iteration_dir)
+    except Exception as e:
+        sys.exit('{}'.format(e))
+    return os.path.normpath('{}/{}.pkl'.format(iteration_dir,filename))
+
+
+def output_iteration_data(poo,warmstart_number,
+                          iteration_output_file,
+                          beamset,
+                          beam_params,
+                          iteration_time):
+    """
+    poo: objective function object from RS
+    warmstart_number: the iteration count
+    """
+    try:
+        logging.debug('Beam params are {}'.format(beam_params))
+        iterations = poo.Iterations
+        objective_values = poo.ObjectiveValues
+        rtp_functions = poo.ForRtpFunctions
+        # Columns of Objective information
+        cols = ['Roi', 'FunctionType', 'Weight','DoseLevel','PercentVolume','HighDose','LowDose','Distance']
+        #
+        # Determine treatment technique
+        if beamset.DeliveryTechnique == 'TomoHelical':
+            cols = cols + ['time', 'rp','proj_time', 'total_travel', 'couch_speed','mod_factor']
+            beam_dict = {'time': float(beam_params.iloc[0].time),
+                        'proj_time': float(beam_params.iloc[0].proj_time),
+                        'rp': float(beam_params.iloc[0].rp),
+                        'total_travel': float(beam_params.iloc[0].total_travel),
+                        'couch_speed': float(beam_params.iloc[0].couch_speed),
+                        'mod_factor': float(beam_params.iloc[0].mod_factor),
+                        'sinogram': beam_params.iloc[0].sinogram,
+                        'WarmStart': int(warmstart_number),
+                        'IterationTime': float(iteration_time.total_seconds()),
+                        }
+            for k,v in beam_dict.items():
+                logging.debug('Adding the following to the output file {}, {}'.format(k,v))
+        else:
+            cols = cols + ['IterationTime']
+            beam_dict = {'IterationTime':float(iteration_time.total_seconds())}
+        # Columns of iteration number for each function
+
+        its_list = []
+        for i in iterations.tolist():
+            its_list.append(int(i))
+        cols = cols + iterations.tolist() + ['FinalValue']
+        logging.debug('Headers are {}'.format(cols))
+        df_1 = pd.DataFrame(columns=cols)
+        objective_index = 0
+        for rf in rtp_functions:
+            row = parse_evaluation_function(poo,rf,rf_i=objective_index)
+            row.update(beam_dict)
+            df_1 = df_1.append(row,ignore_index=True)
+            logging.debug('Made it through objective {}'.format(objective_index))
+            objective_index += 1
+
+        # Output
+        df_1.to_pickle(iteration_output_file)
+        # Read back in with df_2 = pd.read_pickle(iteration_output_file)
+    except Exception as e:
+        logging.debug('Error was {}'.format(e))
+        sys.exit("{}".format(e))
+
+
+
 def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     """
     This function will optimize a plan
@@ -758,6 +911,11 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     segment_weight = optimization_inputs.get('segment_weight', False)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
     close_status = optimization_inputs.get('close_status', False)
+    iteration_output_dir = optimization_inputs.get('output_data_dir',None)
+    if iteration_output_dir:
+        output_progress = True
+    else:
+        output_progress = False
 
 
 
@@ -1073,12 +1231,18 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                 ' on next attempt at this script')
                             status.finish('Restart required')
                             return 'Restart Required: Select reset beams on next run of script.'
+        if output_progress:
+            time_0 = datetime.datetime.now()
+            time_1 = time_0
 
         while Optimization_Iteration != maximum_iteration:
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 1e10
+                logging.debug('This appears to be a cold start. Objective value set to {}'
+                              .format(previous_objective_function))
             else:
                 previous_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
+
             # If the change_dose_grid list has a non-zero element change the dose grid
             if vary_grid:
                 if change_dose_grid[Optimization_Iteration] != 0:
@@ -1129,9 +1293,35 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                                       maximum_iteration))
             # Run the optimization
             try:
+                time_0 = datetime.datetime.now()
                 plan.PlanOptimizations[OptIndex].RunOptimization()
+                time_1 = datetime.datetime.now()
             except Exception as e:
                 return 'Exception occurred during optimization: {}'.format(e)
+            if output_progress:
+                    poo = plan_optimization.ProgressOfOptimization
+                    time_total = time_1 - time_0
+                    logging.info("Time: Optimization (seconds): {}".format(
+                       time_total.total_seconds()))
+                    if ts.ForTreatmentSetup.DeliveryTechnique == 'TomoHelical':
+                        beam_params = BeamOperations.gather_tomo_beam_params(beamset)
+                    else:
+                        # TODO: Figure out what we want for VMAT
+                        # Phys. Med. Biol. 60 (2015) 2587 - SAS 1 and 10
+                        beam_params = {}
+                    iteration_output_file = filename_iteration_output(
+                        iteration_number = Optimization_Iteration,
+                        beamset = beamset,
+                        patient = patient,
+                        iteration_dir=iteration_output_dir,
+                        )
+                    output_iteration_data(poo=poo, # No matter what you call it
+                                        warmstart_number=Optimization_Iteration,
+                                        iteration_output_file=iteration_output_file,
+                                        beamset=beamset,
+                                        beam_params=beam_params,
+                                        iteration_time=time_total)
+
             # Stop the clock
             report_inputs.setdefault('time_iteration_final', []).append(datetime.datetime.now())
             Optimization_Iteration += 1
@@ -1158,6 +1348,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 else:
                     logging.info( 'Function value ({} > {}). Delivery time unchanged'.format(
                         previous_objective_function, current_objective_function))
+
             # Start the clock
             previous_objective_function = current_objective_function
 
@@ -1238,4 +1429,4 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         status.close()
     else:
         status.finish(on_screen_message)
-    return None
+    return on_screen_message

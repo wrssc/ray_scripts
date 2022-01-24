@@ -647,6 +647,8 @@ def gather_tomo_beam_params(beamset):
             for l in s.LeafOpenFraction:
                 leaf_pos.append(l)
             sinogram.append(leaf_pos)
+        # Projection time in Rs is just MU
+        proj_time = b.BeamMU
         # Total Time: Projection time x Number of Segments = Total Time
         time = b.BeamMU * number_segments
         # Rotation period: Projection Time * 51
@@ -667,6 +669,7 @@ def gather_tomo_beam_params(beamset):
         # Declare the tomo dataframe
         dtypes = np.dtype([
                     ('time', float), # Total time of plan [s]
+                    ('proj_time',float), # Time of each projection [s]
                     ('total_travel', float), # Couch travel [cm]
                     ('couch_speed',float), # Speed of couch [cm/s]
                     ('sinogram', object), # List of leaf openings
@@ -676,6 +679,7 @@ def gather_tomo_beam_params(beamset):
         df = pd.DataFrame(data)
         # Return a dataframe for json output
         df.at[0,'time'] = time
+        df.at[0,'proj_time'] = proj_time
         df.at[0,'rp'] = rp
         df.at[0,'total_travel'] = total_travel
         df.at[0,'couch_speed'] = couch_speed

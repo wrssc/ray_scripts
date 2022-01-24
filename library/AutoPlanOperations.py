@@ -503,29 +503,6 @@ def convert_translation_map(translation_map,unit):
             tm[k][2] = v[2]
     logging.debug('after conversion {}'.format(tm))
     return tm
-# def load_plan(patient, case, exam, plan_name):
-#     # Load the plan indicated
-#     # If the plan is found, cool. just make it current
-#     try:
-#        info = case.QueryPlanInfo(Filter={'Name': plan_name})
-#        if info[0]['Name'] == plan_name:
-#            plan = case.TreatmentPlans[plan_name]
-#     except IndexError:
-#         case.AddNewPlan(
-#             PlanName=plan_name,
-#             PlannedBy='H.A.L.',
-#             Comment='Diagnosis',
-#             ExaminationName=exam.Name,
-#             AllowDuplicateNames=False
-#         )
-#         plan = case.TreatmentPlans[plan_name]
-#         # Plan creation modification requires a patient save
-#         patient.Save()
-#     try:
-#         test_plan = case.TreatmentPlans[plan_name]
-#     except IndexError:
-#         plan = None
-#     return plan
 
 def make_beamset(patient, case, exam, plan, beamset_defs):
     """Take current patient, case, exam, plan, and elements needed to
@@ -716,6 +693,7 @@ def load_planning_structures(case, filename, path, workflow_name, translation_ma
 
 def load_configuration_optimize_beamset(filename, path, pd,
                                         name=None, technique=None,
+                                        output_data_dir=None,
                                         bypass_user_prompts=False):
     """Optimize the plan
 
@@ -781,6 +759,7 @@ def load_configuration_optimize_beamset(filename, path, pd,
         'reduce_mod': df_wf.reduce_mod.values[0],
         'mod_target': df_wf.mod_target.values[0],
         'block_prompt' : df_wf.block_prompt.values[0],
+        'output_data_dir': output_data_dir,
         "save" : True,
         "close_status": True}
     #
@@ -797,13 +776,21 @@ def load_configuration_optimize_beamset(filename, path, pd,
         connect.await_user_input(
             'Navigate to the Plan design page and set any blocking.')
     # Optimize the plan
-    try:
-        optimize_plan(patient=pd.patient,
+    optimization_report = optimize_plan(patient=pd.patient,
                         case=pd.case,
                         exam=pd.exam,
                         plan=pd.plan,
                         beamset=pd.beamset,
                         **OptimizationParameters)
-        return True
+    return optimization_report
+    """ try:
+        optimization_report = optimize_plan(patient=pd.patient,
+                        case=pd.case,
+                        exam=pd.exam,
+                        plan=pd.plan,
+                        beamset=pd.beamset,
+                        **OptimizationParameters)
+        return optimization_report
     except Exception as e:
         return e
+    """
