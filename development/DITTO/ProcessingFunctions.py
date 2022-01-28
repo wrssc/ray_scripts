@@ -3,10 +3,19 @@ from DicomPairClasses import Result
 
 
 def return_expected_mismatch(value_pair, comment=""):
-    return (Result.ELEMENT_EXPECTED_MISMATCH, comment)
+
+    # Check the case for trivial equality
+    if value_pair[0] == value_pair[1]:
+        return (Result.ELEMENT_MATCH, "")
+    else:
+        return (Result.ELEMENT_EXPECTED_MISMATCH, comment)
 
 
 def assess_near_match(value_pair, comment="", tolerance_value=0.01):
+
+    # Check the case for trivial equality
+    if value_pair[0] == value_pair[1]:
+        return (Result.ELEMENT_MATCH, "Perfect match")
 
     # Make sure both are not None first
     if (value_pair[0] is None) or (value_pair[1] is None):

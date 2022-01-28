@@ -5,9 +5,9 @@ from colorama import Fore, Style
 import PySimpleGUI as sg
 from pathlib import Path
 
-RED_CIRCLE = b'iVBORw0KGgoAAAANSUhEUgAAAEgAAABICAYAAABV7bNHAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABlxJREFUeNrsnNtS21YUhrdkcw7FSUmnF52OeYAmJjGHdNpEpNNrYMa5x0/Q9AkY3iA8QbmvZwrXnYDSZhJzCDjpA9TT6UWntIlNE4MBa3etrS20JcuyLWxjSV4zC8mWbGt9/Gvtgw6E9KxnlzGp0z+Y+2Y2BosEuAI+xtddPwJeBFdxPfE0WwgcIICCMOY5lMRlv47D2gBYqm8BHTycjcPiO/AF+JW4uG2IUNIPyz7wfljX37PaMV+ewofP2BLfsx0uJXn4uw6+OrmZzfsC0L4OZhl8yXgvCj4C0aAPcSBeDSF94H5u3bQGvnKnxaBaBuiVA5hRgDHaAihusP7jbgd1t0WgWgJo7+HsYw4nZoC5QTSmnE4YKuktkUVQWMhXkpvZJ1cKaG+OqeYHXnyZUm52EIwTqEMAJdQqLOLp5JZ3NXkGtDs3g1B+QtXI8AfBjLQplZo1rE8ISjPVtDi1ta12DNDO3MwSVw5rhT69QtW4qekvgHRqhpie3tpeazugbQHOKE+pbrZDa21KzzQJqSlAWcWE8zGAGeuSlKpnRQjzXyJfQJpVG4ckeYGDqrnmEziGved1qVlIDQF6qUxjQd4ylPORz+AYdmRV0tw9dUe9NKAXyjQ25QfYWl3zQc1ppCa918PG1m3yS3XHtQtQt/GhelrFsLUap5pPtWPaOPyDyxJr3WK8ZMy57S+7bXyuTD8GIAry/oTDCYJjLJK+rmCMnlLsuTJ1kVr4hcO+147VShD635J8kWpfqbv5plKMUn1sNYiDTXgRLDz6sGgA/ERPNYw13bCCfnnA1PM7rn9GK13XS25lb/tPKWK8nLj/rFpFco3CvEz5HE4kIHXHySM8Rv56uSEFqQ+SoB4p8OpxVhGdUJ7t5d1rEMVpUn32LxLA2mM3XUUamwEg+hTx964pBkAWWHpRGtjUsrsQ64JrDdq8n1RgpzhSHSDhATRg1to4MqgJCHaYxw8Mhkg9hgsxz9esQbCPPnXKes1Brz72fpEGg1lWrBXHVuznr5MxePEO1z+n5ySM9ocUNTLp+re/7hXsKZagfAo1bOlleL+ZN4mqGoQDN9zYR8MLSIhdqapBlNIxzLgw9H1q94mM2JGFHRCTFYU3KAkroijjQC0pFq0xFuuZg4KY9Yc4xViRluoACrt6aG0FUcsyvIBoT0GeFGRsOYGmfoCGE1NZkqoIOSqIhlg9bjUIL45UysS8bjB0CoLs4TUo56SgojEFGVYFCbEXq8dilKhYevB6GlyG0YXYVaeedM6UGQltioksLApaeHFQADA5hHMiSaEbyQsx55BFjRlFitJKlKg+5AiTlcwCrYrv2+ekN3CXY0kOnYKEmDccp1wNy9xL4EnD+LhWYbP9Yak9/8hsPjqfepmbqKkgLqN15FLCTSGRjxDruh2H07n5VZaTULQqnb9bquOGMWKsYuyugFLZXJ7o9zuQIzY2CXbn58iEs8Zjr6sgtBVDekxFAU0tph4jvTBmB3MEJKronXn9TOBMiM1RPVX9IFuxRqILUOFjx8BxkGqBgnMCzXpZz45CLfW4pRhJ7TCi7IMFIB2kgo2xFEz1rPBYHa1u1JmpBF5AruBJtZtaME5JH8pRcqYXZzW1m3O9DLj+BWSU4sWNB2eExAogyxh0IP1sBegQnulxYWql6+0v19shtfca5beo941k8kGSfQsHj71kHv8ij+1ygDgk1aBdhP8A+xG/9ZbhmIvyRd1J85jqWlOVN5O8vUT4HT9jlQoZ8UnLhsopRixw1hr9bNNNU+auCWkYAMUq3V2TCpGImFbp1KvG4XgCxCDdMSFh63YDWrdIlw38KxDZW7O10uHsNwfHMyAd0i2FCDf1opK6pTOJnUBUjnhTb2r/jerluy7V+8tM3ooT4bZwPOGI3YDIFc1GVkAt2IyXJett4amDN3mv39mS7jGAsjxYYEjTyKimsWuNOmHn+PQFWSbH8kWtYcMHAHO1DxYQ7ccEU5Pl0RRYxIcBVLvmt09BKSXZ0rchfJC98ijnXTVtAeQGClMOr0MeagEshIJKwbMQFUlqG5i2AbKCovrjcYj18ThYq6Lc+zivfluBP+WqOIMjPAcQ6GWp6nARxjqEsdpqMG0HZIF1+wss4i1/wNKj17+p7T72js9hACzzEV20wUd0SeYjugBKgfSsZ76x/wUYAK2+FlM1cwGTAAAAAElFTkSuQmCC'
-GREEN_CIRCLE = Path("development\\DITTO\\images\\green_circle.png")
-BLUE_CIRCLE = Path("development\\DITTO\\images\\blue_circle.png")
+RED_CIRCLE = Path("development\\DITTO\\images\\red_circle_icon.png")
+GREEN_CIRCLE = Path("development\\DITTO\\images\\green_circle_icon.png")
+BLUE_CIRCLE = Path("development\\DITTO\\images\\blue_circle_icon.png")
 
 
 class Result(Flag):
@@ -17,6 +17,7 @@ class Result(Flag):
     ELEMENT_UNIQUE_TO_2 = 3
     ELEMENT_EXPECTED_MISMATCH = 4
     ELEMENT_ACCEPTABLE_NEAR_MATCH = 5
+    ELEMENT_BOTH_NONE = 6
 
     SEQUENCE_MATCH = 10
     SEQUENCE_MISMATCH = 11
@@ -40,6 +41,7 @@ class ElementPair():
         Result.SEQUENCE_MATCH,
         Result.ELEMENT_EXPECTED_MISMATCH,
         Result.ELEMENT_ACCEPTABLE_NEAR_MATCH,
+        Result.ELEMENT_BOTH_NONE,
     ]
 
     def __init__(
@@ -95,6 +97,9 @@ class ElementPair():
         """
         Uses the value_pair and _process_func to update the match result and comment.
         """
+        if (self.value_pair[0] is None) and (self.value_pair[1] is None):
+            self.match_result = Result.ELEMENT_BOTH_NONE
+            return
 
         if self.value_pair[0] is None:
             self.match_result = Result.ELEMENT_UNIQUE_TO_2
