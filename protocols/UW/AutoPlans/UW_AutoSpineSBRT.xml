@@ -1,0 +1,1678 @@
+<protocol>
+    <name>UW Spine SBRT</name>
+    <ct>
+        <protocol institution="UWHC">XRT_CHEST</protocol>
+        <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>
+        <protocol institution="UWHC">XRT_4D_CHEST</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <diagnoses>
+    </diagnoses>
+    <prescription>
+        <frequency>2-3 times per week</frequency>
+        <imaging>Daily CBCT</imaging>
+        <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
+        <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
+    </prescription>
+    <order>
+        <name>Spine SBRT [3Fx] [3600cGy]</name>
+        <prefix>SpiX_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy" idl="100">27</dose>
+            </roi>
+            <fractions>3</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_sib">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_sib">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Bag_Bowel</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bag_Bowel</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">16</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bowel_Large</name>
+                <type>DX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bowel_Large</name>
+                <type>DX</type>
+                <dose units="Gy">18.4</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bowel_Large</name>
+                <type>VX</type>
+                <dose units="Gy">14.3</dose>
+                <volume units="cc">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bowel_Large_PRV05</name>
+                <type dir="lt">VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">22</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bowel_Small</name>
+                <type>DX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bowel_Small</name>
+                <type>DX</type>
+                <dose units="Gy">15.4</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bowel_Small</name>
+                <type>VX</type>
+                <dose units="Gy">11.9</dose>
+                <volume units="cc">5</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bowel_Small_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus</name>
+                <type>DX</type>
+                <volume units="cc">4</volume>
+                <dose units="Gy">18</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus</name>
+                <type>DX</type>
+                <volume units="cc">4</volume>
+                <dose units="Gy">18</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus</name>
+                <type>DX</type>
+                <volume units="cc">0.1</volume>
+                <dose units="Gy">15</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus</name>
+                <type>VX</type>
+                <volume units="cc">4</volume>
+                <dose units="Gy">10.5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_PRV05</name>
+                <type>VX</type>
+                <ref></ref>
+                <volume units="%">2</volume>
+                <dose units="Gy">24</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>CaudaEquina</name>
+                <type>DX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>CaudaEquina</name>
+                <type>DX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>CaudaEquina_PRV05</name>
+                <type>VX</type>
+                <volume units="%">2</volume>
+                <dose units="Gy">20.0</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Duodenum</name>
+                <type>DX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Duodenum</name>
+                <type>DX</type>
+                <dose units="Gy">15.4</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Duodenum</name>
+                <type>VX</type>
+                <dose units="Gy">11.9</dose>
+                <volume units="cc">5</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Duodenum_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type>DX</type>
+                <dose units="Gy">24</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type>DX</type>
+                <dose units="Gy">16</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type>DX</type>
+                <dose units="Gy">17.5</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type>DX</type>
+                <dose units="Gy">11.9</dose>
+                <volume units="cc">5</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus_PRV05</name>
+                <type>VX</type>
+                <dose units="Gy">16</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>GreatVes</name>
+                <type>DX</type>
+                <dose units="Gy">45</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>GreatVes</name>
+                <type>DX</type>
+                <dose units="Gy">37</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>GreatVes</name>
+                <type>VX</type>
+                <dose units="Gy">31</dose>
+                <volume units="cc">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>GreatVes_PRV05</name>
+                <type>VX</type>
+                <dose units="Gy">45</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>DX</type>
+                <dose units="Gy">30</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>DX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>VX</type>
+                <dose units="Gy">16</dose>
+                <volume units="cc">15</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Kidneys</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Cortex_Renal_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">200</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Cortex_Renal_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">8.4</dose>
+                <volume units="cc">200</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Cortex_Renal_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">200</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Cortex_Renal_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">8.4</dose>
+                <volume units="cc">200</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Hilum_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="%">67</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Hilum_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">10.6</dose>
+                <volume units="%">33</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Hilum_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="%">67</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Hilum_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">10.6</dose>
+                <volume units="%">33</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">24</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">DX</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">15</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">4</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Larynx</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">10.5</dose>
+                <volume units="cc">4</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lungs</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">5</dose>
+                <volume units="%">50</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lungs</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">12.5</dose>
+                <volume units="%">15</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lungs</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">20</dose>
+                <volume units="%">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lungs</name>
+                <type dir="le">VX</type>
+                <dose units="Gy">12.0</dose>
+                <volume units="cc">1200</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Nrv_Root</name>
+                <type>DX</type>
+                <dose units="Gy">24</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Nrv_Root</name>
+                <type>DX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nrv_Root</name>
+                <type>VX</type>
+                <dose units="Gy">20.3</dose>
+                <volume units="cc">3</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Nrv_Root</name>
+                <type>VX</type>
+                <dose units="Gy">14</dose>
+                <volume units="cc">3</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Nrv_Root_PRV02</name>
+                <type>VX</type>
+                <dose units="Gy">24</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type>DX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type>DX</type>
+                <dose units="Gy">18.4</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type>VX</type>
+                <dose units="Gy">14.3</dose>
+                <volume units="cc">20</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rectum_PRV05</name>
+                <type>VX</type>
+                <dose units="Gy">22</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Skin_PRV03</name>
+                <type>DX</type>
+                <dose units="Gy">30</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Skin_PRV03</name>
+                <type>DX</type>
+                <dose units="Gy">26</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Skin_PRV03</name>
+                <type>VX</type>
+                <dose units="Gy">23</dose>
+                <volume units="cc">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>DX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type>DX</type>
+                <dose units="Gy">15</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV02</name>
+                <type>DX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV02</name>
+                <type>DX</type>
+                <dose units="Gy">20</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Stomach</name>
+                <type>DX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Stomach</name>
+                <type>DX</type>
+                <dose units="Gy">16</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Stomach</name>
+                <type>VX</type>
+                <dose units="Gy">11.2</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Stomach_PRV05</name>
+                <type>VX</type>
+                <dose units="Gy">16</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>VascularTrunk</name>
+                <type>VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="%">67</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>VascularTrunk</name>
+                <type>VX</type>
+                <dose units="Gy">10.6</dose>
+                <volume units="%">33</volume>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+      <order>
+        <name>Spine or Bone SBRT [5Fx]</name>
+        <prefix>SpiX_</prefix>
+        <prescription>
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy" idl="100">27</dose>
+            </roi>
+            <fractions>5</fractions>
+        </prescription>
+        <goals>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_sib">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_sib">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_sib</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_sib">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">DX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="ge">DX</type>
+                <volume units="%">98</volume>
+                <dose units="%" roi="PTV_p">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>BileDuct_Common</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">41</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>BileDuct_Common_PRV07</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">41</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bladder_Wall</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">38</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bladder_Wall</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">20</dose>
+                <volume units="cc">15</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bladder_Wall_PRV07</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">38</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrachialPlex_L</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">32.5</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>BrachialPlex_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">27</dose>
+                <volume units="cc">3</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>BrachialPlex_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32.5</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>BrachialPlex_R</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">32.5</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>BrachialPlex_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">27</dose>
+                <volume units="cc">3</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>BrachialPlex_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32.5</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">31</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">23</dose>
+                <volume units="cc">0.5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Brainstem_PRV03</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">31</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">33</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">21</dose>
+                <volume units="cc">0.5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">33</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_L</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">33</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">21</dose>
+                <volume units="cc">0.5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">33</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_R</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">33</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">21</dose>
+                <volume units="cc">0.5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">33</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>CaudaEquina</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">31.5</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>CaudaEquina</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>CaudaEquina_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">31.5</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">22</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Cochlea_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">22</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Colon</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Colon</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">28.5</dose>
+                <volume units="cc">20</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Colon_PRV07</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Duodenum</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">26</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Duodenum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18.5</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Duodenum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">14.5</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Duodenum_PRV07</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">26</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">19.5</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Esophagus_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">35</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Femur_Head_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Femur_Head_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>GreatVes</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">53</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>GreatVes</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">47</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>GreatVes_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">53</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">38</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32</dose>
+                <volume units="cc">15</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">38</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Ileum</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">32</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Ileum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="cc">20</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Ileum_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Jejunum</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">32</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Jejunum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="cc">20</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Jejunum_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Cortex_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">200</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Cortex_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">18</dose>
+                <volume units="cc">200</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Hilum_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">23</dose>
+                <volume units="cc">15</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Kidney_Hilum_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">23</dose>
+                <volume units="cc">15</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Liver</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">21</dose>
+                <volume units="cc">700</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">12.5</dose>
+                <volume units="cc">1500</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">13.5</dose>
+                <volume units="cc">1000</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">13.5</dose>
+                <volume units="%">37</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">12.5</dose>
+                <volume units="cc">1500</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">13.5</dose>
+                <volume units="cc">1000</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">13.5</dose>
+                <volume units="%">37</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Medulla</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">28</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Medulla</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.35</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Medulla</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">15.6</dose>
+                <volume units="cc">1.2</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Medulla_PRV03</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">28</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticChiasm</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">25</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticChiasm</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">23</dose>
+                <volume units="cc">0.2</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticChiasm_PRV03</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">25</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">25</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">23</dose>
+                <volume units="cc">0.2</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_L_PRV03</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">25</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">25</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">23</dose>
+                <volume units="cc">0.2</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>OpticNrv_R_PRV03</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">25</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>PenileBulb</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="cc">3</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">55</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="cc">3.5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32.5</dose>
+                <volume units="cc">20</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rectum_PRV02</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">55</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Rib</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">57</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rib</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">45</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Rib_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">57</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SacralPlex</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">32</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SacralPlex</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">30</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SacralPlex_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Skin_PRV03</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">38.5</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Skin_PRV03</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">36.5</dose>
+                <volume units="cc">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">28</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">22</dose>
+                <volume units="cc">0.35</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">15.6</dose>
+                <volume units="cc">1.2</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_PRV02</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">28</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_Subvolume</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">28</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>SpinalCord_Subvolume</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">22</dose>
+                <volume units="%">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Stomach</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">35</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Stomach</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">26.5</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Stomach_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">35</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>ThecalSac</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">50</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>ThecalSac_PRV02</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">50</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Trachea</name>
+                <type dir="lt">DX</type>
+                <dose units="Gy">40</dose>
+                <volume units="cc">0.03</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Trachea</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Trachea_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Ureter_L</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Ureter_L_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Ureter_R</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">32</dose>
+                <volume units="cc">5</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Ureter_R_PRV05</name>
+                <type dir="lt">VX</type>
+                <dose units="Gy">40</dose>
+                <volume units="%">2</volume>
+                <priority>3</priority>
+            </roi>
+        </goals>
+    </order>
+    <objectiveset>
+        <name>SBRT Spine</name>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p">123</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p">88.8</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>PTV_p</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="PTV_p">95</volume>
+                <dose units="%" roi="PTV_p">100</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-4</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dist="0.2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>GTV_sib</name>
+                <type>Min</type>
+                <dose units="%" roi="GTV_sib">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>GTV_sib</name>
+                <type>Max</type>
+                <dose units="%" roi="GTV_sib">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>GTV_sib</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="GTV_sib">95</volume>
+                <dose units="%" roi="GTV_sib">100</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p2">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring2_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>ring2_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p2" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p3">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>PTV_p3</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV3_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu3_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p3">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring3_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>ring3_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p3" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p4">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p4">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>PTV_p4</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p4">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p4">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV4_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p4">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu4_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p4">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring4_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>ring4_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p4" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV5_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p5">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV5_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p5">123</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>PTV_p5</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p5">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV5_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p5">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV5_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p5">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu5_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p5">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring5_</name>
+                <type>Max</type>
+                <dose units="Gy">1</dose>
+                <weight>1e-3</weight>
+            </roi>
+            <roi>
+                <name>ring5_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p5" low="5">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="2" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="20">100</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Normal_2cm</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <weight>5</weight>
+            </roi>
+        </objectives>
+    </objectiveset>
+</protocol>
