@@ -290,7 +290,7 @@
             <BackJawPosition>2.1</BackJawPosition>
             <FrontJawPosition>-2.1</FrontJawPosition>
             <JawMode>Dynamic</JawMode>
-            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxDeliveryTime>600</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
             <MaxDeliveryTimeFactor>1.6</MaxDeliveryTimeFactor>
         </beam>
