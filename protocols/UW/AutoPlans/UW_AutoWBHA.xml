@@ -36,6 +36,12 @@
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
+        <validation>
+            <validation_status>True</validation_status>
+            <validation_range>
+                <fraction_dose upper="3" lower="3">True</fraction_dose>
+            </validation_range>
+        </validation>
         <goals>
             <roi>
                 <name>OTV1_3000</name>
@@ -479,6 +485,12 @@
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
+        <validation>
+            <validation_status>True</validation_status>
+            <validation_range>
+                <fraction_dose upper="3" lower="3">True</fraction_dose>
+            </validation_range>
+        </validation>
         <goals>
             <roi>
                 <name>PTV_Brain</name>

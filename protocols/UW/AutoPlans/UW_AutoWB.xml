@@ -32,6 +32,12 @@
             <imaging>Weekly kV</imaging>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
         </prescription>
+        <validation>
+            <validation_status>True</validation_status>
+            <validation_range>
+                <fraction_dose upper="3" lower="2">True</fraction_dose>
+            </validation_range>
+        </validation>
         <goals>
             <roi>
                 <name>PTV_p</name>

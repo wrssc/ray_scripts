@@ -391,7 +391,6 @@ def autoplan(testing_bypass_dialogs={}):
     # via script. Activate this dialog eventually.
     # block_rois = select_blocking(case=pd.case,protocol=protocol,order=order)
 
-    # TODO: Move to a select function like that one above
     # TODO: Sort machines by technique
     # Machines
     machines = GeneralOperations.get_all_commissioned(machine_type=None)
@@ -655,6 +654,15 @@ def autoplan(testing_bypass_dialogs={}):
     auto_status.next_step(text=script_steps[i][1])
     i += 1
     pd.patient.Save()
+    #
+    # Check if this order has been validated. If not give user a bail option
+    validation_status = AutoPlanOperations.find_validation_status(order)
+    if testing_bypass_dialogs:
+        logging.info('Validation status ({}) check skipped for testing'.format(validation_status))
+    else:
+        if not validation_status:
+            connect.await_user_input('Continue the optimization or abort the script.')
+
     ap_report['time_opt'][0] = timer()
     opt_status = AutoPlanOperations.load_configuration_optimize_beamset(
         filename=protocol_file,
