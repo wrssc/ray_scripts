@@ -266,7 +266,32 @@ def main():
                 else:
                     prdr_dr = False
                 # Set Couch
-                t = [0, 1000, 0]
+                frameless_beamnames = ['_FSR_','_SRS_']
+                alpha = 7.72 # cm
+                beta = 36.39 # cm
+                gamma = -0.13 # cm
+                if any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
+                    'HeadFirstSupine' in beamset.PatientSetup.OfTreatmentSetup.PatientPosition:
+                    try:
+                        #
+                        # Determine if the DICOM origin was chosen for the set-up location
+                        coords = []
+                        coords.append(beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0].Point.x)
+                        coords.append(beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0].Point.y)
+                        coords.append(beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0].Point.z)
+                        if all(c == 0 for c in coords):
+                            iso_lat = beamset.Beams[0].Isocenter.Position.x
+                            iso_vert = beamset.Beams[0].Isocenter.Position.y
+                            iso_long = beamset.Beams[0].Isocenter.Position.z
+                            t = [
+                                (gamma - iso_lat) * 10.,
+                                (beta - iso_long) * 10.,
+                                (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
+                            ]
+                    except:
+                        t = [0, 1000, 0]
+                else:
+                    t = [0, 1000, 0]
                 # Create a reference point
                 create_reference_point=True
                 # Convert Block names
