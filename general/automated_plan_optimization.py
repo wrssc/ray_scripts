@@ -70,6 +70,7 @@ __license__ = 'GPLv3'
 __help__ = None
 __copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
 __credits__ = ['']
+
 #
 
 import logging
@@ -229,14 +230,18 @@ def main():
         # 'small_target': small_target,
         'n_iterations': int(optimization_dialog.values['input08_n_iterations'])}
 
-    error = OptimizationOperations.optimize_plan(patient=Patient,
-                                         case=case,
-                                         exam=exam,
-                                         plan=plan,
-                                         beamset=beamset,
-                                         **optimization_inputs)
-    if error:
-        raise IOError("{}".format(error))
+    (status, message) = OptimizationOperations.optimize_plan(patient=Patient,
+                                                             case=case,
+                                                             exam=exam,
+                                                             plan=plan,
+                                                             beamset=beamset,
+                                                             **optimization_inputs)
+
+    if status:
+        logging.info("Optimization report: {}".format(message))
+        logging.debug("Optimization successful. Closing")
+    else:
+        raise IOError("{}".format(message))
 
 
 if __name__ == '__main__':
