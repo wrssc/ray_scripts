@@ -63,6 +63,15 @@ class ElementPair():
         self.parent_key = parent_key
         self._update_match_result()
 
+    def get_valuepair_from_key(self, key):
+
+        if key == self.attribute_name:
+            return self.value_pair
+
+        raise RuntimeError(
+            f"'key' {key} does not match attribute name {self.attribute_name}"
+        )
+
     def update_process_func(self, process_func=None, process_func_kwargs=None):
         self._process_func = process_func
         self._process_func_kwargs = process_func_kwargs
@@ -161,6 +170,28 @@ class SequencePair():
         self.depth = depth
         self.parent_key = parent_key
         self.update_match_result()
+
+    def get_valuepair_from_key(self, key):
+        if key == self.attribute_name:
+            return [f"Sequence {self.attribute_name} 1", f"Sequence {self.attribute_name} 2"]
+        else:
+
+            # Split the key apart
+            key_parts = key.split(">")
+            next_part = key_parts[0]
+
+            print(key_parts, next_part)
+
+            for item in self.sequence_list:
+                if item.tree_label == next_part:
+                    if len(key_parts) == 1:
+                        return item.get_valuepair_from_key(next_part)
+                    else:
+                        return item.get_valuepair_from_key(">".join(key_parts[1:]))
+
+            raise RuntimeError(
+                f"get_valuepair_from_key could not find child with key {next_part}"
+            )
 
     def update_match_result(self):
         """
@@ -276,6 +307,28 @@ class DicomTreePair():
         self.tree_label = tree_label
         self.parent_key = parent_key
         self.update_match_result()
+
+    def get_valuepair_from_key(self, key):
+        if key == self.tree_label:
+            return [f"Tree {self.tree_label} 1", f"Tree {self.tree_label} 2"]
+        else:
+
+            # Split the key apart
+            key_parts = key.split(">")
+            next_part = key_parts[0]
+
+            for item in self.tree_list:
+                if item.attribute_name == next_part:
+                    if len(key_parts) == 1:
+                        # item is an attribute
+                        return item.get_valuepair_from_key(next_part)
+
+                    else:
+                        return item.get_valuepair_from_key(">".join(key_parts[1:]))
+
+            raise RuntimeError(
+                f"get_valuepair_from_key could not find child with key {key_parts[0]}"
+            )
 
     def update_match_result(self):
         """
