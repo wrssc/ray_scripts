@@ -31,7 +31,7 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
 
     tree_list = []
 
-    if parent_key=="":
+    if parent_key == "":
         childs_parent_key = ""
     else:
         childs_parent_key = f"{parent_key}>{tree_label}"
@@ -278,18 +278,6 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
 
     return dtp
 
-
-def print_pair_tree_results(
-    dicom_pair_tree,
-
-):
-    for item in dicom_pair_tree.tree_list:
-        if isinstance(item, ElementPair):
-            print(item.attribute_name, item.match_result, item.comment)
-            print("  1: ", item.value_pair[0])
-            print("  2: ", item.value_pair[1])
-
-
 def compare_dicomrt_plans(filepath1, filepath2):
     """ Compares two DICOM-RT Plan files
 
@@ -298,7 +286,7 @@ def compare_dicomrt_plans(filepath1, filepath2):
     filepath1: Path or string
         The path and filename to the first DICOM-RT plan file
     filepath2: Path or string
-        The path and filename to the second DICOM-RT plan file
+        The path and filename to the second DICOM-RT plan filepip
     """
 
     ds1 = pydicom.dcmread(filepath1, force=True)
@@ -330,6 +318,14 @@ layout = [
             expand_y=True,
         ),
     ],
+    [
+        sg.Text('DICOM File 1 Value: '),
+        sg.Text('Value 1', key="-VALUE1-"),
+    ],
+    [
+        sg.Text('DICOM File 2 Value: '),
+        sg.Text('Value 2', key="-VALUE2-"),
+    ],
 ]
 
 window = sg.Window('Tree Element Test', layout, resizable=True)
@@ -338,6 +334,22 @@ while True:     # Event Loop
     event, values = window.read()
     if event in (sg.WIN_CLOSED, 'Cancel'):
         break
-    print(event, values)
+
+    tree_key = values["-TREE-"][0]
+
+    print(tree_key[1:])
+
+    value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
+
+    if value1 is None:
+        value1 = ""
+
+    if value2 is None:
+        value2 = ""
+
+    window["-VALUE1-"].update(value1)
+    window["-VALUE2-"].update(value2)
+
+
 window.close()
 
