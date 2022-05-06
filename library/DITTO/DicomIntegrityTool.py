@@ -337,8 +337,6 @@ while True:     # Event Loop
 
     tree_key = values["-TREE-"][0]
 
-    print(tree_key[1:])
-
     value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
 
     if value1 is None:
