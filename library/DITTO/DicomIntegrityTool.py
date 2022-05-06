@@ -316,8 +316,8 @@ def run_dicom_integrity_tool(
                 key='-TREE-',
                 show_expanded=False,
                 enable_events=True,
-                expand_x=True,
-                expand_y=True,
+                #expand_x=True,
+                #expand_y=True,
             ),
         ],
         [
