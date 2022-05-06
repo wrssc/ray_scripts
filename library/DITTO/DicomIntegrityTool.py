@@ -4,11 +4,6 @@ import PySimpleGUI as sg
 from DicomPairClasses import ElementPair, SequencePair, DicomTreePair
 from ProcessingFunctions import PROCESS_FUNCTION_DICT
 
-file_path = Path(r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588")
-raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
-aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
-aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
-
 ATTRIBUTE_MATCH_DICT = {
     "BeamSequence": "BeamNumber",
     "BeamLimitingDeviceSequence": "RTBeamLimitingDeviceType",
@@ -299,55 +294,69 @@ def compare_dicomrt_plans(filepath1, filepath2):
     return dicom_pair_tree
 
 
-dicom_match_tree = compare_dicomrt_plans(file_path / raystation_filename, file_path / aria_filename)
+def run_dicom_integrity_tool(
+    filename1,
+    filename2,
+    file_label1="DICOM File 1",
+    file_label2="DICOM File 2",
+):
 
-treedata = dicom_match_tree.get_treedata()
+    dicom_match_tree = compare_dicomrt_plans(filename1, filename2)
 
-layout = [
-    [
-        sg.Tree(
-            data=treedata,
-            headings=['Result','Comments', ],
-            auto_size_columns=True,
-            num_rows=20,
-            col0_width=40,
-            key='-TREE-',
-            show_expanded=False,
-            enable_events=True,
-            expand_x=True,
-            expand_y=True,
-        ),
-    ],
-    [
-        sg.Text('DICOM File 1 Value: '),
-        sg.Text('Value 1', key="-VALUE1-"),
-    ],
-    [
-        sg.Text('DICOM File 2 Value: '),
-        sg.Text('Value 2', key="-VALUE2-"),
-    ],
-]
+    treedata = dicom_match_tree.get_treedata()
 
-window = sg.Window('Tree Element Test', layout, resizable=True)
+    layout = [
+        [
+            sg.Tree(
+                data=treedata,
+                headings=['Result','Comments', ],
+                auto_size_columns=True,
+                num_rows=20,
+                col0_width=40,
+                key='-TREE-',
+                show_expanded=False,
+                enable_events=True,
+                expand_x=True,
+                expand_y=True,
+            ),
+        ],
+        [
+            sg.Text(f'{file_label1} Value: '),
+            sg.Text('Value 1', key="-VALUE1-"),
+        ],
+        [
+            sg.Text(f'{file_label2} Value: '),
+            sg.Text('Value 2', key="-VALUE2-"),
+        ],
+    ]
 
-while True:     # Event Loop
-    event, values = window.read()
-    if event in (sg.WIN_CLOSED, 'Cancel'):
-        break
+    window = sg.Window('Tree Element Test', layout, resizable=True)
 
-    tree_key = values["-TREE-"][0]
+    while True:     # Event Loop
+        event, values = window.read()
+        if event in (sg.WIN_CLOSED, 'Cancel'):
+            break
 
-    value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
+        tree_key = values["-TREE-"][0]
 
-    if value1 is None:
-        value1 = ""
+        value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
 
-    if value2 is None:
-        value2 = ""
+        if value1 is None:
+            value1 = ""
 
-    window["-VALUE1-"].update(value1)
-    window["-VALUE2-"].update(value2)
+        if value2 is None:
+            value2 = ""
 
+        window["-VALUE1-"].update(value1)
+        window["-VALUE2-"].update(value2)
 
-window.close()
+    window.close()
 
+if __name__ == "__main__":
+
+    file_path = Path(r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588")
+    raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
+    aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
+    aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
+
+    run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)

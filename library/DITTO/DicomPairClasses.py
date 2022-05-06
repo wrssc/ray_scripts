@@ -5,9 +5,11 @@ from colorama import Fore, Style
 import PySimpleGUI as sg
 from pathlib import Path
 
-RED_CIRCLE = Path("development\\DITTO\\images\\red_circle_icon.png")
-GREEN_CIRCLE = Path("development\\DITTO\\images\\green_circle_icon.png")
-BLUE_CIRCLE = Path("development\\DITTO\\images\\blue_circle_icon.png")
+image_root = Path(__file__).parent / "images"
+
+RED_CIRCLE = image_root / "red_circle_icon.png"
+GREEN_CIRCLE = image_root / "green_circle_icon.png"
+BLUE_CIRCLE = image_root / "blue_circle_icon.png"
 
 
 class Result(Flag):
