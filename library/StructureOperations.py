@@ -56,13 +56,11 @@ import logging
 import os
 import sys
 import connect
-import clr
 import re
-import copy
 import numpy as np
 import pandas as pd
 import xml
-import datetime
+import clr
 import System.Drawing
 
 clr.AddReference("System.Drawing")
@@ -118,7 +116,7 @@ def include_in_export(case, rois):
                 logging.warning("Unable to exclude {} from export".format(rois))
 
 
-def exists_roi(case, rois,return_exists=False):
+def exists_roi(case, rois, return_exists=False):
     """See if rois is in the list
     If return_exists is True return the names of the existing rois,
     If it is False, return a boolean list of each structure's existence
@@ -202,7 +200,7 @@ def has_coordinates_poi(case, exam, poi):
     poi_position = case.PatientModel.StructureSets[exam.Name].PoiGeometries[poi]
     try:
         coords = [poi_position.Point.x, poi_position.Point.y, poi_position.Point.z]
-        if all(abs(c) < 1.e5 for c in coords ):
+        if all(abs(c) < 1.e5 for c in coords):
             return True
         else:
             return False
@@ -225,7 +223,7 @@ def find_localization_poi(case, exam):
     return None
 
 
-def create_poi(case, exam, coords=None, name=None, color='Green',diameter=1, rs_type='Undefined'):
+def create_poi(case, exam, coords=None, name=None, color='Green', diameter=1, rs_type='Undefined'):
     """
     Add a point of interest to the patient model in raystation
     :param case: req: <RS Case>: current case from RS
@@ -254,13 +252,13 @@ def create_poi(case, exam, coords=None, name=None, color='Green',diameter=1, rs_
                            "z": coords[2]}
     else:
         coordinate_dict = {}
-        exam=None
+        exam = None
 
     if not name:
         indx = 0
-        while exists_poi(case=case, pois=['POI'+str(indx)]):
+        while exists_poi(case=case, pois=['POI' + str(indx)]):
             indx += 1
-        point_name='POI'+ str(indx)
+        point_name = 'POI' + str(indx)
     else:
         point_name = name
 
@@ -283,7 +281,7 @@ def create_poi(case, exam, coords=None, name=None, color='Green',diameter=1, rs_
 def visualize_none(patient, case):
     roi_names = find_types(case=case, roi_type=None)
     for r in roi_names:
-        patient.SetRoiVisibility(RoiName=r,IsVisible=False)
+        patient.SetRoiVisibility(RoiName=r, IsVisible=False)
 
 
 def check_roi(case, exam, rois):
@@ -326,7 +324,7 @@ def check_roi_imported(case, exam, rois=None):
         rois = []
         for r in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
             rois.append(r.OfRoi.Name)
-    import_status = {'Imported':[], 'RayStation':[]}
+    import_status = {'Imported': [], 'RayStation': []}
     for r in rois:
         if case.PatientModel.StructureSets[exam.Name].RoiGeometries[r].DicomImportHistory is None:
             import_status['RayStation'].append(r)
@@ -521,7 +519,7 @@ def change_roi_type(case, roi_name, roi_type):
         "Undefined",
     ]
     # without a specified type the structure will be set to "Unknown"
-    if roi_type =='None':
+    if roi_type == 'None':
         roi_type = "Undefined"
 
     if structure_approved(case=case, roi_name=roi_name):
@@ -586,6 +584,7 @@ def change_roi_type(case, roi_name, roi_type):
                     )
     return error_message
 
+
 def find_organs_at_risk(case):
     """
     Find all structures with OrganType "OrganAtRisk"
@@ -597,8 +596,9 @@ def find_organs_at_risk(case):
     plan_oars = []
     for r in case.PatientModel.RegionsOfInterest:
         if r.OrganData.OrganType == "OrganAtRisk":
-                plan_oars.append(r.Name)
+            plan_oars.append(r.Name)
     return plan_oars
+
 
 def find_targets(case):
     """
@@ -651,7 +651,7 @@ def case_insensitive_structure_search(case, structure_name, roi_list=None):
         if re.search(r"^" + structure_name + "$", current_roi, re.IGNORECASE):
             if not re.search(r"^" + structure_name + "$", current_roi):
                 matched_rois.append(current_roi)
-    if len(matched_rois)==1:
+    if len(matched_rois) == 1:
         matched_rois = matched_rois[0]
     return matched_rois
 
@@ -769,7 +769,7 @@ def check_structure_exists(
                 return True
             else:
                 logging.info("Structure {} not found on exam {}, prompted user to create"
-                            .format(structure_name, exam.Name))
+                             .format(structure_name, exam.Name))
                 connect.await_user_input("Create the structure {} and continue script."
                                          .format(structure_name))
     else:
@@ -1114,7 +1114,7 @@ def find_normal_structures_match(rois, standard_rois, num_matches=None):
                 if re_r.match(a_key) and re_l.match(r):
                     lr_mismatch = True
                 if not lr_mismatch:
-                    unsorted_matches.append((alias_distance,a_key))
+                    unsorted_matches.append((alias_distance, a_key))
         for i, d in enumerate(dist):
             if d < len(r) * match_threshold:
                 # Return Criteria
@@ -1469,8 +1469,8 @@ def check_derivation(case, examination, **kwargs):
             return False
     except AttributeError:
         logging.debug('Structure {} does not have a/b/result attributes, no check performed'
-            .format(StructureName))
-        return False # remake struct
+                      .format(StructureName))
+        return False  # remake struct
     # Check A/B operation
     try:
         if result_operations.Children[0].Operation != OperationResult:
@@ -2345,17 +2345,10 @@ def make_boolean_structure(patient, case, examination, **kwargs):
     patient.Set2DvisualizationForRoi(RoiName=StructureName, Mode=VisualizationType)
 
 
-def make_wall(
-        wall,
-        sources,
-        delta,
-        patient,
-        case,
-        examination,
-        inner=True,
-        struct_type="Undefined"):
+def make_wall(wall, sources, delta, patient, case, examination,
+              inner=True, struct_type="Undefined"):
     """
-
+    Args:
     :param wall: Name of wall contour
     :param sources: List of source structures
     :param delta: contraction
@@ -2363,6 +2356,7 @@ def make_wall(
     :param case: current case
     :param inner: logical create an inner wall (true) or ring
     :param examination: current exam
+    :param struct_type: (str) Defines the RS structure type for this wall
     :return:
     """
 
@@ -2699,6 +2693,7 @@ def make_externalclean(
     )
     return roi_geom
 
+
 def make_all_ptvs(patient, case, exam, sources):
     # Generate the All_PTVs combined PTV from
     # sources: a list of source roi names
@@ -2722,6 +2717,7 @@ def make_all_ptvs(patient, case, exam, sources):
     }
     make_boolean_structure(patient=patient, case=case, examination=exam, **all_ptv_defs)
 
+
 def trim_supports(patient, case, exam):
     # Trim all structures of type Support to match the S/I extent of the
     # External type contour
@@ -2730,8 +2726,8 @@ def trim_supports(patient, case, exam):
     support_name = find_types(case=case, roi_type='Support')
     #
     # Find extents of external
-    si = case.PatientModel.StructureSets[exam.Name]\
-             .GetSuperiorInferiorRangeForExternalGeometry()
+    si = case.PatientModel.StructureSets[exam.Name] \
+        .GetSuperiorInferiorRangeForExternalGeometry()
     z1 = si['y']
     z0 = si['x']
     #
@@ -2741,9 +2737,9 @@ def trim_supports(patient, case, exam):
         trim_s_name = 'Temp' + s
         s_g = case.PatientModel.StructureSets[exam.Name].RoiGeometries[s]
         b = s_g.GetBoundingBox()
-        c = {'x': b[0].x +(b[1].x - b[0].x)/2,
-             'y': b[0].y +(b[1].y - b[0].y)/2,
-             'z': z0 + (z1 - z0)/2.}
+        c = {'x': b[0].x + (b[1].x - b[0].x) / 2,
+             'y': b[0].y + (b[1].y - b[0].y) / 2,
+             'z': z0 + (z1 - z0) / 2.}
         box_name = 'Box_' + s
         box_geom = create_roi(
             case=case,
@@ -2752,9 +2748,9 @@ def trim_supports(patient, case, exam):
             delete_existing=True,
             suffix='R')
         logging.debug('Type of box geom is {}'.format(type(box_geom)))
-        box_geom.OfRoi.CreateBoxGeometry(Size={'x': abs(b[0].x - b[1].x)+1.,
-                                               'y': abs(b[0].y - b[1].y)+1.,
-                                               'z': abs(z1-z0)},
+        box_geom.OfRoi.CreateBoxGeometry(Size={'x': abs(b[0].x - b[1].x) + 1.,
+                                               'y': abs(b[0].y - b[1].y) + 1.,
+                                               'z': abs(z1 - z0)},
                                          Examination=exam,
                                          Center=c,
                                          Representation='Voxels',
@@ -2762,51 +2758,52 @@ def trim_supports(patient, case, exam):
         box_roi = case.PatientModel.RegionsOfInterest[box_name]
         # Make temp_name geometry
         trim_s_geom = case.PatientModel.CreateRoi(Name=trim_s_name,
-                                            Color=s_g.OfRoi.Color,
-                                            Type=s_g.OfRoi.Type,
-                                            TissueName=None,
-                                            RbeCellTypeName=None,
-                                            RoiMaterial=s_g.OfRoi.RoiMaterial)
+                                                  Color=s_g.OfRoi.Color,
+                                                  Type=s_g.OfRoi.Type,
+                                                  TissueName=None,
+                                                  RbeCellTypeName=None,
+                                                  RoiMaterial=s_g.OfRoi.RoiMaterial)
         trim_s_roi = case.PatientModel.RegionsOfInterest[trim_s_name]
         temp_defs = {
-                    "StructureName": trim_s_name,
-                    "ExcludeFromExport": False,
-                    "VisualizeStructure": False,
-                    "StructColor": [192, 192, 192],
-                    "OperationA": "Intersection",
-                    "SourcesA": [s, box_name],
-                    "MarginTypeA": "Expand",
-                    "ExpA": [0] * 6,
-                    "OperationB": "Union",
-                    "SourcesB": [],
-                    "MarginTypeB": "Expand",
-                    "ExpB": [0] * 6,
-                    "OperationResult": "None",
-                    "MarginTypeR": "Expand",
-                    "ExpR": [0] * 6,
-                    "StructType": "Undefined",
-                }
+            "StructureName": trim_s_name,
+            "ExcludeFromExport": False,
+            "VisualizeStructure": False,
+            "StructColor": [192, 192, 192],
+            "OperationA": "Intersection",
+            "SourcesA": [s, box_name],
+            "MarginTypeA": "Expand",
+            "ExpA": [0] * 6,
+            "OperationB": "Union",
+            "SourcesB": [],
+            "MarginTypeB": "Expand",
+            "ExpB": [0] * 6,
+            "OperationResult": "None",
+            "MarginTypeR": "Expand",
+            "ExpR": [0] * 6,
+            "StructType": "Undefined",
+        }
         make_boolean_structure(
             patient=patient, case=case, examination=exam, **temp_defs)
         # Delete existing s - geometry
         s_g.DeleteGeometry()
         # Copy the geometry of the trimmed s using a margin struct
         s_g.OfRoi.CreateMarginGeometry(
-                                Examination=exam,
-                                SourceRoiName=trim_s_name,
-                                MarginSettings={
-                                                "Type": "Expand",
-                                                "Superior": 0.0,
-                                                "Inferior": 0.0,
-                                                "Anterior": 0.0,
-                                                "Posterior": 0.0,
-                                                "Right": 0.0,
-                                                "Left": 0.0,
-                                              }
-                                    )
+            Examination=exam,
+            SourceRoiName=trim_s_name,
+            MarginSettings={
+                "Type": "Expand",
+                "Superior": 0.0,
+                "Inferior": 0.0,
+                "Anterior": 0.0,
+                "Posterior": 0.0,
+                "Right": 0.0,
+                "Left": 0.0,
+            }
+        )
         # Delete the temp structure
         trim_s_roi.DeleteRoi()
         box_roi.DeleteRoi()
+
 
 def iter_planning_structure_etree(etree):
     """Load the elements of a planning structure tag into a dictionary
@@ -2997,7 +2994,7 @@ def iter_planning_structure_etree(etree):
         try:
             normal_element = p.find("normal")
             if normal_element.text:
-                normal_structure = normal_element.text.replace(" ","")
+                normal_structure = normal_element.text.replace(" ", "")
                 normal_structure = normal_structure.strip()
                 ps_preference["normal"] = normal_structure
             else:
@@ -3080,7 +3077,7 @@ def iter_planning_structure_etree(etree):
     return ps_config
 
 
-class planning_structure_preferences:
+class PlanningStructurePreferences:
     """
     Class for getting all relevant data for creating planning structures.
     """
@@ -3096,10 +3093,12 @@ class planning_structure_preferences:
         self.use_uniform_dose = None
         self.uniform_properties = {'structures': [], 'standoff': None}
         self.uniform_dose_oar = {}
-        self.use_under_dose = None
         self.generate_otv = None
+        self.use_under_dose = None
         self.under_dose_properties = {'structures': [], 'standoff': None}
         self.under_dose_oar = {}
+        self.use_target_shells = None
+        self.target_shell_properties = {'standoff': None}
         self.plan_type = None
 
 
@@ -3116,7 +3115,7 @@ def dialog_number_of_targets():
                                   number_of_targets chosen.
     """
     # Create an instance of the planning structure class
-    planning_structures = planning_structure_preferences()
+    planning_structures = PlanningStructurePreferences()
 
     dialog1 = UserInterface.InputDialog(
         inputs={
@@ -3149,7 +3148,7 @@ def dialog_number_of_targets():
             #       "Sequential Primary+Boost(s)",
             #       "Multiple Separate Targets"],
         },
-        required=["1", "2"]#, "6"],
+        required=["1", "2"]  # , "6"],
     )
     dialog1_response = dialog1.show()
     if dialog1_response == {}:
@@ -3328,7 +3327,7 @@ def planning_structures(
         examination=examination,
         structure_name=external_name,
         suffix=None,
-        delete=True,
+        delete=False,
     )
 
     if run_status:
@@ -4047,10 +4046,8 @@ def planning_structures(
                 examination=examination,
                 roi_name="InnerAir",
                 delete_existing=True,
-                )
-            change_roi_color(case=case,roi_name="InnerAir",rgb=[139, 69, 19])
-
-
+            )
+            change_roi_color(case=case, roi_name="InnerAir", rgb=[139, 69, 19])
 
     # Make the PTVEZ objects now
     if generate_underdose:
