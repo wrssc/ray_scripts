@@ -20,7 +20,7 @@
 
     <order>
         <name>TomoTBI_FFS</name>
-        <prefix>FFS_</prefix>
+        <prefix>TBI_</prefix>
         <prescription>
             <roi>
                 <name>PTV_p_FFS</name>
@@ -29,8 +29,8 @@
                 <dose units="Gy" idl="100">8</dose>
             </roi>
             <fractions>4</fractions>
-            <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0477">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="FFS" machine="HDA0488">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="FFS" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <commissioned_range>
             <fraction_dose upper="2" lower="1.5"></fraction_dose>
@@ -276,8 +276,8 @@
             <roi>
                 <name>PTV_p_FFS</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p_FFS">102.5</dose>
-                <weight>1</weight>
+                <dose units="%" roi="PTV_p_FFS">92</dose>
+                <weight>3000</weight>
             </roi>
             <roi>
                 <name>PTV_p_FFS</name>
@@ -310,6 +310,12 @@
                 <weight>5000</weight>
             </roi>
             <roi>
+                <name>PTV1_Eval_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_FFS">95</dose>
+                <weight>6000</weight>
+            </roi>
+            <roi>
                 <name>ffs_junction_10%Rx</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_p_FFS">10</dose>
@@ -325,8 +331,15 @@
                 <name>ffs_junction_10%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="ffs_junction_10%Rx">90</volume>
-                <dose units="%" roi="PTV_p_FFS">10</dose>
+                <dose units="%" roi="PTV_p_FFS">9</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_10%Rx</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="ffs_junction_10%Rx">90</volume>
+                <dose units="%" roi="PTV_p_FFS">10</dose>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>ffs_junction_10%Rx</name>
@@ -338,7 +351,7 @@
                 <name>ffs_junction_10%Rx</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_FFS">11</dose>
-                <weight>100</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>ffs_junction_10%Rx</name>
@@ -346,7 +359,13 @@
                 <dose units="%" roi="PTV_p_FFS">20</dose>
                 <weight>1000</weight>
             </roi>
-
+            <roi>
+                <name>ffs_junction_10%Rx</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ffs_junction_10%Rx">2</volume>
+                <dose units="%" roi="PTV_p_FFS">15</dose>
+                <weight>500</weight>
+            </roi>
             <roi>
                 <name>ffs_junction_20%Rx</name>
                 <type>Min</type>
@@ -363,8 +382,15 @@
                 <name>ffs_junction_20%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="ffs_junction_20%Rx">90</volume>
-                <dose units="%" roi="PTV_p_FFS">20</dose>
+                <dose units="%" roi="PTV_p_FFS">15</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_20%Rx</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="ffs_junction_20%Rx">90</volume>
+                <dose units="%" roi="PTV_p_FFS">20</dose>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>ffs_junction_20%Rx</name>
@@ -376,7 +402,7 @@
                 <name>ffs_junction_20%Rx</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_FFS">22</dose>
-                <weight>100</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>ffs_junction_20%Rx</name>
@@ -384,7 +410,13 @@
                 <dose units="%" roi="PTV_p_FFS">30</dose>
                 <weight>1000</weight>
             </roi>
-
+            <roi>
+                <name>ffs_junction_20%Rx</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ffs_junction_20%Rx">2</volume>
+                <dose units="%" roi="PTV_p_FFS">25</dose>
+                <weight>500</weight>
+            </roi>
             <roi>
                 <name>ffs_junction_30%Rx</name>
                 <type>Min</type>
@@ -395,8 +427,15 @@
                 <name>ffs_junction_30%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="ffs_junction_30%Rx">90</volume>
-                <dose units="%" roi="PTV_p_FFS">30</dose>
+                <dose units="%" roi="PTV_p_FFS">25</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_30%Rx</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="ffs_junction_30%Rx">90</volume>
+                <dose units="%" roi="PTV_p_FFS">30</dose>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>ffs_junction_30%Rx</name>
@@ -414,7 +453,7 @@
                 <name>ffs_junction_30%Rx</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_FFS">33</dose>
-                <weight>100</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>ffs_junction_30%Rx</name>
@@ -422,7 +461,13 @@
                 <dose units="%" roi="PTV_p_FFS">40</dose>
                 <weight>1000</weight>
             </roi>
-
+            <roi>
+                <name>ffs_junction_30%Rx</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ffs_junction_30%Rx">2</volume>
+                <dose units="%" roi="PTV_p_FFS">35</dose>
+                <weight>500</weight>
+            </roi>
             <roi>
                 <name>ffs_junction_40%Rx</name>
                 <type>Min</type>
@@ -433,8 +478,15 @@
                 <name>ffs_junction_40%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="ffs_junction_40%Rx">90</volume>
-                <dose units="%" roi="PTV_p_FFS">40</dose>
+                <dose units="%" roi="PTV_p_FFS">35</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_40%Rx</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="ffs_junction_40%Rx">90</volume>
+                <dose units="%" roi="PTV_p_FFS">40</dose>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>ffs_junction_40%Rx</name>
@@ -452,7 +504,7 @@
                 <name>ffs_junction_40%Rx</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_FFS">44</dose>
-                <weight>100</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>ffs_junction_40%Rx</name>
@@ -460,7 +512,13 @@
                 <dose units="%" roi="PTV_p_FFS">50</dose>
                 <weight>1000</weight>
             </roi>
-
+            <roi>
+                <name>ffs_junction_40%Rx</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ffs_junction_40%Rx">2</volume>
+                <dose units="%" roi="PTV_p_FFS">45</dose>
+                <weight>500</weight>
+            </roi>
             <roi>
                 <name>ffs_junction_50%Rx</name>
                 <type>Min</type>
@@ -477,8 +535,15 @@
                 <name>ffs_junction_50%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="ffs_junction_50%Rx">90</volume>
-                <dose units="%" roi="PTV_p_FFS">50</dose>
+                <dose units="%" roi="PTV_p_FFS">45</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_50%Rx</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="ffs_junction_50%Rx">90</volume>
+                <dose units="%" roi="PTV_p_FFS">50</dose>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>ffs_junction_50%Rx</name>
@@ -498,12 +563,18 @@
                 <dose units="%" roi="PTV_p_FFS">60</dose>
                 <weight>1000</weight>
             </roi>
-
+            <roi>
+                <name>ffs_junction_50%Rx</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ffs_junction_50%Rx">2</volume>
+                <dose units="%" roi="PTV_p_FFS">55</dose>
+                <weight>500</weight>
+            </roi>
             <roi>
                 <name>ffs_junction_60%Rx</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_p_FFS">60</dose>
-                <weight>100</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>ffs_junction_60%Rx</name>
@@ -515,8 +586,15 @@
                 <name>ffs_junction_60%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="ffs_junction_60%Rx">90</volume>
-                <dose units="%" roi="PTV_p_FFS">60</dose>
+                <dose units="%" roi="PTV_p_FFS">55</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_60%Rx</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="ffs_junction_60%Rx">90</volume>
+                <dose units="%" roi="PTV_p_FFS">60</dose>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>ffs_junction_60%Rx</name>
@@ -536,13 +614,18 @@
                 <dose units="%" roi="PTV_p_FFS">70</dose>
                 <weight>1000</weight>
             </roi>
-
-
+            <roi>
+                <name>ffs_junction_60%Rx</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ffs_junction_60%Rx">2</volume>
+                <dose units="%" roi="PTV_p_FFS">65</dose>
+                <weight>500</weight>
+            </roi>
             <roi>
                 <name>ffs_junction_70%Rx</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_p_FFS">70</dose>
-                <weight>100</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>ffs_junction_70%Rx</name>
@@ -554,8 +637,15 @@
                 <name>ffs_junction_70%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="ffs_junction_70%Rx">90</volume>
-                <dose units="%" roi="PTV_p_FFS">70</dose>
+                <dose units="%" roi="PTV_p_FFS">65</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_70%Rx</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="ffs_junction_70%Rx">90</volume>
+                <dose units="%" roi="PTV_p_FFS">70</dose>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>ffs_junction_70%Rx</name>
@@ -567,7 +657,7 @@
                 <name>ffs_junction_70%Rx</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_FFS">77</dose>
-                <weight>100</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>ffs_junction_70%Rx</name>
@@ -575,7 +665,13 @@
                 <dose units="%" roi="PTV_p_FFS">80</dose>
                 <weight>1000</weight>
             </roi>
-
+            <roi>
+                <name>ffs_junction_70%Rx</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ffs_junction_70%Rx">2</volume>
+                <dose units="%" roi="PTV_p_FFS">75</dose>
+                <weight>500</weight>
+            </roi>
             <roi>
                 <name>ffs_junction_80%Rx</name>
                 <type>Min</type>
@@ -592,8 +688,15 @@
                 <name>ffs_junction_80%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="ffs_junction_80%Rx">90</volume>
-                <dose units="%" roi="PTV_p_FFS">80</dose>
+                <dose units="%" roi="PTV_p_FFS">75</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_80%Rx</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="ffs_junction_80%Rx">90</volume>
+                <dose units="%" roi="PTV_p_FFS">80</dose>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>ffs_junction_80%Rx</name>
@@ -605,7 +708,7 @@
                 <name>ffs_junction_80%Rx</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_FFS">88</dose>
-                <weight>100</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>ffs_junction_80%Rx</name>
@@ -613,7 +716,13 @@
                 <dose units="%" roi="PTV_p_FFS">90</dose>
                 <weight>1000</weight>
             </roi>
-
+            <roi>
+                <name>ffs_junction_80%Rx</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ffs_junction_80%Rx">2</volume>
+                <dose units="%" roi="PTV_p_FFS">85</dose>
+                <weight>500</weight>
+            </roi>
             <roi>
                 <name>ffs_junction_90%Rx</name>
                 <type>Min</type>
@@ -630,8 +739,15 @@
                 <name>ffs_junction_90%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="ffs_junction_90%Rx">90</volume>
-                <dose units="%" roi="PTV_p_FFS">90</dose>
+                <dose units="%" roi="PTV_p_FFS">85</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_90%Rx</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="ffs_junction_90%Rx">90</volume>
+                <dose units="%" roi="PTV_p_FFS">90</dose>
+                <weight>500</weight>
             </roi>
             <roi>
                 <name>ffs_junction_90%Rx</name>
@@ -643,7 +759,7 @@
                 <name>ffs_junction_90%Rx</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_FFS">99</dose>
-                <weight>100</weight>
+                <weight>200</weight>
             </roi>
             <roi>
                 <name>ffs_junction_90%Rx</name>
@@ -651,30 +767,36 @@
                 <dose units="%" roi="PTV_p_FFS">100</dose>
                 <weight>1000</weight>
             </roi>
-
             <roi>
-                <name>avoid_FFS</name>
+                <name>ffs_junction_90%Rx</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="ffs_junction_90%Rx">2</volume>
+                <dose units="%" roi="PTV_p_FFS">95</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>Avoid_FFS</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_FFS">5</dose>
+                <dose units="%" roi="PTV_p_FFS">10</dose>
                 <weight>100</weight>
             </roi>
             <roi>
-                <name>avoid_FFS</name>
+                <name>Avoid_FFS</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_FFS">10</dose>
+                <dose units="%" roi="PTV_p_FFS">15</dose>
                 <weight>1000</weight>
             </roi>
             <roi>
-                <name>avoid_FFS</name>
+                <name>Avoid_FFS</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p_FFS" low="2">10</dose>
-                <weight>50</weight>
+                <weight>10</weight>
             </roi>
         </objectives>
     </order>
-     <order>
+    <order>
         <name>TomoTBI_HFS</name>
-        <prefix>HFS_</prefix>
+        <prefix>TBI_</prefix>
         <prescription>
             <roi>
                 <name>PTV_p_HFS</name>
@@ -683,8 +805,8 @@
                 <dose units="Gy" idl="100">8</dose>
             </roi>
             <fractions>4</fractions>
-            <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0477">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="HFS" machine="HDA0488">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="HFS" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <commissioned_range>
             <fraction_dose upper="2" lower="1.5"></fraction_dose>
@@ -1092,12 +1214,6 @@
 
             <roi>
                 <name>hfs_junction_40%Rx</name>
-                <type>Min</type>
-                <dose units="%" roi="PTV_p_HFS">40</dose>
-                <weight>100</weight>
-            </roi>
-            <roi>
-                <name>hfs_junction_40%Rx</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="hfs_junction_40%Rx">90</volume>
                 <dose units="%" roi="PTV_p_HFS">40</dose>
@@ -1126,6 +1242,12 @@
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_HFS">50</dose>
                 <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>hfs_junction_40%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">40</dose>
+                <weight>100</weight>
             </roi>
 
             <roi>
@@ -1203,7 +1325,6 @@
                 <dose units="%" roi="PTV_p_HFS">70</dose>
                 <weight>3000</weight>
             </roi>
-
 
             <roi>
                 <name>hfs_junction_70%Rx</name>
@@ -1320,22 +1441,301 @@
             </roi>
 
             <roi>
-                <name>avoid_HFS</name>
+                <name>Avoid_HFS</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_HFS">5</dose>
                 <weight>1</weight>
             </roi>
             <roi>
-                <name>avoid_HFS</name>
+                <name>Avoid_HFS</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_HFS">10</dose>
                 <weight>100</weight>
             </roi>
             <roi>
-                <name>avoid_HFS</name>
+                <name>Avoid_HFS</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p_HFS" low="2">10</dose>
                 <weight>5</weight>
+            </roi>
+
+            <roi>
+                <name>ffs_junction_10%Rx_dose_20%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">85</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_10%Rx_dose_15%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_10%Rx_dose_10%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">90</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_10%Rx_dose_10%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">95</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_10%Rx_dose_5%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">95</dose>
+                <weight>500</weight>
+            </roi>
+
+            <roi>
+                <name>ffs_junction_20%Rx_dose_30%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">75</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_20%Rx_dose_25%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">70</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_20%Rx_dose_20%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">80</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_20%Rx_dose_20%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">85</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_20%Rx_dose_15%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">85</dose>
+                <weight>500</weight>
+            </roi>
+
+            <roi>
+                <name>ffs_junction_30%Rx_dose_40%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">65</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_30%Rx_dose_35%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">70</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_30%Rx_dose_30%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">70</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_30%Rx_dose_30%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">75</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_30%Rx_dose_25%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">75</dose>
+                <weight>500</weight>
+            </roi>
+
+            <roi>
+                <name>ffs_junction_40%Rx_dose_50%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">55</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_40%Rx_dose_45%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">60</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_40%Rx_dose_40%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">60</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_40%Rx_dose_40%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">65</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_40%Rx_dose_35%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">65</dose>
+                <weight>500</weight>
+            </roi>
+
+            <roi>
+                <name>ffs_junction_50%Rx_dose_60%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">45</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_50%Rx_dose_55%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">50</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_50%Rx_dose_50%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">50</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_50%Rx_dose_50%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">55</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_50%Rx_dose_45%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">55</dose>
+                <weight>500</weight>
+            </roi>
+
+            <roi>
+                <name>ffs_junction_60%Rx_dose_70%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">35</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_60%Rx_dose_65%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">40</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_60%Rx_dose_60%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">40</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_60%Rx_dose_60%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">45</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_60%Rx_dose_55%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">45</dose>
+                <weight>500</weight>
+            </roi>
+
+            <roi>
+                <name>ffs_junction_70%Rx_dose_80%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">25</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_70%Rx_dose_75%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">30</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_70%Rx_dose_70%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">30</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_70%Rx_dose_70%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">35</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_70%Rx_dose_65%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">35</dose>
+                <weight>500</weight>
+            </roi>
+
+            <roi>
+                <name>ffs_junction_80%Rx_dose_90%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">15</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_80%Rx_dose_85%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">20</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_80%Rx_dose_80%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">20</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_80%Rx_dose_80%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">25</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_80%Rx_dose_75%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">25</dose>
+                <weight>500</weight>
+            </roi>
+
+            <roi>
+                <name>ffs_junction_90%Rx_dose_100%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">5</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_90%Rx_dose_95%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">10</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_90%Rx_dose_90%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">10</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_90%Rx_dose_90%Rx</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_HFS">15</dose>
+                <weight>3000</weight>
+            </roi>
+            <roi>
+                <name>ffs_junction_90%Rx_dose_85%Rx</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_HFS">15</dose>
+                <weight>500</weight>
             </roi>
         </objectives>
     </order>
@@ -1361,24 +1761,24 @@
         <name>Tomo_TBI_FFS_FW50</name>
         <technique>TomoHelical</technique>
         <DicomName>TBI_FFS_R0A0</DicomName>
-        <description>FFS planning params for TBI</description>
+        <description>FFS TomoHelical Beam</description>
         <roi_support>TomoCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
-            <Name>1_SITE_THI</Name>
+            <Name>1_FFS_TBI_THI</Name>
             <Energy>6</Energy>
             <FieldWidth>5.05</FieldWidth>
             <Pitch>0.430</Pitch>
             <BackJawPosition>2.1</BackJawPosition>
             <FrontJawPosition>-2.1</FrontJawPosition>
             <JawMode>Fixed</JawMode>
-            <MaxDeliveryTime>1400</MaxDeliveryTime>
+            <MaxDeliveryTime>1100</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
-            <MaxDeliveryTimeFactor>2.0</MaxDeliveryTimeFactor>
+            <MaxDeliveryTimeFactor>3.0</MaxDeliveryTimeFactor>
         </beam>
     </beamset>
-     <beamset>
+    <beamset>
         <name>Tomo_TBI_HFS_FW50</name>
         <technique>TomoHelical</technique>
         <DicomName>TBI_HFS_R0A0</DicomName>
@@ -1396,19 +1796,33 @@
             <JawMode>Fixed</JawMode>
             <MaxDeliveryTime>2200</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
-            <MaxDeliveryTimeFactor>2.0</MaxDeliveryTimeFactor>
+            <MaxDeliveryTimeFactor>4.0</MaxDeliveryTimeFactor>
         </beam>
     </beamset>
+    <optimization_config>
+        <name>8 warmstarts Tomo</name>
+        <description>8 warmstart optimization</description>
+        <technique>TomoHelical</technique>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="20" int_it="3" n="8">Iteration_1to8</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_mod mod_target="2.2">True</reduce_mod>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+        <block_prompt>False</block_prompt>
+    </optimization_config>
     <optimization_config>
         <name>12 warmstarts Tomo</name>
         <description>12 warmstart optimization</description>
         <technique>TomoHelical</technique>
         <initial max_it="30" int_it="10">Iteration 0</initial>
         <warmstart max_it="20" int_it="3" n="12">Iteration_1to11</warmstart>
-    <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
-        <reduce_mod mod_target="3.2">True</reduce_mod>
+        <reduce_mod mod_target="3.7">True</reduce_mod>
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
         <block_prompt>False</block_prompt>
