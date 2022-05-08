@@ -183,7 +183,7 @@ def main():
     else:
         poi_status = StructureOperations.create_poi(
             case=case, exam=examination, coords=[0., 0., 0.],
-            name="SimFiducials",color="Green", rs_type='LocalizationPoint')
+            name="SimFiducials", color="Green", rs_type='LocalizationPoint')
         if poi_status:
             logging.warning('Error detected creating SimFiducial point{}'.format(poi_status))
             sys.exit('Error detected creating SimFiducial point{}'.format(poi_status))
@@ -757,7 +757,7 @@ def main():
 
             beamset = BeamOperations.create_beamset(
                 patient=patient,
-                exam = examination,
+                exam=examination,
                 case=case,
                 plan=plan,
                 dialog=False,
@@ -808,12 +808,12 @@ def main():
 
             for i, b in enumerate(beam_names):
                 beamset.CreatePhotonBeam(BeamQualityId=beam_ener[i],
-                                     IsocenterData=isocenter_parameters,
-                                     Name=b,
-                                     Description=beam_descrip[i],
-                                     GantryAngle=beam_gant[i],
-                                     CouchRotationAngle=beam_couch[i],
-                                     CollimatorAngle=beam_col[i])
+                                         IsocenterData=isocenter_parameters,
+                                         Name=b,
+                                         Description=beam_descrip[i],
+                                         GantryAngle=beam_gant[i],
+                                         CouchRotationAngle=beam_couch[i],
+                                         CollimatorAngle=beam_col[i])
             beamset.PatientSetup.UseSetupBeams = True
             # Set treat/protect and minimum MU
             for beam in beamset.Beams:
