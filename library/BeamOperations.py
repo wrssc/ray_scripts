@@ -436,23 +436,39 @@ def place_beams_in_beamset(iso, beamset, beams):
     :param beams: list of Beam objects
     :return:
     """
-    for b in beams:
-        logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
-                      'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
-            b.number, b.technique, b.name,
-            b.energy, b.gantry_start_angle,
-            b.gantry_stop_angle, b.rotation_dir,
-            b.collimator_angle, b.couch_angle))
+    if beamset.DeliveryTechnique == "DynamicArc":
+        for b in beams:
+            logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
+                          'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
+                b.number, b.technique, b.name,
+                b.energy, b.gantry_start_angle,
+                b.gantry_stop_angle, b.rotation_dir,
+                b.collimator_angle, b.couch_angle))
 
-        beamset.CreateArcBeam(ArcStopGantryAngle=b.gantry_stop_angle,
-                              ArcRotationDirection=b.rotation_dir,
-                              BeamQualityId=b.energy,
-                              IsocenterData=iso,
-                              Name=b.name,
-                              Description=b.name,
-                              GantryAngle=b.gantry_start_angle,
-                              CouchRotationAngle=b.couch_angle,
-                              CollimatorAngle=b.collimator_angle)
+            beamset.CreateArcBeam(ArcStopGantryAngle=b.gantry_stop_angle,
+                                  ArcRotationDirection=b.rotation_dir,
+                                  BeamQualityId=b.energy,
+                                  IsocenterData=iso,
+                                  Name=b.name,
+                                  Description=b.name,
+                                  GantryAngle=b.gantry_start_angle,
+                                  CouchRotationAngle=b.couch_angle,
+                                  CollimatorAngle=b.collimator_angle)
+    elif beamset.DeliveryTechnique == "SMLC":
+        for b in beams:
+            logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, Gantry Angle {}, Couch Angle {}, ' +
+                          'CollimatorAngle {},').format(
+                b.number, b.technique, b.name,
+                b.energy, b.gantry_start_angle, b.couch_angle,
+                b.collimator_angle))
+
+            beamset.CreatePhotonBeam(BeamQualityId=b.energy,
+                                     IsocenterData=iso,
+                                     Name=b.name,
+                                     Description=b.name,
+                                     GantryAngle=b.gantry_start_angle,
+                                     CouchRotationAngle=b.couch_angle,
+                                     CollimatorAngle=b.collimator_angle)
 
 
 def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
