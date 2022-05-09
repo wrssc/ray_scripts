@@ -227,12 +227,32 @@ def find_rx(order):
 
 
 def find_validation_status(order):
-    tag = order.find('validation')
-    if tag:
-        validation_status = bool(tag.find('validation_status').text)
+    val_elem = order.find('validation')
+    logging.debug('Val element is {}'.format(val_elem))
+    validation_properties = {}
+    if val_elem:
+        if val_elem.find('validation_status').text:
+            value = val_elem.find('validation_status').text
+            if value == "True":
+                validation_properties['status'] = True
+                logging.debug('Val status is True')
+            else:
+                validation_properties['status'] = False
+                logging.debug('Val status is Not True')
+        else:
+            validation_properties['status'] = False
+            logging.debug('No status found')
+        if val_elem.find('author').text:
+            validation_properties['author'] = val_elem.find('author').text
+            logging.debug('Author is found')
+        else:
+            validation_properties['author'] = None
+            logging.debug('No author specified')
     else:
-        validation_status = False
-    return validation_status
+        validation_properties['author'] = None
+        validation_properties['status'] = False
+        logging.debug('No author or status in this file')
+    return validation_properties
 
 
 def select_blocking(case, protocol, order):
@@ -753,7 +773,7 @@ def load_planning_structures(case, filename, path, workflow_name, translation_ma
     # Slice for the planning structure set matching the input workflow
     df_wf = df_pp[df_pp.name == wf]
 
-    pp = StructureOperations.planning_structure_preferences()
+    pp = StructureOperations.PlanningStructurePreferences()
     pp.number_of_targets = int(df_wf.number_of_targets.values[0])
     if len(translation_map) < pp.number_of_targets:
         pp.number_of_targets = len(translation_map)
