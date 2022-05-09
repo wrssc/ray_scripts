@@ -1,35 +1,33 @@
 """ Create Clinical Goals and Objectives
 
-	Add clinical goals and objectives in RayStation given user supplied inputs
-	At this time, we are looking in the UW protocols directory for a
-	list of approved protocols
+Add clinical goals and objectives in RayStation given user supplied inputs
+At this time, we are looking in the UW protocols directory for a
+list of approved protocols
 
-	We may want to extend this main function to a simple function which would potentially
-	take the path as an argument.
+We may want to extend this main function to a simple function which would potentially
+take the path as an argument.
 
-	Script will ask user for a protocol and potentially an order.  It will then find the
-	doses that are to be used. If protocol defined doses exist and matches are found to
-	target names it will load those first.
+Script will ask user for a protocol and potentially an order.  It will then find the
+doses that are to be used. If protocol defined doses exist and matches are found to
+target names it will load those first.
 
-	Inputs::
-		None at this time
+Inputs::
+	None at this time
 
-	Dependencies::
-		Note that protocols are assumed to have even priorities describing targets
+Dependencies::
+	Note that protocols are assumed to have even priorities describing targets
 
-	TODO: Change the main to a callable function taking the protocol path as an input`
-	TODO: Add goal loop for secondary - unspecified target goals
-	:versions
-	1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
-	1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
-	2.0.0 Adding the clinical objectives for IMRT
+:versions
+1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
+1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
+2.0.0 Adding the clinical objectives for IMRT
 
 
-	Add objectives
+Add objectives
 
-	Contains functions required to load objectives from xml files
-	add the objectives to RayStation. Contains functions for reassignment of an
-	objective when the target name is not matched
+Contains functions required to load objectives from xml files
+add the objectives to RayStation. Contains functions for reassignment of an
+objective when the target name is not matched
 """
 
 import sys
@@ -37,12 +35,17 @@ import os
 import logging
 import xml.etree.ElementTree
 from collections import OrderedDict
+import re
 import UserInterface
 import StructureOperations
 import Goals
 import connect
 from GeneralOperations import logcrit as logcrit
 from GeneralOperations import find_scope as find_scope
+
+GENERIC_PLANNING_STRUCTURE_NAMES = ['OTV1_', 'sOTVu1_', 'OTV1_EZ_',
+                                    'PTV1_', 'PTV1_Eval_', 'PTV1_EZ_',
+                                    'ring1_']
 
 
 def find_optimization_index(plan, beamset):
@@ -57,7 +60,7 @@ def find_optimization_index(plan, beamset):
     indices = []
     for OptIndex, opts in enumerate(plan.PlanOptimizations):
         try:
-            opts.OptimizedBeamSets[beamset.DicomPlanLabel]
+            o = opts.OptimizedBeamSets[beamset.DicomPlanLabel]
             indices.append(OptIndex)
         except:
             pass
@@ -74,6 +77,18 @@ def find_optimization_index(plan, beamset):
         logging.warning("Beamset has multiple optimizations, cannot proceed")
         sys.exit("Multiple beamset optimizations found in current plan.Cannot proceed")
     return OptIndex
+
+
+def add_mco(plan, beamset):
+    # Find the current optimization index
+    # If no mco, make one
+    # TODO: Turn off autonavigate!
+    opt_index = find_optimization_index(plan, beamset)
+    po = plan.PlanOptimizations[opt_index]
+    try:
+        po.CreateMco()
+    except:
+        logging.debug('Create MCO exists already')
 
 
 def select_objective_protocol(folder=None, filename=None, order_name=None, protocol=None):
@@ -260,8 +275,11 @@ def reformat_objectives(objective_elements, translation_map=None):
         objectives = objsets.findall('./objectives/roi')
         for o in objectives:
             o_n = o.find('name').text
-            o_t = o.find('type').text
-            o_d = o.find('dose').text
+            # o_t = o.find('type').text
+            if o.find('dose'):
+                o_d = o.find('dose').text
+            else:
+                o_d = None
             # logging.debug('ROI: {} has a goal of type: {} with a dose level: {}%'.format(
             #    o_n, o_t, o_d))
             if o_n in translation_map:
@@ -328,7 +346,29 @@ def add_objective(obj, exam, case, plan, beamset,
     else:
         protocol_roi = obj.find('name').text
         roi = obj.find('name').text
-
+    #
+    # Determine if MCO constraints are to be added
+    if obj.find('mco') is None:
+        mco = False
+        mco_constraint = False
+        mco_alara = False
+    else:
+        if obj.find('mco').text == "Constraint":
+            mco = True
+            mco_constraint = True
+            mco_alara = False
+        elif obj.find('mco').text == "ALARA":
+            mco = True
+            mco_constraint = False
+            mco_alara = True
+        elif obj.find('mco').text == "Objective":
+            mco = True
+            mco_constraint = False
+            mco_alara = False
+        else:
+            mco = False
+            mco_alara = False
+            mco_constraint = False
     if checking:
         roi_check = all(StructureOperations.check_roi(case=case, exam=exam, rois=roi))
 
@@ -375,7 +415,7 @@ def add_objective(obj, exam, case, plan, beamset,
                 obj.find('name').text, obj.find('dose').text, obj.find('dose').attrib["units"],
                 weighted_dose))
             if obj.find('type').text == 'DFO':
-                low_dose =  float(s_dose) * float(obj.find('dose').attrib['low']) / 100
+                low_dose = float(s_dose) * float(obj.find('dose').attrib['low']) / 100
                 obj.find('dose').attrib['low'] = low_dose
 
             obj.find('dose').attrib["units"] = "Gy"
@@ -471,8 +511,6 @@ def add_objective(obj, exam, case, plan, beamset,
     plan_optimization = plan.PlanOptimizations[OptIndex]
 
     # Add the objective
-    # try:
-
     o = plan_optimization.AddOptimizationFunction(FunctionType=function_type,
                                                   RoiName=roi,
                                                   IsConstraint=constraint,
@@ -498,24 +536,66 @@ def add_objective(obj, exam, case, plan, beamset,
     logging.debug("Added objective for ROI: " +
                   "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
                       roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
+    # Add the mco objective
+    if mco:
+        add_mco(plan, beamset)
+        if mco_alara:
+            # Hijack function type
+            mco_function_type = "MaxEud"
+            eud_a = 1
+        else:
+            mco_function_type = function_type
+
+        mco_o = plan_optimization.Mco.TemplateOptimizationProblem.AddOptimizationFunction(
+            FunctionType=mco_function_type,
+            RoiName=roi,
+            IsConstraint=mco_constraint,
+            RestrictAllBeamsIndividually=False,
+            RestrictToBeam=None,
+            IsRobust=robust,
+            RestrictToBeamSet=restrict_beamset,
+            UseRbeDose=False)
+        if mco_alara:
+            mco_o.DoseFunctionParameters.EudParameterA = eud_a
+            mco_o.DoseFunctionParameters.DoseLevel = 0.
+            logging.info("Added MCO objective for ROI: " +
+                         "{}, type {}, dose {}, for beamset {} with restriction: {}".format(
+                             roi, mco_function_type, 0., beamset.DicomPlanLabel, restrict_beamset))
+        else:
+            if volume:
+                mco_o.DoseFunctionParameters.PercentVolume = volume
+            if 'Eud' in function_type:
+                mco_o.DoseFunctionParameters.EudParameterA = eud_a
+            # Dose fall off type of optimization option.
+            if function_type == 'DoseFallOff':
+                mco_o.DoseFunctionParameters.HighDoseLevel = high_dose
+                mco_o.DoseFunctionParameters.LowDoseLevel = low_dose
+                mco_o.DoseFunctionParameters.LowDoseDistance = low_dose_dist
+                mco_o.DoseFunctionParameters.AdaptToTargetDoseLevels = adapt_dose
+            # For all types other than DoseFallOff, the dose is simply entered here
+            else:
+                mco_o.DoseFunctionParameters.DoseLevel = dose
+            logging.info("Added MCO objective for ROI: " +
+                         "{}, type {}, dose {}, for beamset {} with restriction: {}".format(
+                             roi, mco_function_type, dose, beamset.DicomPlanLabel, restrict_beamset))
 
 
-def add_robust_optimization(plan_optimization, position_uncertainty,
-    density_uncertainty = 0, postion_uncertainty_setting="Universal", compute_exact=False,nonplanning_exams=[] ):
-    # Oodles of good stuff
-    plan_optimization.OptimizationParameters.SaveRobustnessParameters(PositionUncertaintyAnterior=0.3,
-        PositionUncertaintyPosterior=0,
-        PositionUncertaintySuperior=0,
-        PositionUncertaintyInferior=0,
-        PositionUncertaintyLeft=0,
-        PositionUncertaintyRight=0.3,
-        DensityUncertainty=0,
-        PositionUncertaintySetting="Universal",
-        IndependentLeftRight=True,
-        IndependentAnteriorPosterior=True,
-        IndependentSuperiorInferior=True,
-        ComputeExactScenarioDoses=False,
-        NamesOfNonPlanningExaminations=[])
+# def add_robust_optimization(plan_optimization, position_uncertainty,
+#     density_uncertainty = 0, postion_uncertainty_setting="Universal", compute_exact=False,nonplanning_exams=[] ):
+#    # Oodles of good stuff
+#    plan_optimization.OptimizationParameters.SaveRobustnessParameters(PositionUncertaintyAnterior=0.3,
+#        PositionUncertaintyPosterior=0,
+#        PositionUncertaintySuperior=0,
+#        PositionUncertaintyInferior=0,
+#        PositionUncertaintyLeft=0,
+#        PositionUncertaintyRight=0.3,
+#        DensityUncertainty=0,
+#        PositionUncertaintySetting="Universal",
+#        IndependentLeftRight=True,
+#        IndependentAnteriorPosterior=True,
+#        IndependentSuperiorInferior=True,
+#        ComputeExactScenarioDoses=False,
+#        NamesOfNonPlanningExaminations=[])
 
 def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     """
@@ -695,6 +775,26 @@ def knowledge_based_goal(structure_name, goal_type, case, exam,
 
     return know_analysis
 
+
+def make_target_names(target_name, num_targets):
+    # Built a list of targets split at the number in the target_name and incorporating
+    # up to num_targets
+    # return the target list
+    spl = re.split(r'(\d)', target_name)
+    return [spl[0] + str(i) + spl[2] for i in range(1, num_targets + 1)]
+
+
+def target_match(t, r):
+    # Search for a name of the form: t+ 3 to 4 digits, in r
+    # and return the value of r if found
+    expr = re.compile(r'^(' + t + r')\d{3,4}$')
+    roi_found = re.match(expr, r)
+    if roi_found:
+        return roi_found.group(0)
+    else:
+        return None
+
+
 def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                                            filename=None, path_protocols=None, protocol_name=None,
                                            target_map=None, order_name=None, run_status=True):
@@ -783,9 +883,9 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     # 		unsearchable elementrees
     if filename:
         logcrit('Protocol selected: {}'.format(filename))
-        if not os.path.exists(os.path.join(path_protocols,filename)):
+        if not os.path.exists(os.path.join(path_protocols, filename)):
             error_message.append('Path {} not found. No goals could be added'
-                                 .format(os.path.join(path_protocols,filename)))
+                                 .format(os.path.join(path_protocols, filename)))
             return error_message
         if protocol_name:
             tree = xml.etree.ElementTree.parse(os.path.join(path_protocols, filename))
@@ -913,13 +1013,15 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     if required_locations:
         for r in required_locations:
             r_name = r.find('name').text
-            if r_name not in protocol_rois: protocol_rois.append(r_name)
+            if r_name not in protocol_rois:
+                protocol_rois.append(r_name)
             if not any(o == r_name for o in rois) and r_name not in missing_contours:
                 missing_contours.append(r_name)
     for s in goal_locations:
         for g in s:
             g_name = g.find('name').text
-            if g_name not in protocol_rois: protocol_rois.append(g_name)
+            if g_name not in protocol_rois:
+                protocol_rois.append(g_name)
             # Add a quick check if the contour exists in RS
             # This step is slow, we may want to gather all rois into a list and look for it
             if int(g.find('priority').text) % 2:
@@ -966,7 +1068,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             initial=target_initial,
             options=target_options,
             required=[])
-        print
         target_dialog.show()
         # Process inputs
         # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
@@ -991,7 +1092,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                     # Not sure if this loop is still needed
                     translation_map[p][1] = (float(v) / 100.)
 
-
     # Process inputs
     # Make a dict with key = name from elementTree : [ Name from ROIs, Dose in Gy]
     nominal_dose = 0
@@ -1006,7 +1106,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     else:
         for k, v in translation_map.items():
             logging.debug('Targets are {}{}'.format(k, v))
-
 
     if run_status:
         status.next_step(text="Adding goals.", num=3)
@@ -1115,46 +1214,35 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     # Parse each type in a separate function
     # Add matching elements
     # Add objective function should know whether something is absolute or relative for dose and volume
-    # TODO: Go back to planning structs and generate a mapping to be used for OTVs, etc
-    #  but for now, we'll match to the closest suffix
-
-    gen_obj_targets = ['OTV1_', 'sOTVu1_', 'OTV1_EZ_',
-                       'OTV2_', 'sOTVu2_', 'OTV2_EZ_',
-                       'OTV3_', 'sOTVu3_', 'OTV3_EZ_',
-                       'OTV4_', 'sOTVu4_', 'OTV4_EZ_',
-                       'OTV5_', 'sOTVu5_', 'OTV5_EZ_',
-                       'PTV1_', 'PTV2_', 'PTV3_', 'PTV4_',
-                       'PTV5_', 'PTV6_', 'PTV7_', 'PTV8_',
-                       'PTV9_', 'PTV10_', 'PTV11_', 'PTV12_',
-                       'PTV1_EZ_', 'PTV2_EZ_', 'PTV3_EZ_',
-                       'PTV4_EZ_', 'PTV5_EZ_', 'PTV6_EZ_',
-                       'sOTVu1', 'sOTVu2', 'sOTVu3',
-                       'sOTVu4', 'sOTVu5',
-                       'ring1_', 'ring2_', 'ring3_', 'ring4_', 'ring5_']
+    #
     obj_targets = []
+    gen_obj_targets = [x for g in GENERIC_PLANNING_STRUCTURE_NAMES
+                       for x in make_target_names(g, num_targets=100)]
     for r in rois:
         for g in gen_obj_targets:
-            if g in r:
+            roi = target_match(g, r)
+            if roi:
                 if g not in translation_map:
                     translation_map[g] = [None] * 2
-                translation_map[g][0] = r
-                obj_targets.append(r)
+                translation_map[g][0] = roi
+                obj_targets.append(roi)
     # TODO: Decide how we want the saved xml file to look. Do we want it a
     #  simple mapping+protocol? If so, the xml element file should really be unaltered
     #  we'd map an xml-input to objectives using the mapping, save the mapping and
     #  output the xml-result using the inverse mapping
+    logging.debug('Translation map is {}'.format(translation_map))
 
     for objsets in objective_elements:
         objectives = objsets.findall('./objectives/roi')
         for o in objectives:
             o_n = o.find('name').text
-            o_t = o.find('type').text
+            # o_t = o.find('type').text
             o_d = o.find('dose').text
             if o_n in translation_map:
                 s_roi = translation_map[o_n][0]
             else:
                 s_roi = None
-
+            logging.debug('{} has substitute {}'.format(o_n, s_roi))
             if "%" in o.find('dose').attrib['units']:
                 # Define the unmatched and unmodified protocol name and dose
                 o_r = o.find('dose').attrib['roi']
@@ -1177,7 +1265,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                 else:
                     logging.debug(
                         'No match found protocol roi: {}, with a relative dose requiring protocol roi: {}'
-                        .format(o_n, o_r))
+                            .format(o_n, o_r))
                     s_dose = 0
                     pass
             else:
