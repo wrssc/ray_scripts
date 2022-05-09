@@ -91,7 +91,8 @@ def main():
                 ui = connect.get_current('ui')
                 ui.TitleBar.MenuItem['Plan evaluation'].Click()
                 ui.TitleBar.MenuItem['Plan evaluation'].Popup.MenuItem['Plan evaluation'].Click()
-                ui.TabControl_ToolBar.TabItem._Approval.Select()
+                ui_tab_item = ui.TabControl_ToolBar.TabItem
+                ui_tab_item._Approval.Select()
                 connect.await_user_input('Approve the plan now, then continue the script')
 
             else:
@@ -136,8 +137,6 @@ def main():
                                     rs_test_only=False)
         return
 
-
-
     # Prompt user for DICOM export details
     status.next_step(text='In the dialog window that appears, check each DICOM destination that you would like to ' +
                           'export to, what should be exported, and if a beamset is loaded, what treatment delivery ' +
@@ -151,14 +150,14 @@ def main():
                    'Internal Target RPM Gated Treatment (NOT ALIGN RT) ',
                    'Reference Point has no geometric location',
                    'No Filters']
-                   # 'Convert machine energy (FFF)',
-                   # 'Set couch to (0, 100, 0)',
-                   # 'Round jaw positions to 0.1 mm',
-                   # 'Create reference point',
-                   # 'Reference point has a geometric location',
-                   #'Set block tray and slot ID (electrons only)',
-                   #'180E'
-                   # 'PRDR Dose Rate']
+        # 'Convert machine energy (FFF)',
+        # 'Set couch to (0, 100, 0)',
+        # 'Round jaw positions to 0.1 mm',
+        # 'Create reference point',
+        # 'Reference point has a geometric location',
+        # 'Set block tray and slot ID (electrons only)',
+        # '180E'
+        # 'PRDR Dose Rate']
 
     # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
     inputs = {'a': 'Select which data elements to export:',
@@ -186,7 +185,7 @@ def main():
         inputs['e'] = 'Export options:'
         types['e'] = 'check'
         options['e'] = filters
-        initial['e'] = [False,False,False,False]
+        initial['e'] = [False, False, False, False]
 
     dialog = UserInterface.InputDialog(inputs=inputs,
                                        datatype=types,
@@ -233,12 +232,12 @@ def main():
                 # Set Couch
                 t = None
                 # No reference point
-                create_reference_point=None
+                create_reference_point = None
                 # No reference point location
                 ref_point_location = None
                 # No block names
-                block_accessory=None
-                block_tray_id=None
+                block_accessory = None
+                block_tray_id = None
                 # TODO: PA setting
                 # No autopa
                 pa_threshold = None
@@ -266,20 +265,20 @@ def main():
                 else:
                     prdr_dr = False
                 # Set Couch
-                frameless_beamnames = ['_FSR_','_SRS_']
-                alpha = 7.72 # cm
-                beta = 36.39 # cm
-                gamma = -0.13 # cm
+                frameless_beamnames = ['_FSR_', '_SRS_']
+                alpha = 7.72  # cm
+                beta = 36.39  # cm
+                gamma = -0.13  # cm
                 if any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
-                    'HeadFirstSupine' in beamset.PatientSetup.OfTreatmentSetup.PatientPosition:
+                        'HeadFirstSupine' in beamset.PatientSetup.OfTreatmentSetup.PatientPosition:
                     try:
                         #
                         # Determine if the DICOM origin was chosen for the set-up location
-                        coords = []
-                        coords.append(beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0].Point.x)
-                        coords.append(beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0].Point.y)
-                        coords.append(beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0].Point.z)
-                        if all(c == 0 for c in coords):
+                        poi_geometry = beamset.PatientSetup.LocalizationPoiGeometrySource.PoiGeometries[0]
+                        poi_coordinates = [poi_geometry.Point.x,
+                                           poi_geometry.Point.y,
+                                           poi_geometry.Point.z]
+                        if all(c == 0 for c in poi_coordinates):
                             iso_lat = beamset.Beams[0].Isocenter.Position.x
                             iso_vert = beamset.Beams[0].Isocenter.Position.y
                             iso_long = beamset.Beams[0].Isocenter.Position.z
@@ -293,17 +292,12 @@ def main():
                 else:
                     t = [0, 1000, 0]
                 # Create a reference point
-                create_reference_point=True
+                create_reference_point = True
                 # Convert Block names
-                block_accessory=True
-                block_tray_id=True
+                block_accessory = True
+                block_tray_id = True
                 # TODO: PA setting
                 pa_threshold = None
-                #
-                # Obsolete FFF filtering
-                # if filters[1] in response['e']:
-                #     f.append('energy')
-
 
     else:
         f = None
@@ -326,9 +320,9 @@ def main():
                                filters=f,
                                machine=response['c'],
                                table=t,
-                               #round_jaws=filters[2] in response['e'],
+                               # round_jaws=filters[2] in response['e'],
                                prescription=create_reference_point,
-                               ref_point_location = ref_point_location,
+                               ref_point_location=ref_point_location,
                                block_accessory=block_accessory,
                                block_tray_id=block_tray_id,
                                pa_threshold=pa_threshold,
