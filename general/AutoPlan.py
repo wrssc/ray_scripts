@@ -63,11 +63,12 @@ __help__ = 'TODO: No Help'
 
 import sys
 import os
+
+# sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
+# sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
 import logging
-import xml.etree.ElementTree
-import pandas
-import re
-import csv
+from collections import namedtuple
+from timeit import default_timer as timer
 import connect
 import UserInterface
 import GeneralOperations
@@ -79,12 +80,14 @@ import AutoPlanOperations
 from PlanOperations import find_optimization_index
 import autoplan_whole_brain
 import FinalDose
-from collections import OrderedDict, namedtuple
-from timeit import default_timer as timer
-from OptimizationOperations import optimize_plan, iter_optimization_config_etree
+
+
+# import xml.etree.ElementTree
+# import pandas
+# import re
+# import csv
 
 # TODO: move autoplan_whole_brain to library
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 
 
 # Insert the general directory into the python path to allow autoplan_whole_brain
@@ -95,7 +98,6 @@ def target_dialog(case, protocol, order, use_orders=True):
     # Find RS targets
     plan_targets = StructureOperations.find_targets(case=case)
     protocol_targets = []
-    missing_contours = []
 
     # Build second dialog
     target_inputs = {'00_nfx': 'Number of fractions'}
@@ -139,7 +141,7 @@ def target_dialog(case, protocol, order, use_orders=True):
                     if g_name == t:
                         target_initial[k_name] = t
 
-    target_dialog = UserInterface.InputDialog(
+    target_dose_level_dialog = UserInterface.InputDialog(
         inputs=target_inputs,
         title='Input Target Dose Levels',
         datatype=target_datatype,
@@ -147,15 +149,14 @@ def target_dialog(case, protocol, order, use_orders=True):
         options=target_options,
         required=[])
     # print
-    response = target_dialog.show()
+    response = target_dose_level_dialog.show()
     if response == {}:
         logging.info('Target dialog cancelled by user')
         sys.exit('Target dialog cancelled')
 
     # Process inputs
-    nominal_dose = 0
     translation_map = {}
-    for k, v in target_dialog.values.items():
+    for k, v in target_dose_level_dialog.values.items():
         if k == '00_nfx':
             num_fx = int(v)
         elif k == '00_site':
@@ -266,7 +267,13 @@ def autoplan(testing_bypass_dialogs={}):
     else:
         input_protocol_name = None
         input_order_name = None
+        num_fx = None
         user_prompts = True
+        beamset_etree = None
+        beamset_name = None
+        iso_target = None
+        machine = None
+        translation_map = {}
     #
     # Hard-coded path to protocols
     protocol_folder = r'../protocols'
@@ -339,7 +346,7 @@ def autoplan(testing_bypass_dialogs={}):
     protocol_name = protocol.find('name').text
     logging.debug('Selected protocol:{} for loading from file:{}'.format(protocol_name, protocol_file))
     #
-    # If the protocol_name is UW WholeBrain execute the wholebrain script and quit
+    # If the protocol_name is UW WholeBrain execute the whole brain script and quit
     if protocol_name == "UW WholeBrain":
         autoplan_whole_brain.main()
         sys.exit("Script complete")
@@ -656,12 +663,18 @@ def autoplan(testing_bypass_dialogs={}):
     pd.patient.Save()
     #
     # Check if this order has been validated. If not give user a bail option
-    validation_status = AutoPlanOperations.find_validation_status(order)
+    validation = AutoPlanOperations.find_validation_status(order)
     if testing_bypass_dialogs:
-        logging.info('Validation status ({}) check skipped for testing'.format(validation_status))
+        logging.info('Validation status ({}) check skipped for testing'.format(validation['status']))
     else:
-        if not validation_status:
-            connect.await_user_input('Continue the optimization or abort the script.')
+        if not validation['status']:
+            connect.await_user_input('This template was authored by {} and is being tested. '
+                                     .format(validation['author']) +
+                                     'Continue optimization or stop the script execution.\n' +
+                                     'If you continue, please let the author know how it went and check goals!')
+        else:
+            logging.info("Autoplan validity: {} by {}.".format(validation['status'], validation['author'])
+                         + "Template has been validated and is proceeding with optimization.")
 
     ap_report['time_opt'][0] = timer()
     opt_status = AutoPlanOperations.load_configuration_optimize_beamset(
