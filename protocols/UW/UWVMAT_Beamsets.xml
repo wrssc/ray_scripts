@@ -123,6 +123,7 @@
         <technique>VMAT</technique>
         <DicomName>AbPl2A_VMA_R_A_</DicomName>
         <description>Arc set for 24 degree posterior avoidance</description>
+        <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
@@ -153,6 +154,7 @@
         <description>Arc set for 24 degree posterior avoidance with 270 degree collimator
             rotation
         </description>
+        <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
@@ -933,6 +935,7 @@
         <DicomName>LALt2A_VMA_R_A_</DicomName>
         <description>2 arc arrangment for treatment of the left lung or abdomen.
         </description>
+        <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
@@ -963,6 +966,7 @@
         <description>4 Arc arrangement for treatment of the left lung or abdomen. Couch kicks are
             used which will make RPM difficult.
         </description>
+        <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
@@ -1014,6 +1018,7 @@
         <DicomName>LARt2A_VMA_R_A_</DicomName>
         <description>2 Arc arrangement for treating the right lung or abdomen.
         </description>
+        <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
@@ -1044,6 +1049,7 @@
         <description>4 Arc arrangement for treatment of the right lung or abdomen. Not appropriate
             for treatment which uses RPM due to couch kicks.
         </description>
+        <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
@@ -1173,6 +1179,7 @@
             <DicomName>XXXX_THI_R_A_</DicomName>
             <description>XXXX
             </description>
+            <roi_support>TomoCouch</roi_support>
             <beam>
                 <BeamNumber>1</BeamNumber>
                 <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -1189,6 +1196,7 @@
             <DicomName>XXXX5A_VMA_R_A_</DicomName>
             <description>XXXX
             </description>
+            <roi_support>TrueBeamCouch</roi_support>
             <beam>
                 <BeamNumber>1</BeamNumber>
                 <DeliveryTechnique>DynamicArc</DeliveryTechnique>

@@ -3024,7 +3024,7 @@
         <objectives>
             <roi>
                 <name>ITV</name>
-                <type>DX</type>
+                <type dir="gt">DX</type>
                 <volume units="%" roi="ITV">90</volume>
                 <dose units="%" roi="ITV">102.5</dose>
                 <weight>50</weight>
@@ -3087,7 +3087,7 @@
             -->
             <roi>
                 <name>ITV2</name>
-                <type>DX</type>
+                <type dir="gt">DX</type>
                 <volume units="%" roi="ITV2">90</volume>
                 <dose units="%" roi="ITV2">102.5</dose>
                 <weight>50</weight>
@@ -3150,7 +3150,7 @@
             -->
             <roi>
                 <name>ITV3</name>
-                <type>DX</type>
+                <type dir="gt">DX</type>
                 <volume units="%" roi="ITV3">90</volume>
                 <dose units="%" roi="ITV3">102.5</dose>
                 <weight>50</weight>
@@ -3213,7 +3213,7 @@
             -->
             <roi>
                 <name>ITV4</name>
-                <type>DX</type>
+                <type dir="gt">DX</type>
                 <volume units="%" roi="ITV4">90</volume>
                 <dose units="%" roi="ITV4">102.5</dose>
                 <weight>50</weight>
@@ -3276,7 +3276,7 @@
             -->
             <roi>
                 <name>ITV5</name>
-                <type>DX</type>
+                <type dir="gt">DX</type>
                 <volume units="%" roi="ITV5">90</volume>
                 <dose units="%" roi="ITV5">102.5</dose>
                 <weight>50</weight>

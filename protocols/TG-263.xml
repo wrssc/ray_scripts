@@ -127,6 +127,42 @@
         <Alias>Bowel_Bag,bowelbag,bagbowel,Perotineal_cavity</Alias>
     </roi>
     <roi>
+        <name>Bowel_Critical_HighRisk</name>
+        <TG263PrimaryName>Bowel_Critical_HighRisk</TG263PrimaryName>
+        <Description>Bowel Bag or Peritoneal Cavity.
+        </Description>
+        <NCIt>The lower part of the abdomen that contains the intestines (the last
+            part of the digestive tract), the stomach, and the liver. It is bound by thin membranes.
+        </NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Bowel</MajorCategory>
+        <MinorCategory>Planning Structure</MinorCategory>
+        <AnatomicGroup>Abdomen</AnatomicGroup>
+        <NCharacters>23</NCharacters>
+        <TG263ReverseOrderName>Critical_Bowel_Highrisk</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="252" green="179" blue="231">#FCB3E7</Color>
+        <Alias>CriticalBowel,Critical_Bowel,Bowel_Critical,BowelCrit,CritBowel,Bowel</Alias>
+    </roi>
+    <roi>
+        <name>Bowel_Critical_HighRisk_PRV05</name>
+        <TG263PrimaryName>Bowel_Critical_HighRisk_PRV05</TG263PrimaryName>
+        <Description>Small Bowel (small intestine) expanded 05 mm as a planning risk volume
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Bowel</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Abdomen</AnatomicGroup>
+        <NCharacters>17</NCharacters>
+        <TG263ReverseOrderName>Bowel_Critical_HighRisk_PRV05</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="170" green="239" blue="249" Hex="#aaeff9">BeyondtheClouds1</Color>
+        <Alias>prv05_critical_bowel,bowel_critical_prv05</Alias>
+    </roi>
+    <roi>
         <name>BileDuct_Common</name>
         <TG263PrimaryName>BileDuct_Common</TG263PrimaryName>
         <Description>Common bile duct</Description>
