@@ -22,7 +22,15 @@ ATTRIBUTE_MATCH_DICT = {
 }
 
 
-def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
+def create_dicom_tree_pair(ds1, ds2, depth=0, parent=None, parent_key="", tree_label=""):
+
+    dicom_tree_pair = DicomTreePair(
+        parent=parent,
+        tree_list=[],
+        depth=depth,
+        parent_key=parent_key,
+        tree_label=tree_label,
+    )
 
     tree_list = []
 
@@ -49,6 +57,7 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
 
             tree_list.append(
                 ElementPair(
+                    parent=dicom_tree_pair,
                     attribute_name=ds1_keyword,
                     value_pair=value_pair,
                     comment="",
@@ -71,6 +80,7 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
 
             tree_list.append(
                 SequencePair(
+                    parent=dicom_tree_pair,
                     attribute_name=ds1_keyword,
                     sequence_list=[],
                     comment=(
@@ -93,6 +103,15 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
         match_keyword = ATTRIBUTE_MATCH_DICT[ds1_keyword]
         if ds1_keyword not in ds2.dir():
 
+            sequence_pair = SequencePair(
+                parent=dicom_tree_pair,
+                attribute_name=ds1_keyword,
+                sequence_list=[],
+                comment="Sequence is unique to the first dataset.",
+                depth=depth+1,
+                parent_key=childs_parent_key
+            )
+
             sequence_list = []
             for item1 in ds1[ds1_keyword]:
 
@@ -100,23 +119,19 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
 
                 sequence_list.append(
                     create_dicom_tree_pair(
-                        item1, 
-                        pydicom.Dataset(), 
+                        item1,
+                        pydicom.Dataset(),
+                        parent=sequence_pair,
                         depth=depth+2,
                         parent_key=f"{childs_parent_key}>{ds1_keyword}",
                         tree_label=label,
                     )
                 )
 
-            tree_list.append(
-                SequencePair(
-                    attribute_name=ds1_keyword,
-                    sequence_list=sequence_list,
-                    comment="Sequence is unique to the first dataset.",
-                    depth=depth+1,
-                    parent_key=childs_parent_key
-                )
-            )
+            sequence_pair.sequence_list = sequence_list
+            sequence_pair.update_match_result()
+
+            tree_list.append(sequence_pair)
             continue
 
         # CASE 2c: Sequence ds1_keyword has a match in ds2
@@ -124,6 +139,15 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
         # Loop over items in the sequence, matching one at a time
         # If a match is found, we will recursively send it into create_dicom_pair_dictionary()
         match_keyword = ATTRIBUTE_MATCH_DICT[ds1_keyword]
+
+        sequence_pair = SequencePair(
+            parent=dicom_tree_pair,
+            attribute_name=ds1_keyword,
+            sequence_list=[],
+            comment="",
+            depth=depth+1,
+            parent_key=childs_parent_key
+        )
 
         sequence_list = []
         # This is the slowest way to find matches, but it works.
@@ -139,6 +163,7 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
                         create_dicom_tree_pair(
                             item1,
                             item2,
+                            parent=sequence_pair,
                             depth=depth+2,
                             parent_key=f"{childs_parent_key}>{ds1_keyword}",
                             tree_label=label,
@@ -153,6 +178,7 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
                     create_dicom_tree_pair(
                         item1,
                         pydicom.Dataset(),
+                        parent=sequence_pair,
                         depth=depth+2,
                         parent_key=f"{childs_parent_key}>{ds1_keyword}",
                         tree_label=label,
@@ -174,21 +200,17 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
                     create_dicom_tree_pair(
                         pydicom.Dataset(),
                         item2,
+                        parent=sequence_pair,
                         depth=depth+2,
                         parent_key=f"{childs_parent_key}>{ds1_keyword}",
                         tree_label=label,
                     )
                 )
 
-        tree_list.append(
-            SequencePair(
-                attribute_name=ds1_keyword,
-                sequence_list=sequence_list,
-                comment="",
-                depth=depth+1,
-                parent_key=childs_parent_key
-            )
-        )
+        sequence_pair.sequence_list = sequence_list
+        sequence_pair.update_match_result()
+
+        tree_list.append(sequence_pair)
 
     # Loop over all keywords in the second DICOM file to capture items unique to dataset 2
     for ds2_keyword in ds2.dir():
@@ -205,6 +227,7 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
 
                 tree_list.append(
                     ElementPair(
+                        parent=dicom_tree_pair,
                         attribute_name=ds2_keyword,
                         value_pair=value_pair,
                         comment="",
@@ -222,6 +245,7 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
 
             tree_list.append(
                 SequencePair(
+                    parent=dicom_tree_pair,
                     attribute_name=ds2_keyword,
                     sequence_list=[],
                     comment=(
@@ -255,6 +279,7 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
 
             tree_list.append(
                 SequencePair(
+                    parent=dicom_tree_pair,
                     attribute_name=ds2_keyword,
                     sequence_list=sequence_list,
                     comment="Sequence is unique to the second dataset.",
@@ -264,14 +289,12 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent_key="", tree_label=""):
             )
             continue
 
-    dtp = DicomTreePair(
-        tree_list=tree_list,
-        depth=depth,
-        parent_key=parent_key,
-        tree_label=tree_label,
-    )
+    # Update Tree
+    dicom_tree_pair.tree_list = tree_list
+    dicom_tree_pair.update_match_result()
 
-    return dtp
+    return dicom_tree_pair
+
 
 def compare_dicomrt_plans(filepath1, filepath2):
     """ Compares two DICOM-RT Plan files
@@ -327,6 +350,10 @@ def run_dicom_integrity_tool(
         [
             sg.Text(f'{file_label2} Value: '),
             sg.Text('Value 2', key="-VALUE2-"),
+        ],
+        [
+            sg.Text(f'{file_label2} Debug Value: '),
+            sg.Text('Debug', key="-DEBUG-"),
         ],
     ]
 

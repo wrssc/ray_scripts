@@ -48,6 +48,7 @@ class ElementPair():
 
     def __init__(
         self,
+        parent,
         attribute_name,
         value_pair,
         comment="",
@@ -56,6 +57,7 @@ class ElementPair():
         process_func_kwargs=None,
         parent_key="",
     ):
+        self.parent = parent
         self.attribute_name = attribute_name
         self.value_pair = value_pair
         self.comment = comment
@@ -160,6 +162,7 @@ class SequencePair():
 
     def __init__(
         self,
+        parent,
         attribute_name,
         sequence_list,
         comment="",
@@ -167,6 +170,7 @@ class SequencePair():
         parent_key="",
     ):
         self.attribute_name = attribute_name
+        self.parent = parent
         self.sequence_list = sequence_list
         self.comment = comment
         self.depth = depth
@@ -297,12 +301,14 @@ class DicomTreePair():
 
     def __init__(
         self,
+        parent,
         tree_list,
         comment="",
         depth=0,
         parent_key="",
         tree_label="",
     ):
+        self.parent = parent
         self.tree_list = tree_list
         self.comment = comment
         self.depth = depth
