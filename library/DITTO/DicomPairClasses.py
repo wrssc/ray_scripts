@@ -67,10 +67,22 @@ class ElementPair():
         self.parent_key = parent_key
         self._update_match_result()
 
+    def get_name(self):
+        return self.attribute_name
+
     def get_valuepair_from_key(self, key):
 
         if key == self.attribute_name:
             return self.value_pair
+
+        raise RuntimeError(
+            f"'key' {key} does not match attribute name {self.attribute_name}"
+        )
+
+    def get_element_from_key(self, key):
+
+        if key == self.attribute_name:
+            return self
 
         raise RuntimeError(
             f"'key' {key} does not match attribute name {self.attribute_name}"
@@ -177,6 +189,9 @@ class SequencePair():
         self.parent_key = parent_key
         self.update_match_result()
 
+    def get_name(self):
+        return self.attribute_name
+
     def get_valuepair_from_key(self, key):
         if key == self.attribute_name:
             return [f"Sequence {self.attribute_name} 1", f"Sequence {self.attribute_name} 2"]
@@ -197,6 +212,26 @@ class SequencePair():
 
             raise RuntimeError(
                 f"get_valuepair_from_key could not find child with key {next_part}"
+            )
+
+    def get_element_from_key(self, key):
+        if key == self.attribute_name:
+            return self
+        else:
+
+            # Split the key apart
+            key_parts = key.split(">")
+            next_part = key_parts[0]
+
+            for item in self.sequence_list:
+                if item.tree_label == next_part:
+                    if len(key_parts) == 1:
+                        return item.get_element_from_key(next_part)
+                    else:
+                        return item.get_element_from_key(">".join(key_parts[1:]))
+
+            raise RuntimeError(
+                f"get_element_from_key could not find child with key {next_part}"
             )
 
     def update_match_result(self):
@@ -316,6 +351,9 @@ class DicomTreePair():
         self.parent_key = parent_key
         self.update_match_result()
 
+    def get_name(self):
+        return self.tree_label
+
     def get_valuepair_from_key(self, key):
         if key == self.tree_label:
             return [f"Tree {self.tree_label} 1", f"Tree {self.tree_label} 2"]
@@ -333,6 +371,28 @@ class DicomTreePair():
 
                     else:
                         return item.get_valuepair_from_key(">".join(key_parts[1:]))
+
+            raise RuntimeError(
+                f"get_valuepair_from_key could not find child with key {key_parts[0]}"
+            )
+
+    def get_element_from_key(self, key):
+        if key == self.tree_label:
+            return self
+        else:
+
+            # Split the key apart
+            key_parts = key.split(">")
+            next_part = key_parts[0]
+
+            for item in self.tree_list:
+                if item.attribute_name == next_part:
+                    if len(key_parts) == 1:
+                        # item is an attribute
+                        return item.get_element_from_key(next_part)
+
+                    else:
+                        return item.get_element_from_key(">".join(key_parts[1:]))
 
             raise RuntimeError(
                 f"get_valuepair_from_key could not find child with key {key_parts[0]}"

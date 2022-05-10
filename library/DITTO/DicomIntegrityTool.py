@@ -22,7 +22,14 @@ ATTRIBUTE_MATCH_DICT = {
 }
 
 
-def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=""):
+def create_dicom_tree_pair(
+    ds1,
+    ds2,
+    parent,
+    depth=0,
+    parent_key="",
+    tree_label=""
+):
 
     dicom_tree_pair = DicomTreePair(
         parent=parent,
@@ -338,15 +345,15 @@ def run_dicom_integrity_tool(
         [
             sg.Tree(
                 data=treedata,
-                headings=['Result','Comments', ],
+                headings=['Result', 'Comments', ],
                 auto_size_columns=True,
                 num_rows=20,
                 col0_width=40,
                 key='-TREE-',
                 show_expanded=False,
                 enable_events=True,
-                #expand_x=True,
-                #expand_y=True,
+                # expand_x=True,
+                # expand_y=True,
             ),
         ],
         [
@@ -373,6 +380,7 @@ def run_dicom_integrity_tool(
         tree_key = values["-TREE-"][0]
 
         value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
+        element = dicom_match_tree.get_element_from_key(tree_key[1:])
 
         if value1 is None:
             value1 = ""
@@ -380,10 +388,17 @@ def run_dicom_integrity_tool(
         if value2 is None:
             value2 = ""
 
+        if element.parent is None:
+            name = ""
+        else:
+            name = element.parent.get_name()
+
         window["-VALUE1-"].update(value1)
         window["-VALUE2-"].update(value2)
+        window["-DEBUG-"].update(name)
 
     window.close()
+
 
 if __name__ == "__main__":
 
