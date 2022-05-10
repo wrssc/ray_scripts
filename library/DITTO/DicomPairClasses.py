@@ -19,6 +19,8 @@ class Result(Flag):
     ELEMENT_UNIQUE_TO_2 = 3
     ELEMENT_EXPECTED_MISMATCH = 4
     ELEMENT_ACCEPTABLE_NEAR_MATCH = 5
+    ELEMENT_EXPECTED_UNIQUE_TO_1 = 6
+    ELEMENT_EXPECTED_UNIQUE_TO_2 = 7
     ELEMENT_BOTH_NONE = 6
 
     SEQUENCE_MATCH = 10
@@ -43,6 +45,8 @@ class ElementPair():
         Result.SEQUENCE_MATCH,
         Result.ELEMENT_EXPECTED_MISMATCH,
         Result.ELEMENT_ACCEPTABLE_NEAR_MATCH,
+        Result.ELEMENT_EXPECTED_UNIQUE_TO_1,
+        Result.ELEMENT_EXPECTED_UNIQUE_TO_2,
         Result.ELEMENT_BOTH_NONE,
     ]
 
@@ -122,26 +126,24 @@ class ElementPair():
         """
         Uses the value_pair and _process_func to update the match result and comment.
         """
+        # Establish a raw match result
+
         if (self.value_pair[0] is None) and (self.value_pair[1] is None):
             self.match_result = Result.ELEMENT_BOTH_NONE
-            return
-
-        if self.value_pair[0] is None:
+        elif self.value_pair[0] is None:
             self.match_result = Result.ELEMENT_UNIQUE_TO_2
-            return
-        if self.value_pair[1] is None:
+        elif self.value_pair[1] is None:
             self.match_result = Result.ELEMENT_UNIQUE_TO_1
-            return
-
-        if self._process_func is None:
+        else:
             if self.value_pair[0] == self.value_pair[1]:
                 self.match_result = Result.ELEMENT_MATCH
             else:
                 self.match_result = Result.ELEMENT_MISMATCH
 
-        else:
+        # Override with a function, if appliable.
+        if self._process_func is not None:
             self.match_result, self.comment = self._process_func(
-                self.value_pair,
+                self,
                 **self._process_func_kwargs
             )
 

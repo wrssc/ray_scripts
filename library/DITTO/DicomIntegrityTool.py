@@ -405,6 +405,6 @@ if __name__ == "__main__":
     file_path = Path(r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588")
     raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
     aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
-    aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
+    # aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
 
     run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)
