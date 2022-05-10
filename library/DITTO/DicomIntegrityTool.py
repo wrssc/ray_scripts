@@ -22,7 +22,7 @@ ATTRIBUTE_MATCH_DICT = {
 }
 
 
-def create_dicom_tree_pair(ds1, ds2, depth=0, parent=None, parent_key="", tree_label=""):
+def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=""):
 
     dicom_tree_pair = DicomTreePair(
         parent=parent,
@@ -161,8 +161,8 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent=None, parent_key="", tree_l
                     found = True
                     sequence_list.append(
                         create_dicom_tree_pair(
-                            item1,
-                            item2,
+                            ds1=item1,
+                            ds2=item2,
                             parent=sequence_pair,
                             depth=depth+2,
                             parent_key=f"{childs_parent_key}>{ds1_keyword}",
@@ -176,8 +176,8 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent=None, parent_key="", tree_l
                 # all child elements being declared unique.
                 sequence_list.append(
                     create_dicom_tree_pair(
-                        item1,
-                        pydicom.Dataset(),
+                        ds1=item1,
+                        ds2=pydicom.Dataset(),
                         parent=sequence_pair,
                         depth=depth+2,
                         parent_key=f"{childs_parent_key}>{ds1_keyword}",
@@ -198,8 +198,8 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent=None, parent_key="", tree_l
                 # Unique to dataset 2
                 sequence_list.append(
                     create_dicom_tree_pair(
-                        pydicom.Dataset(),
-                        item2,
+                        ds1=pydicom.Dataset(),
+                        ds2=item2,
                         parent=sequence_pair,
                         depth=depth+2,
                         parent_key=f"{childs_parent_key}>{ds1_keyword}",
@@ -280,8 +280,8 @@ def create_dicom_tree_pair(ds1, ds2, depth=0, parent=None, parent_key="", tree_l
 
                 sequence_list.append(
                     create_dicom_tree_pair(
-                        pydicom.Dataset(),
-                        item2,
+                        ds1=pydicom.Dataset(),
+                        ds2=item2,
                         parent=sequence_pair,
                         depth=depth+2,
                         parent_key=f"{childs_parent_key}>{ds2_keyword}",
@@ -316,7 +316,7 @@ def compare_dicomrt_plans(filepath1, filepath2):
     ds1 = pydicom.dcmread(filepath1, force=True)
     ds2 = pydicom.dcmread(filepath2, force=True)
 
-    dicom_pair_tree = create_dicom_tree_pair(ds1, ds2, parent=None)
+    dicom_pair_tree = create_dicom_tree_pair(ds1=ds1, ds2=ds2, parent=None)
 
     # print_pair_tree_results(dicom_pair_tree)
 
