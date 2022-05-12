@@ -958,22 +958,22 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     try:
         patient.Save()
     except SystemError:
-        return "No Patient loaded. Load patient case and plan."
+        return False, "No Patient loaded. Load patient case and plan."
 
     try:
         case.SetCurrent()
     except SystemError:
-        return "No Case loaded. Load patient case and plan."
+        return False, "No Case loaded. Load patient case and plan."
 
     try:
         plan.SetCurrent()
     except SystemError:
-        return "No plan loaded. Load patient and plan."
+        return False, "No plan loaded. Load patient and plan."
 
     try:
         beamset.SetCurrent()
     except SystemError:
-        return "No beamset loaded"
+        return False, "No beamset loaded"
 
     if exam.EquipmentInfo.ImagingSystemReference:
         logging.debug('Examination has an assigned CT to density table')
@@ -1237,7 +1237,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         try:
             plan.PlanOptimizations[rs_opt_key].RunOptimization()
         except Exception as e:
-            return 'Exception occurred during optimization: {}'.format(e)
+            return False, 'Exception occurred during optimization: {}'.format(e)
         # Stop the clock
         report_inputs.setdefault('time_iteration_final', []).append(datetime.datetime.now())
         # Consider converting this to the report_inputs
@@ -1316,7 +1316,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                 'jaws failed - check reset beams' +
                                 ' on next attempt at this script')
                             status.finish('Restart required')
-                            return 'Restart Required: Select reset beams on next run of script.'
+                            return False, 'Restart Required: Select reset beams on next run of script.'
             elif ts.ForTreatmentSetup.DeliveryTechnique == 'DynamicArc':
                 #
                 # Execute treatment margin settings
@@ -1345,7 +1345,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                     'spacing failed - check reset beams' +
                                     ' on next attempt at this script')
                                 status.finish('Restart required')
-                                return 'Restart Required: Select reset beams on next run of script.'
+                                return False, 'Restart Required: Select reset beams on next run of script.'
                             else:
                                 beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
                                     FinalGantrySpacing=2)
@@ -1371,7 +1371,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                 'jaws failed - check reset beams' +
                                 ' on next attempt at this script')
                             status.finish('Restart required')
-                            return 'Restart Required: Select reset beams on next run of script.'
+                            return False, 'Restart Required: Select reset beams on next run of script.'
         if output_progress:
             time_0 = datetime.datetime.now()
             time_1 = time_0
@@ -1451,9 +1451,9 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     if "There is no feasible gantry period" in message:
                         logging.critical("No feasible gantry period found. Full message {}".format(message))
                     else:
-                        return 'Exception occurred during optimization: {}'.format(e)
+                        return False, 'Exception occurred during optimization: {}'.format(e)
                 except:
-                    return 'Exception occurred during optimization: {}'.format(e)
+                    return False, 'Exception occurred during optimization: {}'.format(e)
             if output_progress:
                 poo = plan_optimization.ProgressOfOptimization
                 time_total = time_1 - time_0
