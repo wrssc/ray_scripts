@@ -34,6 +34,7 @@
         </prescription>
         <validation>
             <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
             <validation_range>
                 <fraction_dose upper="3" lower="2">True</fraction_dose>
             </validation_range>

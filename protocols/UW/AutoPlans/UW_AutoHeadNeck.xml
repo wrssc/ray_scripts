@@ -9,8 +9,7 @@
         <institution>East</institution>
         <institution>Johnson Creek</institution>
     </institutions>
-    <diagnoses>
-    </diagnoses>
+    <diagnoses></diagnoses>
     <prescription>
         <frequency>Daily</frequency>
         <imaging>Pre-treatment CBCT</imaging>
@@ -49,6 +48,7 @@
         </prescription>
         <validation>
             <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
             <validation_range>
                 <fraction_dose upper="2.2" lower="1.8">True</fraction_dose>
             </validation_range>
@@ -746,6 +746,7 @@
         </prescription>
         <validation>
             <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
             <validation_range>
                 <fraction_dose upper="2.2" lower="1.8">True</fraction_dose>
             </validation_range>
@@ -1326,6 +1327,7 @@
         </prescription>
         <validation>
             <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
             <validation_range>
                 <fraction_dose upper="2.2" lower="1.8">True</fraction_dose>
             </validation_range>

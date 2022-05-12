@@ -1,6 +1,6 @@
 <protocol version="1">
     <notes date="06APR2022">Created</notes>
-    <name>UW Breast PRDR</name>
+    <name>UW PRDR Breast</name>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
         <protocol institution="UWHC">XRT_L_BREAST_GATING</protocol>
@@ -51,6 +51,13 @@
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
         </prescription>
+        <validation>
+            <validation_status>False</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2.2" lower="1.8">False</fraction_dose>
+            </validation_range>
+        </validation>
         <goals>
             <roi>
                 <name>PTV_p_Chestwall</name>
@@ -289,6 +296,7 @@
                 <name>Heart</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">3.8</dose>
+                <mco>ALARA</mco>
                 <weight>0.5</weight>
             </roi>
             <roi>
@@ -309,6 +317,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Lung_R">10</volume>
                 <dose units="Gy">5</dose>
+                <mco>ALARA</mco>
                 <weight>1</weight>
             </roi>
             <roi>
@@ -316,6 +325,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Lung_L">20</volume>
                 <dose units="Gy">15</dose>
+                <mco>ALARA</mco>
                 <weight>1.25</weight>
             </roi>
             <roi>
@@ -358,6 +368,13 @@
             </roi>
             <fractions>25</fractions>
         </prescription>
+        <validation>
+            <validation_status>False</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2.2" lower="1.8">False</fraction_dose>
+            </validation_range>
+        </validation>
         <goals>
             <roi>
                 <name>PTV_p_Chestwall</name>
@@ -581,6 +598,7 @@
                 <name>Heart</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">3.8</dose>
+                <mco>ALARA</mco>
                 <weight>0.5</weight>
             </roi>
             <roi>
@@ -601,6 +619,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Lung_R">10</volume>
                 <dose units="Gy">5</dose>
+                <mco>ALARA</mco>
                 <weight>1</weight>
             </roi>
             <roi>
@@ -615,6 +634,7 @@
                 <type dir="lt">DX</type>
                 <volume units="%" roi="Lung_L">20</volume>
                 <dose units="Gy">15</dose>
+                <mco>ALARA</mco>
                 <weight>0.5</weight>
             </roi>
         </objectives>
@@ -627,6 +647,14 @@
                 <type>Min</type>
                 <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
                 <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="PTV_p_Chestwall">90</volume>
+                <dose units="%" roi="PTV_p_Chestwall">92.25</dose>
+                <mco>Constraint</mco>
+                <weight>0.1</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -687,6 +715,14 @@
                 <type>Min</type>
                 <dose units="%" roi="PTV_n1_SCV">102.5</dose>
                 <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="PTV_n1_SCV">90</volume>
+                <dose units="%" roi="PTV_n1_SCV">92.25</dose>
+                <mco>Constraint</mco>
+                <weight>0.1</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
@@ -898,7 +934,6 @@
                 <dose units="%" roi="PTV_p_Chestwall" low="25">40</dose>
                 <weight>0.1</weight>
             </roi>
-
             <roi>
                 <name>Esophagus</name>
                 <type>Max</type>

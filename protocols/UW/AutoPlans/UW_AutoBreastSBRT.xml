@@ -21,6 +21,13 @@
     </prescription>
     <order>
         <name>Left Breast SBRT</name>
+        <validation>
+            <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2.2" lower="1.8">False</fraction_dose>
+            </validation_range>
+        </validation>
         <prefix>BreL_</prefix>
         <prescription>
             <roi>
