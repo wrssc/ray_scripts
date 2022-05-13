@@ -121,6 +121,23 @@ def process_treatment_machine_name(element_pair, comment=""):
     return (element_pair.match_result, comment)
 
 
+def assess_tm_match(element_pair, comment=""):
+    # RS is not using a valid TM format
+    # TM Format: NEMA PS3.5 2013: HHMMSS.FFFFFF
+    value_pair = element_pair.value_pair
+    vp1_form = "{:.6f}".format(float(value_pair[0]))
+    vp2_form = "{:.6f}".format(float(value_pair[1]))
+    if vp1_form == vp2_form:
+        return Result.ELEMENT_MATCH, "Value Representation TM Matched"
+    else:
+        vp1_form = "{:.0f}".format(float(value_pair[0]))
+        vp2_form = "{:.0f}".format(float(value_pair[1]))
+        if vp1_form == vp2_form:
+            return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Time matched to 1.0 s"
+        else:
+            return Result.ELEMENT_MISMATCH, "Mismatch declared on TM Value Representation"
+
+
 """
 ELEMENTS WITH COMPLEX BEHAVIOR
 * SourceToSurfaceDistance
@@ -149,4 +166,5 @@ PROCESS_FUNCTION_DICT = {
     "TableTopLongitudinalPosition": (return_expected_unique_to_aria, {}),
     "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
     "TreatmentMachineName": (process_treatment_machine_name, {}),
+    "StudyTime": (assess_tm_match, {}),
 }
