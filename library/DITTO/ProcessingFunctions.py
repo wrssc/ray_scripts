@@ -167,4 +167,6 @@ PROCESS_FUNCTION_DICT = {
     "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
     "TreatmentMachineName": (process_treatment_machine_name, {}),
     "StudyTime": (assess_tm_match, {}),
+    "SpecificCharacterSet": (return_expected_mismatch,
+                             {"comment": "Character encoding: ARIA uses Latin Alphabet, RayStation uses Unicode"}),
 }
