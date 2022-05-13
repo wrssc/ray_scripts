@@ -37,6 +37,7 @@ import pandas as pd
 import re
 import matplotlib
 import datetime
+from StructureOperations import compute_comparison_statistics
 
 
 def get_roi_list(case, exam_name=None):
@@ -96,7 +97,75 @@ def get_volumes(geometries):
     return vols
 
 
-def main():
+def compare_structs(patient, case, exam, roi_a, roi_b):
+    stats = compute_comparison_statistics(
+        patient=patient,
+        case=case,
+        exam=exam,
+        rois_a=[roi_a],
+        rois_b=[roi_b],
+        compute_distances=True
+    )
+    return stats['MaxDistanceToAgreement']
+
+
+def find_targets(case):
+    """
+    Find all structures with type 'Target' within the current case.
+    Return the matches as a list
+    :param case: Current RS Case
+    :return: plan_targets # A List of targets
+    """
+
+    # Find RS targets
+    plan_targets = []
+    for r in case.PatientModel.RegionsOfInterest:
+        if r.OrganData.OrganType == "Target":
+            plan_targets.append(r.Name)
+    if plan_targets:
+        return plan_targets
+    else:
+        return None
+
+
+def get_doses_relative(roi_names):
+    # Find all exams with roi_name and return dose information
+    target_name = "All_PTVs"
+    db = connect.get_current('PatientDB')
+    chests = db.QueryPatientInfo(Filter={'BodySite': 'Chest'})
+    found_patients = []
+    patient_data = {}
+    for infos in chests:
+        try:
+            db.LoadPatient(PatientInfo=infos, AllowPatientUpgrade=False)
+            patient = connect.get_current("Patient")
+            for case in patient.Cases:
+                for exam in case.Examinations:
+                    matches = get_roi_geometries(case, exam.Name, roi_names)
+                    if matches:
+                        roi_data = {}
+                        for r in roi_names:
+                            roi_data[r + ':' + 'Hausdorff'] = compare_structs(patient, case, exam, roi_a=target_name,
+                                                                              roi_b=r)
+                            for p in case.TreatmentPlans:
+                                for s in ['Average', 'Min', 'Max']:
+                                    roi_data[r + ':' + s] = p.TreatmentCourse.TotalDose.GetDoseStatistic(
+                                        RoiName=r,
+                                        DoseType=s)
+                        patient_data[patient.PatientID] = roi_data
+
+        except Exception as e:
+            if "is locked by" in e.Message:
+                logging.debug('patient locked')
+                pass
+            else:
+                logging.debug(e.Message)
+    df = pd.DataFrame(patient_data)
+    df.to_pickle(output_file)
+    df['Bladder'].plot.hist(bins=10, alpha=1)
+
+
+def bladder_volumes():
     # configs
     roi_name = 'Bladder'
     now = datetime.datetime.now()
@@ -136,6 +205,9 @@ def main():
     df['Bladder'].plot.hist(bins=10, alpha=1)
     matplotlib.plt.axvline(df['Bladder'].mean(), color='r', linestyle='dashed', linewidth=2)
 
+
+def main():
+    bladder_volumes()
 
 if __name__ == '__main__':
     main()
