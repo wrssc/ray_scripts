@@ -37,7 +37,7 @@ __raystation__ = '10A SP1'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
+__help__ = ''
 __copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
@@ -46,6 +46,7 @@ import datetime
 import sys
 import os
 import logging
+from math import isclose
 from collections import namedtuple, OrderedDict
 from System import Environment
 import PySimpleGUI as sg
@@ -60,34 +61,7 @@ RED_CIRCLE = os.path.join(icon_dir, "red_circle_icon.png")
 GREEN_CIRCLE = os.path.join(icon_dir, "green_circle_icon.png")
 BLUE_CIRCLE = os.path.join(icon_dir, "blue_circle_icon.png")
 
-SYMBOL_UP = '▲'
-SYMBOL_DOWN = '▼'
 section1_text = 'Plan Data Review'
-OVERHEAD_CLEARANCE_STATUS = {
-    0: 'Very Likely to Clear',
-    1: 'Risk of bumping elbows, but clears wingboard',
-    2: 'Gantry cannot clear wingboard, medial tangent likely to clear (w/ range of safe angles)',
-    3: 'Gantry cannot clear wingboard and medial tangent may not clear (w/ range of safe angles)'
-}
-OVERHEAD_CLEARANCE_IPSILATERAL_SIDE = [
-    # Incline Degrees, Couch-to-Iso-Vertical Distance, Lateral Offset, Status, 180 ipsilateral
-    (5, 50, 0, 0), (5, 50, 2.5, 0), (5, 50, 5, 0), (5, 50, 7.5, 0), (5, 50, 10, 0), (5, 50, 12.5, 0),
-    (5, 47, 0, 0), (5, 47, 2.5, 0), (5, 47, 5, 0), (5, 47, 7.5, 0), (5, 47, 10, 0), (5, 47, 12.5, 0),
-    (5, 44, 0, 0), (5, 44, 2.5, 0), (5, 44, 5, 0), (5, 44, 7.5, 0), (5, 44, 10, 0), (5, 44, 12.5, 0),
-    (5, 41, 0, 0), (5, 41, 2.5, 0), (5, 41, 5, 0), (5, 41, 7.5, 0), (5, 41, 10, 0), (5, 41, 12.5, 0),
-    (5, 38, 0, 0), (5, 38, 2.5, 0), (5, 38, 5, 0), (5, 38, 7.5, 0), (5, 38, 10, 0), (5, 38, 12.5, 0),
-    (5, 35, 0, 0), (5, 35, 2.5, 0), (5, 35, 5, 0), (5, 35, 7.5, 0), (5, 35, 10, 0), (5, 35, 12.5, 0),
-    (5, 32, 0, 0), (5, 32, 2.5, 0), (5, 32, 5, 0), (5, 32, 7.5, 0), (5, 32, 10, 0), (5, 32, 12.5, 0),
-    (5, 29, 0, 0), (5, 29, 2.5, 0), (5, 29, 5, 0), (5, 29, 7.5, 0), (5, 29, 10, 0), (5, 29, 12.5, 0),
-    (5, 26, 0, 0), (5, 26, 2.5, 0), (5, 26, 5, 0), (5, 26, 7.5, 0), (5, 26, 10, 0), (5, 26, 12.5, 0),
-    (5, 23, 0, 1), (5, 23, 2.5, 0), (5, 23, 5, 0), (5, 23, 7.5, 0), (5, 23, 10, 0), (5, 23, 12.5, 0),
-    (5, 20, 0, 1), (5, 20, 2.5, 1), (5, 20, 5, 0), (5, 20, 7.5, 0), (5, 20, 10, 0), (5, 20, 12.5, 0),
-    (5, 17, 0, 1), (5, 17, 2.5, 1), (5, 17, 5, 1), (5, 17, 7.5, 0), (5, 17, 10, 0), (5, 17, 12.5, 0),
-    (5, 14, 0, 1), (5, 14, 2.5, 1), (5, 14, 5, 1), (5, 14, 7.5, 1), (5, 14, 10, 0), (5, 14, 12.5, 0),
-    (5, 11, 0, 1), (5, 11, 2.5, 1), (5, 11, 5, 1), (5, 11, 7.5, 1), (5, 11, 10, 1), (5, 11, 12.5, 0),
-    (5, 8, 0, 1), (5, 8, 2.5, 1), (5, 8, 5, 1), (5, 8, 7.5, 1), (5, 8, 10, 1), (5, 8, 12.5, 1),
-    (5, 5, 0, 1), (5, 5, 2.5, 1), (5, 5, 5, 1), (5, 5, 7.5, 1), (5, 5, 10, 1), (5, 5, 12.5, 1),
-]
 #
 # LOG PARSING INFO
 LOG_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
@@ -104,6 +78,8 @@ BOLUS_NAMES = ["bolus"]
 #
 # PLANNING DEFAULTS
 DOSE_FRACTION_PAIRS = [(4, 2000), (5, 2000)]
+#
+EDW_MU_LIMIT = 20.
 
 
 def read_log_file(patient_id):
@@ -361,6 +337,38 @@ def approval_info(plan, beamset):
     return approval
 
 
+def check_plan_approved(plan, beamset, parent_key):
+    """
+
+    Args:
+        plan:
+        beamset:
+
+    Returns:
+        message: [str1, ...]: [parent_key, child_key, child_key display, result_value]
+
+    """
+    messages = []
+    child_key = "Plan approval status"
+    approval_status = approval_info(plan, beamset)
+    if approval_status.plan_approved:
+        message_str = "Plan: {} was approved by {} on {}".format(
+            plan.Name,
+            approval_status.plan_reviewer,
+            approval_status.plan_approval_time
+        )
+        pass_result = "Pass"
+        icon = GREEN_CIRCLE
+    else:
+        message_str = "Plan: {} is not approved".format(
+            plan.Name)
+        pass_result = "Fail"
+        icon = RED_CIRCLE
+    messages.append([parent_key, child_key, child_key, pass_result, icon])
+    messages.append([child_key, pass_result, message_str, pass_result, icon])
+    return messages
+
+
 def compare_exam_date(exam, plan, beamset, tolerance, parent_key):
     """
     Check if date occurred within tolerance
@@ -536,6 +544,94 @@ def check_control_point_spacing(bs, expected, parent_key):
     messages.append([parent_key, child_key, child_key, pass_result, icon])
     messages.append([child_key, pass_result, message_str, pass_result, icon])
 
+    return messages
+
+
+def check_edw_MU(beamset, parent_key):
+    """
+
+    Args:
+        beamset:
+
+    Returns:
+
+    """
+    child_key = "EDW MU Check"
+    messages = []
+    edws = {}
+    for b in beamset.Beams:
+        if b.Wedge:
+            if 'EDW' in b.Wedge.WedgeID:
+                edws[b.Name] = b.BeamMU
+    if edws:
+        passing = True
+        edw_passes = []
+        edw_message = "Beam(s) have EDWs: "
+        for bn, mu in edws.items():
+            if mu < EDW_MU_LIMIT:
+                passing = False
+                edw_message += "{}(MU)={}%.2f,".format(bn, mu)
+            else:
+                edw_passes.append(bn)
+        if passing:
+            edw_message += "{} all with MU > {}".format(edw_passes, EDW_MU_LIMIT)
+        else:
+            edw_message += "< {}".format(EDW_MU_LIMIT)
+    else:
+        passing = True
+        edw_message = "No beams with EDWs found"
+
+    if passing:
+        pass_result = "Pass"
+        icon = GREEN_CIRCLE
+        message_str = edw_message
+    else:
+        pass_result = "Fail"
+        icon = RED_CIRCLE
+        message_str = edw_message
+    messages.append([parent_key, child_key, child_key, pass_result, icon])
+    messages.append([child_key, pass_result, message_str, pass_result, icon])
+    return messages
+
+
+def check_common_isocenter(beamset, parent_key, tolerance=1e-12):
+    """
+    Checks all beams in beamset for shared isocenter
+
+    Args:
+        beamset (object):
+        parent_key (str): root upon which this check goes
+        tolerance (flt): largest acceptable difference in isocenter location
+    Returns:
+            message: List of ['Test Name Key', 'Pass/Fail', 'Detailed Message']
+
+    """
+    child_key = "Isocenter Position Identical"
+    messages = []
+    initial_beam_name = beamset.Beams[0].Name
+    iso_pos_x = beamset.Beams[0].Isocenter.Position.x
+    iso_pos_y = beamset.Beams[0].Isocenter.Position.y
+    iso_pos_z = beamset.Beams[0].Isocenter.Position.z
+    iso_differs = []
+    iso_match = []
+    for b in beamset.Beams:
+        b_iso = b.Isocenter.Position
+        if all([isclose(b_iso.x, iso_pos_x, rel_tol=tolerance, abs_tol=0.0),
+                isclose(b_iso.y, iso_pos_y, rel_tol=tolerance, abs_tol=0.0),
+                isclose(b_iso.z, iso_pos_z, rel_tol=tolerance, abs_tol=0.0)]):
+            iso_match.append(b.Name)
+        else:
+            iso_differs.append(b.Name)
+    if iso_differs:
+        pass_result = "Fail"
+        message_str = "Beam(s) {} differ in isocenter location from beam {}".format(iso_differs, initial_beam_name)
+        icon = RED_CIRCLE
+    else:
+        pass_result = "Pass"
+        message_str = "Beam(s) {} all share the same isocenter to within {} mm".format(iso_match, tolerance)
+        icon = GREEN_CIRCLE
+    messages.append([parent_key, child_key, child_key, pass_result, icon])
+    messages.append([child_key, pass_result, message_str, pass_result, icon])
     return messages
 
 
@@ -730,10 +826,16 @@ def check_plan():
     check_fx_size = True
     check_patient_logs = True
     check_bolus_structures = True
+    check_iso = True
+    check_edw = True
     check_dicom = True
     check_exam_date = True
+    check_approval = True
 
     treedata.Insert("", patient_key[0], patient_key[1], "")
+    """
+    Patient Level Checks
+    """
     #
     # Patient level checks
     exam_level_tests = []
@@ -760,15 +862,38 @@ def check_plan():
     if exam_level_tests:
         for m in exam_level_tests:
             treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
-    #
-    # Plan Level Checks
-    treedata.Insert(patient_key[0], plan_key[0], plan_key[1], "")
+    """
+    Plan Level Checks
+    """
+    # Plan LevelChecks
+    plan_level_tests = []
     # TODO: Add some plan level tests
+    if check_approval:
+        message_pln_approved = check_plan_approved(plan=pd.plan, beamset=pd.beamset, parent_key=plan_key[0])
+        plan_level_tests.extend(message_pln_approved)
+
+    # Insert Plan Level notes
+    plan_level_pass = "Pass"
+    plan_icon = GREEN_CIRCLE
+    if any([m[3] for m in plan_level_tests if m[3] == "Fail"]):
+        plan_level_pass = "Fail"
+        plan_icon = RED_CIRCLE
+    elif any([m[3] for m in plan_level_tests if m[3] == "Alert"]):
+        plan_level_pass = "Alert"
+        plan_icon = BLUE_CIRCLE
+    treedata.Insert(patient_key[0], plan_key[0], plan_key[1], plan_level_pass, icon=plan_icon)
+    if plan_level_tests:
+        for m in plan_level_tests:
+            treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
 
     #
     # Beamset Level Checks
     # Check control point spacing
     beamset_level_tests = []
+    if check_iso:
+        message_iso = check_common_isocenter(pd.beamset, parent_key=beamset_key[0], tolerance=1e-15)
+        beamset_level_tests.extend(message_iso)
+
     if check_cps:
         message_cps = check_control_point_spacing(pd.beamset, expected=2., parent_key=beamset_key[0])
         beamset_level_tests.extend(message_cps)
@@ -777,6 +902,11 @@ def check_plan():
     if check_fx_size:
         message_fx_size = check_fraction_size(pd.beamset, parent_key=beamset_key[0])
         beamset_level_tests.extend(message_fx_size)
+    #
+    # EDW Check
+    if check_edw:
+        message_edw = check_edw_MU(pd.beamset, parent_key=beamset_key[0])
+        beamset_level_tests.extend(message_edw)
     #
     # Bolus checks
     if check_bolus_structures:
