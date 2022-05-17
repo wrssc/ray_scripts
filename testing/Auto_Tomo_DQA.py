@@ -1,4 +1,4 @@
-""" Make Tomo DQA Plans
+""" Make DQA Plans
 
     The delta4 software needs the gantry period to load the plan, however
     it doesn't live as a native object in RS. The user is prompted to enter it
@@ -41,7 +41,7 @@ __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '8b.SP2'
+__raystation__ = '10A SP2'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
@@ -50,21 +50,48 @@ __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __credits__ = []
 
 import sys
-from collections import namedtuple
 import logging
+import os
 import re
 import numpy as np
 import connect
 import UserInterface
 import DicomExport
+from collections import namedtuple, OrderedDict
+from datetime import datetime
+from tkinter import Tk
 
-TomoParams = namedtuple('TomoParams',['gantry_period', 'time', 'couch_speed', 'total_travel'])
+clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871',
+                                   'TrueBeam3744', 'HDA0477', 'HDA0488'],
+                  '--QA_DEVICES--': ['Plus_01 (UH)', 'Plus_02 (JC)', 'Plus_03 (EC)',
+                                     'Plus_04 (UH)', 'Plus_05 (EC)'],
+                  '--X_GRID--': [-2.0, -1.8, 1.6, -1.4, -1.2, -1.,
+                                 0., 2.0, 1.8, 1.6, 1.4, 1.2, 1.],
+                  '--Y_GRID--': [-16., -14., -12., -10., -8., -6., -4.,
+                                 0., 16., 14., 12., 10., 8., 6., 4.],
+                  '--Z_GRID--': [-9., 0., 9.],
+                  '--TOMO_QA_PHANTOM--': r"TomoHDA Delta4_HFS_X0_Y0",
+                  '--TOMO_PHANTOM_ID--': r"20191004PMH-D4QA",
+                  '--VMAT_QA_PHANTOM--': r"Delta4 (TrueBeam)",
+                  '--VMAT_PHANTOM_ID--': r"ZZIMRTQA"}
+#
+# Phantom properties for TOMO
+# TODO uncomment next two lines for production
+# clinic_options['--TOMO_QA_PHANTOM--'] = r"Delta4_HFS_0X_0Y TomoHDA" # UW CLINICAL
+# clinic_options['--TOMO_PHANTOM_ID--'] = r"20191017PMH-QA" # UW CLINICAL
+#
+# Phantom properties for VMAT
+#
+# Declare the named tuple for storing computed TomoTherapy parameters
+TomoParams = namedtuple('TomoParams', ['gantry_period', 'time', 'couch_speed', 'total_travel'])
 
+
+# Determine the TomoTherapy couch travel using the Y-offset of the first/last segment
 def compute_couch_travel_helical(beam):
     # Take first and last segment, compute distance
     number_of_segments = len(beam.Segments)
     first_segment = beam.Segments[0]
-    last_segment = beam.Segments[number_of_segments-1]
+    last_segment = beam.Segments[number_of_segments - 1]
     couch_travel = abs(last_segment.CouchYOffset - first_segment.CouchYOffset)
     return couch_travel
 
@@ -76,14 +103,16 @@ def compute_pitch_direct(beam):
     pitch = round(y_travel_per_projection, 3)
     return pitch
 
+
 def compute_couch_travel_direct(beam):
     # Take first and last segment, compute distance
     number_of_segments = len(beam.Segments)
     first_segment = beam.Segments[0]
-    last_segment = beam.Segments[number_of_segments-1]
+    last_segment = beam.Segments[number_of_segments - 1]
     pitch = compute_pitch_direct(beam)
     couch_travel = pitch + abs(last_segment.CouchYOffset - first_segment.CouchYOffset)
     return couch_travel
+
 
 def compute_tomo_params(beam):
     # Rs Beam object, return a named tuple
@@ -101,24 +130,28 @@ def compute_tomo_params(beam):
     couch_speed = total_travel / time
     return TomoParams(gantry_period=gantry_period, time=time, couch_speed=couch_speed, total_travel=total_travel)
 
+
 def convert_couch_speed_to_mm(str_input):
     # Convert incoming str_input to a couch speed in mm/sec and return a string
     float_input = float(str_input)
-    convert_input = float_input * 10 # cm-> mm
+    convert_input = float_input * 10  # cm-> mm
     return convert_input
+
 
 def make_qa_plan_name(name):
     # Should replace PRD, THI with DQA
     search_re = re.compile(r'(THI)|(PRD)')
-    return re.sub(search_re,'DQA',name)
+    return re.sub(search_re, 'DQA', name)
+
 
 def qa_plan_exists(plan, qa_plan_name):
     # Return true if plan exists false otherwise
     verification_plans = plan.VerificationPlans
     for vp in verification_plans:
         if vp.OfRadiationSet.DicomPlanLabel == qa_plan_name:
-         return True
+            return True
     return False
+
 
 def find_qa_plan(plan, beamset, qa_plan_name):
     # Check the list of verification plans to see which belongs to a given beamset
@@ -126,19 +159,20 @@ def find_qa_plan(plan, beamset, qa_plan_name):
     verification_plans = plan.VerificationPlans
     for vp in verification_plans:
         if vp.OfRadiationSet.DicomPlanLabel == beamset.DicomPlanLabel \
-            and vp.BeamSet.DicomPlanLabel == qa_plan_name:
-         return vp
+                and vp.BeamSet.DicomPlanLabel == qa_plan_name:
+            return vp
     return None
+
 
 def make_vmat_qa_plan(plan, beamset, qa_plan_name):
     # Make a qa plan
     try:
         beamset.CreateQAPlan(
-            PhantomName=r"Delta4 (TrueBeam)",
-            PhantomId=r"ZZIMRTQA",
+            PhantomName=clinic_options['--VMAT_QA_PHANTOM--'],
+            PhantomId=clinic_options['--VMAT_PHANTOM_ID--'],
             QAPlanName=qa_plan_name,
-            IsoCenter={ 'x': 0, 'y': 0, 'z': 0 },
-            DoseGrid={ 'x': 0.2, 'y': 0.2, 'z': 0.2 },
+            IsoCenter={'x': 0, 'y': 0, 'z': 0},
+            DoseGrid={'x': 0.2, 'y': 0.2, 'z': 0.2},
             GantryAngle=None,
             CollimatorAngle=None,
             CouchRotationAngle=0,
@@ -148,7 +182,7 @@ def make_vmat_qa_plan(plan, beamset, qa_plan_name):
                 'DisplayName': None,
                 'MotionSynchronizationSettings': None,
                 'RespiratoryIntervalTime': None,
-                'RespiratoryPhaseGatingDutyCycleTimePercentage': None },
+                'RespiratoryPhaseGatingDutyCycleTimePercentage': None},
             RemoveCompensators=False,
             EnableDynamicTracking=False)
         qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
@@ -162,17 +196,16 @@ def make_vmat_qa_plan(plan, beamset, qa_plan_name):
             UserInterface.WarningBox('QA Plan failed to create: {}'.format(e))
             sys.exit('QA Plan failed to create {}'.format(e))
 
+
 def make_tomo_qa_plan(plan, beamset, qa_plan_name):
     # Make a qa plan
     try:
         beamset.CreateQAPlan(
-            PhantomName=r"Delta4_HFS_0X_0Y TomoHDA",
-            PhantomId=r"20191017PMH-QA",
-            # PhantomName=r"TomoHDA Delta4_HFS_X0_Y0",
-            # PhantomId=r"20191004PMH-D4QA",
+            PhantomName=clinic_options['--TOMO_QA_PHANTOM--'],
+            PhantomId=clinic_options['--TOMO_PHANTOM_ID--'],
             QAPlanName=qa_plan_name,
-            IsoCenter={ 'x': 0, 'y': 0, 'z': 0 },
-            DoseGrid={ 'x': 0.2, 'y': 0.2, 'z': 0.2 },
+            IsoCenter={'x': 0, 'y': 0, 'z': 0},
+            DoseGrid={'x': 0.2, 'y': 0.2, 'z': 0.2},
             GantryAngle=None,
             CollimatorAngle=None,
             CouchRotationAngle=None,
@@ -182,7 +215,7 @@ def make_tomo_qa_plan(plan, beamset, qa_plan_name):
                 'DisplayName': None,
                 'MotionSynchronizationSettings': None,
                 'RespiratoryIntervalTime': None,
-                'RespiratoryPhaseGatingDutyCycleTimePercentage': None },
+                'RespiratoryPhaseGatingDutyCycleTimePercentage': None},
             RemoveCompensators=False,
             EnableDynamicTracking=False)
         qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
@@ -192,21 +225,53 @@ def make_tomo_qa_plan(plan, beamset, qa_plan_name):
         sys.exit('QA Plan failed to create {}'.format(e))
 
 
+def get_timestamp(beamset):
+    # Get the approval time-stamp for the parent beamset
+    if beamset.Review is None:
+        logging.info('No approval status set.')
+        approval_time = 'Not set.'
+        return approval_time
+    else:
+        if str(beamset.Review.ApprovalStatus) == 'Approved':
+            time_stamp = str(beamset.Review.ReviewTime)
+            date_object = datetime.strptime(time_stamp, '%m/%d/%Y %I:%M:%S %p')
+            approval_time = str(date_object)
+            return approval_time
+        else:
+            logging.info('QA is generated from unapproved plan')
+            approval_time = 'Not set.'
+            return approval_time
+
+
+def build(beamset, responses):
+    # Build a comment to insert in the plan dialog and copy it to the clipboard
+    dialog_dict = OrderedDict()
+    dialog_dict['TDS'] = responses['TDS']
+    dialog_dict['Delta4'] = responses['Delta4']
+    dialog_dict['RSA'] = get_timestamp(beamset)
+    dialog_dict['By'] = os.getenv('username')
+    comment = ""
+    for k, v in dialog_dict.items():
+        comment += "{} : {}\n".format(k, v)
+    return comment
+
+
 def prompt_qa_name(qa_plan_name):
     # Prompt the user for a qa plan name and return response
-    required = ['Name']
-    types = {'Name':'text'}
+    # Initialize dialog
     initial = {}
     options = {}
-    inputs={}
-    inputs['Name'] = 'Provide Desired DQA Plan Name'
-    title = 'DQA Plan Name '+ qa_plan_name + 'is Taken'
+    inputs = {'Name': 'Provide Desired DQA Plan Name'}
+    required = ['Name']
+    types = {'Name': 'text'}
+    #
+    title = 'DQA Plan Name ' + qa_plan_name + 'is Taken'
     dialog = UserInterface.InputDialog(inputs=inputs,
-                                    datatype=types,
-                                    options=options,
-                                    initial=initial,
-                                    required=required,
-                                    title='Export Options')
+                                       datatype=types,
+                                       options=options,
+                                       initial=initial,
+                                       required=required,
+                                       title='Export Options')
     response = dialog.show()
     if response == {}:
         sys.exit('No plan name provided. Perhaps go delete the qa plan: {}'
@@ -214,21 +279,30 @@ def prompt_qa_name(qa_plan_name):
     else:
         return response['Name']
 
+
 def prompt_beamsets(plan):
     # Prompt the user for all beamsets that need qa plan
+    initial = {}
     #
     # Find all beamsets in this plan
     names = []
     for b in plan.BeamSets:
         names.append(b.DicomPlanLabel)
     # Initialize the dialog
-    required = ['0',]
-    types = {'0':'check' }
-    # Initialize options to include DICOM destination and data selection. Add more if a plan is also selected
-    options = {'0':names}
-    initial = {}
-    inputs = {}
-    inputs['0'] = 'Select the beamsets needing a dqa plan'
+    # Input initialization
+    inputs = {'0': 'Select the beamsets needing a dqa plan',
+              'TDS': 'Select Treatment System',
+              'Delta4': 'Select Delta4 Unit'}
+    # Dialog Types
+    types = {'TDS': 'combo',
+             'Delta4': 'combo',
+             '0': 'check'}
+    # Options for user
+    options = {'TDS': clinic_options['--MACHINES--'],
+               'Delta4': clinic_options['--QA_DEVICES--'],
+               '0': names
+               }
+    required = ['0', ]
     dialog = UserInterface.InputDialog(inputs=inputs,
                                        datatype=types,
                                        options=options,
@@ -237,9 +311,10 @@ def prompt_beamsets(plan):
                                        title='Select Beamsets For DQA')
     response = dialog.show()
     if response == {}:
-        sys.exit('DICOM export was cancelled')
+        sys.exit('QA Script was cancelled')
     else:
-        return response['0']
+        return response
+
 
 def find_dose_centroid(vp, beamset, percent_max=None):
     """
@@ -283,9 +358,9 @@ def find_dose_centroid(vp, beamset, percent_max=None):
         t_init = t
         rx_points = np.argwhere(pd >= rx * t)
         t = t_init - tolerance
-    #logging.info('Tolerance used for the supplied dose {} agreement was > {} Gy'.format(rx, rx * t_init))
+    # logging.info('Tolerance used for the supplied dose {} agreement was > {} Gy'.format(rx, rx * t_init))
 
-    #logging.debug('Finding centroid of matching dose points')
+    # logging.debug('Finding centroid of matching dose points')
     length = rx_points.shape[0]  # total number of points
     n_x_pos = rx_points[:, 0] * xsize + xcorner + xsize / 2  # points in RS coordinates
     n_y_pos = rx_points[:, 1] * ysize + ycorner + ysize / 2
@@ -294,18 +369,20 @@ def find_dose_centroid(vp, beamset, percent_max=None):
     ypos = np.sum(n_y_pos) / length
     zpos = np.sum(n_z_pos) / length
 
-    return {'x':xpos, 'y':ypos, 'z':zpos}
+    return {'x': xpos, 'y': ypos, 'z': zpos}
+
 
 def shift_tomo_iso(verification_plan):
     a = find_dose_centroid(vp=verification_plan,
-                          beamset=verification_plan.BeamSet,
-                          percent_max = 80)
-    shift = {'x': -1.* a['x'], 'y': -1.* a['y'], 'z': 0. }
+                           beamset=verification_plan.BeamSet,
+                           percent_max=80)
+    shift = {'x': -1. * a['x'], 'y': -1. * a['y'], 'z': 0.}
     beams = verification_plan.BeamSet.Beams
     for b in beams:
         b.Isocenter.EditIsocenter(Position=shift)
 
-def shift_iso(verification_plan, percent_dose_region = 80.):
+
+def shift_iso(verification_plan, percent_dose_region=80.):
     # Using the input verification plan object find the center of the
     # percent_dose_region * max dose volume.
     # If the center is more than 90 mm from the center of the phantom, shift longitudinally.
@@ -314,25 +391,20 @@ def shift_iso(verification_plan, percent_dose_region = 80.):
     shift = {}
     beams = verification_plan.BeamSet.Beams
     a = find_dose_centroid(vp=verification_plan,
-                          beamset=verification_plan.BeamSet,
-                          percent_max = percent_dose_region)
-    x_grid = [-150., -100., -50., 0., 50., 100., 150.]
-    y_grid = [-150., -100., -50., 0., 50., 100., 150.]
-    z_grid = [-90., 0., 90.]
-    shift['x'] = min(x_grid, key=lambda x:abs(x-a['x']))
-    shift['y'] = min(y_grid, key=lambda x:abs(x-a['y']))
-    shift['z'] = min(z_grid, key=lambda x:abs(x-a['z']))
-    logging.info('During DQA creation, the center of the dose profile was at [x,y,z]: [{:.2f},{:.2f},{:.2f}]. '.format(a['x'],a['y'],a['z'])
-                 +'Closest shift coordinates are [x,y,z]: [{},{},{}]'.format(shift['x'],shift['y'],shift['z']))
-    #shift = {'x':a['x'], 'y':a['y']}
-    # shift if 90 mm is closer to center
-    #if a['z'] > 90.:
-    #    shift['z'] = 90.
-    #elif a['z'] < -90.:
-    #    shift['z'] = -90.
-    #else:
-    #    shift['z'] = 0.
-    # Shift the isocenters
+                           beamset=verification_plan.BeamSet,
+                           percent_max=percent_dose_region)
+    x_grid = clinic_options['--X_GRID--']
+    y_grid = clinic_options['--Y_GRID--']
+    z_grid = clinic_options['--Z_GRID--']
+    shift['x'] = min(x_grid, key=lambda x: abs(a['x'] - x))
+    shift['y'] = min(y_grid, key=lambda x: abs(a['y'] - x))
+    shift['z'] = min(z_grid, key=lambda x: abs(a['z'] - x))
+    logging.info(
+        "During DQA creation, the center of the dose profile was at [x,y,z]: [{:.2f},{:.2f},{:.2f}]. ".format(a['x'],
+                                                                                                              a['y'],
+                                                                                                              a['z'])
+        + "Closest shift coordinates are [x,y,z]: [{},{},{}]".format(shift['x'], shift['y'], shift['z']))
+    # Shift the isocenter of the beams
     for b in beams:
         b.Isocenter.EditIsocenter(Position=shift)
     return shift
@@ -340,6 +412,7 @@ def shift_iso(verification_plan, percent_dose_region = 80.):
 
 def main():
     # Get current patient, case, exam, plan, and beamset
+    program_success = []
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
@@ -356,8 +429,15 @@ def main():
         logging.debug('A plan is not loaded; plan export options will be disabled')
         UserInterface.WarningBox('This script requires a plan to be loaded')
         sys.exit('This script requires a plan to be loaded')
+    #
+    # Clear the system clipboard
+    r = Tk()
+    r.withdraw()
+    r.clipboard_clear()
 
-    beamset_list = prompt_beamsets(plan)
+    user_prompt = prompt_beamsets(plan)
+    beamset_list = user_prompt['0']
+    bypass_export_check = True
     for b in beamset_list:
         try:
             beamset = plan.BeamSets[b]
@@ -375,21 +455,34 @@ def main():
         logging.debug('Looking through verifications plans for plan {} and beamset {}'.format(
             plan.Name, beamset.DicomPlanLabel))
 
-
-        qa_plan_name = beamset.DicomPlanLabel
-        if qa_plan_exists(plan,qa_plan_name):
-            qa_plan_name = prompt_qa_name(qa_plan_name)
         # Make a qa plan with the name of the beamset
         if 'Tomo' in beamset.DeliveryTechnique:
+            qa_plan_name = b.replace('_THI_', '_DQA_')
+            if qa_plan_name == b:
+                qa_plan_name = qa_plan_name[:-4] + '_DQA'
+                logging.info('Beamset {} does not follow THI convention.'.format(
+                    beamset.DicomPlanLabel
+                ))
             verification_plan = make_tomo_qa_plan(plan, beamset, qa_plan_name)
         else:
+            qa_plan_name = beamset.DicomPlanLabel
+            if qa_plan_exists(plan, qa_plan_name):
+                qa_plan_name = prompt_qa_name(qa_plan_name)
             verification_plan = make_vmat_qa_plan(plan, beamset, qa_plan_name)
 
-        bypass_export_check =True
         qa_beamset = verification_plan.BeamSet
+        #
+        # Add data to the beamset comment
+        beamset_comment = build(beamset, user_prompt)
+        qa_beamset.Comment = beamset_comment
+        # Copy the comment to the system clipboard
+        r.clipboard_append(beamset_comment)
+        r.update()  # now it stays on the clipboard after the window is closed
+        #
+        # Update log
         current_technique = qa_beamset.DeliveryTechnique
         logging.info("Selected Beamset:QAPlan {}:{}"
-                     .format(beamset.DicomPlanLabel,qa_beamset.DicomPlanLabel))
+                     .format(beamset.DicomPlanLabel, qa_beamset.DicomPlanLabel))
         if 'Tomo' in current_technique:
             shift_tomo_iso(verification_plan)
             verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
@@ -397,34 +490,35 @@ def main():
             # needs to manually send it to the RayGateway
             beam_data = {}
             for b in qa_beamset.Beams:
-                TomoResult=compute_tomo_params(b)
-                beam_data[b.Name] = TomoResult
+                tomo_result = compute_tomo_params(b)
+                beam_data[b.Name] = tomo_result
 
                 logging.debug('Beam {} has GP: {}, CS:{}, Time:{}'.format(
-                    b.Name, TomoResult.gantry_period,
-                    TomoResult.couch_speed, TomoResult.time))
+                    b.Name, tomo_result.gantry_period,
+                    tomo_result.couch_speed, tomo_result.time))
 
             if current_technique == 'TomoHelical' and len(beam_data.keys()) == 1:
-                formatted_response = '{:.2f}'.format(round(TomoResult.gantry_period, 2))
+                formatted_response = '{:.2f}'.format(round(tomo_result.gantry_period, 2))
                 logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
                     formatted_response))
+                patient.Save()
                 success = DicomExport.send(case=case,
-                                    destination='Delta4',
-                                    qa_plan=verification_plan,
-                                    exam=False,
-                                    beamset=False,
-                                    ct=False,
-                                    structures=False,
-                                    plan=False,
-                                    plan_dose=False,
-                                    beam_dose=False,
-                                    ignore_warnings=False,
-                                    ignore_errors=False,
-                                    bypass_export_check = bypass_export_check,
-                                    rename=None,
-                                    gantry_period=formatted_response,
-                                    filters=['tomo_dqa'],
-                                    bar=False)
+                                           destination='Delta4',
+                                           qa_plan=verification_plan,
+                                           exam=False,
+                                           beamset=False,
+                                           ct=False,
+                                           structures=False,
+                                           plan=False,
+                                           plan_dose=False,
+                                           beam_dose=False,
+                                           ignore_warnings=False,
+                                           ignore_errors=False,
+                                           bypass_export_check=bypass_export_check,
+                                           rename=None,
+                                           gantry_period=formatted_response,
+                                           filters=['tomo_dqa'],
+                                           bar=False)
             elif current_technique == 'TomoDirect':
                 formatted_response = {}
                 for k in beam_data.keys():
@@ -433,35 +527,40 @@ def main():
                     formatted_response[k] = convert_couch_speed_to_mm(strip_response)
                     #
                     logging.info("Couch speed filter to be used. Couch speed for beam:{} is {} (mm/s)"
-                                .format(k, formatted_response[k]))
+                                 .format(k, formatted_response[k]))
+                patient.Save()
                 success = DicomExport.send(case=case,
-                                    destination='Delta4',
-                                    qa_plan=verification_plan,
-                                    exam=False,
-                                    beamset=False,
-                                    ct=False,
-                                    structures=False,
-                                    plan=False,
-                                    plan_dose=False,
-                                    beam_dose=False,
-                                    ignore_warnings=False,
-                                    ignore_errors=False,
-                                    bypass_export_check = bypass_export_check,
-                                    rename=None,
-                                    couch_speed=formatted_response,
-                                    filters=['tomo_dqa'],
-                                    bar=False)
+                                           destination='Delta4',
+                                           qa_plan=verification_plan,
+                                           exam=False,
+                                           beamset=False,
+                                           ct=False,
+                                           structures=False,
+                                           plan=False,
+                                           plan_dose=False,
+                                           beam_dose=False,
+                                           ignore_warnings=False,
+                                           ignore_errors=False,
+                                           bypass_export_check=bypass_export_check,
+                                           rename=None,
+                                           couch_speed=formatted_response,
+                                           filters=['tomo_dqa'],
+                                           bar=False)
+                program_success.append(success)
         else:
             shifts = shift_iso(verification_plan)
             if any(shifts.values()) > 0.:
                 verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
+            success = True
+            program_success.append(success)
 
     # Finish up
-    if success:
-        logging.info('Export script completed successfully')
-
+    if all(program_success):
+        logging.info('QA script completed successfully')
     else:
-        logging.warning('Export script completed with errors')
+        logging.warning('QA script completed with errors')
+    # Clean up dialog
+    r.destroy()
 
 
 if __name__ == '__main__':

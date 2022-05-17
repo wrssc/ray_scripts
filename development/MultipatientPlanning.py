@@ -93,7 +93,7 @@ def output_status(path, input_filename, patient_id, case_name, plan_name, beamse
         # The file does not currently exist or is empty
         output_file = open(output_filename, "w+")
         # Write the header
-        output_message = ( "PatientID" + ",\t"
+        output_message = ("PatientID" + ",\t"
                           + "Case" + ",\t"
                           + "Plan" + ",\t"
                           + "Beamset" + ",\t"
@@ -172,7 +172,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
         case = patient.Cases[case_name]
         patient_data['Case'] = case
     except Exception as e:
-        patient_data['Error'].append('Case {} not found: {}'.format(case_name,e))
+        patient_data['Error'].append('Case {} not found: {}'.format(case_name, e))
         return patient_data
     #
     # Load examination
@@ -235,7 +235,7 @@ def test_inputs_optimization(s):
         return 'NA'
 
 
-def test_inputs_planning_structure(case,s):
+def test_inputs_planning_structure(case, s):
     e = []  # Errors
     # Planning Structures
     wf = s.PlanningStructureWorkflow  # Named workflow: planning_structure_set>name, or None for skip
@@ -330,12 +330,12 @@ def main():
     print('Looking in file {}'.format(file_csv))
     dtypes = {'PatientID': str, 'Case': str, 'PlanName': str, 'BeamsetName': str}
     if file_csv != '':
-        plan_data = pandas.read_csv(file_csv,converters={
+        plan_data = pandas.read_csv(file_csv, converters={
             'PatientID': lambda x: str(x),
             'Case': lambda x: str(x),
             'PlanName': lambda x: str(x),
             'BeamsetName': lambda x: str(x),
-            })
+        })
         # Merge the target rows into a dictionary containing {[Target Name]:Dose}
         plan_data['Targets'] = plan_data.apply(lambda row: merge_dict(row), axis=1)
         # Replace all nan with ''
@@ -366,7 +366,7 @@ def main():
         clinical_goals_load = False
         plan_optimization_strategy_load = False
         optimization_complete = False
-        status_message =''
+        status_message = ''
         #
         # Read the csv into a pandas dataframe
         patient_data = AutoPlanOperations.load_patient_data(
@@ -376,7 +376,7 @@ def main():
             case_name=case_name,
             exam_name=row.ExaminationName,
             plan_name=plan_name,
-            )
+        )
         # TODO: Investigate any changes unsaved at end of script.
         patient_data['Patient'].Save()
 
@@ -417,7 +417,7 @@ def main():
         # Invalidate all previous doses:
         invalidate_doses(case=case)
 
-        errors_ps = test_inputs_planning_structure(case,row)
+        errors_ps = test_inputs_planning_structure(case, row)
         if errors_ps:
             status_message = errors_ps
             # Go to the next entry
@@ -438,10 +438,10 @@ def main():
             )
             continue
         planning_structs = AutoPlanOperations.load_planning_structures(case=case,
-                                                    filename=row.PlanningStructureFile,
-                                                    path=row.PlanningStructurePath,
-                                                    workflow_name=row.PlanningStructureWorkflow,
-                                                    translation_map = row.Targets)
+                                                                       filename=row.PlanningStructureFile,
+                                                                       path=row.PlanningStructurePath,
+                                                                       workflow_name=row.PlanningStructureWorkflow,
+                                                                       translation_map=row.Targets)
         patient.Save()
 
         # If this beamset is found, then append 1-99 to the name and keep going
@@ -484,7 +484,7 @@ def main():
         beamset_defs.technique = beamset_etree.find('technique').text
         beamset_defs.protocol_name = beamset_etree.find('name').text
         if beamset_defs.technique == "TomoHelical" or \
-            beamset_defs.technique == "TomoDirect":
+                beamset_defs.technique == "TomoDirect":
             lateral_zero = True
         else:
             lateral_zero = False
@@ -502,14 +502,14 @@ def main():
         patient.Save()
         rs_beam_set.SetCurrent()
         #
-        Pd = namedtuple('Pd', ['error','db', 'case', 'patient', 'exam', 'plan', 'beamset'])
-        patient_tuple = Pd(error = [],
-            patient = GeneralOperations.find_scope(level='Patient'),
-            case = GeneralOperations.find_scope(level='Case'),
-            exam = GeneralOperations.find_scope(level='Examination'),
-            db = GeneralOperations.find_scope(level='PatientDB'),
-            plan = GeneralOperations.find_scope(level='Plan'),
-            beamset = GeneralOperations.find_scope(level='BeamSet'))
+        Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
+        patient_tuple = Pd(error=[],
+                           patient=GeneralOperations.find_scope(level='Patient'),
+                           case=GeneralOperations.find_scope(level='Case'),
+                           exam=GeneralOperations.find_scope(level='Examination'),
+                           db=GeneralOperations.find_scope(level='PatientDB'),
+                           plan=GeneralOperations.find_scope(level='Plan'),
+                           beamset=GeneralOperations.find_scope(level='BeamSet'))
 
         connect.get_current('BeamSet')
         beams = BeamOperations.load_beams_xml(filename=row.BeamsetFile,
@@ -541,7 +541,7 @@ def main():
             beams_load = True
         elif beamset_defs.technique == 'TomoDirect':
             BeamOperations.place_tomodirect_beams_in_beamset(plan=plan, iso=beamset_defs.iso,
-                                                      beamset=rs_beam_set, beams=beams)
+                                                             beamset=rs_beam_set, beams=beams)
             # Beams loaded successfully
             beams_load = True
 
@@ -583,7 +583,7 @@ def main():
         # Translation map: {OrderedDict} protocol_target_name:(plan_target_name, dose in Gy)
         translation_map = OrderedDict()
         for k, v in row.Targets.items():
-             translation_map[k] = ( v[0], v[1], r'cGy')
+            translation_map[k] = (v[0], v[1], r'cGy')
         translation_map = AutoPlanOperations.convert_translation_map(translation_map, unit=r'Gy')
         goals_added = add_goals_and_objectives_from_protocol(
             case=case,
@@ -608,12 +608,12 @@ def main():
         #
         # Optimize the plan
         opt_status = AutoPlanOperations.load_configuration_optimize_beamset(
-                                                        filename=row.OptimizationFile,
-                                                        path=row.OptimizationPath,
-                                                        pd=patient_tuple,
-                                                        name=row.OptimizationWorkflow)
+            filename=row.OptimizationFile,
+            path=row.OptimizationPath,
+            pd=patient_tuple,
+            name=row.OptimizationWorkflow)
         if opt_status:
-            beamset_info = plan.QueryBeamSetInfo(Filter={'Name':beamset_name})
+            beamset_info = plan.QueryBeamSetInfo(Filter={'Name': beamset_name})
             try:
                 if beamset_info[0]['HasDose']:
                     optimization_complete = True

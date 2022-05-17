@@ -295,28 +295,28 @@
         <segment_weight>False</segment_weight>
         <block_prompt>True</block_prompt>
     </optimization_config>
-   <!--
-    <beamset>
-        <name>Tomo3D_FW25_Multi</name>
-        <technique>TomoHelical</technique>
-        <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>Simplified TomoTherapy beam to mimic Tomo3D in Accuray</description>
-        <beam>
-            <BeamNumber>1</BeamNumber>
-            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
-            <Name>1_SITE_THI</Name>
-            <FieldWidth>2.51</FieldWidth>
-            <Energy>6</Energy>
-            <Pitch>0.287</Pitch>
-            <BackJawPosition>1.0</BackJawPosition>
-            <FrontJawPosition>-1.0</FrontJawPosition>
-            <JawMode>Dynamic</JawMode>
-            <MaxDeliveryTime>900</MaxDeliveryTime>
-            <MaxGantryPeriod>59</MaxGantryPeriod>
-            <MaxDeliveryTimeFactor>1.6</MaxDeliveryTimeFactor>
-        </beam>
-    </beamset>
-    -->
+    <!--
+     <beamset>
+         <name>Tomo3D_FW25_Multi</name>
+         <technique>TomoHelical</technique>
+         <DicomName>XXXX_THI_R_A_</DicomName>
+         <description>Simplified TomoTherapy beam to mimic Tomo3D in Accuray</description>
+         <beam>
+             <BeamNumber>1</BeamNumber>
+             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+             <Name>1_SITE_THI</Name>
+             <FieldWidth>2.51</FieldWidth>
+             <Energy>6</Energy>
+             <Pitch>0.287</Pitch>
+             <BackJawPosition>1.0</BackJawPosition>
+             <FrontJawPosition>-1.0</FrontJawPosition>
+             <JawMode>Dynamic</JawMode>
+             <MaxDeliveryTime>900</MaxDeliveryTime>
+             <MaxGantryPeriod>59</MaxGantryPeriod>
+             <MaxDeliveryTimeFactor>1.6</MaxDeliveryTimeFactor>
+         </beam>
+     </beamset>
+     -->
     <!--
     <order>
         <name>Single Target Tomo3D</name>

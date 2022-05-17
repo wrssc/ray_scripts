@@ -315,7 +315,7 @@ def load_planning_structures(case, s):
     # Slice for the planning structure set matching the input workflow
     df_wf = df_pp[df_pp.name == wf]
 
-    pp = StructureOperations.planning_structure_preferences()
+    pp = StructureOperations.PlanningStructurePreferences()
     pp.number_of_targets = s.NumberTargets
     pp.first_target_number = df_wf.first_target_number.values[0]
     uniform_structures = df_wf.uniform_structures.values[0]

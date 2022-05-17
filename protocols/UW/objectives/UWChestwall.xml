@@ -79,1333 +79,6 @@
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
-        <name>Left Breast Hypofractionated [with Boost]</name>
-        <prefix>BreL_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
-            </roi>
-            <fractions>15</fractions>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        </prescription>
-        <prescription>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">10</dose>
-            </roi>
-            <fractions>5</fractions>
-            <motion>Free breathing</motion>
-            <motion>MIBH (no gating, electrons)</motion>
-            <motion>RPM MIBH gating</motion>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
-            </technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        </prescription>
-        <goals>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">30</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">30</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">50</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">35</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">50</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">94</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">5</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">10</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">115</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">5</volume>
-                <dose units="Gy">16</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">5</volume>
-                <dose units="Gy">20</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">8</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">3.2</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">16</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">50</volume>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">40</volume>
-                <dose units="Gy">8</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-        </goals>
-    </order>
-    <order>
-        <name>Left Breast Hypofractionated [no Boost]</name>
-        <prefix>BreL_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
-            </roi>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
-        </prescription>
-        <goals>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">5</volume>
-                <dose units="Gy">16</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">5</volume>
-                <dose units="Gy">20</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">8</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">3.2</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">16</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">50</volume>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">40</volume>
-                <dose units="Gy">8</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-        </goals>
-    </order>
-    <order>
-        <name>Right Breast Hypofractionated [with Boost]</name>
-        <prefix>BreR_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
-            </roi>
-            <fractions>15</fractions>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        </prescription>
-        <prescription>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">10</dose>
-            </roi>
-            <fractions>5</fractions>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
-            </technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        </prescription>
-        <goals>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">30</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">50</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">35</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">50</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">94</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">5</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">10</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">115</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type>Max</type>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">8</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">3.2</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">16</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">50</volume>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">40</volume>
-                <dose units="Gy">8</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-        </goals>
-    </order>
-    <order>
-        <name>Right Breast Hypofractionated [no Boost]</name>
-        <prefix>BreR_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
-            </roi>
-            <fractions>15</fractions>
-        </prescription>
-        <goals>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type>Max</type>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">8</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">3.2</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">16</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">50</volume>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">16</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">40</volume>
-                <dose units="Gy">8</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">4</dose>
-                <priority>1</priority>
-            </roi>
-        </goals>
-    </order>
-    <order>
-        <name>Left Breast Conventional [with Boost]</name>
-        <prefix>BreL_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_n1_SCV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_n2_Axillary</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <fractions>25</fractions>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        </prescription>
-        <prescription>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">10</dose>
-            </roi>
-            <fractions>5</fractions>
-            <motion>Free breathing</motion>
-            <motion>MIBH (no gating, electrons)</motion>
-            <motion>RPM MIBH gating</motion>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
-            </technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        </prescription>
-        <goals>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">30</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">50</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">87</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">35</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">50</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">5</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type dir="le">DX</type>
-                <volume units="%">10</volume>
-                <dose units="%" roi="PTV_p_Lump_Eval">110</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">115</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n1_SCV</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n1_SCV">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n2_Axillary</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n2_Axillary">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n2_Axillary</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n2_Axillary">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n1_SCV</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n1_SCV">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">80</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n3_IMN">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n3_IMN">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">5</volume>
-                <dose units="Gy">20</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">5</volume>
-                <dose units="Gy">25</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">10</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">10</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <dose units="%" roi="PTV_n3_IMN">50</dose>
-                <volume units="%">10</volume>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">20</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">10</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">50</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">20</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">40</volume>
-                <dose units="Gy">10</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="%" roi="PTV_n1_SCV">40</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">10</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Esophagus</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">11</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Esophagus</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">10</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Esophagus</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">20</dose>
-                <priority>3</priority>
-            </roi>
-        </goals>
-    </order>
-    <order>
-        <name>Left Breast Conventional [no Boost]</name>
-        <prefix>BreL_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_n1_SCV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_n2_Axillary</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <fractions>25</fractions>
-            <motion>Free breathing</motion>
-            <motion default="true">RPM MIBH gating</motion>
-        </prescription>
-        <goals>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n1_SCV</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n1_SCV">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n1_SCV</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n1_SCV">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">80</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n3_IMN">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n3_IMN">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n2_Axillary</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n2_Axillary">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n2_Axillary</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n2_Axillary">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">5</volume>
-                <dose units="Gy">20</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">5</volume>
-                <dose units="Gy">25</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">10</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">10</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <dose units="%" roi="PTV_n3_IMN">50</dose>
-                <volume units="%">10</volume>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">20</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">10</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">50</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">20</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">40</volume>
-                <dose units="Gy">10</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="%" roi="PTV_n1_SCV">40</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">10</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Esophagus</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">11</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Esophagus</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">10</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Esophagus</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">20</dose>
-                <priority>3</priority>
-            </roi>
-        </goals>
-    </order>
-    <order>
         <name>Left Chestwall Conventional [with Boost]</name>
         <prefix>ChwL_</prefix>
         <prescription>
@@ -2034,7 +707,7 @@
         <prefix>BreR_</prefix>
         <prescription>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
@@ -2082,54 +755,54 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">30</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">87</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">35</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="le">DX</type>
                 <volume units="%">50</volume>
                 <dose units="%" roi="PTV_p_Lump_Eval">90</dose>
@@ -2173,255 +846,6 @@
                 <name>PTV_p_Lump_Eval</name>
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_Lump_Eval">120</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n1_SCV</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n1_SCV">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n1_SCV</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n1_SCV">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">80</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n3_IMN">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n3_IMN">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n3_IMN">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_n2_Axillary</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_n2_Axillary">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_n2_Axillary</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_n2_Axillary">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type>Max</type>
-                <dose units="Gy">20</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">10</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">10</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">4</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">20</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">35</volume>
-                <dose units="Gy">10</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">50</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">20</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">40</volume>
-                <dose units="Gy">10</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_R</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="%" roi="PTV_n1_SCV">40</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">10</volume>
-                <dose units="Gy">5</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Lung_L</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">5</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">8</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Breast_L</name>
-                <type>Max</type>
-                <dose units="Gy">10</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Esophagus</name>
-                <type dir="le">Mean</type>
-                <dose units="Gy">11</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Esophagus</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">10</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Esophagus</name>
-                <type dir="le">VX</type>
-                <volume units="%">15</volume>
-                <dose units="Gy">20</dose>
-                <priority>3</priority>
-            </roi>
-        </goals>
-    </order>
-    <order>
-        <name>Right Breast Conventional [no Boost]</name>
-        <prefix>BreR_</prefix>
-        <prescription>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_n1_SCV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_n3_IMN</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <roi>
-                <name>PTV_n2_Axillary</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
-            <fractions>25</fractions>
-        </prescription>
-        <goals>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type dir="ge">VX</type>
-                <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
-                <priority>2</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
-                <priority>4</priority>
-            </roi>
-            <roi>
-                <name>PTV_p_BrCw_Eval</name>
-                <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -3204,11 +1628,11 @@
         </goals>
     </order>
     <order>
-        <name>Left Breast or Chestwall Hypofrac - Alliance</name>
-        <prefix>BreL_</prefix>
+        <name>Left Chestwall Hypofrac - Alliance</name>
+        <prefix>ChwL_</prefix>
         <prescription>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">42.5</dose>
@@ -3236,29 +1660,29 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -3430,11 +1854,11 @@
         </goals>
     </order>
     <order>
-        <name>Right Breast or Chestwall Hypofrac - Alliance</name>
-        <prefix>BreR_</prefix>
+        <name>Right Chestwall Hypofrac - Alliance</name>
+        <prefix>ChwR_</prefix>
         <prescription>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">42.5</dose>
@@ -3462,29 +1886,29 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">95</dose>
+                <dose units="%" roi="PTV_p_Eval">95</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">110</dose>
+                <dose units="%" roi="PTV_p_Eval">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">90</dose>
+                <dose units="%" roi="PTV_p_Eval">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">115</dose>
+                <dose units="%" roi="PTV_p_Eval">115</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -3661,55 +2085,55 @@
             <roi>
                 <name>OTV1_</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">102.5</dose>
+                <dose units="%" roi="PTV_p_Eval">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">109.7</dose>
+                <dose units="%" roi="PTV_p_Eval">109.7</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">102.5</dose>
+                <dose units="%" roi="PTV_p_Eval">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">117.9</dose>
+                <dose units="%" roi="PTV_p_Eval">117.9</dose>
                 <weight>200</weight>
             </roi>
             <roi>
-                <name>PTV_p_BrCw_Eval</name>
+                <name>PTV_p_Eval</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">102.5</dose>
+                <dose units="%" roi="PTV_p_Eval">102.5</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">102.5</dose>
+                <dose units="%" roi="PTV_p_Eval">102.5</dose>
                 <weight>200</weight>
             </roi>
             <roi>
                 <name>OTV1_EZ</name>
                 <type a="1">MinEud</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">102.5</dose>
+                <dose units="%" roi="PTV_p_Eval">102.5</dose>
                 <weight>10</weight>
             </roi>
             <roi>
                 <name>sOTVu1_</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval">102.5</dose>
+                <dose units="%" roi="PTV_p_Eval">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>ring1_</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p_BrCw_Eval" low="5">100</dose>
+                <dose units="%" roi="PTV_p_Eval" low="5">100</dose>
                 <weight>5</weight>
             </roi>
             <roi>

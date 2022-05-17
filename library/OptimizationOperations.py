@@ -79,19 +79,20 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2018-Sep-27'
+__date__ = '2021-Dec-12'
 __version__ = '2.0.0'
 __status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
-__raystation__ = '7.0.0'
+__raystation__ = '10A SP1'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
 __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 __credits__ = ['']
+
 #
 
 import logging
@@ -99,7 +100,10 @@ import connect
 import UserInterface
 import datetime
 import sys
+import os
 import math
+import pandas as pd
+import numpy
 import PlanOperations
 import BeamOperations
 from GeneralOperations import logcrit as logcrit
@@ -226,8 +230,6 @@ def iter_optimization_config_etree(etree):
                 o_c['segment_weight'] = False
         except AttributeError:
             o_c['segment_weight'] = False
-        # Append the resulting configuration to the dictionary
-        os_config['optimization_config'].append(o_c)
         #
         # Prompt for structure blocking/protection
         try:
@@ -238,6 +240,34 @@ def iter_optimization_config_etree(etree):
                 o_c['block_prompt'] = False
         except AttributeError:
             o_c['block_prompt'] = False
+        #
+        # Robustness optimization
+        try:
+            o_c['robust'] = o.find("robust").text
+            if o_c['robust'] == "True":
+                o_c['robust'] = True
+                o_c['robust_sup'] = float(o.find("robust").attrib["sup"])
+                o_c['robust_inf'] = float(o.find("robust").attrib["inf"])
+                o_c['robust_ant'] = float(o.find("robust").attrib["ant"])
+                o_c['robust_post'] = float(o.find("robust").attrib["post"])
+                o_c['robust_right'] = float(o.find("robust").attrib["right"])
+                o_c['robust_left'] = float(o.find("robust").attrib["left"])
+            else:
+                o_c['robust'] = False
+                o_c['robust_sup'] = None
+                o_c['robust_inf'] = None
+                o_c['robust_ant'] = None
+                o_c['robust_post'] = None
+                o_c['robust_right'] = None
+                o_c['robust_left'] = None
+        except AttributeError:
+            o_c['robust'] = False
+            o_c['robust_sup'] = None
+            o_c['robust_inf'] = None
+            o_c['robust_ant'] = None
+            o_c['robust_post'] = None
+            o_c['robust_right'] = None
+            o_c['robust_left'] = None
         # Append the resulting configuration to the dictionary
         os_config['optimization_config'].append(o_c)
     return os_config
@@ -381,10 +411,10 @@ def set_treat_margins(beam, rois, margins=None):
             r, margins['X1'], margins['X2'], margins['Y1'], margins['Y2']))
         try:
             beam.SetTreatAndProtectMarginsForBeam(TopMargin=margins['Y2'],
-                                              BottomMargin=margins['Y1'],
-                                              RightMargin=margins['X2'],
-                                              LeftMargin=margins['X1'],
-                                              Roi=r)
+                                                  BottomMargin=margins['Y1'],
+                                                  RightMargin=margins['X2'],
+                                                  LeftMargin=margins['X1'],
+                                                  Roi=r)
         except Exception as e:
             logging.exception(u'{}'.format(e.Message))
             sys.exit(u'{}'.format(e.Message))
@@ -471,7 +501,7 @@ def check_min_jaws(plan_opt, min_dim):
                 if min_x_aperture <= min_dim or min_y_aperture <= min_dim:
                     logging.info(
                         'Jaw size offset necessary on beam: {}, X = {}, Y = {}, with min dimension {}'
-                        .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
+                            .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
                     jaw_change = True
                     try:
                         # Uncomment to automatically set jaw limits
@@ -489,7 +519,7 @@ def check_min_jaws(plan_opt, min_dim):
                 else:
                     logging.info(
                         'Jaw size offset unnecessary on beam:{}, X={}, Y={}, with min dimension={}'
-                        .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
+                            .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
             else:
                 logging.debug("Beam {} is not optimized".format(b.ForBeam.Name))
     if jaw_change:
@@ -567,6 +597,72 @@ def reduce_oar_dose(plan_optimization):
             return True
         except:
             return False
+
+
+def add_robust_parameters(plan_optimization,
+                          robust_superior,
+                          robust_inferior,
+                          robust_anterior,
+                          robust_posterior,
+                          robust_left,
+                          robust_right,
+                          robust_exams=[]):
+    """
+    Function adds a robust scenario for use with robust objectives
+    only positional robustness currently supported
+
+    :param plan_optimization: the RS TreatmentPlans:PlanOptimization Object
+    :param robust_superior: superior distance [cm] over which to evaluate robustness
+    :param robust_inferior: inferior distance [cm] over which to evaluate robustness
+    :param robust_right: right distance [cm] over which to evaluate robustness
+    :param robust_left: left distance [cm] over which to evaluate robustness
+    :param robust_anterior: anterior distance [cm] over which to evaluate robustness
+    :param robust_posterior: posterior distance [cm] over which to evaluate robustness
+    :param robust_exams: a list of exams
+    TODO: Support robustness on multiple images
+
+    """
+    #
+    # Parse exam argument
+    if robust_exams:
+        exams = robust_exams
+    else:
+        exams = []
+    #
+    plan_optimization.OptimizationParameters.SaveRobustnessParameters(
+        PositionUncertaintyAnterior=robust_anterior,
+        PositionUncertaintyPosterior=robust_posterior,
+        PositionUncertaintySuperior=robust_superior,
+        PositionUncertaintyInferior=robust_inferior,
+        PositionUncertaintyLeft=robust_left,
+        PositionUncertaintyRight=robust_right,
+        DensityUncertainty=0,
+        PositionUncertaintySetting="Universal",
+        IndependentLeftRight=True,
+        IndependentAnteriorPosterior=True,
+        IndependentSuperiorInferior=True,
+        ComputeExactScenarioDoses=False,
+        NamesOfNonPlanningExaminations=exams)
+    if exams:
+        logging.info('Robust optimization on used for beamset:{} on exams {}, with scenario'.format(
+            plan_optimization.OptimizedBeamSets.DicomPlanLabel, exams) +
+                     'Superior {s}, Inferior {i}, Posterior {p}, Anterior {a}, Right{r}, Left{l}'
+                     .format(s=robust_superior,
+                             i=robust_inferior,
+                             a=robust_anterior,
+                             p=robust_posterior,
+                             r=robust_right,
+                             l=robust_left))
+    else:
+        logging.info('Robust optimization on used for beamset:{}, with scenario'.format(
+            plan_optimization.OptimizedBeamSets.DicomPlanLabel) +
+                     'Superior {s}, Inferior {i}, Posterior {p}, Anterior {a}, Right{r}, Left{l}'
+                     .format(s=robust_superior,
+                             i=robust_inferior,
+                             a=robust_anterior,
+                             p=robust_posterior,
+                             r=robust_right,
+                             l=robust_left))
 
 
 def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **report_inputs):
@@ -690,6 +786,162 @@ def optimization_report(fluence_only, vary_grid, reduce_oar, segment_weight, **r
     return on_screen_message
 
 
+def parse_evaluation_function(progress_of_optimization, rtp_function, rf_i):
+    # Take in a given objective from the optimizer and return the a dictionary
+    # of the important features
+    dfp_data = {}
+    # Determine kind of objective we have
+    RTPFunction = rtp_function
+    composite = False
+    dfo = False
+    regular = False
+    # Catch composites
+    try:
+        RTPFunction.FunctionType
+        composite = True
+    except AttributeError:
+        composite = False
+    # Catch dfo
+    try:
+        RTPFunction.DoseFunctionParameters.FunctionType
+        regular = True
+        dfo = False
+    except AttributeError:
+        regular = False
+        dfo = True
+
+    objective_values = progress_of_optimization.ObjectiveValues
+
+    if composite:
+        dfp_data['Roi'] = 'Composite'
+        dfp_data['FunctionType'] = RTPFunction.FunctionType
+        dfp_data['DoseLevel'] = None
+        dfp_data['PercentVolume'] = None
+        dfp_data['EudParameterA'] = None
+        dfp_data['Weight'] = None
+        dfp_data['HighDose'] = None
+        dfp_data['LowDose'] = None
+        dfp_data['Distance'] = None
+        dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+    elif regular:
+        dfp_data['Roi'] = RTPFunction.ForRegionOfInterest.Name
+        dfp_data['FunctionType'] = RTPFunction.DoseFunctionParameters.FunctionType
+        dfp_data['DoseLevel'] = RTPFunction.DoseFunctionParameters.DoseLevel
+        if 'Eud' in RTPFunction.DoseFunctionParameters.FunctionType:
+            dfp_data['PercentVolume'] = None
+            dfp_data['EudParameterA'] = RTPFunction.DoseFunctionParameters.EudParameterA
+        else:
+            dfp_data['PercentVolume'] = RTPFunction.DoseFunctionParameters.PercentVolume
+            dfp_data['EudParameterA'] = None
+        dfp_data['Weight'] = RTPFunction.DoseFunctionParameters.Weight
+        dfp_data['HighDose'] = None
+        dfp_data['LowDose'] = None
+        dfp_data['Distance'] = None
+        dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+    elif dfo:
+        dfp_data['Roi'] = RTPFunction.ForRegionOfInterest.Name
+        dfp_data['FunctionType'] = 'DFO'
+        dfp_data['DoseLevel'] = None
+        dfp_data['PercentVolume'] = None
+        dfp_data['EudParameterA'] = None
+        dfp_data['Weight'] = RTPFunction.DoseFunctionParameters.Weight
+        dfp_data['HighDose'] = RTPFunction.DoseFunctionParameters.HighDoseLevel
+        dfp_data['LowDose'] = RTPFunction.DoseFunctionParameters.LowDoseLevel
+        dfp_data['Distance'] = RTPFunction.DoseFunctionParameters.LowDoseDistance
+        dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+
+    # Columns of iteration number for each function
+    iterations = progress_of_optimization.Iterations
+    its_list = []
+    its_data = {}
+    for i in iterations.tolist():
+        its_list.append(int(i))
+        its_data[int(i)] = progress_of_optimization.FunctionValues[int(i) - 1][rf_i]
+    dfp_data.update(its_data)
+
+    return dfp_data
+
+
+def filename_iteration_output(iteration_number, beamset, patient, iteration_dir):
+    # Construct the output filename string
+    # Get the time
+    now = datetime.datetime.now()
+    dt_string = now.strftime("%m%d%Y_%H%M%S")
+    #
+    # Create patient specific string
+    patient_string = patient.PatientID + "_" + beamset.DicomPlanLabel
+    #
+    # Join Strings
+    filename = patient_string + "_" + dt_string
+    #
+    # Resolve dir
+    try:
+        if not os.path.isdir(iteration_dir):
+            os.mkdir(iteration_dir)
+    except Exception as e:
+        sys.exit('{}'.format(e))
+    return os.path.normpath('{}/{}.pkl'.format(iteration_dir, filename))
+
+
+def output_iteration_data(poo, warmstart_number,
+                          iteration_output_file,
+                          beamset,
+                          beam_params,
+                          iteration_time):
+    """
+    poo: objective function object from RS
+    warmstart_number: the iteration count
+    """
+    try:
+        logging.debug('Beam params are {}'.format(beam_params))
+        iterations = poo.Iterations
+        objective_values = poo.ObjectiveValues
+        rtp_functions = poo.ForRtpFunctions
+        # Columns of Objective information
+        cols = ['Roi', 'FunctionType', 'Weight', 'DoseLevel',
+                'PercentVolume', 'EudA', 'HighDose', 'LowDose', 'Distance']
+        #
+        # Determine treatment technique
+        if beamset.DeliveryTechnique == 'TomoHelical':
+            cols = cols + ['time', 'rp', 'proj_time', 'total_travel', 'couch_speed', 'mod_factor']
+            beam_dict = {'time': float(beam_params.iloc[0].time),
+                         'proj_time': float(beam_params.iloc[0].proj_time),
+                         'rp': float(beam_params.iloc[0].rp),
+                         'total_travel': float(beam_params.iloc[0].total_travel),
+                         'couch_speed': float(beam_params.iloc[0].couch_speed),
+                         'mod_factor': float(beam_params.iloc[0].mod_factor),
+                         'sinogram': beam_params.iloc[0].sinogram,
+                         'WarmStart': int(warmstart_number),
+                         'IterationTime': float(iteration_time.total_seconds()),
+                         }
+            for k, v in beam_dict.items():
+                logging.debug('Adding the following to the output file {}, {}'.format(k, v))
+        else:
+            cols = cols + ['IterationTime']
+            beam_dict = {'IterationTime': float(iteration_time.total_seconds())}
+        # Columns of iteration number for each function
+        its_list = []
+        for i in iterations.tolist():
+            its_list.append(int(i))
+        cols = cols + iterations.tolist() + ['FinalValue']
+        logging.debug('Headers are {}'.format(cols))
+        df_1 = pd.DataFrame(columns=cols)
+        objective_index = 0
+        for rf in rtp_functions:
+            row = parse_evaluation_function(poo, rf, rf_i=objective_index)
+            row.update(beam_dict)
+            df_1 = df_1.append(row, ignore_index=True)
+            logging.debug('Made it through objective {}'.format(objective_index))
+            objective_index += 1
+
+        # Output
+        df_1.to_pickle(iteration_output_file)
+        # Read back in with df_2 = pd.read_pickle(iteration_output_file)
+    except Exception as e:
+        logging.debug('Error in setting output objective data {}'.format(e))
+        sys.exit("{}".format(e))
+
+
 def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     """
     This function will optimize a plan
@@ -706,22 +958,22 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     try:
         patient.Save()
     except SystemError:
-        return "No Patient loaded. Load patient case and plan."
+        return False, "No Patient loaded. Load patient case and plan."
 
     try:
         case.SetCurrent()
     except SystemError:
-        return "No Case loaded. Load patient case and plan."
+        return False, "No Case loaded. Load patient case and plan."
 
     try:
         plan.SetCurrent()
     except SystemError:
-        return "No plan loaded. Load patient and plan."
+        return False, "No plan loaded. Load patient and plan."
 
     try:
         beamset.SetCurrent()
     except SystemError:
-        return "No beamset loaded"
+        return False, "No beamset loaded"
 
     if exam.EquipmentInfo.ImagingSystemReference:
         logging.debug('Examination has an assigned CT to density table')
@@ -730,8 +982,9 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             'Set CT imaging system for this examination and continue the script')
 
     # TODO: Make this a beamset setting in the xml protocols
-    small_field_names = ['_SRS_','_SBR_','_FSR_','_LLL_','_LUL_','_RLL_','_RML_','_RUL_']
-    large_field_names = ['TBI_FFS', 'TBI_HFS', 'HFS_TBI', 'FFS_TBI']
+    small_field_names = ['_SRS_', '_SBR_', '_FSR_', '_LLL_', '_LUL_', '_RLL_', '_RML_', '_RUL_']
+    large_field_names = ['TBI__FFS', 'TBI__HFS', 'HFS__TBI', 'FFS__TBI',
+                         'TBI_FFS', 'TBI_HFS', 'HFS_TBI', 'FFS_TBI']
     # Choose the minimum field size in cm
     min_dim = 2
     # Parameters used for iteration number
@@ -758,8 +1011,21 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     segment_weight = optimization_inputs.get('segment_weight', False)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
     close_status = optimization_inputs.get('close_status', False)
-
-
+    # Check if a robustness scenario is to be used
+    robust_optimization = optimization_inputs.get('robust', False)
+    if robust_optimization:
+        robust_superior = optimization_inputs.get('robust_sup', None)
+        robust_inferior = optimization_inputs.get('robust_inf', None)
+        robust_anterior = optimization_inputs.get('robust_ant', None)
+        robust_posterior = optimization_inputs.get('robust_post', None)
+        robust_right = optimization_inputs.get('robust_right', None)
+        robust_left = optimization_inputs.get('robust_left', None)
+    # Output of iteration during optimization specifications
+    iteration_output_dir = optimization_inputs.get('output_data_dir', None)
+    if iteration_output_dir:
+        output_progress = True
+    else:
+        output_progress = False
 
     # Reporting
     report_inputs = {
@@ -779,6 +1045,8 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         dose_dim_initial = dose_dim1
     elif any(a in beamset.DicomPlanLabel for a in large_field_names):
         dose_dim_initial = 0.4
+    elif any(a in beamset.DicomPlanLabel for a in small_field_names):
+        dose_dim_initial = 0.15
     else:
         dose_dim_initial = 0.2
 
@@ -786,16 +1054,15 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # Timing
     report_inputs['time_total_initial'] = datetime.datetime.now()
 
-
     if fluence_only:
         logging.info('Fluence only: {}'.format(fluence_only))
     else:
         if vary_grid:
             plan.SetDefaultDoseGrid(
-                        VoxelSize={
-                            'x': dose_dim1,
-                            'y': dose_dim1,
-                            'z': dose_dim1})
+                VoxelSize={
+                    'x': dose_dim1,
+                    'y': dose_dim1,
+                    'z': dose_dim1})
             variable_dose_grid = {
                 'delta_grid': [dose_dim1,
                                dose_dim2,
@@ -809,28 +1076,52 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
 
     save_at_complete = optimization_inputs.get('save', False)
     # Making the variable status script, arguably move to main()
-    status_steps = ['Initialize optimization']
+    num_steps = 0
+    status_dict = {0: 'Initialize optimization'}
+    status_steps = [status_dict[num_steps]]
     if reset_beams:
-        status_steps.append('Reset Beams')
+        num_steps += 1
+        status_dict[num_steps] = 'Reset Beams'
+        status_steps.append(status_dict[num_steps])
 
     if fluence_only:
-        status_steps.append('Optimize Fluence Only')
+        num_steps += 1
+        status_dict[num_steps] = 'Optimize Fluence Only'
+        status_steps.append(status_dict[num_steps])
     else:
         for i in range(maximum_iteration):
             # Update message for changing the dose grids.
             if vary_grid:
                 if change_dose_grid[i] != 0:
-                    status_steps.append('Change dose grid to: {} cm'.format(change_dose_grid[i]))
-            ith_step = 'Complete Iteration:' + str(i + 1)
+                    num_steps += 1
+                    status_dict[num_steps] = 'Change dose grid to: {} cm'.format(change_dose_grid[i])
+                    status_steps.append(status_dict[num_steps])
+            if reduce_mod and i == maximum_iteration - 1:
+                num_steps += 1
+                status_dict[num_steps] = 'Reduce Modulation on Iteration: ' + str(i + 1)
+                ith_step = status_dict[num_steps]
+                reduce_mod_step = num_steps
+            else:
+                num_steps += 1
+                status_dict[num_steps] = 'Complete Iteration:' + str(i + 1)
+                ith_step = status_dict[num_steps]
             status_steps.append(ith_step)
         if segment_weight:
-            status_steps.append('Complete Segment weight optimization')
+            num_steps += 1
+            status_dict[num_steps] = 'Complete Segment weight optimization'
+            status_steps.append(status_dict[num_steps])
         if reduce_oar:
-            status_steps.append('Reduce OAR Dose')
+            num_steps += 1
+            status_dict[num_steps] = 'Reduce OAR Dose'
+            status_steps.append(status_dict[num_steps])
     if save_at_complete:
-        status_steps.append('Save Patient')
+        num_steps += 1
+        status_dict[num_steps] = 'Save Patient'
+        status_steps.append(status_dict[num_steps])
 
-    status_steps.append('Provide Optimization Report')
+    num_steps += 1
+    status_dict[num_steps] = 'Provide Optimization Report'
+    status_steps.append(status_dict[num_steps])
 
     report_inputs['status_steps'] = status_steps
 
@@ -849,8 +1140,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # Variable definitions
     i = 0
     beamsinrange = True
-    OptIndex = 0
-    Optimization_Iteration = 0
+    optimization_iteration = 0
 
     # SNS Properties
     maximum_segments_per_beam = 10  # type: int
@@ -872,16 +1162,25 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         margins = {'Y1': 0.8, 'Y2': 0.8, 'X1': 0.8, 'X2': 0.8}
 
     # Find current Beamset Number and determine plan optimization
-    OptIndex = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
-                                                      verbose_logging=False)
-    plan_optimization = plan.PlanOptimizations[OptIndex]
-    plan_optimization_parameters = plan.PlanOptimizations[OptIndex].OptimizationParameters
+    rs_opt_key = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
+                                                        verbose_logging=False)
+    plan_optimization = plan.PlanOptimizations[rs_opt_key]
+    plan_optimization_parameters = plan.PlanOptimizations[rs_opt_key].OptimizationParameters
+    if robust_optimization:
+        add_robust_parameters(plan_optimization=plan_optimization,
+                              robust_superior=robust_superior,
+                              robust_inferior=robust_inferior,
+                              robust_anterior=robust_anterior,
+                              robust_posterior=robust_posterior,
+                              robust_right=robust_right,
+                              robust_left=robust_left,
+                              robust_exams=[])
 
     # Turn on important parameters
     plan_optimization_parameters.DoseCalculation.ComputeFinalDose = True
 
     # Turn off autoscale
-    plan.PlanOptimizations[OptIndex].AutoScaleToPrescription = False
+    plan.PlanOptimizations[rs_opt_key].AutoScaleToPrescription = False
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
@@ -905,17 +1204,17 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
 
     # If not set yet, the dose grid needs setting.
     plan.SetDefaultDoseGrid(
-                        VoxelSize={
-                            'x': dose_dim_initial,
-                            'y': dose_dim_initial,
-                            'z': dose_dim_initial})
+        VoxelSize={
+            'x': dose_dim_initial,
+            'y': dose_dim_initial,
+            'z': dose_dim_initial})
     plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
     logging.debug('Dose grid initialized with voxel size {}'.format(dose_dim_initial))
     patient.Save()
 
     # Reset
     if reset_beams:
-        plan.PlanOptimizations[OptIndex].ResetOptimization()
+        plan.PlanOptimizations[rs_opt_key].ResetOptimization()
         status.next_step("Resetting Optimization")
 
     if plan_optimization.Objective.FunctionValue is None:
@@ -923,7 +1222,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     else:
         current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
     logging.info('Current total objective function value at iteration {} is {}'.format(
-        Optimization_Iteration, current_objective_function))
+        optimization_iteration, current_objective_function))
 
     if fluence_only:
         logging.info('User selected Fluence optimization Only')
@@ -936,9 +1235,9 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         # Start the clock for the fluence only optimization
         report_inputs.setdefault('time_iteration_initial', []).append(datetime.datetime.now())
         try:
-            plan.PlanOptimizations[OptIndex].RunOptimization()
+            plan.PlanOptimizations[rs_opt_key].RunOptimization()
         except Exception as e:
-            return 'Exception occurred during optimization: {}'.format(e)
+            return False, 'Exception occurred during optimization: {}'.format(e)
         # Stop the clock
         report_inputs.setdefault('time_iteration_final', []).append(datetime.datetime.now())
         # Consider converting this to the report_inputs
@@ -948,7 +1247,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         else:
             current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
         logging.info('Current total objective function value at iteration {} is {}'.format(
-            Optimization_Iteration, current_objective_function))
+            optimization_iteration, current_objective_function))
         reduce_oar_success = False
     else:
         logging.info('Full optimization')
@@ -1017,7 +1316,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                 'jaws failed - check reset beams' +
                                 ' on next attempt at this script')
                             status.finish('Restart required')
-                            return 'Restart Required: Select reset beams on next run of script.'
+                            return False, 'Restart Required: Select reset beams on next run of script.'
             elif ts.ForTreatmentSetup.DeliveryTechnique == 'DynamicArc':
                 #
                 # Execute treatment margin settings
@@ -1046,7 +1345,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                     'spacing failed - check reset beams' +
                                     ' on next attempt at this script')
                                 status.finish('Restart required')
-                                return 'Restart Required: Select reset beams on next run of script.'
+                                return False, 'Restart Required: Select reset beams on next run of script.'
                             else:
                                 beams.ArcConversionPropertiesPerBeam.EditArcBasedBeamOptimizationSettings(
                                     FinalGantrySpacing=2)
@@ -1072,37 +1371,43 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                 'jaws failed - check reset beams' +
                                 ' on next attempt at this script')
                             status.finish('Restart required')
-                            return 'Restart Required: Select reset beams on next run of script.'
+                            return False, 'Restart Required: Select reset beams on next run of script.'
+        if output_progress:
+            time_0 = datetime.datetime.now()
+            time_1 = time_0
 
-        while Optimization_Iteration != maximum_iteration:
+        while optimization_iteration != maximum_iteration:
             if plan_optimization.Objective.FunctionValue is None:
                 previous_objective_function = 1e10
+                logging.debug('This appears to be a cold start. Objective value set to {}'
+                              .format(previous_objective_function))
             else:
                 previous_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
+
             # If the change_dose_grid list has a non-zero element change the dose grid
             if vary_grid:
-                if change_dose_grid[Optimization_Iteration] != 0:
+                if change_dose_grid[optimization_iteration] != 0:
                     status.next_step(
                         'Variable dose grid used.  Dose grid now {} cm'.format(
-                            change_dose_grid[Optimization_Iteration]))
+                            change_dose_grid[optimization_iteration]))
                     logging.info(
                         'Running current value of change_dose_grid is {}'.format(change_dose_grid))
-                    DoseDim = change_dose_grid[Optimization_Iteration]
+                    dose_dim = change_dose_grid[optimization_iteration]
                     # Start Clock on the dose grid change
                     report_inputs.setdefault('time_dose_grid_initial', []).append(
                         datetime.datetime.now())
                     plan.SetDefaultDoseGrid(
                         VoxelSize={
-                            'x': DoseDim,
-                            'y': DoseDim,
-                            'z': DoseDim})
+                            'x': dose_dim,
+                            'y': dose_dim,
+                            'z': dose_dim})
                     plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
                     # Stop the clock for the dose grid change
                     report_inputs.setdefault('time_dose_grid_final', []).append(
                         datetime.datetime.now())
             #
             # If modulation reduction or time-reduction is required update the optimization settings
-            if reduce_mod and Optimization_Iteration > 0:
+            if reduce_mod and optimization_iteration > 0:
                 if ts.ForTreatmentSetup.DeliveryTechnique == 'TomoHelical':
                     tomo_params = BeamOperations.gather_tomo_beam_params(beamset)
                     logging.debug('Tomo params are {}'.format(tomo_params))
@@ -1113,29 +1418,70 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                         logging.debug('Current MF={}, Target={}'.format(tomo_params.mod_factor[0],
                                                                         mod_target))
                         if mod_ratio < 1.0:
-                            new_delivery_time = old_delivery_time * mod_ratio
-                            settings = {}
-                            settings['max_delivery_time'] = new_delivery_time
-                            BeamOperations.modify_tomo_beam_properties(settings,plan,beamset,b.ForBeam)
+                            new_delivery_time = old_delivery_time * mod_ratio * 0.9  # No convergence otherwise
+                            settings = {'max_delivery_time': new_delivery_time}
+                            BeamOperations.modify_tomo_beam_properties(settings, plan, beamset, b.ForBeam)
                             logging.info(
-                                'Target mod factor exceeded ({} > {}):'.format(tomo_params.mod_factor[0],mod_target)
-                              + 'Max delivery time updated from {} to {}'.format(old_delivery_time, new_delivery_time))
+                                'Target mod factor exceeded ({} > {}):'.format(tomo_params.mod_factor[0], mod_target)
+                                + 'Max delivery time updated from {} to {}'.format(old_delivery_time,
+                                                                                   new_delivery_time))
+                            if optimization_iteration == maximum_iteration - 1:
+                                # We need to keep going until mod factor is under target
+                                maximum_iteration += 1
+                                logging.info('Last iteration reached and mod factor target not met.'
+                                             + 'Extending max iterations by 1 to {}'.format(maximum_iteration))
+                                status.next_step(text='Reducing Mod', num=reduce_mod_step)
+                else:
+                    logging.exception("Reduce mod not available for optimization on non helical plans")
             report_inputs.setdefault('time_iteration_initial', []).append(datetime.datetime.now())
             status.next_step(
-                text='Running current iteration = {} of {}'.format(Optimization_Iteration + 1,
+                text='Running current iteration = {} of {}'.format(optimization_iteration + 1,
                                                                    maximum_iteration))
             logging.info(
-                'Current iteration = {} of {}'.format(Optimization_Iteration + 1,
+                'Current iteration = {} of {}'.format(optimization_iteration + 1,
                                                       maximum_iteration))
             # Run the optimization
             try:
-                plan.PlanOptimizations[OptIndex].RunOptimization()
+                time_0 = datetime.datetime.now()
+                plan.PlanOptimizations[rs_opt_key].RunOptimization()
+                time_1 = datetime.datetime.now()
             except Exception as e:
-                return 'Exception occurred during optimization: {}'.format(e)
+                try:
+                    message = "".format(e.Message)
+                    if "There is no feasible gantry period" in message:
+                        logging.critical("No feasible gantry period found. Full message {}".format(message))
+                    else:
+                        return False, 'Exception occurred during optimization: {}'.format(e)
+                except:
+                    return False, 'Exception occurred during optimization: {}'.format(e)
+            if output_progress:
+                poo = plan_optimization.ProgressOfOptimization
+                time_total = time_1 - time_0
+                logging.info("Time: Optimization (seconds): {}".format(
+                    time_total.total_seconds()))
+                if ts.ForTreatmentSetup.DeliveryTechnique == 'TomoHelical':
+                    beam_params = BeamOperations.gather_tomo_beam_params(beamset)
+                else:
+                    # TODO: Figure out what we want for VMAT
+                    # Phys. Med. Biol. 60 (2015) 2587 - SAS 1 and 10
+                    beam_params = {}
+                iteration_output_file = filename_iteration_output(
+                    iteration_number=optimization_iteration,
+                    beamset=beamset,
+                    patient=patient,
+                    iteration_dir=iteration_output_dir,
+                )
+                output_iteration_data(poo=poo,  # No matter what you call it
+                                      warmstart_number=optimization_iteration,
+                                      iteration_output_file=iteration_output_file,
+                                      beamset=beamset,
+                                      beam_params=beam_params,
+                                      iteration_time=time_total)
+
             # Stop the clock
             report_inputs.setdefault('time_iteration_final', []).append(datetime.datetime.now())
-            Optimization_Iteration += 1
-            logging.info("Optimization Number: {} completed".format(Optimization_Iteration))
+            optimization_iteration += 1
+            logging.info("Optimization Number: {} completed".format(optimization_iteration))
             # Set the Maximum iterations and segmentation iteration to a lower number for the initial run
             plan_optimization_parameters.Algorithm.MaxNumberOfIterations = second_maximum_iteration
             plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = second_intermediate_iteration
@@ -1143,7 +1489,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
             logging.info(
                 'At iteration {} total objective function is {}, compared to previous {}'.format(
-                    Optimization_Iteration,
+                    optimization_iteration,
                     current_objective_function,
                     previous_objective_function))
             if reduce_mod:
@@ -1151,13 +1497,14 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     settings = {}
                     if old_delivery_time > 60.:
                         settings['max_delivery_time'] = 0.9 * old_delivery_time
-                        BeamOperations.modify_tomo_beam_properties(settings,plan,beamset,b.ForBeam)
-                        logging.info( 'Function value (Previous {} < Current {}). Reduced time from {} to  {}'.format(
-                                previous_objective_function, current_objective_function,
-                                old_delivery_time, settings['max_delivery_time']))
+                        BeamOperations.modify_tomo_beam_properties(settings, plan, beamset, b.ForBeam)
+                        logging.info('Function value (Previous {} < Current {}). Reduced time from {} to  {}'.format(
+                            previous_objective_function, current_objective_function,
+                            old_delivery_time, settings['max_delivery_time']))
                 else:
-                    logging.info( 'Function value ({} > {}). Delivery time unchanged'.format(
+                    logging.info('Function value ({} > {}). Delivery time unchanged'.format(
                         previous_objective_function, current_objective_function))
+
             # Start the clock
             previous_objective_function = current_objective_function
 
@@ -1187,12 +1534,12 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                     OptimizationTypes=["SegmentMU"]
                                 )
                     try:
-                        plan.PlanOptimizations[OptIndex].RunOptimization()
+                        plan.PlanOptimizations[rs_opt_key].RunOptimization()
                     except Exception as e:
                         return 'Exception occurred during optimization: {}'.format(e)
                     logging.info(
                         'Current total objective function value at iteration {} is {}'.format(
-                            Optimization_Iteration,
+                            optimization_iteration,
                             plan_optimization.Objective.FunctionValue.FunctionValue))
                 report_inputs['time_segment_weight_final'] = datetime.datetime.now()
 
@@ -1215,7 +1562,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 else:
                     logging.warning('ReduceOAR failed')
                 logging.info('Current total objective function value at iteration {} is {}'.format(
-                    Optimization_Iteration, plan_optimization.Objective.FunctionValue))
+                    optimization_iteration, plan_optimization.Objective.FunctionValue))
 
     report_inputs['time_total_final'] = datetime.datetime.now()
     if save_at_complete:
@@ -1223,7 +1570,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             patient.Save()
             status.next_step('Save Complete')
         except Exception as e:
-            return 'Exception occurred during optimization: {}'.format(e)
+            return False, 'Exception occurred during optimization: {}'.format(e)
 
     on_screen_message = optimization_report(
         fluence_only=fluence_only,
@@ -1238,4 +1585,4 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         status.close()
     else:
         status.finish(on_screen_message)
-    return None
+    return True, on_screen_message

@@ -9,8 +9,7 @@
         <institution>East</institution>
         <institution>Johnson Creek</institution>
     </institutions>
-    <diagnoses>
-    </diagnoses>
+    <diagnoses></diagnoses>
     <prescription>
         <frequency>Daily</frequency>
         <imaging>Pre-treatment CBCT</imaging>
@@ -47,6 +46,13 @@
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
+        <validation>
+            <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2.2" lower="1.8">True</fraction_dose>
+            </validation_range>
+        </validation>
         <beamset>
             <name>2 Arc VMAT - HN Shoulder</name>
             <technique>VMAT</technique>
@@ -738,6 +744,13 @@
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
+        <validation>
+            <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2.2" lower="1.8">True</fraction_dose>
+            </validation_range>
+        </validation>
         <goals>
             <roi>
                 <name>PTV_p</name>
@@ -1312,6 +1325,13 @@
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
+        <validation>
+            <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2.2" lower="1.8">True</fraction_dose>
+            </validation_range>
+        </validation>
         <goals>
             <roi>
                 <name>PTV_p</name>

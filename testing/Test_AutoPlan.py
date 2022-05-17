@@ -1,4 +1,7 @@
-""" Test-Autoplan.py
+""" Test-TPS.py
+    Treatment planning system test on planning functionality and results.
+    Tests the loading/creation of beams, setting targets, optimization, dose calculation
+    against previously obtained (expected) results.
 
     Versions:
     00.00.00 Original submission
@@ -21,10 +24,10 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2021-06-23'
+__date__ = '2022-04-06'
 
 __version__ = '0.0.0'
-__status__ = 'Testing'
+__status__ = 'Development'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 
@@ -44,80 +47,85 @@ import json
 import logging
 import math
 import connect
-sys.path.insert(1, os.path.join(os.path.dirname(__file__),r'../development'))
+
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../development'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 import AutoPlan
 import AutoPlanOperations
 import GeneralOperations
 from GeneralOperations import logcrit as logcrit
 import UserInterface
 
+
 def inputs(index):
     if index == 0:
-        return { 'patient_id': 'ZZUWQA_30Jun2021_Pelvis',
-              'first_name': 'Autoplanning',
-              'last_name': 'Script_Testing',
-              'case_name': 'Case 1',
-              'exam_name': 'CT 1',
-              'protocol_name': 'UW Tomo3D',
-              'order_name': 'Multiple Target Tomo3D',
-              'num_fx': 22,
-              'site': 'Pelv',
-              'translation_map': {'PTV_p':('PTV_Hip_5500', 5500.,r'cGy')},
-              'beamset_name': 'Tomo3D_FW50',
-              'iso_target': 'PTV_Hip_5500',
-              'machine': 'HDA0477',
-              'expected': {'dicom_plan_label':'Pelv_3DC_Clin',
-                         'dose_at_point':249.99977111816406,
-                         'is_clinical': True,
-                         'function_value': 0.37199426732751846}
-              }
+        return {'patient_id': 'ZZUWQA_30Jun2021_Pelvis',
+                'first_name': 'Autoplanning',
+                'last_name': 'Script_Testing',
+                'case_name': 'Case 1',
+                'exam_name': 'CT 1',
+                'protocol_name': 'UW Tomo3D',
+                'order_name': 'Multiple Target Tomo3D',
+                'num_fx': 22,
+                'site': 'Pelv',
+                'translation_map': {'PTV_p': ('PTV_Hip_5500', 5500., r'cGy')},
+                'beamset_name': 'Tomo3D_FW50',
+                'iso_target': 'PTV_Hip_5500',
+                'machine': 'HDA0477',
+                'expected': {'dicom_plan_label': 'Pelv_T3D_R0A0',
+                             'dose_at_point': 249.9998779296875,
+                             'is_clinical': True,
+                             'function_value': 0.012491023115966794}
+                }
     elif index == 1:
-        return { 'patient_id': 'ZZUWQA_30Jun2021_Pelvis',
-              'first_name': 'Autoplanning',
-              'last_name': 'Script_Testing',
-              'case_name': 'Case 2',
-              'exam_name': 'CT 1',
-              'protocol_name': 'UW Tomo3D',
-              'order_name': 'Multiple Target Tomo3D',
-              'num_fx': 25,
-              'site': 'Pelv',
-              'translation_map': {'PTV_p' :('PTV_5040', 5040., r'cGy'),
-                                  'PTV_p2':('PTV_4500', 4500., r'cGy')},
-              'beamset_name': 'Tomo3D_FW50',
-              'iso_target': 'All_PTVs',
-              'machine': 'HDA0477',
-              'expected': {'dicom_plan_label':'Pelv_3DC_Clin',
-                         'dose_at_point':249.99969482421875,
-                         'is_clinical': True,
-                         'function_value': 0.04005642677956052}
-              }
+        return {'patient_id': 'ZZUWQA_30Jun2021_Pelvis',
+                'first_name': 'Autoplanning',
+                'last_name': 'Script_Testing',
+                'case_name': 'Case 2',
+                'exam_name': 'CT 1',
+                'protocol_name': 'UW Tomo3D',
+                'order_name': 'Multiple Target Tomo3D',
+                'num_fx': 25,
+                'site': 'Pelv',
+                'translation_map': {'PTV_p': ('PTV_5040', 5040., r'cGy'),
+                                    'PTV_p2': ('PTV_4500', 4500., r'cGy')},
+                'beamset_name': 'Tomo3D_FW50',
+                'iso_target': 'All_PTVs',
+                'machine': 'HDA0477',
+                'expected': {'dicom_plan_label': 'Pelv_T3D_R0A0',
+                             'dose_at_point': 201.59988403320312,
+                             'is_clinical': True,
+                             'function_value': 0.2656170498049183, }
+                }
 
 
 def load_patient(plan_dict):
     patient_data = AutoPlanOperations.load_patient_data(
-            patient_id = plan_dict['patient_id'],
-            first_name = plan_dict['first_name'],
-            last_name = plan_dict['last_name'],
-            case_name = plan_dict['case_name'],
-            exam_name = plan_dict['exam_name'],
-            plan_name = None,
-            beamset_name = None)
+        patient_id=plan_dict['patient_id'],
+        first_name=plan_dict['first_name'],
+        last_name=plan_dict['last_name'],
+        case_name=plan_dict['case_name'],
+        exam_name=plan_dict['exam_name'],
+        plan_name=None,
+        beamset_name=None)
     return patient_data
+
 
 def set_all_current(patient_data):
     # Initialize return variable
-    Pd = namedtuple('Pd', ['error','db', 'case', 'patient', 'exam', 'plan', 'beamset'])
+    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     patient_data['Case'].SetCurrent()
     connect.get_current('Case')
     # Get current patient, case, exam
-    pd = Pd(error = [],
-            patient = GeneralOperations.find_scope(level='Patient'),
-            case = GeneralOperations.find_scope(level='Case'),
-            exam = GeneralOperations.find_scope(level='Examination'),
-            db = GeneralOperations.find_scope(level='PatientDB'),
-            plan = None,
-            beamset = None)
+    pd = Pd(error=[],
+            patient=GeneralOperations.find_scope(level='Patient'),
+            case=GeneralOperations.find_scope(level='Case'),
+            exam=GeneralOperations.find_scope(level='Examination'),
+            db=GeneralOperations.find_scope(level='PatientDB'),
+            plan=None,
+            beamset=None)
     return pd
+
 
 def test_result(pd, expected):
     # Test result
@@ -133,7 +141,7 @@ def test_result(pd, expected):
             else:
                 result[k] = False
         if k == 'dose_at_point':
-            if math.isclose(beam_doses.DoseAtPoint.DoseValue,v,rel_tol=tolerance) :
+            if math.isclose(beam_doses.DoseAtPoint.DoseValue, v, rel_tol=tolerance):
                 result[k] = True
             else:
                 result[k] = False
@@ -143,43 +151,40 @@ def test_result(pd, expected):
             else:
                 result[k] = False
         if k == 'function_value':
-            if math.isclose(objective.FunctionValue.FunctionValue,v,rel_tol=tolerance):
+            if math.isclose(objective.FunctionValue.FunctionValue, v, rel_tol=tolerance):
                 result[k] = True
             else:
                 result[k] = False
     return result
 
+
 def main():
+    index = 0
     browser = UserInterface.CommonDialog()
     path = browser.folder_browser(title='Select a location for test output')
-    file_name = os.path.join(path,'Test_Output.txt')
+    file_name = os.path.join(path, 'Test_Output.txt')
     with open(file_name, 'w') as file:
-        file.write('Testing Results\n') # use `json.loads` to do the reverse
-    index = 1
+        file.write('Testing Results\n')  # use `json.loads` to do the reverse
     plan1 = inputs(index)
     # Output Initial Data
     with open(file_name, 'a') as file:
-        file.write(json.dumps(plan1)) # use `json.loads` to do the reverse
+        file.write(json.dumps(plan1))  # use `json.loads` to do the reverse
         file.write("\n")
     # Load patient
     patient_data = load_patient(plan1)
-    #with open(file_name, 'a') as file:
-    #    file.write('AutoPlanning test Loading: Patient: {}, Case: {}, Exam: {}'.format(
-    #        patient_data['Patient'], patient_data['Case'], patient_data['Exam']))
-    #    file.write("\n")
     # Set the loaded data current
     pd_in = set_all_current(patient_data)
     # Begin autoplan
     logging.info('Autoplanning test started on PatientID: {}, Case: {}, Exam: {}'.format(
         pd_in.patient.PatientID, pd_in.case.CaseName, pd_in.exam.Name))
     # Run autoplan and get result
-    pd = AutoPlan.autoplan(input_params = plan1)
-
+    pd = AutoPlan.autoplan(testing_bypass_dialogs=plan1)
+    #
+    # Compare with the stored expected value
     result = test_result(pd, plan1['expected'])
     with open(file_name, 'a') as file:
-        file.write(json.dumps(result)) # use `json.loads` to do the reverse
+        file.write(json.dumps(result))  # use `json.loads` to do the reverse
         file.write("\n")
-
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-""" UW Autoplanning
+""" UW Autoplanning Update
 
     Automatic generation of a plan
     * Loads the ScriptStatus
@@ -62,13 +62,13 @@ __credits__ = ['']
 __help__ = 'TODO: No Help'
 
 import sys
+import PySimpleGUI as sg
 import os
-
-# sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
-# sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
 import logging
-from collections import namedtuple
-from timeit import default_timer as timer
+import xml.etree.ElementTree
+import pandas
+import re
+import csv
 import connect
 import UserInterface
 import GeneralOperations
@@ -79,25 +79,225 @@ import BeamOperations
 import AutoPlanOperations
 from PlanOperations import find_optimization_index
 import autoplan_whole_brain
+
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 import FinalDose
-
-
-# import xml.etree.ElementTree
-# import pandas
-# import re
-# import csv
+from collections import OrderedDict, namedtuple
+from timeit import default_timer as timer
+from OptimizationOperations import optimize_plan, iter_optimization_config_etree
 
 # TODO: move autoplan_whole_brain to library
 
 
 # Insert the general directory into the python path to allow autoplan_whole_brain
 # from Objectives import add_goals_and_objectives_from_protocol
+# Structure template defaults
+COUCH_SUPPORT_STRUCTURE_TEMPLATE = "UW Support"
+COUCH_SUPPORT_STRUCTURE_EXAMINATION = "Supine Patient"
+COUCH_SOURCE_ROI_NAMES = {
+    "TrueBeam": "TrueBeamCouch",
+    "TomoTherapy": "TomoCouch"
+}
+
+BREASTBOARD_SUPPORT_STRUCTURE_TEMPLATE = "UW Civco C-Qual Breastboard"
+BREASTBOARD_SUPPORT_STRUCTURE_EXAMINATION = "InclineBoard"
+BREASTBOARD_SOURCE_ROI_NAMES = [
+    "NFZ_Base",
+    "NFZ_Incline",
+    "CivcoBaseShell_Cork",
+    "CivcoInclineShell_Wax",
+    "CivcoInclineBody",
+    "CivcoBaseBody",
+]
+BREASTBOARD_DERIVED_ROI_NAMES = [
+    "NoFlyZone_PRV",
+]
+
+MONARCH_SUPPORT_STRUCTURE_TEMPLATE = "UW Civco C-Qual Breastboard"
+MONARCH_SUPPORT_STRUCTURE_EXAMINATION = "Wingboard"
+MONARCH_SOURCE_ROI_NAMES = ["CivcoWingBoard_PMMA", "NFZ_WB_Basis"]
+MONARCH_DERIVED_ROI_NAMES = []
+
+# Magic numbers for shifts
+COUCH_SHIFT = [0, 6.8, 0]
+
+INCLINE_BASE_SHIFT = [-0.05, -6.65, -14.95]  # Lat, Long, Vrt in cm
+INCLINE_BASE_PITCH = -0.188  # deg 0]
+
+WINGBOARD_SHIFT = [-0.2, -22.8, 7.35]  # cm
+WINGBOARD_ROLL = 0.3  # deg
+WINGBOARD_PITCH = 0.4  # deg
+
+INCLINE_CENTER_TO_HINGE = [0.0, -2.18, 45.09]  # cm
+
+INCLINE_ZERO_PITCH = 0.884  # deg, the pitch at flat position
+INCLINE_PITCH_BIAS = -0.25  # deg, the difference between measured and actual pitch
+
+WINGBOARD_INDEX_DIST = 225.5 / 75 / 10  # cm, 75 markings over 225.5 mm
+
+CIVCO_INCLINE_BOARD_ANGLES = {
+    'Flat': INCLINE_ZERO_PITCH - INCLINE_PITCH_BIAS,
+    '5 deg': 5,
+    '7.5 deg': 7.5,
+    '10 deg': 10,
+    '12.5 deg': 12.5,
+    '15 deg': 15,
+    '17.5 deg': 17.5,
+    '20 deg': 20,
+    '22.5 deg': 22.5,
+    '25 deg': 25,
+}
+
+# Constants for ROIs
+BASE_CONTRACTION = 0.2  # cm
+INCLINE_CONTRACTION = 0.3  # cm
+NOFLYZONE_EXPANSION = 1.5  # cm
+SMALL_EXPANSION_SIZE = 0.1  # cm
+
+CIVCOBOARD_MATERIAL_NAME = "CivcoBoard"
+CIVCOBOARD_MATERIAL_DENS = 0.73
+
+FAKO_ORDERS_LUNG = {"5 Fraction": ["VMAT", "TOMO"], "3 Fraction": ["VMAT", "TOMO"]}
+FAKO_WHOLE_BRAIN = {"WBHA": ["VMAT", "TOMO"], "WB": ["VMAT", "TOMO"]}
+FAKO_HN = {"NecB": ["VMAT", "TOMO"], "NecL": ["VMAT", "TOMO"], "NecR": ["VMAT", "TOMO"]}
+FAKO_PROTOCOLS = {"Head and Neck": FAKO_HN,
+                  "Whole Brain": FAKO_WHOLE_BRAIN,
+                  "SBRT Lung": FAKO_ORDERS_LUNG}
+
+
+# TODO add optimize
+
+def automated_plan_gui(examination):
+    # PROTOCOL SELECTION
+    # *Dropdown with protocols
+    # ORDER SELECTION
+    # *Dropdown of order names once protocols are selected
+    # INPUT TARGET DOSE LEVELS
+    # *Text entry: Number of fracs
+    # *Text entry: Site abbreviation
+    # *Drop-downs of all targets+doses
+    #
+    # BEAMSET CONFIGURATION (ISO PLACEMENT/BEAMSET SELECTION/MACHINE SELECTION)
+
+    autoplan_values = None
+    orders_in_protocol = {}
+
+    sg.ChangeLookAndFeel('TanBlue')
+    col0 = sg.Column([[sg.Text(
+        'Plan Setup',
+        size=(60, 1),
+        justification='center',
+        font=("Helvetica", 20),
+        relief=sg.RELIEF_SOLID
+    ),
+    ]])
+    col1 = sg.Column([[sg.Frame('Protocols:',
+                                layout=[[sg.Column(
+                                    [[sg.Combo(
+                                        list(FAKO_PROTOCOLS.keys()),
+                                        enable_events=True,
+                                        key='-SELECT PROTOCOL-',
+                                        size=(15, 20))
+                                    ]],
+                                    size=(150, 40))
+                                ]],
+                                )
+                       ],
+                      [sg.Frame('Orders:',
+                                layout=[[sg.Column(
+                                    [[sg.Combo(
+                                        ["Select Order"],
+                                        key='-SELECT ORDER-',
+                                        size=(15, 20),
+                                        enable_events=True)
+                                    ]],
+                                    size=(150, 40))
+                                ]],
+                                visible=False,
+                                key='-FRAME ORDERS-')
+                       ],
+                      [sg.Frame('Beamsets:',
+                                layout=[[sg.Column(
+                                    [[sg.Combo(
+                                        [],
+                                        key='-SELECT BEAMSET-',
+                                        size=(15, 20),
+                                        enable_events=True)
+                                    ]],
+                                    size=(150, 40))
+                                ]],
+                                visible=False,
+                                key='-FRAME BEAMSET-')
+                       ]],
+                     pad=(0, 0))
+    col2 = sg.Column([[sg.Frame('Target Dose Levels:',
+                                layout=[[sg.Column(
+                                    [[sg.Combo(
+                                        list(FAKO_PROTOCOLS.keys()),
+                                        enable_events=True,
+                                        key='-SELECT PROTOCOL-',
+                                        size=(15, 20))
+                                    ]],
+                                    size=(150, 40))
+                                ]],
+                                )
+                       ]], pad=(0, 0))
+
+    colb = sg.Column([
+        [
+            sg.Submit(tooltip='Click to submit this window'),
+            sg.Cancel()
+        ]
+    ])
+
+    orders_visible, beamset_configuration, civco_visible, wingboard_visible = False, False, False, False
+
+    window = sg.Window(
+        'Setup Configuration for a beam set',
+        [[col0], [col1, col2, colb]],
+        # default_element_size=(40, 1),
+        grab_anywhere=False
+    )
+
+    while True:
+        event, values = window.read()
+
+        if event == sg.WIN_CLOSED or event == "Cancel":
+            break
+        elif event == "Submit":
+            autoplan_values = values
+            break
+        elif event.startswith('-USE CIVCO-'):
+            civco_visible = not civco_visible
+            window['-FRAME CIVCO-'].update(visible=civco_visible)
+
+        elif event.startswith('-USE WINGBOARD-'):
+            wingboard_visible = not wingboard_visible
+            window['-FRAME WINGBOARD-'].update(visible=wingboard_visible)
+
+        elif event.startswith('-SELECT PROTOCOL-'):
+            orders_in_protocol = FAKO_PROTOCOLS[values['-SELECT PROTOCOL-']]
+            order_names = list(orders_in_protocol.keys())
+            print("Order Type {} and values {}".format(order_names, values['-SELECT PROTOCOL-']))
+            window['-SELECT ORDER-'].update(values=order_names)
+            window['-FRAME ORDERS-'].update(visible=True)
+
+        elif event == '-SELECT ORDER-':
+            beamsets_in_orders = orders_in_protocol[values['-SELECT ORDER-']]
+            window['-SELECT BEAMSET-'].update(values=beamsets_in_orders)
+            window['-FRAME BEAMSET-'].update(visible=True)
+
+    window.close()
+
+    return autoplan_values
+
 
 def target_dialog(case, protocol, order, use_orders=True):
     # TODO autoload with order data, search prescription, and warn user unassigned are ignored
     # Find RS targets
     plan_targets = StructureOperations.find_targets(case=case)
     protocol_targets = []
+    missing_contours = []
 
     # Build second dialog
     target_inputs = {'00_nfx': 'Number of fractions'}
@@ -141,7 +341,7 @@ def target_dialog(case, protocol, order, use_orders=True):
                     if g_name == t:
                         target_initial[k_name] = t
 
-    target_dose_level_dialog = UserInterface.InputDialog(
+    target_dialog = UserInterface.InputDialog(
         inputs=target_inputs,
         title='Input Target Dose Levels',
         datatype=target_datatype,
@@ -149,14 +349,15 @@ def target_dialog(case, protocol, order, use_orders=True):
         options=target_options,
         required=[])
     # print
-    response = target_dose_level_dialog.show()
+    response = target_dialog.show()
     if response == {}:
         logging.info('Target dialog cancelled by user')
         sys.exit('Target dialog cancelled')
 
     # Process inputs
+    nominal_dose = 0
     translation_map = {}
-    for k, v in target_dose_level_dialog.values.items():
+    for k, v in target_dialog.values.items():
         if k == '00_nfx':
             num_fx = int(v)
         elif k == '00_site':
@@ -267,13 +468,7 @@ def autoplan(testing_bypass_dialogs={}):
     else:
         input_protocol_name = None
         input_order_name = None
-        num_fx = None
         user_prompts = True
-        beamset_etree = None
-        beamset_name = None
-        iso_target = None
-        machine = None
-        translation_map = {}
     #
     # Hard-coded path to protocols
     protocol_folder = r'../protocols'
@@ -321,6 +516,9 @@ def autoplan(testing_bypass_dialogs={}):
     ap_report['time_final_dose'] = [None] * 2
     # Start the clock
     ap_report['time_all'][0] = timer()
+    # build dialog
+    a = automated_plan_gui("stuff")
+    sys.exit('Done')
     #
     # Initialize return variable
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
@@ -346,7 +544,7 @@ def autoplan(testing_bypass_dialogs={}):
     protocol_name = protocol.find('name').text
     logging.debug('Selected protocol:{} for loading from file:{}'.format(protocol_name, protocol_file))
     #
-    # If the protocol_name is UW WholeBrain execute the whole brain script and quit
+    # If the protocol_name is UW WholeBrain execute the wholebrain script and quit
     if protocol_name == "UW WholeBrain":
         autoplan_whole_brain.main()
         sys.exit("Script complete")
@@ -398,6 +596,7 @@ def autoplan(testing_bypass_dialogs={}):
     # via script. Activate this dialog eventually.
     # block_rois = select_blocking(case=pd.case,protocol=protocol,order=order)
 
+    # TODO: Move to a select function like that one above
     # TODO: Sort machines by technique
     # Machines
     machines = GeneralOperations.get_all_commissioned(machine_type=None)
@@ -661,21 +860,6 @@ def autoplan(testing_bypass_dialogs={}):
     auto_status.next_step(text=script_steps[i][1])
     i += 1
     pd.patient.Save()
-    #
-    # Check if this order has been validated. If not give user a bail option
-    validation = AutoPlanOperations.find_validation_status(order)
-    if testing_bypass_dialogs:
-        logging.info('Validation status ({}) check skipped for testing'.format(validation['status']))
-    else:
-        if not validation['status']:
-            connect.await_user_input('This template was authored by {} and is being tested. '
-                                     .format(validation['author']) +
-                                     'Continue optimization or stop the script execution.\n' +
-                                     'If you continue, please let the author know how it went and check goals!')
-        else:
-            logging.info("Autoplan validity: {} by {}.".format(validation['status'], validation['author'])
-                         + "Template has been validated and is proceeding with optimization.")
-
     ap_report['time_opt'][0] = timer()
     opt_status = AutoPlanOperations.load_configuration_optimize_beamset(
         filename=protocol_file,

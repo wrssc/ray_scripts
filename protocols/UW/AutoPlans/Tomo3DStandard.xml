@@ -44,9 +44,13 @@
             <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
             <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0477">TomoHelical</technique>
         </prescription>
-        <commissioned_range>
-            <fraction_dose upper="5" lower="1.8"></fraction_dose>
-        </commissioned_range>
+        <validation>
+            <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="5" lower="1.8">True</fraction_dose>
+            </validation_range>
+        </validation>
         <goals>
             <roi>
                 <name>PTV_p</name>
@@ -290,9 +294,9 @@
             <BackJawPosition>2.1</BackJawPosition>
             <FrontJawPosition>-2.1</FrontJawPosition>
             <JawMode>Dynamic</JawMode>
-            <MaxDeliveryTime>900</MaxDeliveryTime>
+            <MaxDeliveryTime>600</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
-            <MaxDeliveryTimeFactor>1.6</MaxDeliveryTimeFactor>
+            <MaxDeliveryTimeFactor>3.0</MaxDeliveryTimeFactor>
         </beam>
     </beamset>
     <optimization_config>
@@ -304,7 +308,7 @@
     <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
-        <reduce_mod mod_target="1.6">True</reduce_mod>
+        <reduce_mod mod_target="2.2">True</reduce_mod>
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
         <block_prompt>True</block_prompt>
