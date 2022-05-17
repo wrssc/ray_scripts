@@ -45,6 +45,7 @@ import GeneralOperations
 import AutoPlanOperations
 import StructureOperations
 from collections import namedtuple
+import PySimpleGUI as sg
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 from AutoPlan import autoplan
@@ -75,6 +76,22 @@ JUNCTION_PREFIX_HFS = "hfs_junction_"
 JUNCTION_POINT = "junction"
 TARGET_HFS = "PTV_p_HFS"
 MACHINE = "HDA0477"
+MBS_ROIS = [{'CaseType': "Abdomen",
+             'ModelName': r"Kidney (Left)",
+             'RoiName': r"Kidney_L",
+             'RoiColor': "58, 251, 170"},
+            {'CaseType': "Abdomen",
+             'ModelName': r"Kidney (Right)",
+             'RoiName': r"Kidney_R",
+             'RoiColor': "250, 57, 105"},
+            {'CaseType': "Thorax",
+             'ModelName': r"Lung (Left)",
+             'RoiName': r"Lung_L",
+             'RoiColor': "253, 122, 9"},
+            {'CaseType': "Thorax",
+             'ModelName': r"Lung (Right)",
+             'RoiName': r"Lung_R",
+             'RoiColor': "54, 247, 223"}],
 
 
 def check_external(roi_list):
@@ -677,12 +694,16 @@ def update_dose_grid(pdata):
 
 
 def main():
-    # TODO: Replace with user prompt
-    # TODO: replace with a search through the current case to find correct exam
-    #       name and key
+    # User Prompt for Dose/Fractions
+    event, values = sg.Window('AUTO TBI',
+                              [[sg.T('Enter Number of Fractions'), sg.In(key='-NFX-')],
+                               [sg.T('Enter TOTAL Dose in cGy'), sg.In(key='-TDOSE-')],
+                               [sg.B('OK'), sg.B('Cancel')]]).read(close=True)
 
-    hfs_scan_name = 'CT 1'
-    ffs_scan_name = 'CT 2'
+    nfx = values['-NFX-']
+    rx = values['-TDOSE-']
+
+    # Look for HFS/FFS Scans
     temp_case = GeneralOperations.find_scope(level='Case')
     temp_exam = GeneralOperations.find_scope(level='Examination')
     for e in temp_case.Examinations:
@@ -696,9 +717,6 @@ def main():
             logging.info('Scan {} is patient orientation {}'.format(e.Name, e.PatientPosition))
         else:
             sys.exit('unknown exam orientation')
-    # TODO: Target dialog build
-    rx = 800.  # cGy
-    nfx = 4  # Num fraction
     #
     # Initialize return variable
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
@@ -722,7 +740,8 @@ def main():
     # pd_hfs.exam = pd_ffs.case.LoadExamination(
     #     ExaminationInfo={'Name': hfs_scan_name})
 
-    do_this = False
+    # TODO: GET RID OF THESE AND REPLACE WITH A CREATE STRUCTS ONLY
+    do_this = True
     if do_this:
         # TODO: Get current on the hfs scan since it seems like the couch is failing to load
         #
@@ -748,13 +767,6 @@ def main():
             suffix=None,
             delete=False,
         )
-        # externals = StructureOperations.find_types(case=pd_hfs.case, roi_type="External")
-        # if externals:
-        #    current_external = pd_hfs.case.PatientModel.RegionsOfInterest[externals[0]]
-        # current_external.CreateExternalGeometries(
-        #    ReferenceExamination=pd_hfs.exam,
-        #    AdditionalExaminationNames=[ffs_scan_name],
-        #    ReferenceThresholdLevel=-250)
 
         pd_hfs.case.ComputeRigidImageRegistration(
             FloatingExaminationName=ffs_scan_name,
@@ -774,31 +786,16 @@ def main():
             InitializeImages=False,
             FocusRoisNames=[],
             RegistrationName=None)
-        # TODO: Move to fusion view and create a suitable view for reviewing fusion at hips
         # Also create a bounding box on both images about the junction point and set the ROI there
 
         connect.await_user_input(
             'Check the fusion alignment of the boney anatomy in the hips. Then continue script.')
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
         #
         # Begin making planning structures
         pd_hfs.case.PatientModel.MBSAutoInitializer(
-            MbsRois=[{'CaseType': "Abdomen",
-                      'ModelName': r"Kidney (Left)",
-                      'RoiName': r"Kidney_L",
-                      'RoiColor': "58, 251, 170"},
-                     {'CaseType': "Abdomen",
-                      'ModelName': r"Kidney (Right)",
-                      'RoiName': r"Kidney_R",
-                      'RoiColor': "250, 57, 105"},
-                     {'CaseType': "Thorax",
-                      'ModelName': r"Lung (Left)",
-                      'RoiName': r"Lung_L",
-                      'RoiColor': "253, 122, 9"},
-                     {'CaseType': "Thorax",
-                      'ModelName': r"Lung (Right)",
-                      'RoiName': r"Lung_R",
-                      'RoiColor': "54, 247, 223"}],
+            MbsRois=MBS_ROIS,
             CreateNewRois=True,
             Examination=pd_hfs.exam,
             UseAtlasBasedInitialization=True)
@@ -981,7 +978,7 @@ def main():
             'user_prompts': True,
         }
         pd_ffs_out = autoplan(testing_bypass_dialogs=tbi_ffs_protocol)
-    do_this = True
+    do_this = False
     if do_this:
         # Get isodoses
         pd_ffs = Pd(error=[],
