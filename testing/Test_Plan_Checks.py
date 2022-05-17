@@ -87,10 +87,19 @@ PACEMAKER_DOSE = 200.  # cGy
 #
 # DOSE GRID PREFERENCES
 DOSE_GRID_DEFAULT = 0.2  # 2 mm
-DOSE_GRID_SBRT = 0.15  # 1.5 mm
-DOSE_GRID_SRS = 0.1  # 1.0 mm
+CT_SLICE_SBRT = 0.1  # mm
+# SBRT
 PLAN_NAME_SBRT = ['SBR', 'FSR']
+CT_SLICE_SBRT = 0.1  # mm
+DOSE_GRID_SBRT = 0.15  # 1.5 mm
+# SRS
 PLAN_NAME_SRS = ['SRS']
+DOSE_GRID_SRS = 0.1  # 1.0 mm
+CT_SLICE_SBRT = 0.1  # mm
+# TBI
+PLAN_NAME_TBI = ['TBI']
+DOSE_GRID_TBI = 0.5  # 5 mm
+CT_SLICE_TBI = 0.4  # 4 mm
 
 
 def read_log_file(patient_id):
@@ -781,6 +790,8 @@ def check_no_fly(pd, parent_key):
 
 
 # def check_dose_grid
+# Add a check of dose grid based on plan type
+
 # def check_plan_name(bs):
 # Check plan name for appropriate
 # Measure target length of prostate for pros
