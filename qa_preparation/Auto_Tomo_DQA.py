@@ -15,6 +15,7 @@
     -Sends the QA plan to delta 4
     -prompts user to send plan to iDMS
     -Exports using the ValidationPlan.ScriptableQADicomExport method.
+    -Copies pertinent data to the user clipboard.
     TODO: When export to the RayGateWay is supported using the above method,
           enable multiple destinations to be selected.
 
