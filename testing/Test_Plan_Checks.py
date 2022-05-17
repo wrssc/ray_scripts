@@ -354,10 +354,12 @@ def approval_info(plan, beamset):
 
 def check_plan_approved(plan, beamset, parent_key):
     """
-
+    Check if a plan is approved
     Args:
-        plan:
-        beamset:
+        parent_key: parent position in the tree of this child
+        plan: RS plan object
+        beamset: RS beamset object
+
 
     Returns:
         message: [str1, ...]: [parent_key, child_key, child_key display, result_value]
@@ -377,6 +379,38 @@ def check_plan_approved(plan, beamset, parent_key):
     else:
         message_str = "Plan: {} is not approved".format(
             plan.Name)
+        pass_result = "Fail"
+        icon = RED_CIRCLE
+    messages.append([parent_key, child_key, child_key, pass_result, icon])
+    messages.append([child_key, pass_result, message_str, pass_result, icon])
+    return messages
+
+
+def check_beamset_approved(pd, parent_key):
+    """
+    Check if a plan is approved
+    Args:
+        parent_key: parent position in the tree of this child
+        pd: (NamedTuple Containing beamset and plan RS objects)
+
+    Returns:
+        message: [str1, ...]: [parent_key, child_key, child_key display, result_value]
+
+    """
+    messages = []
+    child_key = "Beamset approval status"
+    approval_status = approval_info(pd.plan, pd.beamset)
+    if approval_status.beamset_approved:
+        message_str = "Beamset: {} was approved by {} on {}".format(
+            pd.beamset.DicomPlanLabel,
+            approval_status.beamset_reviewer,
+            approval_status.beamset_approval_time
+        )
+        pass_result = "Pass"
+        icon = GREEN_CIRCLE
+    else:
+        message_str = "Beamset: {} is not approved".format(
+            pd.beamset.DicomPlanLabel)
         pass_result = "Fail"
         icon = RED_CIRCLE
     messages.append([parent_key, child_key, child_key, pass_result, icon])
@@ -928,7 +962,6 @@ def check_plan():
     """
     # Plan LevelChecks
     plan_level_tests = []
-    # TODO: Add some plan level tests
     if check_approval:
         message_pln_approved = check_plan_approved(plan=pd.plan, beamset=pd.beamset, parent_key=plan_key[0])
         plan_level_tests.extend(message_pln_approved)
@@ -948,13 +981,19 @@ def check_plan():
             treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
 
     #
-    # Beamset Level Checks
-    # Check control point spacing
+    # BEAMSET LEVEL CHECKS
     beamset_level_tests = []
+    # Check if beamset is approved
+    if check_approval:
+        message_bs_approved = check_beamset_approved(pd=pd, parent_key=beamset_key[0])
+        beamset_level_tests.extend(message_bs_approved)
+    #
+    # Look for common isocenter
     if check_iso:
         message_iso = check_common_isocenter(pd.beamset, parent_key=beamset_key[0], tolerance=1e-15)
         beamset_level_tests.extend(message_iso)
-
+    #
+    # Check control point spacing
     if check_cps:
         message_cps = check_control_point_spacing(pd.beamset, expected=2., parent_key=beamset_key[0])
         beamset_level_tests.extend(message_cps)
