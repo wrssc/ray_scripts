@@ -71,7 +71,7 @@ clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871
                   '--Y_GRID--': [-16., -14., -12., -10., -8., -6., -4.,
                                  0., 16., 14., 12., 10., 8., 6., 4.],
                   '--Z_GRID--': [-9., 0., 9.],
-                  '--TOMO_QA_PHANTOM--': r"TomoHDA Delta4_HFS_X0_Y0",
+                  '--TOMO_QA_PHANTOM--': r"Delta4_HFS_0X_0Y TomoHDA",
                   '--TOMO_PHANTOM_ID--': r"20191004PMH-D4QA",
                   '--VMAT_QA_PHANTOM--': r"Delta4 (TrueBeam)",
                   '--VMAT_PHANTOM_ID--': r"ZZIMRTQA"}
@@ -80,6 +80,8 @@ clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871
 # TODO uncomment next two lines for production
 # clinic_options['--TOMO_QA_PHANTOM--'] = r"Delta4_HFS_0X_0Y TomoHDA" # UW CLINICAL
 # clinic_options['--TOMO_PHANTOM_ID--'] = r"20191017PMH-QA" # UW CLINICAL
+# '--TOMO_QA_PHANTOM--': r"TomoHDA Delta4_HFS_X0_Y0",
+# '--TOMO_PHANTOM_ID--': r"20191004PMH-D4QA",
 #
 # Phantom properties for VMAT
 #
