@@ -78,7 +78,6 @@ clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871
 # TODO Find a way of getting the current database name
 clinic_options['--TOMO_QA_PHANTOM--'] = r"Delta4_HFS_0X_0Y TomoHDA"  # UW CLINICAL
 clinic_options['--TOMO_PHANTOM_ID--'] = r"20191017PMH-QA"  # UW CLINICAL
-
 # Options in Validation
 # clinic_options['--TOMO_QA_PHANTOM--'] = r"TomoHDA Delta4_HFS_X0_Y0"  # Validation
 # clinic_options['--TOMO_PHANTOM_ID--'] = r"20191004PMH-D4QA"  # Validation
