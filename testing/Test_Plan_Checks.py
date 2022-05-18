@@ -74,10 +74,11 @@ DAYS_SINCE_SIM = 14
 #
 # CONTOURING DEFAULTS
 BOLUS_NAMES = ["bolus"]
+# def - check the front edges of the couch and suspended headboard
 NO_FLY_NAME = "NoFlyZone_PRV"
 #
 # PLANNING DEFAULTS
-DOSE_FRACTION_PAIRS = [(4, 2000), (5, 2000)]
+DOSE_FRACTION_PAIRS = [(4, 2000), (5, 2000)]  # Often mixed up fractionations
 #
 EDW_MU_LIMIT = 20.
 #
@@ -87,19 +88,30 @@ PACEMAKER_DOSE = 200.  # cGy
 #
 # DOSE GRID PREFERENCES
 DOSE_GRID_DEFAULT = 0.2  # 2 mm
-CT_SLICE_SBRT = 0.1  # mm
-# SBRT
-PLAN_NAME_SBRT = ['SBR', 'FSR']
-CT_SLICE_SBRT = 0.1  # mm
-DOSE_GRID_SBRT = 0.15  # 1.5 mm
-# SRS
-PLAN_NAME_SRS = ['SRS']
-DOSE_GRID_SRS = 0.1  # 1.0 mm
-CT_SLICE_SBRT = 0.1  # mm
+
+GRID_PREFERENCES = {
+    'SBRT': {
+        'PLAN_NAMES': ['SBR', 'FSR'],
+        'DOSE_GRID': 0.15,  # 1.5 mm
+        'FRACTION_SIZE_LIMIT': 801,  # cGy
+        'SLICE_THICKNESS': 0.1,  # 1.0 mm
+    },
+    'SRS': {
+        'PLAN_NAMES': ['SRS'],
+        'DOSE_GRID': 0.1,  # 1.0 mm
+        'FRACTION_SIZE_LIMIT': 1500,  # cGy
+        'SLICE_THICKNESS': 0.1,  # 1.0 mm
+    },
+    'TBI': {
+        'PLAN_NAMES': ['TBI'],
+        'DOSE_GRID': 0.5,  # 5 mm
+        'FRACTION_SIZE_LIMIT': None,  # Don't check
+        'SLICE_THICKNESS': 0.4,  # 4 mm
+    },
+}
+
+
 # TBI
-PLAN_NAME_TBI = ['TBI']
-DOSE_GRID_TBI = 0.5  # 5 mm
-CT_SLICE_TBI = 0.4  # 4 mm
 
 
 def read_log_file(patient_id):
@@ -354,10 +366,12 @@ def approval_info(plan, beamset):
 
 def check_plan_approved(plan, beamset, parent_key):
     """
-
+    Check if a plan is approved
     Args:
-        plan:
-        beamset:
+        parent_key: parent position in the tree of this child
+        plan: RS plan object
+        beamset: RS beamset object
+
 
     Returns:
         message: [str1, ...]: [parent_key, child_key, child_key display, result_value]
@@ -377,6 +391,41 @@ def check_plan_approved(plan, beamset, parent_key):
     else:
         message_str = "Plan: {} is not approved".format(
             plan.Name)
+        pass_result = "Fail"
+        icon = RED_CIRCLE
+    messages.append([parent_key, child_key, child_key, pass_result, icon])
+    messages.append([child_key, pass_result, message_str, pass_result, icon])
+    return messages
+
+
+def check_beamset_approved(pd, parent_key):
+    """
+    Check if a plan is approved
+    Args:
+        parent_key: parent position in the tree of this child
+        pd: (NamedTuple Containing beamset and plan RS objects)
+
+    Returns:
+        message: [str1, ...]: [parent_key, child_key, child_key display, result_value]
+    Test Patient:
+        Pass: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: THI: Plan: Anal_THI
+        Fail: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: Pros_VMA
+
+    """
+    messages = []
+    child_key = "Beamset approval status"
+    approval_status = approval_info(pd.plan, pd.beamset)
+    if approval_status.beamset_approved:
+        message_str = "Beamset: {} was approved by {} on {}".format(
+            pd.beamset.DicomPlanLabel,
+            approval_status.beamset_reviewer,
+            approval_status.beamset_approval_time
+        )
+        pass_result = "Pass"
+        icon = GREEN_CIRCLE
+    else:
+        message_str = "Beamset: {} is not approved".format(
+            pd.beamset.DicomPlanLabel)
         pass_result = "Fail"
         icon = RED_CIRCLE
     messages.append([parent_key, child_key, child_key, pass_result, icon])
@@ -789,18 +838,92 @@ def check_no_fly(pd, parent_key):
     return messages
 
 
-# def check_dose_grid
-# Add a check of dose grid based on plan type
+def check_dose_grid(pd, parent_key):
+    """
+    Based on plan name and dose per fraction, determines size of appropriate grid.
+    Args:
+        pd: NamedTuple with a beamset
+        parent_key: parent_node
 
+    Returns:
+        message (list str): [Pass_Status, Message String]
+
+    Test Patient:
+        Pass: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: Pros_VMA
+        Fail: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: PROS_SBR
+    """
+    messages = []
+    child_key = "Dose Grid Size Check"
+    #
+    # Get beamset dose grid
+    rs_grid = pd.beamset.FractionDose.InDoseGrid.VoxelSize
+    grid = (rs_grid.x, rs_grid.y, rs_grid.z)
+    #
+    # Try (if specified to get dose per fraction)
+    try:
+        total_dose = pd.beamset.Prescription.PrimaryDosePrescription.DoseValue
+        num_fx = pd.beamset.FractionationPattern.NumberOfFractions
+        fractional_dose = total_dose / float(num_fx)
+    except AttributeError:
+        num_fx = None
+        fractional_dose = None
+    #
+    # Get beamset name is see if there is a match
+    message_str = ""
+    pass_result = None
+    icon = None
+    for k, v in GRID_PREFERENCES.items():
+        # Check to see if plan obeys a naming convention we have flagged
+        if any([n in pd.beamset.DicomPlanLabel for n in v['PLAN_NAMES']]):
+            violation_list = [i for i in grid if i > v['DOSE_GRID']]
+            if violation_list:
+                message_str = "Dose grid too large for plan type {}. ".format(v['PLAN_NAMES']) \
+                              + "Grid size is {} cm and should be {} cm".format(grid, v['DOSE_GRID'])
+                pass_result = "Fail"
+                icon = RED_CIRCLE
+            else:
+                message_str = "Dose grid appropriate for plan type {}. ".format(v['PLAN_NAMES']) \
+                              + "Grid size is {} cm  and ≤ {} cm".format(grid, v['DOSE_GRID'])
+                pass_result = "Pass"
+                icon = GREEN_CIRCLE
+        # Look for fraction size violations
+        elif v['FRACTION_SIZE_LIMIT']:
+            if fractional_dose >= v['FRACTION_SIZE_LIMIT']:
+                message_str = "Dose grid may be too large for this plan based on fractional dose " \
+                              + "{:.0f} > {:.0f} cGy. ".format(fractional_dose, v['FRACTION_SIZE_LIMIT']) \
+                              + "Grid size is {} cm and should be {} cm".format(grid, v['DOSE_GRID'])
+                pass_result = "Fail"
+                icon = RED_CIRCLE
+    # Plan is a default plan. Just Check against defaults
+    if not message_str:
+        violation_list = [i for i in grid if i > DOSE_GRID_DEFAULT]
+        if violation_list:
+            message_str = "Dose grid too large. " \
+                          + "Grid size is {} cm and should be {} cm".format(grid, DOSE_GRID_DEFAULT)
+            pass_result = "Fail"
+            icon = RED_CIRCLE
+        else:
+            message_str = "Dose grid appropriate." \
+                          + "Grid size is {} cm  and ≤ {} cm".format(grid, DOSE_GRID_DEFAULT)
+            pass_result = "Pass"
+            icon = GREEN_CIRCLE
+    messages.append([parent_key, child_key, child_key, pass_result, icon])
+    messages.append([child_key, pass_result, message_str, pass_result, icon])
+    return messages
+
+
+# TODO:
 # def check_plan_name(bs):
 # Check plan name for appropriate
 # Measure target length of prostate for pros
 
+# TODO:
 # def check_target_spacing(bs):
 # Find all targets
 # Put a box around them
 # look at the gaps and if they exceed some threshold throw an alert
 
+# TODO:
 # def check_tomo_time(bs):
 # Look at the plan type. Use the normal tomo mod factors
 # Abdomen; 1.6 - 2.4
@@ -815,6 +938,9 @@ def check_no_fly(pd, parent_key):
 # Pelvis; 1.8 - 2.4
 # Prostate(low; risk)    1.6 - 2.2
 # Prostate(high; risk)    2.0 - 2.4
+# TODO:
+# def - check the front edges of the couch and suspended headboard
+#
 #
 # Get current user snippet
 #    from System import Environment
@@ -892,6 +1018,7 @@ def check_plan():
     check_exam_date = True
     check_approval = True
     check_nofly_dose = True
+    check_grid = True
 
     treedata.Insert("", patient_key[0], patient_key[1], "")
     """
@@ -928,7 +1055,6 @@ def check_plan():
     """
     # Plan LevelChecks
     plan_level_tests = []
-    # TODO: Add some plan level tests
     if check_approval:
         message_pln_approved = check_plan_approved(plan=pd.plan, beamset=pd.beamset, parent_key=plan_key[0])
         plan_level_tests.extend(message_pln_approved)
@@ -948,13 +1074,19 @@ def check_plan():
             treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
 
     #
-    # Beamset Level Checks
-    # Check control point spacing
+    # BEAMSET LEVEL CHECKS
     beamset_level_tests = []
+    # Check if beamset is approved
+    if check_approval:
+        message_bs_approved = check_beamset_approved(pd=pd, parent_key=beamset_key[0])
+        beamset_level_tests.extend(message_bs_approved)
+    #
+    # Look for common isocenter
     if check_iso:
         message_iso = check_common_isocenter(pd.beamset, parent_key=beamset_key[0], tolerance=1e-15)
         beamset_level_tests.extend(message_iso)
-
+    #
+    # Check control point spacing
     if check_cps:
         message_cps = check_control_point_spacing(pd.beamset, expected=2., parent_key=beamset_key[0])
         beamset_level_tests.extend(message_cps)
@@ -979,6 +1111,12 @@ def check_plan():
     if check_nofly_dose:
         message_nofly = check_no_fly(pd, parent_key=beamset_key[0])
         beamset_level_tests.extend(message_nofly)
+    #
+    # Check Dose Grid
+    if check_grid:
+        message_grid = check_dose_grid(pd, parent_key=beamset_key[0])
+        beamset_level_tests.extend(message_grid)
+
     #
     # Insert Beamset Level Nodes
     beamset_level_pass = "Pass"

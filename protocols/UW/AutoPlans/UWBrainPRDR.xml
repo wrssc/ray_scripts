@@ -1076,9 +1076,9 @@
         </objectives>
     </order>
     <beamset>
-        <name>2 Arc VMAT - Brain</name>
+        <name>2ArcVMAT_PRDRBrain_For</name>
         <technique>VMAT</technique>
-        <DicomName>Brai_PRD_R_A_</DicomName>
+        <DicomName>Brai_PRD_For</DicomName>
         <description>Arc set for brain planning</description>
         <roi_support>Sframe_H2_TBCouch_Brain</roi_support>
         <beam>
@@ -1101,6 +1101,35 @@
             <GantryStopAngle>350</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>135</CollimatorAngle>
+            <CouchAngle>270</CouchAngle>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>2ArcVMAT_PRDRBrain_Rev</name>
+        <technique>VMAT</technique>
+        <DicomName>Brai_PRD_Rev</DicomName>
+        <description>Arc set for brain planning - Reversed</description>
+        <roi_support>Sframe_H2_TBCouch_Brain</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_Copl_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>225</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_Vrtx_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>350</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>225</CollimatorAngle>
             <CouchAngle>270</CouchAngle>
         </beam>
     </beamset>
@@ -1142,7 +1171,7 @@
         <description>8 warmstart optimization with varying dose grid</description>
         <technique>VMAT</technique>
         <initial max_it="50" int_it="10">Iteration 0</initial>
-        <warmstart max_it="35" int_it="5" n="12">Iteration_1to12</warmstart>
+        <warmstart max_it="35" int_it="5" n="8">Iteration_1to12</warmstart>
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
