@@ -217,6 +217,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name, p
 
 
 def invalidate_doses(case):
+    # TODO: This one does not work on Tomo plans since MU can't be directly mutated
     # Invalidate all doses in the plan to avoid the prompt to invalidate doses
     for p in case.TreatmentPlans:
         for bs in p.BeamSets:
