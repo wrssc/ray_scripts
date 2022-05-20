@@ -89,6 +89,12 @@
                 <priority>3</priority>
             </roi>
             <roi>
+                <name>Heart</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">1.0</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>Breast_R</name>
                 <type>Max</type>
                 <dose units="Gy">2.64</dose>
@@ -242,6 +248,12 @@
                 <type dir="le">VX</type>
                 <dose units="Gy">3</dose>
                 <volume units="%">10</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">1.0</dose>
                 <priority>3</priority>
             </roi>
             <roi>
