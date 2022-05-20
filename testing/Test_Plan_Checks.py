@@ -75,6 +75,10 @@ DAYS_SINCE_SIM = 14
 # CONTOURING DEFAULTS
 BOLUS_NAMES = ["bolus"]
 # def - check the front edges of the couch and suspended headboard
+COUCH_EDGE = {'Sframe_H2_TBCouch_Brain':
+                  {'Y_INF': 22.75,  # Inferior Most Location of Couch Edge Relative to Center
+                   'Y_SUP': 23.75,  # Superior Most Location of Couch Edge Relative to Center
+                   'MARGIN': 2.0}}
 NO_FLY_NAME = "NoFlyZone_PRV"
 #
 # PLANNING DEFAULTS
@@ -109,9 +113,6 @@ GRID_PREFERENCES = {
         'SLICE_THICKNESS': 0.4,  # 4 mm
     },
 }
-
-
-# TBI
 
 
 def read_log_file(patient_id):
@@ -514,6 +515,31 @@ def get_roi_list(case, exam_name=None):
     return roi_list
 
 
+def get_targets(case, target_type=None):
+    """
+    Find all targets. Either use the listed target type, e.g.
+    'Ptv', 'Ctv', or 'Gtv' or look by organ type at 'Targets'
+    Args:
+        case: RS Case
+        target_type: Roi Type
+
+    Returns:
+        target_names: [strs]: list of matching strings
+    """
+    rois = get_roi_list(case)
+    target_names = []
+    # Use region of interest type if specified otherwise use organ data
+    if target_type:
+        for r in rois:
+            if case.PatientModel.RegionsOfInterest[r].Type == target_type:
+                target_names.append(r)
+    else:
+        for r in rois:
+            if case.PatientModel.RegionsOfInterest[r].OrganData.OrganType == 'Target':
+                target_names.append(r)
+    return target_names
+
+
 def match_roi_name(roi_names, roi_list):
     """
     Match the structures in case witht
@@ -549,9 +575,44 @@ def get_volumes(geometries):
     return vols
 
 
+def find_bounding_box(pd, roi_name, exam_name):
+    # Get a Target Bounding box on all targets
+    box = pd.case.PatientModel.StructureSets[exam_name] \
+        .RoiGeometries[roi_name].GetBoundingBox()
+    return box
+
+
+def target_spans_couch_edge(target_bbox, struct_name):
+    """
+    Check if the target spans the edge of an input structure
+    Args:
+        target_bbox: {{'x':max lat, 'y': max ant, 'z': max sup},
+                      {'x':max -lat, 'y': max post, 'z': max inf}}
+        struct_name: immobilization struct
+
+    Returns:
+        boolean True or False for a span
+    """
+    targ_i = target_bbox[1]['z']
+    targ_s = target_bbox[0]['z']
+    if targ_i <= COUCH_EDGE[struct_name]['Y_INF'] - COUCH_EDGE[struct_name]['MARGIN'] and \
+            targ_s >= COUCH_EDGE[struct_name]['Y_SUP'] + COUCH_EDGE[struct_name]['MARGIN']:
+        return True
+    else:
+        return False
+
+
+def check_couch_edge(pd, parent_key):
+    child_key = "Couch Edge Check"
+    messages = []
+
+    for k, v in COUCH_EDGE.items():
+
+        if target_spans_couch_edge()
+
+
 #
 # PLAN CHECKS
-
 def pass_control_point_spacing(s, s0, spacing):
     if not s0:
         if s.DeltaGantryAngle <= spacing:
