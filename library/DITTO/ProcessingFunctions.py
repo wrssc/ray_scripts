@@ -104,6 +104,37 @@ def process_ssd(element_pair, comment=""):
     return (element_pair.match_result, comment)
 
 
+def process_block_data(element_pair, comment=""):
+    # ARIA connects the last and first point in an electron block whereaas RS drops it
+    value_pair = element_pair.value_pair
+    ds1_array = np.array(value_pair[0]).reshape(-1, 2)
+    ds2_array = np.array(value_pair[1]).reshape(-1, 2)
+    # Check if the last point is equal to the first in the ARIA block
+    if np.array_equal(ds1_array, ds2_array):
+        return Result.ELEMENT_MATCH, "Blocks identical"
+    else:
+        # If the last point is longer than the first pop it
+        if np.isclose(ds1_array[0], ds1_array[-1]).all():
+            ds1_pop = np.delete(ds1_array, (-1), axis=0)
+            if np.array_equal(ds1_pop, ds2_array):
+                return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Blocks identical save the start/end connecting point"
+            elif np.isclose(ds1_pop, ds2_array).all():
+                return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Blocks within tolerance"
+            else:
+                return Result.ELEMENT_MISMATCH, "Blocks do not match even without start/end connecting point"
+        else:
+            return Result.ELEMENT_MISMATCH, "Blocks do not match"
+
+
+def assess_block_points(element_pair, comment=""):
+    # ARIA in a block: First point = Last point => Number of points is 1 greater than RS
+    value_pair = element_pair.value_pair
+    if int(value_pair[0]) == int(value_pair[1]) + 1:
+        return Result.ELEMENT_EXPECTED_MISMATCH, "Number of points match when start/end point is considered"
+    else:
+        return Result.ELEMENT_MISMATCH, "Number of Points does not match"
+
+
 def process_treatment_machine_name(element_pair, comment=""):
     ray_machine, aria_machine = element_pair.value_pair
 
@@ -169,4 +200,14 @@ PROCESS_FUNCTION_DICT = {
     "StudyTime": (assess_tm_match, {}),
     "SpecificCharacterSet": (return_expected_mismatch,
                              {"comment": "Character encoding: ARIA uses Latin Alphabet, RayStation uses Unicode"}),
+    "DoseRateSet": (return_expected_unique_to_aria, {"comment": "Dose Rate is set in Raystation by DicomExport.py"}),
+    "GantryPitchAngle": (return_expected_unique_to_raystation, {}),
+    "GantryPitchRotationDirection": (return_expected_unique_to_raystation, {}),
+    "BlockData": (process_block_data, {}),
+    "BlockNumberOfPoints": (assess_block_points, {}),
+    "BlockTrayID": (return_expected_mismatch,
+                    {"comment": "BlockTrayID is set in RayStation by DicomExport.py"}),
+    "AccessoryCode": (return_expected_unique_to_aria,
+                      {"comment": "AccessoryCode is set in RayStation by DicomExport.py"}),
+    "SourceToBlockTrayDistance": (return_expected_unique_to_aria, {}),
 }
