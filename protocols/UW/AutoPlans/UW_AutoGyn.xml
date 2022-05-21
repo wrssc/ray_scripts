@@ -2056,7 +2056,7 @@
             </goalset>
         </goals>
     </order>
-  <objectiveset>
+    <objectiveset>
         <name>Standard Fractionation Gyn</name>
         <objectives>
             <roi>
@@ -2129,7 +2129,7 @@
                 <name>OTV2_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_n1">102.5</dose>
-                <weight>1</weight>
+                <weight>5</weight>
             </roi>
             <roi>
                 <name>PTV2_EZ_</name>
@@ -2287,7 +2287,7 @@
                 <weight>0.1</weight>
             </roi>
         </objectives>
-  </objectiveset>
+    </objectiveset>
     <beamset>
         <name>AbdPelv Central 2Arc</name>
         <technique>VMAT</technique>
