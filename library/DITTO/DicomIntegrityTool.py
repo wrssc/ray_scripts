@@ -18,7 +18,11 @@ ATTRIBUTE_MATCH_DICT = {
     "PatientSetupSequence": "PatientSetupNumber",
     "ReferencedStructureSetSequence": "ReferencedSOPInstanceUID",  # ClassID??
     "ToleranceTableSequence": "ToleranceTableNumber",
-    "BeamLimitingDeviceToleranceSequence": "RTBeamLimitingDeviceType"
+    "BeamLimitingDeviceToleranceSequence": "RTBeamLimitingDeviceType",
+    "BlockSequence": "BlockNumber",
+    "ApplicatorSequence": "ApplicatorType",
+    "ApplicatorGeometrySequence": "ApplicatorOpening",
+    "ReferencedReferenceImageSequence": "ReferenceImageNumber",
 }
 # Need to add Applicator Sequence, Block Sequence, ReferencedReferenceImageSequence, PlannedVerificationImageSequence
 
