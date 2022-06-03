@@ -98,7 +98,7 @@ ELEMENTS WITH COMPLEX BEHAVIOR
 ** Should be unique to RayStation for ControlPointIndex<1
 * Manufacturer
 ** Should be a mismatch in root
-** Should be unique to aria in Beam
+** Should be unique to Aria in Beam
 """
 
 PROCESS_FUNCTION_DICT = {

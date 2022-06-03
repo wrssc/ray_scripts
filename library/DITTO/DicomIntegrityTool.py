@@ -16,10 +16,11 @@ ATTRIBUTE_MATCH_DICT = {
     "FractionGroupSequence": "FractionGroupNumber",
     "ReferencedBeamSequence": "ReferencedBeamNumber",
     "PatientSetupSequence": "PatientSetupNumber",
-    "ReferencedStructureSetSequence": "ReferencedSOPInstanceUID",
+    "ReferencedStructureSetSequence": "ReferencedSOPInstanceUID",  # ClassID??
     "ToleranceTableSequence": "ToleranceTableNumber",
     "BeamLimitingDeviceToleranceSequence": "RTBeamLimitingDeviceType"
 }
+# Need to add Applicator Sequence, Block Sequence, ReferencedReferenceImageSequence, PlannedVerificationImageSequence
 
 
 def create_dicom_tree_pair(
@@ -346,31 +347,33 @@ def run_dicom_integrity_tool(
             sg.Tree(
                 data=treedata,
                 headings=['Result', 'Comments', ],
-                auto_size_columns=True,
-                num_rows=20,
-                col0_width=40,
+                auto_size_columns=False,
+                col0_width=50,
+                col_widths=[30, 60, ],
+                num_rows=30,
                 key='-TREE-',
                 show_expanded=False,
                 enable_events=True,
                 # expand_x=True,
                 # expand_y=True,
+
             ),
         ],
         [
             sg.Text(f'{file_label1} Value: '),
-            sg.Text('Value 1', key="-VALUE1-"),
+            sg.Text('Value 1', key="-VALUE1-",size=(100,None)),
         ],
         [
             sg.Text(f'{file_label2} Value: '),
-            sg.Text('Value 2', key="-VALUE2-"),
+            sg.Text('Value 2', key="-VALUE2-",size=(100,None)),
         ],
         [
             sg.Text(f'{file_label2} Debug Value: '),
-            sg.Text('Debug', key="-DEBUG-"),
+            sg.Text('Debug', key="-DEBUG-",size=(100,None)),
         ],
     ]
 
-    window = sg.Window('Tree Element Test', layout, resizable=True)
+    window = sg.Window('Dicom Integrity Tool', layout, resizable=True)
 
     while True:     # Event Loop
         event, values = window.read()
