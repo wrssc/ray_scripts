@@ -46,6 +46,7 @@ import datetime
 import sys
 import os
 import logging
+import numpy as np
 from math import isclose
 from collections import namedtuple, OrderedDict
 from System import Environment
@@ -107,6 +108,18 @@ GRID_PREFERENCES = {
         'DOSE_GRID': 0.5,  # 5 mm
         'FRACTION_SIZE_LIMIT': None,  # Don't check
         'SLICE_THICKNESS': 0.4,  # 4 mm
+    },
+    'VMAT': {
+        'PLAN_NAMES': ['VMA', '3CA'],
+        'DOSE_GRID': 0.3,  # 3 mm
+        'FRACTION_SIZE_LIMIT': 800,  # cGy
+        'SLICE_THICKNESS': 0.3,  # 3 mm
+    },
+    'THI': {
+        'PLAN_NAMES': ['THI', 'T3D'],
+        'DOSE_GRID': 0.3,  # 3 mm
+        'FRACTION_SIZE_LIMIT': 800,  # cGy
+        'SLICE_THICKNESS': 0.3,  # 3 mm
     },
 }
 
@@ -912,6 +925,52 @@ def check_dose_grid(pd, parent_key):
     return messages
 
 
+def check_slice_thickness(pd, parent_key):
+    """
+    Checks the current exam used in this case for appropriate slice thickness
+    Args:
+        pd: NamedTuple
+        pd.patient: RS patient ScriptObject
+        pd.exam: RS exam ScriptObject
+        pd.beamset: RS beamset ScriptObject
+        parent_key: beamset parent key
+    Returns:
+        messages: [[str1, ...,],...]: [[parent_key, child_key, messgae display, Pass/Fail/Alert]]
+
+    Test Patient:
+        Pass: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: Pros_VMA
+        Fail: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: PROS_SBR
+    """
+    child_key = 'Slice thickness Comparison'
+    messages = []
+    message_str = ""
+    for k, v in GRID_PREFERENCES.items():
+        # Check to see if plan obeys a naming convention we have flagged
+        if any([n in pd.beamset.DicomPlanLabel for n in v['PLAN_NAMES']]):
+            nominal_slice_thickness = v['SLICE_THICKNESS']
+            for s in pd.exam.Series:
+                slice_positions = np.array(s.ImageStack.SlicePositions)
+                slice_thickness = np.diff(slice_positions)
+                if np.isclose(slice_thickness, nominal_slice_thickness).all() \
+                        or all(slice_thickness < nominal_slice_thickness):
+                    message_str = 'Slice spacing {:.3f} ≤ {:.3f} cm appropriate for plan type {}'.format(
+                        slice_thickness.max(), nominal_slice_thickness, v['PLAN_NAMES'])
+                    pass_result = "Pass"
+                    icon = GREEN_CIRCLE
+                else:
+                    message_str = 'Slice spacing {:.3f} > {:.3f} cm TOO LARGE for plan type {}'.format(
+                        slice_thickness.max(), nominal_slice_thickness, v['PLAN_NAMES'])
+                    pass_result = "Fail"
+                    icon = RED_CIRCLE
+    if not message_str:
+        message_str = 'Plan type unknown, check slice spacing carefully'
+        pass_result = "Alert"
+        icon = BLUE_CIRCLE
+    messages.append([parent_key, child_key, child_key, pass_result, icon])
+    messages.append([child_key, pass_result, message_str, pass_result, icon])
+    return messages
+
+
 # TODO:
 # def check_plan_name(bs):
 # Check plan name for appropriate
@@ -1019,6 +1078,7 @@ def check_plan():
     check_approval = True
     check_nofly_dose = True
     check_grid = True
+    check_st = True
 
     treedata.Insert("", patient_key[0], patient_key[1], "")
     """
@@ -1095,6 +1155,11 @@ def check_plan():
     if check_fx_size:
         message_fx_size = check_fraction_size(pd.beamset, parent_key=beamset_key[0])
         beamset_level_tests.extend(message_fx_size)
+    #
+    # Slice thickness checks
+    if check_st:
+        message_st = check_slice_thickness(pd, parent_key=beamset_key[0])
+        beamset_level_tests.extend(message_st)
     #
     # EDW Check
     if check_edw:
