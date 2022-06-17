@@ -2027,11 +2027,12 @@ def structure_approved(case, roi_name, examination=None):
             if examination is not None and s.OnExamination.Name != examination.Name:
                 continue
             else:
-                for a in s.ApprovedStructureSets:
+                for a in s.SubStructureSets:
                     try:
-                        for r in a.ApprovedRoiStructures:
-                            if r.OfRoi.Name == roi_name:
-                                return True
+                        if a.Review.ApprovalStatus == 'Approved':
+                            for r in a.RoiStuctures:
+                                if r.OfRoi.Name == roi_name:
+                                    return True
                     except AttributeError:
                         logging.debug("A is none {}".format(a))
                         continue
