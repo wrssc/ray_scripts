@@ -84,7 +84,7 @@ def main():
 
     for roi in case.PatientModel.RegionsOfInterest:
         approved = False
-        for a in case.PatientModel.StructureSets[exam.Name].ApprovedStructureSets:
+        for a in case.PatientModel.StructureSets[exam.Name].SubStructureSets:
             try:
                 if a.ApprovedRoiStructures[roi.Name].OfRoi.RoiNumber > 0 and a.Review.ApprovalStatus == 'Approved':
                     approved = True

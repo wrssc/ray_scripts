@@ -69,7 +69,7 @@ import UserInterface
 import pydicom
 # import pynetdicom
 from pynetdicom import AE
-from pynetdicom.sop_class import RTPlanStorage, RTStructureSetStorage, CTImageStorage, RTDoseStorage, VerificationSOPClass
+from pynetdicom.sop_class import RTPlanStorage, RTStructureSetStorage, CTImageStorage, RTDoseStorage, Verification
 from pydicom.uid import ImplicitVRLittleEndian
 import shutil
 import re
@@ -257,14 +257,14 @@ def send(case,
             logging.debug('Exam structure set selected for export')
             args['RtStructureSetsForExaminations'] = [exam.Name]
 
-    # Append BeamDosesForBeamSets and/or BeamSetDoseForBeamSets to export RT Dose
+    # Append PhysicalBeamDosesForBeamSets and/or PhysicalBeamSetDoseForBeamSets to export RT Dose
     if plan_dose and beamset is not None:
         logging.debug('Plan {} dose selected for export'.format(beamset.BeamSetIdentifier()))
-        args['BeamSetDoseForBeamSets'] = [beamset.BeamSetIdentifier()]
+        args['PhysicalBeamSetDoseForBeamSets'] = [beamset.BeamSetIdentifier()]
 
     if beam_dose and beamset is not None:
         logging.debug('Beam dose for plan {} selected for export'.format(beamset.BeamSetIdentifier()))
-        args['BeamDosesForBeamSets'] = [beamset.BeamSetIdentifier()]
+        args['PhysicalBeamDosesForBeamSets'] = [beamset.BeamSetIdentifier()]
 
     # Append anonymization parameters to re-identify patient
     if rename is not None and 'name' in rename and 'id' in rename:
@@ -587,20 +587,20 @@ def send(case,
                         expected.add(b[t1], beam=b)
 
                 # If adding reference points
-                if prescription and beamset.Prescription.PrimaryDosePrescription is not None and \
+                if prescription and beamset.Prescription.PrimaryPrescriptionDoseReference is not None and \
                         'FractionGroupSequence' in ds and len(ds.FractionGroupSequence[0].ReferencedBeamSequence) > 0:
 
                     # Create reference point for primary dose prescription
                     ref = pydicom.Dataset()
                     ref.add_new(0x300a0012, 'IS', 1)
                     # This is the "Dose Reference Description in ARIA"
-                    # if hasattr(beamset.Prescription.PrimaryDosePrescription, 'OnStructure') and \
-                    #         hasattr(beamset.Prescription.PrimaryDosePrescription.OnStructure, 'Name'):
-                    #    ref.add_new(0x300a0016, 'LO', beamset.Prescription.PrimaryDosePrescription.OnStructure.Name)
-                    # elif hasattr(beamset.Prescription.PrimaryDosePrescription, 'OnDoseSpecificationPoint') and \
-                    #         hasattr(beamset.Prescription.PrimaryDosePrescription.OnDoseSpecificationPoint, 'Name'):
+                    # if hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference, 'OnStructure') and \
+                    #         hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure, 'Name'):
+                    #    ref.add_new(0x300a0016, 'LO', beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name)
+                    # elif hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference, 'OnDoseSpecificationPoint') and \
+                    #         hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference.OnDoseSpecificationPoint, 'Name'):
                     #    ref.add_new(0x300a0016, 'LO',
-                    #                beamset.Prescription.PrimaryDosePrescription.OnDoseSpecificationPoint.Name)
+                    #                beamset.Prescription.PrimaryPrescriptionDoseReference.OnDoseSpecificationPoint.Name)
                     # else:
                     #     ref.add_new(0x300a0014, 'LO', 'Target')
                     dose_ref_desc = str(beamset.DicomPlanLabel) + '.0'
@@ -618,13 +618,16 @@ def send(case,
                         # If no reference_point location should be used, set the Rx type to site
                         ref.add_new(0x300a0014, 'CS', 'SITE')
                         # Set the Varian internal tag designating the Target Volume in ARIA
-                        if hasattr(beamset.Prescription.PrimaryDosePrescription,'OnStructure'):
-                            ref.add_new(0x32671000, 'UT', beamset.Prescription.PrimaryDosePrescription.OnStructure.Name)
+                        if hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference, 'OnStructure'):
+                            ref.add_new(0x32671000, 'UT',
+                                        beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name)
                         # Address "Site"-based prescriptions
-                        elif hasattr(beamset.Prescription.PrimaryDosePrescription,'Description'):
-                            ref.add_new(0x32671000, 'UT', beamset.Prescription.PrimaryDosePrescription.Description)
+                        elif hasattr(beamset.Prescription.PrimaryPrescriptionDoseReference, 'Description'):
+                            ref.add_new(0x32671000, 'UT',
+                                        beamset.Prescription.PrimaryPrescriptionDoseReference.Description)
                         else:
-                            sys.exit('Unsupported prescription type for locationless reference point. Report to developer')
+                            sys.exit(
+                                'Unsupported prescription type for locationless reference point. Report to developer')
 
                         expected.add(ref[0x32671000])
                         # Add the private tag indicator
@@ -639,10 +642,9 @@ def send(case,
                     dose_reference_uid = pydicom.uid.generate_uid(prefix=prefix_uid)
                     ref.add_new(0x300a0013, 'UI', dose_reference_uid)
 
-
                     ref.add_new(0x300a0020, 'CS', 'TARGET')
-                    ref.add_new(0x300a0023, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
-                    ref.add_new(0x300a002c, 'DS', beamset.Prescription.PrimaryDosePrescription.DoseValue / 100)
+                    ref.add_new(0x300a0023, 'DS', beamset.Prescription.PrimaryPrescriptionDoseReference.DoseValue / 100)
+                    ref.add_new(0x300a002c, 'DS', beamset.Prescription.PrimaryPrescriptionDoseReference.DoseValue / 100)
 
                     if 'DoseReferenceSequence' not in ds:
                         ds.add_new(0x300a0010, 'SQ', pydicom.Sequence([ref]))
@@ -793,7 +795,7 @@ def send(case,
 
                 raise
 
-            assoc = None
+            assoc = NonT
 
         elif len({'host', 'aet', 'port'}.difference(info)) == 0:
             # Establish an AE
@@ -802,7 +804,7 @@ def send(case,
             ae.add_requested_context(RTStructureSetStorage, ImplicitVRLittleEndian)
             ae.add_requested_context(RTPlanStorage, ImplicitVRLittleEndian)
             ae.add_requested_context(RTDoseStorage, ImplicitVRLittleEndian)
-            ae.add_requested_context(VerificationSOPClass)
+            ae.add_requested_context(Verification)
             # MIM and Delta4 appear to timeout on a setting called ARTIM
             ae.network_timeout = 600.
             assoc = ae.associate(info['host'], int(info['port']), ae_title=info['aet'])

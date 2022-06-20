@@ -25,7 +25,7 @@
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
-                <volume units="%">95</volume>
+                <volume units="%">80</volume>
                 <dose units="Gy" idl="100">30</dose>
             </roi>
             <fractions>10</fractions>

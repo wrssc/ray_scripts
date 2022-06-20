@@ -145,7 +145,7 @@ class BeamSet(object):
         self.modality = None
         self.technique = None
         self.rx_target = None
-        self.rx_volume = 95
+        self.rx_volume = None
         self.iso_target = None
         self.support_roi = None
         self.protocol_name = None
@@ -396,35 +396,66 @@ def create_beamset(patient, case, exam, plan,
                 logging.debug('Beamset {} exists! Replacing with {}'.format(b.DicomName, new_bs_name))
                 b.DicomName = new_bs_name
 
-    plan.AddNewBeamSet(
-        Name=b.DicomName,
-        ExaminationName=exam.Name,
-        MachineName=b.machine,
-        Modality=b.modality,
-        TreatmentTechnique=b.technique,
-        PatientPosition=patient_position_map(exam.PatientPosition),
-        NumberOfFractions=b.number_of_fractions,
-        CreateSetupBeams=create_setup_beams,
-        UseLocalizationPointAsSetupIsocenter=False,
-        Comment="",
-        RbeModelReference=None,
-        EnableDynamicTrackingForVero=False,
-        NewDoseSpecificationPointNames=[],
-        NewDoseSpecificationPoints=[],
-        MotionSynchronizationTechniqueSettings=None)
+    # TODO: Eliminate exception upon transition to 11
+    try:
+        plan.AddNewBeamSet(
+            Name=b.DicomName,
+            ExaminationName=exam.Name,
+            MachineName=b.machine,
+            Modality=b.modality,
+            TreatmentTechnique=b.technique,
+            PatientPosition=patient_position_map(exam.PatientPosition),
+            NumberOfFractions=b.number_of_fractions,
+            CreateSetupBeams=create_setup_beams,
+            UseLocalizationPointAsSetupIsocenter=False,
+            Comment="",
+            RbeModelReference=None,
+            EnableDynamicTrackingForVero=False,
+            NewDoseSpecificationPointNames=[],
+            NewDoseSpecificationPoints=[],
+            MotionSynchronizationTechniqueSettings=None)
+    except:
+        plan.AddNewBeamSet(
+            Name=b.DicomName,
+            ExaminationName=exam.Name,
+            MachineName=b.machine,
+            Modality=b.modality,
+            TreatmentTechnique=b.technique,
+            PatientPosition=patient_position_map(exam.PatientPosition),
+            NumberOfFractions=b.number_of_fractions,
+            CreateSetupBeams=create_setup_beams,
+            UseLocalizationPointAsSetupIsocenter=False,
+            Comment="",
+            RbeModelName=None,
+            EnableDynamicTrackingForVero=False,
+            NewDoseSpecificationPointNames=[],
+            NewDoseSpecificationPoints=[],
+            MotionSynchronizationTechniqueSettings=None,
+            ToleranceTableLabel=None)
 
     beamset = plan.BeamSets[b.DicomName]
     patient.Save()
-
+    # TODO: Delete upper level try in RS 11
     try:
+        # RS 10
         beamset.AddDosePrescriptionToRoi(RoiName=b.rx_target,
                                          DoseVolume=b.rx_volume,
                                          PrescriptionType='DoseAtVolume',
                                          DoseValue=b.total_dose,
                                          RelativePrescriptionLevel=1,
                                          AutoScaleDose=True)
-    except Exception:
-        logging.warning('Unable to set prescription')
+    except AttributeError:
+        # RS 11
+        try:
+            beamset.AddRoiPrescriptionDoseReference(RoiName=b.rx_target,
+                                                    DoseVolume=b.rx_volume,
+                                                    PrescriptionType='DoseAtVolume',
+                                                    DoseValue=b.total_dose,
+                                                    RelativePrescriptionLevel=1)
+            # TODO Must deal separately with scale to dose
+            # beamset.ScaleToPrimaryPrescriptionDoseReference
+        except:
+            logging.warning('Unable to set prescription')
     return beamset
 
 
@@ -2290,7 +2321,7 @@ def dsp_matches_rx(beamset, dsp):
     """
     tolerance = 0.001
     number_of_fractions = beamset.FractionationPattern.NumberOfFractions
-    rx_dose = beamset.Prescription.PrimaryDosePrescription.DoseValue / number_of_fractions
+    rx_dose = beamset.Prescription.PrimaryPrescriptionDoseReference.DoseValue / number_of_fractions
     if exists_dsp(beamset, dsps=dsp):
         total_dose = 0
         for bd in beamset.FractionDose.BeamDoses:
@@ -2463,7 +2494,7 @@ def set_dsp(plan, beam_set, percent_rx=100., method='MU'):
     :return:
     """
     try:
-        rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue * percent_rx / 100.
+        rx = beam_set.Prescription.PrimaryPrescriptionDoseReference.DoseValue * percent_rx / 100.
     except AttributeError:
         logging.debug('Beamset does not have a prescription')
         raise ValueError('A prescription must be set')

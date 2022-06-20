@@ -2342,8 +2342,9 @@ def make_boolean_structure(patient, case, examination, **kwargs):
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
         Examination=examination, Algorithm="Auto"
     )
+    # MAYBE Broken in RS 11B
+    # patient.Set2DvisualizationForRoi(RoiName=StructureName, Mode=VisualizationType)
     patient.SetRoiVisibility(RoiName=StructureName, IsVisible=VisualizeStructure)
-    patient.Set2DvisualizationForRoi(RoiName=StructureName, Mode=VisualizationType)
 
 
 def make_wall(wall, sources, delta, patient, case, examination,

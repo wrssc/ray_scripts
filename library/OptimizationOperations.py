@@ -1058,7 +1058,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         logging.info('Fluence only: {}'.format(fluence_only))
     else:
         if vary_grid:
-            plan.SetDefaultDoseGrid(
+            beamset.SetDefaultDoseGrid(
                 VoxelSize={
                     'x': dose_dim1,
                     'y': dose_dim1,
@@ -1203,7 +1203,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # it is clear than when co-optimization occurs, we have more than one entry in here...
 
     # If not set yet, the dose grid needs setting.
-    plan.SetDefaultDoseGrid(
+    beamset.SetDefaultDoseGrid(
         VoxelSize={
             'x': dose_dim_initial,
             'y': dose_dim_initial,
@@ -1396,7 +1396,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     # Start Clock on the dose grid change
                     report_inputs.setdefault('time_dose_grid_initial', []).append(
                         datetime.datetime.now())
-                    plan.SetDefaultDoseGrid(
+                    beamset.SetDefaultDoseGrid(
                         VoxelSize={
                             'x': dose_dim,
                             'y': dose_dim,

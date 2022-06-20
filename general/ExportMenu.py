@@ -100,7 +100,7 @@ def main():
                 ignore = True
 
         try:
-            if case.PatientModel.StructureSets[exam.Name].ApprovedStructureSets[0].Review.ApprovalStatus != 'Approved':
+            if case.PatientModel.StructureSets[exam.Name].SubStructureSets[0].Review.ApprovalStatus != 'Approved':
                 struct_approved = False
 
             else:
@@ -287,7 +287,9 @@ def main():
                                 (beta - iso_long) * 10.,
                                 (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
                             ]
+                            logging.debug('Table positions updated to {}'.format(t))
                     except:
+                        logging.debug('Error in setting SRS/FSR table')
                         t = [0, 1000, 0]
                 else:
                     t = [0, 1000, 0]

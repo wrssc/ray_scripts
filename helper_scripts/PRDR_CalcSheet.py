@@ -65,6 +65,7 @@ import UserInterface
 import StructureOperations as so
 import GeneralOperations
 
+
 def get_iso_coords(beamset, beam_name):
     # For the supplied beamset and for the beam_name supplied:
     # Get coordinates of current isocenter and return as a tuple
@@ -74,7 +75,8 @@ def get_iso_coords(beamset, beam_name):
             break
     return (position['x'], position['y'], position['z'])
 
-def match_beam_fracdose(beamset,beam_name):
+
+def match_beam_fracdose(beamset, beam_name):
     # Return the index of the fractional dose object matching beam_name
     index = 0
     found_index = None
@@ -85,16 +87,18 @@ def match_beam_fracdose(beamset,beam_name):
             index += 1
     return found_index
 
+
 def get_dose_at_isocenter(beamset, beam_name):
     # For the supplied beamset and beam_name compute the dose at the isocenter
-    iso_coords = get_iso_coords(beamset,beam_name)
+    iso_coords = get_iso_coords(beamset, beam_name)
     index = match_beam_fracdose(beamset, beam_name)
-    dose = beamset.FractionDose.BeamDoses[index]\
-            .InterpolateDoseInPoint(Point={'x':iso_coords[0],
-                                        'y':iso_coords[1],
-                                        'z':iso_coords[2]},
-                                    PointFrameOfReference=beamset.FrameOfReference)
+    dose = beamset.FractionDose.BeamDoses[index] \
+        .InterpolateDoseInPoint(Point={'x': iso_coords[0],
+                                       'y': iso_coords[1],
+                                       'z': iso_coords[2]},
+                                PointFrameOfReference=beamset.FrameOfReference)
     return dose
+
 
 def get_relative_volume(rs_obj, roi_name, vol_evaluation_absolute):
     """
@@ -109,10 +113,11 @@ def get_relative_volume(rs_obj, roi_name, vol_evaluation_absolute):
      vol_evaluation_absolute: absolute volume of interest in cc
      Returns the relative volume of the roi_name structure between 0 and 1.0
     """
-    vol_roi = rs_obj.case.PatientModel\
-             .StructureSets[rs_obj.exam.Name]\
-             .RoiGeometries[roi_name].GetRoiVolume()
+    vol_roi = rs_obj.case.PatientModel \
+        .StructureSets[rs_obj.exam.Name] \
+        .RoiGeometries[roi_name].GetRoiVolume()
     return vol_evaluation_absolute / vol_roi
+
 
 def get_maximum_dose_roi_at_volume(rs_obj, beam_name, roi_name, volume_units):
     """
@@ -133,17 +138,18 @@ def get_maximum_dose_roi_at_volume(rs_obj, beam_name, roi_name, volume_units):
     index = match_beam_fracdose(rs_obj.beamset, beam_name)
     #
     # Determine the evaluation volume
-    if volume_units["UNITS"]=="%":
+    if volume_units["UNITS"] == "%":
         vol_eval_rel = volume_units["VOLUME"]
     else:
-        vol_eval_rel = get_relative_volume(rs_obj,roi_name,volume_units["VOLUME"])
+        vol_eval_rel = get_relative_volume(rs_obj, roi_name, volume_units["VOLUME"])
     # Retrieve the dose
     dose = rs_obj.beamset.FractionDose.BeamDoses[index].GetDoseAtRelativeVolumes(
-                                        RoiName=roi_name,
-                                        RelativeVolumes=[vol_eval_rel])[0]
+        RoiName=roi_name,
+        RelativeVolumes=[vol_eval_rel])[0]
     return dose
 
-def get_fraction_dose_dataframe(rs_obj,volume_units):
+
+def get_fraction_dose_dataframe(rs_obj, volume_units):
     """
      For each fraction: For each beam in the beamset get the MU, Max, Mean, and iso doses
      rs_obj: A namedtuple containing the raystation script objects defined in main
@@ -154,28 +160,29 @@ def get_fraction_dose_dataframe(rs_obj,volume_units):
      volume_units: DICT: {"UNITS": '%' or 'cc', "VOL": <Volume relative or abs>}
      Return: a pandas dataframe of these values
     """
-    Rx_Roi = rs_obj.beamset.Prescription.DosePrescriptions[0].OnStructure.Name
+    Rx_Roi = rs_obj.beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name
     Fraction_Data = pd.DataFrame(columns=['Beam_Name',
-                                        'MU',
-                                        'Beam Dose to Iso (cGy)',
-                                        'Beam Max Dose to PTV (cGy)',
-                                        'Beam Dmean to PTV (cGy)'])
+                                          'MU',
+                                          'Beam Dose to Iso (cGy)',
+                                          'Beam Max Dose to PTV (cGy)',
+                                          'Beam Dmean to PTV (cGy)'])
     # Loop through the beams and compute the beam doses
     for bd in rs_obj.beamset.FractionDose.BeamDoses:
         bn = bd.ForBeam.Name
         Fx_Dose_To_Isocenter = get_dose_at_isocenter(rs_obj.beamset, bn)
-        Fx_Mean_Dose = bd.GetDoseStatistic(RoiName=Rx_Roi,DoseType="Average")
+        Fx_Mean_Dose = bd.GetDoseStatistic(RoiName=Rx_Roi, DoseType="Average")
         Fx_Max_Dose = get_maximum_dose_roi_at_volume(rs_obj,
-                                                    beam_name=bn, roi_name=Rx_Roi,
-                                                    volume_units=volume_units)
+                                                     beam_name=bn, roi_name=Rx_Roi,
+                                                     volume_units=volume_units)
         Beam_MU = bd.ForBeam.BeamMU
         Fraction_Data = Fraction_Data.append(
-                {'Beam_Name': bn,
-                'MU': round(Beam_MU,2),
-                'Beam Dose to Iso (cGy)': round(Fx_Dose_To_Isocenter,2),
-                'Beam Max Dose to PTV (cGy)': round(Fx_Max_Dose,2),
-                'Beam Dmean to PTV (cGy)': round(Fx_Mean_Dose,2)}, ignore_index=True)
+            {'Beam_Name': bn,
+             'MU': round(Beam_MU, 2),
+             'Beam Dose to Iso (cGy)': round(Fx_Dose_To_Isocenter, 2),
+             'Beam Max Dose to PTV (cGy)': round(Fx_Max_Dose, 2),
+             'Beam Dmean to PTV (cGy)': round(Fx_Mean_Dose, 2)}, ignore_index=True)
     return Fraction_Data
+
 
 def get_plan_dose_dataframe(rs_obj, volume_units):
     """
@@ -188,44 +195,47 @@ def get_plan_dose_dataframe(rs_obj, volume_units):
      volume_units: DICT: {"UNITS": '%' or 'cc', "VOL": <Volume relative or abs>}
      Return: a pandas dataframe of these values
     """
-    Rx_Roi = rs_obj.beamset.Prescription.DosePrescriptions[0].OnStructure.Name
+    Rx_Roi = rs_obj.beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name
     nfx = rs_obj.beamset.FractionationPattern.NumberOfFractions
     Plan_Data = pd.DataFrame(columns=['Beam_Name',
-                                    'MU',
-                                    'Plan Dose to Iso (Gy)',
-                                    'Plan Max Dose to PTV (Gy)',
-                                    'Plan Dmean to PTV (Gy)'])
+                                      'MU',
+                                      'Plan Dose to Iso (Gy)',
+                                      'Plan Max Dose to PTV (Gy)',
+                                      'Plan Dmean to PTV (Gy)'])
 
     # Loop through the beams and compute the plan doses
     for bd in rs_obj.beamset.FractionDose.BeamDoses:
         bn = bd.ForBeam.Name
-        Plan_Dose_To_Isocenter = get_dose_at_isocenter(rs_obj.beamset,bn) *nfx /100.
-        Mean_Dose = bd.GetDoseStatistic(RoiName=Rx_Roi,DoseType="Average") * nfx /100.
+        Plan_Dose_To_Isocenter = get_dose_at_isocenter(rs_obj.beamset, bn) * nfx / 100.
+        Mean_Dose = bd.GetDoseStatistic(RoiName=Rx_Roi, DoseType="Average") * nfx / 100.
         Max_Dose = get_maximum_dose_roi_at_volume(rs_obj,
                                                   beam_name=bn, roi_name=Rx_Roi,
-                                                  volume_units=volume_units)\
-                *nfx /100.
+                                                  volume_units=volume_units) \
+                   * nfx / 100.
         Beam_MU = bd.ForBeam.BeamMU
         Plan_Data = Plan_Data.append(
-                        {'Beam_Name': bn,
-                        'MU': round(Beam_MU,1),
-                        'Plan Dose to Iso (Gy)': round(Plan_Dose_To_Isocenter,4),
-                        'Plan Max Dose to PTV (Gy)': round(Max_Dose,4),
-                        'Plan Dmean to PTV (Gy)': round(Mean_Dose,4)}, ignore_index=True)
+            {'Beam_Name': bn,
+             'MU': round(Beam_MU, 1),
+             'Plan Dose to Iso (Gy)': round(Plan_Dose_To_Isocenter, 4),
+             'Plan Max Dose to PTV (Gy)': round(Max_Dose, 4),
+             'Plan Dmean to PTV (Gy)': round(Mean_Dose, 4)}, ignore_index=True)
     return Plan_Data
+
 
 def update_table_title(table, old_headings, headings):
     # Update the table widget
     for cid, text in zip(old_headings, headings):
         table.heading(cid, text=text)
 
+
 def pd_to_header_table(df):
     # Convert the first row and values of the dataframe to a list
     header = df.columns.to_list()
     table = df.values.tolist()
-    return(header, table)
+    return (header, table)
 
-def display_beam_worksheet(df_plan,df_fraction):
+
+def display_beam_worksheet(df_plan, df_fraction):
     """
     Build the sg table for the user
     df_plan: data frame containing the beamset level PRDR calculation data
@@ -235,8 +245,7 @@ def display_beam_worksheet(df_plan,df_fraction):
     (headings_fraction, table_fraction) = pd_to_header_table(df_fraction)
     (headings_plan, table_plan) = pd_to_header_table(df_plan)
 
-
-    per_fraction = True # Beam Data display
+    per_fraction = True  # Beam Data display
     # ------ Window Layout ------
     layout = [[sg.Table(values=table_fraction[:][:], headings=headings_fraction, max_col_width=25,
                         # background_color='light blue',
@@ -248,14 +257,14 @@ def display_beam_worksheet(df_plan,df_fraction):
                         key='-TABLE-',
                         row_height=35,
                         tooltip='PRDR Beam Doses')],
-              [sg.Button('Toggle Plan Data',button_color=(('white',('red', 'green')[per_fraction])),key='-TOGGLE-')],
+              [sg.Button('Toggle Plan Data', button_color=(('white', ('red', 'green')[per_fraction])), key='-TOGGLE-')],
               [sg.Button('Copy to Clipboard', key='-COPY-')],
               [sg.Text('Toggle Plan/Fraction Data = Toggle Between Plan and Fractional Data : (MU Sheet uses Plan)')]]
 
     # ------ Create Window ------
     # Add the version of the script to the header window
     # This will be matched with the excel spreadsheet version
-    window = sg.Window("".join(( 'PRDR Dose Data (Version: ',__version__, ')')),
+    window = sg.Window("".join(('PRDR Dose Data (Version: ', __version__, ')')),
                        layout, font='Garamond 12')
 
     # ------ Event Loop ------
@@ -265,25 +274,25 @@ def display_beam_worksheet(df_plan,df_fraction):
         if event == sg.WIN_CLOSED:
             break
         if event == '-TOGGLE-':
-            table= window['-TABLE-'].Widget
+            table = window['-TABLE-'].Widget
             if per_fraction:
-                update_table_title(table,old_headings=headings_fraction, headings=headings_plan)
+                update_table_title(table, old_headings=headings_fraction, headings=headings_plan)
                 window['-TABLE-'].update(values=table_plan[:][:])
                 window['-TABLE-'].update(alternating_row_color='green')
             else:
-                update_table_title(table,old_headings=headings_fraction, headings=headings_fraction)
+                update_table_title(table, old_headings=headings_fraction, headings=headings_fraction)
                 window['-TABLE-'].update(values=table_fraction[:][:])
                 window['-TABLE-'].update(alternating_row_color='brown')
             per_fraction = not per_fraction
-            window.Element('-TOGGLE-').Update(('Fraction Data','Plan Data')[per_fraction],
-                                         button_color=(('white', ('brown','green')[per_fraction])))
+            window.Element('-TOGGLE-').Update(('Fraction Data', 'Plan Data')[per_fraction],
+                                              button_color=(('white', ('brown', 'green')[per_fraction])))
         if event == '-COPY-':
             if per_fraction:
                 print(df_fraction)
-                df_fraction.to_clipboard(excel=True,index=False,header=None)
+                df_fraction.to_clipboard(excel=True, index=False, header=None)
             else:
                 print(df_plan)
-                df_plan.to_clipboard(excel=True,index=False,header=None)
+                df_plan.to_clipboard(excel=True, index=False, header=None)
         elif event == 'Change Colors':
             window['-TABLE-'].update(row_colors=((8, 'white', 'red'), (9, 'green')))
 
@@ -292,26 +301,27 @@ def display_beam_worksheet(df_plan,df_fraction):
 
 def main():
     # Initialize return variable
-    PatientData = namedtuple('Pd', ['error','db', 'case', 'patient', 'exam', 'plan', 'beamset'])
+    PatientData = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
-    rs_obj = PatientData(error = [],
-            patient = GeneralOperations.find_scope(level='Patient'),
-            case = GeneralOperations.find_scope(level='Case'),
-            exam = GeneralOperations.find_scope(level='Examination'),
-            db = GeneralOperations.find_scope(level='PatientDB'),
-            plan = GeneralOperations.find_scope(level='Plan'),
-            beamset = GeneralOperations.find_scope(level='BeamSet'))
+    rs_obj = PatientData(error=[],
+                         patient=GeneralOperations.find_scope(level='Patient'),
+                         case=GeneralOperations.find_scope(level='Case'),
+                         exam=GeneralOperations.find_scope(level='Examination'),
+                         db=GeneralOperations.find_scope(level='PatientDB'),
+                         plan=GeneralOperations.find_scope(level='Plan'),
+                         beamset=GeneralOperations.find_scope(level='BeamSet'))
     # Determine how max doses should be reported
     volume_units = {
-        'UNITS':'cc',
+        'UNITS': 'cc',
         'VOLUME': 0.03
-        }
+    }
     # Get the dose per fraction mean, max and dose to isocenter
     df_fraction = get_fraction_dose_dataframe(rs_obj, volume_units)
     # Compute the plan dose (mean, max, and dose to isocenter)
-    df_plan = get_plan_dose_dataframe(rs_obj,volume_units)
+    df_plan = get_plan_dose_dataframe(rs_obj, volume_units)
     # Display the results
-    display_beam_worksheet(df_plan,df_fraction)
+    display_beam_worksheet(df_plan, df_fraction)
+
 
 if __name__ == '__main__':
     main()

@@ -118,7 +118,7 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
 
 
 def set_dsp(plan, beam_set):
-    rx = beam_set.Prescription.PrimaryDosePrescription.DoseValue
+    rx = beam_set.Prescription.PrimaryPrescriptionDoseReference.DoseValue
     fractions = beam_set.FractionationPattern.NumberOfFractions
     if rx is None:
         raise ValueError('A Prescription must be set.')

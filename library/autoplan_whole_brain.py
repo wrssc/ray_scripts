@@ -10,11 +10,9 @@
     How To Use: After insertion of S-frame this script is run to generate the blocking
                 structures for a whole brain plan
 
-    TODO: Get rid of the second plan - it is only for correcting the GUI and can be dumped in
-            RS8
     TODO: Add timing measurements to the planning process
     TODO: Eliminate S-frame use and extend dose grid based on BTV limits
-    TODO: Add clinical goals
+    TODO: Addclinical goals
 
     Validation Notes:
     Test Patient: MR# ZZUWQA_ScTest_30Dec2020, Name: Script_Testing^Automated Plan - Whole Brain
@@ -32,6 +30,7 @@
             and up.
     1.0.5 Repaired local template structures to reflect S-Frame location
     1.1.0 Update to Python 3.6 and RS 10A SP1
+    1.1.1 Update to Python 3.8 and RS 11B. Eliminated second dummy plan.
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -48,18 +47,18 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '01-Feb-2021'
-__version__ = '1.0.5'
+__date__ = '13-June-2022'
+__version__ = '1.1.1'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '10A SP1'
+__raystation__ = '11B'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/AutoPlanWholeBrain'
+__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__help__ = ''
 __credits__ = []
 
 import connect
@@ -97,8 +96,8 @@ def check_structure_exists(case, structure_name, roi_list, option):
                     structure_name))
         return True
     else:
-        logging.info('check_structure_exists: '
-                     'Structure {} not found, and will be created'.format(structure_name))
+        logging.debug('check_structure_exists: '
+                      'Structure {} not found, and will be created'.format(structure_name))
         return False
 
 
@@ -710,11 +709,11 @@ def main():
     if make_plan:
         try:
             ui = connect.get_current('ui')
-            ui.TitleBar.MenuItem['Plan Design'].Button_Plan_Design.Click()
+            ui.TitleBar.Navigation.MenuItem['Plan design'].Button_Plan_design.Click()
         except:
             logging.debug("Could not click on the plan Design MenuItem")
 
-        plan_names = [plan_name, 'backup_r1a0']
+        plan_names = [plan_name]
         # RS 8: plan_names = [plan_name]
         patient.Save()
         # RS 8: eliminate for loop
@@ -767,19 +766,29 @@ def main():
 
             patient.Save()
 
-            beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
-                                             DoseVolume=80,
-                                             PrescriptionType='DoseAtVolume',
-                                             DoseValue=total_dose,
-                                             RelativePrescriptionLevel=1,
-                                             AutoScaleDose=True)
+            # TODO Eliminate try after RS 11
+            try:
+                # RS 10
+                beamset.AddDosePrescriptionToRoi(RoiName='PTV_WB_xxxx',
+                                                 DoseVolume=80,
+                                                 PrescriptionType='DoseAtVolume',
+                                                 DoseValue=total_dose,
+                                                 RelativePrescriptionLevel=1,
+                                                 AutoScaleDose=True)
+            except AttributeError:
+                beamset.AddRoiPrescriptionDoseReference(RoiName='PTV_WB_xxxx',
+                                                        DoseVolume=80,
+                                                        PrescriptionType='DoseAtVolume',
+                                                        DoseValue=total_dose,
+                                                        RelativePrescriptionLevel=1)
+
             # Set the BTV type above to allow dose grid to cover
             case.PatientModel.RegionsOfInterest['BTV'].Type = 'Ptv'
             case.PatientModel.RegionsOfInterest['BTV'].OrganData.OrganType = 'Target'
 
-            plan.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
-                                               'y': 0.2,
-                                               'z': 0.2})
+            beamset.SetDefaultDoseGrid(VoxelSize={'x': 0.2,
+                                                  'y': 0.2,
+                                                  'z': 0.2})
             try:
                 isocenter_position = case.PatientModel.StructureSets[examination.Name]. \
                     RoiGeometries['PTV_WB_xxxx'].GetCenterOfRoi()
@@ -827,6 +836,7 @@ def main():
                 ComputeBeamDoses=True,
                 DoseAlgorithm="CCDose",
                 ForceRecompute=True)
+            beamset.ScaleToPrimaryPrescriptionDoseReference()
 
         # RS 8 delete next three lines
         plan_name_regex = '^' + plan_names[0] + '$'
@@ -834,15 +844,14 @@ def main():
         case.LoadPlan(PlanInfo=plan_information[0])
         try:
             ui = connect.get_current('ui')
-            ui.TitleBar.MenuItem['Plan Evaluation'].Button_Plan_Evaluation.Click()
+            ui.TitleBar.MenuItem['Plan evaluation'].Button_Plan_evaluation.Click()
         except:
             logging.debug("Could not click on the plan evaluation MenuItem")
 
     # Rename PTV per convention
     total_dose_string = str(int(total_dose))
     try:
-        case.PatientModel.RegionsOfInterest[
-            'PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
+        case.PatientModel.RegionsOfInterest['PTV_WB_xxxx'].Name = 'PTV_WB_' + total_dose_string.zfill(4)
     except Exception as e:
         logging.debug('error reported {}'.format(e))
         logging.debug('cannot do name change')
@@ -859,14 +868,16 @@ def main():
     # Set the DSP for the plan
     BeamOperations.set_dsp(plan=plan, beam_set=beamset)
     # Round MU
-    # The Autoscale hides in the plan optimization hierarchy. Find the correct index.
-    indx = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
-    plan.PlanOptimizations[indx].AutoScaleToPrescription = False
     BeamOperations.round_mu(beamset)
     # Round jaws to nearest mm
     logging.debug('Checking for jaw rounding')
     BeamOperations.round_jaws(beamset=beamset)
-
+    # Compute the dose
+    beamset.ComputeDose(
+        ComputeBeamDoses=True,
+        DoseAlgorithm="CCDose",
+        ForceRecompute=True)
+    patient.Save()
 
 if __name__ == '__main__':
     main()
