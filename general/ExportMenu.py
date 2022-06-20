@@ -265,6 +265,7 @@ def main():
                 else:
                     prdr_dr = False
                 # Set Couch
+                t = [0, 1000, 0]  # Default
                 frameless_beamnames = ['_FSR_', '_SRS_']
                 alpha = 7.72  # cm
                 beta = 36.39  # cm
@@ -287,10 +288,9 @@ def main():
                                 (beta - iso_long) * 10.,
                                 (alpha + iso_vert) * 10.,  # ARIA imports in mm and displays in cm
                             ]
+                        logging.debug('SRS/FSR table positions used {}'.format(t))
                     except:
-                        t = [0, 1000, 0]
-                else:
-                    t = [0, 1000, 0]
+                        logging.debug('Error setting table positions, default used {}'.format(t))
                 # Create a reference point
                 create_reference_point = True
                 # Convert Block names
