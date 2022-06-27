@@ -19,6 +19,7 @@ This script was tested with:
 Version History:
 0.0.0 Submitted and reviewed
 1.1.0 Production and validated in RS 10A, SP1
+1.2.0 Production and validated in RS 11B
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,13 +43,13 @@ __version__ = "1.1.0"
 __status__ = "Production"
 __deprecated__ = False
 __reviewer__ = "Adam Bayliss"
-__reviewed__ = "Commit:2eb335d, 28May2020"
-__raystation__ = "10A SP1"
+__reviewed__ = "27Jun2022"
+__raystation__ = "11B"
 __maintainer__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
 __license__ = "GPLv3"
 __help__ = None
-__copyright__ = "Copyright (C) 2020, University of Wisconsin Board of Regents"
+__copyright__ = "Copyright (C) 2022, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current
 import StructureOperations
@@ -178,24 +179,25 @@ def get_DIBH_and_FB_exams(case):
     selected_exams = (series_dict[text_DIBH.get()], series_dict[text_FB.get()])
     selected_exam_names = [exam.Name for exam in selected_exams]
     for structure_set in case.PatientModel.StructureSets:
-        for _ in structure_set.ApprovedStructureSets:
+        for sub in structure_set.SubStructureSets:
             # If you get to this point, there are approved structures in
             # this structure set.
-            if structure_set.OnExamination.Name in selected_exam_names:
-                logging.error(
-                    "The structure set associated with {} is approved, which will prevent "
-                    "successful execution of the script.".format(
-                        structure_set.OnExamination.Name
+            if structure_set.OnExamination.Name in selected_exam_names and sub:
+                if sub.Review.ApprovalStatus == 'Approved':
+                    logging.error(
+                        "The structure set associated with {} is approved, which will prevent "
+                        "successful execution of the script.".format(
+                            structure_set.OnExamination.Name
+                        )
                     )
-                )
-                messagebox.showerror(
-                    "Approved Structure Set Error",
-                    "The structure set associated with {} is approved, which will prevent "
-                    "successful execution of the script.".format(
-                        structure_set.OnExamination.Name,
-                    ),
-                )
-                exit()
+                    messagebox.showerror(
+                        "Approved Structure Set Error",
+                        "The structure set associated with {} is approved, which will prevent "
+                        "successful execution of the script.".format(
+                            structure_set.OnExamination.Name,
+                        ),
+                    )
+                    exit()
 
     return selected_exams
 
@@ -319,10 +321,12 @@ def create_external_fb(case):
 
     with CompositeAction("Copy External_FB to DIBH Image Set"):
         logging.info("Copying External_FB to the DIBH examination.")
-        case.PatientModel.CopyRoiGeometries(
+        case.PatientModel.CopyRoiGeometry(
             SourceExamination=case.Examinations["Free-breathing"],
-            TargetExaminationNames=["DIBH"],
-            RoiNames=["External_FB"],
+            TargetExamination=case.Examinations["DIBH"],
+            RoiName="External_FB",
+            ImageRegistrationName=None,
+            UseAddedRigidRegistrationIfOneExists=False
         )
 
     message_text = "The script has finished, please review the results\n"
