@@ -93,7 +93,7 @@ __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = ''
-__copyright__ = 'Copyright (C) 2012, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 #
