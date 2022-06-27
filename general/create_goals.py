@@ -18,10 +18,16 @@
         Note that protocols are assumed to have even priorities describing targets
     
     Validation Notes:
-    Test Patient: MR# ZZUWQA_ScTest_05Jan2020, Name: Script_testing^Planning Structures Clinical Goals and Objectives
-    -Anal_THI - sets clinical goals and objectives for AnoRectal-TPO
+    Test Patient: MR# ZZUWQA_ScTest_05Jan2020,
+                  Name: Script_testing^Planning Structures Clinical Goals and Objectives
+                        -Anal_THI - sets clinical goals and objectives for AnoRectal-TPO
+    Test Patient: 11B: MR# ZZUWQA_ScTest_06Jun2022_11B_GoalsObjectives,
+                       Name: Script_testing^Planning Structures Clinical Goals and Objectives
+                       -HN: Head and neck template
+                       -ChwL: Leftchestwall
+                       -Lung_SR: Knowledge based goals in Lung SBR template
 
-    TODO: Change the main to a callable function taking the protocol path as an input`
+
     TODO: Add goal loop for secondary - unspecified target goals
     :versions
     1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
@@ -29,14 +35,15 @@
     2.0.0 Adding the clinical objectives for IMRT
     2.1.0 Python 3.6 conversion and update to RS 10A SP1 and converted to use the
           new create_goals_and_objectives function
+    2.1.1 Python 3.8 Conversion and 11B Update
 
 """
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__version__ = '2.1.0'
+__version__ = '2.1.1'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 
 import logging
 import Objectives
