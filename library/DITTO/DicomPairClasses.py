@@ -109,7 +109,7 @@ class ElementPair:
     def is_unique_to_dataset2(self):
         return self.match_result == Result.ELEMENT_UNIQUE_TO_2
 
-    def get_treedata(self, treedata=None):
+    def get_treedata(self, treedata=None, show_matches=False):
 
         if treedata is None:
             treedata = sg.TreeData()
@@ -278,7 +278,7 @@ class SequencePair:
     def is_unique_to_dataset2(self):
         return self.match_result == Result.SEQUENCE_UNIQUE_TO_2
 
-    def get_treedata(self, treedata=None):
+    def get_treedata(self, treedata=None, show_matches=False):
 
         if treedata is None:
             treedata = sg.TreeData()
@@ -294,14 +294,15 @@ class SequencePair:
 
             match_text = item.match_result.name
 
-            treedata.Insert(
-                parent=item.parent_key,
-                key=item.return_global_key(),
-                text=item.tree_label,
-                values=[match_text, item.comment],
-                icon=icon,
-            )
-            item.get_treedata(treedata)
+            if show_matches or not item.is_acceptable_match():
+                treedata.Insert(
+                    parent=item.parent_key,
+                    key=item.return_global_key(),
+                    text=item.tree_label,
+                    values=[match_text, item.comment],
+                    icon=icon,
+                )
+                item.get_treedata(treedata, show_matches=show_matches)
 
         return treedata
 
@@ -432,7 +433,7 @@ class DicomTreePair:
         else:
             return f"{self.parent_key}>{self.tree_label}"
 
-    def get_treedata(self, treedata=None):
+    def get_treedata(self, treedata=None, show_matches=False):
 
         if treedata is None:
             treedata = sg.TreeData()
@@ -448,14 +449,15 @@ class DicomTreePair:
 
             match_text = item.match_result.name
 
-            treedata.Insert(
-                parent=item.parent_key,
-                key=item.return_global_key(),
-                text=item.attribute_name,
-                values=[match_text, item.comment],
-                icon=icon,
-            )
-            item.get_treedata(treedata)
+            if show_matches or not item.is_acceptable_match():
+                treedata.Insert(
+                    parent=item.parent_key,
+                    key=item.return_global_key(),
+                    text=item.attribute_name,
+                    values=[match_text, item.comment],
+                    icon=icon,
+                )
+                item.get_treedata(treedata, show_matches=show_matches)
 
         return treedata
 
