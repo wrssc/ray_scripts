@@ -38,7 +38,7 @@ class Result(Flag):
     UNKNOWN = 100
 
 
-class ElementPair():
+class ElementPair:
 
     DEFAULT_ACCEPTABLE_RESULTS = [
         Result.ELEMENT_MATCH,
@@ -97,10 +97,7 @@ class ElementPair():
         self._process_func_kwargs = process_func_kwargs
         self._update_match_result()
 
-    def is_acceptable_match(
-        self,
-        acceptable_results=DEFAULT_ACCEPTABLE_RESULTS
-    ):
+    def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
 
     def is_pure_match(self):
@@ -143,12 +140,11 @@ class ElementPair():
         # Override with a function, if appliable.
         if self._process_func is not None:
             self.match_result, self.comment = self._process_func(
-                self,
-                **self._process_func_kwargs
+                self, **self._process_func_kwargs
             )
 
     def __str__(self):
-        depth_str = self.depth*"  "
+        depth_str = self.depth * "  "
         out_str = ""
         if self.is_unique_to_dataset1() or self.is_unique_to_dataset2():
             out_str += Fore.BLUE
@@ -168,20 +164,14 @@ class ElementPair():
         return out_str
 
 
-class SequencePair():
+class SequencePair:
 
     DEFAULT_ACCEPTABLE_RESULTS = [
         Result.SEQUENCE_MATCH,
     ]
 
     def __init__(
-        self,
-        parent,
-        attribute_name,
-        sequence_list,
-        comment="",
-        depth=0,
-        parent_key="",
+        self, parent, attribute_name, sequence_list, comment="", depth=0, parent_key="",
     ):
         self.attribute_name = attribute_name
         self.parent = parent
@@ -196,7 +186,10 @@ class SequencePair():
 
     def get_valuepair_from_key(self, key):
         if key == self.attribute_name:
-            return [f"Sequence {self.attribute_name} 1", f"Sequence {self.attribute_name} 2"]
+            return [
+                f"Sequence {self.attribute_name} 1",
+                f"Sequence {self.attribute_name} 2",
+            ]
         else:
 
             # Split the key apart
@@ -260,7 +253,9 @@ class SequencePair():
         # The tree_list list is of ElementPair and SequencePair objects
         unique_1_list = [item.is_unique_to_dataset1() for item in self.sequence_list]
         unique_2_list = [item.is_unique_to_dataset2() for item in self.sequence_list]
-        acceptable_match_list = [item.is_acceptable_match() for item in self.sequence_list]
+        acceptable_match_list = [
+            item.is_acceptable_match() for item in self.sequence_list
+        ]
 
         if all(unique_1_list):
             self.match_result = Result.SEQUENCE_UNIQUE_TO_1
@@ -271,10 +266,7 @@ class SequencePair():
         else:
             self.match_result = Result.SEQUENCE_MISMATCH
 
-    def is_acceptable_match(
-        self,
-        acceptable_results=DEFAULT_ACCEPTABLE_RESULTS
-    ):
+    def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
 
     def is_pure_match(self):
@@ -307,7 +299,7 @@ class SequencePair():
                 key=item.return_global_key(),
                 text=item.tree_label,
                 values=[match_text, item.comment],
-                icon=icon
+                icon=icon,
             )
             item.get_treedata(treedata)
 
@@ -317,7 +309,7 @@ class SequencePair():
         return f"{self.parent_key}>{self.attribute_name}"
 
     def __str__(self):
-        depth_str = self.depth*"  "
+        depth_str = self.depth * "  "
 
         out_str = (
             depth_str
@@ -330,20 +322,14 @@ class SequencePair():
         return out_str
 
 
-class DicomTreePair():
+class DicomTreePair:
 
     DEFAULT_ACCEPTABLE_RESULTS = [
         Result.DICOM_TREE_MATCH,
     ]
 
     def __init__(
-        self,
-        parent,
-        tree_list,
-        comment="",
-        depth=0,
-        parent_key="",
-        tree_label="",
+        self, parent, tree_list, comment="", depth=0, parent_key="", tree_label="",
     ):
         self.parent = parent
         self.tree_list = tree_list
@@ -428,10 +414,7 @@ class DicomTreePair():
         else:
             self.match_result = Result.DICOM_TREE_MISMATCH
 
-    def is_acceptable_match(
-        self,
-        acceptable_results=DEFAULT_ACCEPTABLE_RESULTS
-    ):
+    def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
 
     def is_pure_match(self):
@@ -470,14 +453,14 @@ class DicomTreePair():
                 key=item.return_global_key(),
                 text=item.attribute_name,
                 values=[match_text, item.comment],
-                icon=icon
+                icon=icon,
             )
             item.get_treedata(treedata)
 
         return treedata
 
     def __str__(self):
-        depth_str = self.depth*"  "
+        depth_str = self.depth * "  "
         out_str = (
             depth_str
             + f"DicomTreePair(result='{self.match_result}'"

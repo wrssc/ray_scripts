@@ -3,6 +3,52 @@ import re
 from DicomPairClasses import Result
 
 
+def excuse_element_with_parent(element_pair, excused_parent, comment=""):
+    """ Passes an expected mismatch/unique result when element has a specified parent 
+
+    ----------
+    PARAMETERS
+    ----------
+    element_pair : ElementPair
+        The pair of DICOM elements being evaluated
+    excused_parent : string, or list of string
+        The name(s) of the DICOM sequence(s) that resulted in a mismatch or unique
+        result to be excused as an expected mismatch or expected unique
+    comment : string
+        A comment, which may be passed into the element pair if desired
+
+    -------
+    RETURNS
+    -------
+    tup(Result, string)
+        A result status, and a comment
+    """
+
+    # if parent is not a list, put it in a list
+    if not isinstance(excused_parent, list):
+        excused_parent_list = [excused_parent]
+    else:
+        excused_parent_list = excused_parent
+
+    parent_name = element_pair.parent.parent.get_name()
+
+    # Check to see if the element is excused.
+    if parent_name in excused_parent_list:
+        comment = f"{element_pair.attribute_name} is excused when it is in sequence {parent_name}"
+
+        if element_pair.match_result == Result.ELEMENT_MISMATCH:
+            return (Result.ELEMENT_EXPECTED_MISMATCH, comment)
+
+        if element_pair.is_unique_to_dataset1():
+            return (Result.ELEMENT_EXPECTED_UNIQUE_TO_1, comment)
+
+        if element_pair.is_unique_to_dataset2():
+            return (Result.ELEMENT_EXPECTED_UNIQUE_TO_2, comment)
+
+        # If you get to this point, just return the match result
+        return (element_pair.match_result, comment)
+
+
 def assess_case_insensitive_match(element_pair, comment=""):
     value_pair = element_pair.value_pair
     # Exact match, got lucky
@@ -15,19 +61,41 @@ def assess_case_insensitive_match(element_pair, comment=""):
 
     if comment == "Name":
         # Case-insensitive match on First and Last name (strip at ^)
-        vp1_formatted = tuple(re.split(r'\^', str(value_pair[0])))
-        vp2_formatted = tuple(re.split(r'\^', str(value_pair[1])))
+        vp1_formatted = tuple(re.split(r"\^", str(value_pair[0])))
+        vp2_formatted = tuple(re.split(r"\^", str(value_pair[1])))
         try:
-            if bool(re.match(r'^' + vp1_formatted[0] + r'$', vp2_formatted[0], re.IGNORECASE)) and \
-                    bool(re.match(re.escape(vp1_formatted[1]), re.escape(vp2_formatted[1]), re.IGNORECASE)):
-                return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Case insensitive name match"
+            if bool(
+                re.match(
+                    r"^" + vp1_formatted[0] + r"$", vp2_formatted[0], re.IGNORECASE
+                )
+            ) and bool(
+                re.match(
+                    re.escape(vp1_formatted[1]),
+                    re.escape(vp2_formatted[1]),
+                    re.IGNORECASE,
+                )
+            ):
+                return (
+                    Result.ELEMENT_ACCEPTABLE_NEAR_MATCH,
+                    "Case insensitive name match",
+                )
             else:
                 return Result.ELEMENT_MISMATCH, "Mismatch declared on a name"
         except IndexError:
-            if bool(re.match(r'^' + vp1_formatted[0] + r'$', vp2_formatted[0], re.IGNORECASE)):
-                return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Name match, but only one. Cher?"
+            if bool(
+                re.match(
+                    r"^" + vp1_formatted[0] + r"$", vp2_formatted[0], re.IGNORECASE
+                )
+            ):
+                return (
+                    Result.ELEMENT_ACCEPTABLE_NEAR_MATCH,
+                    "Name match, but only one. Cher?",
+                )
             else:
-                return Result.ELEMENT_MISMATCH, "Mismatch declared on a single name Cher != Drake"
+                return (
+                    Result.ELEMENT_MISMATCH,
+                    "Mismatch declared on a single name Cher != Drake",
+                )
     else:
         vp1_formatted = str(value_pair[0]).casefold()
         vp2_formatted = str(value_pair[1]).casefold()
@@ -72,7 +140,10 @@ def assess_near_match(element_pair, comment="", tolerance_value=0.01):
 
     # Make sure both are not None first
     if (value_pair[0] is None) or (value_pair[1] is None):
-        return (Result.ELEMENT_MISMATCH, "Mismatch declared: At least one value is None.")
+        return (
+            Result.ELEMENT_MISMATCH,
+            "Mismatch declared: At least one value is None.",
+        )
 
     ds1_array = np.array(value_pair[0])
     ds2_array = np.array(value_pair[1])
@@ -89,15 +160,11 @@ def process_ssd(element_pair, comment=""):
     sequence_item_name, index = parent_name.split("=")
     if sequence_item_name == "ControlPointIndex":
         if index == "0":
-            return assess_near_match(
-                element_pair,
-                comment="",
-                tolerance_value=0.01
-            )
+            return assess_near_match(element_pair, comment="", tolerance_value=0.01)
         else:
             return return_expected_unique_to_raystation(
                 element_pair,
-                comment="SSD is unique to RayStation for ControlPoint index > 0"
+                comment="SSD is unique to RayStation for ControlPoint index > 0",
             )
 
     # Ran out of special cases, return raw match result
@@ -117,11 +184,17 @@ def process_block_data(element_pair, comment=""):
         if np.isclose(ds1_array[0], ds1_array[-1]).all():
             ds1_pop = np.delete(ds1_array, (-1), axis=0)
             if np.array_equal(ds1_pop, ds2_array):
-                return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Blocks identical save the start/end connecting point"
+                return (
+                    Result.ELEMENT_ACCEPTABLE_NEAR_MATCH,
+                    "Blocks identical save the start/end connecting point",
+                )
             elif np.isclose(ds1_pop, ds2_array).all():
                 return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Blocks within tolerance"
             else:
-                return Result.ELEMENT_MISMATCH, "Blocks do not match even without start/end connecting point"
+                return (
+                    Result.ELEMENT_MISMATCH,
+                    "Blocks do not match even without start/end connecting point",
+                )
         else:
             return Result.ELEMENT_MISMATCH, "Blocks do not match"
 
@@ -130,7 +203,10 @@ def assess_block_points(element_pair, comment=""):
     # ARIA in a block: First point = Last point => Number of points is 1 greater than RS
     value_pair = element_pair.value_pair
     if int(value_pair[0]) == int(value_pair[1]) + 1:
-        return Result.ELEMENT_EXPECTED_MISMATCH, "Number of points match when start/end point is considered"
+        return (
+            Result.ELEMENT_EXPECTED_MISMATCH,
+            "Number of points match when start/end point is considered",
+        )
     else:
         return Result.ELEMENT_MISMATCH, "Number of Points does not match"
 
@@ -166,7 +242,10 @@ def assess_tm_match(element_pair, comment=""):
         if vp1_form == vp2_form:
             return Result.ELEMENT_ACCEPTABLE_NEAR_MATCH, "Time matched to 1.0 s"
         else:
-            return Result.ELEMENT_MISMATCH, "Mismatch declared on TM Value Representation"
+            return (
+                Result.ELEMENT_MISMATCH,
+                "Mismatch declared on TM Value Representation",
+            )
 
 
 """
@@ -189,8 +268,13 @@ PROCESS_FUNCTION_DICT = {
     "ManufacturerModelName": (return_expected_unique_to_aria, {}),
     "ReferencedToleranceTableNumber": (return_expected_unique_to_aria, {}),
     "ReferencedPatientSetupNumber": (
-        return_expected_mismatch, {"comment": "Numerical value may be different due to field reordering"}),
-    "SoftwareVersions": (return_expected_mismatch, {"comment": "RayStation is not Aria"}),
+        return_expected_mismatch,
+        {"comment": "Numerical value may be different due to field reordering"},
+    ),
+    "SoftwareVersions": (
+        return_expected_mismatch,
+        {"comment": "RayStation is not Aria"},
+    ),
     "SourceToSurfaceDistance": (process_ssd, {}),
     "LeafJawPositions": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 mm
     "TableTopLateralPosition": (return_expected_unique_to_aria, {}),
@@ -198,16 +282,31 @@ PROCESS_FUNCTION_DICT = {
     "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
     "TreatmentMachineName": (process_treatment_machine_name, {}),
     "StudyTime": (assess_tm_match, {}),
-    "SpecificCharacterSet": (return_expected_mismatch,
-                             {"comment": "Character encoding: ARIA uses Latin Alphabet, RayStation uses Unicode"}),
-    "DoseRateSet": (return_expected_unique_to_aria, {"comment": "Dose Rate is set in Raystation by DicomExport.py"}),
+    "SpecificCharacterSet": (
+        return_expected_mismatch,
+        {
+            "comment": "Character encoding: ARIA uses Latin Alphabet, RayStation uses Unicode"
+        },
+    ),
+    "DoseRateSet": (
+        return_expected_unique_to_aria,
+        {"comment": "Dose Rate is set in Raystation by DicomExport.py"},
+    ),
     "GantryPitchAngle": (return_expected_unique_to_raystation, {}),
     "GantryPitchRotationDirection": (return_expected_unique_to_raystation, {}),
     "BlockData": (process_block_data, {}),
     "BlockNumberOfPoints": (assess_block_points, {}),
-    "BlockTrayID": (return_expected_mismatch,
-                    {"comment": "BlockTrayID is set in RayStation by DicomExport.py"}),
-    "AccessoryCode": (return_expected_unique_to_aria,
-                      {"comment": "AccessoryCode is set in RayStation by DicomExport.py"}),
+    "BlockTrayID": (
+        return_expected_mismatch,
+        {"comment": "BlockTrayID is set in RayStation by DicomExport.py"},
+    ),
+    "AccessoryCode": (
+        return_expected_unique_to_aria,
+        {"comment": "AccessoryCode is set in RayStation by DicomExport.py"},
+    ),
     "SourceToBlockTrayDistance": (return_expected_unique_to_aria, {}),
+    "ReferenceImageNumber": (
+        excuse_element_with_parent,
+        {"excused_parent": "ReferencedReferenceImageSequence"},
+    ),
 }
