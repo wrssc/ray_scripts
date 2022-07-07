@@ -110,7 +110,7 @@ def test_select_element(patient, case, exam, plan, beamset):
 
     # Test an exact load of a specific beamset
     beamset_folder = r'beamsets'
-    file = 'UWVMAT_Beamsets.xml'
+    file = 'UWVMAT.xml'
     path_protocols = os.path.join(os.path.dirname(__file__),
                                   protocol_folder,
                                   institution_folder, beamset_folder)
