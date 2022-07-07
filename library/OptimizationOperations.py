@@ -1185,8 +1185,11 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # Turn on important parameters
     plan_optimization_parameters.DoseCalculation.ComputeFinalDose = True
 
-    # Turn off autoscale - Perhaps uneccessary
-    ## plan.PlanOptimizations[rs_opt_key].AutoScaleToPrescription = False
+    # Turn off autoscale
+    try:
+        beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
+    except Exception as e:
+        logging.debug('Failed to turn off autoscale: {}'.format(str(e)))
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
