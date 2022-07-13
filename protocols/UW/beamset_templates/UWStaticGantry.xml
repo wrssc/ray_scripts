@@ -1,0 +1,708 @@
+<templates>
+    <name>UW SMLC</name>
+    <type>SMLC</type>
+    <modality>Photons</modality>
+    <beamset>
+        <name>2Field AP/PA - Left</name>
+        <technique>SMLC</technique>
+        <DicomName>XXXX_3DC_R0A0</DicomName>
+        <description>AP/PA Left Sided Target</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 AP</Name>
+            <Energy>6</Energy>
+            <GantryAngle>000</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 PA</Name>
+            <Energy>6</Energy>
+            <GantryAngle>179.9</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>2Field AP/PA - Right</name>
+        <technique>SMLC</technique>
+        <DicomName>XXXX_3DC_R0A0</DicomName>
+        <description>2Field AP/PA Right Sided Target</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 AP</Name>
+            <Energy>6</Energy>
+            <GantryAngle>000</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 PA</Name>
+            <Energy>6</Energy>
+            <GantryAngle>180.1</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>3Field AP/RPO/LPO</name>
+        <technique>SMLC</technique>
+        <DicomName>XXXX_3DC_R0A0</DicomName>
+        <description>3Field AP/RPO/LPO</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 RPO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>210</GantryAngle>
+            <CollimatorAngle>090</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 AP</Name>
+            <Energy>6</Energy>
+            <GantryAngle>000</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3 LPO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>150</GantryAngle>
+            <CollimatorAngle>090</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>3Field Right PA/RLAT/LLAT</name>
+        <technique>SMLC</technique>
+        <DicomName>XXXX_3DC_R0A0</DicomName>
+        <description>3Field PA/LATs</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 PA</Name>
+            <Energy>10</Energy>
+            <GantryAngle>180.1</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 RLAT</Name>
+            <Energy>10</Energy>
+            <GantryAngle>270</GantryAngle>
+            <CollimatorAngle>90</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3 LLAT</Name>
+            <Energy>10</Energy>
+            <GantryAngle>090</GantryAngle>
+            <CollimatorAngle>090</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>3Field Left PA/RLAT/LLAT</name>
+        <technique>SMLC</technique>
+        <DicomName>XXXX_3DC_R0A0</DicomName>
+        <description>3Field PA/LATs</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 PA</Name>
+            <Energy>10</Energy>
+            <GantryAngle>179.9</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 LLAT</Name>
+            <Energy>10</Energy>
+            <GantryAngle>090</GantryAngle>
+            <CollimatorAngle>090</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3 RLAT</Name>
+            <Energy>10</Energy>
+            <GantryAngle>270</GantryAngle>
+            <CollimatorAngle>090</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>4Field Right</name>
+        <technique>SMLC</technique>
+        <DicomName>XXXX_3DC_R0A0</DicomName>
+        <description>4Field Right</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 PA</Name>
+            <Energy>10</Energy>
+            <GantryAngle>180.1</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 RLAT</Name>
+            <Energy>10</Energy>
+            <GantryAngle>270</GantryAngle>
+            <CollimatorAngle>90</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3 AP</Name>
+            <Energy>10</Energy>
+            <GantryAngle>00</GantryAngle>
+            <CollimatorAngle>00</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4 LLAT</Name>
+            <Energy>10</Energy>
+            <GantryAngle>090</GantryAngle>
+            <CollimatorAngle>090</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>4Field Left</name>
+        <technique>SMLC</technique>
+        <DicomName>XXXX_3DC_R0A0</DicomName>
+        <description>4Field Left</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 PA</Name>
+            <Energy>10</Energy>
+            <GantryAngle>179.9</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 LLAT</Name>
+            <Energy>10</Energy>
+            <GantryAngle>090</GantryAngle>
+            <CollimatorAngle>90</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3 AP</Name>
+            <Energy>10</Energy>
+            <GantryAngle>00</GantryAngle>
+            <CollimatorAngle>00</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4 RLAT</Name>
+            <Energy>10</Energy>
+            <GantryAngle>270</GantryAngle>
+            <CollimatorAngle>090</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>Larnyx</name>
+        <technique>SMLC</technique>
+        <DicomName>Lary_3DC_R0A0</DicomName>
+        <description>4Field Larynx</description>
+        <roi_support>Sframe_F1_TBCouch_HN</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 RLAT</Name>
+            <Energy>6</Energy>
+            <GantryAngle>270</GantryAngle>
+            <CollimatorAngle>345</CollimatorAngle>
+            <CouchAngle>340</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 RAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>300</GantryAngle>
+            <CollimatorAngle>65</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3 LAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>60</GantryAngle>
+            <CollimatorAngle>115</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4 LLAT</Name>
+            <Energy>6</Energy>
+            <GantryAngle>090</GantryAngle>
+            <CollimatorAngle>020</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>WBRT 2Field WithCouchKick</name>
+        <technique>SMLC</technique>
+        <DicomName>Brain_3DC_R0A0</DicomName>
+        <description>WBRT</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 RLAT</Name>
+            <Energy>6</Energy>
+            <GantryAngle>270</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>355</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 LLAT</Name>
+            <Energy>6</Energy>
+            <GantryAngle>090</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>5</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+
+    <beamset>
+        <name>BreL Tangents</name>
+        <technique>SMLC</technique>
+        <DicomName>BreL_3DC_R0A0</DicomName>
+        <description>2Field Breast</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 Medial Tangent</Name>
+            <Energy>6</Energy>
+            <GantryAngle>305</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 Lateral Tangent</Name>
+            <Energy>6</Energy>
+            <GantryAngle>130</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>BreR 4Field</name>
+        <technique>SMLC</technique>
+        <DicomName>BreR_3DC_R0A0</DicomName>
+        <description>2Field Breast Right</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 Medial Tangent</Name>
+            <Energy>6</Energy>
+            <GantryAngle>055</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 Lateral Tangent</Name>
+            <Energy>6</Energy>
+            <GantryAngle>230</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>ChwL 4Field</name>
+        <technique>SMLC</technique>
+        <DicomName>ChwL_3DC_R0A0</DicomName>
+        <description>4Field Chestwall</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 Medial Tangent</Name>
+            <Energy>6</Energy>
+            <GantryAngle>305</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 Lateral Tangent</Name>
+            <Energy>6</Energy>
+            <GantryAngle>130</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3 SCLV</Name>
+            <Energy>6</Energy>
+            <GantryAngle>345</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="9" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4 PAB</Name>
+            <Energy>6</Energy>
+            <GantryAngle>179.9</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>ChwR 4Field</name>
+        <technique>SMLC</technique>
+        <DicomName>ChwR_3DC_R0A0</DicomName>
+        <description>4Field Chestwall Right</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1 Medial Tangent</Name>
+            <Energy>6</Energy>
+            <GantryAngle>055</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2 Lateral Tangent</Name>
+            <Energy>6</Energy>
+            <GantryAngle>230</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3 SCLV</Name>
+            <Energy>6</Energy>
+            <GantryAngle>015</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="9" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4 PAB</Name>
+            <Energy>6</Energy>
+            <GantryAngle>180.1</GantryAngle>
+            <CollimatorAngle>000</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>PRDR Chestwall Left 5 Beam</name>
+        <technique>SMLC</technique>
+        <DicomName>ChwL_PDR_R0A0</DicomName>
+        <description>PRDR Beamset for left breast</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1_SITE_RAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>310</GantryAngle>
+            <CollimatorAngle>7</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-6" x2="7" y1="-15" y2="15">True</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2_SITE_RAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>350</GantryAngle>
+            <CollimatorAngle>10</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">True</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3_SITE_LAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>20</GantryAngle>
+            <CollimatorAngle>5</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-9" x2="7" y1="-15" y2="15">True</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4_SITE_LAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>100</GantryAngle>
+            <CollimatorAngle>348</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="5" y1="-15" y2="15">True</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>5_SITE_LAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>145</GantryAngle>
+            <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="5" y1="-15" y2="15">True</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>PRDR Chestwall Right 5 Beam</name>
+        <technique>SMLC</technique>
+        <DicomName>ChwR_PDR_R0A0</DicomName>
+        <description>PRDR Beamset for right breast</description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1_SITE_RPO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>215</GantryAngle>
+            <CollimatorAngle>355</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="6" y1="-15" y2="15">True</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2_SITE_RPO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>260</GantryAngle>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">True</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3_SITE_RAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>340</GantryAngle>
+            <CollimatorAngle>355</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="9" y1="-15" y2="15">True</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4_SITE_LAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>010</GantryAngle>
+            <CollimatorAngle>007</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">True</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>5_SITE_LAO</Name>
+            <Energy>6</Energy>
+            <GantryAngle>040</GantryAngle>
+            <CollimatorAngle>005</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">True</LockAperture>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>PRDR Brain 10 Beam</name>
+        <technique>SMLC</technique>
+        <DicomName>Brai_PDR_R0A0</DicomName>
+        <description>PRDR Beamset for Brain</description>
+        <roi_support>Sframe_H2_TBCouch_Brain</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>1</Name>
+            <Energy>6</Energy>
+            <GantryAngle>231</GantryAngle>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="6" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>2</Name>
+            <Energy>6</Energy>
+            <GantryAngle>282</GantryAngle>
+            <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>3</Name>
+            <Energy>6</Energy>
+            <GantryAngle>333</GantryAngle>
+            <CollimatorAngle>355</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-7" x2="9" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>4</Name>
+            <Energy>6</Energy>
+            <GantryAngle>024</GantryAngle>
+            <CollimatorAngle>025</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>5</Name>
+            <Energy>6</Energy>
+            <GantryAngle>075</GantryAngle>
+            <CollimatorAngle>345</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>6</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>6</Name>
+            <Energy>6</Energy>
+            <GantryAngle>126</GantryAngle>
+            <CollimatorAngle>005</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>7</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>7</Name>
+            <Energy>6</Energy>
+            <GantryAngle>179.9</GantryAngle>
+            <CollimatorAngle>5</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>8</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>8</Name>
+            <Energy>6</Energy>
+            <GantryAngle>030</GantryAngle>
+            <CollimatorAngle>005</CollimatorAngle>
+            <CouchAngle>300</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>9</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>9</Name>
+            <Energy>6</Energy>
+            <GantryAngle>330</GantryAngle>
+            <CollimatorAngle>015</CollimatorAngle>
+            <CouchAngle>60</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+        <beam>
+            <BeamNumber>10</BeamNumber>
+            <DeliveryTechnique>SMLC</DeliveryTechnique>
+            <Name>10</Name>
+            <Energy>6</Energy>
+            <GantryAngle>280</GantryAngle>
+            <CollimatorAngle>005</CollimatorAngle>
+            <CouchAngle>90</CouchAngle>
+            <LockAperture x1="-5" x2="7" y1="-15" y2="15">False</LockAperture>
+        </beam>
+    </beamset>
+</templates>

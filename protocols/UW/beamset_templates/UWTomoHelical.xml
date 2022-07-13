@@ -1,0 +1,153 @@
+<templates>
+    <name>UW TOMOHELICAL</name>
+    <type>TomoHelical</type>
+    <modality>Photons</modality>
+    <beamset>
+        <name>FieldWidth:5.0cm Pitch:0.430</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Pitch 0.430, FW 5.0</description>
+        <roi_support>TomoCouch,S-frame</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>5.05</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.430</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>300</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>5</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>FieldWidth:5.0cm Pitch:0.287</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Pitch 0.287, FW 5.0</description>
+        <roi_support>TomoCouch,S-frame</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>5.05</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.287</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>300</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>5</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>FieldWidth:5.0cm Pitch:0.215</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Pitch 0.215, FW 5.0</description>
+        <roi_support>TomoCouch,S-frame</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>5.05</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.215</Pitch>
+            <BackJawPosition>2.1</BackJawPosition>
+            <FrontJawPosition>-2.1</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>300</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>5</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>FieldWidth:2.5cm Pitch:0.430</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Pitch 0.430, FW 2.5</description>
+        <roi_support>TomoCouch,S-frame</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.430</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>300</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>5</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>FieldWidth:2.5cm Pitch:0.287</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Pitch 0.287, FW 2.5</description>
+        <roi_support>TomoCouch,S-frame</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.287</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>300</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>5</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>FieldWidth:2.5cm Pitch:0.215</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Pitch 0.215, FW 2.5</description>
+        <roi_support>TomoCouch,S-frame</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>2.51</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.215</Pitch>
+            <BackJawPosition>1.0</BackJawPosition>
+            <FrontJawPosition>-1.0</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>300</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>5</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>FieldWidth:1.0cm Pitch:0.43</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Pitch 0.43, FW 1.0</description>
+        <roi_support>TomoCouch,S-frame</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>1.05</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.430</Pitch>
+            <BackJawPosition>0.35</BackJawPosition>
+            <FrontJawPosition>-0.35</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>300</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>5</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+
+</templates>
