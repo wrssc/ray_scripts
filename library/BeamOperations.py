@@ -307,16 +307,37 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     return dialog_beamset
 
 
-def find_isocenter_parameters(case, exam, beamset, iso_target, lateral_zero=False):
+def find_isocenter_parameters(case, exam, beamset, iso_target=None,
+                              iso_poi=None,
+                              existing_iso=None,
+                              lateral_zero=False):
     """Function to return the dict object needed for isocenter placement from the center of a supplied
     name of a structure"""
 
-    try:
-        isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
-            RoiGeometries[iso_target].GetCenterOfRoi()
-    except Exception:
-        logging.warning('Aborting, could not locate center of {}'.format(iso_target))
-        sys.exit('Failed to place isocenter')
+    if iso_target:
+        try:
+            isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
+                RoiGeometries[iso_target].GetCenterOfRoi()
+        except Exception:
+            logging.warning('Aborting, could not locate center of {}'.format(iso_target))
+            sys.exit('Failed to place isocenter')
+    elif iso_poi:
+        try:
+            isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
+                PoiGeometries[iso_poi].Point
+        except Exception:
+            logging.warning('Aborting, could not locate center of {}'.format(iso_poi))
+            sys.exit('Failed to place isocenter at Point {}'.format(iso_poi))
+    elif existing_iso:
+        beamsets = [bs for p in case.TreatmentPlans for bs in p.BeamSets]
+        for bs in beamsets:
+            try:
+                for b in bs.Beams:
+                    if b.Isocenter.Annotation.Name == existing_iso:
+                        isocenter_position = b.Isocenter.Position
+                        break
+            except:
+                pass
 
     # Place isocenter
     # TODO Add a check on laterality at this point (if -7< x < 7 ) put out a warning
