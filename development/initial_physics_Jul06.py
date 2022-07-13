@@ -42,6 +42,28 @@ __copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 #
+# TODO: Steal this
+# PROCESS_FUNCTION_DICT = {
+#     "BolusID": (return_expected_unique_to_raystation, {}),
+#     "DeviceSerialNumber": (return_expected_unique_to_aria, {}),
+#     "InstitutionName": (return_expected_unique_to_aria, {}),
+#     "InstitutionalDepartmentName": (return_expected_unique_to_aria, {}),
+#     "Manufacturer": (return_expected_unique_to_aria, {}),
+#     "ManufacturerModelName": (return_expected_unique_to_aria, {}),
+#     "ReferencedToleranceTableNumber": (return_expected_unique_to_aria, {}),
+#     "ReferencedPatientSetupNumber": (return_expected_mismatch, {"comment": "Numerical value may be different due to field reordering"}),
+#     "SoftwareVersions": (return_expected_mismatch, {"comment": "RayStation is not Aria"}),
+#     "SourceToSurfaceDistance": (process_ssd, {}),
+#     "LeafJawPositions": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 mm
+#     "TableTopLateralPosition": (return_expected_unique_to_aria, {}),
+#     "TableTopLongitudinalPosition": (return_expected_unique_to_aria, {}),
+#     "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
+#     "TreatmentMachineName": (process_treatment_machine_name, {}),
+# }
+# if ds1_keyword in PROCESS_FUNCTION_DICT:
+#     process_func, kwargs = PROCESS_FUNCTION_DICT[ds1_keyword]
+# else:
+#     process_func, kwargs = None, None
 # TODO: Eliminate parent_key from function call. Each function returns:
 #       pass_result, message_string
 #       These get added as a list [('Child String - Test Name', pass_result, message_string)]
@@ -59,7 +81,11 @@ __credits__ = ['']
 
 # TODO: Check SimFiducials for coords
 # TODO: Check image rotation
+# TODO: Check for slice alignment and rotation alignment 1899458
 # TODO: Check Beamsets for same machine
+#
+# TODO: Check for same iso, and same number of fractions in
+# different beamsets, and flag for merge
 
 
 # TODO:
@@ -92,7 +118,7 @@ __credits__ = ['']
 #     Prostate(low; risk)    1.6 - 2.2
 #     Prostate(high; risk)    2.0 - 2.4
 #
-# TODO: Check TomoLateral < 2 cm
+
 # TODO: Check collisions
 #   put a circle down at isocenter equal in dimension to ganty (collimator pin)/bore clearance
 #   union patient/supports
@@ -104,7 +130,7 @@ __credits__ = ['']
 # TODO:
 #   Flag all ROIs not made in MIM with goals
 #
-# TODO: Stray voxel check
+# TODO: Stray voxel check/
 
 # TODO: Check clinical goal
 #   if a clinical goal is not met, look at the objective list to see if it is constrained
@@ -122,6 +148,7 @@ import PySimpleGUI as sg
 import re
 from dateutil import parser
 import connect
+import pyperclip
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
 import GeneralOperations
@@ -215,6 +242,19 @@ FIELD_OF_VIEW_PREFERENCES = {'NAME': 'FieldOfView',
                              'SI_PTV_BUFFER': 2.0,  # cm
                              }
 
+MCS_TOLERANCES = {'MCS': {'MEAN': 0.369,
+                          'SIGMA': 0.152},
+                  'LSV': {'MEAN': 0.694,
+                          'SIGMA': 0.134},
+                  'AAV': {'MEAN': 0.522,
+                          'SIGMA': 0.188},
+                  }
+
+TOMO_DATA = {'MACHINES': ['HDA0488', 'HDA0477'],
+             'PLAN_TR_SUFFIX': r'_Tr',
+             'LATERAL_ISO_MARGIN': 2.,  # cm
+             }
+
 
 def read_log_file(patient_id):
     """
@@ -305,17 +345,19 @@ def parse_log_file(lines, parent_key, phrases=KEEP_PHRASES):
 
 # PATIENT CHECKS
 def match_date(date1, date2):
-    try:
-        p_date1 = parser.parse(date1).date()
-        p_date2 = parser.parse(date2).date()
-        if p_date1 == p_date2:
-            return True, date1, date2
-        else:
-            return False, date1, date2
-    except TypeError:
-        return False, None, None
-    except parser.ParserError:
-        return False, None, None
+    if date1:
+        p_date1 = parser.parse(date1).date().strftime("%Y-%m-%d")
+    else:
+        p_date1 = None
+    if date2:
+        p_date2 = parser.parse(date2).date().strftime("%Y-%m-%d")
+    else:
+        p_date2 = None
+
+    if p_date1 == p_date2:
+        return True, p_date1, p_date2
+    else:
+        return False, p_date1, p_date2
 
 
 def match_patient_name(name1, name2):
@@ -336,9 +378,12 @@ def match_patient_name(name1, name2):
 
 
 def match_gender(gender1, gender2):
-    # Match M/Male, F/Female, O/Other
+    # Match M/Male, F/Female, O/Other, Unknown/None
     if gender1:
-        l1 = gender1[0]
+        if 'Unknown' in gender1[0]:
+            gender1 = None
+        else:
+            l1 = gender1[0]
     if gender2:
         l2 = gender2[0]
     if gender1 and gender2:
@@ -371,6 +416,7 @@ def check_exam_data(patient, exam, parent_key):
 
     Returns:
         messages: [[str1, ...,],...]: [[parent_key, child_key, messgae display, Pass/Fail/Alert]]
+    # TODO: Parse date/time of birth and ignore time of birth
     """
 
     child_key = 'DICOM Raystation Comparison'
@@ -380,33 +426,52 @@ def check_exam_data(patient, exam, parent_key):
             str(patient.Gender): (0x0010, 0x0040, match_gender),
             str(patient.DateOfBirth): (0x0010, 0x0030, match_date)
             }
-    messages = []
     get_rs_value = exam.GetStoredDicomTagValueForVerification
     modality = list(get_rs_value(Group=modality_tag[0],
                                  Element=modality_tag[1]).values())[0]  # Get Modality
+    message_str = "Attribute: [DICOM vs RS]"
     all_passing = True
     for k, v in tags.items():
         rs_tag = get_rs_value(Group=v[0], Element=v[1])
         for dicom_attr, dicom_val in rs_tag.items():
             match, rs, dcm = v[2](dicom_val, k)
             if match:
-                match_str = 'matches '
-                pass_msg = "Pass"
-                icon = GREEN_CIRCLE
+                message_str += "{}:[\u2713], ".format(dicom_attr)
             else:
                 all_passing = False
-                match_str = 'FAILS to match '
-                pass_msg = "Fail"
-                icon = RED_CIRCLE
-            message_str = "{0} of DICOM {1}: {2} {3}RS: {4}" \
-                .format(dicom_attr, modality, dcm, match_str, rs)
-        #  messages.append([child_key, dicom_attr, message_str, pass_msg, icon])
+                match_str = ' \u2260 '
+                message_str += "{0}: [{1}:{2} {3} RS:{4}], " \
+                    .format(dicom_attr, modality, dcm, match_str, rs)
     if all_passing:
         pass_result = 'Pass'
-        # messages.insert(0, [parent_key, child_key, child_key, "Pass", GREEN_CIRCLE])
     else:
         pass_result = 'Fail'
-        # messages.insert(0, [parent_key, child_key, child_key, "Fail", RED_CIRCLE])
+    messages = build_tree_element(parent_key=parent_key,
+                                  child_key=child_key,
+                                  pass_result=pass_result,
+                                  message_str=message_str)
+    return messages
+
+
+def check_localization(pd, parent_key):
+    child_key = 'Localization point exists'
+    poi_coord = {}
+    localization_found = False
+    for p in pd.case.PatientModel.StructureSets[pd.exam.Name].PoiGeometries:
+        if p.OfPoi.Type == 'LocalizationPoint':
+            point = p
+            poi_coord = p.Point
+            localization_found = True
+            break
+    if poi_coord:
+        message_str = "Localization point {} exists and has coordinates.".format(point.OfPoi.Name)
+        pass_result = "Pass"
+    elif localization_found:
+        message_str = "Localization point {} does not have coordinates.".format(point.OfPoi.Name)
+        pass_result = "Fail"
+    else:
+        message_str = "No point of type LocalizationPoint found"
+        pass_result = "Fail"
     messages = build_tree_element(parent_key=parent_key,
                                   child_key=child_key,
                                   pass_result=pass_result,
@@ -594,6 +659,35 @@ def compare_exam_date(exam, plan, beamset, tolerance, parent_key):
     return messages
 
 
+def match_image_directions(pd, parent_key):
+    child_key = 'Image is axially oriented'
+    # Match the directions that a correctly oriented image should have
+    stack_details = {'direction_column': {'x': int(0), 'y': int(1), 'z': int(0)},
+                     'direction_row': {'x': int(1), 'y': int(0), 'z': int(0)},
+                     'direction_slice': {'x': int(0), 'y': int(0), 'z': int(1)}}
+    col_dir = pd.exam.Series[0].ImageStack.ColumnDirection
+    row_dir = pd.exam.Series[0].ImageStack.RowDirection
+    sli_dir = pd.exam.Series[0].ImageStack.SliceDirection
+    message_str = ""
+    pass_result = 'Pass'
+    if col_dir != stack_details['direction_column'] or \
+            sli_dir != stack_details['direction_slice']:
+        message_str.append('Exam {} has been rotated and will not transfer to iDMS!'.format(pd.exam.Name))
+        pass_result = 'Fail'
+    if row_dir != stack_details['direction_row']:
+        message_str.append('Exam {} has been rotated or was acquired'.format(pd.exam.Name)
+                           + ' with gantry tilt and should be reoriented!')
+        pass_result = 'Fail'
+    if not message_str:
+        message_str = 'Image set {} is not rotated'.format(pd.exam.Name)
+
+    messages = build_tree_element(parent_key=parent_key,
+                                  child_key=child_key,
+                                  pass_result=pass_result,
+                                  message_str=message_str)
+    return messages
+
+
 #
 # CONTOUR CHECKS
 def get_roi_list(case, exam_name=None):
@@ -670,6 +764,8 @@ def make_fov(pd, fov_name):
             RbeCellTypeName=None,
             RoiMaterial=None,
         )
+        # TODO replace with cylinder creation at [0,0,0]
+        #   grab dicom tag: 0018, 1100 Reconstruction Diameter
         pd.case.PatientModel.RegionsOfInterest[fov_name].CreateFieldOfViewROI(
             ExaminationName=pd.exam.Name
         )
@@ -781,9 +877,28 @@ def get_targets_si_extent(pd):
     return extent
 
 
+def get_si_extent(pd, types):
+    rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
+    initial = [-1000, 1000]
+    extent = [-1000, 1000]
+    for r in rg:
+        if r.OfRoi.Type in types and r.HasContours():
+            bb = r.GetBoundingBox()
+            rg_max = bb[0]['z']
+            rg_min = bb[1]['z']
+            if rg_max > extent[0]:
+                extent[0] = rg_max
+            if rg_min < extent[1]:
+                extent[1] = rg_min
+    if extent == initial:
+        return None
+    else:
+        return extent
+
+
 def get_slice_positions(pd):
     # Get slice positions in linear array
-    slice_positions = np.array(pd.patient.Cases[0].Examinations[0].Series[0].ImageStack.SlicePositions)
+    slice_positions = np.array(pd.exam.Series[0].ImageStack.SlicePositions)
     #
     # Starting corner
     image_corner = pd.exam.Series[0].ImageStack.Corner
@@ -797,26 +912,108 @@ def image_extent_sufficient(pd, parent_key, target_extent=None):
     child_key = 'Image extent sufficient'
     #
     # Get image slices
-    z = get_slice_positions(pd)
-    z_extent = [np.max(z), np.min(z)]
+    bb = pd.exam.Series[0].ImageStack.GetBoundingBox()
+    bb_z = [bb[0]['z'], bb[1]['z']]
+    z_extent = [min(bb_z), max(bb_z)]
     #
     # Get target length
     if not target_extent:
-        target_extent = get_targets_si_extent(pd=pd)
+        target_extent = get_si_extent(pd=pd, types=['Ptv'])
+    #
+    # Tolerance for SI extent
     #
     # Tolerance for SI extent
     buffer = FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']
-    if max(z_extent) >= max(target_extent) + buffer and min(z_extent) <= min(target_extent):
-        message_str = 'Planning image set is at least {} larger than S/I target extent: {}'.format(
-            buffer, target_extent)
+    buffered_target_extent = [target_extent[0] - buffer, target_extent[1] + buffer]
+    #
+    # Nice strings for output
+    z_str = '[' + ('%.2f ' * len(z_extent)) % tuple(z_extent) + ']'
+    t_str = '[' + ('%.2f ' * len(buffered_target_extent)) % tuple(buffered_target_extent) + ']'
+    if not target_extent:
+        message_str = 'No targets found of type Ptv, image extent could not be evaluated'
+        pass_result = 'Fail'
+    elif z_extent[1] >= buffered_target_extent[1] and z_extent[0] <= buffered_target_extent[0]:
+        message_str = 'Planning image extent {} and is at least {:.1f} larger than S/I target extent {}'.format(
+            z_str, buffer, t_str)
         pass_result = "Pass"
-    elif max(z_extent) < max(target_extent) + buffer or min(z_extent) > min(target_extent):
-        message_str = 'Image set is insufficient for accurate calculation.' \
-                      + '(SMALLER THAN than S/I target extent: {} + {} cm)'.format(target_extent, buffer)
+    elif z_extent[1] < buffered_target_extent[1] or z_extent[0] > buffered_target_extent[0]:
+        message_str = 'Planning Image extent:{} is insufficient for accurate calculation.'.format(z_str) \
+                      + '(SMALLER THAN :w' \
+                        'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
         pass_result = "Fail"
     else:
         message_str = 'Target length could not be compared to image set'
         pass_result = "Fail"
+    # Prepare output
+    messages = build_tree_element(parent_key=parent_key,
+                                  child_key=child_key,
+                                  pass_result=pass_result,
+                                  message_str=message_str)
+    return messages
+
+
+def couch_extent_sufficient(pd, parent_key, target_extent=None):
+    """
+       Check PTV volume extent have supports under them
+       Args:
+           parent_key:
+           pd: NamedTuple of ScriptObject
+           target_extent: [min, max extent of target]
+       Returns:
+           message: [str1, ...,]: [parent_key, child_key, child_key display, result value]
+       Test Patient:
+
+           Pass: Plan_Review_Script_Testing, ZZUWQA_SCTest_01May2022
+                 Case THI: Anal_THI: Anal_THI
+           Fail (bad couch): Plan_Review_Script_Testing, ZZUWQA_SCTest_01May2022
+                 Case THI: ChwL_3DC: SCV PAB
+           Fail (no couch): Plan_Review_Script_Testing, ZZUWQA_SCTest_01May2022
+                 Case THI: Pros_VMA: Pros_VMA
+       """
+    # Testing -
+    child_key = 'Couch extent sufficient'
+    #
+    # Get support structure extent
+    supports = ['Support']
+    rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
+    support_list = []
+    for r in rg:
+        if r.OfRoi.Type in supports:
+            support_list.append(r.OfRoi.Name)
+    couch_extent = get_si_extent(pd=pd, types=['Support'])
+    if couch_extent:
+        # Nice strings for output
+        z_str = '[' + ('%.2f ' * len(couch_extent)) % tuple(couch_extent) + ']'
+    #
+    # Get target length
+    if not target_extent:
+        target_extent = get_si_extent(pd=pd, types=['Ptv'])
+    #
+    # Tolerance for SI extent
+    buffer = FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']
+    buffered_target_extent = [target_extent[0] - buffer, target_extent[1] + buffer]
+    if target_extent:
+        # Output string
+        t_str = '[' + ('%.2f ' * len(buffered_target_extent)) % tuple(buffered_target_extent) + ']'
+    if not couch_extent:
+        message_str = 'No support structures found. No couch check possible'
+        pass_result = "Fail"
+    elif couch_extent[1] >= buffered_target_extent[1] and couch_extent[0] <= buffered_target_extent[0]:
+        message_str = 'Supports (' \
+                      + ', '.join(support_list) \
+                      + ') span {} and is at least {:.1f} larger than S/I target extent {}'.format(z_str, buffer, t_str)
+        pass_result = "Pass"
+    elif couch_extent[1] < buffered_target_extent[1] or couch_extent[0] > buffered_target_extent[0]:
+        message_str = 'Support extent (' \
+                      + ', '.join(support_list) \
+                      + ') :{} is not fully under the target.'.format(z_str) \
+                      + '(SMALLER THAN ' \
+                        'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
+        pass_result = "Fail"
+    else:
+        message_str = 'Target length could not be compared to support extent'
+        pass_result = "Fail"
+    # Prepare output
     messages = build_tree_element(parent_key=parent_key,
                                   child_key=child_key,
                                   pass_result=pass_result,
@@ -977,6 +1174,56 @@ def check_control_point_spacing(bs, expected, parent_key):
     return messages
 
 
+def check_transfer_approved(pd, parent_key):
+    """
+
+    Args:
+        pd: NamedTuple with a beamset
+        parent_key: parent_node
+
+    Returns:
+        message (list str): [Pass_Status, Message String]
+
+    """
+    child_key = "Transfer Beamset approval status"
+    parent_beamset_name = pd.beamset.DicomPlanLabel
+    daughter_plan_name = pd.plan.Name + TOMO_DATA['PLAN_TR_SUFFIX']
+    if TOMO_DATA['MACHINES'][0] in pd.beamset.MachineReference['MachineName']:
+        daughter_machine = TOMO_DATA['MACHINES'][1]
+    else:
+        daughter_machine = TOMO_DATA['MACHINES'][0]
+
+    daughter_beamset_name = parent_beamset_name[:8] \
+                            + TOMO_DATA['PLAN_TR_SUFFIX'] \
+                            + daughter_machine[-3:]
+    plan_names = [p.Name for p in pd.case.TreatmentPlans]
+    beamset_names = [bs.DicomPlanLabel for p in pd.case.TreatmentPlans for bs in p.BeamSets]
+    if daughter_beamset_name in beamset_names and daughter_plan_name in plan_names:
+        transfer_beamset = pd.case.TreatmentPlans[daughter_plan_name].BeamSets[daughter_beamset_name]
+    else:
+        transfer_beamset = None
+        message_str = "Beamset: {} is missing a transfer plan!".format(pd.beamset.DicomPlanLabel)
+        pass_result = "Fail"
+    if transfer_beamset:
+        approval_status = approval_info(pd.plan, transfer_beamset)
+        if approval_status.beamset_approved:
+            message_str = "Transfer Beamset: {} was approved by {} on {}".format(
+                transfer_beamset.DicomPlanLabel,
+                approval_status.beamset_reviewer,
+                approval_status.beamset_approval_time
+            )
+            pass_result = "Pass"
+        else:
+            message_str = "Beamset: {} is not approved".format(
+                transfer_beamset.DicomPlanLabel)
+            pass_result = "Fail"
+    messages = build_tree_element(parent_key=parent_key,
+                                  child_key=child_key,
+                                  pass_result=pass_result,
+                                  message_str=message_str)
+    return messages
+
+
 def check_edw_MU(beamset, parent_key):
     """
     Checks to see if all MU are greater than the EDW limit
@@ -1068,12 +1315,42 @@ def check_common_isocenter(beamset, parent_key, tolerance=1e-12):
     return messages
 
 
-def check_bolus_included(case, beamset, parent_key):
+def check_tomo_isocenter(pd, parent_key):
+    """
+    Checks isocenter for lateral less than 2 cm.
+
+    Args:
+        pd (object): Named tuple of ScriptObjects
+        parent_key (str): root upon which this check goes
+    Returns:
+            message: List of ['Test Name Key', 'Pass/Fail', 'Detailed Message']
+
+    """
+    child_key = "Isocenter Lateral Acceptable"
+    iso_pos_x = pd.beamset.Beams[0].Isocenter.Position.x
+    if np.less_equal(abs(iso_pos_x), TOMO_DATA['LATERAL_ISO_MARGIN']):
+        pass_result = "Pass"
+        message_str = "Isocenter [{}] lateral shift is acceptable: {} < {} cm".format(
+            pd.beamset.Beams[0].Isocenter.Annotation.Name,
+            iso_pos_x,
+            TOMO_DATA['LATERAL_ISO_MARGIN'])
+    else:
+        pass_result = "Fail"
+        message_str = "Isocenter [{}] lateral shift is inconsistent with indexing: {} > {} cm!".format(
+            pd.beamset.Beams[0].Isocenter.Name,
+            iso_pos_x,
+            TOMO_DATA['LATERAL_ISO_MARGIN'])
+    messages = build_tree_element(parent_key=parent_key,
+                                  child_key=child_key,
+                                  pass_result=pass_result,
+                                  message_str=message_str)
+    return messages
+
+
+def check_bolus_included(pd, parent_key):
     """
 
     Args:
-        case: RS Case Object
-        beamset:  RS Beamset Object
         parent_key: str: the key under which this test is performed in the treedata
 
     Returns:
@@ -1084,18 +1361,18 @@ def check_bolus_included(case, beamset, parent_key):
         Fail: Bolus_Roi_Check_Fail: ChwL_VMA_R0A0
     """
     child_key = "Bolus Application"
-    exam_name = beamset.PatientSetup.LocalizationPoiGeometrySource.OnExamination.Name
-    roi_list = get_roi_list(case, exam_name=exam_name)
+    exam_name = pd.exam.Name
+    roi_list = get_roi_list(pd.case, exam_name=exam_name)
     bolus_names = match_roi_name(roi_names=BOLUS_NAMES, roi_list=roi_list)
     if bolus_names:
         fail_str = "Stucture(s) {} named bolus, ".format(bolus_names) \
-                   + "but not applied to beams in beamset {}".format(beamset.DicomPlanLabel)
+                   + "but not applied to beams in beamset {}".format(pd.beamset.DicomPlanLabel)
         try:
-            applied_boli = set([bolus.Name for b in beamset.Beams for bolus in b.Boli])
+            applied_boli = set([bolus.Name for b in pd.beamset.Beams for bolus in b.Boli])
             if any(bn in applied_boli for bn in bolus_names):
                 bolus_matches = {bn: [] for bn in bolus_names}
                 for ab in applied_boli:
-                    bolus_matches[ab].extend([b.Name for b in beamset.Beams
+                    bolus_matches[ab].extend([b.Name for b in pd.beamset.Beams
                                               for bolus in b.Boli
                                               if bolus.Name == ab])
                 pass_result = "Pass"
@@ -1242,21 +1519,21 @@ def check_dose_grid(pd, parent_key):
                 message_str = "Dose grid too large for plan type {}. ".format(name_match) \
                               + "Grid size is {} cm and should be {} cm".format(grid, v['DOSE_GRID'])
                 pass_result = "Fail"
-                icon = RED_CIRCLE
             else:
                 message_str = "Dose grid appropriate for plan type {}. ".format(name_match) \
                               + "Grid size is {} cm  and ≤ {} cm".format(grid, v['DOSE_GRID'])
                 pass_result = "Pass"
-                icon = GREEN_CIRCLE
         # Look for fraction size violations
         elif v['FRACTION_SIZE_LIMIT']:
-            if fractional_dose >= v['FRACTION_SIZE_LIMIT'] and \
+            if not fractional_dose:
+                message_str = "Dose grid cannot be evaluated for this plan. No fractional dose"
+                pass_result = 'Fail'
+            elif fractional_dose >= v['FRACTION_SIZE_LIMIT'] and \
                     any([g > v['DOSE_GRID'] for g in grid]):
                 message_str = "Dose grid may be too large for this plan based on fractional dose " \
                               + "{:.0f} > {:.0f} cGy. ".format(fractional_dose, v['FRACTION_SIZE_LIMIT']) \
                               + "Grid size is {} cm and should be {} cm".format(grid, v['DOSE_GRID'])
                 pass_result = "Fail"
-                icon = RED_CIRCLE
     # Plan is a default plan. Just Check against defaults
     if not message_str:
         violation_list = [i for i in grid if i > DOSE_GRID_DEFAULT]
@@ -1388,8 +1665,70 @@ def filter_banks(beam, banks):
     return filtered_banks
 
 
-def compute_mcs_masi(beam):
-    ##
+def compute_mcs(beam, override_square=False):
+    # Step and Shoot
+    #
+    # Get the beam mlc banks
+    banks = get_mlc_bank_array(beam)
+    weights = get_relative_weight(beam)
+    current_machine = get_machine(machine_name=beam.MachineReference.MachineName)
+    # Leaf Widths
+    leaf_widths = current_machine.Physics.MlcPhysics.UpperLayer.LeafWidths
+    #
+    # Segment weights
+    segment_weights = np.array(weights)
+    #
+    # Filter the banks
+    filtered_banks = filter_banks(beam, banks)
+    #
+    # Square field test
+    if override_square:
+        filtered_banks[:, 0, :] = np.nan
+        filtered_banks[:, 1, :] = np.nan
+        filtered_banks[32:38, 0, :] = -2.
+        filtered_banks[32:38, 1, :] = 2.
+    # Mask out the closed mlcs
+    mask_banks = np.ma.masked_invalid(filtered_banks)
+    #
+    # Jm Number of active leaves in both banks in each control point
+    jm = np.count_nonzero(mask_banks, axis=0) - 1.  # Subtract for n+1 leaf without next in mask
+    # Max position
+    pos_max = np.amax(mask_banks, axis=0) - np.amin(mask_banks, axis=0)  # Checked
+    # Handle amax = amin (rectangles)
+    if np.amax(mask_banks[:, 0, :]) == np.amin(mask_banks[:, 0, :]):
+        pos_max[0, :] = np.amax(mask_banks[:, 0, :])
+    if np.amax(mask_banks[:, 1, :]) == np.amin(mask_banks[:, 1, :]):
+        pos_max[1, :] = np.amax(mask_banks[:, 1, :])
+    #
+    # Absolute value of difference in single bank leaf movement
+    pos_max = np.abs(pos_max)
+    #
+    # Difference in leaf positions for each segment on each bank
+    # Absolute value since the relative difference between leaves on the same
+    # bank is used
+    banks_diff = np.abs(mask_banks[:-1, :, :] - mask_banks[1:, :, :])
+    separated_lsv = np.divide(np.sum(pos_max - banks_diff, axis=0), (jm * pos_max))
+    # Compute the leaf sequence variability
+    lsv = separated_lsv[0, :] * separated_lsv[1, :]
+    weighted_lsv = np.sum(lsv * segment_weights)
+    #
+    # AAV calculation
+    apertures = mask_banks * leaf_widths[:, None, None]
+    mlc_diff = apertures[:, 1, :] - apertures[:, 0, :]
+    segment_aperture_area = np.sum(mlc_diff, axis=0)
+    #
+    # CIAO
+    beam_ciao = np.amax(mlc_diff, axis=1)
+    aav = segment_aperture_area / np.sum(beam_ciao)
+    weighted_aav = np.sum(aav * segment_weights)
+    #
+    # MCS calc
+    mcsv = np.sum(lsv * aav * segment_weights)
+    return weighted_lsv, weighted_aav, mcsv
+
+
+def compute_mcs_masi(beam, override_square=False):
+    #
     # Get the beam mlc banks
     banks = get_mlc_bank_array(beam)
     weights = get_relative_weight(beam)
@@ -1404,11 +1743,12 @@ def compute_mcs_masi(beam):
     # Filter the banks
     filtered_banks = filter_banks(beam, banks)
     #
-    # Uncomment for square field test
-    # filtered_banks[:,0,:] = np.nan
-    # filtered_banks[:,1,:] = np.nan
-    # filtered_banks[32:38,0,:] = -2.
-    # filtered_banks[32:38,1,:] = 2.
+    # Square field test
+    if override_square:
+        filtered_banks[:, 0, :] = np.nan
+        filtered_banks[:, 1, :] = np.nan
+        filtered_banks[32:38, 0, :] = -2.
+        filtered_banks[32:38, 1, :] = 2.
     # Mask out the closed mlcs
     mask_banks = np.ma.masked_invalid(filtered_banks)
     #
@@ -1421,8 +1761,11 @@ def compute_mcs_masi(beam):
         pos_max[0, :] = np.amax(mask_banks[:, 0, :])
     if np.amax(mask_banks[:, 1, :]) == np.amin(mask_banks[:, 1, :]):
         pos_max[1, :] = np.amax(mask_banks[:, 1, :])
+    # Absolute value of difference in single bank leaf movement
+    pos_max = np.abs(pos_max)
+    #
     # Difference in leaf positions for each segment on each bank
-    banks_diff = mask_banks[:-1, :, :] - mask_banks[1:, :, :]
+    banks_diff = np.abs(mask_banks[:-1, :, :] - mask_banks[1:, :, :])
     separated_lsv = np.divide(np.sum(pos_max - banks_diff, axis=0), (jm * pos_max))
     # Compute the leaf sequence variability
     lsv = separated_lsv[0, :] * separated_lsv[1, :]
@@ -1430,8 +1773,8 @@ def compute_mcs_masi(beam):
     weighted_vmat_lsv = np.sum(vmat_lsv * segment_weights[:-1])
     #
     # AAV calculation
-    aperatures = mask_banks * leaf_widths[:, None, None]
-    mlc_diff = aperatures[:, 1, :] - aperatures[:, 0, :]
+    apertures = mask_banks * leaf_widths[:, None, None]
+    mlc_diff = apertures[:, 1, :] - apertures[:, 0, :]
     segment_aperature_area = np.sum(mlc_diff, axis=0)
     #
     # CIAO
@@ -1441,8 +1784,8 @@ def compute_mcs_masi(beam):
     weighted_vmat_aav = np.sum(vmat_aav * segment_weights[:-1])
     #
     # MCS calc
-    vmat_mcs = np.sum(vmat_lsv * vmat_aav * averaged_segment_weights)
-    return weighted_vmat_lsv, weighted_vmat_aav, vmat_mcs
+    mcsv = np.sum(vmat_lsv * vmat_aav * averaged_segment_weights)
+    return weighted_vmat_lsv, weighted_vmat_aav, mcsv
 
 
 def get_machine(machine_name):
@@ -1459,13 +1802,49 @@ def compute_beam_properties(pd, parent_key):
     # Compute MCS and any other desired beam properties
     child_key = "Beamset Complexity"
     message_str = "[Beam Name: LSV, AAV, MCS] :: "
+    tech = pd.beamset.DeliveryTechnique
+    pass_result = 'Pass'
     for b in pd.beamset.Beams:
-        lsv, aav, mcs = compute_mcs_masi(b)
-        message_str += '[{}: '.format(b.Name) \
-                       + '{:.3f}, {:.3f}, {:.3f}], '.format(lsv, aav, mcs)
+        if tech == 'DynamicArc':
+            lsv, aav, mcs = compute_mcs_masi(b)
+        elif tech == 'SMLC':
+            # TODO Review versus a non segmented case with big opening differences
+            lsv, aav, mcs = compute_mcs(b)
+        else:
+            message_str = 'Error Unknown technique {}'.format(tech)
+            break
+        message_str += '[{}: '.format(b.Name)
+        # LSV
+        if lsv < MCS_TOLERANCES['LSV']['MEAN'] - 2. * MCS_TOLERANCES['LSV']['SIGMA']:
+            pass_result = 'Fail'
+            message_str += '{:.3f} OVERMODULATED,'.format(lsv)
+        elif lsv > MCS_TOLERANCES['LSV']['MEAN'] + 2. * MCS_TOLERANCES['LSV']['SIGMA']:
+            pass_result = 'Fail'
+            message_str += '{:.3f} UNDERMODULATED,'.format(lsv)
+        else:
+            message_str += '{:.3f},'.format(lsv)
+        # AAV
+        if aav < MCS_TOLERANCES['AAV']['MEAN'] - 2. * MCS_TOLERANCES['AAV']['SIGMA']:
+            pass_result = 'Fail'
+            message_str += '{:.3f} OVERMODULATED,'.format(aav)
+        elif aav > MCS_TOLERANCES['AAV']['MEAN'] + 2. * MCS_TOLERANCES['AAV']['SIGMA']:
+            pass_result = 'Fail'
+            message_str += '{:.3f} UNDERMODULATED,'.format(aav)
+        else:
+            message_str += '{:.3f},'.format(aav)
+        # MCS
+        if mcs < MCS_TOLERANCES['MCS']['MEAN'] - 2. * MCS_TOLERANCES['MCS']['SIGMA']:
+            pass_result = 'Fail'
+            message_str += '{:.3f} OVERMODULATED,'.format(mcs)
+        elif mcs > MCS_TOLERANCES['MCS']['MEAN'] + 2. * MCS_TOLERANCES['MCS']['SIGMA']:
+            pass_result = 'Fail'
+            message_str += '{:.3f} UNDERMODULATED,'.format(mcs)
+        else:
+            message_str += '{:.3f}'.format(mcs)
+        message_str += '],'
     messages = build_tree_element(parent_key=parent_key,
                                   child_key=child_key,
-                                  pass_result='Pass',
+                                  pass_result=pass_result,
                                   message_str=message_str)
     return messages
 
@@ -1538,8 +1917,11 @@ def check_plan():
     # Exam check activations
     check_exam_date = True if pd.exam else False
     check_overlap = True if pd.exam else False
-    target_extent = get_targets_si_extent(pd) if pd.exam else None
+    target_extent = get_si_extent(pd, types=['Ptv']) if pd.exam else None
     check_target_extent = True if pd.exam else False
+    check_couch_extent = True if pd.exam else False
+    check_bb = True if pd.exam else False
+    check_rot = True if pd.exam else False
     #
     # Beamset level activations
     check_fx_size = True if pd.beamset else False
@@ -1556,12 +1938,34 @@ def check_plan():
     technique = pd.beamset.DeliveryTechnique if pd.beamset else None
     check_cps = True if technique == 'DynamicArc' else False
     if technique == 'DynamicArc':
+        check_tomo_trnsfr_apprvd = False
+        check_tomo_iso = False
         if pd.beamset.Beams[0].HasValidSegments:
             check_beam_properties = True
         else:
             check_beam_properties = False
+    elif technique == 'SMLC':
+        check_tomo_trnsfr_apprvd = False
+        check_tomo_iso = False
+        try:
+            pd.beamset.Beams[0].Segments[0]
+            check_beam_properties = True
+        except Exception as e:
+            logging.debug('Cannot check beamsets yet {}'.format(str(e)))
+            check_beam_properties = False
+    elif 'Tomo' in technique:
+        check_beam_properties = False
+        check_tomo_iso = True
+        try:
+            pd.beamset.Beams[0].Segments[0]
+            check_tomo_trnsfr_apprvd = True
+        except Exception as e:
+            logging.debug('Cannot check beamsets yet {}'.format(str(e)))
+            check_tomo_trnsfr_apprvd = False
     else:
         check_beam_properties = False
+        check_tomo_trnsfr_apprvd = False
+        check_tomo_iso = False
     # Plan check for SMLC
     check_edw = True if technique == 'SMLC' else False
 
@@ -1585,9 +1989,18 @@ def check_plan():
     if check_target_extent:
         message_image_length = image_extent_sufficient(pd=pd, parent_key=exam_key[0], target_extent=target_extent)
         exam_level_tests.extend(message_image_length)
+    if check_couch_extent:
+        message_couch_length = couch_extent_sufficient(pd=pd, parent_key=exam_key[0], target_extent=target_extent)
+        exam_level_tests.extend(message_couch_length)
     if check_overlap:
         message_fov = external_overlaps_fov(pd=pd, parent_key=exam_key[0], target_extent=target_extent)
         exam_level_tests.extend(message_fov)
+    if check_bb:
+        message_bb = check_localization(pd=pd, parent_key=exam_key[0])
+        exam_level_tests.extend(message_bb)
+    if check_bb:
+        message_rot = match_image_directions(pd=pd, parent_key=exam_key[0])
+        exam_level_tests.extend(message_rot)
     # Exam tests complete. Update value
     exam_level_pass = "Pass"
     exam_icon = GREEN_CIRCLE
@@ -1659,8 +2072,7 @@ def check_plan():
     #
     # Bolus checks
     if check_bolus_structures:
-        message_bolus = check_bolus_included(case=pd.case,
-                                             beamset=pd.beamset, parent_key=beamset_key[0])
+        message_bolus = check_bolus_included(pd, parent_key=beamset_key[0])
         beamset_level_tests.extend(message_bolus)
     #
     # Check No Fly Zone
@@ -1675,6 +2087,14 @@ def check_plan():
     if check_beam_properties:
         message_beam_properties = compute_beam_properties(pd, parent_key=beamset_key[0])
         beamset_level_tests.extend(message_beam_properties)
+    if check_tomo_trnsfr_apprvd:
+        message_tfr_approved = check_transfer_approved(pd, parent_key=beamset_key[0])
+        beamset_level_tests.extend(message_tfr_approved)
+    #
+    # Look for too lateral isocenter
+    if check_tomo_iso:
+        message_iso = check_tomo_isocenter(pd, parent_key=beamset_key[0])
+        beamset_level_tests.extend(message_iso)
 
     #
     # Insert Beamset Level Nodes
@@ -1703,21 +2123,21 @@ def check_plan():
     # TODO is it possible to specify which columns are expanded by pass fail?
     sg.theme('Topanga')
     col_widths = [20]
-    layout = [
-        [sg.Tree(
-            data=treedata,
-            headings=['Checks', ],
-            auto_size_columns=False,
-            num_rows=40,
-            col0_width=120,
-            col_widths=col_widths,
-            key='-TREE-',
-            show_expanded=False,
-            justification="left",
-            enable_events=True),
-        ],
-        [sg.Button('Ok'), sg.Button('Cancel')]
-    ]
+    col1 = sg.Column([[sg.Frame('ReviewChecks:',
+                                [[
+                                    sg.Tree(
+                                        data=treedata,
+                                        headings=['Checks', ],
+                                        auto_size_columns=False,
+                                        num_rows=40,
+                                        col0_width=120,
+                                        col_widths=col_widths,
+                                        key='-TREE-',
+                                        show_expanded=False,
+                                        justification="left",
+                                        enable_events=True),
+                                ], [sg.Button('Ok'), sg.Button('Cancel')]])]], pad=(0, 0))
+    layout = [[col1]]
 
     window = sg.Window('Plan Review: ' + user_name, layout)
 
@@ -1725,7 +2145,6 @@ def check_plan():
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
-        print(event, values)
     window.close()
 
 
