@@ -798,7 +798,8 @@ def main():
             MbsRois=MBS_ROIS,
             CreateNewRois=True,
             Examination=pd_hfs.exam,
-            UseAtlasBasedInitialization=True)
+            UseAtlasBasedInitialization=False)
+        connect.await_user_input('Review placement of MBS structures')
 
         pd_hfs.case.PatientModel.AdaptMbsMeshes(
             Examination=pd_hfs.exam,
@@ -830,6 +831,7 @@ def main():
             CreateNewRois=False,
             Examination=pd_ffs.exam,
             UseAtlasBasedInitialization=True)
+        connect.await_user_input('Review placement of MBS structures')
 
         pd_ffs.case.PatientModel.AdaptMbsMeshes(
             Examination=pd_ffs.exam,
