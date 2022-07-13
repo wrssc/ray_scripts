@@ -323,6 +323,6 @@ def pdf(patient, exam, plan, folder=report_folder, fields=None, overwrite=True, 
                            style=TableStyle([('VALIGN', (0, 0), (-1, -1), 'TOP')])))
 
     # Finish up
-    doc.build(story)
+    doc.build_string_clip(story)
     logging.debug('WriteTpo.pdf() completed successfully in {:.3f} seconds'.format(time.time() - tic))
     return filename
