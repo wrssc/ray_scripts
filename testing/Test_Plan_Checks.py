@@ -70,17 +70,11 @@ __credits__ = ['']
 #       This list gets checked for pass_results
 #       This list gets used for a build of elements in a loop
 #
-# TODO: Check for correct supports
-#   Tomo plan, Tomo couch,
-#   VMAT plan, TB couch or SFrame
-
 # TODO: Check contour interpolation
 #   Find Ptv,Ctv, Gtv
 #   if goals: get those - otherwise get all
 #   check slices for gaps
 
-# TODO: Check SimFiducials for coords
-# TODO: Check image rotation
 # TODO: Check for slice alignment and rotation alignment 1899458
 # TODO: Check Beamsets for same machine
 #
@@ -879,12 +873,21 @@ def get_targets_si_extent(pd):
     return extent
 
 
-def get_si_extent(pd, types):
+def get_si_extent(pd, types=None, roi_list=None):
     rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
     initial = [-1000, 1000]
     extent = [-1000, 1000]
+    # Generate a list to search
+    type_list = []
+    rois = []
+    if types:
+        type_list = [r.OfRoi.Name for r in rg if r.OfRoi.Type in types and r.HasContours]
+    if roi_list:
+        rois = [r.OfRoi.Name for r in rg if r.OfRoi.Name in roi_list and r.HasContours]
+    check_list = list(set(type_list + rois))
+
     for r in rg:
-        if r.OfRoi.Type in types and r.HasContours():
+        if r.OfRoi.Name in check_list:
             bb = r.GetBoundingBox()
             rg_max = bb[0]['z']
             rg_min = bb[1]['z']
@@ -954,6 +957,40 @@ def image_extent_sufficient(pd, parent_key, target_extent=None):
     return messages
 
 
+def couch_type_correct(pd, parent_key):
+    child_key = 'Couch type correct'
+    # Abbreviate geometries
+    rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
+    roi_list = [r.OfRoi.Name for r in rg]
+    beam = pd.beamset.Beams[0]
+    current_machine = get_machine(machine_name=beam.MachineReference.MachineName)
+    wrong_supports = []
+    correct_supports = []
+    if current_machine.Name in TRUEBEAM_DATA['MACHINES']:
+        wrong_supports = [s for s in TOMO_DATA['SUPPORTS'] if s in roi_list]
+        correct_supports = [s for s in TRUEBEAM_DATA['SUPPORTS'] if s in roi_list]
+    elif current_machine.Name in TOMO_DATA['MACHINES']:
+        wrong_supports = [s for s in TRUEBEAM_DATA['SUPPORTS'] if s in roi_list]
+        correct_supports = [s for s in TOMO_DATA['SUPPORTS'] if s in roi_list]
+    if wrong_supports:
+        message_str = 'Support Structure(s) {} are INCORRECT for  machine {}'.format(
+            wrong_supports, current_machine.Name)
+        pass_result = "Fail"
+    elif correct_supports:
+        message_str = 'Support Structure(s) {} are correct for machine {}'.format(
+            correct_supports, current_machine.Name)
+        pass_result = "Pass"
+    else:
+        message_str = 'No couch structure found'
+        pass_result = "Alert"
+    # Prepare output
+    messages = build_tree_element(parent_key=parent_key,
+                                  child_key=child_key,
+                                  pass_result=pass_result,
+                                  message_str=message_str)
+    return messages
+
+
 def couch_extent_sufficient(pd, parent_key, target_extent=None):
     """
        Check PTV volume extent have supports under them
@@ -976,13 +1013,11 @@ def couch_extent_sufficient(pd, parent_key, target_extent=None):
     child_key = 'Couch extent sufficient'
     #
     # Get support structure extent
-    supports = ['Support']
     rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
-    support_list = []
-    for r in rg:
-        if r.OfRoi.Type in supports:
-            support_list.append(r.OfRoi.Name)
-    couch_extent = get_si_extent(pd=pd, types=['Support'])
+    supports = TOMO_DATA['SUPPORTS'] + TRUEBEAM_DATA['SUPPORTS']
+    supports = [r.OfRoi.Name for r in rg if r.OfRoi.Name in supports]
+
+    couch_extent = get_si_extent(pd=pd, roi_list=supports)
     if couch_extent:
         # Nice strings for output
         z_str = '[' + ('%.2f ' * len(couch_extent)) % tuple(couch_extent) + ']'
@@ -1002,12 +1037,13 @@ def couch_extent_sufficient(pd, parent_key, target_extent=None):
         pass_result = "Fail"
     elif couch_extent[1] >= buffered_target_extent[1] and couch_extent[0] <= buffered_target_extent[0]:
         message_str = 'Supports (' \
-                      + ', '.join(support_list) \
-                      + ') span {} and is at least {:.1f} larger than S/I target extent {}'.format(z_str, buffer, t_str)
+                      + ', '.join(supports) \
+                      + ') span {} and is at least {:.1f} cm larger than S/I target extent {}'.format(
+            z_str, buffer, t_str)
         pass_result = "Pass"
     elif couch_extent[1] < buffered_target_extent[1] or couch_extent[0] > buffered_target_extent[0]:
         message_str = 'Support extent (' \
-                      + ', '.join(support_list) \
+                      + ', '.join(supports) \
                       + ') :{} is not fully under the target.'.format(z_str) \
                       + '(SMALLER THAN ' \
                         'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
@@ -1936,6 +1972,7 @@ def check_plan():
     check_nofly_dose = True if pd.beamset else False
     check_grid = True if pd.beamset else False
     check_st = True if pd.beamset else False
+    check_couch_name = True if pd.beamset else False
     # Analyze checks needed by technique
     #
     # Plan check for VMAT
@@ -2098,6 +2135,9 @@ def check_plan():
     if check_tomo_iso:
         message_iso = check_tomo_isocenter(pd, parent_key=beamset_key[0])
         beamset_level_tests.extend(message_iso)
+    if check_couch_name:
+        message_couch_name = couch_type_correct(pd, parent_key=beamset_key[0])
+        beamset_level_tests.extend(message_couch_name)
 
     #
     # Insert Beamset Level Nodes
