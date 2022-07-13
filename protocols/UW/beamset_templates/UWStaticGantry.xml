@@ -364,7 +364,7 @@
         </beam>
     </beamset>
     <beamset>
-        <name>BreR 4Field</name>
+        <name>BreR Tangents</name>
         <technique>SMLC</technique>
         <DicomName>BreR_3DC_R0A0</DicomName>
         <description>2Field Breast Right</description>
