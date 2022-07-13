@@ -5,13 +5,17 @@
     an exact match to ARIA.
 
     Validation:
-    Test Patient: MR# ZZUWQA_ScTest_17Jan2021
+    10A: Test Patient: MR# ZZUWQA_ScTest_17Jan2021
                   Name: Script_Testing^RenameBeams
+    11B: Test Patient: MR# ZZUWQA_ScTest_10Jun2022_11B_RenameBeams
+                  Name: Script_Testing^RenameBeams
+
     
 
     Version History:
     1.0.4 Released
     1.1.0 Updated and validated in 10A SP1
+    1.1.1 Updated and validated in 11B
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -34,14 +38,13 @@ __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 
-__reviewed__ = '2021-Jan-05'
-__raystation__ = '7.0.0.19'
+__reviewed__ = '2022-Jun-27'
+__raystation__ = '11B'
 __maintainer__ = 'Adam Bayliss'
 
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-
+__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 
 import BeamOperations
 
