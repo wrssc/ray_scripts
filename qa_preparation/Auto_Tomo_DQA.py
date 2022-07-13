@@ -20,6 +20,8 @@
           enable multiple destinations to be selected.
 
     Version:
+    0.0.0 Testing
+    0.0.1 Changed format of output message
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -57,27 +59,29 @@ import re
 import numpy as np
 import connect
 import UserInterface
-import DicomExport
+# import DicomExport
 from collections import namedtuple, OrderedDict
 from datetime import datetime
 from tkinter import Tk
+import PySimpleGUI as sg
 
 clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871',
                                    'TrueBeam3744', 'HDA0477', 'HDA0488'],
                   '--QA_DEVICES--': ['Plus_01 (UH)', 'Plus_02 (JC)', 'Plus_03 (EC)',
                                      'Plus_04 (UH)', 'Plus_05 (EC)'],
-                  '--X_GRID--': [-2.0, -1.8, 1.6, -1.4, -1.2, -1.,
-                                 0., 2.0, 1.8, 1.6, 1.4, 1.2, 1.],
-                  '--Y_GRID--': [-16., -14., -12., -10., -8., -6., -4.,
-                                 0., 16., 14., 12., 10., 8., 6., 4.],
+                  '--X_GRID--': [-3.0, -2.0, -1.0, 0., 1.0, 2.0, 3.0, ],
+                  '--Y_GRID--': [-16., -14., -12., -10., -8., -6., -4., -2., 0.,
+                                 16., 14., 12., 10., 8., 6., 4., 2.],
                   '--Z_GRID--': [-9., 0., 9.],
+                  '--CENTROID SHIFT FACTOR--': 0.5,  # 50%
+                  '--TOMO ISO ROUND': 0.5,  # cm
                   '--VMAT_QA_PHANTOM--': r"Delta4 (TrueBeam)",
-                  '--VMAT_PHANTOM_ID--': r"ZZIMRTQA"}
+                  '--VMAT_PHANTOM_ID--': r"ZZIMRTQA",
+                  '--TOMO_QA_PHANTOM--': r"Delta4_HFS_0X_0Y TomoHDA",
+                  '--TOMO_PHANTOM_ID--': r"20191017PMH-QA"}
 #
 # Phantom properties for TOMO
 # TODO Find a way of getting the current database name
-clinic_options['--TOMO_QA_PHANTOM--'] = r"Delta4_HFS_0X_0Y TomoHDA"  # UW CLINICAL
-clinic_options['--TOMO_PHANTOM_ID--'] = r"20191017PMH-QA"  # UW CLINICAL
 # Options in Validation
 # clinic_options['--TOMO_QA_PHANTOM--'] = r"TomoHDA Delta4_HFS_X0_Y0"  # Validation
 # clinic_options['--TOMO_PHANTOM_ID--'] = r"20191004PMH-D4QA"  # Validation
@@ -245,17 +249,39 @@ def get_timestamp(beamset):
             return approval_time
 
 
-def build(beamset, responses):
+def build_string_clip(beamset, responses, verification_plan):
     # Build a comment to insert in the plan dialog and copy it to the clipboard
     dialog_dict = OrderedDict()
-    dialog_dict['TDS'] = responses['TDS']
-    dialog_dict['Delta4'] = responses['Delta4']
+    iso = verification_plan.BeamSet.Beams[0].Isocenter.Position
+    dialog_dict['TDS'] = responses['-TDS-']
+    dialog_dict['Delta4'] = responses['-Delta4-']
     dialog_dict['RSA'] = get_timestamp(beamset)
     dialog_dict['By'] = os.getenv('username')
+    dialog_dict['X-shift'] = "{:.1f} mm".format(10. * iso['x'])
+    dialog_dict['Y-shift'] = "{:.1f} mm".format(10. * iso['y'])
+    dialog_dict['Z-shift'] = "{:.1f} mm".format(10. * iso['z'])
+
     comment = ""
     for k, v in dialog_dict.items():
-        comment += "{} : {}\n".format(k, v)
+        comment += "{}: {}\n".format(k, v)
     return comment
+
+
+def comment_to_clipboard(beamset, responses, verification_plan):
+    #
+    # Clear the system clipboard
+    r = Tk()
+    r.withdraw()
+    r.clipboard_clear()
+
+    #
+    # Add data to the beamset comment
+    beamset_comment = build_string_clip(beamset, responses, verification_plan)
+    verification_plan.BeamSet.Comment = beamset_comment
+    # Copy the comment to the system clipboard
+    r.clipboard_append(beamset_comment)
+    r.update()  # now it stays on the clipboard after the window is closed
+    return r
 
 
 def prompt_qa_name(qa_plan_name):
@@ -282,47 +308,80 @@ def prompt_qa_name(qa_plan_name):
         return response['Name']
 
 
-def prompt_beamsets(plan):
-    # Prompt the user for all beamsets that need qa plan
-    initial = {}
-    #
+def qa_gui(plan):
     # Find all beamsets in this plan
-    names = []
-    for b in plan.BeamSets:
-        names.append(b.DicomPlanLabel)
-    # Initialize the dialog
-    # Input initialization
-    inputs = {'0': 'Select the beamsets needing a dqa plan',
-              'TDS': 'Select Treatment System',
-              'Delta4': 'Select Delta4 Unit'}
-    # Dialog Types
-    types = {'TDS': 'combo',
-             'Delta4': 'combo',
-             '0': 'check'}
-    # Options for user
-    options = {'TDS': clinic_options['--MACHINES--'],
-               'Delta4': clinic_options['--QA_DEVICES--'],
-               '0': names
-               }
-    required = ['0', ]
-    dialog = UserInterface.InputDialog(inputs=inputs,
-                                       datatype=types,
-                                       options=options,
-                                       initial=initial,
-                                       required=required,
-                                       title='Select Beamsets For DQA')
-    response = dialog.show()
-    if response == {}:
+    beamset_list = [b.DicomPlanLabel for b in plan.BeamSets]
+    # Get Delta4 Names
+    delta4_list = clinic_options['--QA_DEVICES--']
+    tds_list = clinic_options['--MACHINES--']
+
+    # Build Dialog
+    dialog_name = 'QA Plan Building'
+    frames = ['-PLAN PARAMETERS-', '-DELIVERY PARAMETERS-', 'BEAMSET NAME']
+    sg.ChangeLookAndFeel('DarkPurple4')
+    layout = [
+        [sg.Text(dialog_name,
+                 size=(20, 1),
+                 justification='center',
+                 font=("Helvetica", 16),
+                 relief=sg.RELIEF_RIDGE), ],
+        [sg.Frame(
+            layout=[[sg.Text(f'Beamsets for DQA:')],
+                    [sg.Listbox(beamset_list,
+                                size=(30, 3),
+                                key="-BEAMSETS-",
+                                select_mode='extended',
+                                enable_events=True)],
+                    [sg.Text(f'Treatment Delivery System:')],
+                    [sg.Combo(tds_list,
+                              size=(20, 1),
+                              key='-TDS-', )]],
+            title='Plan Parameter Selection',
+            relief=sg.RELIEF_SUNKEN,
+            key=frames[0],
+            tooltip='Select Beamsets to QA and Delivery System')],
+        [sg.Frame(
+            layout=[[sg.Text(f'Delta4 Unit For QA:')],
+                    [sg.Combo(delta4_list,
+                              size=(20, 1),
+                              key='-Delta4-', )],
+                    [sg.Checkbox('Center Dose On Phantom',
+                                 key='-SHIFT PHANTOM-',
+                                 default=True),
+                     ]],
+            title='Delivery Parameters',
+            relief=sg.RELIEF_SUNKEN,
+            key=frames[1],
+            tooltip='Select delivery parameters for the DQA')],
+        [sg.Submit(tooltip='Click to submit this window'),
+         sg.Cancel()],
+    ]
+    window = sg.Window(
+        'DQA Setup',
+        layout,
+        default_element_size=(40, 1),
+        grab_anywhere=False
+    )
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cancel":
+            qa_selections = None
+            break
+        elif event == "Submit":
+            qa_selections = values
+            break
+    window.close()
+    if qa_selections == {}:
         sys.exit('QA Script was cancelled')
     else:
-        return response
+        return qa_selections
 
 
 def find_dose_centroid(vp, beamset, percent_max=None):
     """
     Find the centroid of points at or above 80% or percent_max of the maximum dose in the grid
-    :param plan: current plan
-    :param beam_set: current beamset
+    :param vp: current  verification plan
+    :param beamset: current beamset
     :param percent_max: percentage of maximum dose, above which points will be included
     :return: a list of [x, y, z] coordinates on the dose grid
     """
@@ -395,12 +454,17 @@ def shift_iso(verification_plan, percent_dose_region=80.):
     a = find_dose_centroid(vp=verification_plan,
                            beamset=verification_plan.BeamSet,
                            percent_max=percent_dose_region)
+    optimal_shift = {
+        'x': a['x'] * clinic_options['--CENTROID SHIFT FACTOR--'],
+        'y': a['y'] * clinic_options['--CENTROID SHIFT FACTOR--'],
+        'z': a['z'] * clinic_options['--CENTROID SHIFT FACTOR--'],
+    }
     x_grid = clinic_options['--X_GRID--']
     y_grid = clinic_options['--Y_GRID--']
     z_grid = clinic_options['--Z_GRID--']
-    shift['x'] = min(x_grid, key=lambda x: abs(a['x'] - x))
-    shift['y'] = min(y_grid, key=lambda x: abs(a['y'] - x))
-    shift['z'] = min(z_grid, key=lambda x: abs(a['z'] - x))
+    shift['x'] = min(x_grid, key=lambda x: abs(optimal_shift['x'] - x))
+    shift['y'] = min(y_grid, key=lambda y: abs(optimal_shift['y'] - y))
+    shift['z'] = min(z_grid, key=lambda z: abs(optimal_shift['z'] - z))
     logging.info(
         "During DQA creation, the center of the dose profile was at [x,y,z]: [{:.2f},{:.2f},{:.2f}]. ".format(a['x'],
                                                                                                               a['y'],
@@ -414,6 +478,8 @@ def shift_iso(verification_plan, percent_dose_region=80.):
 
 def main():
     # Get current patient, case, exam, plan, and beamset
+    # TODO: Add dialog for dose to bypass DQA review
+    bypass_review = False
     program_success = []
     try:
         patient = connect.get_current('Patient')
@@ -433,12 +499,15 @@ def main():
         sys.exit('This script requires a plan to be loaded')
     #
     # Clear the system clipboard
-    r = Tk()
-    r.withdraw()
-    r.clipboard_clear()
+    # r = Tk()
+    # r.withdraw()
+    # r.clipboard_clear()
 
-    user_prompt = prompt_beamsets(plan)
-    beamset_list = user_prompt['0']
+    user_prompt = qa_gui(plan)
+    if not user_prompt:
+        sys.exit('Dialog canceled')
+    # user_prompt = prompt_beamsets(plan)
+    beamset_list = user_prompt['-BEAMSETS-']
     bypass_export_check = True
     for b in beamset_list:
         try:
@@ -474,20 +543,21 @@ def main():
 
         qa_beamset = verification_plan.BeamSet
         #
-        # Add data to the beamset comment
-        beamset_comment = build(beamset, user_prompt)
-        qa_beamset.Comment = beamset_comment
-        # Copy the comment to the system clipboard
-        r.clipboard_append(beamset_comment)
-        r.update()  # now it stays on the clipboard after the window is closed
-        #
         # Update log
         current_technique = qa_beamset.DeliveryTechnique
         logging.info("Selected Beamset:QAPlan {}:{}"
                      .format(beamset.DicomPlanLabel, qa_beamset.DicomPlanLabel))
         if 'Tomo' in current_technique:
-            shift_tomo_iso(verification_plan)
-            verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
+            if user_prompt['-SHIFT PHANTOM-']:
+                shift_tomo_iso(verification_plan)
+                verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
+            #
+            if not bypass_review:
+                connect.await_user_input('Please review and adjust the plan.\n'
+                                         + 'Resume the script to export\n'
+                                         + 'Final Plan Parameters will be copied to the clipboard')
+            r = comment_to_clipboard(beamset, user_prompt, verification_plan)
+
             # This plan needs to go to the Delta4 Dicom location and the user
             # needs to manually send it to the RayGateway
             beam_data = {}
@@ -522,6 +592,11 @@ def main():
                                            filters=['tomo_dqa'],
                                            bar=False)
             elif current_technique == 'TomoDirect':
+                if not bypass_review:
+                    connect.await_user_input('Please review and adjust the plan.\n'
+                                             + 'Resume the script to export\n'
+                                             + 'Final Plan Parameters will be copied to the clipboard')
+                r = comment_to_clipboard(beamset, user_prompt, verification_plan)
                 formatted_response = {}
                 for k in beam_data.keys():
                     strip_response = '{:.6f}'.format(beam_data[k].couch_speed)
@@ -550,9 +625,15 @@ def main():
                                            bar=False)
                 program_success.append(success)
         else:
-            shifts = shift_iso(verification_plan)
-            if any(shifts.values()) > 0.:
-                verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
+            if user_prompt['-SHIFT PHANTOM-']:
+                shifts = shift_iso(verification_plan)
+                if any(shifts.values()) > 0.:
+                    verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
+            if not bypass_review:
+                connect.await_user_input('Please review and adjust the plan.\n'
+                                         + 'Resume the script to export\n'
+                                         + 'Final Plan Parameters will be copied to the clipboard')
+            r = comment_to_clipboard(beamset, user_prompt, verification_plan)
             success = True
             program_success.append(success)
 
