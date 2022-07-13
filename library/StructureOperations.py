@@ -773,7 +773,7 @@ def check_structure_exists(
                 connect.await_user_input("Create the structure {} and continue script."
                                          .format(structure_name))
     else:
-        logging.info("{} not found".format(structure_name))
+        logging.debug("{} not found".format(structure_name))
         return False
 
 
