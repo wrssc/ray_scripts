@@ -67,12 +67,12 @@ def main():
     QA_Plan_Name = beam_set.DicomPlanLabel + "QA"
     # Click magic
     ui = connect.get_current('ui')
-    ui.TitleBar.MenuItem['QA preparation'].Button_QA_preparation.Click()
+    ui.TitleBar.Navigation.MenuItem['QA preparation'].Button_QA_preparation.Click()
 
     try:
         beam_set.CreateQAPlan(
-            PhantomName="50cm Cube_2",
-            PhantomId="50cm Cube",
+            PhantomName="50cmCube",
+            PhantomId="WaterPhantom",
             QAPlanName=QA_Plan_Name,
             IsoCenter={'x': 0, 'y': -30, 'z': 25},
             DoseGrid={'x': 0.25, 'y': 0.25, 'z': 0.25},
