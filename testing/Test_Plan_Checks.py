@@ -142,6 +142,7 @@ import PySimpleGUI as sg
 import re
 from dateutil import parser
 import connect
+import tkinter as Tk
 import pyperclip
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
@@ -253,6 +254,23 @@ TOMO_DATA = {'MACHINES': ['HDA0488', 'HDA0477'],
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
                               ]}
+
+
+def comment_to_clipboard(pd):
+    #
+    # Clear the system clipboard
+    r = Tk.Tk()
+    r.withdraw()
+    r.clipboard_clear()
+
+    #
+    # Add data to the beamset comment
+    approval_status = approval_info(pd.plan, pd.beamset)
+    beamset_comment = approval_status.beamset_approval_time
+    # Copy the comment to the system clipboard
+    r.clipboard_append(beamset_comment)
+    r.update()  # now it stays on the clipboard after the window is closed
+    return r
 
 
 def read_log_file(patient_id):
@@ -1901,7 +1919,6 @@ def compute_beam_properties(pd, parent_key):
 
 def check_plan():
     #
-    #
     try:
         user_name = str(Environment.UserName)
     except Exception as e:
@@ -1920,6 +1937,7 @@ def check_plan():
             db=GeneralOperations.find_scope(level='PatientDB'),
             plan=GeneralOperations.find_scope(level='Plan'),
             beamset=GeneralOperations.find_scope(level='BeamSet'))
+    r = comment_to_clipboard(pd)
     #
     # Tree Levels
     patient_key = ("pt", "Patient: " + pd.patient.PatientID)
@@ -2189,6 +2207,7 @@ def check_plan():
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
     window.close()
+    r.destroy()
 
 
 def main():
