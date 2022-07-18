@@ -127,9 +127,15 @@ def bolus_center(pd, radius):
     else:
         logging.warning('Unknown number of series in this examination, Bolus placement failed')
         return None
+
     # Dose grid edge
-    dose_grid_edge = pd.beamset.FractionDose.InDoseGrid.Corner
+    try:
+        dose_grid_edge = pd.beamset.FractionDose.InDoseGrid.Corner
+    except AttributeError:
+        logging.debug('Default dose grid not set at time of bolus creation. Image edge used')
+        dose_grid_edge = image_set_edge
     image_in_grid = return_greater(image_set_edge, dose_grid_edge)
+
     if image_in_grid:
         return {'x': image_in_grid['x'] + radius,
                 'y': image_in_grid['y'] + radius,
