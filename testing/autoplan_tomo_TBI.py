@@ -75,23 +75,23 @@ JUNCTION_PREFIX_FFS = "ffs_junction_"
 JUNCTION_PREFIX_HFS = "hfs_junction_"
 JUNCTION_POINT = "junction"
 TARGET_HFS = "PTV_p_HFS"
-MACHINE = "HDA0477"
-MBS_ROIS = [{'CaseType': "Abdomen",
-             'ModelName': r"Kidney (Left)",
-             'RoiName': r"Kidney_L",
-             'RoiColor': "58, 251, 170"},
-            {'CaseType': "Abdomen",
-             'ModelName': r"Kidney (Right)",
-             'RoiName': r"Kidney_R",
-             'RoiColor': "250, 57, 105"},
-            {'CaseType': "Thorax",
-             'ModelName': r"Lung (Left)",
-             'RoiName': r"Lung_L",
-             'RoiColor': "253, 122, 9"},
-            {'CaseType': "Thorax",
-             'ModelName': r"Lung (Right)",
-             'RoiName': r"Lung_R",
-             'RoiColor': "54, 247, 223"}],
+MACHINE = "HDA0488"
+MBS_ROIS = {'Kidney_L': {'CaseType': "Abdomen",
+                         'ModelName': r"Kidney (Left)",
+                         'RoiName': r"Kidney_L",
+                         'RoiColor': "58, 251, 170"},
+            'Kidney_R': {'CaseType': "Abdomen",
+                         'ModelName': r"Kidney (Right)",
+                         'RoiName': r"Kidney_R",
+                         'RoiColor': "250, 57, 105"},
+            'Lung_L': {'CaseType': "Thorax",
+                       'ModelName': r"Lung (Left)",
+                       'RoiName': r"Lung_L",
+                       'RoiColor': "253, 122, 9"},
+            'Lung_R': {'CaseType': "Thorax",
+                       'ModelName': r"Lung (Right)",
+                       'RoiName': r"Lung_R",
+                       'RoiColor': "54, 247, 223"}}
 
 
 def check_external(roi_list):
@@ -350,6 +350,13 @@ def make_lung_contours(pdata, color=[192, 192, 192]):
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lung_avoid_defs)
 
 
+def get_roi_geometries(case, exam, roi_name):
+    for roig in case.PatientModel.StructureSets[exam.Name].RoiGeometries:
+        if roig.OfRoi.Name == roi_name:
+            return roig
+    return None
+
+
 def make_avoid(pdata, z_start, avoid_name, color=[192, 192, 192]):
     """ Build the avoidance structure used in making the PTV
         pdata: kind of like PDiddy, but with data, see below
@@ -417,7 +424,7 @@ def make_avoid(pdata, z_start, avoid_name, color=[192, 192, 192]):
         "ExpB": [0] * 6,
         "OperationResult": "None",
         "MarginTypeR": "Expand",
-        "ExpR": [0] * 6,
+        "ExpR": [0., 0., 0.3, 0.3, 0.3, 0.3, 0.3],  # Capture little ditzels evading the external
         "StructType": "Undefined",
     }
     StructureOperations.make_boolean_structure(
@@ -479,7 +486,7 @@ def make_unsubtracted_dose_structures(pdata, rx, dose_thresholds_normalized):
     dose_thresholds_normalized ({dose_roi_names: dose_levels(int)}): percentages of prescription dose
     """
     for n, d in dose_thresholds_normalized.items():
-        threshold_level = (float(d) / 100.) * rx  # Threshold in cGy
+        threshold_level = (float(d) / 100.) * float(rx)  # Threshold in cGy
         unsubtracted_roi_name = str(d) + '%Rx'
         raw_name = n + '_raw'
         raw_geometry = StructureOperations.create_roi(
@@ -490,9 +497,12 @@ def make_unsubtracted_dose_structures(pdata, rx, dose_thresholds_normalized):
         # Get the Region of Interest object
         raw_roi = pdata.case.PatientModel.RegionsOfInterest[raw_name]
         # Make an roi geometry that is at least the threshold level dose
-        raw_roi.CreateRoiGeometryFromDose(
-            DoseDistribution=pdata.plan.TreatmentCourse.TotalDose,
-            ThresholdLevel=threshold_level)
+        try:
+            raw_roi.CreateRoiGeometryFromDose(
+                DoseDistribution=pdata.plan.TreatmentCourse.TotalDose,
+                ThresholdLevel=threshold_level)
+        except Exception as e:
+            logging.debug('Unable to make dose level {}'.format(threshold_level))
         #
         # Initialize the output
         dose_geometry = StructureOperations.create_roi(
@@ -523,13 +533,19 @@ def make_unsubtracted_dose_structures(pdata, rx, dose_thresholds_normalized):
         StructureOperations.make_boolean_structure(
             patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
         # Process the dose roi
-        dose_roi.DeleteExpression()
-        dose_roi.VolumeThreshold(
-            InputRoi=dose_roi,
-            Examination=pdata.exam,
-            MinVolume=1,
-            MaxVolume=200000,
-        )
+        geom = get_roi_geometries(pdata.case, pdata.exam, dose_roi.Name)
+        if geom:
+            if geom.HasContours():
+                dose_roi.DeleteExpression()
+                dose_roi.VolumeThreshold(
+                    InputRoi=dose_roi,
+                    Examination=pdata.exam,
+                    MinVolume=1,
+                    MaxVolume=200000,
+                )
+        else:
+            logging.debug('Deleting roi {} due to empty'.format(dose_roi.Name))
+            dose_roi.DeleteRoi()
 
         # Clean up
         raw_roi.DeleteRoi()
@@ -741,7 +757,7 @@ def main():
     #     ExaminationInfo={'Name': hfs_scan_name})
 
     # TODO: GET RID OF THESE AND REPLACE WITH A CREATE STRUCTS ONLY
-    do_this = True
+    do_this = False
     if do_this:
         # TODO: Get current on the hfs scan since it seems like the couch is failing to load
         #
@@ -790,44 +806,38 @@ def main():
 
         connect.await_user_input(
             'Check the fusion alignment of the boney anatomy in the hips. Then continue script.')
+    do_this = False
+    if do_this:
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
+        # Loop through MBS rois, if present, pop.
+        rois = [r.OfRoi.Name for r in pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name].RoiGeometries
+                if r.HasContours]
+        logging.debug('Type of MBS_ROIS is {} '.format(type(MBS_ROIS)))
+        mbs_list = [v for k, v in MBS_ROIS.items() if k not in rois]
+        adapt_list = [k for k in MBS_ROIS.keys() if k not in rois]
         #
         # Begin making planning structures
         pd_hfs.case.PatientModel.MBSAutoInitializer(
-            MbsRois=MBS_ROIS,
+            MbsRois=mbs_list,
             CreateNewRois=True,
             Examination=pd_hfs.exam,
-            UseAtlasBasedInitialization=False)
+            UseAtlasBasedInitialization=True)
         connect.await_user_input('Review placement of MBS structures')
 
         pd_hfs.case.PatientModel.AdaptMbsMeshes(
             Examination=pd_hfs.exam,
-            RoiNames=[r"Lung_L",
-                      r"Lung_R",
-                      r"Kidney_L",
-                      r"Kidney_R"],
+            RoiNames=adapt_list,
             CustomStatistics=None,
             CustomSettings=None)
-
+        # Loop through MBS rois, if present, pop.
+        rois = [r.OfRoi.Name for r in pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name].RoiGeometries
+                if r.HasContours]
+        mbs_list = [v for k, v in MBS_ROIS.items() if k not in rois]
+        adapt_list = [k for k in MBS_ROIS.keys() if k not in rois]
         # Try a repeat on FFS
         pd_ffs.case.PatientModel.MBSAutoInitializer(
-            MbsRois=[{'CaseType': "Abdomen",
-                      'ModelName': r"Kidney (Left)",
-                      'RoiName': r"Kidney_L",
-                      'RoiColor': "58, 251, 170"},
-                     {'CaseType': "Abdomen",
-                      'ModelName': r"Kidney (Right)",
-                      'RoiName': r"Kidney_R",
-                      'RoiColor': "250, 57, 105"},
-                     {'CaseType': "Thorax",
-                      'ModelName': r"Lung (Left)",
-                      'RoiName': r"Lung_L",
-                      'RoiColor': "253, 122, 9"},
-                     {'CaseType': "Thorax",
-                      'ModelName': r"Lung (Right)",
-                      'RoiName': r"Lung_R",
-                      'RoiColor': "54, 247, 223"}],
+            MbsRois=mbs_list,
             CreateNewRois=False,
             Examination=pd_ffs.exam,
             UseAtlasBasedInitialization=True)
@@ -835,14 +845,13 @@ def main():
 
         pd_ffs.case.PatientModel.AdaptMbsMeshes(
             Examination=pd_ffs.exam,
-            RoiNames=[r"Lung_L",
-                      r"Lung_R",
-                      r"Kidney_L",
-                      r"Kidney_R"],
+            RoiNames=adapt_list,
             CustomStatistics=None,
             CustomSettings=None)
 
         connect.await_user_input('Check the MBS loaded structures on both exams.')
+    do_this = False
+    if do_this:
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         #
         # Build lung contours and avoidance on the HFS scan
@@ -975,7 +984,7 @@ def main():
             'site': 'TBI_',
             'translation_map': {ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')},
             'beamset_name': BEAMSET_FFS,
-            'iso_target': TARGET_FFS,
+            'iso_target': JUNCTION_PREFIX_FFS + "90%Rx",
             'machine': MACHINE,
             'user_prompts': True,
         }
