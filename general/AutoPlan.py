@@ -614,12 +614,12 @@ def autoplan(testing_bypass_dialogs={}):
         logging.info('Loading support {} skipped for testing'.format(beamset_defs.support_roi))
     else:
         AutoPlanOperations.load_supports(pd=pd, supports=beamset_defs.support_roi)
+        # Trim supports
+        StructureOperations.trim_supports(patient=pd.patient,
+                                          case=pd.case,
+                                          exam=pd.exam)
     # time_user complete
     ap_report['time_user'][1] = timer()
-    # Trim supports
-    StructureOperations.trim_supports(patient=pd.patient,
-                                      case=pd.case,
-                                      exam=pd.exam)
 
     # Planning structures added
     auto_status.next_step(text=script_steps[i][1])
