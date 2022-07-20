@@ -2684,10 +2684,10 @@ def make_externalclean(
     case.PatientModel.StructureSets[examination.Name].SimplifyContours(
         RoiNames=[structure_name],
         RemoveHoles3D=True,
-        RemoveSmallContours=False,
-        AreaThreshold=None,
-        ReduceMaxNumberOfPointsInContours=False,
-        MaxNumberOfPoints=None,
+        RemoveSmallContours=True,
+        AreaThreshold=0.1,
+        ReduceMaxNumberOfPointsInContours=True,
+        MaxNumberOfPoints=3000,
         CreateCopyOfRoi=False,
         ResolveOverlappingContours=False,
     )
