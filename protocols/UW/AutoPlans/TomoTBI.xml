@@ -955,7 +955,6 @@
                 <dose units="%" roi="PTV_p_HFS">40</dose>
                 <weight>10</weight>
             </roi>
-
             <roi>
                 <name>hfs_junction_40%Rx</name>
                 <type dir="gt">DX</type>
@@ -1110,7 +1109,6 @@
                 <dose units="%" roi="PTV_p_HFS">90</dose>
                 <weight>0.1</weight>
             </roi>
-
             <roi>
                 <name>Avoid_HFS</name>
                 <type>Max</type>

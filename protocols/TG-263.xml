@@ -7122,6 +7122,7 @@
         <Color red="255" green="255" blue="255">#</Color>
         <Alias></Alias>
     </roi>
+
     <roi>
         <name>Artifact_Override_Adipose</name>
         <TG263PrimaryName>Artifact_Override_Adipose</TG263PrimaryName>
@@ -7817,6 +7818,21 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>SpaceOAR_Override_Water</name>
+        <TG263PrimaryName></TG263PrimaryName>
+        <Description>SpaceOAR (TM) used for separating prostate from rectum</Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>DensityOverride</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>23</NCharacters>
+        <TG263ReverseOrderName>Water_Override_SpaceOAR</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="64" green="253" blue="102" Hex="#40FD66">AcidPops</Color>
+        <Alias>spaceoar,space_oar,spaceOar,spaceoar_gel</Alias>
+    </roi>
+    <roi>
         <name>Spc_Retrophar_L</name>
         <TG263PrimaryName>Spc_Retrophar_L</TG263PrimaryName>
         <Description>Retropharyngeal space Left</Description>
@@ -7993,6 +8009,21 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>TomoCouch</name>
+        <TG263PrimaryName>TomoCouch</TG263PrimaryName>
+        <Description></Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>DensityOverride</MajorCategory>
+        <MinorCategory>Support</MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>8</NCharacters>
+        <TG263ReverseOrderName>TomoCouch</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="254" green="54" blue="244" Hex="#FE36F4">LuridPink</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>Tongue</name>
         <TG263PrimaryName>Tongue</TG263PrimaryName>
         <Description>Tongue</Description>
@@ -8134,6 +8165,21 @@
         <TG263ReverseOrderName>Tonsil</TG263ReverseOrderName>
         <FMAID>9609</FMAID>
         <Color red="255" green="255" blue="255">#</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>TrueBeamCouch</name>
+        <TG263PrimaryName>TrueBeamCouch</TG263PrimaryName>
+        <Description></Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>DensityOverride</MajorCategory>
+        <MinorCategory>Support</MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>13</NCharacters>
+        <TG263ReverseOrderName>TrueBeamCouch</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="254" green="54" blue="244" Hex="#FE36F4">LuridPink</Color>
         <Alias></Alias>
     </roi>
     <roi>
@@ -10629,6 +10675,36 @@
         <TG263ReverseOrderName>Prox_SeminalVes</TG263ReverseOrderName>
         <FMAID></FMAID>
         <Color red="225" green="169" blue="47">#E1A92F</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Sframe_F1_TBCouch_HN</name>
+        <TG263PrimaryName>Sframe_F1_TBCouch_HN</TG263PrimaryName>
+        <Description></Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>DensityOverride</MajorCategory>
+        <MinorCategory>Support</MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>23</NCharacters>
+        <TG263ReverseOrderName>Sframe_F1_TBCouch_HN</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="254" green="54" blue="244" Hex="#FE36F4">LuridPink</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>Sframe_H2_TBCouch_Brain</name>
+        <TG263PrimaryName>Sframe_H2_TBCouch_Brain</TG263PrimaryName>
+        <Description></Description>
+        <NCIt></NCIt>
+        <TargetType>Non_Anatomic</TargetType>
+        <MajorCategory>DensityOverride</MajorCategory>
+        <MinorCategory>Support</MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>23</NCharacters>
+        <TG263ReverseOrderName>Sframe_H2_TBCouch_Brain</TG263ReverseOrderName>
+        <FMAID></FMAID>
+        <Color red="254" green="54" blue="244" Hex="#FE36F4">LuridPink</Color>
         <Alias></Alias>
     </roi>
     <roi>

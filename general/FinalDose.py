@@ -16,12 +16,16 @@
         control point spacing, and sim fiducial point
 
     1.1.0 Added RS10 support and updated to python 3.6
+    1.2.0 Update to python 3.8 and RS 3.8
 
     Validation Notes:
-    Test Patient: MR# ZZUWQA_ScTest_06Jan2021, Name: Script_testing^Final Dose
-    -VMAT: Pros_VMA: VMAT Prostate test
-    -SNS+emc: ChwL_3DC: 3D photon case with electron boost
-    -THI: Anal
+    Test Patient:
+        -VMAT: Pros_VMA: VMAT Prostate test
+        -SNS+emc: ChwL_3DC: 3D photon case with electron boost
+        -THI: Anal
+        MR# ZZUWQA_ScTest_06Jan2021, Name: Script_testing^Final Dose
+    Test Patient: MR# ZZUWQA_ScTest_09Jun2022_FinalDose,
+                  Name: Script_testing^Final Dose
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -37,9 +41,9 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2020-01-07'
+__date__ = '2022-Jun-27'
 
-__version__ = '1.1.0'
+__version__ = '1.2.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
@@ -51,7 +55,7 @@ __maintainer__ = 'Adam Bayliss'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = 'https://github.com/wrrsc/ray_scripts/wiki/Final_Dose'
-__copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 
 import logging
 import sys
@@ -280,9 +284,7 @@ def final_dose(site=None, technique=None):
             message = compute_dose(beamset=beamset,dose_algorithm=dose_algorithm)
 
             # Round MU
-            # The Autoscale hides in the plan optimization hierarchy. Find the correct index.
-            indx = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
-            plan.PlanOptimizations[indx].AutoScaleToPrescription = False
+            beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
             BeamOperations.round_mu(beamset)
             status.next_step('Rounded MU, Rounding jaws')
 
@@ -293,28 +295,10 @@ def final_dose(site=None, technique=None):
 
             # Recompute dose if needed
             message = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
-            #try:
-            #    beamset.ComputeDose(ComputeBeamDoses=True,
-            #                        DoseAlgorithm=dose_algorithm,
-            #                        ForceRecompute=False)
-            #    status.next_step('Recomputed Dose, finding DSP')
-            #except Exception as e:
-            #    logging.debug(u'Message is {}'.format(e.Message))
-            #    try:
-            #        if 'Dose has already been computed with the current parameters' in e.Message:
-            #            status.next_step('Dose re-computation unnecessary, finding DSP')
-            #            logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
-            #        else:
-            #            logging.exception(u'{}'.format(e.Message))
-            #            sys.exit(u'{}'.format(e.Message))
-            #    except:
-            #        logging.exception(u'{}'.format(e.Message))
-            #        sys.exit(u'{}'.format(e.Message))
 
             # Set the DSP for the plan
             BeamOperations.set_dsp(plan=plan, beam_set=beamset)
             status.next_step('Set DSP, Checking Dose Computation')
-
 
             # Recompute dose
             status.next_step('Recomputing Dose if needed')
@@ -348,8 +332,7 @@ def final_dose(site=None, technique=None):
             beamset.AccurateDoseAlgorithm.MonteCarloHistoriesPerAreaFluence = emc_result.hist
         # Autoscale must be turned off to round the MU.
         # Round MU
-        indx = PlanOperations.find_optimization_index(plan=plan, beamset=beamset, verbose_logging=False)
-        plan.PlanOptimizations[indx].AutoScaleToPrescription = False
+        beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
         BeamOperations.round_mu(beamset)
         status.next_step('Rounded MU, recomputing doses')
         # Compute Dose with new DSP, and recommended history settings (mainly to force a DSP update)

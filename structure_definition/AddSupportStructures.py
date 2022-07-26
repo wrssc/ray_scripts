@@ -26,6 +26,7 @@ This script was tested with:
 
 Version History:
 v0.1.0: First working edition
+v1.0.0: Validated in RS 11B, python 3.8
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

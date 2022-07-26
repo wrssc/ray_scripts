@@ -13,6 +13,7 @@ This script was tested with:
 Version History:
 0.1.0 Validation and Review
 1.1.0 Update to RS 10A and Python 3
+1.2.0 Update to RS 11B and Python 3.8
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,13 +37,13 @@ __version__ = "1.1.0"
 __status__ = "Production"
 __deprecated__ = False
 __reviewer__ = "Adam Bayliss"
-__reviewed__ = None
-__raystation__ = "10A SP1"
+__reviewed__ = "2022-06-27"
+__raystation__ = "11B"
 __maintainer__ = "Dustin Jacqmin"
 __contact__ = "djjacqmin_humanswillremovethis@wisc.edu"
 __license__ = "GPLv3"
 __help__ = None
-__copyright__ = "Copyright (C) 2020, University of Wisconsin Board of Regents"
+__copyright__ = "Copyright (C) 2022, University of Wisconsin Board of Regents"
 
 from connect import CompositeAction, get_current
 import StructureOperations

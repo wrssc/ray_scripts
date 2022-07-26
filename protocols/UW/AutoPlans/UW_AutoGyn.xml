@@ -2088,7 +2088,7 @@
             </goalset>
         </goals>
     </order>
-  <objectiveset>
+    <objectiveset>
         <name>Standard Fractionation Gyn</name>
         <objectives>
             <roi>
@@ -2250,7 +2250,7 @@
                 <weight>5</weight>
             </roi>
         </objectives>
-  </objectiveset>
+    </objectiveset>
     <beamset>
         <name>AbdPelv Central 2Arc</name>
         <technique>VMAT</technique>
@@ -2292,7 +2292,7 @@
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc</Name>
-            <Energy>6</Energy>
+            <Energy>10</Energy>
             <GantryAngle>192</GantryAngle>
             <GantryStopAngle>168</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
@@ -2303,7 +2303,7 @@
             <BeamNumber>2</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc</Name>
-            <Energy>6</Energy>
+            <Energy>10</Energy>
             <GantryAngle>163</GantryAngle>
             <GantryStopAngle>187</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
@@ -2314,7 +2314,7 @@
             <BeamNumber>3</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>3_SITE_Arc</Name>
-            <Energy>6</Energy>
+            <Energy>10</Energy>
             <GantryAngle>192</GantryAngle>
             <GantryStopAngle>168</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
@@ -2358,7 +2358,7 @@
         <description>12 warmstart optimization with varying dose grid</description>
         <technique>VMAT</technique>
         <initial max_it="70" int_it="35">Iteration 0</initial>
-        <warmstart max_it="50" int_it="25" n="12">Iteration_1to12</warmstart>
+        <warmstart max_it="50" int_it="20" n="12">Iteration_1to12</warmstart>
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">True</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>

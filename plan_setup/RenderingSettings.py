@@ -234,7 +234,7 @@ def helper_image():
 def main():
 
     # Specify valid version of raystation
-    valid_rs_version = '10.0.1.52'
+    valid_rs_version = '12.0.0.932'
     # rendering structure name
     render_name = 'z_rendering'
     # Low threshold
@@ -253,7 +253,7 @@ def main():
     if raystation_version not in valid_rs_version:
         sys.exit('Script has not been validated in version {}, only in {}'.format(raystation_version, valid_rs_version))
     # Go to the Plan design window
-    ui.TitleBar.MenuItem['Plan design'].Button_Plan_design.Click()
+    ui.TitleBar.Navigation.MenuItem['Plan design'].Button_Plan_design.Click()
     # Check if this an electron plan
     if 'Electrons' not in beamset.Modality:
         connect.await_user_input('This script requires an electron beamset to be selected')
@@ -347,7 +347,7 @@ def main():
     ui.ToolPanel.PatientOptions.CheckBox['POI names'].Click()
     # Dose Options
     open_toolpanel_dose(ui)
-    ui.ToolPanel.DoseOptions.CheckBox['Show dose max'].Click()
+    ui.ToolPanel.DoseOptions.CheckBox['Show max value'].Click()
     ui.ToolPanel.DoseOptions.CheckBox['DSP names'].Click()
     #
     # Beam Options

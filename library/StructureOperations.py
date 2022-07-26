@@ -773,7 +773,7 @@ def check_structure_exists(
                 connect.await_user_input("Create the structure {} and continue script."
                                          .format(structure_name))
     else:
-        logging.info("{} not found".format(structure_name))
+        logging.debug("{} not found".format(structure_name))
         return False
 
 
@@ -2027,11 +2027,12 @@ def structure_approved(case, roi_name, examination=None):
             if examination is not None and s.OnExamination.Name != examination.Name:
                 continue
             else:
-                for a in s.ApprovedStructureSets:
+                for a in s.SubStructureSets:
                     try:
-                        for r in a.ApprovedRoiStructures:
-                            if r.OfRoi.Name == roi_name:
-                                return True
+                        if a.Review.ApprovalStatus == 'Approved':
+                            for r in a.RoiStuctures:
+                                if r.OfRoi.Name == roi_name:
+                                    return True
                     except AttributeError:
                         logging.debug("A is none {}".format(a))
                         continue
@@ -2341,8 +2342,9 @@ def make_boolean_structure(patient, case, examination, **kwargs):
     case.PatientModel.RegionsOfInterest[StructureName].UpdateDerivedGeometry(
         Examination=examination, Algorithm="Auto"
     )
+    # MAYBE Broken in RS 11B
+    # patient.Set2DvisualizationForRoi(RoiName=StructureName, Mode=VisualizationType)
     patient.SetRoiVisibility(RoiName=StructureName, IsVisible=VisualizeStructure)
-    patient.Set2DvisualizationForRoi(RoiName=StructureName, Mode=VisualizationType)
 
 
 def make_wall(wall, sources, delta, patient, case, examination,

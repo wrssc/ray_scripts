@@ -70,11 +70,17 @@ __credits__ = ['']
 #       This list gets checked for pass_results
 #       This list gets used for a build of elements in a loop
 #
+# TODO: Check for correct supports
+#   Tomo plan, Tomo couch,
+#   VMAT plan, TB couch or SFrame
+
 # TODO: Check contour interpolation
 #   Find Ptv,Ctv, Gtv
 #   if goals: get those - otherwise get all
 #   check slices for gaps
 
+# TODO: Check SimFiducials for coords
+# TODO: Check image rotation
 # TODO: Check for slice alignment and rotation alignment 1899458
 # TODO: Check Beamsets for same machine
 #
@@ -142,7 +148,6 @@ import PySimpleGUI as sg
 import re
 from dateutil import parser
 import connect
-import tkinter as Tk
 import pyperclip
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
@@ -248,29 +253,7 @@ MCS_TOLERANCES = {'MCS': {'MEAN': 0.369,
 TOMO_DATA = {'MACHINES': ['HDA0488', 'HDA0477'],
              'PLAN_TR_SUFFIX': r'_Tr',
              'LATERAL_ISO_MARGIN': 2.,  # cm
-             'SUPPORTS': ['TomoCouch']
              }
-
-TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
-                 'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
-                              ]}
-
-
-def comment_to_clipboard(pd):
-    #
-    # Clear the system clipboard
-    r = Tk.Tk()
-    r.withdraw()
-    r.clipboard_clear()
-
-    #
-    # Add data to the beamset comment
-    approval_status = approval_info(pd.plan, pd.beamset)
-    beamset_comment = approval_status.beamset_approval_time
-    # Copy the comment to the system clipboard
-    r.clipboard_append(beamset_comment)
-    r.update()  # now it stays on the clipboard after the window is closed
-    return r
 
 
 def read_log_file(patient_id):
@@ -423,7 +406,7 @@ def match_exactly(value1, value2):
         return False, value1, value2
 
 
-def check_exam_data(pd, parent_key):
+def check_exam_data(patient, exam, parent_key):
     """
 
     Args:
@@ -438,12 +421,12 @@ def check_exam_data(pd, parent_key):
 
     child_key = 'DICOM Raystation Comparison'
     modality_tag = (0x0008, 0x0060)
-    tags = {str(pd.patient.Name): (0x0010, 0x0010, match_patient_name),
-            str(pd.patient.PatientID): (0x0010, 0x0020, match_exactly),
-            str(pd.patient.Gender): (0x0010, 0x0040, match_gender),
-            str(pd.patient.DateOfBirth): (0x0010, 0x0030, match_date)
+    tags = {str(patient.Name): (0x0010, 0x0010, match_patient_name),
+            str(patient.PatientID): (0x0010, 0x0020, match_exactly),
+            str(patient.Gender): (0x0010, 0x0040, match_gender),
+            str(patient.DateOfBirth): (0x0010, 0x0030, match_date)
             }
-    get_rs_value = pd.exam.GetStoredDicomTagValueForVerification
+    get_rs_value = exam.GetStoredDicomTagValueForVerification
     modality = list(get_rs_value(Group=modality_tag[0],
                                  Element=modality_tag[1]).values())[0]  # Get Modality
     message_str = "Attribute: [DICOM vs RS]"
@@ -554,11 +537,13 @@ def approval_info(plan, beamset):
     return approval
 
 
-def check_plan_approved(pd, parent_key):
+def check_plan_approved(plan, beamset, parent_key):
     """
     Check if a plan is approved
     Args:
         parent_key: parent position in the tree of this child
+        plan: RS plan object
+        beamset: RS beamset object
 
 
     Returns:
@@ -566,17 +551,17 @@ def check_plan_approved(pd, parent_key):
 
     """
     child_key = "Plan approval status"
-    approval_status = approval_info(pd.plan, pd.beamset)
+    approval_status = approval_info(plan, beamset)
     if approval_status.plan_approved:
         message_str = "Plan: {} was approved by {} on {}".format(
-            pd.plan.Name,
+            plan.Name,
             approval_status.plan_reviewer,
             approval_status.plan_approval_time
         )
         pass_result = "Pass"
     else:
         message_str = "Plan: {} is not approved".format(
-            pd.plan.Name)
+            plan.Name)
         pass_result = "Fail"
     messages = build_tree_element(parent_key=parent_key,
                                   child_key=child_key,
@@ -590,7 +575,7 @@ def check_beamset_approved(pd, parent_key):
     Check if a plan is approved
     Args:
         parent_key: parent position in the tree of this child
-        pd: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+        pd: (NamedTuple Containing beamset and plan RS objects)
 
     Returns:
         message: [str1, ...]: [parent_key, child_key, child_key display, result_value]
@@ -619,7 +604,7 @@ def check_beamset_approved(pd, parent_key):
     return messages
 
 
-def compare_exam_date(pd, parent_key):
+def compare_exam_date(exam, plan, beamset, tolerance, parent_key):
     """
     Check if date occurred within tolerance
     Ideally we'll use the approval date, if not, we'll use the last saved by,
@@ -639,19 +624,18 @@ def compare_exam_date(pd, parent_key):
         Fail: Script_Testing^Plan_Review, #ZZUWQA_ScTest_01May2022:
               ChwL: Bolus_Roi_Check_Fail: ChwL_VMA_R0A0
     """
-    tolerance = DAYS_SINCE_SIM
     child_key = "Exam date is recent"
-    dcm_data = list(pd.exam.GetStoredDicomTagValueForVerification(Group=0x0008, Element=0x0020).values())
-    approval_status = approval_info(pd.plan, pd.beamset)
+    dcm_data = list(exam.GetStoredDicomTagValueForVerification(Group=0x0008, Element=0x0020).values())
+    approval_status = approval_info(plan, beamset)
     if dcm_data:
         dcm_date = parser.parse(dcm_data[0])
         #
         if approval_status.beamset_approved:
-            current_time = parser.parse(str(pd.beamset.Review.ReviewTime))
+            current_time = parser.parse(str(beamset.Review.ReviewTime))
         else:
             try:
                 # Use last saved date if plan not approved
-                current_time = parser.parse(str(pd.beamset.ModificationInfo.ModificationTime))
+                current_time = parser.parse(str(beamset.ModificationInfo.ModificationTime))
             except AttributeError:
                 current_time = datetime.datetime.now()
 
@@ -659,14 +643,14 @@ def compare_exam_date(pd, parent_key):
 
         if elapsed_days <= tolerance:
             message_str = "Exam {} acquired {} within {} days ({} days) of Plan Date {}" \
-                .format(pd.exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
+                .format(exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
             pass_result = "Pass"
         else:
             message_str = "Exam {} acquired {} GREATER THAN {} days ({} days) of Plan Date {}" \
-                .format(pd.exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
+                .format(exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
             pass_result = "Fail"
     else:
-        message_str = "Exam {} has no apparent study date!".format(pd.exam.Name)
+        message_str = "Exam {} has no apparent study date!".format(exam.Name)
         pass_result = "Alert"
     messages = build_tree_element(parent_key=parent_key,
                                   child_key=child_key,
@@ -702,6 +686,8 @@ def match_image_directions(pd, parent_key):
                                   pass_result=pass_result,
                                   message_str=message_str)
     return messages
+
+
 #
 # CONTOUR CHECKS
 def get_roi_list(case, exam_name=None):
@@ -891,21 +877,12 @@ def get_targets_si_extent(pd):
     return extent
 
 
-def get_si_extent(pd, types=None, roi_list=None):
+def get_si_extent(pd, types):
     rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
     initial = [-1000, 1000]
     extent = [-1000, 1000]
-    # Generate a list to search
-    type_list = []
-    rois = []
-    if types:
-        type_list = [r.OfRoi.Name for r in rg if r.OfRoi.Type in types and r.HasContours]
-    if roi_list:
-        rois = [r.OfRoi.Name for r in rg if r.OfRoi.Name in roi_list and r.HasContours]
-    check_list = list(set(type_list + rois))
-
     for r in rg:
-        if r.OfRoi.Name in check_list:
+        if r.OfRoi.Type in types and r.HasContours():
             bb = r.GetBoundingBox()
             rg_max = bb[0]['z']
             rg_min = bb[1]['z']
@@ -975,46 +952,12 @@ def image_extent_sufficient(pd, parent_key, target_extent=None):
     return messages
 
 
-def couch_type_correct(pd, parent_key):
-    child_key = 'Couch type correct'
-    # Abbreviate geometries
-    rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
-    roi_list = [r.OfRoi.Name for r in rg]
-    beam = pd.beamset.Beams[0]
-    current_machine = get_machine(machine_name=beam.MachineReference.MachineName)
-    wrong_supports = []
-    correct_supports = []
-    if current_machine.Name in TRUEBEAM_DATA['MACHINES']:
-        wrong_supports = [s for s in TOMO_DATA['SUPPORTS'] if s in roi_list]
-        correct_supports = [s for s in TRUEBEAM_DATA['SUPPORTS'] if s in roi_list]
-    elif current_machine.Name in TOMO_DATA['MACHINES']:
-        wrong_supports = [s for s in TRUEBEAM_DATA['SUPPORTS'] if s in roi_list]
-        correct_supports = [s for s in TOMO_DATA['SUPPORTS'] if s in roi_list]
-    if wrong_supports:
-        message_str = 'Support Structure(s) {} are INCORRECT for  machine {}'.format(
-            wrong_supports, current_machine.Name)
-        pass_result = "Fail"
-    elif correct_supports:
-        message_str = 'Support Structure(s) {} are correct for machine {}'.format(
-            correct_supports, current_machine.Name)
-        pass_result = "Pass"
-    else:
-        message_str = 'No couch structure found'
-        pass_result = "Alert"
-    # Prepare output
-    messages = build_tree_element(parent_key=parent_key,
-                                  child_key=child_key,
-                                  pass_result=pass_result,
-                                  message_str=message_str)
-    return messages
-
-
 def couch_extent_sufficient(pd, parent_key, target_extent=None):
     """
        Check PTV volume extent have supports under them
        Args:
            parent_key:
-           pd: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+           pd: NamedTuple of ScriptObject
            target_extent: [min, max extent of target]
        Returns:
            message: [str1, ...,]: [parent_key, child_key, child_key display, result value]
@@ -1031,11 +974,13 @@ def couch_extent_sufficient(pd, parent_key, target_extent=None):
     child_key = 'Couch extent sufficient'
     #
     # Get support structure extent
+    supports = ['Support']
     rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
-    supports = TOMO_DATA['SUPPORTS'] + TRUEBEAM_DATA['SUPPORTS']
-    supports = [r.OfRoi.Name for r in rg if r.OfRoi.Name in supports]
-
-    couch_extent = get_si_extent(pd=pd, roi_list=supports)
+    support_list = []
+    for r in rg:
+        if r.OfRoi.Type in supports:
+            support_list.append(r.OfRoi.Name)
+    couch_extent = get_si_extent(pd=pd, types=['Support'])
     if couch_extent:
         # Nice strings for output
         z_str = '[' + ('%.2f ' * len(couch_extent)) % tuple(couch_extent) + ']'
@@ -1055,13 +1000,12 @@ def couch_extent_sufficient(pd, parent_key, target_extent=None):
         pass_result = "Fail"
     elif couch_extent[1] >= buffered_target_extent[1] and couch_extent[0] <= buffered_target_extent[0]:
         message_str = 'Supports (' \
-                      + ', '.join(supports) \
-                      + ') span {} and is at least {:.1f} cm larger than S/I target extent {}'.format(
-            z_str, buffer, t_str)
+                      + ', '.join(support_list) \
+                      + ') span {} and is at least {:.1f} larger than S/I target extent {}'.format(z_str, buffer, t_str)
         pass_result = "Pass"
     elif couch_extent[1] < buffered_target_extent[1] or couch_extent[0] > buffered_target_extent[0]:
         message_str = 'Support extent (' \
-                      + ', '.join(supports) \
+                      + ', '.join(support_list) \
                       + ') :{} is not fully under the target.'.format(z_str) \
                       + '(SMALLER THAN ' \
                         'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
@@ -1234,7 +1178,7 @@ def check_transfer_approved(pd, parent_key):
     """
 
     Args:
-        pd: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+        pd: NamedTuple with a beamset
         parent_key: parent_node
 
     Returns:
@@ -1297,14 +1241,9 @@ def check_edw_MU(beamset, parent_key):
     child_key = "EDW MU Check"
     edws = {}
     for b in beamset.Beams:
-        try:
-            if b.Wedge:
-                if 'EDW' in b.Wedge.WedgeID:
-                    edws[b.Name] = b.BeamMU
-        except AttributeError:
-            logging.debug('No wedge object in {} with technique {}. Electrons?'.format(
-                beamset.DicomPlanLabel, beamset.DeliveryTechnique))
-            break
+        if b.Wedge:
+            if 'EDW' in b.Wedge.WedgeID:
+                edws[b.Name] = b.BeamMU
     if edws:
         passing = True
         edw_passes = []
@@ -1540,7 +1479,7 @@ def check_dose_grid(pd, parent_key):
     """
     Based on plan name and dose per fraction, determines size of appropriate grid.
     Args:
-        pd: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+        pd: NamedTuple with a beamset
         parent_key: parent_node
 
     Returns:
@@ -1617,7 +1556,10 @@ def check_slice_thickness(pd, parent_key):
     """
     Checks the current exam used in this case for appropriate slice thickness
     Args:
-        pd: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+        pd: NamedTuple
+        pd.patient: RS patient ScriptObject
+        pd.exam: RS exam ScriptObject
+        pd.beamset: RS beamset ScriptObject
         parent_key: beamset parent key
     Returns:
         messages: [[str1, ...,],...]: [[parent_key, child_key, messgae display, Pass/Fail/Alert]]
@@ -1919,10 +1861,10 @@ def compute_beam_properties(pd, parent_key):
 
 def check_plan():
     #
+    #
     try:
         user_name = str(Environment.UserName)
-    except Exception as e:
-        logging.debug('{}'.format(e))
+    except:
         user_name = None
 
     treedata = sg.TreeData()
@@ -1937,7 +1879,6 @@ def check_plan():
             db=GeneralOperations.find_scope(level='PatientDB'),
             plan=GeneralOperations.find_scope(level='Plan'),
             beamset=GeneralOperations.find_scope(level='BeamSet'))
-    r = comment_to_clipboard(pd)
     #
     # Tree Levels
     patient_key = ("pt", "Patient: " + pd.patient.PatientID)
@@ -1990,7 +1931,6 @@ def check_plan():
     check_nofly_dose = True if pd.beamset else False
     check_grid = True if pd.beamset else False
     check_st = True if pd.beamset else False
-    check_couch_name = True if pd.beamset else False
     # Analyze checks needed by technique
     #
     # Plan check for VMAT
@@ -2037,12 +1977,14 @@ def check_plan():
     # Patient level checks
     exam_level_tests = []
     if check_dicom:
-        message_dicom = check_exam_data(pd, parent_key=exam_key[0])
+        message_dicom = check_exam_data(pd.patient, pd.exam, parent_key=exam_key[0])
         exam_level_tests.extend(message_dicom)
     #
     # Check date for tolerance
     if check_exam_date:
-        message_exam = compare_exam_date(pd, parent_key=exam_key[0])
+        message_exam = compare_exam_date(beamset=pd.beamset, plan=pd.plan,
+                                         exam=pd.exam, tolerance=DAYS_SINCE_SIM,
+                                         parent_key=exam_key[0])
         exam_level_tests.extend(message_exam)
     if check_target_extent:
         message_image_length = image_extent_sufficient(pd=pd, parent_key=exam_key[0], target_extent=target_extent)
@@ -2056,7 +1998,7 @@ def check_plan():
     if check_bb:
         message_bb = check_localization(pd=pd, parent_key=exam_key[0])
         exam_level_tests.extend(message_bb)
-    if check_rot:
+    if check_bb:
         message_rot = match_image_directions(pd=pd, parent_key=exam_key[0])
         exam_level_tests.extend(message_rot)
     # Exam tests complete. Update value
@@ -2078,7 +2020,7 @@ def check_plan():
     # Plan LevelChecks
     plan_level_tests = []
     if check_approval:
-        message_pln_approved = check_plan_approved(pd, parent_key=plan_key[0])
+        message_pln_approved = check_plan_approved(plan=pd.plan, beamset=pd.beamset, parent_key=plan_key[0])
         plan_level_tests.extend(message_pln_approved)
 
     # Insert Plan Level notes
@@ -2153,9 +2095,6 @@ def check_plan():
     if check_tomo_iso:
         message_iso = check_tomo_isocenter(pd, parent_key=beamset_key[0])
         beamset_level_tests.extend(message_iso)
-    if check_couch_name:
-        message_couch_name = couch_type_correct(pd, parent_key=beamset_key[0])
-        beamset_level_tests.extend(message_couch_name)
 
     #
     # Insert Beamset Level Nodes
@@ -2167,7 +2106,7 @@ def check_plan():
     elif any([m[3] for m in beamset_level_tests if m[3] == "Alert"]):
         beamset_level_pass = "Alert"
         beamset_icon = BLUE_CIRCLE
-    treedata.Insert(patient_key[0], beamset_key[0], beamset_key[1], beamset_level_pass, icon=beamset_icon)
+    treedata.Insert(plan_key[0], beamset_key[0], beamset_key[1], beamset_level_pass, icon=beamset_icon)
     if beamset_level_tests:
         for m in beamset_level_tests:
             treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
@@ -2207,7 +2146,6 @@ def check_plan():
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
     window.close()
-    r.destroy()
 
 
 def main():

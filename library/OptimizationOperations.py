@@ -62,6 +62,9 @@
     2.0.3 Adding Jaw locking, including support for lock-to-jaw max for TrueBeamStX
     2.0.4 Added calls to BeamOperations for checking jaw limits. I wanted to avoid causing jaws to be set larger
           than allowed. Currently, the jaws will be the maximum X1, Y1 (least negative) and minimum X2, Y2
+    2.0.5 Updated to RS 11
+    2.0.6 Added check on existing dimension of dose grid. If current dimension is less than default
+          don't reset
 
 
     This program is free software: you can redistribute it and/or modify it under
@@ -79,18 +82,18 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2021-Dec-12'
-__version__ = '2.0.0'
-__status__ = 'Development'
+__date__ = '2022-Jun-27'
+__version__ = '2.0.5'
+__status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
-__raystation__ = '10A SP1'
+__raystation__ = '11B'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__help__ = ''
+__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 #
@@ -103,7 +106,7 @@ import sys
 import os
 import math
 import pandas as pd
-import numpy
+import numpy as np
 import PlanOperations
 import BeamOperations
 from GeneralOperations import logcrit as logcrit
@@ -322,6 +325,9 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
                 change_grid.append(0)
     return change_grid
 
+
+def approximate_lte(x, y):
+    return np.all(x <= y) or np.all(np.isclose(x, y))
 
 def select_rois_for_treat(plan, beamset, rois=None):
     """ For the beamset supplie set treat settings
@@ -555,7 +561,7 @@ def reduce_oar_dose(plan_optimization):
     # If composite objectives are found warn the user
     if composite_objectives:
         connect.await_user_input("ReduceOAR with composite optimization is not supported " +
-                                 "by RaySearch at this time")
+                                 "by RaySearch as of RS 11")
         logging.warning("reduce_oar_dose: " +
                         "RunReduceOARDoseOptimization not executed due to the presence of" +
                         "CompositeDose objectives")
@@ -1058,7 +1064,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         logging.info('Fluence only: {}'.format(fluence_only))
     else:
         if vary_grid:
-            plan.SetDefaultDoseGrid(
+            beamset.SetDefaultDoseGrid(
                 VoxelSize={
                     'x': dose_dim1,
                     'y': dose_dim1,
@@ -1180,7 +1186,10 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     plan_optimization_parameters.DoseCalculation.ComputeFinalDose = True
 
     # Turn off autoscale
-    plan.PlanOptimizations[rs_opt_key].AutoScaleToPrescription = False
+    try:
+        beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
+    except Exception as e:
+        logging.debug('Failed to turn off autoscale: {}'.format(str(e)))
 
     # Set the Maximum iterations and segmentation iteration
     # to a high number for the initial run
@@ -1203,14 +1212,32 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # it is clear than when co-optimization occurs, we have more than one entry in here...
 
     # If not set yet, the dose grid needs setting.
-    plan.SetDefaultDoseGrid(
-        VoxelSize={
-            'x': dose_dim_initial,
-            'y': dose_dim_initial,
-            'z': dose_dim_initial})
-    plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-    logging.debug('Dose grid initialized with voxel size {}'.format(dose_dim_initial))
-    patient.Save()
+    current_grid = beamset.GetDoseGrid()
+    if current_grid:
+        current_voxelsize = np.array([current_grid.VoxelSize.x,
+                                      current_grid.VoxelSize.y,
+                                      current_grid.VoxelSize.z])
+        update_voxelsize = np.array([dose_dim_initial] * 3)
+        if approximate_lte(current_voxelsize, update_voxelsize):
+            logging.debug('Dose grid is {} <= {}. No grid changes'.format(current_grid.VoxelSize.x,
+                                                                          dose_dim_initial))
+        else:
+            beamset.SetDefaultDoseGrid(
+                VoxelSize={
+                    'x': dose_dim_initial,
+                    'y': dose_dim_initial,
+                    'z': dose_dim_initial})
+            plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+            logging.debug('Dose grid initialized with voxel size {}'.format(dose_dim_initial))
+    else:
+        beamset.SetDefaultDoseGrid(
+            VoxelSize={
+                'x': dose_dim_initial,
+                'y': dose_dim_initial,
+                'z': dose_dim_initial})
+        plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+        logging.debug('Dose grid initialized with voxel size {}'.format(dose_dim_initial))
+        patient.Save()
 
     # Reset
     if reset_beams:
@@ -1396,7 +1423,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     # Start Clock on the dose grid change
                     report_inputs.setdefault('time_dose_grid_initial', []).append(
                         datetime.datetime.now())
-                    plan.SetDefaultDoseGrid(
+                    beamset.SetDefaultDoseGrid(
                         VoxelSize={
                             'x': dose_dim,
                             'y': dose_dim,
@@ -1520,9 +1547,10 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 status.next_step('Running Segment weight only optimization')
                 report_inputs['time_segment_weight_initial'] = datetime.datetime.now()
                 # Uncomment when segment-weight based co-optimization is supported
+                # TODO: Checked in version 11B. Check in next version
                 if cooptimization:
                     logging.warning("Co-optimized segment weight-based optimization is" +
-                                    " not supported by RaySearch at this time.")
+                                    " not supported by RaySearch as of RS 11")
                     connect.await_user_input(
                         "Segment-weight optimization with composite optimization is not supported " +
                         "by RaySearch at this time")

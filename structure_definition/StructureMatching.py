@@ -5,14 +5,18 @@ Makes an ExternalClean object if it isn't already there
 Looks for conflicting structure names that will be a problem when matching occurs
 
 
-Version Notes:
-0.0.0 
+Version History:
+1.0.0 Production
+1.0.1 RS 11B Update
 
 Script: Matches all plan rois with TG-263 based normal structures returning a sorted list of
 the most likely matches based on: exact match, previously matched names (aliases) or levenshtein match
 
 Known Issues: 
 
+Validation Notes:
+    Test Patient: MR# ZZUWQA_ScTest_09Jun2022_MatchStructures
+                  NAME: Script_Testing^MatchStructuresPRVs
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
@@ -28,19 +32,19 @@ You should have received a copy of the GNU General Public License along with
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '02-Feb-2020'
+__date__ = '27-Jun-2022'
 
-__version__ = '0.0.0'
+__version__ = '1.0.1'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
 
-__raystation__ = '8.0.B'
+__raystation__ = '11B'
 __maintainer__ = 'Adam Bayliss'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 __help__ = ''
 
 import os
