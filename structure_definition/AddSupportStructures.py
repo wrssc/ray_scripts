@@ -1461,7 +1461,7 @@ def deploy_civco_breastboard_model(
 
         except AssertionError:
 
-            list_of_materials = patient_db.GetTemplateMaterial().Materials
+            list_of_materials = [m.Material for m in patient_db.GetTemplateMaterials()]
 
             material_wax = None
             for material in list_of_materials:
@@ -1487,7 +1487,7 @@ def deploy_civco_breastboard_model(
 
         except AssertionError:
 
-            list_of_materials = patient_db.GetTemplateMaterial().Materials
+            list_of_materials = [m.Material for m in patient_db.GetTemplateMaterials()]
 
             material_cork = None
             for material in list_of_materials:
