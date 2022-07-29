@@ -126,7 +126,7 @@ import connect
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
 import GeneralOperations
 
-icon_dir = os.path.join(os.path.dirname(__file__), "../development/Icons\\")
+icon_dir = os.path.join(os.path.dirname(__file__), "../development/ReviewScript/Icons\\")
 RED_CIRCLE = os.path.join(icon_dir, "red_circle_icon.png")
 GREEN_CIRCLE = os.path.join(icon_dir, "green_circle_icon.png")
 BLUE_CIRCLE = os.path.join(icon_dir, "blue_circle_icon.png")

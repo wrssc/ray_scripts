@@ -145,7 +145,7 @@ import connect
 import tkinter as Tk
 import pyperclip
 
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../../library'))
 import GeneralOperations
 
 icon_dir = os.path.join(os.path.dirname(__file__), "Icons\\")
@@ -253,7 +253,7 @@ TOMO_DATA = {'MACHINES': ['HDA0488', 'HDA0477'],
 
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
-                              ]}
+                              'Sframe_F1_TBCouch_HN']}
 
 
 def comment_to_clipboard(pd):
