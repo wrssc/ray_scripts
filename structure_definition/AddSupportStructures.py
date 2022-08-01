@@ -1496,7 +1496,7 @@ def deploy_civco_breastboard_model(
                     material_cork = material
                     break
 
-            assert material_wax is not None, "Cork material was not found in Template Materials."
+            assert material_cork is not None, "Cork material was not found in Template Materials."
 
         # Set the material for the shells
         incline_shell.OfRoi.SetRoiMaterial(Material=material_wax)
