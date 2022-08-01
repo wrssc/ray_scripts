@@ -531,7 +531,7 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
     :param beams: list of Beam objects
     :return:
     """
-    verbose_logging = False
+    verbose_logging = True
     logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, ' +
                   'Field Width {}, Pitch {}').format(
         beam.number, beam.technique, beam.name,
@@ -581,6 +581,7 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
             MaxDeliveryTime=beam.max_delivery_time,
             MaxGantryPeriod=beam.max_gantry_period,
             MaxDeliveryTimeFactor=beam.max_delivery_time_factor)
+    beamset.Beams[0].BeamQualityId = beam.energy
 
 
 def place_tomodirect_beams_in_beamset(plan, iso, beamset, beams):
@@ -2590,7 +2591,7 @@ def load_beams_xml(filename, beamset_name, path):
             beam.number = int(b.find('BeamNumber').text)
             beam.name = str(b.find('Name').text)
             beam.technique = str(b.find('DeliveryTechnique').text)
-            beam.energy = str(b.find('Energy').text)
+            beam.energy = str(int(b.find('Energy').text))
 
             if b.find('GantryAngle') is None:
                 beam.gantry_start_angle = None

@@ -472,13 +472,12 @@ def main():
         BeamOperations.place_beams_in_beamset(iso=iso_params,
                                               beamset=pd.beamset,
                                               beams=beams)
+        for b in pd.beamset.Beams:
+            b.BeamQualityId = energy
     else:
         now_u_dunit = 'Unsupported beamset technique {}'.format(beams[0].technique)
         logging.debug('Unsupported beamset technique {}'.format(beams[0].technique))
         sys.exit(now_u_dunit)
-    # TODO Change energy
-    for b in pd.beamset.Beams:
-        b.BeamQualityId = energy
 
 
 if __name__ == '__main__':

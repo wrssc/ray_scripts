@@ -99,7 +99,7 @@ def get_qualities(pd):
     try:
         pbb = machine.PhotonBeamQualities
     except AttributeError:
-        logging.debug('No nominal energy attribute for beamset {}'.format(pd.beamset.DicomPlanLabel))
+        logging.debug('No nominal energies found')
         return qualities
     for q in pbb:
         q_str = "{:.0f}".format(q.NominalEnergy)
@@ -351,8 +351,11 @@ def beamset_dialog(pd):
     beamset_modality = pd.beamset.Modality
     if 'Tomo' in beamset_type:
         tomo_plan = True
+        energy_list = ['6']
     else:
         tomo_plan = False
+        energy_list = get_qualities(pd)
+        logging.debug('Available energies: {}'.format(energy_list))
     # Initialize available beamsets which will be a dropdown selection
     beamsets = load_beamsets(beamset_type, beamset_modality)
     if not beamsets:
@@ -360,7 +363,6 @@ def beamset_dialog(pd):
                  .format(beamset_type, beamset_modality))
     beamset_list = [b for b in beamsets.keys()]
 
-    energy_list = get_qualities(pd)
     # Get all targets
     # TODO check if targets have coords on this exam
     target_list = find_types(pd.case, roi_type='Ptv')
@@ -446,17 +448,17 @@ def main():
         beam = beams[0]
         BeamOperations.place_tomo_beam_in_beamset(plan=pd.plan, iso=iso_params,
                                                   beamset=pd.beamset, beam=beam)
+        sys.exit('After settings')
     elif current_technique == 'DynamicArc' or current_technique == 'SMLC':
         BeamOperations.place_beams_in_beamset(iso=iso_params,
                                               beamset=pd.beamset,
                                               beams=beams)
+        for b in pd.beamset.Beams:
+            b.BeamQualityId = str(energy)
     else:
         now_u_dunit = 'Unsupported beamset technique {}'.format(beams[0].technique)
         logging.debug('Unsupported beamset technique {}'.format(beams[0].technique))
         sys.exit(now_u_dunit)
-    # TODO Change energy
-    for b in pd.beamset.Beams:
-        b.BeamQualityId = energy
 
 
 if __name__ == '__main__':
