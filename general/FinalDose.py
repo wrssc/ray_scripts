@@ -176,6 +176,7 @@ def final_dose(site=None, technique=None):
         status.next_step('Renamed Beams, checking external integrity')
 
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
+    user_pestering_index = 0
     if external_test:
         external_error = True
         while external_error:
@@ -187,6 +188,11 @@ def final_dose(site=None, technique=None):
             elif len(error) != 0:
                 connect.await_user_input('Eliminate overlap of patient external with support structures' +
                                          ' (hint: use the Couch Removal tool on the external)')
+                if user_pestering_index > 1:
+                    continue
+                else:
+                    logging.critical('External overlaps the support structure. User did not clear error.')
+                user_pestering_index += 1
             else:
                 external_error = False
         status.next_step('Reviewed external')
