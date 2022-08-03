@@ -72,6 +72,7 @@ import clr
 clr.AddReference("System.Xml")
 import System
 
+
 def compute_dose(beamset, dose_algorithm):
     # Computes the dose if necessary and returns success message or
     # failure
@@ -93,6 +94,7 @@ def compute_dose(beamset, dose_algorithm):
             logging.exception(u'{}'.format(e.Message))
             sys.exit(u'{}'.format(e.Message))
         return message
+
 
 def final_dose(site=None, technique=None):
     # Get current patient, case, exam, and plan
@@ -119,7 +121,7 @@ def final_dose(site=None, technique=None):
     external_test = True
     grid_test = True
     # Let the statements below change as needed
-    tomo_couch_test = False # This gets flagged to True if the plan technique does not contain 'Tomo'
+    tomo_couch_test = False  # This gets flagged to True if the plan technique does not contain 'Tomo'
     check_lateral_pa = False
     cps_test = False
     # Set up the workflow steps.
@@ -176,7 +178,6 @@ def final_dose(site=None, technique=None):
         status.next_step('Renamed Beams, checking external integrity')
 
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
-    user_pestering_index = 0
     if external_test:
         external_error = True
         while external_error:
@@ -185,14 +186,14 @@ def final_dose(site=None, technique=None):
                 logging.critical('Evaluation of overlap with External and Support Structures not possible ' +
                                  'due to no structures having type Support')
                 external_error = False
+            elif 'External approved' in error:
+                logging.critical('External overlaps with supports, but external is approved.')
+                connect.await_user_input('This external structure was locked despite an overlap with supports.')
+                external_error = False
             elif len(error) != 0:
+
                 connect.await_user_input('Eliminate overlap of patient external with support structures' +
                                          ' (hint: use the Couch Removal tool on the external)')
-                if user_pestering_index > 1:
-                    continue
-                else:
-                    logging.critical('External overlaps the support structure. User did not clear error.')
-                user_pestering_index += 1
             else:
                 external_error = False
         status.next_step('Reviewed external')
@@ -268,14 +269,14 @@ def final_dose(site=None, technique=None):
         dose_algorithm = 'CCDose'
         if 'Tomo' in beamset.DeliveryTechnique:
             # TODO: Better exception handling here.
-            message = compute_dose(beamset,dose_algorithm=dose_algorithm)
+            message = compute_dose(beamset, dose_algorithm=dose_algorithm)
             status.next_step(message)
-            #try:
+            # try:
             #    beamset.ComputeDose(ComputeBeamDoses=True,
             #                        DoseAlgorithm=dose_algorithm,
             #                        ForceRecompute=False)
             #    status.next_step('Recomputed Dose, finding DSP')
-            #except Exception:
+            # except Exception:
             #    status.next_step('Dose recomputation unnecessary, finding DSP')
             #    logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
             # Set the DSP for the plan and recompute dose to force an update of the DSP
@@ -287,7 +288,7 @@ def final_dose(site=None, technique=None):
             status.next_step('DSP set. Script complete')
         else:
             # Compute dose in case it hasn't been done yet
-            message = compute_dose(beamset=beamset,dose_algorithm=dose_algorithm)
+            message = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
 
             # Round MU
             beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
@@ -347,8 +348,10 @@ def final_dose(site=None, technique=None):
 
     logcrit('Final Dose Script Run Successfully')
 
+
 def main():
     final_dose()
+
 
 if __name__ == '__main__':
     main()

@@ -134,16 +134,31 @@ def external_overlap_test(patient, case, exam):
     if not structure:
         logging.exception('There is not structure with type External. Designate an external and re-run script')
         error = 'No structures with External DICOM type'
+    # Check if External is approved in this exam
+    external_name = structure[0]
+    if len(case.PatientModel.StructureSets[exam.Name].SubStructureSets) > 0:
+        approved_rois = [r.OfRoi.Name
+                         for r in case.PatientModel.StructureSets[exam.Name].SubStructureSets[0].RoiStructures]
+        if external_name in approved_rois:
+            external_approved = True
+        else:
+            external_approved = False
+    else:
+        external_approved = False
 
     supports = StructureOperations.find_types(case, 'Support')
     if supports:
         overlap_volume = StructureOperations.check_overlap(patient=patient,
-                                                       case=case,
-                                                       exam=exam,
-                                                       structure=structure,
-                                                       rois=supports)
+                                                           case=case,
+                                                           exam=exam,
+                                                           structure=structure,
+                                                           rois=supports)
         if (0. if overlap_volume is None else overlap_volume) > 1.:
-            error += 'Significant overlap exists between {} and {}'.format(structure, supports)
+            if external_approved:
+                error += 'External approved! But significant overlap exists between {} and {}' \
+                    .format(structure, supports)
+            else:
+                error += 'Significant overlap exists between {} and {}'.format(structure, supports)
     else:
         logging.debug('No support structures exist for evaluation of overlap')
         error = 'No support structures'
@@ -204,5 +219,3 @@ def tomo_couch_check(case, exam, beamset, tomo_couch_name='TomoCouch', limit=2.0
         return Tomo_Couch_Valid(couch_valid, error, couch_center.x, iso_center.x)
     else:
         return error
-
-
