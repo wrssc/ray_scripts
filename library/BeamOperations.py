@@ -2591,7 +2591,7 @@ def load_beams_xml(filename, beamset_name, path):
             beam.number = int(b.find('BeamNumber').text)
             beam.name = str(b.find('Name').text)
             beam.technique = str(b.find('DeliveryTechnique').text)
-            beam.energy = str(int(b.find('Energy').text))
+            beam.energy = str(b.find('Energy').text)
 
             if b.find('GantryAngle') is None:
                 beam.gantry_start_angle = None
