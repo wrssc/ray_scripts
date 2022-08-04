@@ -414,9 +414,9 @@ def beamset_dialog(pd):
 
     dialog_name = 'Beamset Template Selection'
     logcrit('Dialog:{}, '.format(dialog_name)
-            + 'TemplateName:{}, '.format(beamset_et.find('name').text
-                                         + 'Iso:{}, '.format(iso_target)
-                                         + 'Energy:{}, '.format(energy)))
+            + 'TemplateName:{}, '.format(beamset_et.find('name').text)
+            + 'Iso:{}, '.format(iso_target)
+            + 'Energy:{}'.format(energy))
     return beamset_name, filename, iso_target, energy
 
 
