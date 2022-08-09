@@ -22,6 +22,7 @@
     Version:
     0.0.0 Testing
     0.0.1 Changed format of output message
+    0.0.2 Debugging small changes in the 11 B interface and improving user dialogs
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -38,18 +39,18 @@
 
 __author__ = 'Adam Bayliss and Patrick Hill'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '25-Sep-2020'
-__version__ = '1.0.1'
+__date__ = '09-Aug-2022'
+__version__ = '0.0.2'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '10A SP2'
+__raystation__ = '11'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
-__help__ = 'https://github.com/mwgeurts/ray_scripts/wiki/User-Interface'
+__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__help__ = ''
 __credits__ = []
 
 import sys
@@ -59,7 +60,7 @@ import re
 import numpy as np
 import connect
 import UserInterface
-# import DicomExport
+import DicomExport
 from collections import namedtuple, OrderedDict
 from datetime import datetime
 from tkinter import Tk
@@ -72,7 +73,7 @@ clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871
                   '--X_GRID--': [-3.0, -2.0, -1.0, 0., 1.0, 2.0, 3.0, ],
                   '--Y_GRID--': [-16., -14., -12., -10., -8., -6., -4., -2., 0.,
                                  16., 14., 12., 10., 8., 6., 4., 2.],
-                  '--Z_GRID--': [-9., 0., 9.],
+                  '--Z_GRID--': [-9., -6., -3., 0., 3., 6., 9.],
                   '--CENTROID SHIFT FACTOR--': 0.5,  # 50%
                   '--TOMO ISO ROUND': 0.5,  # cm
                   '--VMAT_QA_PHANTOM--': r"Delta4 (TrueBeam)",
@@ -154,7 +155,7 @@ def qa_plan_exists(plan, qa_plan_name):
     # Return true if plan exists false otherwise
     verification_plans = plan.VerificationPlans
     for vp in verification_plans:
-        if vp.OfRadiationSet.DicomPlanLabel == qa_plan_name:
+        if vp.BeamSet.DicomPlanLabel == qa_plan_name:
             return True
     return False
 
@@ -184,11 +185,7 @@ def make_vmat_qa_plan(plan, beamset, qa_plan_name):
             CouchRotationAngle=0,
             ComputeDoseWhenPlanIsCreated=True,
             NumberOfMonteCarloHistories=None,
-            MotionSynchronizationTechniqueSettings={
-                'DisplayName': None,
-                'MotionSynchronizationSettings': None,
-                'RespiratoryIntervalTime': None,
-                'RespiratoryPhaseGatingDutyCycleTimePercentage': None},
+            MotionSynchronizationTechniqueSettings=None,
             RemoveCompensators=False,
             EnableDynamicTracking=False)
         qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
@@ -217,11 +214,7 @@ def make_tomo_qa_plan(plan, beamset, qa_plan_name):
             CouchRotationAngle=None,
             ComputeDoseWhenPlanIsCreated=True,
             NumberOfMonteCarloHistories=None,
-            MotionSynchronizationTechniqueSettings={
-                'DisplayName': None,
-                'MotionSynchronizationSettings': None,
-                'RespiratoryIntervalTime': None,
-                'RespiratoryPhaseGatingDutyCycleTimePercentage': None},
+            MotionSynchronizationTechniqueSettings=None,
             RemoveCompensators=False,
             EnableDynamicTracking=False)
         qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
@@ -330,6 +323,7 @@ def qa_gui(plan):
                     [sg.Listbox(beamset_list,
                                 size=(30, 3),
                                 key="-BEAMSETS-",
+                                default_values=beamset_list[0],
                                 select_mode='extended',
                                 enable_events=True)],
                     [sg.Text(f'Treatment Delivery System:')],
@@ -437,10 +431,17 @@ def shift_tomo_iso(verification_plan):
     a = find_dose_centroid(vp=verification_plan,
                            beamset=verification_plan.BeamSet,
                            percent_max=80)
-    shift = {'x': -1. * a['x'], 'y': -1. * a['y'], 'z': 0.}
+    z_shift = a['z'] if abs(a['z'] < 9.) else 0.
+    shift = {'x': -1. * a['x'], 'y': -1. * a['y'], 'z': -1. * z_shift}
     beams = verification_plan.BeamSet.Beams
+    iso_name = "".join((verification_plan.BeamSet.DicomPlanLabel,
+                        f"_X:{shift['x']:03.0f}",
+                        f"_Y:{shift['y']:03.0f}",
+                        f"_Z:{shift['z']:03.0f}"))
+    logging.info("During DQA creation, the center of the dose profile was at " +
+                 f"[x,y,z]: [{shift['x']:.2f},{shift['y']:.2f},{shift['z']:.2f}].")
     for b in beams:
-        b.Isocenter.EditIsocenter(Position=shift)
+        b.Isocenter.EditIsocenter(Name=iso_name, Position=shift, Color="Purple")
 
 
 def shift_iso(verification_plan, percent_dose_region=80.):
@@ -470,9 +471,13 @@ def shift_iso(verification_plan, percent_dose_region=80.):
                                                                                                               a['y'],
                                                                                                               a['z'])
         + "Closest shift coordinates are [x,y,z]: [{},{},{}]".format(shift['x'], shift['y'], shift['z']))
+    iso_name = "".join((verification_plan.BeamSet.DicomPlanLabel,
+                        f"_X:{shift['x']:03.0f}",
+                        f"_Y:{shift['y']:03.0f}",
+                        f"_Z:{shift['z']:03.0f}"))
     # Shift the isocenter of the beams
     for b in beams:
-        b.Isocenter.EditIsocenter(Position=shift)
+        b.Isocenter.EditIsocenter(Name=iso_name, Position=shift, Color="Purple")
     return shift
 
 
@@ -499,9 +504,9 @@ def main():
         sys.exit('This script requires a plan to be loaded')
     #
     # Clear the system clipboard
-    # r = Tk()
-    # r.withdraw()
-    # r.clipboard_clear()
+    r = Tk()
+    r.withdraw()
+    r.clipboard_clear()
 
     user_prompt = qa_gui(plan)
     if not user_prompt:
@@ -518,6 +523,7 @@ def main():
                 patient.Save()
                 beamset = plan.BeamSets[b]
                 beamset.SetCurrent()
+
             else:
                 logging.warning('Unable to load beamset {}'.format(b))
                 sys.exit('Unable to load beamset {}'.format(b))
@@ -534,6 +540,8 @@ def main():
                 logging.info('Beamset {} does not follow THI convention.'.format(
                     beamset.DicomPlanLabel
                 ))
+            if qa_plan_exists(plan, qa_plan_name):
+                qa_plan_name = prompt_qa_name(qa_plan_name)
             verification_plan = make_tomo_qa_plan(plan, beamset, qa_plan_name)
         else:
             qa_plan_name = beamset.DicomPlanLabel
