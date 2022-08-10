@@ -4130,7 +4130,7 @@ def planning_structures(
             # Set the Sources Structure for Evals
             PTVEval_defs = {
                 "StructureName": PTVEvalList[index],
-                "ExcludeFromExport": True,
+                "ExcludeFromExport": False,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
                 "OperationA": "Intersection",
