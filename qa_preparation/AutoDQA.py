@@ -260,12 +260,12 @@ def build_string_clip(beamset, responses, verification_plan):
     return comment
 
 
-def comment_to_clipboard(beamset, responses, verification_plan):
+def comment_to_clipboard(beamset, responses, verification_plan, r):
     #
     # Clear the system clipboard
-    r = Tk()
-    r.withdraw()
-    r.clipboard_clear()
+    # r = Tk()
+    # r.withdraw()
+    # r.clipboard_clear()
 
     #
     # Add data to the beamset comment
@@ -564,7 +564,7 @@ def main():
                 connect.await_user_input('Please review and adjust the plan.\n'
                                          + 'Resume the script to export\n'
                                          + 'Final Plan Parameters will be copied to the clipboard')
-            r = comment_to_clipboard(beamset, user_prompt, verification_plan)
+            r = comment_to_clipboard(beamset, user_prompt, verification_plan, r)
 
             # This plan needs to go to the Delta4 Dicom location and the user
             # needs to manually send it to the RayGateway
