@@ -2116,6 +2116,8 @@ def rounded_jaw_positions(beam):
     equivalent_square_field_size = 2 * a * b / (a + b)
     if equivalent_square_field_size < 3.:
         use_jaw_offset = True
+        # TODO: Use Jaw Offset is not working correctly in 11B. Disabled for now.
+        use_jaw_offset = False
     else:
         use_round_open = True
     # For some bizzare reason, the __init__ method of beam does not pull the data from
