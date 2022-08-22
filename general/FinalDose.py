@@ -183,11 +183,11 @@ def final_dose(site=None, technique=None):
         while external_error:
             error = PlanQualityAssuranceTests.external_overlap_test(patient, case, exam)
             if error == 'No support structures':
-                logging.critical('Evaluation of overlap with External and Support Structures not possible ' +
-                                 'due to no structures having type Support')
+                logcrit('Evaluation of overlap with External and Support Structures not possible ' +
+                        'due to no structures having type Support')
                 external_error = False
             elif 'External approved' in error:
-                logging.critical('External overlaps with supports, but external is approved.')
+                logcrit('External overlaps with supports, but external is approved.')
                 connect.await_user_input('This external structure was locked despite an overlap with supports.')
                 external_error = False
             elif len(error) != 0:

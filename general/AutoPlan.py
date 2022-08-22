@@ -357,7 +357,7 @@ def autoplan(testing_bypass_dialogs={}):
 
     order = AutoPlanOperations.select_order(protocol, order_name=input_order_name)
     order_name = order.find('name').text
-    logging.critical("Treatment Planning Order selected: {}".format(order.find('name').text))
+    logcrit("Treatment Planning Order selected: {}".format(order.find('name').text))
     #
     # Determine the protocol prescription parameters
     rx = AutoPlanOperations.find_rx(order)

@@ -934,7 +934,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             # Launch the dialog
             response = input_dialog.show()
             # Link root to selected protocol ElementTree
-            logging.critical("Treatment Planning Order selected: {}".format(
+            logcrit("Treatment Planning Order selected: {}".format(
                 input_dialog.values['i']))
             # Update the order name
 
