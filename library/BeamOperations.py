@@ -813,6 +813,20 @@ def check_pa(plan, beam):
         # Find the corner farthest from iso
 
 
+def rename_isocenter(plan, beamset):
+    # Look for all isocenters used in the plan and build a set
+    beamset_isocenters = set([str(b.Isocenter.Annotation.Name) for bs in plan.BeamSets for b in bs.Beams])
+    # Find an unused isocenter name
+    iso_name_found = False
+    iso_count = 0
+    while not iso_name_found:
+        iso_name = 'Iso_' + beamset.DicomPlanLabel + '_' + str(iso_count)
+        if iso_name in beamset_isocenters:
+            iso_count += 1
+        else:
+            iso_name_found = True
+    for b in beamset.Beams:
+        b.Isocenter.Annotation.Name = iso_name
 
 
 # def check_clearance(beamset):
@@ -968,15 +982,7 @@ def rename_beams(site_name=None, input_technique=None):
     logging.debug('Renaming and adding set up fields to Beam Set with name {}, patdelivery_time_factor {}, technique {}'.
                   format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
     # Rename isocenters
-    # Isocenter number is no longer tracked within the beamset.
-    iso_count = 0
-    beamset_isocenters = []
-    for b in beamset.Beams:
-        if not b.Isocenter.Annotation.Name in beamset_isocenters:
-            beamset_isocenters.append(str(b.Isocenter.Annotation.Name))
-            iso_count += 1
-            iso_name = 'Iso_' + beamset.DicomPlanLabel + '_' + str(iso_count)
-        b.Isocenter.Annotation.Name = iso_name
+    rename_isocenter(plan, beamset)
     #
     # HFS
     if patient_position == 'HeadFirstSupine':
