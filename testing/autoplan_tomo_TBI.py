@@ -488,7 +488,7 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=[192, 192, 192]):
         "StructureName": eval_name,
         "ExcludeFromExport": False,
         "VisualizeStructure": True,
-        "StructColor": "Red",
+        "StructColor": [255, 0, 0],
         "OperationA": "Intersection",
         "SourcesA": [external_name],
         "MarginTypeA": "Expand",
@@ -683,18 +683,24 @@ def make_dose_structures(pdata, isodoses, rx):
                         **temp_defs)
                     junct_roi = pdata.case.PatientModel.RegionsOfInterest[roi_name]
                     junct_roi.DeleteExpression()
-                    junct_roi.VolumeThreshold(
-                        InputRoi=junct_roi,
-                        Examination=pdata.exam,
-                        MinVolume=1,
-                        MaxVolume=200000)
+                    try:
+                        junct_roi.VolumeThreshold(
+                            InputRoi=junct_roi,
+                            Examination=pdata.exam,
+                            MinVolume=1,
+                            MaxVolume=200000)
+                    except:
+                        logging.debug('{} is empty'.format(roi_name))
                     subtracted_isodoses.append(roi_name)
             subtract_higher = True  # Start subtracting higher dose values
             isodose_contours.append(roi_name)
+    # for i in isodose_contours:
+    #     try:
+    #         update_all_remove_expression(pdata, i)
+    #     except:
+    #         pass
     for d in delete_rois:
         pdata.case.PatientModel.RegionsOfInterest[d].DeleteRoi()
-    for i in isodose_contours:
-        update_all_remove_expression(pdata, i)
     return isodose_contours
 
 
@@ -764,7 +770,7 @@ def register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, ):
         delete=False,
     )
 
-    pd_hfs.case.ComputeRigidImageRegistration(
+    pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
         FloatingExaminationName=ffs_scan_name,
         ReferenceExaminationName=hfs_scan_name,
         UseOnlyTranslations=False,
@@ -774,7 +780,7 @@ def register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, ):
         RegistrationName=None)
 
     # Refine on bones
-    pd_hfs.case.ComputeRigidImageRegistration(
+    pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
         FloatingExaminationName=ffs_scan_name,
         ReferenceExaminationName=hfs_scan_name,
         UseOnlyTranslations=False,
@@ -859,13 +865,17 @@ def make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
         struct_type="Organ")
 
     #
-    pd_hfs.case.PatientModel.CreateRoi(
-        Name="External_PRV10",
-        Color="255, 128, 0",
-        Type="IrradiatedVolume",
-        TissueName=None,
-        RbeCellTypeName=None,
-        RoiMaterial=None)
+    try:
+        pd_hfs.case.PatientModel.CreateRoi(
+            Name="External_PRV10",
+            Color="255, 128, 0",
+            Type="IrradiatedVolume",
+            TissueName=None,
+            RbeCellTypeName=None,
+            RoiMaterial=None)
+    except Exception as e:
+        if "There already exists" in "{}".format(e):
+            pass
     pd_hfs.case.PatientModel.RegionsOfInterest['External_PRV10'].SetMarginExpression(
         SourceRoiName=EXTERNAL_NAME,
         MarginSettings={'Type': "Expand",
@@ -948,6 +958,27 @@ def make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
     make_ptv(pdata=pd_hfs, junction_prefix=JUNCTION_PREFIX_HFS, avoid_name=AVOID_HFS_NAME)
 
 
+def calc_ffs_iso(pd_ffs, target):
+    pois = [p.Name for p in pd_ffs.case.PatientModel.PointsOfInterest]
+    if 'SimFiducials' not in pois:
+        connect.await_user_input('Place SimFiducial point')
+    pm = pd_ffs.case.PatientModel
+    sim_coords = pm.StructureSets[pd_ffs.exam.Name].LocalizationPoiGeometry.Point
+    target_coords = pm.StructureSets[pd_ffs.exam.Name].RoiGeometries[target].GetCenterOfRoi()
+    iso_coord = {'x': 0., 'y': target_coords['y'], 'z': sim_coords['z']}
+    iso_name = pm.GetUniqueRoiName(DesiredName='ROI_ffs_iso')
+    pm.CreateRoi(Name=iso_name,
+                 Color='Pink',
+                 Type='Bolus')
+    iso_roi = pm.RegionsOfInterest[iso_name]
+    iso_roi.CreateSphereGeometry(Radius=1.0,
+                                 Examination=pd_ffs.exam,
+                                 Center=iso_coord,
+                                 Representation='Voxels',
+                                 VoxelSize=0.01)
+    return iso_name
+
+
 def make_ffs_isodoses(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, rx):
     ffs_to_hfs = pd_ffs.case.GetTransformForExaminations(
         FromExamination=ffs_scan_name,
@@ -979,7 +1010,7 @@ def make_ffs_isodoses(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, rx):
     # Map the junction point
     non_empty_isodose_names = []
     for idn in isodose_names:
-        dose_roig = get_roi_geometries(pd_hfs.case, pd_hfs.exam, idn)
+        dose_roig = get_roi_geometries(pd_ffs.case, pd_ffs.exam, idn)
         if dose_roig.HasContours():
             non_empty_isodose_names.append(idn)
     pd_hfs.case.MapRoiGeometriesRigidly(
@@ -1034,7 +1065,7 @@ def main():
                 plan=None,
                 beamset=None)
     # TODO: GET RID OF THESE AND REPLACE WITH A CREATE STRUCTS ONLY
-    do_this = True
+    do_this = False
     if do_this:
         # TODO: Get current on the hfs scan since it seems like the couch is failing to load
         #
@@ -1088,122 +1119,122 @@ def main():
         # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
         #
         # Begin making planning structures
-        pd_hfs.case.PatientModel.MBSAutoInitializer(
-            MbsRois=MBS_ROIS,
-            CreateNewRois=True,
-            Examination=pd_hfs.exam,
-            UseAtlasBasedInitialization=False)
-        connect.await_user_input('Review placement of MBS structures')
 
-        pd_hfs.case.PatientModel.AdaptMbsMeshes(
-            Examination=pd_hfs.exam,
-            RoiNames=[r"Lung_L",
-                      r"Lung_R",
-                      r"Kidney_L",
-                      r"Kidney_R"],
-            CustomStatistics=None,
-            CustomSettings=None)
-
-        # Try a repeat on FFS
-        pd_ffs.case.PatientModel.MBSAutoInitializer(
-            MbsRois=[{'CaseType': "Abdomen",
-                      'ModelName': r"Kidney (Left)",
-                      'RoiName': r"Kidney_L",
-                      'RoiColor': "58, 251, 170"},
-                     {'CaseType': "Abdomen",
-                      'ModelName': r"Kidney (Right)",
-                      'RoiName': r"Kidney_R",
-                      'RoiColor': "250, 57, 105"},
-                     {'CaseType': "Thorax",
-                      'ModelName': r"Lung (Left)",
-                      'RoiName': r"Lung_L",
-                      'RoiColor': "253, 122, 9"},
-                     {'CaseType': "Thorax",
-                      'ModelName': r"Lung (Right)",
-                      'RoiName': r"Lung_R",
-                      'RoiColor': "54, 247, 223"}],
-            CreateNewRois=False,
-            Examination=pd_ffs.exam,
-            UseAtlasBasedInitialization=True)
-        connect.await_user_input('Review placement of MBS structures')
-
-        pd_ffs.case.PatientModel.AdaptMbsMeshes(
-            Examination=pd_ffs.exam,
-            RoiNames=[r"Lung_L",
-                      r"Lung_R",
-                      r"Kidney_L",
-                      r"Kidney_R"],
-            CustomStatistics=None,
-            CustomSettings=None)
-
-        connect.await_user_input('Check the MBS loaded structures on both exams.')
-        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        # pd_hfs.case.PatientModel.MBSAutoInitializer(
+        #     MbsRois=MBS_ROIS,
+        #     CreateNewRois=True,
+        #     Examination=pd_hfs.exam,
+        #     UseAtlasBasedInitialization=False)
+        # connect.await_user_input('Review placement of MBS structures')
         #
-        # Build lung contours and avoidance on the HFS scan
-        make_lung_contours(pd_hfs, color=[192, 192, 192])
+        # pd_hfs.case.PatientModel.AdaptMbsMeshes(
+        #     Examination=pd_hfs.exam,
+        #     RoiNames=[r"Lung_L",
+        #               r"Lung_R",
+        #               r"Kidney_L",
+        #               r"Kidney_R"],
+        #     CustomStatistics=None,
+        #     CustomSettings=None)
+        #
+        # # Try a repeat on FFS
+        # pd_ffs.case.PatientModel.MBSAutoInitializer(
+        #     MbsRois=[{'CaseType': "Abdomen",
+        #               'ModelName': r"Kidney (Left)",
+        #               'RoiName': r"Kidney_L",
+        #               'RoiColor': "58, 251, 170"},
+        #              {'CaseType': "Abdomen",
+        #               'ModelName': r"Kidney (Right)",
+        #               'RoiName': r"Kidney_R",
+        #               'RoiColor': "250, 57, 105"},
+        #              {'CaseType': "Thorax",
+        #               'ModelName': r"Lung (Left)",
+        #               'RoiName': r"Lung_L",
+        #               'RoiColor': "253, 122, 9"},
+        #              {'CaseType': "Thorax",
+        #               'ModelName': r"Lung (Right)",
+        #               'RoiName': r"Lung_R",
+        #               'RoiColor': "54, 247, 223"}],
+        #     CreateNewRois=False,
+        #     Examination=pd_ffs.exam,
+        #     UseAtlasBasedInitialization=True)
+        # connect.await_user_input('Review placement of MBS structures')
+        #
+        # pd_ffs.case.PatientModel.AdaptMbsMeshes(
+        #     Examination=pd_ffs.exam,
+        #     RoiNames=[r"Lung_L",
+        #               r"Lung_R",
+        #               r"Kidney_L",
+        #               r"Kidney_R"],
+        #     CustomStatistics=None,
+        #     CustomSettings=None)
+        #
+        # connect.await_user_input('Check the MBS loaded structures on both exams.')
+        # reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        #
         #
         # Make skin subtraction
-        StructureOperations.make_wall(
-            wall="Avoid_Skin_PRV05",
-            sources=["ExternalClean"],
-            delta=0.5,
-            patient=pd_hfs.patient,
-            case=pd_hfs.case,
-            examination=pd_hfs.exam,
-            inner=True,
-            struct_type="Organ")
+        # StructureOperations.make_wall(
+        #     wall="Avoid_Skin_PRV05",
+        #     sources=["ExternalClean"],
+        #     delta=0.5,
+        #     patient=pd_hfs.patient,
+        #     case=pd_hfs.case,
+        #     examination=pd_hfs.exam,
+        #     inner=True,
+        #     struct_type="Organ")
+        # #
+        # StructureOperations.make_wall(
+        #     wall="Avoid_Skin_PRV05",
+        #     sources=["ExternalClean"],
+        #     delta=0.5,
+        #     patient=pd_ffs.patient,
+        #     case=pd_ffs.case,
+        #     examination=pd_ffs.exam,
+        #     inner=True,
+        #     struct_type="Organ")
         #
-        StructureOperations.make_wall(
-            wall="Avoid_Skin_PRV05",
-            sources=["ExternalClean"],
-            delta=0.5,
-            patient=pd_ffs.patient,
-            case=pd_ffs.case,
-            examination=pd_ffs.exam,
-            inner=True,
-            struct_type="Organ")
-
-        #
-        pd_hfs.case.PatientModel.CreateRoi(
-            Name="External_PRV10",
-            Color="255, 128, 0",
-            Type="IrradiatedVolume",
-            TissueName=None,
-            RbeCellTypeName=None,
-            RoiMaterial=None)
-        pd_hfs.case.PatientModel.RegionsOfInterest['External_PRV10'].SetMarginExpression(
-            SourceRoiName=EXTERNAL_NAME,
-            MarginSettings={'Type': "Expand",
-                            'Superior': 1.0,
-                            'Inferior': 1.0,
-                            'Anterior': 1.0,
-                            'Posterior': 1.0,
-                            'Right': 1.0,
-                            'Left': 1.0})
-        pd_hfs.case.PatientModel.RegionsOfInterest['External_PRV10'].UpdateDerivedGeometry(
-            Examination=pd_hfs.exam, Algorithm="Auto")
+        # #
+        # pd_hfs.case.PatientModel.CreateRoi(
+        #     Name="External_PRV10",
+        #     Color="255, 128, 0",
+        #     Type="IrradiatedVolume",
+        #     TissueName=None,
+        #     RbeCellTypeName=None,
+        #     RoiMaterial=None)
+        # pd_hfs.case.PatientModel.RegionsOfInterest['External_PRV10'].SetMarginExpression(
+        #     SourceRoiName=EXTERNAL_NAME,
+        #     MarginSettings={'Type': "Expand",
+        #                     'Superior': 1.0,
+        #                     'Inferior': 1.0,
+        #                     'Anterior': 1.0,
+        #                     'Posterior': 1.0,
+        #                     'Right': 1.0,
+        #                     'Left': 1.0})
+        # pd_hfs.case.PatientModel.RegionsOfInterest['External_PRV10'].UpdateDerivedGeometry(
+        #     Examination=pd_hfs.exam, Algorithm="Auto")
 
         # TODO: Rename Sensibly
-        lower_point = find_junction_coords(pd_hfs)
-        place_poi(pd_hfs=pd_hfs, coord_hfs=lower_point)
-        # Get the rigid registration
-        hfs_to_ffs = pd_hfs.case.GetTransformForExaminations(
-            FromExamination=hfs_scan_name,
-            ToExamination=ffs_scan_name)
-        # Convert it to the transform dictionary
-        trans_h2f = convert_array_to_transform(hfs_to_ffs)
-        # Map the junction point
-        pd_hfs.case.MapPoiGeometriesRigidly(
-            PoiGeometryNames=[JUNCTION_POINT],
-            CreateNewPois=False,
-            ReferenceExaminationName=hfs_scan_name,
-            TargetExaminationNames=[ffs_scan_name],
-            Transformations=[trans_h2f])
+        # lower_point = find_junction_coords(pd_hfs)
+        # place_poi(pd_hfs=pd_hfs, coord_hfs=lower_point)
+        # # Get the rigid registration
+        # hfs_to_ffs = pd_hfs.case.GetTransformForExaminations(
+        #     FromExamination=hfs_scan_name,
+        #     ToExamination=ffs_scan_name)
+        # # Convert it to the transform dictionary
+        # trans_h2f = convert_array_to_transform(hfs_to_ffs)
+        # # Map the junction point
+        # pd_hfs.case.MapPoiGeometriesRigidly(
+        #     PoiGeometryNames=[JUNCTION_POINT],
+        #     CreateNewPois=False,
+        #     ReferenceExaminationName=hfs_scan_name,
+        #     TargetExaminationNames=[ffs_scan_name],
+        #     Transformations=[trans_h2f])
 
-    do_this = False
-    if do_this:
         load_normal_mbs(pd_hfs, pd_ffs)
-        # reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        # Build lung contours and avoidance on the HFS scan
+        reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+        make_lung_contours(pd_hfs, color=[192, 192, 192])
+        make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name)
         # # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
         # # Loop through MBS rois, if present, pop.
         # rois = [r.OfRoi.Name for r in pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name].RoiGeometries
@@ -1237,19 +1268,18 @@ def main():
         #     Examination=pd_ffs.exam,
         #     UseAtlasBasedInitialization=True)
 
-    do_this = True
-    if do_this:
-        make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name)
-        # reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-        # #
-        # # Build lung contours and avoidance on the HFS scan
-        # make_lung_contours(pd_hfs, color=[192, 192, 192])
-        # #
-        # # Make skin subtraction
-        # StructureOperations.make_wall(
-        #     wall="Avoid_Skin_PRV05",
-        #     sources=["ExternalClean"],
-        #     delta=0.5,
+    # do_this = True
+    # if do_this:
+    # reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
+    # #
+    # # Build lung contours and avoidance on the HFS scan
+    # make_lung_contours(pd_hfs, color=[192, 192, 192])
+    # #
+    # # Make skin subtraction
+    # StructureOperations.make_wall(
+    #     wall="Avoid_Skin_PRV05",
+    #     sources=["ExternalClean"],
+    #     delta=0.5,
         #     patient=pd_hfs.patient,
         #     case=pd_hfs.case,
         #     examination=pd_hfs.exam,
@@ -1293,29 +1323,29 @@ def main():
         # hfs_to_ffs = pd_hfs.case.GetTransformForExaminations(
         #     FromExamination=hfs_scan_name,
         #     ToExamination=ffs_scan_name)
-        # # Convert it to the transform dictionary
-        # trans_h2f = convert_array_to_transform(hfs_to_ffs)
-        # # Map the junction point
-        # pd_hfs.case.MapPoiGeometriesRigidly(
-        #     PoiGeometryNames=[JUNCTION_POINT],
-        #     CreateNewPois=False,
-        #     ReferenceExaminationName=hfs_scan_name,
-        #     TargetExaminationNames=[ffs_scan_name],
-        #     Transformations=[trans_h2f])
+    # # Convert it to the transform dictionary
+    # trans_h2f = convert_array_to_transform(hfs_to_ffs)
+    # # Map the junction point
+    # pd_hfs.case.MapPoiGeometriesRigidly(
+    #     PoiGeometryNames=[JUNCTION_POINT],
+    #     CreateNewPois=False,
+    #     ReferenceExaminationName=hfs_scan_name,
+    #     TargetExaminationNames=[ffs_scan_name],
+    #     Transformations=[trans_h2f])
 
-    do_this = True
-    if do_this:
-        make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name)
-        # #
-        # # FFS Junction
-        # ffs_poi_junction = pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name] \
-        #     .PoiGeometries[JUNCTION_POINT]
-        # # IsoDose levels:
-        # j_i = [10, 20, 30, 40, 50, 60, 70, 80, 90]
-        # dim_si = 2.5
-        # dose_levels = {10: [127, 0, 255],
-        #                20: [0, 0, 255],
-        #                30: [0, 127, 255],
+    # do_this = True
+    # if do_this:
+    #     make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name)
+    # #
+    # # FFS Junction
+    # ffs_poi_junction = pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name] \
+    #     .PoiGeometries[JUNCTION_POINT]
+    # # IsoDose levels:
+    # j_i = [10, 20, 30, 40, 50, 60, 70, 80, 90]
+    # dim_si = 2.5
+    # dose_levels = {10: [127, 0, 255],
+    #                20: [0, 0, 255],
+    #                30: [0, 127, 255],
         #                40: [0, 255, 255],
         #                50: [0, 255, 127],
         #                60: [0, 255, 0],
@@ -1357,12 +1387,13 @@ def main():
         # # then map them over
         # make_avoid(pd_hfs, z_start=hfs_avoid_start, avoid_name=AVOID_HFS_NAME)
         # make_ptv(pdata=pd_hfs, junction_prefix=JUNCTION_PREFIX_HFS, avoid_name=AVOID_HFS_NAME)
-    do_this = True
+    do_this = False
     if do_this:
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         #
         # FFS Planning
         # FFS protocol declarations
+        iso_target = calc_ffs_iso(pd_ffs, target=JUNCTION_PREFIX_FFS + "90%Rx")
         tbi_ffs_protocol = {
             'protocol_name': PROTOCOL_NAME,
             'order_name': ORDER_NAME_FFS,
@@ -1370,7 +1401,7 @@ def main():
             'site': 'TBI_',
             'translation_map': {ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')},
             'beamset_name': BEAMSET_FFS,
-            'iso_target': JUNCTION_PREFIX_FFS + "90%Rx",
+            'iso_target': iso_target,
             'machine': MACHINE,
             'user_prompts': True,
         }

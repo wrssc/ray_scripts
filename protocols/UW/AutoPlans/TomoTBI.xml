@@ -1435,7 +1435,7 @@
             <BackJawPosition>2.1</BackJawPosition>
             <FrontJawPosition>-2.1</FrontJawPosition>
             <JawMode>Fixed</JawMode>
-            <MaxDeliveryTime>1100</MaxDeliveryTime>
+            <MaxDeliveryTime>1200</MaxDeliveryTime>
             <MaxGantryPeriod>59</MaxGantryPeriod>
             <MaxDeliveryTimeFactor>3.0</MaxDeliveryTimeFactor>
         </beam>
@@ -1470,10 +1470,10 @@
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
-        <reduce_mod mod_target="2.2">True</reduce_mod>
+        <reduce_mod mod_target="4.0">False</reduce_mod>
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
-        <block_prompt>False</block_prompt>
+        <block_prompt>True</block_prompt>
         <robust sup="1" inf="1" ant="1" post="1" right="1" left="1">True</robust>
     </optimization_config>
     <optimization_config>
@@ -1485,9 +1485,9 @@
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
-        <reduce_mod mod_target="3.7">True</reduce_mod>
+        <reduce_mod mod_target="4.0">False</reduce_mod>
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
-        <block_prompt>False</block_prompt>
+        <block_prompt>True</block_prompt>
     </optimization_config>
 </protocol>
