@@ -604,7 +604,7 @@ def main():
                     connect.await_user_input('Please review and adjust the plan.\n'
                                              + 'Resume the script to export\n'
                                              + 'Final Plan Parameters will be copied to the clipboard')
-                r = comment_to_clipboard(beamset, user_prompt, verification_plan)
+                r = comment_to_clipboard(beamset, user_prompt, verification_plan, r)
                 formatted_response = {}
                 for k in beam_data.keys():
                     strip_response = '{:.6f}'.format(beam_data[k].couch_speed)
@@ -641,7 +641,7 @@ def main():
                 connect.await_user_input('Please review and adjust the plan.\n'
                                          + 'Resume the script to export\n'
                                          + 'Final Plan Parameters will be copied to the clipboard')
-            r = comment_to_clipboard(beamset, user_prompt, verification_plan)
+            r = comment_to_clipboard(beamset, user_prompt, verification_plan, r)
             success = True
             program_success.append(success)
 
