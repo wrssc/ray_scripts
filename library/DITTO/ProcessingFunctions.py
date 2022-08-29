@@ -45,8 +45,8 @@ def excuse_element_with_parent(element_pair, excused_parent, comment=""):
         if element_pair.is_unique_to_dataset2():
             return (Result.ELEMENT_EXPECTED_UNIQUE_TO_2, comment)
 
-        # If you get to this point, just return the match result
-        return (element_pair.match_result, comment)
+    # If you get to this point, just return the match result
+    return (element_pair.match_result, comment)
 
 
 def assess_case_insensitive_match(element_pair, comment=""):
@@ -258,15 +258,72 @@ ELEMENTS WITH COMPLEX BEHAVIOR
 ** Should be unique to Aria in Beam
 """
 
-PROCESS_FUNCTION_DICT = {
-    "PatientName": (assess_case_insensitive_match, {"comment": "Name"}),
+UNIQUE_TO_RAYSTATION = {
+    "GantryPitchAngle": (return_expected_unique_to_raystation, {}),
+    "GantryPitchRotationDirection": (return_expected_unique_to_raystation, {}),
     "BolusID": (return_expected_unique_to_raystation, {}),
+    "EffectiveWedgeAngle": (return_expected_unique_to_raystation, {}),
+}
+
+UNIQUE_TO_ARIA = {
+    "SourceToBlockTrayDistance": (return_expected_unique_to_aria, {}),
+    "AccessoryCode": (
+        return_expected_unique_to_aria,
+        {"comment": "AccessoryCode is set in RayStation by DicomExport.py"},
+    ),
+    "DoseRateSet": (
+        return_expected_unique_to_aria,
+        {"comment": "Dose Rate is set in Raystation by DicomExport.py"},
+    ),
+    "TableTopLateralPosition": (return_expected_unique_to_aria, {}),
+    "TableTopLongitudinalPosition": (return_expected_unique_to_aria, {}),
+    "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
     "DeviceSerialNumber": (return_expected_unique_to_aria, {}),
     "InstitutionName": (return_expected_unique_to_aria, {}),
     "InstitutionalDepartmentName": (return_expected_unique_to_aria, {}),
     "Manufacturer": (return_expected_unique_to_aria, {}),
     "ManufacturerModelName": (return_expected_unique_to_aria, {}),
     "ReferencedToleranceTableNumber": (return_expected_unique_to_aria, {}),
+    "BeamLimitingDeviceAngleTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "GantryAngleTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "PatientSupportAngleTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "TableTopLateralPositionTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "TableTopLongitudinalPositionTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "TableTopVerticalPositionTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "ToleranceTableLabel": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "ToleranceTableNumber": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+    "BeamLimitingDevicePositionTolerance": (
+        return_expected_unique_to_aria,
+        {"comment": "Tolerance tables are unique to Aria"},
+    ),
+}
+
+PROCESS_FUNCTION_DICT = {
+    "PatientName": (assess_case_insensitive_match, {"comment": "Name"}),
     "ReferencedPatientSetupNumber": (
         return_expected_mismatch,
         {"comment": "Numerical value may be different due to field reordering"},
@@ -277,9 +334,6 @@ PROCESS_FUNCTION_DICT = {
     ),
     "SourceToSurfaceDistance": (process_ssd, {}),
     "LeafJawPositions": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 mm
-    "TableTopLateralPosition": (return_expected_unique_to_aria, {}),
-    "TableTopLongitudinalPosition": (return_expected_unique_to_aria, {}),
-    "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),
     "TreatmentMachineName": (process_treatment_machine_name, {}),
     "StudyTime": (assess_tm_match, {}),
     "SpecificCharacterSet": (
@@ -288,25 +342,33 @@ PROCESS_FUNCTION_DICT = {
             "comment": "Character encoding: ARIA uses Latin Alphabet, RayStation uses Unicode"
         },
     ),
-    "DoseRateSet": (
-        return_expected_unique_to_aria,
-        {"comment": "Dose Rate is set in Raystation by DicomExport.py"},
-    ),
-    "GantryPitchAngle": (return_expected_unique_to_raystation, {}),
-    "GantryPitchRotationDirection": (return_expected_unique_to_raystation, {}),
     "BlockData": (process_block_data, {}),
     "BlockNumberOfPoints": (assess_block_points, {}),
     "BlockTrayID": (
         return_expected_mismatch,
         {"comment": "BlockTrayID is set in RayStation by DicomExport.py"},
     ),
-    "AccessoryCode": (
-        return_expected_unique_to_aria,
-        {"comment": "AccessoryCode is set in RayStation by DicomExport.py"},
-    ),
-    "SourceToBlockTrayDistance": (return_expected_unique_to_aria, {}),
     "ReferenceImageNumber": (
         excuse_element_with_parent,
         {"excused_parent": "ReferencedReferenceImageSequence"},
     ),
+    "ReferencedSOPClassUID": (
+        excuse_element_with_parent,
+        {"excused_parent": "ReferencedReferenceImageSequence"},
+    ),
+    "ReferencedSOPInstanceUID": (
+        excuse_element_with_parent,
+        {"excused_parent": "ReferencedReferenceImageSequence"},
+    ),
+    "RTBeamLimitingDeviceType": (
+        excuse_element_with_parent,
+        {"excused_parent": "BeamLimitingDeviceToleranceSequence"},
+    ),
 }
+
+PROCESS_FUNCTION_DICT = {
+    **PROCESS_FUNCTION_DICT,
+    **UNIQUE_TO_RAYSTATION,
+    **UNIQUE_TO_ARIA,
+}
+

@@ -16,13 +16,16 @@ ATTRIBUTE_MATCH_DICT = {
     "FractionGroupSequence": "FractionGroupNumber",
     "ReferencedBeamSequence": "ReferencedBeamNumber",
     "PatientSetupSequence": "PatientSetupNumber",
-    "ReferencedStructureSetSequence": "ReferencedSOPInstanceUID",  # ClassID??
+    "ReferencedStructureSetSequence": "ReferencedSOPClassUID",  # ClassID??
     "ToleranceTableSequence": "ToleranceTableNumber",
     "BeamLimitingDeviceToleranceSequence": "RTBeamLimitingDeviceType",
     "BlockSequence": "BlockNumber",
     "ApplicatorSequence": "ApplicatorType",
     "ApplicatorGeometrySequence": "ApplicatorOpening",
     "ReferencedReferenceImageSequence": "ReferenceImageNumber",
+    "WedgeSequence": "WedgeNumber",
+    "WedgePositionSequence": "ReferencedWedgeNumber", # contrived,
+    "PlannedVerificationImageSequence": "XRayImageReceptorAngle", # contrived, one of a kind
 }
 # Need to add Applicator Sequence, Block Sequence, ReferencedReferenceImageSequence, PlannedVerificationImageSequence
 
@@ -417,6 +420,13 @@ if __name__ == "__main__":
     )
     raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
     aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
-    # aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
+    aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
+
+    file_path = Path(
+        r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs"
+    )
+
+    raystation_filename = r"RP1.2.752.243.1.1.20220628154229160.2400.53002.dcm"
+    aria_filename = r"RP.3596693.ArmL_2DC_R0A0.dcm"
 
     run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)
