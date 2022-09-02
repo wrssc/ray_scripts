@@ -1280,9 +1280,9 @@ def check_slice_thickness(pd, parent_key):
     Checks the current exam used in this case for appropriate slice thickness
     Args:
         pd: NamedTuple
-        pd.patient: RS patient ScriptObject
-        pd.exam: RS exam ScriptObject
-        pd.beamset: RS beamset ScriptObject
+        rso.patient: RS patient ScriptObject
+        rso.exam: RS exam ScriptObject
+        rso.beamset: RS beamset ScriptObject
         parent_key: beamset parent key
     Returns:
         messages: [[str1, ...,],...]: [[parent_key, child_key, messgae display, Pass/Fail/Alert]]
