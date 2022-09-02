@@ -334,6 +334,7 @@ def select_rois_for_treat(plan, beamset, rois=None):
     :param beamset: RS beamset or ForTreatmentSetup object
     :param rois: a list of strings of roi names
     :return roi_list: a list of rois that were set to allow Treat Margins for this beamset"""
+    # TODO: determine if this is on a composite
     # Find the plan optimization for this beamset
     target_objectives = ['MinDose', 'UniformDose', 'TargetEud']
     function_types = ['CompositeDose']
@@ -868,6 +869,19 @@ def parse_evaluation_function(progress_of_optimization, rtp_function, rf_i):
     return dfp_data
 
 
+def parse_culmulative_objective_value(plan, beamset, prior_history=None):
+    # Find current Beamset Number and determine plan optimization
+    rs_opt_key = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
+                                                        verbose_logging=False)
+    plan_optimization = plan.PlanOptimizations[rs_opt_key]
+    obj = plan_optimization.ProgressOfOptimization.ObjectiveValues
+
+    if prior_history is not None:
+        return np.concatenate((prior_history, obj))
+    else:
+        return obj
+
+
 def filename_iteration_output(iteration_number, beamset, patient, iteration_dir):
     # Construct the output filename string
     # Get the time
@@ -942,7 +956,7 @@ def output_iteration_data(poo, warmstart_number,
 
         # Output
         df_1.to_pickle(iteration_output_file)
-        # Read back in with df_2 = pd.read_pickle(iteration_output_file)
+        # Read back in with df_2 = rso.read_pickle(iteration_output_file)
     except Exception as e:
         logging.debug('Error in setting output objective data {}'.format(e))
         sys.exit("{}".format(e))
@@ -1081,6 +1095,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             change_dose_grid = make_variable_grid_list(maximum_iteration, variable_dose_grid)
 
     save_at_complete = optimization_inputs.get('save', False)
+    prior_history = None
     # Making the variable status script, arguably move to main()
     num_steps = 0
     status_dict = {0: 'Initialize optimization'}
@@ -1090,6 +1105,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         status_dict[num_steps] = 'Reset Beams'
         status_steps.append(status_dict[num_steps])
 
+    # Status Dialog initialization
     if fluence_only:
         num_steps += 1
         status_dict[num_steps] = 'Optimize Fluence Only'
@@ -1131,7 +1147,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
 
     report_inputs['status_steps'] = status_steps
 
-    logging.critical('{} automated optimization started with reset beams {}, {} warmstarts'.format(
+    logcrit('{} automated optimization started with reset beams {}, {} warmstarts'.format(
         beamset.DicomPlanLabel, reset_beams, maximum_iteration
     ))
 
@@ -1143,6 +1159,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
 
     status.next_step("Setting initialization variables")
     logging.info('Set some variables like Niterations, Nits={}'.format(maximum_iteration))
+    # End of Status initialization
     # Variable definitions
     i = 0
     beamsinrange = True
@@ -1244,10 +1261,17 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         plan.PlanOptimizations[rs_opt_key].ResetOptimization()
         status.next_step("Resetting Optimization")
 
-    if plan_optimization.Objective.FunctionValue is None:
-        current_objective_function = 0
+    if plan_optimization.ProgressOfOptimization:
+        prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
+        if prior_history is not None:
+            current_objective_function = prior_history[-1]
+        else:
+            current_objective_function = 0
+            previous_objective_function = 1e10
     else:
-        current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
+        logging.debug('Reached the subloop in optimization where progress of optimization is not defined')
+        current_objective_function = 0
+        previous_objective_function = 1e10
     logging.info('Current total objective function value at iteration {} is {}'.format(
         optimization_iteration, current_objective_function))
 
@@ -1269,10 +1293,12 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         report_inputs.setdefault('time_iteration_final', []).append(datetime.datetime.now())
         # Consider converting this to the report_inputs
         # Output current objective value
-        if plan_optimization.Objective.FunctionValue is None:
-            current_objective_function = 0
+        if plan_optimization.ProgressOfOptimization:
+            prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
+            current_objective_function = prior_history[-1]
         else:
-            current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
+            current_objective_function = 0
+            previous_objective_function = 1e10
         logging.info('Current total objective function value at iteration {} is {}'.format(
             optimization_iteration, current_objective_function))
         reduce_oar_success = False
@@ -1404,12 +1430,13 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             time_1 = time_0
 
         while optimization_iteration != maximum_iteration:
-            if plan_optimization.Objective.FunctionValue is None:
+            if plan_optimization.ProgressOfOptimization.Iterations is not None:
+                prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
+                previous_objective_function = prior_history[-1]
+            else:
                 previous_objective_function = 1e10
                 logging.debug('This appears to be a cold start. Objective value set to {}'
                               .format(previous_objective_function))
-            else:
-                previous_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
 
             # If the change_dose_grid list has a non-zero element change the dose grid
             if vary_grid:
@@ -1476,7 +1503,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 try:
                     message = "".format(e.Message)
                     if "There is no feasible gantry period" in message:
-                        logging.critical("No feasible gantry period found. Full message {}".format(message))
+                        logcrit("No feasible gantry period found. Full message {}".format(message))
                     else:
                         return False, 'Exception occurred during optimization: {}'.format(e)
                 except:
@@ -1513,7 +1540,9 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             plan_optimization_parameters.Algorithm.MaxNumberOfIterations = second_maximum_iteration
             plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = second_intermediate_iteration
             # Outputs for debug
-            current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
+            if plan_optimization.ProgressOfOptimization.Iterations is not None:
+                prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
+                current_objective_function = prior_history[-1]
             logging.info(
                 'At iteration {} total objective function is {}, compared to previous {}'.format(
                     optimization_iteration,
@@ -1565,10 +1594,13 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                         plan.PlanOptimizations[rs_opt_key].RunOptimization()
                     except Exception as e:
                         return 'Exception occurred during optimization: {}'.format(e)
+                    if plan_optimization.ProgressOfOptimization.Iterations is not None:
+                        prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
+                        current_objective_function = prior_history[-1]
                     logging.info(
                         'Current total objective function value at iteration {} is {}'.format(
                             optimization_iteration,
-                            plan_optimization.Objective.FunctionValue.FunctionValue))
+                            current_objective_function))
                 report_inputs['time_segment_weight_final'] = datetime.datetime.now()
 
         # Finish with a Reduce OAR Dose Optimization
@@ -1589,8 +1621,11 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     logging.info('ReduceOAR successfully completed')
                 else:
                     logging.warning('ReduceOAR failed')
+                if plan_optimization.ProgressOfOptimization.Iterations is not None:
+                    prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
+                    current_objective_function = prior_history[-1]
                 logging.info('Current total objective function value at iteration {} is {}'.format(
-                    optimization_iteration, plan_optimization.Objective.FunctionValue))
+                    optimization_iteration, current_objective_function))
 
     report_inputs['time_total_final'] = datetime.datetime.now()
     if save_at_complete:
@@ -1606,7 +1641,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         reduce_oar=reduce_oar_success,
         segment_weight=segment_weight,
         **report_inputs)
-    logging.critical('{} finished at {}'.format(beamset.DicomPlanLabel, datetime.datetime.now()))
+    logcrit('{} finished at {}'.format(beamset.DicomPlanLabel, datetime.datetime.now()))
 
     status.next_step('Optimization summary')
     if close_status:

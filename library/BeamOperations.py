@@ -2440,7 +2440,7 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
         # The dose grid is stored [z: I/S, y: P/A, x: R/L], so swap x and z
         pd = pd.swapaxes(0, 2)
         # Numpy does evaluation of advanced indices column wise:
-        # pd[sheets, columns, rows]
+        # rso[sheets, columns, rows]
         # Calculation organizes points by the MU contributed by each beam. The point
         # which has the closest dose from each beam to the MU used by the beam will be used
         # below

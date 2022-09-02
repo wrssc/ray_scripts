@@ -611,7 +611,7 @@ def main():
         opt_status = AutoPlanOperations.load_configuration_optimize_beamset(
             filename=row.OptimizationFile,
             path=row.OptimizationPath,
-            pd=patient_tuple,
+            rso=patient_tuple,
             name=row.OptimizationWorkflow)
         if opt_status:
             beamset_info = plan.QueryBeamSetInfo(Filter={'Name': beamset_name})

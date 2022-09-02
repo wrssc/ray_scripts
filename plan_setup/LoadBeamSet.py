@@ -361,28 +361,6 @@ def beamset_dialog(pd):
     beamset_list = [b for b in beamsets.keys()]
 
     energy_list = get_qualities(pd)
-    # Get machine list
-    # if tomo_plan:
-    #     machines = get_all_commissioned(machine_type='Tomo')
-    # else:
-    #     machines = get_all_commissioned(machine_type='VMAT')
-    #     machine = get_machine(pd.beamset.MachineReference.MachineName)
-    #     pbb = machine.PhotonBeamQualities
-    #     energy_list = []
-    #     for q in pbb:
-    #         q_str = q.DosimetricEnergy
-    #         if q.FluenceMode:
-    #             q_str += r' ' + q.FluenceMode
-    #         energy_list.append(q_str)
-    #
-    # inputs = {'bs': 'Select Beamset', 'e': 'Select Energy'}
-    # datatype = {'bs': 'combo', 'e': 'combo'}
-    # initial = {'bs': beamset_list[0], 'e': energy_list[0]}
-    # options = {'bs': beamset_list, 'e': energy_list}
-    # required = ['bs', 'e']
-    #
-    # Determine isocenter positioning
-    #
     # Get all targets
     # TODO check if targets have coords on this exam
     target_list = find_types(pd.case, roi_type='Ptv')
@@ -413,10 +391,10 @@ def beamset_dialog(pd):
     energy = bob['-ENERGY-']
 
     dialog_name = 'Beamset Template Selection'
-    logcrit('Dialog:{}, '.format(dialog_name)
-            + 'TemplateName:{}, '.format(beamset_et.find('name').text)
-            + 'Iso:{}, '.format(iso_target)
-            + 'Energy:{}'.format(energy))
+    logcrit('Dialog: {},\t'.format(dialog_name)
+            + 'TemplateName: {},\t'.format(beamset_et.find('name').text)
+            + 'Iso: {},\t'.format(iso_target)
+            + 'Energy: {},\t'.format(energy))
     return beamset_name, filename, iso_target, energy
 
 

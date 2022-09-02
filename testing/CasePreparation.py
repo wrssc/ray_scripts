@@ -173,26 +173,26 @@ def main():
 
 #    Pd = namedtuple('Pd', ['error','db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
- #   pd = Pd(error = [],
- #          patient = GeneralOperations.find_scope(level='Patient'),
+#   rso = Pd(error = [],
+#          patient = GeneralOperations.find_scope(level='Patient'),
  #          case = GeneralOperations.find_scope(level='Case'),
  #          exam = GeneralOperations.find_scope(level='Examination'),
- #          db = GeneralOperations.find_scope(level='PatientDB'),
- #          plan = None,
- #          beamset = None)
-    # sources = ['Heart']
-    # for i in range(1,10):
-    #     mm = str(i) *
-    #     n = sources[0] + "_" + str(i)
-    #     delta = float(i)*0.5
-    #     try:
-    #         w = StructureOperations.make_wall(wall=n, sources=sources,
-    #                                       delta=delta, patient=pd.patient,
-    #                                       case=pd.case, examination=pd.exam,
-    #                                       inner=False, struct_type="Undefined")
-    #     except Exception as e:
-    #         logging.debug('e is {}'.format(e))
-    #     sources.append(n)
+#          db = GeneralOperations.find_scope(level='PatientDB'),
+#          plan = None,
+#          beamset = None)
+# sources = ['Heart']
+# for i in range(1,10):
+#     mm = str(i) *
+#     n = sources[0] + "_" + str(i)
+#     delta = float(i)*0.5
+#     try:
+#         w = StructureOperations.make_wall(wall=n, sources=sources,
+#                                       delta=delta, patient=rso.patient,
+#                                       case=rso.case, examination=rso.exam,
+#                                       inner=False, struct_type="Undefined")
+#     except Exception as e:
+#         logging.debug('e is {}'.format(e))
+#     sources.append(n)
 
 
 if __name__ == '__main__':

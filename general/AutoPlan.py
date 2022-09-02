@@ -325,13 +325,13 @@ def autoplan(testing_bypass_dialogs={}):
     # Initialize return variable
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
-    pd = Pd(error=[],
-            patient=GeneralOperations.find_scope(level='Patient'),
-            case=GeneralOperations.find_scope(level='Case'),
-            exam=GeneralOperations.find_scope(level='Examination'),
-            db=GeneralOperations.find_scope(level='PatientDB'),
-            plan=None,
-            beamset=None)
+    rso = Pd(error=[],
+             patient=GeneralOperations.find_scope(level='Patient'),
+             case=GeneralOperations.find_scope(level='Case'),
+             exam=GeneralOperations.find_scope(level='Examination'),
+             db=GeneralOperations.find_scope(level='PatientDB'),
+             plan=None,
+             beamset=None)
 
     # Start user time
     ap_report['time_user'][0] = timer()
@@ -367,7 +367,7 @@ def autoplan(testing_bypass_dialogs={}):
     i += 1
     if not testing_bypass_dialogs:
         # Prompt user for target map
-        (site, num_fx, translation_map) = target_dialog(case=pd.case, protocol=protocol, order=order, use_orders=True)
+        (site, num_fx, translation_map) = target_dialog(case=rso.case, protocol=protocol, order=order, use_orders=True)
     #
     # Log results of the user target/dose assignments
     log_str = ""
@@ -390,13 +390,13 @@ def autoplan(testing_bypass_dialogs={}):
     # Next we need the number of fractions, the beamset to load, and the isocenter position.
     #
     # Isocenter position
-    available_targets = StructureOperations.find_targets(case=pd.case)
+    available_targets = StructureOperations.find_targets(case=rso.case)
     if 'All_PTVs' not in available_targets:
         available_targets.append('All_PTVs')
 
     # TODO: Raystation currently does not support selection of blocked structs
     # via script. Activate this dialog eventually.
-    # block_rois = select_blocking(case=pd.case,protocol=protocol,order=order)
+    # block_rois = select_blocking(case=rso.case,protocol=protocol,order=order)
 
     # TODO: Sort machines by technique
     # Machines
@@ -428,9 +428,9 @@ def autoplan(testing_bypass_dialogs={}):
     # Build ALL_PTVs if needed
     if iso_target == 'All_PTVs':
         StructureOperations.make_all_ptvs(
-            patient=pd.patient,
-            case=pd.case,
-            exam=pd.exam,
+            patient=rso.patient,
+            case=rso.case,
+            exam=rso.exam,
             sources=assigned_targets
         )
 
@@ -457,13 +457,13 @@ def autoplan(testing_bypass_dialogs={}):
         lateral_zero = False
     #
     # TODO Output steps for a future autoplan
-    # (last_name,first_name) = str(pd.Patient.Name).split("^")
+    # (last_name,first_name) = str(rso.Patient.Name).split("^")
     # out_dict = {
     #     'LastName':last_name,
     #     'FirstName':first_name,
-    #     'PatientID':pd.Patient.PatientID,
-    #     'Case':pd.Case.Name,
-    #     'ExaminationName':pd.exam.Name,
+    #     'PatientID':rso.Patient.PatientID,
+    #     'Case':rso.Case.Name,
+    #     'ExaminationName':rso.exam.Name,
     #     'Diagnosis',
     #     'CTSystem','PlanName','BeamsetName','NumberFractions','NumberTargets',
     #     'Target01','TargetDose01','ProtocolTarget01','Target02','TargetDose02',
@@ -491,37 +491,37 @@ def autoplan(testing_bypass_dialogs={}):
     i += 1
     # Load the existing plan or create a new one
     try:
-        info = pd.case.QueryPlanInfo(Filter={'Name': plan_name})
+        info = rso.case.QueryPlanInfo(Filter={'Name': plan_name})
         if info[0]['Name'] == plan_name:
-            pd = pd._replace(plan=pd.case.TreatmentPlans[plan_name])
+            rso = rso._replace(plan=rso.case.TreatmentPlans[plan_name])
     except IndexError:
-        pd.case.AddNewPlan(
+        rso.case.AddNewPlan(
             PlanName=plan_name,
             PlannedBy='H.A.L.',
             Comment='Diagnosis',
-            ExaminationName=pd.exam.Name,
+            ExaminationName=rso.exam.Name,
             AllowDuplicateNames=False
         )
-        pd = pd._replace(plan=pd.case.TreatmentPlans[plan_name])
+        rso = rso._replace(plan=rso.case.TreatmentPlans[plan_name])
         # Plan creation modification requires a patient save
 
-    pd.patient.Save()
-    pd.plan.SetCurrent()
+    rso.patient.Save()
+    rso.plan.SetCurrent()
     auto_status.next_step(text=script_steps[i][1])
     i += 1
     # Load beamset
-    rs_beam_set = BeamOperations.create_beamset(patient=pd.patient,
-                                                case=pd.case,
-                                                exam=pd.exam,
-                                                plan=pd.plan,
+    rs_beam_set = BeamOperations.create_beamset(patient=rso.patient,
+                                                case=rso.case,
+                                                exam=rso.exam,
+                                                plan=rso.plan,
                                                 dialog=False,
                                                 BeamSet=beamset_defs,
                                                 create_setup_beams=setup_fields,
                                                 rename_existing=True)
     # ok, now make the beamset current
-    pd.patient.Save()
+    rso.patient.Save()
     rs_beam_set.SetCurrent()
-    pd = pd._replace(beamset=connect.get_current('BeamSet'))
+    rso = rso._replace(beamset=connect.get_current('BeamSet'))
     # Set beams from the protocol
     beams = BeamOperations.load_beams_xml(filename=protocol_file,
                                           beamset_name=beamset_name,
@@ -529,8 +529,8 @@ def autoplan(testing_bypass_dialogs={}):
     # Place isocenter
     try:
         beamset_defs.iso = BeamOperations.find_isocenter_parameters(
-            case=pd.case,
-            exam=pd.exam,
+            case=rso.case,
+            exam=rso.exam,
             beamset=rs_beam_set,
             iso_target=beamset_defs.iso_target,
             lateral_zero=lateral_zero)
@@ -545,7 +545,7 @@ def autoplan(testing_bypass_dialogs={}):
                 beamset_defs.name))
         else:
             beam = beams[0]
-        BeamOperations.place_tomo_beam_in_beamset(plan=pd.plan, iso=beamset_defs.iso,
+        BeamOperations.place_tomo_beam_in_beamset(plan=rso.plan, iso=beamset_defs.iso,
                                                   beamset=rs_beam_set, beam=beam)
         # Beams loaded successfully
         beams_load = True
@@ -570,7 +570,7 @@ def autoplan(testing_bypass_dialogs={}):
         connect.await_user_input(
             'Set any required material overrides and continue the script.')
     # TODO: The following line of code can be activated in RS 11
-    # AutoPlanOperations.set_overrides(pd)
+    # AutoPlanOperations.set_overrides(rso)
 
     #
     # Place the SimFiducial Point
@@ -579,7 +579,7 @@ def autoplan(testing_bypass_dialogs={}):
     if testing_bypass_dialogs:
         logging.debug('SimFiducial placement skipped for test')
     else:
-        AutoPlanOperations.place_fiducial(pd=pd, poi_name='SimFiducials')
+        AutoPlanOperations.place_fiducial(rso=rso, poi_name='SimFiducials')
     #
     # Set any blocking or bolus
     auto_status.next_step(text=script_steps[i][1])
@@ -613,11 +613,11 @@ def autoplan(testing_bypass_dialogs={}):
     if testing_bypass_dialogs:
         logging.info('Loading support {} skipped for testing'.format(beamset_defs.support_roi))
     else:
-        AutoPlanOperations.load_supports(pd=pd, supports=beamset_defs.support_roi)
+        AutoPlanOperations.load_supports(rso=rso, supports=beamset_defs.support_roi)
         # Trim supports
-        StructureOperations.trim_supports(patient=pd.patient,
-                                          case=pd.case,
-                                          exam=pd.exam)
+        StructureOperations.trim_supports(patient=rso.patient,
+                                          case=rso.case,
+                                          exam=rso.exam)
     # time_user complete
     ap_report['time_user'][1] = timer()
 
@@ -630,7 +630,7 @@ def autoplan(testing_bypass_dialogs={}):
     ps_elem = protocol.find('planning_structure_set')
     workflow_name = ps_elem.find('name').text
     ps_result = AutoPlanOperations.load_planning_structures(
-        case=pd.case,
+        case=rso.case,
         filename=protocol_file,
         path=path_protocols,
         workflow_name=workflow_name,
@@ -644,9 +644,9 @@ def autoplan(testing_bypass_dialogs={}):
     ap_report['time_goals'][0] = timer()
     translation_map = AutoPlanOperations.convert_translation_map(translation_map, unit=r'Gy')
     goals_added = Objectives.add_goals_and_objectives_from_protocol(
-        case=pd.case,
-        plan=pd.plan,
-        exam=pd.exam,
+        case=rso.case,
+        plan=rso.plan,
+        exam=rso.exam,
         beamset=rs_beam_set,
         filename=protocol_file,
         path_protocols=path_protocols,
@@ -660,7 +660,7 @@ def autoplan(testing_bypass_dialogs={}):
     # Optimize using the protocol optimization technique for this delivery type
     auto_status.next_step(text=script_steps[i][1])
     i += 1
-    pd.patient.Save()
+    rso.patient.Save()
     #
     # Check if this order has been validated. If not give user a bail option
     validation = AutoPlanOperations.find_validation_status(order)
@@ -680,7 +680,7 @@ def autoplan(testing_bypass_dialogs={}):
     opt_status = AutoPlanOperations.load_configuration_optimize_beamset(
         filename=protocol_file,
         path=path_protocols,
-        pd=pd,
+        rso=rso,
         technique=beamset_defs.technique,
         output_data_dir=path_to_output,
         bypass_user_prompts=True
@@ -688,12 +688,12 @@ def autoplan(testing_bypass_dialogs={}):
     ap_report['time_opt'][1] = timer()
     # Enable autoscale
     # Find current Beamset Number and determine plan optimization
-    opt_indx = find_optimization_index(plan=pd.plan, beamset=pd.beamset,
+    opt_indx = find_optimization_index(plan=rso.plan, beamset=rso.beamset,
                                        verbose_logging=False)
     # Turn on autoscale
     if 'Tomo' not in beamset_defs.technique:
-        pd.plan.PlanOptimizations[opt_indx].AutoScaleToPrescription = True
-        compute_dose_message = PlanOperations.compute_dose(beamset=pd.beamset, dose_algorithm='CCDose')
+        rso.plan.PlanOptimizations[opt_indx].AutoScaleToPrescription = True
+        compute_dose_message = PlanOperations.compute_dose(beamset=rso.beamset, dose_algorithm='CCDose')
         logging.info(compute_dose_message)
     else:
         logging.warning('Autoscaling not possible')
@@ -706,16 +706,16 @@ def autoplan(testing_bypass_dialogs={}):
         logging.debug('Final Dose run unsuccessful')
     ap_report['time_final_dose'][1] = timer()
     #
-    pd.patient.Save()
+    rso.patient.Save()
     ap_report['time_all'][1] = timer()
     #
     # Save the patient
-    pd.patient.Save()
+    rso.patient.Save()
     # Copy the plan and make current
-    pd.case.CopyPlan(PlanName=plan_name, NewPlanName=new_plan_name, KeepBeamSetNames=False)
-    pd.patient.Save()
-    pd.case.TreatmentPlans[new_plan_name].SetCurrent()
-    pd.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name].SetCurrent()
+    rso.case.CopyPlan(PlanName=plan_name, NewPlanName=new_plan_name, KeepBeamSetNames=False)
+    rso.patient.Save()
+    rso.case.TreatmentPlans[new_plan_name].SetCurrent()
+    rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name].SetCurrent()
     #
     # Create the return variable noting that people get whiny about _replace and we should
     # eventually get around to using dataclasses
@@ -724,12 +724,12 @@ def autoplan(testing_bypass_dialogs={}):
                 case=GeneralOperations.find_scope(level='Case'),
                 exam=GeneralOperations.find_scope(level='Examination'),
                 db=GeneralOperations.find_scope(level='PatientDB'),
-                plan=pd.case.TreatmentPlans[new_plan_name],
-                beamset=pd.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name])
+                plan=rso.case.TreatmentPlans[new_plan_name],
+                beamset=rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name])
     # Update doses
-    # pd.beamset.FractionDose.UpdateDoseGridStructures()
-    # pd.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name].FractionDose.UpdateDoseGridStructures()
-    # pd.plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+    # rso.beamset.FractionDose.UpdateDoseGridStructures()
+    # rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name].FractionDose.UpdateDoseGridStructures()
+    # rso.plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
     logging.info('Autoplanning Report')
     logging.info('Time in user operations {} s'.format(ap_report['time_user'][1] - ap_report['time_user'][0]))
     logging.info('Time building plan {} s'.format(ap_report['time_plan'][1] - ap_report['time_plan'][0]))

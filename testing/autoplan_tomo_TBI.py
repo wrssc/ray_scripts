@@ -1070,8 +1070,8 @@ def main():
         # TODO: Get current on the hfs scan since it seems like the couch is failing to load
         #
         # Load the Tomo Supports for the couch
-        AutoPlanOperations.load_supports(pd=pd_hfs, supports=["TomoCouch"])
-        AutoPlanOperations.load_supports(pd=pd_ffs, supports=["TomoCouch"])
+        AutoPlanOperations.load_supports(rso=pd_hfs, supports=["TomoCouch"])
+        AutoPlanOperations.load_supports(rso=pd_ffs, supports=["TomoCouch"])
 
         # # Make external clean on both
         # ext_clean = StructureOperations.make_externalclean(
