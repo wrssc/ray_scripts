@@ -68,6 +68,10 @@ import GeneralOperations
 from GeneralOperations import logcrit as logcrit
 import StructureOperations
 import clr
+import os
+
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../development/ReviewScript'))
+import init_physics_aug27
 
 clr.AddReference("System.Xml")
 import System
@@ -346,6 +350,8 @@ def final_dose(site=None, technique=None):
         beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
         status.next_step('Script Complete')
 
+    # TODO: Eliminate checks in final dose and call this.
+    init_physics_aug27.main()
     logcrit('Final Dose Script Run Successfully')
 
 

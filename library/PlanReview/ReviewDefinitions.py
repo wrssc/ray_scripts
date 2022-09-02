@@ -1,9 +1,10 @@
 import os
 
 icon_dir = os.path.join(os.path.dirname(__file__), ".\Icons")
-RED_CIRCLE = os.path.join(icon_dir, "red_circle_icon.png")
-GREEN_CIRCLE = os.path.join(icon_dir, "green_circle_icon.png")
-BLUE_CIRCLE = os.path.join(icon_dir, "blue_circle_icon.png")
+RED_CIRCLE = os.path.join(icon_dir, "Red_Circle_icon.png")
+GREEN_CIRCLE = os.path.join(icon_dir, "Green_Circle_icon.png")
+YELLOW_CIRCLE = os.path.join(icon_dir, "Yellow_Circle_icon.png")
+BLUE_CIRCLE = os.path.join(icon_dir, "Blue_Circle_icon.png")
 
 #
 # LOG PARSING INFO
@@ -20,6 +21,10 @@ DAYS_SINCE_SIM = 14
 BOLUS_NAMES = ["bolus"]
 # def - check the front edges of the couch and suspended headboard
 NO_FLY_NAME = "NoFlyZone_PRV"
+PACEMAKER_NAME = "Pacemaker"
+PACEMAKER_PRV_NAME = "Pacemaker_PRV10"
+PACEMAKER_SEARCH_DISTANCE = 7.  # cm distance over which to look for the 2 Gy dose level
+PACEMAKER_DISTANCE_TOLERANCE = 2.  # cm distance from which we want the 2 Gy line to be away from the pacer
 #
 # PLANNING DEFAULTS
 DOSE_FRACTION_PAIRS = [(4, 2000), (5, 2000)]  # Often mixed up fractionations
