@@ -312,6 +312,22 @@ def send(case,
                         'ExportBeamSetBeamDose': False}
 
                 qa_plan.ScriptableDicomExport(**args)
+            else:
+                # This is a VMAT plan - just use a standard export
+                args = {
+                    'IgnorePreConditionWarnings': ignore_warnings,
+                    'QaPlanIdentity': 'Patient',
+                    'Connection': {'Title': 'Delta4'},
+                    'RayGatewayTitle': None,
+                    'ExportFolderPath': '',
+                    'ExportExamination': False,
+                    'ExportExaminationStructureSet': False,
+                    'ExportBeamSet': True,
+                    'ExportBeamSetDose': True,
+                    'ExportBeamSetBeamDose': True,
+                }
+
+                qa_plan.ScriptableQADicomExport(**args)
 
         elif raygateway_args is not None and len(destination) == 1:
             if 'anonymize' in info and info['anonymize']:
