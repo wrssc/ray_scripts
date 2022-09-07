@@ -171,6 +171,24 @@ def process_ssd(element_pair, comment=""):
     return (element_pair.match_result, comment)
 
 
+def process_wedge_position_sequence(element_pair, comment=""):
+    # Get name of parent
+    parent_name = element_pair.parent.parent.parent.get_name()
+
+    sequence_item_name, index = parent_name.split("=")
+    if sequence_item_name == "ControlPointIndex":
+        if index == "0":
+            return (element_pair.match_result, comment)
+        else:
+            return return_expected_unique_to_raystation(
+                element_pair,
+                comment="Wedge position parameters are  unique to RayStation for ControlPoint index > 0",
+            )
+
+    # Ran out of special cases, return raw match result
+    return (element_pair.match_result, comment)
+
+
 def process_block_data(element_pair, comment=""):
     # ARIA connects the last and first point in an electron block whereaas RS drops it
     value_pair = element_pair.value_pair
@@ -333,7 +351,10 @@ PROCESS_FUNCTION_DICT = {
         {"comment": "RayStation is not Aria"},
     ),
     "SourceToSurfaceDistance": (process_ssd, {}),
+    "ReferencedWedgeNumber": (process_wedge_position_sequence, {}),
+    "WedgePosition": (process_wedge_position_sequence, {}),
     "LeafJawPositions": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 mm
+    "BeamDose": (assess_near_match, {"tolerance_value": 0.01}),  # 0.01 Gy
     "TreatmentMachineName": (process_treatment_machine_name, {}),
     "StudyTime": (assess_tm_match, {}),
     "SpecificCharacterSet": (

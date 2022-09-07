@@ -69,7 +69,7 @@ class ElementPair:
         self._process_func = process_func
         self._process_func_kwargs = process_func_kwargs
         self.parent_key = parent_key
-        self._update_match_result()
+        self.update_match_result()
 
     def get_name(self):
         return self.attribute_name
@@ -95,7 +95,7 @@ class ElementPair:
     def update_process_func(self, process_func=None, process_func_kwargs=None):
         self._process_func = process_func
         self._process_func_kwargs = process_func_kwargs
-        self._update_match_result()
+        self.update_match_result()
 
     def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
@@ -117,9 +117,10 @@ class ElementPair:
         return treedata
 
     def return_global_key(self):
-        return f"{self.parent_key}>{self.attribute_name}"
+        parent_key = self.parent.return_global_key()
+        return f"{parent_key}>{self.attribute_name}"
 
-    def _update_match_result(self):
+    def update_match_result(self):
         """
         Uses the value_pair and _process_func to update the match result and comment.
         """
@@ -143,6 +144,9 @@ class ElementPair:
                 self, **self._process_func_kwargs
             )
 
+    def update_match_result_recursive(self):
+        pass
+
     def __str__(self):
         depth_str = self.depth * "  "
         out_str = ""
@@ -157,6 +161,7 @@ class ElementPair:
             depth_str
             + f"ElementPair(attribute_name='{self.attribute_name}'"
             + f", result='{self.match_result}')"
+            + f", key='{self.return_global_key()}'"
         )
 
         out_str += Style.RESET_ALL
@@ -195,8 +200,6 @@ class SequencePair:
             # Split the key apart
             key_parts = key.split(">")
             next_part = key_parts[0]
-
-            print(key_parts, next_part)
 
             for item in self.sequence_list:
                 if item.tree_label == next_part:
@@ -266,6 +269,13 @@ class SequencePair:
         else:
             self.match_result = Result.SEQUENCE_MISMATCH
 
+    def update_match_result_recursive(self):
+
+        for item in self.sequence_list:
+            item.update_match_result_recursive()
+
+        self.update_match_result()
+
     def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
 
@@ -296,7 +306,7 @@ class SequencePair:
 
             if show_matches or not item.is_acceptable_match():
                 treedata.Insert(
-                    parent=item.parent_key,
+                    parent=item.parent.return_global_key(),
                     key=item.return_global_key(),
                     text=item.tree_label,
                     values=[match_text, item.comment],
@@ -307,7 +317,8 @@ class SequencePair:
         return treedata
 
     def return_global_key(self):
-        return f"{self.parent_key}>{self.attribute_name}"
+        parent_key = self.parent.return_global_key()
+        return f"{parent_key}>{self.attribute_name}"
 
     def __str__(self):
         depth_str = self.depth * "  "
@@ -316,6 +327,7 @@ class SequencePair:
             depth_str
             + f"SequencePair(attribute_name='{self.attribute_name}'"
             + f", result='{self.match_result}')"
+            + f", key='{self.return_global_key()}'"
         )
         for item in self.sequence_list:
             out_str += f"\n{str(item)}"
@@ -387,6 +399,50 @@ class DicomTreePair:
                 f"get_valuepair_from_key could not find child with key {key_parts[0]}"
             )
 
+    def get_subtree_that_excludes(self, name_list, in_place=False):
+        """
+        Returns a subtree that excludes name_list
+
+        name_list : list of str
+            The list of names to remove
+        """
+        # Make a copy of tree_list
+        if not in_place:
+            new_tree_list = self.tree_list.copy()
+
+        for item in name_list:
+            new_tree_list.remove(item)
+
+        new_dicom_tree = DicomTreePair(
+            parent=self.parent,
+            tree_list=new_tree_list,
+            comment=self.comment,
+            depth=self.depth,
+            parent_key=self.parent_key,
+            tree_label=self.tree_label,
+        )
+
+        return new_dicom_tree
+
+    def remove_all_items_except(self, name_list):
+        """
+        Returns a subtree that includes name_list
+
+        name_list : list of str
+            The list of names to include
+        """
+
+        # Make a list all items to exclude:
+        excluded_items = []
+        for item in self.tree_list:
+            if item.get_name() not in name_list:
+                excluded_items.append(item)
+
+        for item in excluded_items:
+            self.tree_list.remove(item)
+
+        self.update_match_result()
+
     def update_match_result(self):
         """
         There are four possible match statuses:
@@ -415,6 +471,13 @@ class DicomTreePair:
         else:
             self.match_result = Result.DICOM_TREE_MISMATCH
 
+    def update_match_result_recursive(self):
+
+        for item in self.tree_list:
+            item.update_match_result_recursive()
+
+        self.update_match_result()
+
     def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
 
@@ -428,10 +491,11 @@ class DicomTreePair:
         return self.match_result == Result.DICOM_TREE_UNIQUE_TO_2
 
     def return_global_key(self):
-        if self.parent_key == "":
-            return ""
+        if self.parent is None:
+            return self.tree_label
         else:
-            return f"{self.parent_key}>{self.tree_label}"
+            parent_key = self.parent.return_global_key()
+            return f"{parent_key}>{self.tree_label}"
 
     def get_treedata(self, treedata=None, show_matches=False):
 
@@ -451,7 +515,7 @@ class DicomTreePair:
 
             if show_matches or not item.is_acceptable_match():
                 treedata.Insert(
-                    parent=item.parent_key,
+                    parent=item.parent.return_global_key(),
                     key=item.return_global_key(),
                     text=item.attribute_name,
                     values=[match_text, item.comment],
@@ -466,7 +530,7 @@ class DicomTreePair:
         out_str = (
             depth_str
             + f"DicomTreePair(result='{self.match_result}'"
-            + f", comment='{self.comment}')"
+            + f", key='{self.return_global_key()}')"
         )
         for item in self.tree_list:
             out_str += f"\n{str(item)}"
