@@ -1,34 +1,29 @@
-## AccessionNumber
+### AccessionNumber
 Typically blank from both RayStation and Aria, and will match.
 
-## ApprovalStatus
+### ApprovalStatus
 Both are expected to have status "APPROVAL" (what about when a plan is changed in Aria?)
 
-## BeamSequence
-
-### BeamDescription
-
-### BeamLimitingDeviceSequence
-
-#### NumberOfLeafJawPairs
+### BeamSequence : BeamDescription
 Expect perfect match
 
-#### RTBeamLimitingDeviceType
+### BeamSequence : BeamLimitingDeviceSequence : NumberOfLeafJawPairs
 Expect perfect match
 
-### BeamName
+### BeamSequence : BeamLimitingDeviceSequence : RTBeamLimitingDeviceType
 Expect perfect match
 
-### BeamNumber
+### BeamSequence : BeamName
 Expect perfect match
 
-### BeamType
+### BeamSequence : BeamNumber
 Expect perfect match
 
-### ControlPointSequence
-
-#### BeamLimitingDeviceAngle
+### BeamSequence : BeamType
 Expect perfect match
 
-## FrameOfReferenceUID
+### BeamSequence : ControlPointSequence : BeamLimitingDeviceAngle
+Expect perfect match
+
+### FrameOfReferenceUID
 ?
