@@ -925,6 +925,7 @@ def load_configuration_optimize_beamset(filename, path, pd,
             'exam': exam {Exam ScriptObject} -- RS Exam
             'plan': plan {Plan ScriptObject} -- RS Plan
             'beamset': beamset {Beamset ScriptObject} -- RS Beamset
+            'db': patient database
         param: technique: technique from beamset element
                         (RS changes VMAT and ConformalArc to DynamicArc)
 
@@ -975,6 +976,7 @@ def load_configuration_optimize_beamset(filename, path, pd,
         'segment_weight': df_wf.segment_weight.values[0],
         'reduce_oar': df_wf.reduce_oar.values[0],
         'reduce_mod': df_wf.reduce_mod.values[0],
+        'patient_db': pd.db,
         'mod_target': df_wf.mod_target.values[0],
         'block_prompt': df_wf.block_prompt.values[0],
         'robust': df_wf.robust.values[0],

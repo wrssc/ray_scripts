@@ -390,7 +390,7 @@ def create_beamset(patient, case, exam, plan,
     # Evaluate for an existing beamset. If rename_existing, add a suffix, otherwise fail
     info = plan.QueryBeamSetInfo(Filter={'Name': '^{0}'.format(b.DicomName)})
     if not info:
-        beamset_exists=False
+        beamset_exists = False
     else:
         if not rename_existing:
             logging.debug('Beamset {} exists and cannot be renamed'.format(b.DicomName))
@@ -595,19 +595,19 @@ def place_tomodirect_beams_in_beamset(plan, iso, beamset, beams):
     verbose_logging = False
     for b in beams:
         logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, ' +
-                          'Gantry Angle {}, Field Width {}, Pitch {}').format(
-                b.number, b.technique, b.name,
-                b.energy, b.gantry_start_angle, b.field_width, b.pitch))
+                      'Gantry Angle {}, Field Width {}, Pitch {}').format(
+            b.number, b.technique, b.name,
+            b.energy, b.gantry_start_angle, b.field_width, b.pitch))
 
         beamset.CreatePhotonBeam(Name=b.name,
-                             BeamQualityId=b.energy,
-                             IsocenterData=iso,
-                             Description=b.name,
-                             GantryAngle=b.gantry_start_angle,
-                             )
+                                 BeamQualityId=b.energy,
+                                 IsocenterData=iso,
+                                 Description=b.name,
+                                 GantryAngle=b.gantry_start_angle,
+                                 )
         opt_index = PlanOperations.find_optimization_index(plan=plan,
-                                                       beamset=beamset,
-                                                       verbose_logging=False)
+                                                           beamset=beamset,
+                                                           verbose_logging=False)
         plan_optimization_parameters = plan.PlanOptimizations[opt_index].OptimizationParameters
         for tss in plan_optimization_parameters.TreatmentSetupSettings:
             if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
@@ -636,13 +636,14 @@ def place_tomodirect_beams_in_beamset(plan, iso, beamset, beams):
         if ts_settings is not None and current_beam_settings is not None:
             current_beam_settings.TomoPropertiesPerBeam.EditTomoBasedBeamOptimizationSettings(
                 JawMode=b.jaw_mode,
-                #PitchTomoHelical=beam.pitch,
+                # PitchTomoHelical=beam.pitch,
                 PitchTomoDirect=b.pitch,
                 BackJawPosition=b.back_jaw_position,
                 FrontJawPosition=b.front_jaw_position,
                 MaxDeliveryTime=b.max_delivery_time,
                 MaxGantryPeriod=b.max_gantry_period,
                 MaxDeliveryTimeFactor=b.max_delivery_time_factor)
+
 
 def modify_tomo_beam_properties(settings, plan, beamset, beam):
     # Allow modification of a single tomotherapy optimization setting
@@ -702,6 +703,7 @@ def modify_tomo_beam_properties(settings, plan, beamset, beam):
                             MaxGantryPeriod=max_gantry_period,
                             MaxDeliveryTimeFactor=max_delivery_time_factor)
 
+
 def gather_tomo_beam_params(beamset):
     # Compute time, rotation period, couch speed, pitch
     #   mod factor
@@ -723,8 +725,8 @@ def gather_tomo_beam_params(beamset):
         # Rotation period: Projection Time * 51
         rp = b.BeamMU * 51.
         # Couch Speed: Total Distance Traveled / Total Time
-        total_travel = b.Segments[number_segments-1].CouchYOffset \
-                      -b.Segments[0].CouchYOffset
+        total_travel = b.Segments[number_segments - 1].CouchYOffset \
+                       - b.Segments[0].CouchYOffset
         couch_speed = total_travel / time
         # Pitch: Distance traveled in rotation / field width
 
@@ -734,27 +736,28 @@ def gather_tomo_beam_params(beamset):
         non_zero = np.where(sino_array != 0)
         sino_non_zero = sino_array[non_zero]
         # Mod Factor = Average / Max LOT
-        mod_factor = np.max(sino_non_zero)/np.mean(sino_non_zero)
+        mod_factor = np.max(sino_non_zero) / np.mean(sino_non_zero)
         # Declare the tomo dataframe
         dtypes = np.dtype([
-                    ('time', float), # Total time of plan [s]
-                    ('proj_time',float), # Time of each projection [s]
-                    ('total_travel', float), # Couch travel [cm]
-                    ('couch_speed',float), # Speed of couch [cm/s]
-                    ('sinogram', object), # List of leaf openings
-                    ('mod_factor', float) # Max/Ave_Nonzero
+            ('time', float),  # Total time of plan [s]
+            ('proj_time', float),  # Time of each projection [s]
+            ('total_travel', float),  # Couch travel [cm]
+            ('couch_speed', float),  # Speed of couch [cm/s]
+            ('sinogram', object),  # List of leaf openings
+            ('mod_factor', float)  # Max/Ave_Nonzero
         ])
         data = np.empty(0, dtype=dtypes)
         df = pd.DataFrame(data)
         # Return a dataframe for json output
-        df.at[0,'time'] = time
-        df.at[0,'proj_time'] = proj_time
-        df.at[0,'rp'] = rp
-        df.at[0,'total_travel'] = total_travel
-        df.at[0,'couch_speed'] = couch_speed
-        df.at[0,'sinogram'] = sino_array
-        df.at[0,'mod_factor'] = mod_factor
+        df.at[0, 'time'] = time
+        df.at[0, 'proj_time'] = proj_time
+        df.at[0, 'rp'] = rp
+        df.at[0, 'total_travel'] = total_travel
+        df.at[0, 'couch_speed'] = couch_speed
+        df.at[0, 'sinogram'] = sino_array
+        df.at[0, 'mod_factor'] = mod_factor
     return df
+
 
 def check_pa(plan, beam):
     """Determine if any fields are pa, and return true if the gantry is unlikely to clear from
@@ -852,10 +855,10 @@ def validate_setup_fields(beamset):
     for setup_beam in beamset.PatientSetup.SetupBeams:
         if setup_beam.GetSSD() != float('inf'):
             logging.debug('Valid SSD {} detected on setup beam with gantry angle {}'.format(
-               setup_beam.GetSSD(), setup_beam.GantryAngle))
+                setup_beam.GetSSD(), setup_beam.GantryAngle))
         else:
             logging.debug('Invalid SSD {} detected on setup beam with gantry angle {}'.format(
-               setup_beam.GetSSD(), setup_beam.GantryAngle ))
+                setup_beam.GetSSD(), setup_beam.GantryAngle))
             invalid_gantry_angles.append(float(setup_beam.GantryAngle))
     return invalid_gantry_angles
 
@@ -946,17 +949,16 @@ def rename_beams(site_name=None, input_technique=None):
             'TomoHelical -- IMRT',
             'TomoHelical -- 3D Conformal']
 
-
     initial_sitename = beamset.DicomPlanLabel[:4]
     if not site_name and not input_technique:
         # Prompt the user for Site Name and Billing technique
         dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
-                                                'Technique': 'Select Treatment Technique (Billing)'},
-                                        datatype={'Technique': 'combo'},
-                                        initial={'Technique': 'Select',
+                                                   'Technique': 'Select Treatment Technique (Billing)'},
+                                           datatype={'Technique': 'combo'},
+                                           initial={'Technique': 'Select',
                                                     'Site': initial_sitename},
-                                        options={'Technique': available_techniques},
-                                        required=['Site', 'Technique'])
+                                           options={'Technique': available_techniques},
+                                           required=['Site', 'Technique'])
         # Show the dialog
         response = dialog.show()
         if response == {}:
@@ -979,8 +981,9 @@ def rename_beams(site_name=None, input_technique=None):
     patient_position = beamset.PatientPosition
     # Turn on set-up fields
     beamset.PatientSetup.UseSetupBeams = True
-    logging.debug('Renaming and adding set up fields to Beam Set with name {}, patdelivery_time_factor {}, technique {}'.
-                  format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
+    logging.debug(
+        'Renaming and adding set up fields to Beam Set with name {}, patdelivery_time_factor {}, technique {}'.
+            format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
     # Rename isocenters
     rename_isocenter(plan, beamset)
     #
@@ -1335,7 +1338,7 @@ def rename_beams(site_name=None, input_technique=None):
                   }
         update_set_up(beamset=beamset, set_up=set_up)
 
-            # Address the Feet-first prone position
+        # Address the Feet-first prone position
     # FFLDR
     elif patient_position == 'FeetFirstDecubitusRight':
         standard_beam_name = 'Naming Error'
@@ -1596,11 +1599,11 @@ class mlc_properties:
                 self.min_gap_moving = current_machine.Physics.MlcPhysics.MinGapMoving
             else:
                 self.max_tip = None
-                self.max_leaf_carriage = 15 # Plug a guess in here
+                self.max_leaf_carriage = 15  # Plug a guess in here
                 self.leaf_centers = None
                 self.leaf_widths = None
                 self.leaf_jaw_overlap = None
-                self.min_gap_moving = 0.05 # Guess in here
+                self.min_gap_moving = 0.05  # Guess in here
 
             # Compute the number of leaves in the bank based on the first segment
             self.num_leaves_per_bank = int(s0.LeafPositions[0].shape[0])
@@ -1860,23 +1863,23 @@ def repair_leaf_gap(beam):
         for j in range(beam_mlc.banks.shape[2]):
             # If this is part of the closed leaf range, then make sure the gap is greater than or
             # equal to the machine commissioned gap
-           # if np.all(closed_leaves[i, 0, j]):
-            gap = abs(beam_mlc.banks[i, 0, j]-beam_mlc.banks[i, 1, j])
+            # if np.all(closed_leaves[i, 0, j]):
+            gap = abs(beam_mlc.banks[i, 0, j] - beam_mlc.banks[i, 1, j])
             logging.debug('Bank0[{},{}] {}, Bank1 [{},{}] {}: gap {}'.format(
-                    i,j,beam_mlc.banks[i,0,j],i,j,beam_mlc.banks[i,1,j],
-                    gap))
+                i, j, beam_mlc.banks[i, 0, j], i, j, beam_mlc.banks[i, 1, j],
+                gap))
             if gap < increment:
-                beam_mlc.banks[i,0,j] = 0.
-                beam_mlc.banks[i,1,j] = (1. + increment)*beam_mlc.min_gap_moving
+                beam_mlc.banks[i, 0, j] = 0.
+                beam_mlc.banks[i, 1, j] = (1. + increment) * beam_mlc.min_gap_moving
                 logging.debug('Zero leaf gap, moved to {}, {}'.format(
-                        beam_mlc.banks[i,0,j],beam_mlc.banks[i,1,j]))
+                    beam_mlc.banks[i, 0, j], beam_mlc.banks[i, 1, j]))
             elif gap < beam_mlc.min_gap_moving:
                 while gap < beam_mlc.min_gap_moving:
                     beam_mlc.banks[i, 0, j] = (1. + increment) * beam_mlc.banks[i, 0, j]
                     beam_mlc.banks[i, 1, j] = (1. + increment) * beam_mlc.banks[i, 1, j]
-                    gap = abs(beam_mlc.banks[i, 0, j]-beam_mlc.banks[i, 1, j])
+                    gap = abs(beam_mlc.banks[i, 0, j] - beam_mlc.banks[i, 1, j])
                     logging.debug('Rounded leaf gap moved to bank0 {}, bank1 {}'.format(
-                        beam_mlc.banks[i,0,j],beam_mlc.banks[i,1,j]))
+                        beam_mlc.banks[i, 0, j], beam_mlc.banks[i, 1, j]))
                 logging.debug(
                     'Beam {}, leaf pair {}, control point {}: Dynamic closed pair '
                     .format(beam.Name, j + 1, i + 1) +
@@ -2027,6 +2030,52 @@ def check_mlc_jaw_positions(jaw_positions, mlc_positions):
     return error
 
 
+def lock_jaws_to_current(plan_opt):
+    """
+    Acquire the current jaw positions and use them to lock the beams.
+    Args:
+        plan_opt:
+
+    Returns:
+
+    """
+    jaw_positions = {}
+    message = ""
+    for treatsettings in plan_opt.OptimizationParameters.TreatmentSetupSettings:
+        for b in treatsettings.BeamSettings:
+            s0 = b.ForBeam.Segments[0]
+            jaw_positions[b.ForBeam.Name] = {
+                'x1': math.ceil(10 * s0.JawPositions[0]) / 10,
+                'x2': math.floor(10 * s0.JawPositions[1]) / 10,
+                'y1': math.ceil(10 * s0.JawPositions[2]) / 10,
+                'y2': math.floor(10 * s0.JawPositions[3]) / 10}
+
+    plan_opt.ResetOptimization()
+    for treatsettings in plan_opt.OptimizationParameters.TreatmentSetupSettings:
+        for b in treatsettings.BeamSettings:
+            b_name = b.ForBeam.Name
+            try:
+                # Uncomment to automatically set jaw limits
+                b.EditBeamOptimizationSettings(
+                    JawMotion='Lock to limits',
+                    LeftJaw=jaw_positions[b_name]['x1'],
+                    RightJaw=jaw_positions[b_name]['x2'],
+                    TopJaw=jaw_positions[b_name]['y1'],
+                    BottomJaw=jaw_positions[b_name]['y2'],
+                    SelectCollimatorAngle='False',
+                    AllowBeamSplit='False',
+                    OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                message += f"Beam {b_name} locked to " \
+                           + "[{x1},{x2},{y1},{y2}]\n".format(
+                    x1=jaw_positions[b_name]['x1'],
+                    x2=jaw_positions[b_name]['x2'],
+                    y1=jaw_positions[b_name]['y1'],
+                    y2=jaw_positions[b_name]['y2'])
+            except:
+                message = "Could not change beam settings to change jaw sizes"
+    return message
+
+
 def check_y_jaw_positions(jaw_positions, beam):
     """
     Make sure setting the jaw positions to the proposed limits does not open past available MLC or
@@ -2123,7 +2172,6 @@ def rounded_jaw_positions(beam):
     if equivalent_square_field_size < 3.:
         use_jaw_offset = True
         # TODO: Use Jaw Offset is not working correctly in 11B. Disabled for now.
-        use_jaw_offset = False
     else:
         use_round_open = True
     # For some bizzare reason, the __init__ method of beam does not pull the data from

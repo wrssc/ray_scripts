@@ -998,6 +998,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     initial_intermediate_iteration = optimization_inputs.get('initial_int_it', 10)
     second_maximum_iteration = optimization_inputs.get('second_max_it', 30)
     second_intermediate_iteration = optimization_inputs.get('second_int_it', 15)
+    use_treat_settings = optimization_inputs.get('use_treat_settings', True)
 
     vary_grid = optimization_inputs.get('vary_grid', False)
     # Grid Sizes
@@ -1014,6 +1015,20 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     reduce_mod = optimization_inputs.get('reduce_mod', False)
     if reduce_mod:
         mod_target = optimization_inputs.get('mod_target', None)
+        patient_db = optimization_inputs.get('patient_db', None)
+        name = patient.GetAlphabeticPatientName()
+        # get the patient filters ready.
+        patient_id = patient.PatientID
+
+        patients = patient_db.QueryPatientInfo(
+            Filter={'PatientID': '^{0}$'.format(patient_id),
+                    'LastName': '^{0}$'.format(name['LastName'])})
+        logging.debug(f'Reduce Mod: {reduce_mod}, Patient Info Stored')
+        if len(patients) != 1:
+            sys.exit(f'Patient {patient_id} is non-unique! Script abort')
+        else:
+            patient_info = patients[0]
+
     segment_weight = optimization_inputs.get('segment_weight', False)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
     close_status = optimization_inputs.get('close_status', False)
@@ -1162,10 +1177,11 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         logging.info('PRDR plan detected, setting minimum area to {} and minimum mu to {}'.format(
             min_segment_area, min_segment_mu))
 
-    if any(a in beamset.DicomPlanLabel for a in small_field_names):
-        margins = {'Y1': 0.15, 'Y2': 0.15, 'X1': 0.15, 'X2': 0.15}
-    else:
-        margins = {'Y1': 0.8, 'Y2': 0.8, 'X1': 0.8, 'X2': 0.8}
+    if use_treat_settings:
+        if any(a in beamset.DicomPlanLabel for a in small_field_names):
+            margins = {'Y1': 0.15, 'Y2': 0.15, 'X1': 0.15, 'X2': 0.15}
+        else:
+            margins = {'Y1': 0.8, 'Y2': 0.8, 'X1': 0.8, 'X2': 0.8}
 
     # Find current Beamset Number and determine plan optimization
     rs_opt_key = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
@@ -1283,16 +1299,17 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             if ts.ForTreatmentSetup.DeliveryTechnique == 'TomoHelical':
                 logging.debug('Tomo plan - control point spacing not set')
             elif ts.ForTreatmentSetup.DeliveryTechnique == 'SMLC':
-                #
-                # Execute treatment margin settings
-                for beams in ts.BeamSettings:
-                    mu = beams.ForBeam.BeamMU
-                    if mu > 0:
-                        logging.debug(
-                            'This beamset is already optimized. Not applying treat settings to targets')
-                    else:
-                        treat_rois = select_rois_for_treat(plan, beamset=ts.ForTreatmentSetup, rois=None)
-                        set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
+                if use_treat_settings:
+                    #
+                    # Execute treatment margin settings
+                    for beams in ts.BeamSettings:
+                        mu = beams.ForBeam.BeamMU
+                        if mu > 0:
+                            logging.debug(
+                                'This beamset is already optimized. Not applying treat settings to targets')
+                        else:
+                            treat_rois = select_rois_for_treat(plan, beamset=ts.ForTreatmentSetup, rois=None)
+                            set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
                 #
                 # Set beam splitting preferences
                 for beams in ts.BeamSettings:
@@ -1318,44 +1335,46 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     ts.SegmentConversion.MinNumberOfOpenLeafPairs = min_leaf_pairs
                     ts.SegmentConversion.MinLeafEndSeparation = min_leaf_end_separation
                     ts.SegmentConversion.MaxNumberOfSegments = str(maximum_segments)
-                #
-                # Set TrueBeamSTx jaw limits
-                machine_ref = ts.ForTreatmentSetup.MachineReference.MachineName
-                if machine_ref == 'TrueBeamSTx':
-                    logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
+                if use_treat_settings:
+                    #
+                    # Set TrueBeamSTx jaw limits
+                    machine_ref = ts.ForTreatmentSetup.MachineReference.MachineName
+                    if machine_ref == 'TrueBeamSTx':
+                        logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
 
-                    limit = [-20, 20, -10.8, 10.8]
-                    for beams in ts.BeamSettings:
-                        # Reference the beamset by the subobject in ForTreatmentSetup
-                        success = BeamOperations.check_beam_limits(beams.ForBeam.Name,
-                                                                   plan=plan,
-                                                                   beamset=ts.ForTreatmentSetup,
-                                                                   limit=limit,
-                                                                   change=True,
-                                                                   verbose_logging=True)
-                        if not success:
-                            # If there are MU then this field has already been optimized with the wrong jaw limits
-                            # For Shame....
-                            logging.debug(
-                                'This beamset is already optimized with unconstrained jaws. Reset needed')
-                            UserInterface.WarningBox(
-                                'Restart Required: Attempt to limit TrueBeamSTx ' +
-                                'jaws failed - check reset beams' +
-                                ' on next attempt at this script')
-                            status.finish('Restart required')
-                            return False, 'Restart Required: Select reset beams on next run of script.'
+                        limit = [-20, 20, -10.8, 10.8]
+                        for beams in ts.BeamSettings:
+                            # Reference the beamset by the subobject in ForTreatmentSetup
+                            success = BeamOperations.check_beam_limits(beams.ForBeam.Name,
+                                                                       plan=plan,
+                                                                       beamset=ts.ForTreatmentSetup,
+                                                                       limit=limit,
+                                                                       change=True,
+                                                                       verbose_logging=True)
+                            if not success:
+                                # If there are MU then this field has already been optimized with the wrong jaw limits
+                                # For Shame....
+                                logging.debug(
+                                    'This beamset is already optimized with unconstrained jaws. Reset needed')
+                                UserInterface.WarningBox(
+                                    'Restart Required: Attempt to limit TrueBeamSTx ' +
+                                    'jaws failed - check reset beams' +
+                                    ' on next attempt at this script')
+                                status.finish('Restart required')
+                                return False, 'Restart Required: Select reset beams on next run of script.'
             elif ts.ForTreatmentSetup.DeliveryTechnique == 'DynamicArc':
                 #
                 # Execute treatment margin settings
                 for beams in ts.BeamSettings:
                     mu = beams.ForBeam.BeamMU
-                    if mu > 0:
-                        logging.debug('This beamset is already optimized.' +
-                                      ' Not applying treat settings to Beam {}'.format(
-                                          beams.ForBeam.Name))
-                    else:
-                        treat_rois = select_rois_for_treat(plan, beamset=ts.ForTreatmentSetup, rois=None)
-                        set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
+                    if use_treat_settings:
+                        if mu > 0:
+                            logging.debug('This beamset is already optimized.' +
+                                          ' Not applying treat settings to Beam {}'.format(
+                                              beams.ForBeam.Name))
+                        else:
+                            treat_rois = select_rois_for_treat(plan, beamset=ts.ForTreatmentSetup, rois=None)
+                            set_treat_margins(beam=beams.ForBeam, rois=treat_rois, margins=margins)
                 #
                 # Check the control point spacing on arcs
                 for beams in ts.BeamSettings:
@@ -1378,27 +1397,28 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                     FinalGantrySpacing=2)
                 machine_ref = ts.ForTreatmentSetup.MachineReference.MachineName
                 if machine_ref == 'TrueBeamSTx':
-                    logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
-                    limit = [-20, 20, -10.8, 10.8]
-                    for beams in ts.BeamSettings:
-                        # Reference the beamset by the subobject in ForTreatmentSetup
-                        success = BeamOperations.check_beam_limits(beams.ForBeam.Name,
-                                                                   plan=plan,
-                                                                   beamset=ts.ForTreatmentSetup,
-                                                                   limit=limit,
-                                                                   change=True,
-                                                                   verbose_logging=True)
-                        if not success:
-                            # If there are MU then this field has already been optimized with the wrong jaw limits
-                            # For Shame....
-                            logging.debug(
-                                'This beamset is already optimized with unconstrained jaws. Reset needed')
-                            UserInterface.WarningBox(
-                                'Restart Required: Attempt to limit TrueBeamSTx ' +
-                                'jaws failed - check reset beams' +
-                                ' on next attempt at this script')
-                            status.finish('Restart required')
-                            return False, 'Restart Required: Select reset beams on next run of script.'
+                    if use_treat_settings:
+                        logging.info('Current Machine is {} setting max jaw limits'.format(machine_ref))
+                        limit = [-20, 20, -10.8, 10.8]
+                        for beams in ts.BeamSettings:
+                            # Reference the beamset by the subobject in ForTreatmentSetup
+                            success = BeamOperations.check_beam_limits(beams.ForBeam.Name,
+                                                                       plan=plan,
+                                                                       beamset=ts.ForTreatmentSetup,
+                                                                       limit=limit,
+                                                                       change=True,
+                                                                       verbose_logging=True)
+                            if not success:
+                                # If there are MU then this field has already been optimized with the wrong jaw limits
+                                # For Shame....
+                                logging.debug(
+                                    'This beamset is already optimized with unconstrained jaws. Reset needed')
+                                UserInterface.WarningBox(
+                                    'Restart Required: Attempt to limit TrueBeamSTx ' +
+                                    'jaws failed - check reset beams' +
+                                    ' on next attempt at this script')
+                                status.finish('Restart required')
+                                return False, 'Restart Required: Select reset beams on next run of script.'
         if output_progress:
             time_0 = datetime.datetime.now()
             time_1 = time_0
@@ -1520,15 +1540,48 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     current_objective_function,
                     previous_objective_function))
             if reduce_mod:
-                if previous_objective_function < current_objective_function:
+                plan_name = plan.Name
+                beamset_name = beamset.DicomPlanLabel
+                case_name = case.CaseName
+                # previous_iteration_plan_name = plan_name + str(optimization_iteration)
+                if previous_objective_function > current_objective_function:
+                    patient.Save()
+                    # Todo: Change this over to delete the beamset and copy to new.
+                    # case.CopyPlan(PlanName=plan_name,
+                    #               NewPlanName=previous_iteration_plan_name,
+                    #               KeepBeamSetNames=True)
+                    # patient.Save()
                     settings = {}
-                    if old_delivery_time > 60.:
-                        settings['max_delivery_time'] = 0.9 * old_delivery_time
-                        BeamOperations.modify_tomo_beam_properties(settings, plan, beamset, b.ForBeam)
-                        logging.info('Function value (Previous {} < Current {}). Reduced time from {} to  {}'.format(
-                            previous_objective_function, current_objective_function,
-                            old_delivery_time, settings['max_delivery_time']))
+                    if optimization_iteration > 1:
+                        if old_delivery_time > 60.:
+                            settings['max_delivery_time'] = 0.9 * old_delivery_time
+                            BeamOperations.modify_tomo_beam_properties(settings, plan, beamset, b.ForBeam)
+                            logging.info(
+                                'Function value (Previous {} > Current {}). Reduced time from {} to  {}'.format(
+                                    previous_objective_function, current_objective_function,
+                                    old_delivery_time, settings['max_delivery_time']))
                 else:
+                    # Load patient without saving, and re-instantiate patient, plan, and beamset.
+                    logging.info(f'Function value (Previous {previous_objective_function}' +
+                                 f'< Current {current_objective_function}).')
+                    patient = patient_db.LoadPatient(PatientInfo=patient_info)
+                    case = patient.Cases[case_name]
+                    case.SetCurrent()
+                    connect.get_current('Case')
+                    plan = case.TreatmentPlans[plan_name]
+                    plan.SetCurrent()
+                    connect.get_current('Plan')
+                    beamset = plan.BeamSets[beamset_name]
+                    beamset.SetCurrent()
+                    connect.get_current('BeamSet')
+                    optimization_iteration -= 1
+                    # Find current Beamset Number and determine plan optimization
+                    rs_opt_key = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
+                                                                        verbose_logging=False)
+                    plan_optimization = plan.PlanOptimizations[rs_opt_key]
+                    plan_optimization_parameters = plan.PlanOptimizations[rs_opt_key].OptimizationParameters
+                    current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
+                    reduce_mod = False
                     logging.info('Function value ({} > {}). Delivery time unchanged'.format(
                         previous_objective_function, current_objective_function))
 
