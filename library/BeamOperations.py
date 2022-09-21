@@ -91,6 +91,7 @@ class Beam(object):
         self.collimator_angle = None
         self.iso = {}
         self.couch_angle = None
+        self.jaw_limits = {}
         self.field_width = None
         self.pitch = None
         self.jaw_mode = None
@@ -506,6 +507,7 @@ def place_beams_in_beamset(iso, beamset, beams):
                                   GantryAngle=b.gantry_start_angle,
                                   CouchRotationAngle=b.couch_angle,
                                   CollimatorAngle=b.collimator_angle)
+
     elif beamset.DeliveryTechnique == "SMLC":
         for b in beams:
             logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, Gantry Angle {}, Couch Angle {}, ' +
@@ -2030,6 +2032,63 @@ def check_mlc_jaw_positions(jaw_positions, mlc_positions):
     return error
 
 
+def lock_jaws(plan, beamset, beam_name, limits):
+    """
+
+    Args:
+        plan: pl:w
+        an from RS
+        beamset: beamset from RS
+        beam_name: beam name str
+        limits: {
+            'x1': flt, Right Jaw
+            'x2': flt, Left Jaw
+            'y1': flt, Bottom Jaw,
+            'y2': flt, Top Jaw
+            'lock': T/F, Jah Rule Mon}
+
+    Returns:
+    message (str) result
+    """
+    # Find the optimization index corresponding to this beamset
+    opt_index = PlanOperations.find_optimization_index(plan=plan,
+                                                       beamset=beamset)
+    if limits['lock']:
+        jaw_rule_mon = 'Lock to limits'
+    else:
+        jaw_rule_mon = 'Use limits as max'
+    plan_opt = plan.PlanOptimizations[opt_index].OptimizationParameters
+    for ts in plan_opt.TreatmentSetupSettings:
+        # If StX overwrite to leaf extent in y
+        machine_ref = ts.ForTreatmentSetup.MachineReference.MachineName
+        if machine_ref == 'TrueBeamSTx':
+            limits['y1'] = -10.8
+            limits['y2'] = 10.8
+        for b in ts.BeamSettings:
+            if b.ForBeam.Name == beam_name:
+                try:
+                    # Uncomment to automatically set jaw limits
+                    b.EditBeamOptimizationSettings(
+                        JawMotion=jaw_rule_mon,
+                        LeftJaw=limits['x1'],
+                        RightJaw=limits['x2'],
+                        TopJaw=limits['y1'],
+                        BottomJaw=limits['y2'],
+                        SelectCollimatorAngle='False',
+                        AllowBeamSplit='False',
+                        OptimizationTypes=['SegmentOpt', 'SegmentMU'])
+                    message += f"Beam {beam_name} locked to " \
+                               + "[{x1},{x2},{y1},{y2}]".format(
+                        x1=limits['x1'],
+                        x2=limits['x2'],
+                        y1=limits['y1'],
+                        y2=limits['y2'])
+                except:
+                    message = "Could not change beam settings to change jaw sizes"
+                break
+    return message
+
+
 def lock_jaws_to_current(plan_opt):
     """
     Acquire the current jaw positions and use them to lock the beams.
@@ -2674,10 +2733,22 @@ def load_beams_xml(filename, beamset_name, path):
             else:
                 beam.couch_angle = float(b.find('CouchAngle').text)
 
-            if b.find('CouchAngle') is None:
-                beam.couch_angle = None
-            else:
-                beam.couch_angle = float(b.find('CouchAngle').text)
+            try:
+                use_jaw_limits = b.find("JawLimits").text
+                if use_jaw_limits == "True":
+                    beam.jaw_limits = {
+                        'x1': float(b.find("JawLimits").attrib["x1"]),
+                        'x2': float(b.find("JawLimits").attrib["x2"]),
+                        'y1': float(b.find("JawLimits").attrib["y1"]),
+                        'y2': float(b.find("JawLimits").attrib["y2"]), }
+                    if b.find("JawLimits").attrib["lock"] == "True":
+                        beam.jaw_limits['lock'] = True
+                    else:
+                        beam.jaw_limits['lock'] = False
+                else:
+                    beam.jaw_limits = {}
+            except AttributeError:
+                beam.jaw_limits = {}
 
             try:
                 if b.find('FieldWidth') is None:
