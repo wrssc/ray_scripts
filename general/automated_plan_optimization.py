@@ -128,6 +128,7 @@ def main():
             'input08_n_iterations': 'Number of Iterations',
             'input09_segment_weight': 'Segment weight calculation',
             'input10_reduce_oar': 'Reduce OAR Dose',
+            'input11_use_treat': 'Use Treatment Settings',
             # Small Target
             # 'input11_small_target': 'Target size < 3 cm'
         },
@@ -137,6 +138,7 @@ def main():
             'input02_cold_start': 'check',
             'input09_segment_weight': 'check',
             'input10_reduce_oar': 'check',
+            'input11_use_treat': 'check',
             # 'input11_small_target': 'check'
         },
         initial={'input03_cold_max_iteration': '50',
@@ -146,6 +148,7 @@ def main():
                  'input08_n_iterations': '4',
                  'input09_segment_weight': ['Perform Segment Weighted optimization'],
                  'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
+                 'input11_use_treat': ['Use Treat Settings'],
                  # Small Target
                  # 'input11_small_target': ['Target size < 3 cm - limit jaws']
                  },
@@ -155,6 +158,7 @@ def main():
             'input07_vary_dose_grid': ['Variable Dose Grid'],
             'input09_segment_weight': ['Perform Segment Weighted optimization'],
             'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
+            'input11_use_treat': ['Use Treat Settings'],
             # Small Target
             # 'input11_small_target': ['Target size < 3 cm - limit jaws']
         },
@@ -170,7 +174,14 @@ def main():
             vary_dose_grid = False
     except KeyError:
         vary_dose_grid = False
-
+    # USE treat settings
+    try:
+        if 'Use Treat settings' in optimization_dialog.values['input11_use_treat']:
+            use_treat_settings = True
+        else:
+            use_treat_settings = False
+    except KeyError:
+        use_treat_settings = True
     # SVD to DAO calc for cold start (first optimization)
     try:
         if 'Fluence calc' in optimization_dialog.values['input01_fluence_only']:
@@ -229,6 +240,7 @@ def main():
         'reset_beams': reset_beams,
         'segment_weight': segment_weight,
         'reduce_oar': reduce_oar,
+        'use_treat_settings': use_treat_settings,
         'save': True,
         # Small Target
         # 'small_target': small_target,

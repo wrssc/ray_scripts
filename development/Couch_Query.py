@@ -35,10 +35,10 @@ def main():
     all_patients = male_patients + female_patients
     failed_patient_open =[]
     for p in all_patients:
-        if p['PatientId'] != '0664526':
+        if p['PatientId'] != 'xx':
             continue
         try:
-            patient = db.LoadPatient(PatientInfo = p)
+            patient = db.LoadPatient(PatientInfo=p)
         except:
             failed_patient_open.append(p)
 

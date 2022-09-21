@@ -63,7 +63,7 @@ import UserInterface
 import DicomExport
 from collections import namedtuple, OrderedDict
 from datetime import datetime
-from tkinter import Tk
+import pyperclip
 import PySimpleGUI as sg
 
 clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871',
@@ -260,21 +260,13 @@ def build_string_clip(beamset, responses, verification_plan):
     return comment
 
 
-def comment_to_clipboard(beamset, responses, verification_plan, r):
-    #
-    # Clear the system clipboard
-    # r = Tk()
-    # r.withdraw()
-    # r.clipboard_clear()
-
+def comment_to_clipboard(beamset, responses, verification_plan):
     #
     # Add data to the beamset comment
     beamset_comment = build_string_clip(beamset, responses, verification_plan)
     verification_plan.BeamSet.Comment = beamset_comment
-    # Copy the comment to the system clipboard
-    r.clipboard_append(beamset_comment)
-    r.update()  # now it stays on the clipboard after the window is closed
-    return r
+    pyperclip.copy(beamset_comment)
+    return pyperclip.paste()
 
 
 def prompt_qa_name(qa_plan_name):
@@ -504,9 +496,9 @@ def main():
         sys.exit('This script requires a plan to be loaded')
     #
     # Clear the system clipboard
-    r = Tk()
-    r.withdraw()
-    r.clipboard_clear()
+    # r = Tk()
+    # r.withdraw()
+    # r.clipboard_clear()
 
     user_prompt = qa_gui(plan)
     if not user_prompt:
@@ -555,6 +547,7 @@ def main():
         current_technique = qa_beamset.DeliveryTechnique
         logging.info("Selected Beamset:QAPlan {}:{}"
                      .format(beamset.DicomPlanLabel, qa_beamset.DicomPlanLabel))
+
         if 'Tomo' in current_technique:
             if user_prompt['-SHIFT PHANTOM-']:
                 shift_tomo_iso(verification_plan)
@@ -564,7 +557,8 @@ def main():
                 connect.await_user_input('Please review and adjust the plan.\n'
                                          + 'Resume the script to export\n'
                                          + 'Final Plan Parameters will be copied to the clipboard')
-            r = comment_to_clipboard(beamset, user_prompt, verification_plan, r)
+            comment_str = comment_to_clipboard(beamset, user_prompt, verification_plan)
+            logging.info(comment_str.replace("\n", ", "))
 
             # This plan needs to go to the Delta4 Dicom location and the user
             # needs to manually send it to the RayGateway
@@ -600,11 +594,12 @@ def main():
                                            filters=['tomo_dqa'],
                                            bar=False)
             elif current_technique == 'TomoDirect':
-                if not bypass_review:
-                    connect.await_user_input('Please review and adjust the plan.\n'
-                                             + 'Resume the script to export\n'
-                                             + 'Final Plan Parameters will be copied to the clipboard')
-                r = comment_to_clipboard(beamset, user_prompt, verification_plan, r)
+                # if not bypass_review:
+                #     connect.await_user_input('Please review and adjust the plan.\n'
+                #                              + 'Resume the script to export\n'
+                #                              + 'Final Plan Parameters will be copied to the clipboard')
+                # comment_str = comment_to_clipboard(beamset, user_prompt, verification_plan)
+                # logging.info("Post User Interactions:" + comment_str.replace("\n", ", "))
                 formatted_response = {}
                 for k in beam_data.keys():
                     strip_response = '{:.6f}'.format(beam_data[k].couch_speed)
@@ -641,7 +636,27 @@ def main():
                 connect.await_user_input('Please review and adjust the plan.\n'
                                          + 'Resume the script to export\n'
                                          + 'Final Plan Parameters will be copied to the clipboard')
-            r = comment_to_clipboard(beamset, user_prompt, verification_plan, r)
+            comment_str = comment_to_clipboard(beamset, user_prompt, verification_plan)
+            logging.info("Post User Interactions:" + comment_str.replace("\n", ", "))
+            patient.Save()
+            success = DicomExport.send(case=case,
+                                       destination='Delta4',
+                                       qa_plan=verification_plan,
+                                       exam=False,
+                                       beamset=None,
+                                       ct=False,
+                                       structures=False,
+                                       plan=None,
+                                       plan_dose=True,
+                                       beam_dose=True,
+                                       ignore_warnings=True,
+                                       ignore_errors=False,
+                                       bypass_export_check=bypass_export_check,
+                                       rename=None,
+                                       couch_speed=None,
+                                       filters=[],
+                                       bar=False)
+
             success = True
             program_success.append(success)
 
@@ -651,7 +666,6 @@ def main():
     else:
         logging.warning('QA script completed with errors')
     # Clean up dialog
-    r.destroy()
 
 
 if __name__ == '__main__':
