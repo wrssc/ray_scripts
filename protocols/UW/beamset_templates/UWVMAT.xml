@@ -72,6 +72,133 @@
         </beam>
     </beamset>
     <beamset>
+        <name>HN 10Arc - Wide Target</name>
+        <technique>VMAT</technique>
+        <DicomName>____VMA_R_A_</DicomName>
+        <description>Arc set for head and neck planning</description>
+        <roi_support>Sframe_F1_TBCouch_HN</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_RtPost</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>180.1</GantryAngle>
+            <GantryStopAngle>230</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-11" x2="11" y1="-20" y2="20">False</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_RtLat</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>230</GantryAngle>
+            <GantryStopAngle>310</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>1</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-6.0" x2="6.0" y1="-20" y2="20">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Ant</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>310</GantryAngle>
+            <GantryStopAngle>50</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-11" x2="11" y1="-20" y2="20">False</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_LtLat</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>50</GantryAngle>
+            <GantryStopAngle>130</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>359</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-6.0" x2="6.0" y1="-20" y2="20">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_LtPost</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>130</GantryAngle>
+            <GantryStopAngle>179.9</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-11" x2="11" y1="-20" y2="20">False</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>6</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>6_SITE_LtPost</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>179.9</GantryAngle>
+            <GantryStopAngle>130</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-11" x2="11" y1="-20" y2="20">False</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>7</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>7_SITE_LtLat</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>130</GantryAngle>
+            <GantryStopAngle>50</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>359</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-6.0" x2="6.0" y1="-20" y2="20">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>8</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>8_SITE_Ant</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>50</GantryAngle>
+            <GantryStopAngle>310</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-11" x2="11" y1="-20" y2="20">False</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>9</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>9_SITE_RtLat</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>310</GantryAngle>
+            <GantryStopAngle>230</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>2</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-6.0" x2="6.0" y1="-20" y2="20">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>10</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>10_SITE_RtPost</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>230</GantryAngle>
+            <GantryStopAngle>180.1</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits lock="False" x1="-11" x2="11" y1="-20" y2="20">False</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
         <name>AbdPelv Central 2Arc</name>
         <technique>VMAT</technique>
         <DicomName>AbPl2A_VMA_R_A_</DicomName>
