@@ -22,10 +22,10 @@
 
 __author__ = "Adam Bayliss"
 __contact__ = "rabayliss@wisc.edu"
-__date__ = "2022-06-22"
+__date__ = "2022-09-21"
 
-__version__ = "0.0.0"
-__status__ = "Testing"
+__version__ = "0.1.0"
+__status__ = "Production"
 __deprecated__ = False
 __reviewer__ = "Adam Bayliss"
 
@@ -41,8 +41,8 @@ __copyright__ = "Copyright (C) 2022, University of Wisconsin Board of Regents"
 import logging
 import xml
 import sys
-import UserInterface
 import BeamOperations
+import PlanOperations
 from os import path, listdir
 from collections import namedtuple
 from GeneralOperations import get_all_commissioned, find_scope, get_machine, logcrit
@@ -472,6 +472,14 @@ def main():
         BeamOperations.place_beams_in_beamset(iso=iso_params,
                                               beamset=pd.beamset,
                                               beams=beams)
+        for b in beams:
+            if b.jaw_limits:
+                result = BeamOperations.lock_jaws(plan=pd.plan,
+                                                  beamset=pd.beamset,
+                                                  beam_name=b.name,
+                                                  limits=b.jaw_limits)
+                logging.info(result)
+
         for b in pd.beamset.Beams:
             b.BeamQualityId = energy
     else:
