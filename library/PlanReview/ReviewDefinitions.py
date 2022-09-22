@@ -5,6 +5,10 @@ RED_CIRCLE = os.path.join(icon_dir, "Red_Circle_icon.png")
 GREEN_CIRCLE = os.path.join(icon_dir, "Green_Circle_icon.png")
 YELLOW_CIRCLE = os.path.join(icon_dir, "Yellow_Circle_icon.png")
 BLUE_CIRCLE = os.path.join(icon_dir, "Blue_Circle_icon.png")
+# RESULT STRINGS
+PASS = "Pass"
+FAIL = "Fail"
+ALERT = "Alert"
 
 #
 # LOG PARSING INFO
