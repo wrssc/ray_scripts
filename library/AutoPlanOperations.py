@@ -276,7 +276,7 @@ def select_blocking(case, protocol, order):
     return block_dialog.values["Include"]
 
 
-def place_fiducial(pd, poi_name):
+def place_fiducial(rso, poi_name):
     """
     Check to see if poi_name is found. If not, place the point and confirm its
     location with user.
@@ -289,12 +289,12 @@ def place_fiducial(pd, poi_name):
     except:
         logging.debug("Could not click on the patient modeling window")
 
-    poi = StructureOperations.find_localization_poi(case=pd.case,
-                                                    exam=pd.exam)
+    poi = StructureOperations.find_localization_poi(case=rso.case,
+                                                    exam=rso.exam)
     if poi:
         poi_name = poi.Name
-        poi_has_coord = StructureOperations.has_coordinates_poi(case=pd.case,
-                                                                exam=pd.exam,
+        poi_has_coord = StructureOperations.has_coordinates_poi(case=rso.case,
+                                                                exam=rso.exam,
                                                                 poi=poi_name)
         if poi_has_coord:
             connect.await_user_input(
@@ -305,8 +305,8 @@ def place_fiducial(pd, poi_name):
                     .format(poi_name))
 
     else:
-        StructureOperations.create_poi(case=pd.case,
-                                       exam=pd.exam,
+        StructureOperations.create_poi(case=rso.case,
+                                       exam=rso.exam,
                                        coords=[0., 0., 0.],
                                        name=poi_name,
                                        color='Green',
@@ -451,12 +451,12 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name,
     return patient_data
 
 
-def set_overrides(pd):
+def set_overrides(rso):
     # Search the list of roi's. If any have form <>_Override_Tissue
-    template_list = pd.db.GetTemplateMaterial()
+    template_list = rso.db.GetTemplateMaterial()
     # Find materials needing Override
     override_rois = []
-    for r in pd.case.PatientModel.RegionsOfInterest:
+    for r in rso.case.PatientModel.RegionsOfInterest:
         pattern = re.compile("^.*_Override_.*$")
         if pattern.match(r.Name):
             override_rois.append(r.Name)
@@ -474,7 +474,7 @@ def set_overrides(pd):
                     rs_material = m
                     break
             try:
-                pd.case.PatientModel.RegionsOfInterest[o].SetRoiMaterial(
+                rso.case.PatientModel.RegionsOfInterest[o].SetRoiMaterial(
                     Material=rs_material)
                 logging.info("Override applied to {} of {}: {} g/cc"
                              .format(o, m.Name, m.MassDensity))
@@ -642,27 +642,27 @@ def fill_couch(case, exam, couch_roi_name):
         )
 
 
-def load_supports(pd, supports):
+def load_supports(rso, supports):
     # Load the contours listed and have the user check.
-    # pd: TODO fill in
+    # rso: TODO fill in
     # supports: list of support structure names
     # template name: name of the RS template
     #
     # TODO: Move this to general operations and evaluate patient position
-    rs_template = pd.db.LoadTemplatePatientModel(
+    rs_template = rso.db.LoadTemplatePatientModel(
         templateName=InstitutionInputsSupportStructureTemplate,
         lockMode='Read'
     )
     # Capture the current list of ROI's to avoid saving over them in the future
-    rois = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
+    rois = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries
     loaded = []
     for s in supports:
         # Check if s exists
-        if StructureOperations.check_structure_exists(case=pd.case,
+        if StructureOperations.check_structure_exists(case=rso.case,
                                                       roi_list=rois,
                                                       option='Check',
                                                       structure_name=s):
-            if pd.case.PatientModel.StructureSets[pd.exam.Name] \
+            if rso.case.PatientModel.StructureSets[rso.exam.Name] \
                     .RoiGeometries[s].HasContours():
                 loaded.append(s)
 
@@ -670,23 +670,23 @@ def load_supports(pd, supports):
     remain = list(set(supports) - set(loaded))
     logging.debug('Supports:{} were loaded. {} remain'.format(loaded, remain))
     if remain:
-        support_template = pd.db.LoadTemplatePatientModel(
+        support_template = rso.db.LoadTemplatePatientModel(
             templateName=InstitutionInputsSupportStructureTemplate,
             lockMode='Read')
 
-        pd.case.PatientModel.CreateStructuresFromTemplate(
+        rso.case.PatientModel.CreateStructuresFromTemplate(
             SourceTemplate=rs_template,
             SourceExaminationName=InstitutionInputsSupportStructuresExamination,
             SourceRoiNames=remain,
             SourcePoiNames=[],
             AssociateStructuresByName=True,
-            TargetExamination=pd.exam,
+            TargetExamination=rso.exam,
             InitializationOption='AlignImageCenters'
         )
     for s in remain:
         if s == COUCH_SOURCE_ROI_NAMES['TrueBeam'] or \
                 s == COUCH_SOURCE_ROI_NAMES['TomoTherapy']:
-            fill_couch(case=pd.case, exam=pd.exam, couch_roi_name=s)
+            fill_couch(case=rso.case, exam=rso.exam, couch_roi_name=s)
     connect.await_user_input(
         'Ensure the supports {} are loaded correctly, and continue script'.format(supports))
 
@@ -909,7 +909,7 @@ def load_planning_structures(case, filename, path, workflow_name, translation_ma
     return success
 
 
-def load_configuration_optimize_beamset(filename, path, pd,
+def load_configuration_optimize_beamset(filename, path, rso,
                                         name=None, technique=None,
                                         output_data_dir=None,
                                         bypass_user_prompts=False):
@@ -918,7 +918,7 @@ def load_configuration_optimize_beamset(filename, path, pd,
     Arguments:
         filename of the protocol we are using
         path to the protocol
-        pd: NamedTuple Containing:
+        rso: NamedTuple Containing:
         {
             'patient': Patient ScriptObject} -- RS patient
             'case': case {Case ScriptObject} -- RS case
@@ -1003,19 +1003,19 @@ def load_configuration_optimize_beamset(filename, path, pd,
         connect.await_user_input(
             'Navigate to the Plan design page and set any blocking.')
     # Optimize the plan
-    optimization_report = optimize_plan(patient=pd.patient,
-                                        case=pd.case,
-                                        exam=pd.exam,
-                                        plan=pd.plan,
-                                        beamset=pd.beamset,
+    optimization_report = optimize_plan(patient=rso.patient,
+                                        case=rso.case,
+                                        exam=rso.exam,
+                                        plan=rso.plan,
+                                        beamset=rso.beamset,
                                         **OptimizationParameters)
     return optimization_report
     """ try:
-        optimization_report = optimize_plan(patient=pd.patient,
-                        case=pd.case,
-                        exam=pd.exam,
-                        plan=pd.plan,
-                        beamset=pd.beamset,
+        optimization_report = optimize_plan(patient=rso.patient,
+                        case=rso.case,
+                        exam=rso.exam,
+                        plan=rso.plan,
+                        beamset=rso.beamset,
                         **OptimizationParameters)
         return optimization_report
     except Exception as e:

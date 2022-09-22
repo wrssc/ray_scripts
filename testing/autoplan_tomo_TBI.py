@@ -1148,8 +1148,8 @@ def main():
     if do_structure_definitions:
         #
         # Load the Tomo Supports for the couch
-        AutoPlanOperations.load_supports(pd=pd_hfs, supports=["TomoCouch"])
-        AutoPlanOperations.load_supports(pd=pd_ffs, supports=["TomoCouch"])
+        AutoPlanOperations.load_supports(rso=pd_hfs, supports=["TomoCouch"])
+        AutoPlanOperations.load_supports(rso=pd_ffs, supports=["TomoCouch"])
 
         # # Also create a bounding box on both images about the junction point and set the ROI there
         register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name)

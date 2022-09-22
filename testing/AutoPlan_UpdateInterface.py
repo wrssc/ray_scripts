@@ -594,7 +594,7 @@ def autoplan(testing_bypass_dialogs={}):
 
     # TODO: Raystation currently does not support selection of blocked structs
     # via script. Activate this dialog eventually.
-    # block_rois = select_blocking(case=pd.case,protocol=protocol,order=order)
+    # block_rois = select_blocking(case=rso.case,protocol=protocol,order=order)
 
     # TODO: Move to a select function like that one above
     # TODO: Sort machines by technique
@@ -656,13 +656,13 @@ def autoplan(testing_bypass_dialogs={}):
         lateral_zero = False
     #
     # TODO Output steps for a future autoplan
-    # (last_name,first_name) = str(pd.Patient.Name).split("^")
+    # (last_name,first_name) = str(rso.Patient.Name).split("^")
     # out_dict = {
     #     'LastName':last_name,
     #     'FirstName':first_name,
-    #     'PatientID':pd.Patient.PatientID,
-    #     'Case':pd.Case.Name,
-    #     'ExaminationName':pd.exam.Name,
+    #     'PatientID':rso.Patient.PatientID,
+    #     'Case':rso.Case.Name,
+    #     'ExaminationName':rso.exam.Name,
     #     'Diagnosis',
     #     'CTSystem','PlanName','BeamsetName','NumberFractions','NumberTargets',
     #     'Target01','TargetDose01','ProtocolTarget01','Target02','TargetDose02',
@@ -769,7 +769,7 @@ def autoplan(testing_bypass_dialogs={}):
         connect.await_user_input(
             'Set any required material overrides and continue the script.')
     # TODO: The following line of code can be activated in RS 11
-    # AutoPlanOperations.set_overrides(pd)
+    # AutoPlanOperations.set_overrides(rso)
 
     #
     # Place the SimFiducial Point
@@ -778,7 +778,7 @@ def autoplan(testing_bypass_dialogs={}):
     if testing_bypass_dialogs:
         logging.debug('SimFiducial placement skipped for test')
     else:
-        AutoPlanOperations.place_fiducial(pd=pd, poi_name='SimFiducials')
+        AutoPlanOperations.place_fiducial(rso=pd, poi_name='SimFiducials')
     #
     # Set any blocking or bolus
     auto_status.next_step(text=script_steps[i][1])
@@ -812,7 +812,7 @@ def autoplan(testing_bypass_dialogs={}):
     if testing_bypass_dialogs:
         logging.info('Loading support {} skipped for testing'.format(beamset_defs.support_roi))
     else:
-        AutoPlanOperations.load_supports(pd=pd, supports=beamset_defs.support_roi)
+        AutoPlanOperations.load_supports(rso=pd, supports=beamset_defs.support_roi)
     # time_user complete
     ap_report['time_user'][1] = timer()
     # Trim supports
@@ -864,7 +864,7 @@ def autoplan(testing_bypass_dialogs={}):
     opt_status = AutoPlanOperations.load_configuration_optimize_beamset(
         filename=protocol_file,
         path=path_protocols,
-        pd=pd,
+        rso=pd,
         technique=beamset_defs.technique,
         output_data_dir=path_to_output,
         bypass_user_prompts=True
@@ -911,9 +911,9 @@ def autoplan(testing_bypass_dialogs={}):
                 plan=pd.case.TreatmentPlans[new_plan_name],
                 beamset=pd.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name])
     # Update doses
-    # pd.beamset.FractionDose.UpdateDoseGridStructures()
-    # pd.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name].FractionDose.UpdateDoseGridStructures()
-    # pd.plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+    # rso.beamset.FractionDose.UpdateDoseGridStructures()
+    # rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name].FractionDose.UpdateDoseGridStructures()
+    # rso.plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
     logging.info('Autoplanning Report')
     logging.info('Time in user operations {} s'.format(ap_report['time_user'][1] - ap_report['time_user'][0]))
     logging.info('Time building plan {} s'.format(ap_report['time_plan'][1] - ap_report['time_plan'][0]))

@@ -281,132 +281,115 @@ def send(case,
         else:
             bar.update(text='Exporting DICOM files to temporary folder')
 
-    try:
-        # Flag set for Tomo DQA
-        if qa_plan is not None:
-            if raygateway_args is None and filters is not None and 'tomo_dqa' in filters:
-                # Save to the file destination for filtering
-                # TODO: resolve the RS phantom bug to allow the appropriate export of the
-                #       phantom based plan.
-                args = {'IgnorePreConditionWarnings': ignore_warnings,
-                        'QaPlanIdentity': 'Patient',
-                        'ExportFolderPath': original,
-                        'ExportExamination': False,
-                        'ExportExaminationStructureSet': False,
-                        'ExportBeamSet': True,
-                        'ExportBeamSetDose': True,
-                        'ExportBeamSetBeamDose': True}
-
-                qa_plan.ScriptableQADicomExport(**args)
-
-            elif raygateway_args is not None:
-
-                args = {'IgnorePreConditionWarnings': ignore_warnings,
-                        'QaPlanIdentity': 'Patient',
-                        'RayGatewayTitle': raygateway_args,
-                        'ExportFolderPath': '',
-                        'ExportExamination': True,
-                        'ExportExaminationStructureSet': True,
-                        'ExportBeamSet': True,
-                        'ExportBeamSetDose': True,
-                        'ExportBeamSetBeamDose': False}
-
-                qa_plan.ScriptableDicomExport(**args)
-            else:
-                # This is a VMAT plan - just use a standard export
-                args = {
-                    'IgnorePreConditionWarnings': ignore_warnings,
+    # Flag set for Tomo DQA
+    if qa_plan is not None:
+        if raygateway_args is None and filters is not None and 'tomo_dqa' in filters:
+            # Save to the file destination for filtering
+            # TODO: resolve the RS phantom bug to allow the appropriate export of the
+            #       phantom based plan.
+            args = {'IgnorePreConditionWarnings': ignore_warnings,
                     'QaPlanIdentity': 'Patient',
-                    'Connection': {'Title': 'Delta4'},
-                    'RayGatewayTitle': None,
-                    'ExportFolderPath': '',
+                    'ExportFolderPath': original,
                     'ExportExamination': False,
                     'ExportExaminationStructureSet': False,
                     'ExportBeamSet': True,
                     'ExportBeamSetDose': True,
-                    'ExportBeamSetBeamDose': True,
-                }
+                    'ExportBeamSetBeamDose': True}
 
-                qa_plan.ScriptableQADicomExport(**args)
+            qa_plan.ScriptableQADicomExport(**args)
 
-        elif raygateway_args is not None and len(destination) == 1:
-            if 'anonymize' in info and info['anonymize']:
-                random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
-                random_id = ''.join(random.choice(string.digits) for _ in range(8))
-                logging.debug('Export destination {} is anonymous, patient will be stored under name {} and ID {}'.
-                              format(d, random_name, random_id))
+        elif raygateway_args is not None:
 
-            # If we are only sending to the Gateway, do the export and exit.
-            logging.debug('Executing ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
-            rg_args = args
-            rg_args['RayGatewayTitle'] = raygateway_args
-            del rg_args['ExportFolderPath']
+            args = {'IgnorePreConditionWarnings': ignore_warnings,
+                    'QaPlanIdentity': 'Patient',
+                    'RayGatewayTitle': raygateway_args,
+                    'ExportFolderPath': '',
+                    'ExportExamination': True,
+                    'ExportExaminationStructureSet': True,
+                    'ExportBeamSet': True,
+                    'ExportBeamSetDose': True,
+                    'ExportBeamSetBeamDose': False}
 
-            try:
-                if parent_plan is None:
-                    try:
-                        case.ScriptableDicomExport(**args)
-                    except Exception as error:
-                        if hasattr(error, 'Message'):
-                            # This is the error thrown when a plan is already in the iDMS
-                            existing_plan_exception = "_{} already exist".format(beamset.DicomPlanLabel)
-                            if existing_plan_exception in error.Message:
-                                logging.debug('Parent plan likely in iDMS already. Error is {}'.format(error.Message))
-                                logging.info('Parent Plan is already in IDMS {}'.format(beamset.DicomPlanLabel))
-                                pass
-                            else:
-                                status = False
-                                logging.error('DicomExport failed {}'.format(error))
-                                UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
-                                raise
+            qa_plan.ScriptableDicomExport(**args)
+
+    elif raygateway_args is not None and len(destination) == 1:
+        if 'anonymize' in info and info['anonymize']:
+            random_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(8))
+            random_id = ''.join(random.choice(string.digits) for _ in range(8))
+            logging.debug('Export destination {} is anonymous, patient will be stored under name {} and ID {}'.
+                          format(d, random_name, random_id))
+
+        # If we are only sending to the Gateway, do the export and exit.
+        logging.debug('Executing ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
+        rg_args = args
+        rg_args['RayGatewayTitle'] = raygateway_args
+        del rg_args['ExportFolderPath']
+
+        try:
+            if parent_plan is None:
+                try:
+                    case.ScriptableDicomExport(**args)
+                except Exception as error:
+                    if hasattr(error, 'Message'):
+                        # This is the error thrown when a plan is already in the iDMS
+                        existing_plan_exception = "_{} already exist".format(beamset.DicomPlanLabel)
+                        if existing_plan_exception in error.Message:
+                            logging.debug('Parent plan likely in iDMS already. Error is {}'.format(error.Message))
+                            logging.info('Parent Plan is already in IDMS {}'.format(beamset.DicomPlanLabel))
+                            pass
                         else:
                             status = False
                             logging.error('DicomExport failed {}'.format(error))
                             UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
                             raise
+                    else:
+                        status = False
+                        logging.error('DicomExport failed {}'.format(error))
+                        UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
+                        raise
 
-                    logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
-                else:
-                    try:
-                        beamset.SendTransferredPlanToRayGateway(RayGatewayTitle='RAYGATEWAY',
-                                                                PreviousBeamSet=parent_plan,
-                                                                OriginalBeamSet=parent_plan,
-                                                                IgnorePreConditionWarnings=ignore_warnings)
-                    except SystemError as e:
-                        logging.exception('Error in exporting Parent {}: Transfer plan {}:{}'
-                            .format(parent_plan, beamset.DicomPlanLabel, e))
-                if isinstance(bar, UserInterface.ProgressBar):
-                    bar.close()
-
-                UserInterface.MessageBox('DICOM export was successful', 'Export Success')
-            except Exception as error:
-                if hasattr(error, 'message'):
-                    status = False
-                    logging.error('DicomExport failed {}'.format(error.message))
-                    UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
-                    raise
-                else:
-                    status = False
-                    logging.error('DicomExport failed {}'.format(error))
-                    UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
-                    raise
-
-            return status
-
-        else:
-            logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
-            case.ScriptableDicomExport(**args)
-
-    except Exception as error:
-        if ignore_errors:
-            logging.warning(str(error))
-            status = False
-
-        else:
+                logging.info('DicomExport completed successfully in {:.3f} seconds'.format(time.time() - tic))
+            else:
+                try:
+                    beamset.SendTransferredPlanToRayGateway(RayGatewayTitle='RAYGATEWAY',
+                                                            PreviousBeamSet=parent_plan,
+                                                            OriginalBeamSet=parent_plan,
+                                                            IgnorePreConditionWarnings=ignore_warnings)
+                except SystemError as e:
+                    logging.exception('Error in exporting Parent {}: Transfer plan {}:{}'
+                                      .format(parent_plan, beamset.DicomPlanLabel, e))
             if isinstance(bar, UserInterface.ProgressBar):
                 bar.close()
 
-            raise
+            UserInterface.MessageBox('DICOM export was successful', 'Export Success')
+        except Exception as error:
+            if hasattr(error, 'message'):
+                status = False
+                logging.error('DicomExport failed {}'.format(error.message))
+                UserInterface.MessageBox('DICOM export failed {}'.format(error.message), 'Export Fail')
+                raise
+            else:
+                status = False
+                logging.error('DicomExport failed {}'.format(error))
+                UserInterface.MessageBox('DICOM export failed {}'.format(error), 'Export Fail')
+                raise
+
+        return status
+
+    else:
+        logging.debug('Executing ScriptableDicomExport() to path {}'.format(original))
+        try:
+            case.ScriptableDicomExport(**args)
+        except Exception as error:
+            if ignore_errors:
+                logging.debug('type of error is {}'.format(type(error)))
+                logging.warning(str(error))
+                status = False
+            else:
+                logging.debug('type of error is {}'.format(type(error)))
+                if isinstance(bar, UserInterface.ProgressBar):
+                    bar.close()
+                raise
 
     # Load the DICOM files back in, applying filters
     edited = {}

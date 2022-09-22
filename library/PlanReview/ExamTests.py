@@ -10,14 +10,11 @@ from ReviewDefinitions import *
 
 
 def match_date(date1, date2):
+    p_date1 = p_date2 = None
     if date1:
         p_date1 = parser.parse(date1).date().strftime("%Y-%m-%d")
-    else:
-        p_date1 = None
     if date2:
         p_date2 = parser.parse(date2).date().strftime("%Y-%m-%d")
-    else:
-        p_date2 = None
 
     if p_date1 == p_date2:
         return True, p_date1, p_date2
@@ -71,23 +68,23 @@ def match_exactly(value1, value2):
         return False, value1, value2
 
 
-def check_exam_data(pd):
+def check_exam_data(rso):
     """
 
     Args:
-        kwargs:'pd': (object): Named tuple of ScriptObjects
+        kwargs:'rso': (object): Named tuple of ScriptObjects
     Returns:
         (Pass/Fail/Alert, Message to Display)
     # TODO: Parse date/time of birth and ignore time of birth
     """
 
     modality_tag = (0x0008, 0x0060)
-    tags = {str(pd.patient.Name): (0x0010, 0x0010, match_patient_name),
-            str(pd.patient.PatientID): (0x0010, 0x0020, match_exactly),
-            str(pd.patient.Gender): (0x0010, 0x0040, match_gender),
-            str(pd.patient.DateOfBirth): (0x0010, 0x0030, match_date)
+    tags = {str(rso.patient.Name or ''): (0x0010, 0x0010, match_patient_name),
+            str(rso.patient.PatientID or ''): (0x0010, 0x0020, match_exactly),
+            str(rso.patient.Gender or ''): (0x0010, 0x0040, match_gender),
+            str(rso.patient.DateOfBirth or ''): (0x0010, 0x0030, match_date)
             }
-    get_rs_value = pd.exam.GetStoredDicomTagValueForVerification
+    get_rs_value = rso.exam.GetStoredDicomTagValueForVerification
     modality = list(get_rs_value(Group=modality_tag[0],
                                  Element=modality_tag[1]).values())[0]  # Get Modality
     message_str = "Attribute: [DICOM vs RS]"
@@ -104,19 +101,19 @@ def check_exam_data(pd):
                 message_str += "{0}: [{1}:{2} {3} RS:{4}], " \
                     .format(dicom_attr, modality, dcm, match_str, rs)
     if all_passing:
-        pass_result = 'Pass'
+        pass_result = PASS
     else:
-        pass_result = 'Fail'
+        pass_result = FAIL
     return pass_result, message_str
 
 
-def compare_exam_date(pd):
+def compare_exam_date(rso):
     """
     Check if date occurred within tolerance
     Ideally we'll use the approval date, if not, we'll use the last saved by,
     if not we'll use right now!
     Args:
-        kwargs:'pd': (object): Named tuple of ScriptObjects
+        kwargs:'rso': (object): Named tuple of ScriptObjects
     Returns:
         (Pass/Fail/Alert, Message to Display)
     Test Patient:
@@ -127,17 +124,17 @@ def compare_exam_date(pd):
               ChwL: Bolus_Roi_Check_Fail: ChwL_VMA_R0A0
     """
     tolerance = DAYS_SINCE_SIM  # Days since simulation
-    dcm_data = list(pd.exam.GetStoredDicomTagValueForVerification(Group=0x0008, Element=0x0020).values())
-    approval_status = BeamSetReviewTests.approval_info(pd.plan, pd.beamset)
+    dcm_data = list(rso.exam.GetStoredDicomTagValueForVerification(Group=0x0008, Element=0x0020).values())
+    approval_status = BeamSetReviewTests.approval_info(rso.plan, rso.beamset)
     if dcm_data:
         dcm_date = parser.parse(dcm_data[0])
         #
         if approval_status.beamset_approved:
-            current_time = parser.parse(str(pd.beamset.Review.ReviewTime))
+            current_time = parser.parse(str(rso.beamset.Review.ReviewTime))
         else:
             try:
                 # Use last saved date if plan not approved
-                current_time = parser.parse(str(pd.beamset.ModificationInfo.ModificationTime))
+                current_time = parser.parse(str(rso.beamset.ModificationInfo.ModificationTime))
             except AttributeError:
                 current_time = datetime.datetime.now()
 
@@ -145,21 +142,21 @@ def compare_exam_date(pd):
 
         if elapsed_days <= tolerance:
             message_str = "Exam {} acquired {} within {} days ({} days) of Plan Date {}" \
-                .format(pd.exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
-            pass_result = "Pass"
+                .format(rso.exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
+            pass_result = PASS
         else:
             message_str = "Exam {} acquired {} GREATER THAN {} days ({} days) of Plan Date {}" \
-                .format(pd.exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
-            pass_result = "Fail"
+                .format(rso.exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
+            pass_result = FAIL
     else:
-        message_str = "Exam {} has no apparent study date!".format(pd.exam.Name)
-        pass_result = "Alert"
+        message_str = "Exam {} has no apparent study date!".format(rso.exam.Name)
+        pass_result = ALERT
     return pass_result, message_str
 
 
-def get_targets_si_extent(pd):
+def get_targets_si_extent(rso):
     types = ['Ptv']
-    rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
+    rg = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries
     extent = [-1000., 1000]
     for r in rg:
         if r.OfRoi.Type in types and r.HasContours():
@@ -173,17 +170,17 @@ def get_targets_si_extent(pd):
     return extent
 
 
-def get_si_extent(pd, types=None, roi_list=None):
-    rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
+def get_si_extent(rso, types=None, roi_list=None):
+    rg = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries
     initial = [-1000, 1000]
     extent = [-1000, 1000]
     # Generate a list to search
     type_list = []
     rois = []
     if types:
-        type_list = [r.OfRoi.Name for r in rg if r.OfRoi.Type in types and r.HasContours]
+        type_list = [r.OfRoi.Name for r in rg if r.OfRoi.Type in types and r.HasContours()]
     if roi_list:
-        rois = [r.OfRoi.Name for r in rg if r.OfRoi.Name in roi_list and r.HasContours]
+        rois = [r.OfRoi.Name for r in rg if r.OfRoi.Name in roi_list and r.HasContours()]
     check_list = list(set(type_list + rois))
 
     for r in rg:
@@ -201,12 +198,12 @@ def get_si_extent(pd, types=None, roi_list=None):
         return extent
 
 
-def image_extent_sufficient(pd, **kwargs):
+def image_extent_sufficient(rso, **kwargs):
     """
     Check if the image extent is long enough to cover the image set and a buffer
 
     Args:
-        kwargs:'pd': (object): Named tuple of ScriptObjects
+        kwargs:'rso': (object): Named tuple of ScriptObjects
     Returns:
         (Pass/Fail/Alert, Message to Display)
     Test Patient:
@@ -222,7 +219,7 @@ def image_extent_sufficient(pd, **kwargs):
     buffer = FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']
     #
     # Get image slices
-    bb = pd.exam.Series[0].ImageStack.GetBoundingBox()
+    bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
     bb_z = [bb[0]['z'], bb[1]['z']]
     z_extent = [min(bb_z), max(bb_z)]
     buffered_target_extent = [target_extent[0] - buffer, target_extent[1] + buffer]
@@ -232,28 +229,28 @@ def image_extent_sufficient(pd, **kwargs):
     t_str = '[' + ('%.2f ' * len(buffered_target_extent)) % tuple(buffered_target_extent) + ']'
     if not target_extent:
         message_str = 'No targets found of type Ptv, image extent could not be evaluated'
-        pass_result = 'Fail'
+        pass_result = FAIL
     elif z_extent[1] >= buffered_target_extent[1] and z_extent[0] <= buffered_target_extent[0]:
         message_str = 'Planning image extent {} and is at least {:.1f} larger than S/I target extent {}'.format(
             z_str, buffer, t_str)
-        pass_result = "Pass"
+        pass_result = PASS
     elif z_extent[1] < buffered_target_extent[1] or z_extent[0] > buffered_target_extent[0]:
         message_str = 'Planning Image extent:{} is insufficient for accurate calculation.'.format(z_str) \
                       + '(SMALLER THAN :w' \
                         'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
-        pass_result = "Fail"
+        pass_result = FAIL
     else:
         message_str = 'Target length could not be compared to image set'
-        pass_result = "Fail"
+        pass_result = FAIL
     return pass_result, message_str
 
 
-def couch_extent_sufficient(pd, **kwargs):
+def couch_extent_sufficient(rso, **kwargs):
     """
        Check PTV volume extent have supports under them
        Args:
            parent_key:
-           pd: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+           rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
            target_extent: [min, max extent of target]
        Returns:
             (Pass/Fail/Alert, Message to Display)
@@ -270,10 +267,10 @@ def couch_extent_sufficient(pd, **kwargs):
     buffer = FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']
     #
     # Get support structure extent
-    rg = pd.case.PatientModel.StructureSets[pd.exam.Name].RoiGeometries
+    rg = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries
     supports = TOMO_DATA['SUPPORTS'] + TRUEBEAM_DATA['SUPPORTS']
     support_rois = [r.OfRoi.Name for r in rg if r.OfRoi.Name in supports]
-    couch_extent = get_si_extent(pd=pd, roi_list=supports)
+    couch_extent = get_si_extent(rso=rso, roi_list=supports)
 
     if couch_extent:
         # Nice strings for output
@@ -286,29 +283,29 @@ def couch_extent_sufficient(pd, **kwargs):
         t_str = '[' + ('%.2f ' * len(buffered_target_extent)) % tuple(buffered_target_extent) + ']'
     if not couch_extent:
         message_str = 'No support structures found. No couch check possible'
-        pass_result = "Fail"
+        pass_result = FAIL
     elif couch_extent[1] >= buffered_target_extent[1] and couch_extent[0] <= buffered_target_extent[0]:
         message_str = 'Supports (' \
                       + ', '.join(support_rois) \
                       + ') span {} and is at least {:.1f} cm larger than S/I target extent {}'.format(
             z_str, buffer, t_str)
-        pass_result = "Pass"
+        pass_result = PASS
     elif couch_extent[1] < buffered_target_extent[1] or couch_extent[0] > buffered_target_extent[0]:
         message_str = 'Support extent (' \
                       + ', '.join(support_rois) \
                       + ') :{} is not fully under the target.'.format(z_str) \
                       + '(SMALLER THAN ' \
                         'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
-        pass_result = "Fail"
+        pass_result = FAIL
     else:
         message_str = 'Target length could not be compared to support extent'
-        pass_result = "Fail"
+        pass_result = FAIL
     # Prepare output
     return pass_result, message_str
 
 
-def get_external(pd):
-    for r in pd.case.PatientModel.RegionsOfInterest:
+def get_external(rso):
+    for r in rso.case.PatientModel.RegionsOfInterest:
         if r.Type == 'External':
             return r.Name
     return None
@@ -409,8 +406,8 @@ def make_fov(rso, fov_name, inner_fov_name):
         return False
 
 
-def make_wall(pd, name, outer_name, inner_name, exp):
-    fov_wall = pd.case.PatientModel.CreateRoi(
+def make_wall(rso, name, outer_name, inner_name, exp):
+    fov_wall = rso.case.PatientModel.CreateRoi(
         Name=name,
         Color="192, 192, 192",
         Type="Undefined",
@@ -427,7 +424,7 @@ def make_wall(pd, name, outer_name, inner_name, exp):
         "Right": 0,
         "Left": 0,
     }
-    pd.case.PatientModel.RegionsOfInterest[name].SetAlgebraExpression(
+    rso.case.PatientModel.RegionsOfInterest[name].SetAlgebraExpression(
         ExpressionA={
             "Operation": 'Union',
             "SourceRoiNames": [outer_name],
@@ -447,12 +444,12 @@ def make_wall(pd, name, outer_name, inner_name, exp):
         ResultOperation='Subtraction',
         ResultMarginSettings=margins,
     )
-    pd.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
-        Examination=pd.exam, Algorithm="Auto"
+    rso.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
+        Examination=rso.exam, Algorithm="Auto"
     )
 
 
-def intersect_sources(pd, name, sources):
+def intersect_sources(rso, name, sources):
     margins = {
         "Type": 'Expand',
         "Superior": 0,
@@ -462,7 +459,7 @@ def intersect_sources(pd, name, sources):
         "Right": 0,
         "Left": 0,
     }
-    intersect = pd.case.PatientModel.CreateRoi(
+    intersect = rso.case.PatientModel.CreateRoi(
         Name=name,
         Color="0, 0, 192",
         Type="Undefined",
@@ -470,7 +467,7 @@ def intersect_sources(pd, name, sources):
         RbeCellTypeName=None,
         RoiMaterial=None,
     )
-    pd.case.PatientModel.RegionsOfInterest[name].SetAlgebraExpression(
+    rso.case.PatientModel.RegionsOfInterest[name].SetAlgebraExpression(
         ExpressionA={
             "Operation": 'Intersection',
             "SourceRoiNames": sources,
@@ -484,17 +481,17 @@ def intersect_sources(pd, name, sources):
         ResultOperation='None',
         ResultMarginSettings=margins,
     )
-    pd.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
-        Examination=pd.exam, Algorithm="Auto"
+    rso.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
+        Examination=rso.exam, Algorithm="Auto"
     )
-    pd.case.PatientModel.RegionsOfInterest[name].DeleteExpression()
+    rso.case.PatientModel.RegionsOfInterest[name].DeleteExpression()
 
 
-def external_overlaps_fov(pd, **kwargs):
+def external_overlaps_fov(rso, **kwargs):
     """
            Check if the field of view overlaps on slices where the target is close by
            Args:
-               pd: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+               rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
                target_extent: [min, max extent of target]
            Returns:
                 (Pass/Fail/Alert, Message to Display)
@@ -513,22 +510,22 @@ def external_overlaps_fov(pd, **kwargs):
     sources = [inner_fov_name]
     #
     # Find external
-    ext_name = get_external(pd)
+    ext_name = get_external(rso)
     #
     # Check if pre-existing FOV
-    fov = get_roi_geometries(pd.case, pd.exam.Name, roi_names=[fov_name])
+    fov = get_roi_geometries(rso.case, rso.exam.Name, roi_names=[fov_name])
     if fov:
         fov_exists = True
     else:
-        fov_exists = make_fov(pd, fov_name, inner_fov_name)
+        fov_exists = make_fov(rso, fov_name, inner_fov_name)
         sources.append(fov_name)
     #
     # Check initial inputs
     if not ext_name:
-        pass_result = "Fail"
+        pass_result = FAIL
         message_str = 'No External'
     if not fov_exists:
-        pass_result = "Fail"
+        pass_result = FAIL
         message_str = 'Making ' + fov_name + ' failed.'
     if not message_str:
         #
@@ -543,22 +540,22 @@ def external_overlaps_fov(pd, **kwargs):
              'Inner_Source': ext_name,
              'In_Expand': [contraction] * 6},
         ]
-        pm = pd.case.PatientModel
+        pm = rso.case.PatientModel
         for w in walls:
             w_name = pm.GetUniqueRoiName(DesiredName=w['Name'])
-            make_wall(pd, name=w_name, outer_name=w['Outer_Source'], inner_name=w['Inner_Source'], exp=w['In_Expand'])
+            make_wall(rso, name=w_name, outer_name=w['Outer_Source'], inner_name=w['Inner_Source'], exp=w['In_Expand'])
             sources.append(w_name)
         #
         # Intersect the walls
         intersect_name = pm.GetUniqueRoiName(DesiredName=name_intersection_roi)
-        intersect_sources(pd, intersect_name, sources)
+        intersect_sources(rso, intersect_name, sources)
         #
         # Get the extent of the targets
         if not target_extent:
-            target_extent = get_targets_si_extent(pd)
+            target_extent = get_targets_si_extent(rso)
         #
         # Check if any slices of the intersection are on target slices
-        contours = pm.StructureSets[pd.exam.Name].RoiGeometries[intersect_name].PrimaryShape.Contours
+        contours = pm.StructureSets[rso.exam.Name].RoiGeometries[intersect_name].PrimaryShape.Contours
         vertices = np.array([[g.x, g.y, g.z] for s in contours for g in s])
         if vertices.size > 0:
             suspect_vertices = np.where(np.logical_and(
@@ -574,18 +571,18 @@ def external_overlaps_fov(pd, **kwargs):
         for s in sources:
             pm.RegionsOfInterest[s].DeleteRoi()
         if suspect_slices.size > 0:
-            pass_result = "Fail"
+            pass_result = FAIL
             message_str = 'Potential FOV issues found on slices {}'.format(suspect_slices)
         else:
-            pass_result = "Pass"
+            pass_result = PASS
             message_str = 'No Potential Overlap with FOV Found'
     return pass_result, message_str
 
 
-def check_localization(pd):
+def check_localization(rso):
     poi_coord = {}
     localization_found = False
-    for p in pd.case.PatientModel.StructureSets[pd.exam.Name].PoiGeometries:
+    for p in rso.case.PatientModel.StructureSets[rso.exam.Name].PoiGeometries:
         if p.OfPoi.Type == 'LocalizationPoint':
             point = p
             poi_coord = p.Point
@@ -593,39 +590,35 @@ def check_localization(pd):
             break
     if poi_coord:
         message_str = "Localization point {} exists and has coordinates.".format(point.OfPoi.Name)
-        pass_result = "Pass"
+        pass_result = PASS
     elif localization_found:
         message_str = "Localization point {} does not have coordinates.".format(point.OfPoi.Name)
-        pass_result = "Fail"
+        pass_result = FAIL
     else:
         message_str = "No point of type LocalizationPoint found"
-        pass_result = "Fail"
+        pass_result = FAIL
     return pass_result, message_str
 
 
-def match_image_directions(pd):
+def match_image_directions(rso):
     # Match the directions that a correctly oriented image should have
     stack_details = {'direction_column': {'x': int(0), 'y': int(1), 'z': int(0)},
                      'direction_row': {'x': int(1), 'y': int(0), 'z': int(0)},
                      'direction_slice': {'x': int(0), 'y': int(0), 'z': int(1)}}
-    col_dir = pd.exam.Series[0].ImageStack.ColumnDirection
-    row_dir = pd.exam.Series[0].ImageStack.RowDirection
-    sli_dir = pd.exam.Series[0].ImageStack.SliceDirection
+    col_dir = rso.exam.Series[0].ImageStack.ColumnDirection
+    row_dir = rso.exam.Series[0].ImageStack.RowDirection
+    sli_dir = rso.exam.Series[0].ImageStack.SliceDirection
     message_str = ""
-    pass_result = 'Pass'
+    pass_result = PASS
     if col_dir != stack_details['direction_column'] or \
             sli_dir != stack_details['direction_slice']:
-        message_str.append('Exam {} has been rotated and will not transfer to iDMS!'.format(pd.exam.Name))
-        pass_result = 'Fail'
+        message_str.append('Exam {} has been rotated and will not transfer to iDMS!'.format(rso.exam.Name))
+        pass_result = FAIL
     if row_dir != stack_details['direction_row']:
-        message_str.append('Exam {} has been rotated or was acquired'.format(pd.exam.Name)
+        message_str.append('Exam {} has been rotated or was acquired'.format(rso.exam.Name)
                            + ' with gantry tilt and should be reoriented!')
-        pass_result = 'Fail'
+        pass_result = FAIL
     if not message_str:
-        message_str = 'Image set {} is not rotated'.format(pd.exam.Name)
+        message_str = 'Image set {} is not rotated'.format(rso.exam.Name)
 
-    # messages = build_tree_element(parent_key=parent_key,
-    #                               child_key=child_key,
-    #                               pass_result=pass_result,
-    #                               message_str=message_str)
     return pass_result, message_str

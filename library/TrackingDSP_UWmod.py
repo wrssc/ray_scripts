@@ -105,7 +105,7 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
         # The dose grid is stored [z: I/S, y: P/A, x: R/L]
         pd = pd.swapaxes(0, 2)
         # Numpy does evaluation of advanced indicies column wise:
-        # pd[sheets, columns, rows]
+        # rso[sheets, columns, rows]
         matches += abs(pd[rx_points[:, 0], rx_points[:, 1], rx_points[:, 2]] / rx -
             b.ForBeam.BeamMU / tot)
 

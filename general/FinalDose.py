@@ -17,6 +17,8 @@
 
     1.1.0 Added RS10 support and updated to python 3.6
     1.2.0 Update to python 3.8 and RS 3.8
+    2.0.0 Added intregration of the review script in to replace some of the checks performed in
+          FinalDose steps
 
     Validation Notes:
     Test Patient:
@@ -41,15 +43,15 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2022-Jun-27'
+__date__ = '2022-Sep-22'
 
-__version__ = '1.2.0'
+__version__ = '2.0.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
 
 __reviewed__ = '2019-Nov-12'
-__raystation__ = '10A SP 1'
+__raystation__ = '11B'
 __maintainer__ = 'Adam Bayliss'
 
 __email__ = 'rabayliss@wisc.edu'
@@ -62,12 +64,15 @@ import sys
 import connect
 import UserInterface
 import BeamOperations
-import PlanOperations
 import PlanQualityAssuranceTests
 import GeneralOperations
 from GeneralOperations import logcrit as logcrit
 import StructureOperations
 import clr
+import os
+
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../development/ReviewScript'))
+import init_physics_sep22
 
 clr.AddReference("System.Xml")
 import System
@@ -117,9 +122,9 @@ def final_dose(site=None, technique=None):
     coarse_grid_names = ['_THI_', '_VMA_', '_3DC_', '_BST_', '_DCA_']
     coarse_grid_size = 0.2
     rename_beams = True
-    simfid_test = True
-    external_test = True
-    grid_test = True
+    simfid_test = False
+    external_test = False
+    grid_test = False
     # Let the statements below change as needed
     tomo_couch_test = False  # This gets flagged to True if the plan technique does not contain 'Tomo'
     check_lateral_pa = False
@@ -130,10 +135,10 @@ def final_dose(site=None, technique=None):
         if check_lateral_pa:
             steps.append('Check Laterality')
         steps.append('Rename Beams')
-        steps.append('Check for external structure integrity')
-        steps.append('Check SimFiducials have coordinates')
-        steps.append('Check the dose grid size')
-        steps.append('Check for control Point Spacing')
+        # steps.append('Check for external structure integrity')
+        # steps.append('Check SimFiducials have coordinates')
+        # steps.append('Check the dose grid size')
+        # steps.append('Check for control Point Spacing')
         steps.append('Compute Dose if necessary')
         steps.append('Round MU')
         steps.append('Round Jaws')
@@ -143,19 +148,19 @@ def final_dose(site=None, technique=None):
 
     if 'Tomo' in beamset.DeliveryTechnique:
         steps.append('Rename Beams')
-        steps.append('Check for external structure integrity')
-        steps.append('Check Tomo Couch position relative to isocenter')
-        steps.append('Check SimFiducials have coordinates')
-        steps.append('Check the dose grid size')
+        # steps.append('Check for external structure integrity')
+        # steps.append('Check Tomo Couch position relative to isocenter')
+        # steps.append('Check SimFiducials have coordinates')
+        # steps.append('Check the dose grid size')
         steps.append('Compute Dose if necessary')
         steps.append('Set DSP')
         tomo_couch_test = True
 
     if beamset.Modality == 'Electrons':
         steps.append('Rename Beams')
-        steps.append('Check for external structure integrity')
-        steps.append('Check SimFiducials have coordinates')
-        steps.append('Check the dose grid size')
+        # steps.append('Check for external structure integrity')
+        # steps.append('Check SimFiducials have coordinates')
+        # steps.append('Check the dose grid size')
         steps.append('Compute Dose if necessary')
         steps.append('Set DSP')
 
@@ -177,6 +182,7 @@ def final_dose(site=None, technique=None):
         BeamOperations.rename_beams(site_name=site, input_technique=technique)
         status.next_step('Renamed Beams, checking external integrity')
 
+    init_physics_sep22.main(physics_review=False)
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
     if external_test:
         external_error = True

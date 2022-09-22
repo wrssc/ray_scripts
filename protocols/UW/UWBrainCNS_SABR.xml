@@ -923,6 +923,25 @@
                 <weight>1000</weight>
             </roi>
             <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">30</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Brainstem</name>
+                <type>Max</type>
+                <dose units="Gy">25</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Brainstem_PRV03</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Brainstem_PRV03">2</volume>
+                <dose units="Gy">30</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
                 <name>Eye_L</name>
                 <type>Max</type>
                 <dose units="Gy">10</dose>
