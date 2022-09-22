@@ -67,11 +67,12 @@ def approval_info(plan, beamset):
     return approval
 
 
-def check_beamset_approved(rso):
+def check_beamset_approved(rso, **kwargs):
     """
     Check if a plan is approved
     Args:
         rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+        physics_review: Bool: True then beamset is expected to be approved
 
     Returns:
         message: [str1, ...]: [parent_key, child_key, child_key display, result_value]
@@ -81,6 +82,8 @@ def check_beamset_approved(rso):
 
     """
     child_key = "Beamset approval status"
+    physics_review = kwargs.get('physics_review')
+
     approval_status = approval_info(rso.plan, rso.beamset)
     if approval_status.beamset_approved:
         message_str = "Beamset: {} was approved by {} on {}".format(
@@ -88,11 +91,14 @@ def check_beamset_approved(rso):
             approval_status.beamset_reviewer,
             approval_status.beamset_approval_time
         )
-        pass_result = "Pass"
+        pass_result = PASS
     else:
         message_str = "Beamset: {} is not approved".format(
             rso.beamset.DicomPlanLabel)
-        pass_result = "Fail"
+        if physics_review:
+            pass_result = FAIL
+        else:
+            pass_result = ALERT
     return pass_result, message_str
 
 
@@ -131,14 +137,14 @@ def couch_type_correct(rso):
     if wrong_supports:
         message_str = 'Support Structure(s) {} are INCORRECT for  machine {}'.format(
             wrong_supports, current_machine.Name)
-        pass_result = "Fail"
+        pass_result = FAIL
     elif correct_supports:
         message_str = 'Support Structure(s) {} are correct for machine {}'.format(
             correct_supports, current_machine.Name)
-        pass_result = "Pass"
+        pass_result = PASS
     else:
         message_str = 'No couch structure found'
-        pass_result = "Alert"
+        pass_result = ALERT
     # Prepare output
     return pass_result, message_str
 
@@ -162,10 +168,10 @@ def message_format_control_point_spacing(beam_spacing_failures, spacing):
         for b, v in beam_spacing_failures.items():
             message_str = 'Beam {}: Gantry Spacing Exceeds {} in Control Points {}\n' \
                 .format(b, spacing, v)
-            message_result = "Fail"
+            message_result = FAIL
     else:
         message_str = "No control points > {} detected".format(spacing)
-        message_result = "Pass"
+        message_result = PASS
     return message_str, message_result
 
 
@@ -221,7 +227,7 @@ def check_transfer_approved(rso, ):
     else:
         transfer_beamset = None
         message_str = "Beamset: {} is missing a transfer plan!".format(rso.beamset.DicomPlanLabel)
-        pass_result = "Fail"
+        pass_result = FAIL
     if transfer_beamset:
         approval_status = approval_info(rso.plan, transfer_beamset)
         if approval_status.beamset_approved:
@@ -230,11 +236,11 @@ def check_transfer_approved(rso, ):
                 approval_status.beamset_reviewer,
                 approval_status.beamset_approval_time
             )
-            pass_result = "Pass"
+            pass_result = PASS
         else:
             message_str = "Beamset: {} is not approved".format(
                 transfer_beamset.DicomPlanLabel)
-            pass_result = "Fail"
+            pass_result = FAIL
     return pass_result, message_str
 
 
@@ -282,10 +288,10 @@ def check_edw_MU(rso):
         edw_message = "No beams with EDWs found"
 
     if passing:
-        pass_result = "Pass"
+        pass_result = PASS
         message_str = edw_message
     else:
-        pass_result = "Fail"
+        pass_result = FAIL
         message_str = edw_message
     return pass_result, message_str
 
@@ -318,10 +324,10 @@ def check_common_isocenter(rso, **kwargs):
         else:
             iso_differs.append(b.Name)
     if iso_differs:
-        pass_result = "Fail"
+        pass_result = FAIL
         message_str = "Beam(s) {} differ in isocenter location from beam {}".format(iso_differs, initial_beam_name)
     else:
-        pass_result = "Pass"
+        pass_result = PASS
         message_str = "Beam(s) {} all share the same isocenter to within {} mm".format(iso_match, tolerance)
     return pass_result, message_str
 
@@ -339,13 +345,13 @@ def check_tomo_isocenter(rso):
     child_key = "Isocenter Lateral Acceptable"
     iso_pos_x = rso.beamset.Beams[0].Isocenter.Position.x
     if np.less_equal(abs(iso_pos_x), TOMO_DATA['LATERAL_ISO_MARGIN']):
-        pass_result = "Pass"
+        pass_result = PASS
         message_str = "Isocenter [{}] lateral shift is acceptable: {} < {} cm".format(
             rso.beamset.Beams[0].Isocenter.Annotation.Name,
             iso_pos_x,
             TOMO_DATA['LATERAL_ISO_MARGIN'])
     else:
-        pass_result = "Fail"
+        pass_result = FAIL
         message_str = "Isocenter [{}] lateral shift is inconsistent with indexing: {} > {} cm!".format(
             rso.beamset.Beams[0].Isocenter.Name,
             iso_pos_x,
@@ -380,18 +386,18 @@ def check_bolus_included(rso):
                     bolus_matches[ab].extend([b.Name for b in rso.beamset.Beams
                                               for bolus in b.Boli
                                               if bolus.Name == ab])
-                pass_result = "Pass"
+                pass_result = PASS
                 message_str = "".join(
                     ['Roi {0} applied on beams {1}'.format(k, v) for k, v in bolus_matches.items()])
             else:
-                pass_result = "Fail"
+                pass_result = FAIL
                 message_str = fail_str
         except AttributeError:
-            pass_result = "Fail"
+            pass_result = FAIL
             message_str = fail_str
     else:
         message_str = "No rois including {} found for Exam {}".format(BOLUS_NAMES, exam_name)
-        pass_result = "Pass"
+        pass_result = PASS
     return pass_result, message_str
 
 
@@ -410,7 +416,7 @@ def check_fraction_size(rso):
         Fail: Pelv_T3D_R0A0
     """
     child_key = 'Check Fractionation'
-    results = {0: 'Fail', 1: 'Alert', 2: 'Pass'}
+    results = {0: FAIL, 1: ALERT, 2: PASS}
     num_fx = rso.beamset.FractionationPattern.NumberOfFractions
     pass_result = results[2]
     message_str = 'Beamset {} fractionation not flagged'.format(rso.beamset.DicomPlanLabel)
@@ -450,18 +456,18 @@ def check_no_fly(rso):
         if no_fly_dose > NO_FLY_DOSE:
             message_str = "{} is potentially infield. Dose = {:.2f} cGy (exceeding tolerance {:.2f} cGy)".format(
                 NO_FLY_NAME, no_fly_dose, NO_FLY_DOSE)
-            pass_result = "Fail"
+            pass_result = FAIL
         else:
             message_str = "{} is likely out of field. Dose = {:.2f} cGy (tolerance {:.2f} cGy)".format(
                 NO_FLY_NAME, no_fly_dose, NO_FLY_DOSE)
-            pass_result = "Pass"
+            pass_result = PASS
     except Exception as e:
         if "exists no ROI" in e.Message:
             message_str = "No ROI {} found, Incline Board not used"
-            pass_result = "Pass"
+            pass_result = PASS
         else:
             message_str = "Unknown error in looking for incline board info {}".format(e.Message)
-            pass_result = "Alert"
+            pass_result = ALERT
 
     return pass_result, message_str
 
@@ -615,35 +621,35 @@ def check_pacemaker(rso):
                                                            tolerance=PACEMAKER_DOSE)
             if type(pacer_dose) == str:
                 message_str = pacer_dose
-                pass_result = "Alert"
+                pass_result = ALERT
             elif type(prv_dose) == str:
                 message_str = prv_dose
-                pass_result = "Alert"
+                pass_result = ALERT
             elif prv_underdose and pacer_underdose:
                 safe_distance, message_dist = evaluate_pacer_safe_distance(rso)
                 if safe_distance:
                     message_str = f"{PACEMAKER_NAME} and {PACEMAKER_PRV_NAME} are likely out of field." \
                                   + f"Dose = {pacer_dose:.0f} and {prv_dose:.0f} cGy (tol={PACEMAKER_DOSE:.0f} cGy). " \
                                   + message_dist
-                    pass_result = "Pass"
+                    pass_result = PASS
                 else:
                     message_str = message_dist
-                    pass_result = "Alert"
+                    pass_result = ALERT
             elif pacer_underdose:
                 message_str = f"Dose to {PACEMAKER_NAME} = {pacer_dose:.0f} ok, but Dose to {PACEMAKER_PRV_NAME}" \
                               + f" = {prv_dose:.0f} may be in field. " \
                               + f"(tol={PACEMAKER_DOSE:.0f} cGy)"
-                pass_result = "Fail"
+                pass_result = FAIL
             else:
                 message_str = f"{PACEMAKER_NAME} and {PACEMAKER_PRV_NAME} are likely in field!! " \
                               + f"Dose = {pacer_dose:.0f} and {prv_dose:.0f} cGy (tol={PACEMAKER_DOSE:.0f} cGy)"
-                pass_result = "Fail"
+                pass_result = FAIL
         else:
             message_str = f"No ROI {PACEMAKER_PRV_NAME} found, no pacemaker prv contoured"
-            pass_result = "Fail"
+            pass_result = FAIL
     else:
         message_str = f"No ROI {PACEMAKER_NAME} found, no pacemaker contoured"
-        pass_result = "Pass"
+        pass_result = PASS
     return pass_result, message_str
 
 
@@ -689,33 +695,33 @@ def check_dose_grid(rso):
             if violation_list:
                 message_str = "Dose grid too large for plan type {}. ".format(name_match) \
                               + "Grid size is {} cm and should be {} cm".format(grid, v['DOSE_GRID'])
-                pass_result = "Fail"
+                pass_result = FAIL
             else:
                 message_str = "Dose grid appropriate for plan type {}. ".format(name_match) \
                               + "Grid size is {} cm  and ≤ {} cm".format(grid, v['DOSE_GRID'])
-                pass_result = "Pass"
+                pass_result = PASS
         # Look for fraction size violations
         elif v['FRACTION_SIZE_LIMIT']:
             if not fractional_dose:
                 message_str = "Dose grid cannot be evaluated for this plan. No fractional dose"
-                pass_result = 'Fail'
+                pass_result = FAIL
             elif fractional_dose >= v['FRACTION_SIZE_LIMIT'] and \
                     any([g > v['DOSE_GRID'] for g in grid]):
                 message_str = "Dose grid may be too large for this plan based on fractional dose " \
                               + "{:.0f} > {:.0f} cGy. ".format(fractional_dose, v['FRACTION_SIZE_LIMIT']) \
                               + "Grid size is {} cm and should be {} cm".format(grid, v['DOSE_GRID'])
-                pass_result = "Fail"
+                pass_result = FAIL
     # Plan is a default plan. Just Check against defaults
     if not message_str:
         violation_list = [i for i in grid if i > DOSE_GRID_DEFAULT]
         if violation_list:
             message_str = "Dose grid too large. " \
                           + "Grid size is {} cm and should be {} cm".format(grid, DOSE_GRID_DEFAULT)
-            pass_result = "Fail"
+            pass_result = FAIL
         else:
             message_str = "Dose grid appropriate." \
                           + "Grid size is {} cm  and ≤ {} cm".format(grid, DOSE_GRID_DEFAULT)
-            pass_result = "Pass"
+            pass_result = PASS
     return pass_result, message_str
 
 
@@ -744,18 +750,18 @@ def check_slice_thickness(rso):
                         or all(slice_thickness < nominal_slice_thickness):
                     message_str = 'Slice spacing {:.3f} ≤ {:.3f} cm appropriate for plan type {}'.format(
                         slice_thickness.max(), nominal_slice_thickness, v['PLAN_NAMES'])
-                    pass_result = "Pass"
+                    pass_result = PASS
                 else:
                     message_str = 'Slice spacing {:.3f} > {:.3f} cm TOO LARGE for plan type {}'.format(
                         slice_thickness.max(), nominal_slice_thickness, v['PLAN_NAMES'])
-                    pass_result = "Fail"
+                    pass_result = FAIL
     if not message_str:
         for s in rso.exam.Series:
             slice_positions = np.array(s.ImageStack.SlicePositions)
             slice_thickness = np.diff(slice_positions)
         message_str = 'Plan type unknown, check slice spacing {:.3f} cm carefully'.format(
             slice_thickness.max())
-        pass_result = "Alert"
+        pass_result = ALERT
     return pass_result, message_str
 
 
@@ -962,7 +968,7 @@ def compute_beam_properties(rso):
     child_key = "Beamset Complexity"
     message_str = "[Beam Name: LSV, AAV, MCS] :: "
     tech = rso.beamset.DeliveryTechnique
-    pass_result = 'Pass'
+    pass_result = PASS
     for b in rso.beamset.Beams:
         if tech == 'DynamicArc':
             lsv, aav, mcs = compute_mcs_masi(b)
@@ -973,31 +979,38 @@ def compute_beam_properties(rso):
             message_str = 'Error Unknown technique {}'.format(tech)
             break
         message_str += '[{}: '.format(b.Name)
+        # TODO: Sort MCS by technique then replace with PASS/FAIL
         # LSV
         if lsv < MCS_TOLERANCES['LSV']['MEAN'] - 2. * MCS_TOLERANCES['LSV']['SIGMA']:
-            pass_result = 'Fail'
-            message_str += '{:.3f} OVERMODULATED,'.format(lsv)
+            ## pass_result = FAIL
+            pass_result = None
+            message_str += '{:.3f} OVERMOD,'.format(lsv)
         elif lsv > MCS_TOLERANCES['LSV']['MEAN'] + 2. * MCS_TOLERANCES['LSV']['SIGMA']:
-            pass_result = 'Fail'
-            message_str += '{:.3f} UNDERMODULATED,'.format(lsv)
+            ## pass_result = FAIL
+            pass_result = None
+            message_str += '{:.3f} UNDERMOD,'.format(lsv)
         else:
             message_str += '{:.3f},'.format(lsv)
         # AAV
         if aav < MCS_TOLERANCES['AAV']['MEAN'] - 2. * MCS_TOLERANCES['AAV']['SIGMA']:
-            pass_result = 'Fail'
-            message_str += '{:.3f} OVERMODULATED,'.format(aav)
+            ## pass_result = FAIL
+            pass_result = None
+            message_str += '{:.3f} OVERMOD,'.format(aav)
         elif aav > MCS_TOLERANCES['AAV']['MEAN'] + 2. * MCS_TOLERANCES['AAV']['SIGMA']:
-            pass_result = 'Fail'
-            message_str += '{:.3f} UNDERMODULATED,'.format(aav)
+            ## pass_result = FAIL
+            pass_result = None
+            message_str += '{:.3f} UNDERMOD,'.format(aav)
         else:
             message_str += '{:.3f},'.format(aav)
         # MCS
         if mcs < MCS_TOLERANCES['MCS']['MEAN'] - 2. * MCS_TOLERANCES['MCS']['SIGMA']:
-            pass_result = 'Fail'
-            message_str += '{:.3f} OVERMODULATED,'.format(mcs)
+            ## pass_result = FAIL
+            pass_result = None
+            message_str += '{:.3f} OVERMOD,'.format(mcs)
         elif mcs > MCS_TOLERANCES['MCS']['MEAN'] + 2. * MCS_TOLERANCES['MCS']['SIGMA']:
-            pass_result = 'Fail'
-            message_str += '{:.3f} UNDERMODULATED,'.format(mcs)
+            ## pass_result = FAIL
+            pass_result = None
+            message_str += '{:.3f} UNDERMOD,'.format(mcs)
         else:
             message_str += '{:.3f}'.format(mcs)
         message_str += '],'
