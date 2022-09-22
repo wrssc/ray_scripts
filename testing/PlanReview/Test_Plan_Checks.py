@@ -109,12 +109,12 @@ __credits__ = ['']
 import sys
 import os
 import logging
-from collections import namedtuple, OrderedDict
-from System import Environment
 import PySimpleGUI as sg
 import re
 import tkinter as Tk
-import pyperclip
+from collections import namedtuple, OrderedDict
+from System import Environment
+from datetime import datetime
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../../library'))
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../../library/PlanReview'))
@@ -241,7 +241,7 @@ def parse_beamset_selection(beamset_name, messages, dialog_key):
                                  'Energy': re.compile(r'(Energy):\s?([^\t]+)')}
     # Find all the message lines that relate to a beamset dialog
     dialog_key = 'Beamset Template Selection'
-    template_data = {dialog_key: ("Alert", 'Beamset {} not set by script'.format(beamset_name))}
+    template_data = {dialog_key: (ALERT, 'Beamset {} not set by script'.format(beamset_name))}
     # loop over all lines in the template
     for m in messages:
         if re.search(beamset_template_searches['Dialog'], m[3]) and beamset_name in m[1]:
@@ -263,18 +263,132 @@ def parse_beamset_selection(beamset_name, messages, dialog_key):
 
 
 def build_tree_element(parent_key, child_key, pass_result, message_str):
+    """
+    Build the element for the output message to be inserted in the tree
+    Args:
+        parent_key: <str> parent node
+        child_key:  <str> child node (current)
+        pass_result: <str> "Pass", "Fail", "Alert", ""
+        message_str: <str> User message
+
+    Returns:
+        node for insertion: <list>
+        [ [parent node, child node, child node (placeholder for expension), pass result, icon],\
+          [child key, pass result, message_str, pass result, icon] ]
+    """
     elements = []
-    if pass_result == 'Fail':
+    if pass_result == FAIL:
         icon = RED_CIRCLE
-    elif pass_result == 'Pass':
+    elif pass_result == PASS:
         icon = GREEN_CIRCLE
-    elif pass_result == 'Alert':
+    elif pass_result == ALERT:
         icon = YELLOW_CIRCLE
     else:
         icon = BLUE_CIRCLE
     elements.append([parent_key, child_key, child_key, pass_result, icon])
     elements.append([child_key, pass_result, message_str, pass_result, icon])
     return elements
+
+
+def parse_level_tests(level_tests):
+    # Insert Level Nodes
+    pass_str = PASS
+    level_pass = pass_str
+    icon = GREEN_CIRCLE
+    if any([l[3] for l in level_tests if l[3] == FAIL]):
+        level_pass = FAIL
+        icon = RED_CIRCLE
+    elif any([l[3] for l in level_tests if l[3] == ALERT]):
+        level_pass = ALERT
+        icon = YELLOW_CIRCLE
+    return level_pass, icon
+
+
+def insert_tests_return_fails(level_tests, treedata, fails):
+    if level_tests:
+        for m in level_tests:
+            treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
+            if m[1] == FAIL or m[1] == ALERT:
+                fails.append(f"TEST: {m[0]}: {m[1]}: {m[2]}")
+        return True
+    else:
+        return False
+
+
+def get_exam_level_tests(rso):
+    #
+    # Get target length
+    target_extent = ExamTests.get_si_extent(rso, types=['Ptv'])
+    patient_checks_dict = {
+        "DICOM RayStation Comparison":
+            (ExamTests.check_exam_data, {}),
+        "Exam Date Is Recent":
+            (ExamTests.compare_exam_date, {}),
+        "Image extent sufficient":
+            (ExamTests.image_extent_sufficient, {'TARGET_EXTENT': target_extent}),
+        "Couch extent sufficient":
+            (ExamTests.couch_extent_sufficient, {'TARGET_EXTENT': target_extent}),
+        "Edge of scan overlaps patient at key slices":
+            (ExamTests.external_overlaps_fov, {'TARGET_EXTENT': target_extent}),
+        "Localization Point Exists":
+            (ExamTests.check_localization, {}),
+        "Image Is Axially Oriented":
+            (ExamTests.match_image_directions, {})
+    }
+    return patient_checks_dict
+
+
+def get_plan_level_tests(rso, physics_review=True):
+    plan_checks_dict = {
+        "Plan approval status":
+            (PlanReviewTests.check_plan_approved, {"physics_review": physics_review})
+    }
+    return plan_checks_dict
+
+
+def get_beamset_level_tests(rso, physics_review=True):
+    beamset_checks_dict = {
+        "Beamset approval status":
+            (BeamSetReviewTests.check_beamset_approved, {"physics_review": physics_review}),
+        "Isocenter Position Identical":
+            (BeamSetReviewTests.check_common_isocenter, {"tolerance": 1e-15}),
+        "Check Fractionation":
+            (BeamSetReviewTests.check_fraction_size, {}),
+        "Slice Thickness Comparison":
+            (BeamSetReviewTests.check_slice_thickness, {}),
+        "Bolus Application":
+            (BeamSetReviewTests.check_bolus_included, {}),
+        "No Fly Zone Dose Check":
+            (BeamSetReviewTests.check_no_fly, {}),
+        "Check for pacemaker compliance":
+            (BeamSetReviewTests.check_pacemaker, {}),
+        "Dose Grid Size Check":
+            (BeamSetReviewTests.check_dose_grid, {}),
+    }
+
+    # Plan check for VMAT
+    #
+    technique = rso.beamset.DeliveryTechnique if rso.beamset else None
+    if technique == 'DynamicArc':
+        if rso.beamset.Beams[0].HasValidSegments:
+            beamset_checks_dict["Control Point Spacing"] = (
+                BeamSetReviewTests.check_control_point_spacing, {'expected': 2.})
+            beamset_checks_dict["Beamset Complexity"] = (BeamSetReviewTests.compute_beam_properties, {})
+    elif technique == 'SMLC':
+        try:
+            rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
+            beamset_checks_dict["Beamset Complexity"] = (BeamSetReviewTests.compute_beam_properties, {})
+            beamset_checks_dict["EDW MU Check"] = (BeamSetReviewTests.check_edw_MU, {})
+        except Exception as e:
+            logging.debug('Cannot check beamsets yet {}'.format(str(e)))
+    elif 'Tomo' in technique:
+        try:
+            rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
+            beamset_checks_dict["Isocenter Lateral Acceptable"] = (BeamSetReviewTests.check_tomo_isocenter, {})
+            beamset_checks_dict["Transfer BeamSet Approval Status"] = (BeamSetReviewTests.check_transfer_approved, {})
+        except Exception as e:
+            logging.debug('Cannot check beamsets yet {}'.format(str(e)))
+    return beamset_checks_dict
 
 
 #
@@ -287,7 +401,7 @@ def build_tree_element(parent_key, child_key, pass_result, message_str):
 #    cx = am.PrincipalContext(am.ContextType.Domain)
 #    principal = am.UserPrincipal.FindByIdentity(cx, 1, staff_id)
 
-def check_plan():
+def check_plan(physics_review=True):
     #
     try:
         user_name = str(Environment.UserName)
@@ -316,6 +430,9 @@ def check_plan():
     beamset_key = ("b", "Beam Set: " + rso.beamset.DicomPlanLabel)
     rx_key = ("rx", "Prescription")
     log_key = ("log", "Logging")
+    #
+    # Final log message
+    test_results = []
 
     """
     patient_key
@@ -332,102 +449,39 @@ def check_plan():
          -- plan_key
                 |
                  -- Plan Checks
-                 -- beamset_key
-                           |
-                            -- Beamset Checks
+         - beamset_key
+                |
+                 -- Beamset Checks
         |
          -- Logs                    
     """
-    #
-    # Patient check activations
-    patient_checks_dict = {}
+    """
+    Gather Patient Level Checks
+    """
     if rso.exam:
-        #
-        # Get target length
-        target_extent = ExamTests.get_si_extent(rso, types=['Ptv'])
-        patient_checks_dict = {
-            "DICOM RayStation Comparison":
-                (ExamTests.check_exam_data, {}),
-            "Exam Date Is Recent":
-                (ExamTests.compare_exam_date, {}),
-            "Image extent sufficient":
-                (ExamTests.image_extent_sufficient, {'TARGET_EXTENT': target_extent}),
-            "Couch extent sufficient":
-                (ExamTests.couch_extent_sufficient, {'TARGET_EXTENT': target_extent}),
-            "Edge of scan overlaps patient at key slices":
-                (ExamTests.external_overlaps_fov, {'TARGET_EXTENT': target_extent}),
-            "Localization Point Exists":
-                (ExamTests.check_localization, {}),
-            "Image Is Axially Oriented":
-                (ExamTests.match_image_directions, {})
-        }
+        patient_checks_dict = get_exam_level_tests(rso)
     check_patient_logs = True if rso.patient else False
     plan_checks_dict = {}
+    """
+    Gather Plan Level Checks
+    """
     if rso.plan:
-        plan_checks_dict = {
-            "Plan approval status":
-                (PlanReviewTests.check_plan_approved, {})
-        }
-
+        plan_checks_dict = get_plan_level_tests(rso, physics_review)
     #
-    # Beamset level activations
-    beamset_checks_dict = {}
+    """
+    Gather BeamSet Level Checks
+    """
     if rso.beamset:
-        beamset_checks_dict = {
-            "Beamset approval status":
-                (BeamSetReviewTests.check_beamset_approved, {}),
-            "Isocenter Position Identical":
-                (BeamSetReviewTests.check_common_isocenter, {"tolerance": 1e-15}),
-            "Check Fractionation":
-                (BeamSetReviewTests.check_fraction_size, {}),
-            "Slice Thickness Comparison":
-                (BeamSetReviewTests.check_slice_thickness, {}),
-            "Bolus Application":
-                (BeamSetReviewTests.check_bolus_included, {}),
-            "No Fly Zone Dose Check":
-                (BeamSetReviewTests.check_no_fly, {}),
-            "Check for pacemaker compliance":
-                (BeamSetReviewTests.check_pacemaker, {}),
-            "Dose Grid Size Check":
-                (BeamSetReviewTests.check_dose_grid, {}),
-        }
-
-    # Plan check for VMAT
-    #
-    technique = rso.beamset.DeliveryTechnique if rso.beamset else None
-    if technique == 'DynamicArc':
-        if rso.beamset.Beams[0].HasValidSegments:
-            beamset_checks_dict["Control Point Spacing"] = (
-                BeamSetReviewTests.check_control_point_spacing, {'expected': 2.})
-            beamset_checks_dict["Beamset Complexity"] = (BeamSetReviewTests.compute_beam_properties, {})
-    elif technique == 'SMLC':
-        try:
-            rso.beamset.Beams[0].Segments[0]
-            beamset_checks_dict["Beamset Complexity"] = (BeamSetReviewTests.compute_beam_properties, {})
-            beamset_checks_dict["EDW MU Check"] = (BeamSetReviewTests.check_edw_MU, {})
-        except Exception as e:
-            logging.debug('Cannot check beamsets yet {}'.format(str(e)))
-    elif 'Tomo' in technique:
-        try:
-            rso.beamset.Beams[0].Segments[0]
-            beamset_checks_dict["Isocenter Lateral Acceptable"] = (BeamSetReviewTests.check_tomo_isocenter, {})
-            beamset_checks_dict["Transfer BeamSet Approval Status"] = (BeamSetReviewTests.check_transfer_approved, {})
-            check_tomo_trnsfr_apprvd = True
-        except Exception as e:
-            logging.debug('Cannot check beamsets yet {}'.format(str(e)))
-            # check_tomo_trnsfr_apprvd = False
-
+        beamset_checks_dict = get_beamset_level_tests(rso, physics_review)
     treedata.Insert("", patient_key[0], patient_key[1], "")
     """
-    Patient Level Checks
+    Parse logs
     """
-    # Parse logs
     if check_patient_logs:
         lines = read_log_file(patient_id=rso.patient.PatientID)
         message_logs = parse_log_file(lines=lines, parent_key=log_key[0], phrases=KEEP_PHRASES)
-
     #
-    # Patient level checks
+    # Execute tests
     exam_level_tests = []
     for key, p_func in patient_checks_dict.items():
         pass_result, message = p_func[0](rso=rso, **p_func[1])
@@ -437,20 +491,11 @@ def check_plan():
                                            message_str=message)
         exam_level_tests.extend(message_dicom)
     # Exam tests complete. Update value
-    exam_level_pass = "Pass"
-    exam_icon = GREEN_CIRCLE
-    if any([m[3] for m in exam_level_tests if m[3] == "Fail"]):
-        exam_level_pass = "Fail"
-        exam_icon = RED_CIRCLE
-    elif any([m[3] for m in exam_level_tests if m[3] == "Alert"]):
-        exam_level_pass = "Alert"
-        exam_icon = YELLOW_CIRCLE
+    exam_level_pass, exam_icon = parse_level_tests(exam_level_tests)
     treedata.Insert(patient_key[0], exam_key[0], exam_key[1], exam_level_pass, icon=exam_icon)
-    if exam_level_tests:
-        for m in exam_level_tests:
-            treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
+    performed_tests_exams = insert_tests_return_fails(exam_level_tests, treedata, test_results)
     """
-    Plan Level Checks
+    Execute Plan Level Checks
     """
     # Plan LevelChecks
     plan_level_tests = []
@@ -463,19 +508,9 @@ def check_plan():
         plan_level_tests.extend(message)
 
     # Insert Plan Level notes
-    plan_level_pass = "Pass"
-    plan_icon = GREEN_CIRCLE
-    if any([m[3] for m in plan_level_tests if m[3] == "Fail"]):
-        plan_level_pass = "Fail"
-        plan_icon = RED_CIRCLE
-    elif any([m[3] for m in plan_level_tests if m[3] == "Alert"]):
-        plan_level_pass = "Alert"
-        plan_icon = YELLOW_CIRCLE
+    plan_level_pass, plan_icon = parse_level_tests(plan_level_tests)
     treedata.Insert(patient_key[0], plan_key[0], plan_key[1], plan_level_pass, icon=plan_icon)
-    if plan_level_tests:
-        for m in plan_level_tests:
-            treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
-
+    performed_tests_plans = insert_tests_return_fails(plan_level_tests, treedata, test_results)
     #
     # BEAMSET LEVEL CHECKS
     beamset_level_tests = []
@@ -507,18 +542,9 @@ def check_plan():
         beamset_level_tests.extend(message)
     #
     # Insert Beamset Level Nodes
-    beamset_level_pass = "Pass"
-    beamset_icon = GREEN_CIRCLE
-    if any([m[3] for m in beamset_level_tests if m[3] == "Fail"]):
-        beamset_level_pass = "Fail"
-        beamset_icon = RED_CIRCLE
-    elif any([m[3] for m in beamset_level_tests if m[3] == "Alert"]):
-        beamset_level_pass = "Alert"
-        beamset_icon = YELLOW_CIRCLE
+    beamset_level_pass, beamset_icon = parse_level_tests(beamset_level_tests)
     treedata.Insert(patient_key[0], beamset_key[0], beamset_key[1], beamset_level_pass, icon=beamset_icon)
-    if beamset_level_tests:
-        for m in beamset_level_tests:
-            treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
+    performed_tests_beamsets = insert_tests_return_fails(beamset_level_tests, treedata, test_results)
     #
     # Log Level
     treedata.Insert(patient_key[0], log_key[0], log_key[1], "")
@@ -552,12 +578,20 @@ def check_plan():
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
+        elif event in 'Ok':
+            if test_results and not physics_review:
+                now = datetime.now()
+                dt_string = now.strftime("(%H:%M) %B %d, %Y")
+                logging.warning("Review Script Warnings/Errors present at {}".format(dt_string))
+                for tr in test_results:
+                    logging.warning(f"\t{tr}")
+            break
     window.close()
     r.destroy()
 
 
-def main():
-    check_plan()
+def main(physics_review=True):
+    check_plan(physics_review)
 
 
 if __name__ == '__main__':

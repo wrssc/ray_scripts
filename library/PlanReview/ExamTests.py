@@ -101,9 +101,9 @@ def check_exam_data(rso):
                 message_str += "{0}: [{1}:{2} {3} RS:{4}], " \
                     .format(dicom_attr, modality, dcm, match_str, rs)
     if all_passing:
-        pass_result = 'Pass'
+        pass_result = PASS
     else:
-        pass_result = 'Fail'
+        pass_result = FAIL
     return pass_result, message_str
 
 
@@ -143,14 +143,14 @@ def compare_exam_date(rso):
         if elapsed_days <= tolerance:
             message_str = "Exam {} acquired {} within {} days ({} days) of Plan Date {}" \
                 .format(rso.exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
-            pass_result = "Pass"
+            pass_result = PASS
         else:
             message_str = "Exam {} acquired {} GREATER THAN {} days ({} days) of Plan Date {}" \
                 .format(rso.exam.Name, dcm_date.date(), tolerance, elapsed_days, current_time.date())
-            pass_result = "Fail"
+            pass_result = FAIL
     else:
         message_str = "Exam {} has no apparent study date!".format(rso.exam.Name)
-        pass_result = "Alert"
+        pass_result = ALERT
     return pass_result, message_str
 
 
@@ -229,19 +229,19 @@ def image_extent_sufficient(rso, **kwargs):
     t_str = '[' + ('%.2f ' * len(buffered_target_extent)) % tuple(buffered_target_extent) + ']'
     if not target_extent:
         message_str = 'No targets found of type Ptv, image extent could not be evaluated'
-        pass_result = 'Fail'
+        pass_result = FAIL
     elif z_extent[1] >= buffered_target_extent[1] and z_extent[0] <= buffered_target_extent[0]:
         message_str = 'Planning image extent {} and is at least {:.1f} larger than S/I target extent {}'.format(
             z_str, buffer, t_str)
-        pass_result = "Pass"
+        pass_result = PASS
     elif z_extent[1] < buffered_target_extent[1] or z_extent[0] > buffered_target_extent[0]:
         message_str = 'Planning Image extent:{} is insufficient for accurate calculation.'.format(z_str) \
                       + '(SMALLER THAN :w' \
                         'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
-        pass_result = "Fail"
+        pass_result = FAIL
     else:
         message_str = 'Target length could not be compared to image set'
-        pass_result = "Fail"
+        pass_result = FAIL
     return pass_result, message_str
 
 
@@ -283,23 +283,23 @@ def couch_extent_sufficient(rso, **kwargs):
         t_str = '[' + ('%.2f ' * len(buffered_target_extent)) % tuple(buffered_target_extent) + ']'
     if not couch_extent:
         message_str = 'No support structures found. No couch check possible'
-        pass_result = "Fail"
+        pass_result = FAIL
     elif couch_extent[1] >= buffered_target_extent[1] and couch_extent[0] <= buffered_target_extent[0]:
         message_str = 'Supports (' \
                       + ', '.join(support_rois) \
                       + ') span {} and is at least {:.1f} cm larger than S/I target extent {}'.format(
             z_str, buffer, t_str)
-        pass_result = "Pass"
+        pass_result = PASS
     elif couch_extent[1] < buffered_target_extent[1] or couch_extent[0] > buffered_target_extent[0]:
         message_str = 'Support extent (' \
                       + ', '.join(support_rois) \
                       + ') :{} is not fully under the target.'.format(z_str) \
                       + '(SMALLER THAN ' \
                         'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
-        pass_result = "Fail"
+        pass_result = FAIL
     else:
         message_str = 'Target length could not be compared to support extent'
-        pass_result = "Fail"
+        pass_result = FAIL
     # Prepare output
     return pass_result, message_str
 
@@ -522,10 +522,10 @@ def external_overlaps_fov(rso, **kwargs):
     #
     # Check initial inputs
     if not ext_name:
-        pass_result = "Fail"
+        pass_result = FAIL
         message_str = 'No External'
     if not fov_exists:
-        pass_result = "Fail"
+        pass_result = FAIL
         message_str = 'Making ' + fov_name + ' failed.'
     if not message_str:
         #
@@ -571,10 +571,10 @@ def external_overlaps_fov(rso, **kwargs):
         for s in sources:
             pm.RegionsOfInterest[s].DeleteRoi()
         if suspect_slices.size > 0:
-            pass_result = "Fail"
+            pass_result = FAIL
             message_str = 'Potential FOV issues found on slices {}'.format(suspect_slices)
         else:
-            pass_result = "Pass"
+            pass_result = PASS
             message_str = 'No Potential Overlap with FOV Found'
     return pass_result, message_str
 
@@ -590,13 +590,13 @@ def check_localization(rso):
             break
     if poi_coord:
         message_str = "Localization point {} exists and has coordinates.".format(point.OfPoi.Name)
-        pass_result = "Pass"
+        pass_result = PASS
     elif localization_found:
         message_str = "Localization point {} does not have coordinates.".format(point.OfPoi.Name)
-        pass_result = "Fail"
+        pass_result = FAIL
     else:
         message_str = "No point of type LocalizationPoint found"
-        pass_result = "Fail"
+        pass_result = FAIL
     return pass_result, message_str
 
 
@@ -609,15 +609,15 @@ def match_image_directions(rso):
     row_dir = rso.exam.Series[0].ImageStack.RowDirection
     sli_dir = rso.exam.Series[0].ImageStack.SliceDirection
     message_str = ""
-    pass_result = 'Pass'
+    pass_result = PASS
     if col_dir != stack_details['direction_column'] or \
             sli_dir != stack_details['direction_slice']:
         message_str.append('Exam {} has been rotated and will not transfer to iDMS!'.format(rso.exam.Name))
-        pass_result = 'Fail'
+        pass_result = FAIL
     if row_dir != stack_details['direction_row']:
         message_str.append('Exam {} has been rotated or was acquired'.format(rso.exam.Name)
                            + ' with gantry tilt and should be reoriented!')
-        pass_result = 'Fail'
+        pass_result = FAIL
     if not message_str:
         message_str = 'Image set {} is not rotated'.format(rso.exam.Name)
 
