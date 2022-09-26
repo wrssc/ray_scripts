@@ -1450,9 +1450,14 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             time_1 = time_0
 
         while optimization_iteration != maximum_iteration:
-            if plan_optimization.ProgressOfOptimization.Iterations is not None:
-                prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
-                previous_objective_function = prior_history[-1]
+            if plan_optimization.ProgressOfOptimization:
+                if plan_optimization.ProgressOfOptimization.Iterations is not None:
+                    prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
+                    previous_objective_function = prior_history[-1]
+                else:
+                    previous_objective_function = 1e10
+                    logging.debug('This appears to be a cold start. Objective value set to {}'
+                                  .format(previous_objective_function))
             else:
                 previous_objective_function = 1e10
                 logging.debug('This appears to be a cold start. Objective value set to {}'
