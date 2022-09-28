@@ -26,8 +26,8 @@ BOLUS_NAMES = ["bolus"]
 # def - check the front edges of the couch and suspended headboard
 NO_FLY_NAME = "NoFlyZone_PRV"
 PACEMAKER_NAME = "Pacemaker"
-PACEMAKER_PRV_NAME = "Pacemaker_PRV10"
-PACEMAKER_SEARCH_DISTANCE = 7.  # cm distance over which to look for the 2 Gy dose level
+PACEMAKER_PRV_NAME = "Pacemaker_PRV50"
+PACEMAKER_SEARCH_DISTANCE = 10.  # cm distance over which to look for the 2 Gy dose level
 PACEMAKER_DISTANCE_TOLERANCE = 2.  # cm distance from which we want the 2 Gy line to be away from the pacer
 #
 # PLANNING DEFAULTS

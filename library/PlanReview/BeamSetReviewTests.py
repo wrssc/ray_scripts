@@ -578,8 +578,12 @@ def evaluate_pacer_safe_distance(rso):
                                           prv_name=PACEMAKER_PRV_NAME,
                                           roi_name=PACEMAKER_NAME + "_EZ")
     deletion_rois.append(warning_zone)
-    distance = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiSurfaceToSurfaceDistanceBasedOnDT(
-        ReferenceRoiName=warning_zone, TargetRoiName=PACEMAKER_PRV_NAME)
+    if rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[warning_zone].HasContours():
+        distance = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiSurfaceToSurfaceDistanceBasedOnDT(
+            ReferenceRoiName=warning_zone, TargetRoiName=PACEMAKER_PRV_NAME)
+    else:
+        # No contours found in the pacemaker search distance
+        distance = {'Min': float('inf')}
     if distance['Min'] <= PACEMAKER_DISTANCE_TOLERANCE:
         message_str = f"{dose_name} isodose is within {PACEMAKER_DISTANCE_TOLERANCE:.0f} cm from " \
                       + f"{PACEMAKER_PRV_NAME} ({distance['Min']:.1f} cm)!!"
@@ -592,6 +596,18 @@ def evaluate_pacer_safe_distance(rso):
     for d in deletion_rois:
         rso.case.PatientModel.RegionsOfInterest[d].DeleteRoi()
     return safe_distance, message_str
+
+
+def energy_acceptable(rso, energy_list=["6", "6 FFF", "10", "10 FFF"]):
+    """
+
+    Args:
+        rso:
+        energy_list:
+
+    Returns:
+
+    """
 
 
 def check_pacemaker(rso):
