@@ -73,19 +73,21 @@ clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871
                   '--X_GRID--': [-3.0, -2.0, -1.0, 0., 1.0, 2.0, 3.0, ],
                   '--Y_GRID--': [-16., -14., -12., -10., -8., -6., -4., -2., 0.,
                                  16., 14., 12., 10., 8., 6., 4., 2.],
-                  '--Z_GRID--': [-9., -6., -3., 0., 3., 6., 9.],
-                  '--CENTROID SHIFT FACTOR--': 0.5,  # 50%
-                  '--TOMO ISO ROUND': 0.5,  # cm
+                  '--Z_GRID--': [-72., -63., -56., -48., -36., -24., -18.,
+                                 -9., -6., -3., 0., 3., 6., 9.,
+                                 18., 27., 36., 48., 56., 63., 72.],
+                  '--CENTROID SHIFT FACTOR--': 0.5,
+                  '--TOMO ISO ROUND': 0.5,
                   '--VMAT_QA_PHANTOM--': r"Delta4 (TrueBeam)",
                   '--VMAT_PHANTOM_ID--': r"ZZIMRTQA",
                   '--TOMO_QA_PHANTOM--': r"Delta4_HFS_0X_0Y TomoHDA",
-                  '--TOMO_PHANTOM_ID--': r"20191017PMH-QA"}
+                  '--TOMO_PHANTOM_ID--': r"20191017PMH-QA",
+                  '--ALT_TOMO_QA_PHANTOM--': r"TomoHDA Delta4_HFS_X0_Y0",
+                  '--ALT_TOMO_PHANTOM_ID--': r"20191004PMH-D4QA"}
 #
 # Phantom properties for TOMO
 # TODO Find a way of getting the current database name
 # Options in Validation
-# clinic_options['--TOMO_QA_PHANTOM--'] = r"TomoHDA Delta4_HFS_X0_Y0"  # Validation
-# clinic_options['--TOMO_PHANTOM_ID--'] = r"20191004PMH-D4QA"  # Validation
 #
 # Phantom properties for VMAT
 #
@@ -171,44 +173,14 @@ def find_qa_plan(plan, beamset, qa_plan_name):
     return None
 
 
-def make_vmat_qa_plan(plan, beamset, qa_plan_name):
-    # Make a qa plan
+def create_qa(beamset, phantom, qa_plan_name, phantom_id, iso, dosegrid):
     try:
         beamset.CreateQAPlan(
-            PhantomName=clinic_options['--VMAT_QA_PHANTOM--'],
-            PhantomId=clinic_options['--VMAT_PHANTOM_ID--'],
+            PhantomName=phantom,
+            PhantomId=phantom_id,
             QAPlanName=qa_plan_name,
-            IsoCenter={'x': 0, 'y': 0, 'z': 0},
-            DoseGrid={'x': 0.2, 'y': 0.2, 'z': 0.2},
-            GantryAngle=None,
-            CollimatorAngle=None,
-            CouchRotationAngle=0,
-            ComputeDoseWhenPlanIsCreated=True,
-            NumberOfMonteCarloHistories=None,
-            MotionSynchronizationTechniqueSettings=None,
-            RemoveCompensators=False,
-            EnableDynamicTracking=False)
-        qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
-        logging.debug('qa plan creation complete returning {}'.format(qa_plan.BeamSet.DicomPlanLabel))
-        return qa_plan
-    except Exception as e:
-        try:
-            UserInterface.WarningBox('QA Plan failed to create: {}'.format(e.Message))
-            sys.exit('QA Plan failed to create {}'.format(e.Message))
-        except:
-            UserInterface.WarningBox('QA Plan failed to create: {}'.format(e))
-            sys.exit('QA Plan failed to create {}'.format(e))
-
-
-def make_tomo_qa_plan(plan, beamset, qa_plan_name):
-    # Make a qa plan
-    try:
-        beamset.CreateQAPlan(
-            PhantomName=clinic_options['--TOMO_QA_PHANTOM--'],
-            PhantomId=clinic_options['--TOMO_PHANTOM_ID--'],
-            QAPlanName=qa_plan_name,
-            IsoCenter={'x': 0, 'y': 0, 'z': 0},
-            DoseGrid={'x': 0.2, 'y': 0.2, 'z': 0.2},
+            IsoCenter=iso,
+            DoseGrid=dosegrid,
             GantryAngle=None,
             CollimatorAngle=None,
             CouchRotationAngle=None,
@@ -217,11 +189,48 @@ def make_tomo_qa_plan(plan, beamset, qa_plan_name):
             MotionSynchronizationTechniqueSettings=None,
             RemoveCompensators=False,
             EnableDynamicTracking=False)
+        return "success"
+    except Exception as e:
+        return str(e.Message)
+
+
+def make_vmat_qa_plan(plan, beamset, qa_plan_name):
+    # Make a qa plan
+    qa_status = create_qa(beamset=beamset,
+                          phantom=clinic_options['--VMAT_QA_PHANTOM--'],
+                          phantom_id=clinic_options['--VMAT_PHANTOM_ID--'],
+                          qa_plan_name=qa_plan_name,
+                          iso={'x': 0, 'y': 0, 'z': 0},
+                          dosegrid={'x': 0.2, 'y': 0.2, 'z': 0.2})
+    if qa_status == "success":
         qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
         return qa_plan
-    except Exception as e:
-        UserInterface.WarningBox('QA Plan failed to create: {}'.format(e))
-        sys.exit('QA Plan failed to create {}'.format(e))
+    if qa_status != "success":
+        UserInterface.WarningBox('QA Plan failed to create: {}'.format(qa_status))
+        sys.exit('QA Plan failed to create {}'.format(qa_status))
+
+
+def make_tomo_qa_plan(plan, beamset, qa_plan_name):
+    # Make a qa plan
+    qa_status = create_qa(beamset=beamset,
+                          phantom=clinic_options['--TOMO_QA_PHANTOM--'],
+                          phantom_id=clinic_options['--TOMO_PHANTOM_ID--'],
+                          qa_plan_name=qa_plan_name,
+                          iso={'x': 0, 'y': 0, 'z': 0},
+                          dosegrid={'x': 0.2, 'y': 0.2, 'z': 0.2})
+    if "No phantom found" in qa_status:
+        qa_status = create_qa(beamset=beamset,
+                              phantom=clinic_options['--ALT_TOMO_QA_PHANTOM--'],
+                              phantom_id=clinic_options['--ALT_TOMO_PHANTOM_ID--'],
+                              qa_plan_name=qa_plan_name,
+                              iso={'x': 0, 'y': 0, 'z': 0},
+                              dosegrid={'x': 0.2, 'y': 0.2, 'z': 0.2})
+    if qa_status == "success":
+        qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
+        return qa_plan
+    if qa_status != "success":
+        UserInterface.WarningBox('QA Plan failed to create: {}'.format(qa_status))
+        sys.exit('QA Plan failed to create {}'.format(qa_status))
 
 
 def get_timestamp(beamset):
@@ -423,8 +432,10 @@ def shift_tomo_iso(verification_plan):
     a = find_dose_centroid(vp=verification_plan,
                            beamset=verification_plan.BeamSet,
                            percent_max=80)
-    z_shift = a['z'] if abs(a['z'] < 9.) else 0.
-    shift = {'x': -1. * a['x'], 'y': -1. * a['y'], 'z': -1. * z_shift}
+    z_grid = clinic_options['--Z_GRID--']
+    z_shift = min(z_grid, key=lambda z: abs(-1. * a['z'] - z))
+    # z_shift = a['z'] if abs(a['z'] < 9.) else 0.
+    shift = {'x': -1. * a['x'], 'y': -1. * a['y'], 'z': z_shift}
     beams = verification_plan.BeamSet.Beams
     iso_name = "".join((verification_plan.BeamSet.DicomPlanLabel,
                         f"_X:{shift['x']:03.0f}",
@@ -434,6 +445,7 @@ def shift_tomo_iso(verification_plan):
                  f"[x,y,z]: [{shift['x']:.2f},{shift['y']:.2f},{shift['z']:.2f}].")
     for b in beams:
         b.Isocenter.EditIsocenter(Name=iso_name, Position=shift, Color="Purple")
+    return shift
 
 
 def shift_iso(verification_plan, percent_dose_region=80.):
@@ -448,9 +460,9 @@ def shift_iso(verification_plan, percent_dose_region=80.):
                            beamset=verification_plan.BeamSet,
                            percent_max=percent_dose_region)
     optimal_shift = {
-        'x': a['x'] * clinic_options['--CENTROID SHIFT FACTOR--'],
-        'y': a['y'] * clinic_options['--CENTROID SHIFT FACTOR--'],
-        'z': a['z'] * clinic_options['--CENTROID SHIFT FACTOR--'],
+        'x': -1. * a['x'] * clinic_options['--CENTROID SHIFT FACTOR--'],
+        'y': -1. * a['y'] * clinic_options['--CENTROID SHIFT FACTOR--'],
+        'z': -1. * a['z'] * clinic_options['--CENTROID SHIFT FACTOR--'],
     }
     x_grid = clinic_options['--X_GRID--']
     y_grid = clinic_options['--Y_GRID--']
@@ -473,11 +485,38 @@ def shift_iso(verification_plan, percent_dose_region=80.):
     return shift
 
 
+def send(case, beamset, destination, verification_plan, filters=[], gantry_period=None, couch_speed=None):
+    success = DicomExport.send(case=case,
+                               destination=destination,
+                               qa_plan=verification_plan,
+                               exam=False,
+                               beamset=beamset,
+                               ct=False,
+                               structures=False,
+                               plan=False,
+                               plan_dose=False,
+                               beam_dose=False,
+                               ignore_warnings=False,
+                               ignore_errors=False,
+                               bypass_export_check=True,
+                               rename=None,
+                               gantry_period=gantry_period,
+                               couch_speed=couch_speed,
+                               filters=filters,
+                               bar=False)
+    return success
+
+
 def main():
     # Get current patient, case, exam, plan, and beamset
     # TODO: Add dialog for dose to bypass DQA review
     bypass_review = False
     program_success = []
+    gantry_period = None
+    couch_speed = None
+    filters = []
+    destinations = ['Delta4']
+    shifts = {}
     try:
         patient = connect.get_current('Patient')
         case = connect.get_current('Case')
@@ -526,6 +565,9 @@ def main():
 
         # Make a qa plan with the name of the beamset
         if 'Tomo' in beamset.DeliveryTechnique:
+            # Update the filters and destinations
+            filters.append('tomo_dqa')
+            # destinations.append('RayGateway')
             qa_plan_name = b.replace('_THI_', '_DQA_')
             if qa_plan_name == b:
                 qa_plan_name = qa_plan_name[:-4] + '_DQA'
@@ -535,71 +577,46 @@ def main():
             if qa_plan_exists(plan, qa_plan_name):
                 qa_plan_name = prompt_qa_name(qa_plan_name)
             verification_plan = make_tomo_qa_plan(plan, beamset, qa_plan_name)
+            if user_prompt['-SHIFT PHANTOM-']:
+                shifts = shift_tomo_iso(verification_plan)
+
         else:
             qa_plan_name = beamset.DicomPlanLabel
             if qa_plan_exists(plan, qa_plan_name):
                 qa_plan_name = prompt_qa_name(qa_plan_name)
             verification_plan = make_vmat_qa_plan(plan, beamset, qa_plan_name)
+            if user_prompt['-SHIFT PHANTOM-']:
+                shifts = shift_iso(verification_plan)
 
-        qa_beamset = verification_plan.BeamSet
         #
         # Update log
+        if any(shifts.values()) > 0.:
+            verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
+        qa_beamset = verification_plan.BeamSet
         current_technique = qa_beamset.DeliveryTechnique
         logging.info("Selected Beamset:QAPlan {}:{}"
                      .format(beamset.DicomPlanLabel, qa_beamset.DicomPlanLabel))
-
+        if not bypass_review:
+            connect.await_user_input('Please review and adjust the plan.\n'
+                                     + 'Resume the script to export\n'
+                                     + 'Final Plan Parameters will be copied to the clipboard')
+        comment_str = comment_to_clipboard(beamset, user_prompt, verification_plan)
+        logging.info(comment_str.replace("\n", ", "))
+        patient.Save()
         if 'Tomo' in current_technique:
-            if user_prompt['-SHIFT PHANTOM-']:
-                shift_tomo_iso(verification_plan)
-                verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
-            #
-            if not bypass_review:
-                connect.await_user_input('Please review and adjust the plan.\n'
-                                         + 'Resume the script to export\n'
-                                         + 'Final Plan Parameters will be copied to the clipboard')
-            comment_str = comment_to_clipboard(beamset, user_prompt, verification_plan)
-            logging.info(comment_str.replace("\n", ", "))
-
             # This plan needs to go to the Delta4 Dicom location and the user
             # needs to manually send it to the RayGateway
             beam_data = {}
             for b in qa_beamset.Beams:
                 tomo_result = compute_tomo_params(b)
                 beam_data[b.Name] = tomo_result
-
                 logging.debug('Beam {} has GP: {}, CS:{}, Time:{}'.format(
                     b.Name, tomo_result.gantry_period,
                     tomo_result.couch_speed, tomo_result.time))
-
             if current_technique == 'TomoHelical' and len(beam_data.keys()) == 1:
                 formatted_response = '{:.2f}'.format(round(tomo_result.gantry_period, 2))
-                logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
-                    formatted_response))
-                patient.Save()
-                success = DicomExport.send(case=case,
-                                           destination='Delta4',
-                                           qa_plan=verification_plan,
-                                           exam=False,
-                                           beamset=False,
-                                           ct=False,
-                                           structures=False,
-                                           plan=False,
-                                           plan_dose=False,
-                                           beam_dose=False,
-                                           ignore_warnings=False,
-                                           ignore_errors=False,
-                                           bypass_export_check=bypass_export_check,
-                                           rename=None,
-                                           gantry_period=formatted_response,
-                                           filters=['tomo_dqa'],
-                                           bar=False)
+                gantry_period = formatted_response
             elif current_technique == 'TomoDirect':
-                # if not bypass_review:
-                #     connect.await_user_input('Please review and adjust the plan.\n'
-                #                              + 'Resume the script to export\n'
-                #                              + 'Final Plan Parameters will be copied to the clipboard')
-                # comment_str = comment_to_clipboard(beamset, user_prompt, verification_plan)
-                # logging.info("Post User Interactions:" + comment_str.replace("\n", ", "))
                 formatted_response = {}
                 for k in beam_data.keys():
                     strip_response = '{:.6f}'.format(beam_data[k].couch_speed)
@@ -608,60 +625,82 @@ def main():
                     #
                     logging.info("Couch speed filter to be used. Couch speed for beam:{} is {} (mm/s)"
                                  .format(k, formatted_response[k]))
-                patient.Save()
-                success = DicomExport.send(case=case,
-                                           destination='Delta4',
-                                           qa_plan=verification_plan,
-                                           exam=False,
-                                           beamset=False,
-                                           ct=False,
-                                           structures=False,
-                                           plan=False,
-                                           plan_dose=False,
-                                           beam_dose=False,
-                                           ignore_warnings=False,
-                                           ignore_errors=False,
-                                           bypass_export_check=bypass_export_check,
-                                           rename=None,
-                                           couch_speed=formatted_response,
-                                           filters=['tomo_dqa'],
-                                           bar=False)
-                program_success.append(success)
-        else:
-            if user_prompt['-SHIFT PHANTOM-']:
-                shifts = shift_iso(verification_plan)
-                if any(shifts.values()) > 0.:
-                    verification_plan.BeamSet.ComputeDose(DoseAlgorithm='CCDose')
-            if not bypass_review:
-                connect.await_user_input('Please review and adjust the plan.\n'
-                                         + 'Resume the script to export\n'
-                                         + 'Final Plan Parameters will be copied to the clipboard')
-            comment_str = comment_to_clipboard(beamset, user_prompt, verification_plan)
-            logging.info("Post User Interactions:" + comment_str.replace("\n", ", "))
-            patient.Save()
-            success = DicomExport.send(case=case,
-                                       destination='Delta4',
-                                       qa_plan=verification_plan,
-                                       exam=False,
-                                       beamset=None,
-                                       ct=False,
-                                       structures=False,
-                                       plan=None,
-                                       plan_dose=True,
-                                       beam_dose=True,
-                                       ignore_warnings=True,
-                                       ignore_errors=False,
-                                       bypass_export_check=bypass_export_check,
-                                       rename=None,
-                                       couch_speed=None,
-                                       filters=[],
-                                       bar=False)
+                couch_speed = formatted_response
+        program_success = send(case,
+                               beamset=b,
+                               destination=destinations,
+                               verification_plan=verification_plan,
+                               gantry_period=gantry_period,
+                               couch_speed=couch_speed,
+                               filters=filters)
 
-            success = True
-            program_success.append(success)
+        ##    if current_technique == 'TomoHelical' and len(beam_data.keys()) == 1:
+        ##        formatted_response = '{:.2f}'.format(round(tomo_result.gantry_period, 2))
+        ##        logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
+        ##            formatted_response))
+        ##        patient.Save()
+        ##        success_d4 = send(case,destination='Delta4',
+        ##                       verification_plan=verification_plan,
+        ##                       gantry_period=formatted_response,
+        ##                       filters=['tomo_dqa'])
+        ##        success_idms = send(case,destination='RayGateway',
+        ##                          verification_plan=verification_plan,
+        ##                          gantry_period=formatted_response,
+        ##                          filters=['tomo_dqa'])
+        ##    elif current_technique == 'TomoDirect':
+        ##        formatted_response = {}
+        ##        for k in beam_data.keys():
+        ##            strip_response = '{:.6f}'.format(beam_data[k].couch_speed)
+        ##            # Convert to mm
+        ##            formatted_response[k] = convert_couch_speed_to_mm(strip_response)
+        ##            #
+        ##            logging.info("Couch speed filter to be used. Couch speed for beam:{} is {} (mm/s)"
+        ##                         .format(k, formatted_response[k]))
+        ##        patient.Save()
+
+        ##       success = DicomExport.send(case=case,
+        ##                                   destination='Delta4',
+        ##                                   qa_plan=verification_plan,
+        ##                                   exam=False,
+        ##                                   beamset=False,
+        ##                                   ct=False,
+        ##                                   structures=False,
+        ##                                   plan=False,
+        ##                                   plan_dose=False,
+        ##                                   beam_dose=False,
+        ##                                   ignore_warnings=False,
+        ##                                   ignore_errors=False,
+        ##                                   bypass_export_check=bypass_export_check,
+        ##                                   rename=None,
+        ##                                   couch_speed=formatted_response,
+        ##                                   filters=['tomo_dqa'],
+        ##                                   bar=False)
+        ##        program_success.append(success)
+        ##else:
+        ##    patient.Save()
+        ##    success = DicomExport.send(case=case,
+        ##                               destination='Delta4',
+        ##                               qa_plan=verification_plan,
+        ##                               exam=False,
+        ##                               beamset=None,
+        ##                               ct=False,
+        ##                               structures=False,
+        ##                               plan=None,
+        ##                               plan_dose=True,
+        ##                               beam_dose=True,
+        ##                               ignore_warnings=True,
+        ##                               ignore_errors=False,
+        ##                               bypass_export_check=bypass_export_check,
+        ##                               rename=None,
+        ##                               couch_speed=None,
+        ##                               filters=[],
+        ##                               bar=False)
+
+        ##    success = True
+        ##    program_success.append(success)
 
     # Finish up
-    if all(program_success):
+    if program_success:
         logging.info('QA script completed successfully')
     else:
         logging.warning('QA script completed with errors')
