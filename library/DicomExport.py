@@ -283,7 +283,7 @@ def send(case,
 
     # Flag set for Tomo DQA
     if qa_plan is not None:
-        if raygateway_args is None:  # and filters is not None and 'tomo_dqa' in filters:
+        if 'RayGateway' not in info['type']:  # and filters is not None and 'tomo_dqa' in filters:
             # DQA should be going to delta 4
             # Save to the file destination for filtering
             # TODO: resolve the RS phantom bug to allow the appropriate export of the
@@ -299,7 +299,7 @@ def send(case,
 
             qa_plan.ScriptableQADicomExport(**args)
 
-        elif raygateway_args is not None:
+        else:
 
             args = {'IgnorePreConditionWarnings': ignore_warnings,
                     'QaPlanIdentity': 'Phantom',
@@ -774,7 +774,7 @@ def send(case,
                           format(d, random_name, random_id))
 
         # If an AE destination, establish pynetdicom association
-        if 'RayGateway' in info['type']:
+        if 'RayGateway' in info['type'] and qa_plan is None:
             logging.debug('Multiple destinations, ScriptableDicomExport() to RayGateway {}'.format(raygateway_args))
             rg_args = args
             rg_args['RayGatewayTitle'] = raygateway_args

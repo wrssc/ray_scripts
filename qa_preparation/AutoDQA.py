@@ -259,9 +259,10 @@ def build_string_clip(beamset, responses, verification_plan):
     dialog_dict['Delta4'] = responses['-Delta4-']
     dialog_dict['RSA'] = get_timestamp(beamset)
     dialog_dict['By'] = os.getenv('username')
-    dialog_dict['X-shift'] = "{:.1f} mm".format(10. * iso['x'])
-    dialog_dict['Y-shift'] = "{:.1f} mm".format(10. * iso['y'])
-    dialog_dict['Z-shift'] = "{:.1f} mm".format(10. * iso['z'])
+    # Negative sign for shifts relative to isocenter
+    dialog_dict['X-shift'] = "{:.1f} mm".format(-10. * iso['x'])
+    dialog_dict['Y-shift'] = "{:.1f} mm".format(-10. * iso['y'])
+    dialog_dict['Z-shift'] = "{:.1f} mm".format(-10. * iso['z'])
 
     comment = ""
     for k, v in dialog_dict.items():
@@ -534,11 +535,6 @@ def main():
         UserInterface.WarningBox('This script requires a plan to be loaded')
         sys.exit('This script requires a plan to be loaded')
     #
-    # Clear the system clipboard
-    # r = Tk()
-    # r.withdraw()
-    # r.clipboard_clear()
-
     user_prompt = qa_gui(plan)
     if not user_prompt:
         sys.exit('Dialog canceled')
@@ -567,7 +563,7 @@ def main():
         if 'Tomo' in beamset.DeliveryTechnique:
             # Update the filters and destinations
             filters.append('tomo_dqa')
-            # destinations.append('RayGateway')
+            destinations.append('RayGateway')
             qa_plan_name = b.replace('_THI_', '_DQA_')
             if qa_plan_name == b:
                 qa_plan_name = qa_plan_name[:-4] + '_DQA'
@@ -613,6 +609,7 @@ def main():
                 logging.debug('Beam {} has GP: {}, CS:{}, Time:{}'.format(
                     b.Name, tomo_result.gantry_period,
                     tomo_result.couch_speed, tomo_result.time))
+            # Insert the gantry period for tomo helical and couch speed for direct
             if current_technique == 'TomoHelical' and len(beam_data.keys()) == 1:
                 formatted_response = '{:.2f}'.format(round(tomo_result.gantry_period, 2))
                 gantry_period = formatted_response
@@ -626,78 +623,14 @@ def main():
                     logging.info("Couch speed filter to be used. Couch speed for beam:{} is {} (mm/s)"
                                  .format(k, formatted_response[k]))
                 couch_speed = formatted_response
-        program_success = send(case,
-                               beamset=b,
-                               destination=destinations,
-                               verification_plan=verification_plan,
-                               gantry_period=gantry_period,
-                               couch_speed=couch_speed,
-                               filters=filters)
-
-        ##    if current_technique == 'TomoHelical' and len(beam_data.keys()) == 1:
-        ##        formatted_response = '{:.2f}'.format(round(tomo_result.gantry_period, 2))
-        ##        logging.info("Gantry period filter to be used. Gantry Period (ss.ff) = {} ".format(
-        ##            formatted_response))
-        ##        patient.Save()
-        ##        success_d4 = send(case,destination='Delta4',
-        ##                       verification_plan=verification_plan,
-        ##                       gantry_period=formatted_response,
-        ##                       filters=['tomo_dqa'])
-        ##        success_idms = send(case,destination='RayGateway',
-        ##                          verification_plan=verification_plan,
-        ##                          gantry_period=formatted_response,
-        ##                          filters=['tomo_dqa'])
-        ##    elif current_technique == 'TomoDirect':
-        ##        formatted_response = {}
-        ##        for k in beam_data.keys():
-        ##            strip_response = '{:.6f}'.format(beam_data[k].couch_speed)
-        ##            # Convert to mm
-        ##            formatted_response[k] = convert_couch_speed_to_mm(strip_response)
-        ##            #
-        ##            logging.info("Couch speed filter to be used. Couch speed for beam:{} is {} (mm/s)"
-        ##                         .format(k, formatted_response[k]))
-        ##        patient.Save()
-
-        ##       success = DicomExport.send(case=case,
-        ##                                   destination='Delta4',
-        ##                                   qa_plan=verification_plan,
-        ##                                   exam=False,
-        ##                                   beamset=False,
-        ##                                   ct=False,
-        ##                                   structures=False,
-        ##                                   plan=False,
-        ##                                   plan_dose=False,
-        ##                                   beam_dose=False,
-        ##                                   ignore_warnings=False,
-        ##                                   ignore_errors=False,
-        ##                                   bypass_export_check=bypass_export_check,
-        ##                                   rename=None,
-        ##                                   couch_speed=formatted_response,
-        ##                                   filters=['tomo_dqa'],
-        ##                                   bar=False)
-        ##        program_success.append(success)
-        ##else:
-        ##    patient.Save()
-        ##    success = DicomExport.send(case=case,
-        ##                               destination='Delta4',
-        ##                               qa_plan=verification_plan,
-        ##                               exam=False,
-        ##                               beamset=None,
-        ##                               ct=False,
-        ##                               structures=False,
-        ##                               plan=None,
-        ##                               plan_dose=True,
-        ##                               beam_dose=True,
-        ##                               ignore_warnings=True,
-        ##                               ignore_errors=False,
-        ##                               bypass_export_check=bypass_export_check,
-        ##                               rename=None,
-        ##                               couch_speed=None,
-        ##                               filters=[],
-        ##                               bar=False)
-
-        ##    success = True
-        ##    program_success.append(success)
+        for d in destinations:
+            program_success = send(case,
+                                   beamset=beamset,
+                                   destination=d,
+                                   verification_plan=verification_plan,
+                                   gantry_period=gantry_period,
+                                   couch_speed=couch_speed,
+                                   filters=filters)
 
     # Finish up
     if program_success:
