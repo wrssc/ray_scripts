@@ -185,7 +185,7 @@ def send(case,
         if 'RayGateway' in info['type']:
             if qa_plan:
                 # TODO: QA RayGateway delete the sys exit when QA Plans are supported
-                sys.exit('RayGateway Export is not supported at this time')
+                # sys.exit('RayGateway Export is not supported at this time')
                 logging.debug('RayGateway to be used in {} to export QA plan, association unsupported.'
                               .format(info['host']))
                 raygateway_args = info['aet']
@@ -283,12 +283,13 @@ def send(case,
 
     # Flag set for Tomo DQA
     if qa_plan is not None:
-        if raygateway_args is None and filters is not None and 'tomo_dqa' in filters:
+        if raygateway_args is None:  # and filters is not None and 'tomo_dqa' in filters:
+            # DQA should be going to delta 4
             # Save to the file destination for filtering
             # TODO: resolve the RS phantom bug to allow the appropriate export of the
             #       phantom based plan.
             args = {'IgnorePreConditionWarnings': ignore_warnings,
-                    'QaPlanIdentity': 'Patient',
+                    'QaPlanIdentity': 'Phantom',
                     'ExportFolderPath': original,
                     'ExportExamination': False,
                     'ExportExaminationStructureSet': False,
@@ -301,7 +302,8 @@ def send(case,
         elif raygateway_args is not None:
 
             args = {'IgnorePreConditionWarnings': ignore_warnings,
-                    'QaPlanIdentity': 'Patient',
+                    'QaPlanIdentity': 'Phantom',
+                    'TomoOriginalPlanOverride': beamset.BeamSetIdentifier(),
                     'RayGatewayTitle': raygateway_args,
                     'ExportFolderPath': '',
                     'ExportExamination': True,
@@ -310,7 +312,7 @@ def send(case,
                     'ExportBeamSetDose': True,
                     'ExportBeamSetBeamDose': False}
 
-            qa_plan.ScriptableDicomExport(**args)
+            qa_plan.ScriptableQADicomExport(**args)
 
     elif raygateway_args is not None and len(destination) == 1:
         if 'anonymize' in info and info['anonymize']:
@@ -794,7 +796,7 @@ def send(case,
 
                 raise
 
-            assoc = NonT
+            assoc = None
 
         elif len({'host', 'aet', 'port'}.difference(info)) == 0:
             # Establish an AE
