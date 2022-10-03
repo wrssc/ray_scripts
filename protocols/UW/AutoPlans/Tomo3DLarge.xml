@@ -297,6 +297,7 @@
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
         <reduce_mod mod_target="2.2">True</reduce_mod>
+        <reduce_time>True</reduce_time>
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
         <block_prompt>True</block_prompt>
