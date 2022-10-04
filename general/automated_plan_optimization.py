@@ -78,10 +78,181 @@ __credits__ = ['']
 #
 
 import logging
+import sys
+import PySimpleGUI as sg
 
 import connect
 import UserInterface
 import OptimizationOperations
+
+
+def set_frame_visibility(window, visible_frame, frames_list):
+    invisible = [f for f in frames_list if f != visible_frame]
+    for i in invisible:
+        window[i].update(visible=False)
+    window[visible_frame].update(visible=True)
+
+
+def optimization_gui(beamset, optimization_inputs):
+    # OPTIMIZATION DIALOG
+    dialog_name = 'Optimization Inputs'
+    frame1 = '-FRAME INITIAL PARAMETERS-'
+    frame2 = '-FRAME ITERATION PARAMETERS-'
+    frame3 = '-FRAME POST OPTIMIZATION STEPS-'
+    k_fluence = '-FLUENCE ONLY-'
+    k_reset = '-RESET BEAMS-'
+    k_vary = '-VARIABLE DOSE GRID-'
+    k_seg = '-SEGMENT WEIGHT OPTIMIZATION-'
+    k_reduce = '-REDUCE OAR DOSE-'
+    k_treat = '-USE TREAT SETTINGS-'
+    k_cold_max = '-MAX COLD ITERATIONS-'
+    k_cold_int = '-MAX COLD INTERMEDIATE-'
+    k_warm_max = '-MAX WARM ITERATIONS-'
+    k_warm_int = '-MAX WARM INTERMEDIATE-'
+    k_num = '-NUMBER START ITERATIONS-'
+
+    frames = {frame3: "Post-Optimization Operations",
+              frame2: "Optimization Parameters",
+              frame1: "Initialization Parameters"}
+    check_boxes = {k_fluence: "Fluence calculation only, for dialing in parameters " +
+                              "all other values in this window will be ignored",
+                   k_reset: "Reset beams (cold start)",
+                   k_vary: "Start with a large grid, and decrease gradually",
+                   k_seg: "Segment weight calculation",
+                   k_reduce: "Reduce OAR Dose",
+                   k_treat: "Use Treatment Settings"}
+    text_fields = {k_cold_max: "Maximum number of iterations for initial optimization",
+                   k_cold_int: "Intermediate iteration for svd to aperture conversion",
+                   k_warm_max: "Maximum iteration used in warm starts",
+                   k_warm_int: "Intermediate iteration for full dose conversion warm starts (SMLC)",
+                   k_num: "Number of Iterations"}
+    bottom_frames_visible = False
+    sg.ChangeLookAndFeel('DarkBlue')
+    top = [
+        [sg.Text(dialog_name,
+                 size=(60, 1),
+                 justification='center',
+                 font=("Helvtica", 16),
+                 relief=sg.RELIEF_RIDGE, )
+         ],
+        [sg.Text(f"Please selected the optimization strategy for '{beamset.DicomPlanLabel}'")],
+        [
+            sg.Frame(
+                layout=[
+
+                    [sg.Checkbox(check_boxes[k_fluence],
+                                 default=True,
+                                 enable_events=True,
+                                 key=k_fluence)],
+                    [sg.Checkbox(check_boxes[k_reset],
+                                 default=False,
+                                 enable_events=False,
+                                 key=k_reset)],
+
+                ],
+                title=frames[frame1],
+                relief=sg.RELIEF_SUNKEN,
+                tooltip="Initialization Parameters for the optimization",
+                visible=True,
+                key=frame1,
+            )],
+        [
+            sg.Frame(
+                layout=[
+
+                    [sg.Text(text_fields[k_num]),
+                     sg.Input(4,
+                              key=k_num, )],
+
+                    [sg.Text(text_fields[k_cold_max]),
+                     sg.Input(50,
+                              key=k_cold_max)],
+
+                    [sg.Text(text_fields[k_cold_int]),
+                     sg.Input(10,
+                              key=k_cold_int)],
+
+                    [sg.Text(text_fields[k_warm_max]),
+                     sg.Input(35,
+                              key=k_warm_max)],
+
+                    [sg.Text(text_fields[k_warm_int]),
+                     sg.Input(5,
+                              key=k_warm_int)],
+
+                    [sg.Checkbox(check_boxes[k_treat],
+                                 enable_events=False,
+                                 default=True,
+                                 key=k_treat)],
+
+                ],
+                title=frames[frame2],
+                relief=sg.RELIEF_SUNKEN,
+                tooltip="Optimization steps",
+                visible=bottom_frames_visible,
+                key=frame2,
+            )],
+        [
+            sg.Frame(
+                layout=[
+                    [sg.Checkbox(check_boxes[k_vary],
+                                 enable_events=False,
+                                 key=k_vary)],
+                    [sg.Checkbox(check_boxes[k_reduce],
+                                 enable_events=False,
+                                 key=k_reduce)],
+                    [sg.Checkbox(check_boxes[k_seg],
+                                 enable_events=False,
+                                 key=k_seg)]
+                ],
+                title=frames[frame3],
+                relief=sg.RELIEF_SUNKEN,
+                tooltip="Post-optimization parameters",
+                visible=bottom_frames_visible,
+                key=frame3,
+            )
+        ]
+    ]
+    bottom = [
+        [
+            sg.Submit(tooltip='Click to accept and start optimization'),
+            sg.Cancel()
+        ]
+    ]
+    layout = [[sg.Column(top)], [sg.Column(bottom)]]
+    window = sg.Window(
+        'Automated Optimization Parameters',
+        layout,
+        default_element_size=(10, 1),
+        grab_anywhere=False
+    )
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cancel":
+            opt_values = None
+            break
+        elif event == "Submit":
+            opt_values = values
+            break
+        elif event.startswith(k_fluence):
+            for f in frames.keys():
+                window[f].update(visible=True)
+    window.close()
+    if not opt_values:
+        sys.exit('Dialog cancelled')
+    optimization_inputs['initial_max_it'] = int(opt_values[k_cold_max])
+    optimization_inputs['initial_int_it'] = int(opt_values[k_cold_int])
+    optimization_inputs['second_max_it'] = int(opt_values[k_warm_max])
+    optimization_inputs['second_int_it'] = int(opt_values[k_warm_int])
+    optimization_inputs['vary_grid'] = opt_values[k_vary]
+    optimization_inputs['fluence_only'] = opt_values[k_fluence]
+    optimization_inputs['reset_beams'] = opt_values[k_reset]
+    optimization_inputs['segment_weight'] = opt_values[k_seg]
+    optimization_inputs['reduce_oar'] = opt_values[k_reduce]
+    optimization_inputs['use_treat_settings'] = opt_values[k_treat]
+    optimization_inputs['n_iterations'] = int(opt_values[k_num])
+    return optimization_inputs
 
 
 def main():
@@ -110,141 +281,26 @@ def main():
     except SystemError:
         raise IOError("No beamset loaded")
 
-    # OPTIMIZATION DIALOG
-    #  Users will select use of:
-    # Fluence only - no aperture conversion
-    # Maximum number of iterations for the first optimization
-    optimization_dialog = UserInterface.InputDialog(
-        title='Optimization Inputs',
-        inputs={
-            'input01_fluence_only': 'Fluence calculation only, for dialing in parameters ' +
-                                    'all other values in this window will be ignored',
-            'input02_cold_start': 'Reset beams (cold start)',
-            'input03_cold_max_iteration': 'Maximum number of iterations for initial optimization',
-            'input04_cold_interm_iteration': 'Intermediate iteration for svd to aperture conversion',
-            'input05_ws_max_iteration': 'Maximum iteration used in warm starts ',
-            'input06_ws_interm_iteration': 'Intermediate iteration used in warm starts',
-            'input07_vary_dose_grid': 'Start with large grid, and decrease gradually',
-            'input08_n_iterations': 'Number of Iterations',
-            'input09_segment_weight': 'Segment weight calculation',
-            'input10_reduce_oar': 'Reduce OAR Dose',
-            'input11_use_treat': 'Use Treatment Settings',
-            # Small Target
-            # 'input11_small_target': 'Target size < 3 cm'
-        },
-        datatype={
-            'input07_vary_dose_grid': 'check',
-            'input01_fluence_only': 'check',
-            'input02_cold_start': 'check',
-            'input09_segment_weight': 'check',
-            'input10_reduce_oar': 'check',
-            'input11_use_treat': 'check',
-            # 'input11_small_target': 'check'
-        },
-        initial={'input03_cold_max_iteration': '50',
-                 'input04_cold_interm_iteration': '10',
-                 'input05_ws_max_iteration': '35',
-                 'input06_ws_interm_iteration': '5',
-                 'input08_n_iterations': '4',
-                 'input09_segment_weight': ['Perform Segment Weighted optimization'],
-                 'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
-                 'input11_use_treat': ['Use Treat Settings'],
-                 # Small Target
-                 # 'input11_small_target': ['Target size < 3 cm - limit jaws']
-                 },
-        options={
-            'input01_fluence_only': ['Fluence calc'],
-            'input02_cold_start': ['Reset Beams'],
-            'input07_vary_dose_grid': ['Variable Dose Grid'],
-            'input09_segment_weight': ['Perform Segment Weighted optimization'],
-            'input10_reduce_oar': ['Perform reduce OAR dose before completion'],
-            'input11_use_treat': ['Use Treat Settings'],
-            # Small Target
-            # 'input11_small_target': ['Target size < 3 cm - limit jaws']
-        },
-        required=[])
-    optimization_dialog.show()
-
-    # DATA PARSING FOR THE OPTIMIZATION MENU
-    # Determine if variable dose grid is selected
-    try:
-        if 'Variable Dose Grid' in optimization_dialog.values['input07_vary_dose_grid']:
-            vary_dose_grid = True
-        else:
-            vary_dose_grid = False
-    except KeyError:
-        vary_dose_grid = False
-    # USE treat settings
-    try:
-        if 'Use Treat settings' in optimization_dialog.values['input11_use_treat']:
-            use_treat_settings = True
-        else:
-            use_treat_settings = False
-    except KeyError:
-        use_treat_settings = True
-    # SVD to DAO calc for cold start (first optimization)
-    try:
-        if 'Fluence calc' in optimization_dialog.values['input01_fluence_only']:
-            fluence_only = True
-        else:
-            fluence_only = False
-    except KeyError:
-        fluence_only = False
-
-    # Despite a calculated beam, reset and start over
-    try:
-        if 'Reset Beams' in optimization_dialog.values['input02_cold_start']:
-            reset_beams = True
-        else:
-            reset_beams = False
-    except KeyError:
-        reset_beams = False
-
-    # Perform a segment weight optimization after the aperture optimization
-    try:
-        if 'Perform Segment Weighted optimization' in optimization_dialog.values['input09_segment_weight']:
-            segment_weight = True
-        else:
-            segment_weight = False
-    except KeyError:
-        segment_weight = False
-
-    # Despite a calculated beam, reset and start over
-    try:
-        if 'Perform reduce OAR dose before completion' in optimization_dialog.values['input10_reduce_oar']:
-            reduce_oar = True
-        else:
-            reduce_oar = False
-    except KeyError:
-        reduce_oar = False
-    # Despite a calculated beam, reset and start over
-    # Small Target
-    # try:
-    #     if 'Target size < 3 cm - limit jaws' in optimization_dialog.values['input11_small_target']:
-    #         small_target = True
-    #     else:
-    #         small_target = False
-    # except KeyError:
-    #     small_target = False
     optimization_inputs = {
-        'initial_max_it': int(optimization_dialog.values['input03_cold_max_iteration']),
-        'initial_int_it': int(optimization_dialog.values['input04_cold_interm_iteration']),
-        'second_max_it': int(optimization_dialog.values['input05_ws_max_iteration']),
-        'second_int_it': int(optimization_dialog.values['input06_ws_interm_iteration']),
-        'vary_grid': vary_dose_grid,
+        'initial_max_it': None,
+        'initial_int_it': None,
+        'second_max_it': None,
+        'second_int_it': None,
+        'vary_grid': None,
         'dose_dim1': 0.5,
         'dose_dim2': 0.4,
         'dose_dim3': 0.3,
         'dose_dim4': 0.2,
-        'fluence_only': fluence_only,
-        'reset_beams': reset_beams,
-        'segment_weight': segment_weight,
-        'reduce_oar': reduce_oar,
-        'use_treat_settings': use_treat_settings,
+        'fluence_only': None,
+        'reset_beams': None,
+        'segment_weight': None,
+        'reduce_oar': None,
+        'use_treat_settings': None,
         'save': True,
         # Small Target
         # 'small_target': small_target,
-        'n_iterations': int(optimization_dialog.values['input08_n_iterations'])}
+        'n_iterations': None, }
+    optimization_inputs = optimization_gui(beamset, optimization_inputs)
 
     (status, message) = OptimizationOperations.optimize_plan(patient=Patient,
                                                              case=case,
