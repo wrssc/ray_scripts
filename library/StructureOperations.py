@@ -1392,6 +1392,16 @@ def iter_standard_rois(etree):
                 roi[exp_key] = []
 
         try:
+            if r.find("Export").text == "False":
+                roi["ExcludeExport"] = True
+            else:
+                roi["ExcludeExport"] = False
+        except AttributeError:
+            roi["ExcludeExport"] = False
+        except TypeError:
+            roi["ExcludeExport"] = False
+
+        try:
             roi["FMAID"] = r.find("FMAID").text
         except AttributeError:
             roi["FMAID"] = None
@@ -1585,63 +1595,71 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
     regex_prv = r"^" + source_roi + r"_PRV\d{2}$"
     df_prv = df_TG263[df_TG263.name.str.match(regex_prv) == True]
     msg = []
+    # If one or more PRVxx structure is found, loop over all rows in the matching
+    # DataFrame
     if not df_prv.empty:
-        parsed_name = df_prv.name.str.extract(
-            r"([a-zA-z_]+)([0-9]+)", re.IGNORECASE, expand=True
-        )
-        expansion_mm = int(parsed_name[1])
-        expansion_cm = expansion_mm / 10.0
-        prv_name = df_prv.name.values[0]
-        if df_prv.RGBColor.values[0] is not None:
-            prv_rgb = [int(x) for x in df_prv.RGBColor.values[0]]
-        else:
-            prv_rgb = None
-        if df_prv.RTROIInterpretedType.values[0] is not None:
-            prv_type = df_prv.RTROIInterpretedType.values[0]
-        else:
-            prv_type = None
-
-        prv_exp_defs = {
-            "StructureName": prv_name,
-            "ExcludeFromExport": True,
-            "VisualizeStructure": False,
-            "StructColor": prv_rgb,
-            "OperationA": "Union",
-            "SourcesA": [source_roi],
-            "MarginTypeA": "Expand",
-            "ExpA": [expansion_cm] * 6,
-            "OperationB": "Union",
-            "SourcesB": [],
-            "MarginTypeB": "Expand",
-            "ExpB": [0] * 6,
-            "OperationResult": "None",
-            "MarginTypeR": "Expand",
-            "ExpR": [0] * 6,
-            "StructType": prv_type,
-        }
-        if any(exists_roi(case=case, rois=prv_name)):
-            roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
-                prv_name
-            ]
-        else:
-            roi_geom = create_roi(
-                case=case,
-                examination=examination,
-                roi_name=prv_name,
-                delete_existing=True,
+        for i, r in df_prv.iterrows():
+            parsed_name = df_prv.loc[[i]].name.str.extract(
+                r"([a-zA-z_]+)([0-9]+)", re.IGNORECASE, expand=True
             )
+            expansion_mm = int(parsed_name[1])
+            expansion_cm = expansion_mm / 10.0
+            prv_name = df_prv.loc[[i]].name.values[0]
+            if df_prv.loc[[i]].RGBColor.values[0] is not None:
+                prv_rgb = [int(x) for x in df_prv.loc[[i]].RGBColor.values[0]]
+            else:
+                prv_rgb = None
+            if df_prv.loc[[i]].RTROIInterpretedType.values[0] is not None:
+                prv_type = df_prv.loc[[i]].RTROIInterpretedType.values[0]
+            else:
+                prv_type = None
+            if df_prv.loc[[i]].ExcludeExport.values[0] is not None:
+                logging.debug(f"Export has a value {df_prv.loc[[i]].ExcludeExport.values[0]}, " +
+                              f"type {type(df_prv.loc[[i]].ExcludeExport.values[0])}")
+                export = df_prv.loc[[i]].ExcludeExport.values[0]
+            else:
+                logging.debug('No export value')
+                export = False
 
-        if roi_geom is not None:
-            make_boolean_structure(
-                patient=patient, case=case, examination=examination, **prv_exp_defs
-            )
-            return None
-        else:
-            msg.append("Unable to create {}".format(prv_name))
-            return msg
+            prv_exp_defs = {
+                "StructureName": prv_name,
+                "ExcludeFromExport": export,
+                "VisualizeStructure": False,
+                "StructColor": prv_rgb,
+                "OperationA": "Union",
+                "SourcesA": [source_roi],
+                "MarginTypeA": "Expand",
+                "ExpA": [expansion_cm] * 6,
+                "OperationB": "Union",
+                "SourcesB": [],
+                "MarginTypeB": "Expand",
+                "ExpB": [0] * 6,
+                "OperationResult": "None",
+                "MarginTypeR": "Expand",
+                "ExpR": [0] * 6,
+                "StructType": prv_type,
+            }
+            if any(exists_roi(case=case, rois=prv_name)):
+                roi_geom = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                    prv_name
+                ]
+            else:
+                roi_geom = create_roi(
+                    case=case,
+                    examination=examination,
+                    roi_name=prv_name,
+                    delete_existing=True,
+                )
+
+            if roi_geom is not None:
+                make_boolean_structure(
+                    patient=patient, case=case, examination=examination, **prv_exp_defs
+                )
+            else:
+                msg.append("Unable to create {}".format(prv_name))
     else:
         msg.append("{} does not need a planning risk volume".format(source_roi))
-        return msg
+    return msg
 
 
 def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
