@@ -13,16 +13,15 @@
     -Asks user to load the transfer plan
     -Generates a dqa for this transfer plan on the centered delta 4
     -Sends the QA plan to delta 4
-    -prompts user to send plan to iDMS
-    -Exports using the ValidationPlan.ScriptableQADicomExport method.
+    -Sends the QA plan to iDMS
     -Copies pertinent data to the user clipboard.
-    TODO: When export to the RayGateWay is supported using the above method,
-          enable multiple destinations to be selected.
+    TODO: Enable DSP searching when isocenter dose is low
 
     Version:
     0.0.0 Testing
     0.0.1 Changed format of output message
     0.0.2 Debugging small changes in the 11 B interface and improving user dialogs
+    1.0.0 Release post debug
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -40,7 +39,7 @@
 __author__ = 'Adam Bayliss and Patrick Hill'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '09-Aug-2022'
-__version__ = '0.0.2'
+__version__ = '1.0.0'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = ''
@@ -173,7 +172,7 @@ def find_qa_plan(plan, beamset, qa_plan_name):
     return None
 
 
-def create_qa(beamset, phantom, qa_plan_name, phantom_id, iso, dosegrid):
+def create_qa(beamset, phantom, qa_plan_name, phantom_id, iso, dosegrid, rot=None):
     try:
         beamset.CreateQAPlan(
             PhantomName=phantom,
@@ -183,7 +182,7 @@ def create_qa(beamset, phantom, qa_plan_name, phantom_id, iso, dosegrid):
             DoseGrid=dosegrid,
             GantryAngle=None,
             CollimatorAngle=None,
-            CouchRotationAngle=None,
+            CouchRotationAngle=rot,
             ComputeDoseWhenPlanIsCreated=True,
             NumberOfMonteCarloHistories=None,
             MotionSynchronizationTechniqueSettings=None,
@@ -201,7 +200,8 @@ def make_vmat_qa_plan(plan, beamset, qa_plan_name):
                           phantom_id=clinic_options['--VMAT_PHANTOM_ID--'],
                           qa_plan_name=qa_plan_name,
                           iso={'x': 0, 'y': 0, 'z': 0},
-                          dosegrid={'x': 0.2, 'y': 0.2, 'z': 0.2})
+                          dosegrid={'x': 0.2, 'y': 0.2, 'z': 0.2},
+                          rot=0)
     if qa_status == "success":
         qa_plan = find_qa_plan(plan, beamset, qa_plan_name)
         return qa_plan
