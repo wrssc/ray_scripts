@@ -353,7 +353,7 @@ def check_tomo_isocenter(rso):
     else:
         pass_result = FAIL
         message_str = "Isocenter [{}] lateral shift is inconsistent with indexing: {} > {} cm!".format(
-            rso.beamset.Beams[0].Isocenter.Name,
+            rso.beamset.Beams[0].Isocenter.Annotation.Name,
             iso_pos_x,
             TOMO_DATA['LATERAL_ISO_MARGIN'])
     return pass_result, message_str
