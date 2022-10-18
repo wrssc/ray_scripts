@@ -695,15 +695,27 @@ def modify_tomo_beam_properties(settings, plan, beamset, beam):
                             max_delivery_time_factor = settings['max_delivery_time_factor']
                         else:
                             max_delivery_time_factor = bs.TomoPropertiesPerBeam.MaxDeliveryTimeFactor
-                        bs.TomoPropertiesPerBeam.EditTomoBasedBeamOptimizationSettings(
-                            JawMode=jaw_mode,
-                            PitchTomoHelical=pitch_tomo_helical,
-                            PitchTomoDirect=pitch_tomo_direct,
-                            BackJawPosition=back_jaw_position,
-                            FrontJawPosition=front_jaw_position,
-                            MaxDeliveryTime=max_delivery_time,
-                            MaxGantryPeriod=max_gantry_period,
-                            MaxDeliveryTimeFactor=max_delivery_time_factor)
+                        try:
+                            bs.TomoPropertiesPerBeam.EditTomoBasedBeamOptimizationSettings(
+                                JawMode=jaw_mode,
+                                PitchTomoHelical=pitch_tomo_helical,
+                                PitchTomoDirect=pitch_tomo_direct,
+                                BackJawPosition=back_jaw_position,
+                                FrontJawPosition=front_jaw_position,
+                                MaxDeliveryTime=max_delivery_time,
+                                MaxGantryPeriod=max_gantry_period,
+                                MaxDeliveryTimeFactor=max_delivery_time_factor)
+                        except Exception as e:
+                            try:
+                                if 'No changes to save' in e.Message:
+                                    logging.info('No changes to save in modifying tomo beam properties')
+                                    pass
+                                else:
+                                    logging.exception(u'{}'.format(e.Message))
+                                    sys.exit(u'{}'.format(e.Message))
+                            except:
+                                logging.exception("EXCEPTION OF Unknown Type")
+                                sys.exit(u'{}'.format(e))
 
 
 def gather_tomo_beam_params(beamset):
