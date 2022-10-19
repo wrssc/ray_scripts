@@ -412,6 +412,7 @@ def get_beamset_level_tests(rso, physics_review=True):
             rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
             beamset_checks_dict["Beamset Complexity"] = (BeamSetReviewTests.compute_beam_properties, {})
             beamset_checks_dict["EDW MU Check"] = (BeamSetReviewTests.check_edw_MU, {})
+            beamset_checks_dict["EDW FieldSize Check"] = (BeamSetReviewTests.check_edw_field_size, {})
         except Exception as e:
             logging.debug('Cannot check beamsets yet {}'.format(str(e)))
     elif 'Tomo' in technique:
