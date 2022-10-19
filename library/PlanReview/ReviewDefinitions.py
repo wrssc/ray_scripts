@@ -33,8 +33,6 @@ PACEMAKER_DISTANCE_TOLERANCE = 2.  # cm distance from which we want the 2 Gy lin
 # PLANNING DEFAULTS
 DOSE_FRACTION_PAIRS = [(4, 2000), (5, 2000)]  # Often mixed up fractionations
 #
-EDW_MU_LIMIT = 20.
-#
 # DOSE TOLERANCES
 NO_FLY_DOSE = 100.  # cGy
 PACEMAKER_DOSE = 200.  # cGy
@@ -44,7 +42,7 @@ DOSE_GRID_DEFAULT = 0.2  # 2 mm
 
 GRID_PREFERENCES = {
     'SBRT': {
-        'PLAN_NAMES': ['LUL', 'LLL', 'RUL', 'RML', 'RLL',
+        'PLAN_NAMES': ['LUL', 'LLL', 'RUL', 'RML', 'RLL', 'LunR_SBR', 'LunL_SBR',
                        'LuLU_SBR', 'LuLL_SBR', 'LuRU_SBR', 'LuRM_SBR', 'LuRL_SBR',
                        'BreR_SBR', 'BreL_SBR', 'Abdo_SBR', 'LivR_SBR', 'Panc_SBR',
                        'Pelv_SBR', 'HipR_SBR', 'HipL_SBR'],
@@ -114,4 +112,11 @@ TOMO_DATA = {'MACHINES': ['HDA0488', 'HDA0477'],
 
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
-                              'Sframe_F1_TBCouch_HN']}
+                              'Sframe_F1_TBCouch_HN'],
+                 'EDW_LIMITS': {'MU_LIMIT': 20.,
+                                'Y2-OUT': 10.,  # Y2=OUT: -10 cm ≤ Y1 ≤ 10 cm
+                                'Y1-IN': 10.,  # Y1=IN : -10 cm ≤ Y2 ≤ 10 cm
+                                'Y-MIN': 4.,  # Y2 - Y1 ≥ 4 cm
+                                'Y-MAX': 30.,  # Y2 - Y1 ≤ 30 cm
+                                'X-MAX': 40.,  # X2 - X1 ≤ 40 cm
+                                }}

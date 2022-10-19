@@ -229,6 +229,39 @@ def parse_log_file(lines, parent_key, phrases=KEEP_PHRASES):
     return message
 
 
+def parse_treatment_planning_order_selection(beamset_name, messages, dialog_key):
+    """
+    Using the beamset name and the log file, use regex to find a phrase identifying the
+    template name used in the treatment planning order for this beamset.
+    Args:
+        beamset_name: <str> name of current beamset
+        messages: [ <str> ]: list of strings
+        dialog_key: key to be used for top level entry in the tree
+
+    Returns:
+
+    TODO: Take a reg-exp as a list for input for matching a dialog and for each desired phrase
+          loop over the phrases for a match
+    TODO: Add the target matching that takes place for this step with consideration of the
+          pre-logcrit syntax and post-logcrit syntax
+
+
+    """
+    # Parse the dialogs for specific key phrases related to the beamset dialog
+    beamset_template_searches = {'Dialog': re.compile(
+        r'(Treatment Planning Order selected:\s?)(.*)$')}
+    template_data = {dialog_key: (ALERT,
+                                  f'Treatment Planning for Beamset {beamset_name} goals manually defined')}
+    for m in messages:
+        template_search = re.search(beamset_template_searches['Dialog'], m[3])
+        if template_search and beamset_name in m[1]:
+            # Found the TPO Dialog. Lets display it
+            # Note that it is a little sloppy, since this will always grab the last match in the log file
+            k, template_name = template_search.groups()
+            template_data[dialog_key] = (None, template_name)
+    return template_data
+
+
 def parse_beamset_selection(beamset_name, messages, dialog_key):
     # Go in here and if the message line matches the beamset_name
     # then return all the choices in this dialog as a list of tuples
@@ -291,7 +324,7 @@ def build_tree_element(parent_key, child_key, pass_result, message_str):
 
 
 def parse_level_tests(level_tests):
-    # Insert Beamset Level Nodes
+    # Insert Level Nodes
     pass_str = PASS
     level_pass = pass_str
     icon = GREEN_CIRCLE
@@ -338,7 +371,7 @@ def get_exam_level_tests(rso):
     return patient_checks_dict
 
 
-def get_plan_level_tests(rso, physics_review=False):
+def get_plan_level_tests(rso, physics_review=True):
     plan_checks_dict = {
         "Plan approval status":
             (PlanReviewTests.check_plan_approved, {"physics_review": physics_review})
@@ -346,7 +379,7 @@ def get_plan_level_tests(rso, physics_review=False):
     return plan_checks_dict
 
 
-def get_beamset_level_tests(rso, physics_review=False):
+def get_beamset_level_tests(rso, physics_review=True):
     beamset_checks_dict = {
         "Beamset approval status":
             (BeamSetReviewTests.check_beamset_approved, {"physics_review": physics_review}),
@@ -379,6 +412,7 @@ def get_beamset_level_tests(rso, physics_review=False):
             rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
             beamset_checks_dict["Beamset Complexity"] = (BeamSetReviewTests.compute_beam_properties, {})
             beamset_checks_dict["EDW MU Check"] = (BeamSetReviewTests.check_edw_MU, {})
+            beamset_checks_dict["EDW FieldSize Check"] = (BeamSetReviewTests.check_edw_field_size, {})
         except Exception as e:
             logging.debug('Cannot check beamsets yet {}'.format(str(e)))
     elif 'Tomo' in technique:
@@ -532,6 +566,24 @@ def check_plan(physics_review=True):
                                          pass_result=v[0],
                                          message_str=v[1])
             beamset_level_tests.extend(message)
+    # Read the treatment planning order selection
+    dialog_key = 'Treatment Planning Order Selection'
+    tpo_dialog = parse_treatment_planning_order_selection(beamset_name=rso.beamset.DicomPlanLabel,
+                                                          messages=message_logs,
+                                                          dialog_key=dialog_key)
+    message = build_tree_element(parent_key=beamset_key[0],
+                                 child_key=dialog_key,
+                                 pass_result=tpo_dialog[dialog_key][0],
+                                 message_str=tpo_dialog[dialog_key][1])
+    beamset_level_tests.extend(message)
+    for k, v in tpo_dialog.items():
+        if k != dialog_key:
+            message = build_tree_element(parent_key=dialog_key,
+                                         child_key=k,
+                                         pass_result=v[0],
+                                         message_str=v[1])
+            beamset_level_tests.extend(message)
+
     # Run others
     for key, b_func in beamset_checks_dict.items():
         pass_result, message = b_func[0](rso=rso, **b_func[1])
@@ -579,7 +631,7 @@ def check_plan(physics_review=True):
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
         elif event in 'Ok':
-            if test_results:
+            if test_results and not physics_review:
                 now = datetime.now()
                 dt_string = now.strftime("(%H:%M) %B %d, %Y")
                 logging.warning("Review Script Warnings/Errors present at {}".format(dt_string))
