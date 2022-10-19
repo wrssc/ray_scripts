@@ -72,7 +72,7 @@ import clr
 import os
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../development/ReviewScript'))
-import init_physics_sep22
+import init_physics_19oct2022
 
 clr.AddReference("System.Xml")
 import System
@@ -182,7 +182,7 @@ def final_dose(site=None, technique=None):
         BeamOperations.rename_beams(site_name=site, input_technique=technique)
         status.next_step('Renamed Beams, checking external integrity')
 
-    init_physics_sep22.main(physics_review=False)
+    init_physics_19oct2022.main(physics_review=False)
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
     if external_test:
         external_error = True
