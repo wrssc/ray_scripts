@@ -1924,7 +1924,9 @@ def filter_leaves(beam):
     b = s0.JawPositions[3] - s0.JawPositions[2]
     equivalent_square_field_size = 2 * a * b / (a + b)
     if equivalent_square_field_size < 3.:
+        # TODO: Reenable for small field sizes or use offset
         mlc_filter = True
+        mlc_filter = False
     else:
         mlc_filter = False
 
