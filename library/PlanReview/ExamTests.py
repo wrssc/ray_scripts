@@ -612,11 +612,11 @@ def match_image_directions(rso):
     pass_result = PASS
     if col_dir != stack_details['direction_column'] or \
             sli_dir != stack_details['direction_slice']:
-        message_str.append('Exam {} has been rotated and will not transfer to iDMS!'.format(rso.exam.Name))
+        message_str += f"Exam {rso.exam.Name} has been rotated and will not transfer to iDMS!"
         pass_result = FAIL
     if row_dir != stack_details['direction_row']:
-        message_str.append('Exam {} has been rotated or was acquired'.format(rso.exam.Name)
-                           + ' with gantry tilt and should be reoriented!')
+        message_str += f"Exam {rso.exam.Name} has been rotated or was acquired" \
+                       + " with gantry tilt and should be reoriented!"
         pass_result = FAIL
     if not message_str:
         message_str = 'Image set {} is not rotated'.format(rso.exam.Name)
