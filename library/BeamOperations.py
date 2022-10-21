@@ -1723,10 +1723,16 @@ class mlc_properties:
         threshold = 1e-6
         if not self.has_segments:
             return None
-        leaf_gaps = np.empty_like(self.banks, dtype=bool)
-        leaf_gaps[:, 0, :] = abs(self.banks[:, 0, :] - self.banks[:, 1, :]) < \
-                             (1 + threshold) * self.min_gap_moving
-        leaf_gaps[:, 1, :] = leaf_gaps[:, 0, :]
+        elif self.number_segments > 1:
+            leaf_gaps = np.empty_like(self.banks, dtype=bool)
+            leaf_gaps[:, 0, :] = abs(self.banks[:, 0, :] - self.banks[:, 1, :]) < \
+                                 (1 + threshold) * self.min_gap_moving
+            leaf_gaps[:, 1, :] = leaf_gaps[:, 0, :]
+        else:
+            leaf_gaps = np.empty_like(self.banks, dtype=bool)
+            leaf_gaps[:, 0] = abs(self.banks[:, 0] - self.banks[:, 1]) < \
+                              (1 + threshold) * self.min_gap_moving
+            leaf_gaps[:, 1] = leaf_gaps[:, 0]
         return leaf_gaps
 
     def max_opening(self):
@@ -1924,7 +1930,6 @@ def filter_leaves(beam):
     b = s0.JawPositions[3] - s0.JawPositions[2]
     equivalent_square_field_size = 2 * a * b / (a + b)
     if equivalent_square_field_size < 3.:
-        # TODO: Reenable for small field sizes or use offset
         mlc_filter = True
         mlc_filter = False
     else:
