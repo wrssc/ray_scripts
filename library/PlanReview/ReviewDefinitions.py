@@ -119,4 +119,5 @@ TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                                 'Y-MIN': 4.,  # Y2 - Y1 ≥ 4 cm
                                 'Y-MAX': 30.,  # Y2 - Y1 ≤ 30 cm
                                 'X-MAX': 40.,  # X2 - X1 ≤ 40 cm
+                                'X-MIN': 4.,  # X2 - X1 ≥ 4 cm
                                 }}

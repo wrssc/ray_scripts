@@ -341,6 +341,10 @@ def check_edw_field_size(rso):
                 passing = False
                 edw_message += f"{bn} X-Jaw Overextended:{x2 - x1:.2f} > " \
                                + f"{TRUEBEAM_DATA['EDW_LIMITS']['X-MAX']}. "
+            elif x2 - x1 < TRUEBEAM_DATA['EDW_LIMITS']['X-MIN']:
+                passing = False
+                edw_message += f"{bn} X-Jaw Field Too Small: {x2 - x1:.2f} < " \
+                               + f"{TRUEBEAM_DATA['EDW_LIMITS']['X-MIN']}. "
             elif orientation == 'In':
                 if y2 < -1. * TRUEBEAM_DATA['EDW_LIMITS']['Y1-IN'] \
                         or y2 > TRUEBEAM_DATA['EDW_LIMITS']['Y1-IN']:
