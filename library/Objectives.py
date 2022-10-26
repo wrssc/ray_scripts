@@ -853,7 +853,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     # Potential inputs, patient, case, exam, beamset, protocol path, filename
     if target_map:
         for k, v in target_map.items():
-            logging.debug('Targets are {}:{}'.format(k, v))
+            logcrit('Targets are {}:{}'.format(k, v))
     if run_status:
         status = UserInterface.ScriptStatus(
             steps=['Finding correct protocol',
@@ -1102,10 +1102,10 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     if target_map:
         translation_map = target_map
         for k, v in target_map.items():
-            logging.debug('Targets are {}{}'.format(k, v))
+            logcrit('Targets are {}{}'.format(k, v))
     else:
         for k, v in translation_map.items():
-            logging.debug('Targets are {}{}'.format(k, v))
+            logcrit('Targets are {}{}'.format(k, v))
 
     if run_status:
         status.next_step(text="Adding goals.", num=3)
