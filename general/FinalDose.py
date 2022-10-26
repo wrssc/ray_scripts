@@ -56,7 +56,7 @@ __maintainer__ = 'Adam Bayliss'
 
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__help__ = 'https://github.com/wrrsc/ray_scripts/wiki/Final_Dose'
+__help__ = ''
 __copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 
 import logging
