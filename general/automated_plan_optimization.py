@@ -84,13 +84,16 @@ import PySimpleGUI as sg
 import connect
 import UserInterface
 import OptimizationOperations
+from GeneralOperations import logcrit as logcrit
+from GeneralOperations import find_scope as find_scope
 
 
 def set_frame_visibility(window, visible_frame, frames_list):
-    invisible = [f for f in frames_list if f != visible_frame]
-    for i in invisible:
-        window[i].update(visible=False)
-    window[visible_frame].update(visible=True)
+    for f in frames_list.keys():
+        if f in visible_frame:
+            window[f].update(visible=True)
+        else:
+            window[f].update(visible=False)
 
 
 def optimization_gui(beamset, optimization_inputs):
@@ -99,12 +102,18 @@ def optimization_gui(beamset, optimization_inputs):
     frame1 = '-FRAME INITIAL PARAMETERS-'
     frame2 = '-FRAME ITERATION PARAMETERS-'
     frame3 = '-FRAME POST OPTIMIZATION STEPS-'
+    frame4 = '-FRAME CUSTOM TREATMENT SETTINGS-'
     k_fluence = '-FLUENCE ONLY-'
     k_reset = '-RESET BEAMS-'
     k_vary = '-VARIABLE DOSE GRID-'
     k_seg = '-SEGMENT WEIGHT OPTIMIZATION-'
-    k_reduce = '-REDUCE OAR DOSE-'
+    k_reduce_oar = '-REDUCE OAR DOSE-'
+    k_reduce_time = '-REDUCE TOMO TREATMENT TIME-'
     k_treat = '-USE TREAT SETTINGS-'
+    k_treat_c = '-CUSTOM-'
+    k_treat_d = '-DEFAULT-'
+    k_treat_n = '-NONE-'
+    k_treat_margin = '-CUSTOM TREATMENT MARGINS-'
     k_cold_max = '-MAX COLD ITERATIONS-'
     k_cold_int = '-MAX COLD INTERMEDIATE-'
     k_warm_max = '-MAX WARM ITERATIONS-'
@@ -113,26 +122,135 @@ def optimization_gui(beamset, optimization_inputs):
 
     frames = {frame3: "Post-Optimization Operations",
               frame2: "Optimization Parameters",
-              frame1: "Initialization Parameters"}
+              frame1: "Initialization Parameters",
+              frame4: "Custom Treatment Settings"}
     check_boxes = {k_fluence: "Fluence calculation only, for dialing in parameters " +
                               "all other values in this window will be ignored",
                    k_reset: "Reset beams (cold start)",
                    k_vary: "Start with a large grid, and decrease gradually",
                    k_seg: "Segment weight calculation",
-                   k_reduce: "Reduce OAR Dose",
-                   k_treat: "Use Treatment Settings"}
+                   k_reduce_oar: "Reduce OAR Dose",
+                   k_reduce_time: "Reduce TomoTherapy Treatment Time"}
+    radio_buttons = {
+        k_treat: {
+            k_treat_d: "Use Default Treatment Settings",
+            k_treat_n: "No Treat Modifications",
+            k_treat_c: "Use Custom Treatment Settings"}
+    }
     text_fields = {k_cold_max: "Maximum number of iterations for initial optimization",
                    k_cold_int: "Intermediate iteration for svd to aperture conversion",
                    k_warm_max: "Maximum iteration used in warm starts",
                    k_warm_int: "Intermediate iteration for full dose conversion warm starts (SMLC)",
-                   k_num: "Number of Iterations"}
-    bottom_frames_visible = False
+                   k_num: "Number of Iterations",
+                   k_treat_margin: "Custom treat margins SBRT(<3 mm), Standard(<8 mm)"}
     sg.ChangeLookAndFeel('DarkBlue')
+
+    vmat_frame2_layout = [
+        [sg.Push(), sg.Text(text_fields[k_num]),
+         sg.Input(4, key=k_num, )],
+
+        [sg.Push(), sg.Text(text_fields[k_cold_max]),
+         sg.Input(50, key=k_cold_max)],
+
+        [sg.Push(), sg.Text(text_fields[k_cold_int]),
+         sg.Input(10, key=k_cold_int)],
+
+        [sg.Push(), sg.Text(text_fields[k_warm_max]),
+         sg.Input(35, key=k_warm_max)],
+
+        [sg.Push(), sg.Text(text_fields[k_warm_int]),
+         sg.Input(5, key=k_warm_int)],
+
+        [sg.Radio(radio_buttons[k_treat][k_treat_d],
+                  group_id=k_treat,
+                  enable_events=True,
+                  default=True,
+                  visible=True,
+                  key=k_treat_d),
+         sg.Radio(radio_buttons[k_treat][k_treat_c],
+                  group_id=k_treat,
+                  enable_events=True,
+                  default=False,
+                  visible=True,
+                  key=k_treat_c, ),
+         sg.Radio(radio_buttons[k_treat][k_treat_n],
+                  group_id=k_treat,
+                  enable_events=True,
+                  default=False,
+                  visible=True,
+                  key=k_treat_n,
+                  ),
+         ],
+        [sg.Frame(
+            layout=[
+                [sg.Text(text_fields[k_treat_margin])],
+                [sg.Input(2.5, key=k_treat_margin)]
+            ],
+            title=frames[frame4],
+            relief=sg.RELIEF_SUNKEN,
+            tooltip="Use margins ≤ 3 mm for SBRT(1.5 mm default) and ≤ 8 mm for others",
+            visible=False,
+            pad=((240, 0), 0),
+            key=frame4
+        )]
+    ]
+    vmat_frame3_layout = [[sg.Checkbox(check_boxes[k_vary],
+                                       default=False,
+                                       enable_events=False,
+                                       key=k_vary)],
+                          [sg.Checkbox(check_boxes[k_reduce_oar],
+                                       default=False,
+                                       visible=True,
+                                       enable_events=False,
+                                       key=k_reduce_oar)],
+                          [sg.Checkbox(check_boxes[k_seg],
+                                       default=False,
+                                       visible=True,
+                                       enable_events=False,
+                                       key=k_seg)],
+                          ]
+
+    tomo_frame2_layout = [
+        [sg.Push(), sg.Text(text_fields[k_num]),
+         sg.Input(4, key=k_num, )],
+
+        [sg.Push(), sg.Text(text_fields[k_cold_max]),
+         sg.Input(50, key=k_cold_max)],
+
+        [sg.Push(), sg.Text(text_fields[k_cold_int]),
+         sg.Input(10, key=k_cold_int)],
+
+        [sg.Push(), sg.Text(text_fields[k_warm_max]),
+         sg.Input(35, key=k_warm_max)],
+
+        [sg.Push(), sg.Text(text_fields[k_warm_int]),
+         sg.Input(5, key=k_warm_int)],
+    ]
+    tomo_frame3_layout = [[sg.Checkbox(check_boxes[k_vary],
+                                       default=False,
+                                       enable_events=False,
+                                       key=k_vary)],
+                          [sg.Checkbox(check_boxes[k_reduce_time],
+                                       default=False,
+                                       enable_events=False,
+                                       visible=True,
+                                       k=k_reduce_time)]
+                          ]
+    if "Tomo" in beamset.DeliveryTechnique:
+        frame2_layout = tomo_frame2_layout
+        frame3_layout = tomo_frame3_layout
+        frames.pop(frame4)
+        tomo_dialog = True
+    else:
+        frame2_layout = vmat_frame2_layout
+        frame3_layout = vmat_frame3_layout
+        tomo_dialog = False
+
     top = [
         [sg.Text(dialog_name,
-                 size=(60, 1),
+                 size=(55, 1),
                  justification='center',
-                 font=("Helvtica", 16),
+                 font=("Helvetica", 16),
                  relief=sg.RELIEF_RIDGE, )
          ],
         [sg.Text(f"Please selected the optimization strategy for '{beamset.DicomPlanLabel}'")],
@@ -154,61 +272,27 @@ def optimization_gui(beamset, optimization_inputs):
                 relief=sg.RELIEF_SUNKEN,
                 tooltip="Initialization Parameters for the optimization",
                 visible=True,
+                size=(663, 80),
                 key=frame1,
             )],
         [
             sg.Frame(
-                layout=[
-
-                    [sg.Text(text_fields[k_num]),
-                     sg.Input(4,
-                              key=k_num, )],
-
-                    [sg.Text(text_fields[k_cold_max]),
-                     sg.Input(50,
-                              key=k_cold_max)],
-
-                    [sg.Text(text_fields[k_cold_int]),
-                     sg.Input(10,
-                              key=k_cold_int)],
-
-                    [sg.Text(text_fields[k_warm_max]),
-                     sg.Input(35,
-                              key=k_warm_max)],
-
-                    [sg.Text(text_fields[k_warm_int]),
-                     sg.Input(5,
-                              key=k_warm_int)],
-
-                    [sg.Checkbox(check_boxes[k_treat],
-                                 enable_events=False,
-                                 default=True,
-                                 key=k_treat)],
-
-                ],
+                layout=frame2_layout,
                 title=frames[frame2],
                 relief=sg.RELIEF_SUNKEN,
                 tooltip="Optimization steps",
-                visible=bottom_frames_visible,
+                visible=False,
+                size=(663, 262),
                 key=frame2,
             )],
         [
             sg.Frame(
-                layout=[
-                    [sg.Checkbox(check_boxes[k_vary],
-                                 enable_events=False,
-                                 key=k_vary)],
-                    [sg.Checkbox(check_boxes[k_reduce],
-                                 enable_events=False,
-                                 key=k_reduce)],
-                    [sg.Checkbox(check_boxes[k_seg],
-                                 enable_events=False,
-                                 key=k_seg)]
-                ],
+                layout=frame3_layout,
                 title=frames[frame3],
                 relief=sg.RELIEF_SUNKEN,
                 tooltip="Post-optimization parameters",
-                visible=bottom_frames_visible,
+                visible=False,
+                size=(663, 155),
                 key=frame3,
             )
         ]
@@ -236,9 +320,20 @@ def optimization_gui(beamset, optimization_inputs):
             opt_values = values
             break
         elif event.startswith(k_fluence):
-            for f in frames.keys():
-                window[f].update(visible=True)
+            if values[k_fluence]:
+                visible_frame = [frame1]
+                set_frame_visibility(window, visible_frame, frames)
+            else:
+                visible_frame = [frame1, frame2, frame3]
+                set_frame_visibility(window, visible_frame, frames)
+        elif event.startswith(k_treat_n) or event.startswith(k_treat_d):
+            visible_frame = [frame1, frame2, frame3]
+            set_frame_visibility(window, visible_frame, frames)
+        elif event.startswith(k_treat_c):
+            visible_frame = [frame1, frame2, frame3, frame4]
+            set_frame_visibility(window, visible_frame, frames)
     window.close()
+    # Process results
     if not opt_values:
         sys.exit('Dialog cancelled')
     optimization_inputs['initial_max_it'] = int(opt_values[k_cold_max])
@@ -248,40 +343,48 @@ def optimization_gui(beamset, optimization_inputs):
     optimization_inputs['vary_grid'] = opt_values[k_vary]
     optimization_inputs['fluence_only'] = opt_values[k_fluence]
     optimization_inputs['reset_beams'] = opt_values[k_reset]
-    optimization_inputs['segment_weight'] = opt_values[k_seg]
-    optimization_inputs['reduce_oar'] = opt_values[k_reduce]
-    optimization_inputs['use_treat_settings'] = opt_values[k_treat]
     optimization_inputs['n_iterations'] = int(opt_values[k_num])
+    if tomo_dialog:
+        optimization_inputs['segment_weight'] = False
+        optimization_inputs['reduce_oar'] = False
+        optimization_inputs['use_treat_settings'] = True
+        if opt_values[k_reduce_time]:
+            optimization_inputs['reduce_time'] = opt_values[k_reduce_time]
+        else:
+            optimization_inputs['reduce_time'] = False
+    else:
+        optimization_inputs['reduce_time'] = False
+        if opt_values.get(k_seg):
+            optimization_inputs['segment_weight'] = opt_values[k_seg]
+        else:
+            optimization_inputs['segment_weight'] = False
+        if opt_values.get(k_reduce_oar):
+            optimization_inputs['reduce_oar'] = opt_values[k_reduce_oar]
+        else:
+            optimization_inputs['reduce_oar'] = False
+        if opt_values[k_treat_n]:
+            optimization_inputs['use_treat_settings'] = False
+        elif opt_values[k_treat_d]:
+            optimization_inputs['use_treat_settings'] = True
+            optimization_inputs['treat_margin'] = None
+        elif opt_values[k_treat_c]:
+            optimization_inputs['use_treat_settings'] = True
+            optimization_inputs['treat_margin'] = float(opt_values[k_treat_margin]) / 10.  # convert to cm
+        else:
+            optimization_inputs['use_treat_settings'] = False
     return optimization_inputs
 
 
 def main():
-    try:
-        Patient = connect.get_current("Patient")
-    except SystemError:
-        raise IOError("No Patient loaded. Load patient case and plan.")
-
-    try:
-        case = connect.get_current("Case")
-    except SystemError:
-        raise IOError("No Case loaded. Load patient case and plan.")
-
-    try:
-        exam = connect.get_current("Examination")
-    except SystemError:
-        raise IOError("No Examination loaded. Load patient case and plan.")
-
-    try:
-        plan = connect.get_current("Plan")
-    except SystemError:
-        raise IOError("No plan loaded. Load patient and plan.")
-
-    try:
-        beamset = connect.get_current("BeamSet")
-    except SystemError:
-        raise IOError("No beamset loaded")
+    patient = find_scope(level='Patient')
+    case = find_scope(level='Case')
+    exam = find_scope(level='Examination')
+    plan = find_scope(level='Plan')
+    beamset = find_scope(level='BeamSet')
+    patient_db = find_scope(level='PatientDB')
 
     optimization_inputs = {
+        'patient_db': patient_db,
         'initial_max_it': None,
         'initial_int_it': None,
         'second_max_it': None,
@@ -302,7 +405,7 @@ def main():
         'n_iterations': None, }
     optimization_inputs = optimization_gui(beamset, optimization_inputs)
 
-    (status, message) = OptimizationOperations.optimize_plan(patient=Patient,
+    (status, message) = OptimizationOperations.optimize_plan(patient=patient,
                                                              case=case,
                                                              exam=exam,
                                                              plan=plan,

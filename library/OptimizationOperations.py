@@ -214,6 +214,16 @@ def iter_optimization_config_etree(etree):
             o_c['reduce_mod'] = True
             o_c['mod_target'] = None
         #
+        # Reduce Time
+        try:
+            o_c['reduce_time'] = o.find("reduce_time").text
+            if o_c['reduce_time'] == "True":
+                o_c['reduce_time'] = True
+            else:
+                o_c['reduce_time'] = False
+        except AttributeError:
+            o_c['reduce_time'] = False
+        #
         # Reduce OAR
         try:
             o_c['reduce_oar'] = o.find("reduce_oar").text
@@ -328,6 +338,7 @@ def make_variable_grid_list(n_iterations, variable_dose_grid):
 
 def approximate_lte(x, y):
     return np.all(x <= y) or np.all(np.isclose(x, y))
+
 
 def select_rois_for_treat(plan, beamset, rois=None):
     """ For the beamset supplie set treat settings
@@ -871,15 +882,22 @@ def parse_evaluation_function(progress_of_optimization, rtp_function, rf_i):
 
 def parse_culmulative_objective_value(plan, beamset, prior_history=None):
     # Find current Beamset Number and determine plan optimization
-    rs_opt_key = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
-                                                        verbose_logging=False)
-    plan_optimization = plan.PlanOptimizations[rs_opt_key]
+    plan_optimization = get_plan_optimization(plan, beamset)
     obj = plan_optimization.ProgressOfOptimization.ObjectiveValues
 
     if prior_history is not None:
         return np.concatenate((prior_history, obj))
     else:
         return obj
+
+
+def get_current_objective_value(plan, beamset):
+    plan_opt = get_plan_optimization(plan, beamset)
+    function_value = plan_opt.Objective.FunctionValue.FunctionValue
+    if function_value is None:
+        return None
+    else:
+        return function_value
 
 
 def filename_iteration_output(iteration_number, beamset, patient, iteration_dir):
@@ -962,6 +980,139 @@ def output_iteration_data(poo, warmstart_number,
         sys.exit("{}".format(e))
 
 
+def reload_patient(patient_db, patient_info, case, plan, beamset):
+    case_name = case.CaseName
+    plan_name = plan.Name
+    beamset_name = beamset.DicomPlanLabel
+    patient = patient_db.LoadPatient(PatientInfo=patient_info)
+    case = patient.Cases[case_name]
+    case.SetCurrent()
+    connect.get_current('Case')
+    plan = case.TreatmentPlans[plan_name]
+    plan.SetCurrent()
+    connect.get_current('Plan')
+    beamset = plan.BeamSets[beamset_name]
+    beamset.SetCurrent()
+    connect.get_current('BeamSet')
+    return patient, case, plan, beamset
+
+
+def get_plan_optimization(plan, beamset, verbose_logging=False):
+    # Get current optimization and return the plan_optimization
+    rs_opt_key = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
+                                                        verbose_logging=verbose_logging)
+    return plan.PlanOptimizations[rs_opt_key]
+
+
+def get_optimization_parameters(plan, beamset, verbose_logging=False):
+    plan_opt = get_plan_optimization(plan, beamset, verbose_logging=verbose_logging)
+    return plan_opt.OptimizationParameters
+
+
+def get_treatment_setup_settings(plan, beamset, beam_name):
+    plan_optimization_parameters = get_optimization_parameters(plan, beamset)
+    for tss in plan_optimization_parameters.TreatmentSetupSettings:
+        for bs in tss.BeamSettings:
+            if bs.ForBeam.Name == beam_name:
+                return tss
+    return None
+
+
+def get_beam_settings(plan, beamset, beam_name):
+    plan_optimization_parameters = get_optimization_parameters(plan, beamset)
+    for tss in plan_optimization_parameters.TreatmentSetupSettings:
+        for bs in tss.BeamSettings:
+            if bs.ForBeam.Name == beam_name:
+                return bs
+    return None
+
+
+def compute_delivery_time(beam_settings,
+                          previous_objective_value, current_objective_value, bypass_check=False):
+    old_delivery_time = beam_settings.TomoPropertiesPerBeam.MaxDeliveryTime
+    if previous_objective_value > current_objective_value and old_delivery_time > 60.:
+        return 0.9 * old_delivery_time
+    elif bypass_check:
+        return 0.9 * old_delivery_time
+    else:
+        return old_delivery_time
+
+
+def update_delivery_time(plan, beamset, previous_objective_value, old_delivery_time,
+                         bypass_check=False, reset_time=False):
+    #   if the result is a time reduction, then log
+    #   if the result is not, then set the step of the iteration back to previous
+    #                         load patient again
+    #                         disable for remaining runs
+    current_objective_value = get_current_objective_value(plan, beamset)
+    beam_name = beamset.Beams[0].Name
+    beam_settings = get_beam_settings(plan, beamset, beam_name)
+    new_delivery_time = compute_delivery_time(beam_settings,
+                                              previous_objective_value,
+                                              current_objective_value,
+                                              bypass_check)
+    # TODO create special pathway for bypass_check and for a reset to an old value
+    if bypass_check:
+        continue_reduction = True
+        settings = {'max_delivery_time': new_delivery_time}
+        BeamOperations.modify_tomo_beam_properties(settings, plan, beamset, beam_settings.ForBeam)
+        message = f"Reduced time from {old_delivery_time} to  {new_delivery_time}"
+        delivery_time = new_delivery_time
+    elif new_delivery_time < old_delivery_time:
+        continue_reduction = True
+        settings = {'max_delivery_time': new_delivery_time}
+        BeamOperations.modify_tomo_beam_properties(settings, plan, beamset, beam_settings.ForBeam)
+        message = f"Function value (Previous {previous_objective_value} > " \
+                  + f"Current {current_objective_value}). " \
+                  + f"Reduced time from {old_delivery_time} to  {new_delivery_time}"
+        delivery_time = new_delivery_time
+    elif reset_time:
+        continue_reduction = True
+        settings = {'max_delivery_time': old_delivery_time}
+        BeamOperations.modify_tomo_beam_properties(settings, plan, beamset, beam_settings.ForBeam)
+        message = f"Reduced to time to {old_delivery_time}"
+        delivery_time = old_delivery_time
+    else:
+        continue_reduction = False
+        message = f"Function value (Previous {previous_objective_value}" \
+                  + f"> Current {current_objective_value}). " \
+                  + f"Delivery time unchanged: {new_delivery_time}"
+        delivery_time = old_delivery_time
+    return delivery_time, message, continue_reduction
+
+
+def reset_iteration(iteration, status):
+    # Go back one iteration, and update all status variables to reflect the reversal
+    iteration -= 1
+
+    return None
+
+
+def run_optimization(plan_optimization):
+    try:
+        time_0 = datetime.datetime.now()
+        plan_optimization.RunOptimization()
+        time_1 = datetime.datetime.now()
+        success = True
+        message = "Optimization Success"
+    except Exception as e:
+        try:
+            error_message = "".join(e.Message)
+            if "There is no feasible gantry period" in error_message:
+                message = f"No feasible gantry period found. Full message: {error_message}"
+                success = False
+            else:
+                message = f"Exception occurred during optimization: {error_message}"
+                success = False
+        except:
+            message = "Exception occurred during optimization: {}".format(e)
+            success = False
+    if success:
+        return time_0, time_1, success, message
+    else:
+        return None, None, success, message
+
+
 def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     """
     This function will optimize a plan
@@ -1013,6 +1164,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     second_maximum_iteration = optimization_inputs.get('second_max_it', 30)
     second_intermediate_iteration = optimization_inputs.get('second_int_it', 15)
     use_treat_settings = optimization_inputs.get('use_treat_settings', True)
+    treat_margin = optimization_inputs.get('treat_margin', None)
 
     vary_grid = optimization_inputs.get('vary_grid', False)
     # Grid Sizes
@@ -1029,15 +1181,18 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     reduce_mod = optimization_inputs.get('reduce_mod', False)
     if reduce_mod:
         mod_target = optimization_inputs.get('mod_target', None)
+    reduce_time = optimization_inputs.get('reduce_time', False)
+    # TODO: Make this a user configurable option
+    if reduce_time:
+        max_reduce_time_iterations = 6
         patient_db = optimization_inputs.get('patient_db', None)
         name = patient.GetAlphabeticPatientName()
         # get the patient filters ready.
         patient_id = patient.PatientID
-
         patients = patient_db.QueryPatientInfo(
             Filter={'PatientID': '^{0}$'.format(patient_id),
                     'LastName': '^{0}$'.format(name['LastName'])})
-        logging.debug(f'Reduce Mod: {reduce_mod}, Patient Info Stored')
+        logging.debug(f'Reduce time: {reduce_time}, Patient Info Stored')
         if len(patients) != 1:
             sys.exit(f'Patient {patient_id} is non-unique! Script abort')
         else:
@@ -1143,6 +1298,9 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 status_dict[num_steps] = 'Complete Iteration:' + str(i + 1)
                 ith_step = status_dict[num_steps]
             status_steps.append(ith_step)
+        if reduce_time:
+            status_dict[num_steps] = f'Reducing Time for TomoTherapy.'
+            status_steps.append(status_dict[num_steps])
         if segment_weight:
             num_steps += 1
             status_dict[num_steps] = 'Complete Segment weight optimization'
@@ -1195,10 +1353,14 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             min_segment_area, min_segment_mu))
 
     if use_treat_settings:
-        if any(a in beamset.DicomPlanLabel for a in small_field_names):
-            margins = {'Y1': 0.15, 'Y2': 0.15, 'X1': 0.15, 'X2': 0.15}
+        if not treat_margin:
+            if any(a in beamset.DicomPlanLabel for a in small_field_names):
+                margins = {'Y1': 0.15, 'Y2': 0.15, 'X1': 0.15, 'X2': 0.15}
+            else:
+                margins = {'Y1': 0.8, 'Y2': 0.8, 'X1': 0.8, 'X2': 0.8}
         else:
-            margins = {'Y1': 0.8, 'Y2': 0.8, 'X1': 0.8, 'X2': 0.8}
+            margins = {'Y1': treat_margin, 'Y2': treat_margin,
+                       'X1': treat_margin, 'X2': treat_margin}
 
     # Find current Beamset Number and determine plan optimization
     rs_opt_key = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
@@ -1280,6 +1442,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     if plan_optimization.ProgressOfOptimization:
         prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
         if prior_history is not None:
+            logging.debug(f"Prior History: {prior_history}")
             current_objective_function = prior_history[-1]
         else:
             current_objective_function = 0
@@ -1319,7 +1482,6 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             optimization_iteration, current_objective_function))
         reduce_oar_success = False
     else:
-        logging.info('Full optimization')
         for ts in treatment_setup_settings:
             # Set properties of the beam optimization
             if ts.ForTreatmentSetup.DeliveryTechnique == 'TomoHelical':
@@ -1450,6 +1612,11 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             time_1 = time_0
 
         while optimization_iteration != maximum_iteration:
+            #
+            # ITERATION INITIALIZATION
+            #
+            # OBJECTIVE VALUE UPDATE
+            # Update the primary objective value
             if plan_optimization.ProgressOfOptimization:
                 if plan_optimization.ProgressOfOptimization.Iterations is not None:
                     prior_history = parse_culmulative_objective_value(plan, beamset, prior_history=prior_history)
@@ -1462,7 +1629,8 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 previous_objective_function = 1e10
                 logging.debug('This appears to be a cold start. Objective value set to {}'
                               .format(previous_objective_function))
-
+            #
+            # UPDATE DOSE GRID
             # If the change_dose_grid list has a non-zero element change the dose grid
             if vary_grid:
                 if change_dose_grid[optimization_iteration] != 0:
@@ -1485,13 +1653,17 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     report_inputs.setdefault('time_dose_grid_final', []).append(
                         datetime.datetime.now())
             #
+            # REDUCE TOMO MODULATION
             # If modulation reduction or time-reduction is required update the optimization settings
+            if reduce_mod:
+                beam_name = beamset.Beams[0].Name
+                beam_settings = get_beam_settings(plan, beamset, beam_name)
+                old_delivery_time = beam_settings.TomoPropertiesPerBeam.MaxDeliveryTime
             if reduce_mod and optimization_iteration > 0:
                 if ts.ForTreatmentSetup.DeliveryTechnique == 'TomoHelical':
                     tomo_params = BeamOperations.gather_tomo_beam_params(beamset)
                     logging.debug('Tomo params are {}'.format(tomo_params))
                     for b in ts.BeamSettings:
-                        old_delivery_time = b.TomoPropertiesPerBeam.MaxDeliveryTime
                         mod_ratio = mod_target / tomo_params.mod_factor[0]
                         logging.debug('Delivery time currently {}'.format(old_delivery_time))
                         logging.debug('Current MF={}, Target={}'.format(tomo_params.mod_factor[0],
@@ -1519,20 +1691,16 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             logging.info(
                 'Current iteration = {} of {}'.format(optimization_iteration + 1,
                                                       maximum_iteration))
+            #
+            # OPTIMIZATION
             # Run the optimization
-            try:
-                time_0 = datetime.datetime.now()
-                plan.PlanOptimizations[rs_opt_key].RunOptimization()
-                time_1 = datetime.datetime.now()
-            except Exception as e:
-                try:
-                    message = "".format(e.Message)
-                    if "There is no feasible gantry period" in message:
-                        logcrit("No feasible gantry period found. Full message {}".format(message))
-                    else:
-                        return False, 'Exception occurred during optimization: {}'.format(e)
-                except:
-                    return False, 'Exception occurred during optimization: {}'.format(e)
+            time_0, time_1, success, message = run_optimization(plan_optimization)
+            if not success:
+                sys.exit(message)
+            #
+            # POST OPTIMIZATION
+            #
+            # Output optmization data to file
             if output_progress:
                 poo = plan_optimization.ProgressOfOptimization
                 time_total = time_1 - time_0
@@ -1556,7 +1724,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                       beamset=beamset,
                                       beam_params=beam_params,
                                       iteration_time=time_total)
-
+            # GET-TIME KEEPING DATA
             # Stop the clock
             report_inputs.setdefault('time_iteration_final', []).append(datetime.datetime.now())
             optimization_iteration += 1
@@ -1573,54 +1741,64 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     optimization_iteration,
                     current_objective_function,
                     previous_objective_function))
-            if reduce_mod:
-                plan_name = plan.Name
-                beamset_name = beamset.DicomPlanLabel
-                case_name = case.CaseName
-                # previous_iteration_plan_name = plan_name + str(optimization_iteration)
-                if previous_objective_function > current_objective_function:
-                    patient.Save()
-                    # Todo: Change this over to delete the beamset and copy to new.
-                    # case.CopyPlan(PlanName=plan_name,
-                    #               NewPlanName=previous_iteration_plan_name,
-                    #               KeepBeamSetNames=True)
-                    # patient.Save()
-                    settings = {}
-                    if optimization_iteration > 1:
-                        if old_delivery_time > 60.:
-                            settings['max_delivery_time'] = 0.9 * old_delivery_time
-                            BeamOperations.modify_tomo_beam_properties(settings, plan, beamset, b.ForBeam)
-                            logging.info(
-                                'Function value (Previous {} > Current {}). Reduced time from {} to  {}'.format(
-                                    previous_objective_function, current_objective_function,
-                                    old_delivery_time, settings['max_delivery_time']))
-                else:
-                    # Load patient without saving, and re-instantiate patient, plan, and beamset.
-                    logging.info(f'Function value (Previous {previous_objective_function}' +
-                                 f'< Current {current_objective_function}).')
-                    patient = patient_db.LoadPatient(PatientInfo=patient_info)
-                    case = patient.Cases[case_name]
-                    case.SetCurrent()
-                    connect.get_current('Case')
-                    plan = case.TreatmentPlans[plan_name]
-                    plan.SetCurrent()
-                    connect.get_current('Plan')
-                    beamset = plan.BeamSets[beamset_name]
-                    beamset.SetCurrent()
-                    connect.get_current('BeamSet')
-                    optimization_iteration -= 1
-                    # Find current Beamset Number and determine plan optimization
-                    rs_opt_key = PlanOperations.find_optimization_index(plan=plan, beamset=beamset,
-                                                                        verbose_logging=False)
-                    plan_optimization = plan.PlanOptimizations[rs_opt_key]
-                    plan_optimization_parameters = plan.PlanOptimizations[rs_opt_key].OptimizationParameters
-                    current_objective_function = plan_optimization.Objective.FunctionValue.FunctionValue
-                    reduce_mod = False
-                    logging.info('Function value ({} > {}). Delivery time unchanged'.format(
-                        previous_objective_function, current_objective_function))
-
             # Start the clock
             previous_objective_function = current_objective_function
+
+        if reduce_time:
+            patient.Save()
+            logging.debug('Reduce time for beamset: {}'.format(beamset.DicomPlanLabel))
+            status.next_step(text='Running reduce time')
+            reduce_time_iteration = 0
+            plan_optimization_parameters.Algorithm.MaxNumberOfIterations = 30
+            plan_optimization_parameters.DoseCalculation.IterationsInPreparationsPhase = 5
+            # Initialize
+            beam_name = beamset.Beams[0].Name
+            beam_settings = get_beam_settings(plan, beamset, beam_name)
+            previous_objective_function = get_current_objective_value(plan, beamset)
+            initial_time = beam_settings.TomoPropertiesPerBeam.MaxDeliveryTime
+            delivery_time, message, continue_reduction = update_delivery_time(plan, beamset,
+                                                                              previous_objective_value=previous_objective_function,
+                                                                              old_delivery_time=initial_time,
+                                                                              bypass_check=True)
+            logging.info(message)
+
+            while reduce_time_iteration <= max_reduce_time_iterations:
+                # Run the optimization
+                time_0, time_1, success, message = run_optimization(plan_optimization)
+                if not success:
+                    sys.exit(message)
+                # Determine if a delivery time reduction is possible based on current iteration results
+                beam_settings = get_beam_settings(plan, beamset, beam_name)
+                old_delivery_time = beam_settings.TomoPropertiesPerBeam.MaxDeliveryTime
+                delivery_time, message, continue_reduction = update_delivery_time(plan, beamset,
+                                                                                  previous_objective_value=previous_objective_function,
+                                                                                  old_delivery_time=old_delivery_time)
+                logging.info(message)
+                if continue_reduction:
+                    patient.Save()
+                    previous_objective_function = get_current_objective_value(plan, beamset)
+                    reduce_time_iteration += 1
+                    status_message = f"Iteration {reduce_time_iteration}: " \
+                                     + f"Time reduced from {initial_time} to {old_delivery_time} s"
+                    logging.info(status_message)
+                    status.update_text(text=status_message)
+                else:
+                    # Reload patient and reset optimization to previous iteration
+                    patient, case, plan, beamset = reload_patient(patient_db,
+                                                                  patient_info,
+                                                                  case, plan, beamset)
+                    # Find current Beamset Number and determine plan optimization
+                    plan_optimization = get_plan_optimization(plan, beamset, verbose_logging=False)
+                    previous_objective_function = get_current_objective_value(plan, beamset)
+                    delivery_time, message, continue_reduction = update_delivery_time(plan, beamset,
+                                                                                      previous_objective_value=previous_objective_function,
+                                                                                      old_delivery_time=old_delivery_time,
+                                                                                      reset_time=True)
+                    logging.info(message)
+                    reduce_time_iteration = max_reduce_time_iterations + 1
+            status_message = f"Time reduced from {initial_time} to {old_delivery_time} s"
+            logging.info(status_message)
+            status.update_text(text=status_message)
 
         # Finish with a Reduce OAR Dose Optimization
         if segment_weight:
