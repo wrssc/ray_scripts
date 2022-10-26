@@ -1096,15 +1096,60 @@ def find_eval_dose(case, beamset_name, exam_name):
                     return d
 
 
-def main():
+def tbi_gui():
     # User Prompt for Dose/Fractions
-    event, values = sg.Window('AUTO TBI',
-                              [[sg.T('Enter Number of Fractions'), sg.In(key='-NFX-')],
-                               [sg.T('Enter TOTAL Dose in cGy'), sg.In(key='-TDOSE-')],
-                               [sg.B('OK'), sg.B('Cancel')]]).read(close=True)
+    layout = [
+                 [sg.T('Enter Number of Fractions'), sg.In(key='-NFX-')],
+                 [sg.T('Enter TOTAL Dose in cGy'), sg.In(key='-TDOSE-')],
+                 [sg.Checkbox('Generate FFS Planning Structures',
+                              default=True,
+                              key='-FFS STRUCTURES-')],
+                 [sg.Checkbox('Generate FFS Plan',
+                              default=True,
+                              key='-FFS PLAN-')],
+                 [sg.Checkbox('Make FFS Isodose Structures',
+                              default=True,
+                              key='-FFS ISODOSE-')],
+                 [sg.Checkbox('Make HFS Plan',
+                              default=True,
+                              key='-HFS PLAN-')],
+                 [sg.Checkbox('Make Dose Summation',
+                              default=True,
+                              key='-SUM DOSE-')],
+                 [sg.B('OK'), sg.B('Cancel')]],
 
-    nfx = values['-NFX-']
-    rx = values['-TDOSE-']
+    window = sg.Window(
+        'AUTO TBI',
+        layout,
+        default_element_size=(40, 1),
+        grab_anywhere=False,
+    )
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cancel":
+            tbi_selections = {}
+            break
+        elif event == "OK":
+            tbi_selections = values
+            break
+    window.close()
+    if tbi_selections == {}:
+        sys.exit('TBI Script was cancelled')
+    else:
+        return tbi_selections
+
+
+def main():
+    # Launch gui
+    tbi_selections = tbi_gui()
+
+    nfx = tbi_selections['-NFX-']
+    rx = tbi_selections['-TDOSE-']
+    do_structure_definitions = tbi_selections['-FFS STRUCTURES-']
+    ffs_autoplan = tbi_selections['-FFS PLAN-']
+    make_ffs_isodose_structs = tbi_selections['-FFS ISODOSE-']
+    hfs_autoplan = tbi_selections['-HFS PLAN-']
+    dose_summation = tbi_selections['-SUM DOSE-']
 
     # Look for HFS/FFS Scans
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -1139,11 +1184,6 @@ def main():
                 db=GeneralOperations.find_scope(level='PatientDB'),
                 plan=None,
                 beamset=None)
-    do_structure_definitions = False
-    ffs_autoplan = False
-    make_ffs_isodose_structs = False
-    hfs_autoplan = False
-    dose_summation = True
 
     if do_structure_definitions:
         #
@@ -1227,6 +1267,86 @@ def main():
         pd_hfs_out = autoplan(testing_bypass_dialogs=tbi_hfs_protocol)
     #
     if dose_summation:
+        # Update the current variables if needed.
+        # User Prompt for Dose/Fractions
+        if not pd_hfs.beamset or not pd_ffs.beamset:
+
+            pd_ffs = Pd(error=[],
+                        patient=GeneralOperations.find_scope(level='Patient'),
+                        case=GeneralOperations.find_scope(level='Case'),
+                        exam=ffs_exam,
+                        db=GeneralOperations.find_scope(level='PatientDB'),
+                        plan=None,
+                        beamset=None)
+            plans = [p.Name for p in pd_ffs.case.TreatmentPlans]
+
+            beamsets = [bs.DicomPlanLabel for p in pd_ffs.case.TreatmentPlans for bs in p.BeamSets]
+            sg.ChangeLookAndFeel('DarkPurple4')
+            layout = [[sg.Text("FFS Plan")],
+                      [sg.Combo(plans, key="-FFS PLAN-",
+                                default_value=plans[0],
+                                size=(40, 1), )],
+                      [sg.Text("FFS Beamset")],
+                      [sg.Combo(beamsets, key="-FFS BEAMSET-",
+                                default_value=beamsets[0],
+                                size=(40, 1))],
+                      [sg.Text("HFS Plan")],
+                      [sg.Combo(plans, key="-HFS PLAN-",
+                                default_value=plans[0],
+                                size=(40, 1))],
+                      [sg.Text("HFS Beamset")],
+                      [sg.Combo(beamsets, key="-HFS BEAMSET-",
+                                default_value=beamsets[0],
+                                size=(40, 1))],
+                      [sg.B('OK'), sg.B('Cancel')]]
+            window = sg.Window("BEAMSET ASSIGNMENT",
+                               layout)
+            while True:
+                event, values = window.read()
+                if event == sg.WIN_CLOSED or event == "Cancel":
+                    selections = None
+                    break
+                elif event == "OK":
+                    selections = values
+                    break
+            window.close()
+            if selections == {}:
+                sys.exit('Selection Script was cancelled')
+
+            temp_case = pd_ffs.case
+            ffs_plan = None
+            hfs_plan = None
+            ffs_beamset = None
+            hfs_beamset = None
+
+            for tp in temp_case.TreatmentPlans:
+                if tp.Name == selections['-FFS PLAN-']:
+                    ffs_plan = tp
+                    for bs in tp.BeamSets:
+                        if bs.DicomPlanLabel == selections['-FFS BEAMSET-']:
+                            ffs_beamset = bs
+                if tp.Name == selections['-HFS PLAN-']:
+                    hfs_plan = tp
+                    for bs in tp.BeamSets:
+                        if bs.DicomPlanLabel == selections['-HFS BEAMSET-']:
+                            hfs_beamset = bs
+            if not all([ffs_beamset, ffs_plan, hfs_beamset, hfs_plan]):
+                sys.exit('No HFS FFS Beamsets defined')
+
+            pd_ffs = Pd(error=[],
+                        patient=GeneralOperations.find_scope(level='Patient'),
+                        case=GeneralOperations.find_scope(level='Case'),
+                        exam=ffs_exam,
+                        db=GeneralOperations.find_scope(level='PatientDB'),
+                        plan=ffs_plan,
+                        beamset=ffs_beamset)
+            pd_hfs = Pd(error=[],
+                        patient=GeneralOperations.find_scope(level='Patient'),
+                        case=GeneralOperations.find_scope(level='Case'),
+                        exam=ffs_exam,
+                        db=GeneralOperations.find_scope(level='PatientDB'),
+                        plan=hfs_plan,
+                        beamset=hfs_beamset)
         new_hfs_grid = get_new_grid(pd_hfs.case, pd_hfs.beamset, pd_ffs.beamset)
         pd_hfs.beamset.UpdateDoseGrid(Corner=new_hfs_grid['Corner'],
                                       VoxelSize=new_hfs_grid['VoxelSize'],
