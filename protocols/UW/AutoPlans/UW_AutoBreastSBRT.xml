@@ -622,6 +622,7 @@
            <CouchAngle>000</CouchAngle>
        </beam>
     </beamset>
+    <!--
     <beamset>
         <name>Tomo-SBRT-FW2.5</name>
         <technique>TomoHelical</technique>
@@ -650,4 +651,5 @@
             <priority>5</priority>
         </goalset>
     </goals>
+    -->
 </protocol>

@@ -17,6 +17,8 @@
         <imaging>Daily CBCT</imaging>
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
         <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
+        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
     </prescription>
     <order>
         <name>Spine SBRT [3Fx] [3600cGy]</name>
@@ -29,6 +31,10 @@
                 <dose units="Gy" idl="100">27</dose>
             </roi>
             <fractions>3</fractions>
+            <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <validation>
             <validation_status>True</validation_status>
@@ -590,6 +596,10 @@
                 <dose units="Gy" idl="100">27</dose>
             </roi>
             <fractions>5</fractions>
+            <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <goals>
             <roi>
@@ -1539,4 +1549,123 @@
             </roi>
         </objectives>
     </objectiveset>
+    <beamset>
+        <name>AbdPelv Central 3Arc</name>
+        <technique>VMAT</technique>
+        <DicomName>AbPv3A_VMA_R_A_</DicomName>
+        <description>Arc set for 24 degree posterior avoidance with 270 degree collimator
+            rotation
+        </description>
+        <roi_support>TrueBeamCouch</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>192</GantryAngle>
+            <GantryStopAngle>168</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>163</GantryAngle>
+            <GantryStopAngle>187</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>355</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>192</GantryAngle>
+            <GantryStopAngle>168</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>FieldWidth:1.0cm Pitch:0.108</name>
+        <technique>TomoHelical</technique>
+        <DicomName>XXXX_THI_R_A_</DicomName>
+        <description>Pitch 0.108, FW 1.0</description>
+        <roi_support>TomoCouch,S-frame</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>TomoHelical</DeliveryTechnique>
+            <Name>1_SITE_THI</Name>
+            <FieldWidth>1.05</FieldWidth>
+            <Energy>6</Energy>
+            <Pitch>0.1075</Pitch>
+            <BackJawPosition>0.35</BackJawPosition>
+            <FrontJawPosition>-0.35</FrontJawPosition>
+            <JawMode>Dynamic</JawMode>
+            <MaxDeliveryTime>1100</MaxDeliveryTime>
+            <MaxGantryPeriod>59</MaxGantryPeriod>
+            <MaxDeliveryTimeFactor>5</MaxDeliveryTimeFactor>
+        </beam>
+    </beamset>
+    <planning_structure_set>
+        <name>2 Target Spine SBRT</name>
+        <description>A Spine planning</description>
+        <number_of_targets>2</number_of_targets>
+        <first_target_number>1</first_target_number>
+        <uniform_dose_structs standoff="0.4">Esophagus,SmallBowel_PRV05,Bag_Bowel,
+            Heart,Stomach
+        </uniform_dose_structs>
+        <underdose_structs standoff="0.5">SpinalCord_PRV02,SpinalCord_Subvolume</underdose_structs>
+        <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
+        <normal>Normal_2cm</normal>
+        <ring_hd standoff="0.0" margin_type="Expand" margin_sup="2" margin_inf="2"
+                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
+        </ring_hd>
+        <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
+        </ring_ld>
+        <ring_targets standoff="0.0" margin_type="Expand" margin_sup="1" margin_inf="1"
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring
+        </ring_targets>
+        <inner_air></inner_air>
+        <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
+        </superficial_target>
+        <otv standoff="0.2" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
+        </otv>
+    </planning_structure_set>
+    <optimization_config>
+        <name>8 warmstarts</name>
+        <description>8 warmstart optimization</description>
+        <technique>TomoHelical</technique>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="12" int_it="2" n="8">Iteration_1to8</warmstart>
+        <vary_grid>False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_mod mod_target="2.3">False</reduce_mod>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+        <block_prompt>True</block_prompt>
+    </optimization_config>
+    <optimization_config>
+        <name>12 warmstarts</name>
+        <description>12 warmstart optimization with varying dose grid</description>
+        <technique>VMAT</technique>
+        <initial max_it="30" int_it="10">Iteration 0</initial>
+        <warmstart max_it="12" int_it="5" n="12">Iteration_1to12</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">False</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>True</reduce_oar>
+        <segment_weight>True</segment_weight>
+    </optimization_config>
 </protocol>
