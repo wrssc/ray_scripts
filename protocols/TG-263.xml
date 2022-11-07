@@ -402,7 +402,7 @@
         <Export></Export>
         <FMAID>14548</FMAID>
         <Color red="55" green="221" blue="159">#37DD9F</Color>
-        <Alias></Alias>
+        <Alias>Sigmoid,SigmoidColon</Alias>
     </roi>
     <roi>
         <name>Colon_Transverse</name>
@@ -1705,6 +1705,25 @@
         <Alias>fiducial_1</Alias>
     </roi>
     <roi>
+        <name>Fiducial1_PRVXX</name>
+        <TG263PrimaryName>Fiducial1_PRVXX</TG263PrimaryName>
+        <Description>Sphere surround fiducial which the center of fiducial must lie within for
+            tracking
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
+        <MajorCategory>Devices</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>16</NCharacters>
+        <TG263ReverseOrderName>Fiducial1_PRV02</TG263ReverseOrderName>
+        <Export>True</Export>
+        <FMAID></FMAID>
+        <Color red="222" green="47" blue="80" Hex="#DE2F50">Chin-ChinCherry</Color>
+        <Alias>fiducial_1_PRV</Alias>
+    </roi>
+    <roi>
         <name>Fiducial1_PRV02</name>
         <TG263PrimaryName>Fiducial1_PRV02</TG263PrimaryName>
         <Description>Sphere surround fiducial which the center of fiducial must lie within for
@@ -1739,6 +1758,25 @@
         <FMAID></FMAID>
         <Color red="55" green="221" blue="159" Hex="#37DD9F">DarkShamrock</Color>
         <Alias>fiducial_2</Alias>
+    </roi>
+    <roi>
+        <name>Fiducial2_PRVXX</name>
+        <TG263PrimaryName>Fiducial2_PRVXX</TG263PrimaryName>
+        <Description>Sphere surround fiducial which the center of fiducial must lie within for
+            tracking
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
+        <MajorCategory>Devices</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>16</NCharacters>
+        <TG263ReverseOrderName>Fiducial2_PRV02</TG263ReverseOrderName>
+        <Export>True</Export>
+        <FMAID></FMAID>
+        <Color red="222" green="47" blue="80" Hex="#DE2F50">Chin-ChinCherry</Color>
+        <Alias>fiducial_2_PRV</Alias>
     </roi>
     <roi>
         <name>Fiducial2_PRV02</name>
@@ -1796,6 +1834,25 @@
         <Alias>fiducial_3_PRV02</Alias>
     </roi>
     <roi>
+        <name>Fiducial3_PRVXX</name>
+        <TG263PrimaryName>Fiducial3_PRVXX</TG263PrimaryName>
+        <Description>Sphere surround fiducial which the center of fiducial must lie within for
+            tracking
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
+        <MajorCategory>Devices</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>16</NCharacters>
+        <TG263ReverseOrderName>Fiducial3_PRV02</TG263ReverseOrderName>
+        <Export>True</Export>
+        <FMAID></FMAID>
+        <Color red="222" green="47" blue="80" Hex="#DE2F50">Chin-ChinCherry</Color>
+        <Alias>fiducial_3_PRV</Alias>
+    </roi>
+    <roi>
         <name>Fiducial4</name>
         <TG263PrimaryName>Fiducial4</TG263PrimaryName>
         <Description>Fiducial markers for tracking</Description>
@@ -1830,6 +1887,25 @@
         <FMAID></FMAID>
         <Color red="246" green="151" blue="81" Hex="#F69751">HollandTulip</Color>
         <Alias>fiducial_4_PRV02</Alias>
+    </roi>
+    <roi>
+        <name>Fiducial4_PRVXX</name>
+        <TG263PrimaryName>Fiducial4_PRVXX</TG263PrimaryName>
+        <Description>Sphere surround fiducial which the center of fiducial must lie within for
+            tracking
+        </Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType></RTROIInterpretedType>
+        <MajorCategory>Devices</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>16</NCharacters>
+        <TG263ReverseOrderName>Fiducial4_PRVxx</TG263ReverseOrderName>
+        <Export>True</Export>
+        <FMAID></FMAID>
+        <Color red="222" green="47" blue="80" Hex="#DE2F50">Chin-ChinCherry</Color>
+        <Alias>fiducial_4_PRV</Alias>
     </roi>
     <roi>
         <name>GTV</name>
@@ -9152,7 +9228,7 @@
         <Export></Export>
         <FMAID>24475</FMAID>
         <Color red="46" green="122" blue="177">#2E7AB1</Color>
-        <Alias></Alias>
+        <Alias>LeftFemur,femur_l</Alias>
     </roi>
     <roi>
         <name>Femur_L_PRVxx</name>
@@ -9203,7 +9279,7 @@
         <Export></Export>
         <FMAID>24474</FMAID>
         <Color red="183" green="87" blue="145" Hex="#B75791">SpruceTreeFlower</Color>
-        <Alias>r_femur</Alias>
+        <Alias>r_femur,FemurRight,RightFemur</Alias>
     </roi>
     <roi>
         <name>Femur_R_PRVxx</name>
