@@ -8,6 +8,7 @@ Looks for conflicting structure names that will be a problem when matching occur
 Version History:
 1.0.0 Production
 1.0.1 RS 11B Update
+1.0.2 Added SRS option for color scheme choices
 
 Script: Matches all plan rois with TG-263 based normal structures returning a sorted list of
 the most likely matches based on: exact match, previously matched names (aliases) or levenshtein match
@@ -71,6 +72,7 @@ import StructureOperations
 import UserInterface
 from GeneralOperations import find_scope
 
+
 def main():
     # Get current patient, case, exam, and plan
     patient = find_scope(level='Patient')
@@ -101,16 +103,17 @@ def main():
                                   institution_folder))
     tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
     rois_dict = StructureOperations.iter_standard_rois(tree)
+    # Open the xml file as a dataframe
     df_rois = pd.DataFrame(rois_dict["rois"])
 
     # Make ExternalClean
     external_name = 'ExternalClean'
     _ = StructureOperations.make_externalclean(patient=patient,
-                                                       case=case,
-                                                       examination=exam,
-                                                       structure_name=external_name,
-                                                       suffix=None,
-                                                       delete=True)
+                                               case=case,
+                                               examination=exam,
+                                               structure_name=external_name,
+                                               suffix=None,
+                                               delete=False)
     plan_rois = StructureOperations.find_types(case=case)
     # filter the structure list
     filtered_plan_rois = []

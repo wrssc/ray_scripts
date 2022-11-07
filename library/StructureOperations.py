@@ -55,6 +55,8 @@ __copyright__ = "Copyright (C) 2018, University of Wisconsin Board of Regents"
 import logging
 import os
 import sys
+
+import PySimpleGUI as sg
 import connect
 import re
 import numpy as np
@@ -1194,101 +1196,229 @@ def filter_rois(plan_rois, skip_targets=True, skip_planning=True):
     return filtered_rois
 
 
-def match_dialog(matches, elements, df_rois=None):
+def find_gui_match(name, elements, df_rois=None):
     """
-    Dialog for matching taking the matches found in the search and
-    pairing them with protocol elements
-    :param matches: matched elements in the form {PlanROI: <Matched_Protocol ROI>}
-    :param elements: Elementtree list of roi elements
-    :return: dialog_result:
-                            {'CopyOfReplace':<'Copy' or 'Replace'>,
-                            PlanROI: <Matching ROI subelement>, or
-                            a string indicating a user-typed input}
+    Parse the roi dataframe for the name match
+    :param elements: raw values read in from xml
+    :param name: name of roi
+    :param df_rois: dataframe read in from TG-263.xml
+    :return: None if no value was submitted in name [Unmatched]
+
     """
-    # Make dialog inputs
-    inputs = {}
-    initial = {}
-    datatype = {}
-    options = {}
-    # First element
-    k_copy = "0"
-    inputs[
-        k_copy
-    ] = "Structures that cannot be renamed should have suffix, e.g. (_R or _A):"
-    initial[k_copy] = "_R"
-    datatype[k_copy] = "text"
+    if not name:
+        return None
+    found_index = None
+    # First try to match to a dataframe element
+    if df_rois is not None:
+        df_e = df_rois[df_rois.name == name]
+        # If more than one result is returned by the dataframe search report an error
+        if len(df_e) > 1:
+            logging.warning("Too many matching {}. That makes me a sad panda. :(".format(name))
+        elif df_e.empty:
+            logging.debug("{} was not found in the protocol list".format(name))
+        else:
+            return df_e
+    # Try matching to the xml elements directly
+    if found_index is None:
+        for e_index, standard_rois in enumerate(elements):
+            if standard_rois.find("name").text == name:
+                return elements[found_index]
+    return name
+
+
+def match_gui(matches, elements, df_rois=None):
+    dialog_name = 'Structure Matching and Derived ROI Generation'
+    frames = ['-FRAME SUFFIX-', '-FRAME ALT SCHEME-', '-FRAME MATCHING-']
+    color_schemes = ['CLINICAL', 'SRS MultiTarget']
+    match_row = []
     for k, v in matches.items():
-        inputs[k] = k
-        datatype[k] = "combo"
-        options[k] = [x[1] for x in v]
-        initial[k] = v[0][1]
+        attr = {'values': [x[1] for x in v],
+                'size': (30, 1),
+                'default_value': v[0][1],
+                'key': k}
+        match_row.append([sg.Text(k), sg.Combo(**attr)])
+    sg.ChangeLookAndFeel('DarkBlue1')
+    top = [
+        [sg.Text(
+            dialog_name,
+            size=(60, 1),
+            justification='center',
+            font=("Helvetica", 16),
+            relief=sg.RELIEF_RIDGE
+        )],
 
-    matchy_dialog = UserInterface.InputDialog(
-        inputs=inputs,
-        title="Matchy Matchy",
-        datatype=datatype,
-        initial=initial,
-        options=options,
-        required=[k_copy],
+        [
+            sg.Text(f'Match structures to TG-263 Formalism')
+        ],
+        [
+            sg.Frame(
+                layout=[
+                    [
+                        sg.Combo(
+                            color_schemes,
+                            default_value=color_schemes[0],
+                            size=(30, 1),
+                            key="-COLOR SCHEME-"
+                        )
+                    ],
+                ],
+                title='Color Selection',
+                relief=sg.RELIEF_SUNKEN,
+                tooltip='Select a color template',
+                key=frames[1]
+            ),
+        ],
+        [sg.Frame(
+            layout=[
+                [sg.Text('Suffix to be used for any structure that cannot be renamed, e.g. _A for adaptive')],
+                [sg.InputText('_A', key='-SUFFIX-')]
+            ],
+            title='Existing Structures',
+            relief=sg.RELIEF_SUNKEN,
+            visible=True,
+            key=frames[0]
+        )],
+        [sg.Frame(
+            layout=match_row,
+            title='Unmatched Structures',
+            relief=sg.RELIEF_SUNKEN,
+            tooltip='Match each structure or type in correct name',
+            visible=True,
+            key=frames[2]
+        )],
+    ]
+    bottom = [
+        [
+            sg.Submit(tooltip='Click to submit this window'),
+            sg.Cancel()
+        ]
+    ]
+    layout = [[sg.Column(top)], [sg.Column(bottom)]]
+
+    window = sg.Window(
+        'Matchy Matchy',
+        layout,
+        default_element_size=(40, 1),
+        grab_anywhere=False
     )
-    # Launch the dialog
-    response = matchy_dialog.show()
-    if response == {}:
-        logging.info("create_objective cancelled by user")
-        sys.exit("create_objective cancelled by user")
-    # Parse the responses
-    dialog_result = {}
-    # Figure out if we are copying or renaming.
-    dialog_result["Suffix"] = response[k_copy]
-    df_matches = {}
-    for r, m in response.items():
-        # Manage responses
-        if r != k_copy:
-            # Change the name of r to m
-            if not m:
-                dialog_result[r] = None
-            else:
-                if df_rois is not None:
-                    df_e = df_rois[df_rois.name == m]
-                    # If more than one result is returned by the dataframe search report an error
-                    if len(df_e) > 1:
-                        logging.warning(
-                            "Too many matching {}. That makes me a sad panda. :(".format(
-                                m
-                            )
-                        )
-                    elif df_e.empty:
-                        logging.debug("{} was not found in the protocol list".format(m))
-                        found_index = None
-                    else:
-                        df_matches[m] = df_e
-                        e_name = df_e.name.values[0]
-                        found_index = df_e.index
-                else:
-                    for e_index, standard_rois in enumerate(elements):
-                        if standard_rois.find("name").text == m:
-                            found_index = e_index
-                            break
-                        else:
-                            found_index = None
-                if found_index is not None:
-                    if df_rois is None:
-                        logging.debug(
-                            "Found element match {}: returning element {}".format(
-                                r, elements[found_index].find("name").text
-                            )
-                        )
-                        dialog_result[r] = elements[found_index]
-                    else:
-                        dialog_result[r] = df_e
-                # Address user supplied contour
-                else:
-                    logging.debug(
-                        "No element match {}: returning string {}".format(r, m)
-                    )
-                    dialog_result[r] = m
-    return dialog_result
 
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cancel":
+            responses = {}
+            break
+        elif event == "Submit":
+            suffix = values['-SUFFIX-']
+            values.pop('-SUFFIX-')
+            color_scheme = values['-COLOR SCHEME-']
+            values.pop('-COLOR SCHEME-')
+            responses = values
+            break
+    window.close()
+    # Parse responses
+    if responses == {}:
+        logging.info("Matching dialog cancelled by user")
+        sys.exit("Matching Dialog Cancelled")
+    dialog_result = {}
+    for r, m in responses.items():
+        dialog_result[r] = find_gui_match(m,elements,df_rois)
+    return suffix, color_scheme, dialog_result
+
+# def match_dialog(matches, elements, df_rois=None):
+#     """
+#     Dialog for matching taking the matches found in the search and
+#     pairing them with protocol elements
+#     :param matches: matched elements in the form {PlanROI: <Matched_Protocol ROI>}
+#     :param elements: Elementtree list of roi elements
+#     :return: dialog_result:
+#                             {'CopyOfReplace':<'Copy' or 'Replace'>,
+#                             PlanROI: <Matching ROI subelement>, or
+#                             a string indicating a user-typed input}
+#     """
+#     # Make dialog inputs
+#     inputs = {}
+#     initial = {}
+#     datatype = {}
+#     options = {}
+#     # First element
+#     k_copy = "0"
+#     inputs[
+#         k_copy
+#     ] = "Structures that cannot be renamed should have suffix, e.g. (_R or _A):"
+#     initial[k_copy] = "_R"
+#     datatype[k_copy] = "text"
+#     for k, v in matches.items():
+#         inputs[k] = k
+#         datatype[k] = "combo"
+#         options[k] = [x[1] for x in v]
+#         initial[k] = v[0][1]
+#
+#     matchy_dialog = UserInterface.InputDialog(
+#         inputs=inputs,
+#         title="Matchy Matchy",
+#         datatype=datatype,
+#         initial=initial,
+#         options=options,
+#         required=[k_copy],
+#     )
+#     # Launch the dialog
+#     response = matchy_dialog.show()
+#     if response == {}:
+#         logging.info("create_objective cancelled by user")
+#         sys.exit("create_objective cancelled by user")
+#     # Parse the responses
+#     dialog_result = {}
+#     # Figure out if we are copying or renaming.
+#     dialog_result["Suffix"] = response[k_copy]
+#     df_matches = {}
+#     for r, m in response.items():
+#         # Manage responses
+#         if r != k_copy:
+#             # Change the name of r to m
+#             if not m:
+#                 dialog_result[r] = None
+#             else:
+#                 if df_rois is not None:
+#                     df_e = df_rois[df_rois.name == m]
+#                     # If more than one result is returned by the dataframe search report an error
+#                     if len(df_e) > 1:
+#                         logging.warning(
+#                             "Too many matching {}. That makes me a sad panda. :(".format(
+#                                 m
+#                             )
+#                         )
+#                     elif df_e.empty:
+#                         logging.debug("{} was not found in the protocol list".format(m))
+#                         found_index = None
+#                     else:
+#                         df_matches[m] = df_e
+#                         e_name = df_e.name.values[0]
+#                         found_index = df_e.index
+#                 else:
+#                     for e_index, standard_rois in enumerate(elements):
+#                         if standard_rois.find("name").text == m:
+#                             found_index = e_index
+#                             break
+#                         else:
+#                             found_index = None
+#                 if found_index is not None:
+#                     if df_rois is None:
+#                         logging.debug(
+#                             "Found element match {}: returning element {}".format(
+#                                 r, elements[found_index].find("name").text
+#                             )
+#                         )
+#                         dialog_result[r] = elements[found_index]
+#                     else:
+#                         dialog_result[r] = df_e
+#                 # Address user supplied contour
+#                 else:
+#                     logging.debug(
+#                         "No element match {}: returning string {}".format(r, m)
+#                     )
+#                     dialog_result[r] = m
+#     return dialog_result
+#
 
 def iter_standard_rois(etree):
     """
@@ -1853,13 +1983,9 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
             exact_match.append(match[0][1])
 
     # Launch the dialog to get the list of matched elements
-    matched_rois = match_dialog(
-        matches=potential_matches_exacts_removed, elements=roi263, df_rois=df_rois
-    )
-    # Store the suffix and pop it
-    suffix = matched_rois["Suffix"]
-    matched_rois.pop("Suffix")
-    ##return_rois = {}
+    suffix, color_scheme, matched_rois = match_gui(matches=potential_matches_exacts_removed,
+                                                   elements=roi263,
+                                                   df_rois=df_rois)
     # matched_rois now contains:
     # the keys as the planning structures, and the elementtree element found to match (or None)
     for k, v in matched_rois.items():
