@@ -368,8 +368,12 @@ def make_fov(rso, fov_name, inner_fov_name):
     # FOV parameters
     # Get the reconstruction diameter which is the actual FOV
     #   grab dicom tag: 0018, 1100 'Reconstruction Diameter'
-    fov_pair = rso.exam.GetStoredDicomTagValueForVerification(Group=0x0018, Element=0x1100)
-    image_fov = fov_pair['Reconstruction Diameter']
+    try:
+        fov_pair = rso.exam.GetStoredDicomTagValueForVerification(Group=0x0018, Element=0x1100)
+        image_fov = fov_pair['Reconstruction Diameter']
+    except Exception as e:  # This has been wiped in some anonymous datasets
+        bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
+        image_fov = bb[1].x - bb[0].x
     fov_outer = float(image_fov) / 10.  # mm-> cm
     fov_inner = float(image_fov) / 10. - 1.  # mm-> cm
     #
