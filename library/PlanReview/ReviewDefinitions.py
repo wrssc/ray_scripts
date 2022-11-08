@@ -40,48 +40,73 @@ PACEMAKER_DOSE = 200.  # cGy
 # DOSE GRID PREFERENCES
 DOSE_GRID_DEFAULT = 0.2  # 2 mm
 
+PLAN_NAMES = {'LUNG_SBRT':
+                  ['LUL', 'LLL', 'RUL', 'RML', 'RLL', 'LunR_SBR', 'LunL_SBR',
+                   'LuLU_SBR', 'LuLL_SBR', 'LuRU_SBR', 'LuRM_SBR', 'LuRL_SBR'],
+              'BREAST_SBRT':
+                  ['BreR_SBR', 'BreL_SBR', ],
+              'ABDOMEN_SBRT':
+                  ['Abdo_SBR', 'LivR_SBR', 'Panc_SBR', ],
+              'PELVIS_SBRT':
+                  ['Pelv_SBR', 'HipR_SBR', 'HipL_SBR'],
+              'BRAIN_FSRT':
+                  ['Brai_SBR', 'Brai_FSR', 'PTV1_FSR', 'PTV2_FSR', 'PTV3_FSR', 'PTV4_FSR', 'PTV5_FSR'],
+              'SPINE_SBRT':
+                  ['SpiT_SBR', 'SpiC_SBR', 'SpiL_SBR'],
+              'HEAD_NECK_SBRT':
+                  ['NecB_SBR', 'NecR_SBR', 'NecL_SBR'],
+              'SRS':
+                  ['SRS'],
+              'TBI':
+                  ['TBI'],
+              'VMAT':
+                  ['VMA', '3CA'],
+              'THI':
+                  ['THI', 'T3D'],
+              '3D':
+                  '3CA'
+              }
+
 GRID_PREFERENCES = {
     'SBRT': {
-        'PLAN_NAMES': ['LUL', 'LLL', 'RUL', 'RML', 'RLL', 'LunR_SBR', 'LunL_SBR',
-                       'LuLU_SBR', 'LuLL_SBR', 'LuRU_SBR', 'LuRM_SBR', 'LuRL_SBR',
-                       'BreR_SBR', 'BreL_SBR', 'Abdo_SBR', 'LivR_SBR', 'Panc_SBR',
-                       'Pelv_SBR', 'HipR_SBR', 'HipL_SBR'],
+        'PLAN_NAMES': PLAN_NAMES['LUNG_SBRT'] + PLAN_NAMES['BREAST_SBRT'] \
+                      + PLAN_NAMES['ABDOMEN_SBRT'] + PLAN_NAMES['PELVIS_SBRT'],
         'DOSE_GRID': 0.15,  # 1.5 mm
         'FRACTION_SIZE_LIMIT': 801,  # cGy
         'SLICE_THICKNESS': 0.2,  # 2.0 mm
     },
     'SBRT_FINE': {
-        'PLAN_NAMES': ['Pros_SBR', 'Brai_SBR', 'NecB_SBR', 'NecL_SBR', 'SpiT_SBR', 'SpiL_SBR', 'SpiC_SBR'],
+        'PLAN_NAMES': PLAN_NAMES['SPINE_SBRT'] + PLAN_NAMES['HEAD_NECK_SBRT'],
         'DOSE_GRID': 0.15,  # 1.5 mm
         'FRACTION_SIZE_LIMIT': 801,  # cGy
         'SLICE_THICKNESS': 0.1,  # 2.0 mm
     },
     'SRS': {
-        'PLAN_NAMES': ['SRS', 'FSR'],
+        'PLAN_NAMES': PLAN_NAMES['BRAIN_FSRT'] + PLAN_NAMES['SRS'],
         'DOSE_GRID': 0.1,  # 1.0 mm
         'FRACTION_SIZE_LIMIT': 1500,  # cGy
         'SLICE_THICKNESS': 0.1,  # 1.0 mm
     },
     'TBI': {
-        'PLAN_NAMES': ['TBI'],
+        'PLAN_NAMES': PLAN_NAMES['TBI'],
         'DOSE_GRID': 0.5,  # 5 mm
         'FRACTION_SIZE_LIMIT': None,  # Don't check
         'SLICE_THICKNESS': 0.4,  # 4 mm
     },
     'VMAT': {
-        'PLAN_NAMES': ['VMA', '3CA'],
+        'PLAN_NAMES': PLAN_NAMES['VMAT'],
         'DOSE_GRID': 0.3,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.3,  # 3 mm
     },
     'THI': {
-        'PLAN_NAMES': ['THI', 'T3D'],
+        'PLAN_NAMES': PLAN_NAMES['THI'],
         'DOSE_GRID': 0.3,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.3,  # 3 mm
     },
     '3D': {
-        'PLAN_NAMES': ['3DC'],
+        'PLAN_NAMES': PLAN_NAMES['3D'],
         'DOSE_GRID': 0.4,  # 3 mm
         'FRACTION_SIZE_LIMIT': 800,  # cGy
         'SLICE_THICKNESS': 0.4,  # 4 mm
@@ -121,3 +146,18 @@ TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                                 'X-MAX': 40.,  # X2 - X1 ≤ 40 cm
                                 'X-MIN': 4.,  # X2 - X1 ≥ 4 cm
                                 }}
+# PLANNING PREFERENCES - CLINICAL
+TOMO_PREFERENCES = {'ABDOMEN': {'ALIAS': ['Abdo_THI', 'Livr_THI', 'Panc_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.6},
+                    'BRAIN': {'ALIAS': ['Brai_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.6},
+                    'BREAST': {'ALIAS': ['BreL_THI', 'BreR_THI', 'ChwL_THI', 'ChwR_THI'], 'MF_HIGH': 2.8, 'MF_LOW': 2.4},
+                    'CSI': {'ALIAS': ['CSI_THI'], 'MF_HIGH': 2.2, 'MF_LOW': 1.8},
+                    'EXTREMITY': {'ALIAS': ['ArmL_THI', 'ArmR_THI', 'LegL_THI', 'LegR_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 2.0},
+                    'GYN': {'ALIAS': ['Vulv_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.8},
+                    'HN': {'ALIAS': ['NecB_THI', 'NecR_THI', 'NecL_THI'], 'MF_HIGH': 2.6, 'MF_LOW': 2.2},
+                    'LUNG-NO-SBRT': {'ALIAS': ['LunL_THI', 'LunR_THI', 'LunB_THI', 'Medi_THI'], 'MF_HIGH': 2.8, 'MF_LOW': 2.4},
+                    'LUNG-SBRT': {'ALIAS': PLAN_NAMES['LUNG_SBRT'], 'MF_HIGH': 1.4, 'MF_LOW': 1.2},
+                    'PELVIS': {'ALIAS': ['Pelv_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.8},
+                    'PROSTATE-LOW-RISK': {'ALIAS': ['Pros_THI'], 'MF_HIGH': 2.2, 'MF_LOW': 1.6},
+                    'PROSTATE-HIGH-RISK': {'ALIAS': ['ProN_THI','ProF_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 2.0},
+                    'TOMO_3D': {'ALIAS': ['T3D'],'MF_HIGH':2.2,'MF_LOW':1.1},
+}
