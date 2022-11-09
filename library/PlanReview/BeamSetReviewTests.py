@@ -1239,6 +1239,9 @@ def check_mod_factor(rso):
         TODO: FAIL: Script_Testing, #ZZUWQA_ScTest_13May2022b, Esop_VMA_R1A0
     """
     message_str = ""
+    site_found = None
+    mod_high = None
+    mod_low = None
     for site, prefs in TOMO_PREFERENCES.items():
         site_exp = "".join([v + '|' for v in prefs['ALIAS']])
         site_exp = site_exp[:len(site_exp) - 1]  # Drop the last pipe
@@ -1248,10 +1251,14 @@ def check_mod_factor(rso):
             mod_low = prefs['MF_LOW']
             site_found = site
             break
+
     # Check the current mod factors versus reported
     for b in rso.beamset.Beams:
         mod_factor = compute_mod_factor(beam=b)
-        if mod_factor < mod_low:
+        if not site_found:
+            pass_result = ALERT
+            message_str += f"No matching body site found for Beam {b.Name} MF: {mod_factor:.2f}"
+        elif mod_factor < mod_low:
             pass_result = ALERT
             message_str += f"Beam {b.Name} MF < {mod_low:.2f} for site {site_found}"
         elif mod_factor > mod_high:
