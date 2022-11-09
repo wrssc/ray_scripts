@@ -419,6 +419,7 @@ def get_beamset_level_tests(rso, physics_review=True):
         try:
             rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
             beamset_checks_dict["Isocenter Lateral Acceptable"] = (BeamSetReviewTests.check_tomo_isocenter, {})
+            beamset_checks_dict["Modulation Factor Acceptable"] = (BeamSetReviewTests.check_mod_factor,{})
             beamset_checks_dict["Transfer BeamSet Approval Status"] = (BeamSetReviewTests.check_transfer_approved, {})
         except Exception as e:
             logging.debug('Cannot check beamsets yet {}'.format(str(e)))
