@@ -1,5 +1,6 @@
 <protocol version="1">
     <notes date="06APR2022">Created</notes>
+    <AnatomicGroup>Breast</AnatomicGroup>
     <name>UW PRDR Breast</name>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>

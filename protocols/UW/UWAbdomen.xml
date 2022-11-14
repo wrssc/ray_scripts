@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Abdomen</name>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
     <ct>
         <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
         <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>

@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Abdomen SBRT 5 Fx</name>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_LIVER_WITH_BOLUSTRACKING</protocol>
         <protocol institution="UWHC">XRT_ABDOMEN_RESPGATING</protocol>

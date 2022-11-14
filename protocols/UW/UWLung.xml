@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Lung nonSBRT</name>
+    <AnatomicGroup>Thorax</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
         <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>

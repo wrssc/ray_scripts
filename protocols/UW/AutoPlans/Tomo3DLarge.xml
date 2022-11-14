@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Tomo3D Large Target</name>
+    <AnatomicGroup>Head and Neck,Thorax,Abdomen,Pelvis,Limb,Spine,Body</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>

@@ -1,5 +1,6 @@
 <protocol>
     <name>NRG Head and Neck NRG-HN004</name>
+    <AnatomicGroup>Head and Neck</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>

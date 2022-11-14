@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Tomo TBI</name>
+    <AnatomicGroup>Body</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>

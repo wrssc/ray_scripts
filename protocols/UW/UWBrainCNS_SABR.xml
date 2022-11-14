@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Brain SABR</name>
+    <AnatomicGroup>Head and Neck</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_FSRT_HEAD</protocol>
     </ct>
