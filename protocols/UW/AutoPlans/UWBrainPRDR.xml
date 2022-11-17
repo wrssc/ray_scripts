@@ -1,6 +1,6 @@
 <protocol version="1">
     <name>UW PRDR Brain</name>
-    <AnatomicGroup>Head and Neck</AnatomicGroup>
+    <AnatomicGroup>Head</AnatomicGroup>
     <notes date="06APR2022">Created</notes>
     <ct>
         <protocol institution="UWHC">XRT_HEAD</protocol>

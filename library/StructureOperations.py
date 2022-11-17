@@ -1321,8 +1321,9 @@ def match_gui(matches, elements, df_rois=None):
         sys.exit("Matching Dialog Cancelled")
     dialog_result = {}
     for r, m in responses.items():
-        dialog_result[r] = find_gui_match(m,elements,df_rois)
+        dialog_result[r] = find_gui_match(m, elements, df_rois)
     return suffix, color_scheme, dialog_result
+
 
 # def match_dialog(matches, elements, df_rois=None):
 #     """
@@ -3246,6 +3247,438 @@ class PlanningStructurePreferences:
         self.use_target_shells = None
         self.target_shell_properties = {'standoff': None}
         self.plan_type = None
+
+
+import sys
+
+rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"
+sys.path.append("U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW")
+sys.path.append("U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW\\AutoPlans")
+sys.path.append(
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW\\beamset_templates")
+from os import path, listdir
+import xml
+
+PROTOCOL_FOLDER = path.join(rab_git, 'protocols')
+INSTITUTION_FOLDER = r'UW'
+BEAMSET_FOLDER = r'beamset_templates'
+PATH_BEAMSETS = path.join(PROTOCOL_FOLDER, INSTITUTION_FOLDER, BEAMSET_FOLDER)
+
+
+def load_beamsets(beamset_type, beamset_modality):
+    """
+    params: folder: the file folder containing xml files of autoplanning protocols
+    return: protocols: a dictionary containing
+                       <protocol_name>: [protocol_ElementTree,
+                                         path+file_name]
+    """
+    beamsets = {}
+    # Search file list for xml files containing templates
+    # logging.debug('Looking for beamset types {}'.format(beamset_type))
+    for f in listdir(PATH_BEAMSETS):
+        if f.endswith('.xml'):
+            tree = xml.etree.ElementTree.parse(path.join(PATH_BEAMSETS, f))
+            if tree.getroot().tag == 'templates':
+                if beamset_type in [t.text for t in tree.findall('type')] \
+                        and beamset_modality in tree.find('modality').text:
+                    for bs in tree.findall('beamset'):
+                        n = str(bs.find('name').text)
+                        beamsets[n] = [None, None]
+                        beamsets[n][0] = bs
+                        beamsets[n][1] = f
+    return beamsets
+
+
+def find_beamset_element(beamsets, beamset_name):
+    beamset_et = beamsets[beamset_name][0]
+    file_name = beamsets[beamset_name][1]
+    return beamset_et, file_name
+
+
+# TODO: add a check for existing isocenters
+def get_pois(pd):
+    found_poi = [p.Name for p in pd.case.PatientModel.PointsOfInterest]
+    return found_poi
+
+
+def get_qualities(pd):
+    # Get photon beam qualities
+    machine = get_machine(pd.beamset.MachineReference.MachineName)
+    qualities = []
+    try:
+        pbb = machine.PhotonBeamQualities
+    except AttributeError:
+        logging.debug('No nominal energy attribute for beamset {}'.format(pd.beamset.DicomPlanLabel))
+        return qualities
+    for q in pbb:
+        q_str = "{:.0f}".format(q.NominalEnergy)
+        if q.FluenceMode:
+            q_str += r' ' + q.FluenceMode
+        qualities.append(q_str)
+    return qualities
+
+
+def get_isos(pd):
+    isos = {}
+    beamsets = [bs for tp in pd.case.TreatmentPlans for bs in tp.BeamSets]
+    for bs in beamsets:
+        for b in bs.Beams:
+            if bs.DicomPlanLabel not in isos.keys():
+                iso_name = bs.DicomPlanLabel + ':' + b.Isocenter.Annotation.Name
+                isos[iso_name] = {'-Beamset Name-': bs.DicomPlanLabel, '-Iso Name-': b.Isocenter.Annotation.Name}
+    return isos
+
+
+def load_protocols(folder):
+    """
+    params: folder: the file folder containing xml files of autoplanning protocols
+    return: protocols: a dictionary containing
+                       <protocol_name>: [protocol_ElementTree,
+                                         path+file_name]
+    """
+    protocols = {}
+    # Search protocol list, parsing each XML file for protocols and goalsets
+    for f in os.listdir(folder):
+        if f.endswith('.xml'):
+            tree = xml.etree.ElementTree.parse(os.path.join(folder, f))
+            if tree.getroot().tag == 'protocol':
+                n = tree.find('name').text
+                protocols[n] = [None, None]
+                protocols[n][0] = tree.getroot()
+                protocols[n][1] = f
+    return protocols
+
+
+def site_list(protocols):
+    sites = []
+    for n, p in protocols.items():
+        raw_sites = p[0].find('AnatomicGroup').text.replace(", ", "")
+        sites += raw_sites.split(",")
+    return list(set(sites))
+
+
+def site_protocol_list(protocols, site_name):
+    matching_protocols = {}
+    for n, p in protocols.items():
+        if site_name in p[0].find('AnatomicGroup').text:
+            matching_protocols[n] = p[0]
+    return matching_protocols
+
+
+def order_dict(protocol):
+    # Return a dictionary of {'order name': order_element}
+    orders = {}
+    for o in protocol[0].findall('order'):
+        orders[o.find('name').text] = o
+    return orders
+
+
+def all_orders(protocols):
+    orders = {}
+    for n, p in protocols.items():
+        for o in p[0].findall('order'):
+            orders[o.find('name').text] = o
+    return orders
+
+
+def find_order(protocol, order_name):
+    # Look in a protocol elementtree and return an order name match
+    # If more than one instance of the same order name is found,
+    # or if no match is found, return none
+    orders = order_dict(protocol)
+    matched_orders = []
+    for k, o in orders.items():
+        if k == order_name:
+            matched_orders.append(o)
+    if len(matched_orders) == 1:
+        return matched_orders[0]
+    else:
+        return None
+
+import PySimpleGUI as sg
+import os
+
+def build_planning_strategy_frame(site_event, sites,
+                                  protocol_event, protocols,
+                                  order_event, orders,
+                                  target_event,
+                                  max_targets, strategy_event,
+                                  planning_strategies):
+    # Initialization
+    target_numbers = list(range(1, max_targets + 1))  # Target number choices
+    #
+    # Site Selection
+    site_combo = [sg.Combo(sites,
+                           default_value='Select Site',
+                           key=site_event,
+                           size=(30, 1),
+                           tooltip='Select Site',
+                           enable_events=True)]
+    #
+    # Protocol Selection
+    protocol_combo = [sg.Combo(protocols,
+                               key=protocol_event,
+                               default_value='',
+                               size=(30, 1),
+                               tooltip='Select Protocol',
+                               enable_events=True)]
+    #
+    # Order Selection
+    order_combo = [sg.Combo(orders,
+                            default_value='',
+                            key=order_event,
+                            size=(30, 1),
+                            tooltip='Select Treatment Planning Order',
+                            enable_events=True)]
+    #
+    # Planning Strategy
+    planning_combo = [sg.Combo(planning_strategies,
+                               default_value='',
+                               key=strategy_event,
+                               size=(30, 1),
+                               tooltip='Select Treatment Planning Order',
+                               enable_events=True)]
+    #
+    # Number of targets prompt
+    target_combo = [sg.Combo(target_numbers,
+                             default_value='',
+                             key=target_event,
+                             size=(30, 1),
+                             enable_events=True)
+                    ]
+    #
+    # Build the return frame
+    general_frame = sg.Frame(layout=[site_combo, protocol_combo, order_combo, target_combo],
+                             visible=True,
+                             title='General Options',
+                             key='General Options')
+    return [general_frame]
+
+
+def build_target_frame(targets, plan_targets):
+    # Takes in
+    # target indices,
+    # targets in the plan,
+    # poi list,
+    # target lists
+    # isocenter lists
+    # beamset lists (TODO Build from planning strategy frame)
+    # and builds a three column set of targets
+    # each selection component should be tied to the key of a target type
+    # Target name, Dose, Beamset assignment
+    target_rows = 5
+    target_col1 = []
+    target_col2 = []
+    target_col3 = []
+    target_indicies = [t.Index for t in targets]
+    for i in target_indicies:
+        target_frame = sg.Frame(layout=[[sg.Combo(plan_targets,
+                                                  size=(20, 1)),
+                                         sg.Text('Dose',
+                                                 justification='right'),
+                                         sg.Input(key='TARGET' + str(i) + 'DOSE', size=(6, 1)),
+                                         sg.Text('cGy')]],
+                                visible=False,
+                                title='Target ' + str(i),
+                                key='Target' + str(i))
+        if i <= target_rows:
+            target_col1.append([target_frame])
+        elif target_rows < i <= 2 * target_rows:
+            target_col2.append([target_frame])
+        else:
+            target_col3.append([target_frame])
+    return [sg.Column(target_col1), sg.Column(target_col2), sg.Column(target_col3)]
+
+
+from dataclasses import dataclass
+from typing import Any
+
+
+@dataclass
+class Isocenter:
+    Poi: str
+    Roi: str
+    Iso_0: str
+
+
+@dataclass
+class Target:
+    Index: int
+    Key: str
+    OrderTarget: str
+    PlanTarget: str
+    Dose: float
+    BeamsetName: str
+    Iso: Isocenter
+
+
+def init_target_assignments(max_targets):
+    target_assignments = []
+    for i in range(max_targets):
+        target_assignments.append(Target(i + 1, 'Target' + str(i + 1), "", "", 0.0, None, Isocenter("", "", "")))
+    return target_assignments
+
+
+def find_index(target_assignments, index):
+    for t in target_assignments:
+        if t.Index == index:
+            return t
+    return None
+
+
+def update_target_assignments(target_assignments,
+                              plan_names={},
+                              order_names={},
+                              dose_levels={},
+                              beamset_assignments={},
+                              isocenter_assignments={}
+                              ):
+    # Consider a class for this dictionary
+    for k, v in plan_names.items():
+        t = find_index(target_assignments, k)
+        t.PlanTarget = v
+    for k, v in order_names.items():
+        t = find_index(target_assignments, k)
+        t.OrderTarget = v
+    for k, v in dose_levels.items():
+        t = find_index(target_assignments, k)
+        t.Dose = v
+    for k, v in beamset_assignments.items():
+        t = find_index(target_assignments, k)
+        t.BeamsetName = v
+    for k, v in isocenter_assignments.items():
+        t = find_index(target_assignments, k)
+        if v['Type'] == 'Poi':
+            t.Iso.Poi = str(v['Name'])
+        elif v['Type'] == 'Roi':
+            t.Iso.Roi = str(v['Name'])
+        elif v['Type'] == 'Iso_0':
+            t.Iso.Iso_0 = str(v['Name'])
+    return target_assignments
+
+
+def dialog_planning_structures(protocol_dir, planning_strategies, plan_targets):
+    # Initialize inputs by loading files
+    beamsets = load_beamsets(beamset_type, modality)
+    protocols = load_protocols(protocol_dir)
+    sites = site_list(protocols)
+    orders = all_orders(protocols)
+    dialog_name = 'Planning Generation'
+    max_targets = 15
+    targets = init_target_assignments(max_targets)
+    # Data for the General Strategy Frame
+    target_event = '-TARGETS SELECTED-'
+    site_event = '-SITE SELECTED-'
+    protocol_event = '-PROTOCOL SELECTED-'
+    order_event = '-ORDER SELECTED-'
+    target_data = {'EVENT': target_event}
+    frames = {'-GENERAL STRATEGY-': {'-EVENT N TARGETS-': target_event,
+                                     '-FRAME-': None,
+                                     },
+              '-TARGET SETTINGS-': {'-EVENT-': None,
+                                    '-FRAME-': build_target_frame(targets, plan_targets), },
+
+              '-UNIF & UNDER-': {},
+              '-OPTIONS-': {}}
+    frames['-GENERAL STRATEGY-']['-FRAME-'] = build_planning_strategy_frame(
+        site_event=site_event,
+        sites=sites,
+        protocol_event=protocol_event,
+        protocols=protocols.keys(),
+        order_event=order_event,
+        orders=orders.keys(),
+        target_event=target_event,
+        max_targets=max_targets,
+        planning_strategies=planning_strategies)
+    combos = {'-STRATEGY-': planning_strategies}
+    check_boxes = ['-INNER AIR-', '-UNIFORM DOSE-', '-UNDER DOSE-', ]
+    uniform_visible = False
+    underdose_visible = False
+    targets_visible = False
+    frame_width = 60
+    frame_n_targets = {'KEY': '-TARGET SETTINGS-',
+                       'TITLE': 'Target selections',
+                       # 'SIZE': (frame_width,100),
+                       'JUST': 'center',
+                       'layout': [frames['-GENERAL STRATEGY-']['-FRAME-'], frames['-TARGET SETTINGS-']['-FRAME-']]
+                       }
+    first_column = [
+        [sg.Text(
+            dialog_name,
+            size=(frame_width, 1),
+            justification='center',
+            font=("Helvetica", 16),
+            relief=sg.RELIEF_RIDGE
+        )],
+        [
+            sg.Frame(
+                layout=frame_n_targets['layout'],
+                title=frame_n_targets['TITLE'],
+                relief=sg.RELIEF_SUNKEN,
+                tooltip='FRAME STUFF',
+                key=frame_n_targets['KEY'])
+        ], ]
+    bottom = [
+        [
+            sg.Submit(tooltip='Click to submit this window'),
+            sg.Cancel()
+        ]
+    ]
+    layout = [[sg.Column(first_column)], [sg.Column(bottom)]]
+    window = sg.Window(
+        'Planning Structure Generation',
+        layout,
+        default_element_size=(40, 1),
+        grab_anywhere=False
+    )
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cancel":
+            responses = {}
+            break
+        elif event == "Submit":
+            responses = values
+            break
+        elif event == target_event:
+            num_targets = int(values[target_event])
+            update_target_visibility(window, targets, num_targets)
+        elif event == site_event:
+            site_name = values[site_event]
+            update_protocols(window, site_name, protocol_event, protocols)
+            # Update the potential protocol choices based on those for this site
+        elif event == protocol_event:
+            protocol = protocols[values[protocol_event]]
+            update_orders(window, protocol, order_event)
+        elif event == order_event:
+            update_num_targets(window, target_event)
+
+    window.close()
+    #
+    return values
+
+
+def update_target_visibility(window, targets, num_targets):
+    # Update the number of targets in the target frame
+    for t in targets:
+        if t.Index <= num_targets:
+            window[t.Key].update(visible=True)
+        else:
+            window[t.Key].update(visible=False)
+
+
+def update_protocols(window, site_name, protocol_event, protocols):
+    options = list(site_protocol_list(protocols, site_name).keys())
+    window[protocol_event].update(value='Select Protocol', values=options)
+
+
+def update_orders(window, protocol, order_event):
+    options = list(order_dict(protocol).keys())
+    window[order_event].update(value='Select Treatment Planning Order', values=options)
+
+
+def update_num_targets(window, target_event):
+    window[target_event].update(value='Select Number of Targets')
 
 
 def dialog_number_of_targets():

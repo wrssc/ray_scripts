@@ -1,6 +1,6 @@
 <protocol>
     <name>UW Generic</name>
-    <AnatomicGroup>Body</AnatomicGroup>
+    <AnatomicGroup>Head,Neck,Thorax,Abdomen,Pelvis,Limb,Body,Skin</AnatomicGroup>
     <ct>
     </ct>
     <institutions>

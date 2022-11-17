@@ -31,6 +31,9 @@
      log and to status
     -Output the objective value/plan params to a file for parsing
     -Add timing measurements
+    TODO: Add a single pysimple gui for this whole program.
+    TODO: Add SRS specific planning structure strategy
+
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -81,16 +84,6 @@ from PlanOperations import find_optimization_index
 import autoplan_whole_brain
 import FinalDose
 
-
-# import xml.etree.ElementTree
-# import pandas
-# import re
-# import csv
-
-# TODO: move autoplan_whole_brain to library
-
-
-# Insert the general directory into the python path to allow autoplan_whole_brain
 # from Objectives import add_goals_and_objectives_from_protocol
 
 def target_dialog(case, protocol, order, use_orders=True):
@@ -411,10 +404,25 @@ def autoplan(testing_bypass_dialogs={}):
         bs=beamset_name, m=machine, iso=iso_target))
     beamset_defs = BeamOperations.BeamSet()
     # Beamset element
+    # I think we want to grab a preferred beamset name out of autoplan file or be able to take as input
+    # Look for a beamset_template call, if one is found, get the template from beamset_templates dir
+    # TODO add modality here based on machine. User chose the machine, so we should be able to
+    #   match to the machine attribute in the technique tag of the prescription tag in the order
+    p = order.find('prescription')
+    for t in p.findall('technique'):
+        if t.attrib('machine').text == machine:
+            delivery_technique = t.attrib('technique').text
+            delivery_modality = t.attrib('modality').text
+            break
+    beamsets = BeamOperations.load_beamsets(beamset_type=delivery_technique,beamset_modality=delivery_modality)
+    for bt in order.findall('beamset_template'):
+        beamset_etree = BeamOperations.find_beamset_element(beamsets)
+    # Look for a hard coded beamset in this file.
     for b in protocol.findall('beamset'):
         if b.find('name').text == beamset_name:
             beamset_etree = b
             break
+
     # Start plan building
     ap_report['time_plan'][0] = timer()
     # Populate the beamset definitions

@@ -1,6 +1,6 @@
 <protocol>
     <name>UW TomoPRD</name>
-    <AnatomicGroup>Head and Neck</AnatomicGroup>
+    <AnatomicGroup>Head</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>

@@ -1,6 +1,6 @@
 <protocol>
     <name>UW Brain SRS</name>
-    <AnatomicGroup>Head and Neck</AnatomicGroup>
+    <AnatomicGroup>Head</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_SRS_HEAD</protocol>
         <protocol institution="UWHC">XRT_SRS_HEAD_WITH_CONTRAST</protocol>

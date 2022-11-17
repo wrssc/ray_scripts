@@ -74,6 +74,16 @@ import PlanOperations
 import GeneralOperations
 import Beams
 import datetime
+import os
+import xml
+
+PROTOCOL_FOLDER = r'../protocols'
+INSTITUTION_FOLDER = r'UW'
+BEAMSET_FOLDER = r'beamset_templates'
+PATH_BEAMSETS = os.path.join(os.path.dirname(__file__),
+                          PROTOCOL_FOLDER, INSTITUTION_FOLDER, BEAMSET_FOLDER)
+
+
 
 clr.AddReference('System')
 
@@ -3018,3 +3028,38 @@ def check_emc(beamset, stat_limit=0.01, histories=5e5):
                      .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
 
     return EmcTest
+
+
+def load_beamsets(beamset_type=None, beamset_modality=None):
+    """
+    params: folder: the file folder containing xml files of autoplanning protocols
+    return: protocols: a dictionary containing
+                       <protocol_name>: [protocol_ElementTree,
+                                         path+file_name]
+    """
+    beamsets = {}
+    # Search file list for xml files containing templates
+    for f in os.listdir(PATH_BEAMSETS):
+        if f.endswith('.xml'):
+            tree = xml.etree.ElementTree.parse(os.path.join(PATH_BEAMSETS, f))
+            if tree.getroot().tag == 'templates':
+                if beamset_type is None and beamset_modality is None:
+                    for bs in tree.findall('beamset'):
+                        n = str(bs.find('name').text)
+                        beamsets[n] = [None, None]
+                        beamsets[n][0] = bs
+                        beamsets[n][1] = f
+                elif beamset_type in [t.text for t in tree.findall('type')] \
+                        and beamset_modality in tree.find('modality').text:
+                    for bs in tree.findall('beamset'):
+                        n = str(bs.find('name').text)
+                        beamsets[n] = [None, None]
+                        beamsets[n][0] = bs
+                        beamsets[n][1] = f
+    return beamsets
+
+
+def find_beamset_element(beamsets, beamset_name):
+    beamset_et = beamsets[beamset_name][0]
+    file_name = beamsets[beamset_name][1]
+    return beamset_et, file_name

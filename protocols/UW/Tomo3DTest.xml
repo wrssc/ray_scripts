@@ -1,6 +1,6 @@
 <protocol>
     <name>UW Tomo3D</name>
-    <AnatomicGroup>Head and Neck,Thorax,Abdomen,Pelvis,Limb,Body</AnatomicGroup>
+    <AnatomicGroup>Head,Neck,Thorax,Abdomen,Pelvis,Limb,Body</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>
