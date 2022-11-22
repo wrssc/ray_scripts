@@ -399,6 +399,8 @@ def get_beamset_level_tests(rso, physics_review=True):
             (BeamSetReviewTests.check_dose_grid, {}),
         "Planning Risk Volume Assessment":
             (BeamSetReviewTests.check_prv_status, {}),
+        "Couch Zero Clearance Check":
+            (BeamSetReviewTests.check_isocenter_clearance, {}),
     }
 
     # Plan check for VMAT
