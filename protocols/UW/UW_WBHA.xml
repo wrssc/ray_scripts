@@ -22,7 +22,7 @@
     </prescription>
     <order>
         <name>Brain-WBRT-Hippocampal Avoidance [30Gy CC001]</name>
-        <prefix>WBHA_</prefix>
+        <prefix>WBHA</prefix>
         <prescription>
             <roi>
                 <name>PTV_Brain</name>
