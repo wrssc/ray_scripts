@@ -127,7 +127,11 @@ def compare_exam_date(rso):
     dcm_data = list(rso.exam.GetStoredDicomTagValueForVerification(Group=0x0008, Element=0x0020).values())
     approval_status = BeamSetReviewTests.approval_info(rso.plan, rso.beamset)
     if dcm_data:
-        dcm_date = parser.parse(dcm_data[0])
+        try:
+            dcm_date = parser.parse(dcm_data[0])
+        except TypeError:
+            DEFAULT_DATE = datetime.datetime(datetime.MINYEAR, 1, 1)
+            dcm_date = parser.parse(str(DEFAULT_DATE))
         #
         if approval_status.beamset_approved:
             current_time = parser.parse(str(rso.beamset.Review.ReviewTime))
@@ -311,6 +315,13 @@ def get_external(rso):
     return None
 
 
+def get_supports(rso):
+    supports = []
+    for r in rso.case.PatientModel.RegionsOfInterest:
+        if r.Type == 'Support':
+            supports.append(r.Name)
+    return supports
+
 # CONTOUR CHECKS
 def get_roi_list(case, exam_name=None):
     """
@@ -451,6 +462,49 @@ def make_wall(rso, name, outer_name, inner_name, exp):
     rso.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
         Examination=rso.exam, Algorithm="Auto"
     )
+
+
+def subtract_sources(rso, name, roi_A, roi_B):
+    name = rso.case.PatientModel.GetUniqueRoiName(DesiredName=name)
+    wall_intersection = rso.case.PatientModel.CreateRoi(
+        Name=name,
+        Color="192, 192, 192",
+        Type="Undefined",
+        TissueName=None,
+        RbeCellTypeName=None,
+        RoiMaterial=None,
+    )
+    margins = {
+        "Type": 'Expand',
+        "Superior": 0,
+        "Inferior": 0,
+        "Anterior": 0,
+        "Posterior": 0,
+        "Right": 0,
+        "Left": 0,
+    }
+    try:
+        rso.case.PatientModel.RegionsOfInterest[name].SetAlgebraExpression(
+            ExpressionA={
+                "Operation": 'Union',
+                "SourceRoiNames": [roi_A],
+                "MarginSettings": margins,
+            },
+            ExpressionB={
+                "Operation": 'Union',
+                "SourceRoiNames": [roi_B],
+                "MarginSettings": margins,
+            },
+            ResultOperation='Subtraction',
+            ResultMarginSettings=margins,
+        )
+        rso.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
+            Examination=rso.exam, Algorithm="Auto"
+        )
+        return name
+    except:
+        return None
+
 
 
 def intersect_sources(rso, name, sources):
