@@ -664,8 +664,10 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
                         '  returning lowest available index{}'.format(index[i]))
         return index[i]
     elif i == len(prot_vol) - 1:
-        logging.warning('rtog_sbrt_dgi.py: Target volume > RTOG volume limits' +
-                        ' returning highest available index{}'.format(index[i]))
+        message = f'Target volume {vol:.2f} > RTOG volume limits {prot_vol[i]:.2f}'\
+                  + ' returning goals for highest available volume'
+        connect.await_user_input(message)
+        logging.warning(message)
         return index[i]
     # Interpolate on i and i - 1
     else:
