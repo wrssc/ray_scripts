@@ -21,6 +21,7 @@ Dependencies::
 1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
 1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
 2.0.0 Adding the clinical objectives for IMRT
+2.0.1 HotFix for an error with a target that is too large for RTOG goals.
 
 
 Add objectives
@@ -654,7 +655,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     v = prot_vol[0]
     i = 0
     # Find first volume exceeding target volume or find the end of the list
-    while v <= vol and i <= len(prot_vol) - 1:
+    while v <= vol and i <= len(prot_vol) - 2:
         i += 1
         v = prot_vol[i]
     # Exceptions for target volumes exceeding or smaller than the minimum volume
