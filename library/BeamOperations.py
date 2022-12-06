@@ -76,6 +76,7 @@ import Beams
 import datetime
 import os
 import xml
+from UW_Definitions import *
 
 PROTOCOL_FOLDER = r'../protocols'
 INSTITUTION_FOLDER = r'UW'
@@ -317,6 +318,19 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
 
     return dialog_beamset
 
+def check_isocenter_position(case,exam,beamset,iso_position):
+    """
+
+    :param case:
+    :param exam:
+    :param beamset:
+    :param iso_position: (dict) {'x':,'y','z'}
+    :return: correction: (dict)
+    """
+    #
+    # Find all supports
+    #
+    # Check supports against tolerances
 
 def find_isocenter_parameters(case, exam, beamset, iso_target=None,
                               iso_poi=None,
