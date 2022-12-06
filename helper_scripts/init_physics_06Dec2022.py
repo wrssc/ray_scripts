@@ -116,8 +116,8 @@ from collections import namedtuple, OrderedDict
 from System import Environment
 from datetime import datetime
 
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../../library'))
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../../library/PlanReview'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/PlanReview'))
 import ExamTests
 import BeamSetReviewTests
 import PlanReviewTests

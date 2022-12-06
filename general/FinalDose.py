@@ -71,7 +71,7 @@ import StructureOperations
 import clr
 import os
 
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../development/ReviewScript'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../helper_scripts'))
 import init_physics_06Dec2022
 
 clr.AddReference("System.Xml")
