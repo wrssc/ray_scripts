@@ -87,7 +87,7 @@ def check_exam_data(rso):
     get_rs_value = rso.exam.GetStoredDicomTagValueForVerification
     modality = list(get_rs_value(Group=modality_tag[0],
                                  Element=modality_tag[1]).values())[0]  # Get Modality
-    message_str = "Attribute: [DICOM vs RS]"
+    message_str = "[DICOM vs RS]: "
     all_passing = True
     for k, v in tags.items():
         rs_tag = get_rs_value(Group=v[0], Element=v[1])
@@ -468,7 +468,7 @@ def subtract_sources(rso, name, roi_A, roi_B):
     name = rso.case.PatientModel.GetUniqueRoiName(DesiredName=name)
     wall_intersection = rso.case.PatientModel.CreateRoi(
         Name=name,
-        Color="192, 192, 192",
+        Color="255, 080, 225",
         Type="Undefined",
         TissueName=None,
         RbeCellTypeName=None,
