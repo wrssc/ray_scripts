@@ -116,8 +116,8 @@ from collections import namedtuple, OrderedDict
 from System import Environment
 from datetime import datetime
 
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../../library'))
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../../library/PlanReview'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/PlanReview'))
 import ExamTests
 import BeamSetReviewTests
 import PlanReviewTests
@@ -357,17 +357,21 @@ def get_exam_level_tests(rso):
             (ExamTests.check_exam_data, {}),
         "Exam Date Is Recent":
             (ExamTests.compare_exam_date, {}),
-        "Image extent sufficient":
-            (ExamTests.image_extent_sufficient, {'TARGET_EXTENT': target_extent}),
-        "Couch extent sufficient":
-            (ExamTests.couch_extent_sufficient, {'TARGET_EXTENT': target_extent}),
-        "Edge of scan overlaps patient at key slices":
-            (ExamTests.external_overlaps_fov, {'TARGET_EXTENT': target_extent}),
         "Localization Point Exists":
             (ExamTests.check_localization, {}),
         "Image Is Axially Oriented":
-            (ExamTests.match_image_directions, {})
+            (ExamTests.match_image_directions, {}),
     }
+    # TODO: If the target extent is NONE, then we ought to try and get one from dose
+    if target_extent:
+        patient_checks_dict.update({
+            "Image extent sufficient":
+                (ExamTests.image_extent_sufficient, {'TARGET_EXTENT': target_extent}),
+            "Couch extent sufficient":
+                (ExamTests.couch_extent_sufficient, {'TARGET_EXTENT': target_extent}),
+            "Edge of scan overlaps patient at key slices":
+                (ExamTests.external_overlaps_fov, {'TARGET_EXTENT': target_extent}),
+        })
     return patient_checks_dict
 
 
@@ -423,7 +427,7 @@ def get_beamset_level_tests(rso, physics_review=True):
         try:
             rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
             beamset_checks_dict["Isocenter Lateral Acceptable"] = (BeamSetReviewTests.check_tomo_isocenter, {})
-            beamset_checks_dict["Modulation Factor Acceptable"] = (BeamSetReviewTests.check_mod_factor,{})
+            beamset_checks_dict["Modulation Factor Acceptable"] = (BeamSetReviewTests.check_mod_factor, {})
             beamset_checks_dict["Transfer BeamSet Approval Status"] = (BeamSetReviewTests.check_transfer_approved, {})
         except Exception as e:
             logging.debug('Cannot check beamsets yet {}'.format(str(e)))
@@ -512,14 +516,12 @@ def check_plan(physics_review=True):
     """
     if rso.beamset:
         beamset_checks_dict = get_beamset_level_tests(rso, physics_review)
-    treedata.Insert("", patient_key[0], patient_key[1], "")
     """
     Parse logs
     """
     if check_patient_logs:
         lines = read_log_file(patient_id=rso.patient.PatientID)
         message_logs = parse_log_file(lines=lines, parent_key=log_key[0], phrases=KEEP_PHRASES)
-    #
     # Execute tests
     exam_level_tests = []
     for key, p_func in patient_checks_dict.items():
@@ -529,10 +531,6 @@ def check_plan(physics_review=True):
                                            pass_result=pass_result,
                                            message_str=message)
         exam_level_tests.extend(message_dicom)
-    # Exam tests complete. Update value
-    exam_level_pass, exam_icon = parse_level_tests(exam_level_tests)
-    treedata.Insert(patient_key[0], exam_key[0], exam_key[1], exam_level_pass, icon=exam_icon)
-    performed_tests_exams = insert_tests_return_fails(exam_level_tests, treedata, test_results)
     """
     Execute Plan Level Checks
     """
@@ -546,10 +544,6 @@ def check_plan(physics_review=True):
                                      message_str=message)
         plan_level_tests.extend(message)
 
-    # Insert Plan Level notes
-    plan_level_pass, plan_icon = parse_level_tests(plan_level_tests)
-    treedata.Insert(patient_key[0], plan_key[0], plan_key[1], plan_level_pass, icon=plan_icon)
-    performed_tests_plans = insert_tests_return_fails(plan_level_tests, treedata, test_results)
     #
     # BEAMSET LEVEL CHECKS
     beamset_level_tests = []
@@ -588,7 +582,6 @@ def check_plan(physics_review=True):
                                          pass_result=v[0],
                                          message_str=v[1])
             beamset_level_tests.extend(message)
-
     # Run others
     for key, b_func in beamset_checks_dict.items():
         pass_result, message = b_func[0](rso=rso, **b_func[1])
@@ -597,6 +590,19 @@ def check_plan(physics_review=True):
                                      pass_result=pass_result,
                                      message_str=message)
         beamset_level_tests.extend(message)
+    # TREE BUILDING
+    #
+    # Insert main (patient) node
+    patient_level_pass, patient_icon = parse_level_tests(exam_level_tests+plan_level_tests+beamset_level_tests)
+    treedata.Insert("", patient_key[0], patient_key[1], patient_level_pass,icon=patient_icon)
+    # Insert Exam Level Nodes
+    exam_level_pass, exam_icon = parse_level_tests(exam_level_tests)
+    treedata.Insert(patient_key[0], exam_key[0], exam_key[1], exam_level_pass, icon=exam_icon)
+    performed_tests_exams = insert_tests_return_fails(exam_level_tests, treedata, test_results)
+    # Insert Plan Level notes
+    plan_level_pass, plan_icon = parse_level_tests(plan_level_tests)
+    treedata.Insert(patient_key[0], plan_key[0], plan_key[1], plan_level_pass, icon=plan_icon)
+    performed_tests_plans = insert_tests_return_fails(plan_level_tests, treedata, test_results)
     #
     # Insert Beamset Level Nodes
     beamset_level_pass, beamset_icon = parse_level_tests(beamset_level_tests)

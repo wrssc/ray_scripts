@@ -426,6 +426,11 @@ def check_common_isocenter(rso, **kwargs):
     return pass_result, message_str
 
 
+# TODO: Function that finds all possible angles in coplanar fields
+#       and returns as a list rounded to ints
+#       if this includes non-coplanar fields, return as a separate list
+# TODO: make a function that estimates the angular size of a structure and returns
+#       potential gantry locations of this structure as a list of integers
 def make_clearance_diameter(rso, clearance_name, diameter, tolerance):
     """
     Make an roi that is the diameter of the bore or head
@@ -445,7 +450,7 @@ def make_clearance_diameter(rso, clearance_name, diameter, tolerance):
     # Get a bounding box on the current image set for determining patient DICOM origin
     bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
     # Image length
-    z_extent = (bb[1]['z'] - bb[0]['z']) * 1.1  # Make it slightly larger so last slices don't get goofed
+    z_extent = (bb[1]['z'] - bb[0]['z']) * 2.
     try:
         rso.case.PatientModel.CreateRoi(
             Name=unique_name,

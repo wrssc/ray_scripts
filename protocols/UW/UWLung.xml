@@ -316,8 +316,7 @@
     <order>
         <name>Right Lung Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>LunR_</prefix>
-        <name>Left Lung</name>
-        <prefix>LunL_</prefix>
+        <name>Right Lung</name>
         <prescription>
             <roi>
                 <name>PTV_p</name>
@@ -402,6 +401,49 @@
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
                 <dose units="Gy">50.6</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_L</name>
+                <type>Max</type>
+                <volume units="cc">5</volume>
+                <dose units="Gy">51.3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">55.3</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_L_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">5</volume>
+                <dose units="Gy">51.3</dose>
+                <priority>3</priority>
+            </roi>
+
+            <roi>
+                <name>Bronchus_R</name>
+                <type>Max</type>
+                <volume units="cc">5</volume>
+                <dose units="Gy">51.3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_R</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">55.3</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_R_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">5</volume>
+                <dose units="Gy">51.3</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -559,6 +601,27 @@
             </roi>
             <roi>
                 <name>ProxBronchialTree_PRV05</name>
+                <type>Max</type>
+                <volume units="cc">5</volume>
+                <dose units="Gy">51.3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_L</name>
+                <type>Max</type>
+                <volume units="cc">5</volume>
+                <dose units="Gy">51.3</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_L</name>
+                <type>Max</type>
+                <volume units="cc">0.03</volume>
+                <dose units="Gy">55.3</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Bronchus_L_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">5</volume>
                 <dose units="Gy">51.3</dose>
