@@ -450,7 +450,15 @@ def make_clearance_diameter(rso, clearance_name, diameter, tolerance):
     # Get a bounding box on the current image set for determining patient DICOM origin
     bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
     # Image length
-    z_extent = (bb[1]['z'] - bb[0]['z']) * 2.
+    try:
+        idg = rso.beamset.FractionDose.InDoseGrid
+        grid_z = [idg.Corner.z]
+        z_extent = idg.VoxelSize.z * idg.NrVoxels.z
+        grid_z.append(idg.Corner.z + z_extent)
+        z_extent = 2. * max([abs(iso_pos.z - z) for z in grid_z])
+    except AttributeError:
+        # No dose grid! just use the image extent
+        z_extent = (bb[1]['z'] - bb[0]['z']) * 2.
     try:
         rso.case.PatientModel.CreateRoi(
             Name=unique_name,
@@ -536,7 +544,6 @@ def check_isocenter_clearance(rso):
     else:
         pass_result = FAIL
         message_str += f'{violation_rois} is ≤ {SUPPORT_TOLERANCE} cm from the {roi_name}. '
-
 
     return pass_result, message_str
 
