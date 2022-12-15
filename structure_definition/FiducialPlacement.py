@@ -135,6 +135,7 @@ def main():
     # Drop the cylindrical object and prompt the user to re-position it.
     for n in range(num_fiducials):
         point_name = fiducial_prefix + str(n + 1) + "_POI"
+        point_name = case.PatientModel.GetUniqueRoiName(point_name)
         point_coords = [external_center.x, external_center.y, external_center.z]
         create_poi_error = StructureOperations.create_poi(
             case=case,
