@@ -22,7 +22,7 @@
     <order>
         <name>Left Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -720,7 +720,7 @@
     <order>
         <name>Right Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1301,7 +1301,7 @@
     <order>
         <name>Bilat Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecB_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

@@ -20,7 +20,7 @@
     <order>
         <name>Brain SBRT [5Fx or fewer]</name>
         <prefix>Brai_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

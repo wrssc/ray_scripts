@@ -23,7 +23,7 @@
       <order>
         <name>KN975 Esophageal Trial [Esophags 5000 25Fx]</name>
         <prefix>Esop_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_50</name>
                 <type>DX</type>

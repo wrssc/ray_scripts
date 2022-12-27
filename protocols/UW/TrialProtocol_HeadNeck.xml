@@ -21,7 +21,7 @@
       <order>
         <name>Head and Neck Definitive NRG-HN004 [HN Trial 7000, 6125, 5600cGy 35Fx]</name>
         <prefix>NecB_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_7000</name>
                 <type>DX</type>

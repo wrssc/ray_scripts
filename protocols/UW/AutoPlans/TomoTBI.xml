@@ -22,7 +22,7 @@
     <order>
         <name>TomoTBI_FFS</name>
         <prefix>TBI_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_FFS</name>
                 <type>DX</type>
@@ -580,7 +580,7 @@
     <order>
         <name>TomoTBI_HFS</name>
         <prefix>TBI_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_HFS</name>
                 <type>DX</type>

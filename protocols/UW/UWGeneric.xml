@@ -25,7 +25,7 @@
     <order>
         <name>Single Target</name>
         <prefix>Plan_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -220,7 +220,7 @@
     <order>
         <name>Tomo_Rapid_IMRT</name>
         <prefix>Tomo_3DC</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -315,7 +315,7 @@
     <order>
         <name>Tomo_Rapid_IMRT_Multitarget</name>
         <prefix>Tomo_3DC</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV1_p</name>
                 <type>DX</type>
@@ -462,7 +462,7 @@
     <order>
         <name>Two Targets</name>
         <prefix>Plan_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p1</name>
                 <type>DX</type>
@@ -481,7 +481,7 @@
     <order>
         <name>Three Targets</name>
         <prefix>Plan_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p1</name>
                 <type>DX</type>
@@ -506,7 +506,7 @@
     <order>
         <name>Sequential Boost</name>
         <prefix>Plan_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_High</name>
                 <type>DX</type>
@@ -521,7 +521,7 @@
             </roi>
             <fractions></fractions>
         </prescription>
-        <prescription>
+        <prescription number="1" sequence="Boost1">
             <roi>
                 <name>PTV_p_High</name>
                 <type>DX</type>
@@ -534,7 +534,7 @@
     <order>
         <name>Two Sequential Boosts</name>
         <prefix>Plan_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_High</name>
                 <type>DX</type>
@@ -555,7 +555,7 @@
             </roi>
             <fractions></fractions>
         </prescription>
-        <prescription>
+        <prescription number="1" sequence="Boost1">
             <roi>
                 <name>PTV_p_High</name>
                 <type>DX</type>
@@ -570,7 +570,7 @@
             </roi>
             <fractions></fractions>
         </prescription>
-        <prescription>
+        <prescription number="2" sequence="Boost2">
             <roi>
                 <name>PTV_p_High</name>
                 <type>DX</type>

@@ -22,7 +22,7 @@
     <order>
         <name>Left Chestwall Conventional [no Boost]</name>
         <prefix>ChwL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <technique modality="Photons" technique="SMLC" code="PRD" machine="TrueBeam">SMLC</technique>
             <roi>
                 <name>PTV_p_Chestwall</name>
@@ -341,7 +341,7 @@
     <order>
         <name>Right Chestwall Conventional [no Boost]</name>
         <prefix>ChwR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <technique modality="Photons" technique="SMLC" code="PRD" machine="TrueBeam">SMLC</technique>
             <roi>
                 <name>PTV_p_Eval</name>

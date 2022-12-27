@@ -22,7 +22,7 @@
     <order>
         <name>Multiple Target Tomo3D</name>
         <prefix>Site</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

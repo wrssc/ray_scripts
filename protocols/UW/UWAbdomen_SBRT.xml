@@ -21,7 +21,7 @@
     <order>
         <name>Abdo-Liver SBRT [5Fx]</name>
         <prefix>Abdo_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

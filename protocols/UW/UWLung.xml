@@ -23,7 +23,7 @@
     <order>
         <name>Left Lung Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>LunL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -317,7 +317,7 @@
         <name>Right Lung Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>LunR_</prefix>
         <name>Right Lung</name>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -674,7 +674,7 @@
     <order>
         <name>Bilateral Lung Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>LunB_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -967,7 +967,7 @@
     <order>
         <name>Mediastinum Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>Medi_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1260,7 +1260,7 @@
     <order>
         <name>Left Lung Standard [30Fx] [6000cGy]</name>
         <prefix>LunL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1521,7 +1521,7 @@
     <order>
         <name>Right Lung Standard [30Fx] [6000cGy]</name>
         <prefix>LunR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1782,7 +1782,7 @@
     <order>
         <name>Bilateral Lung Standard [30Fx] [6000cGy]</name>
         <prefix>LunB_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -2043,7 +2043,7 @@
     <order>
         <name>Mediastinum Standard [30Fx] [6000cGy]</name>
         <prefix>Medi_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -2304,7 +2304,7 @@
     <order>
         <name>Left Lung BID [30Fx]</name>
         <prefix>LunL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -2709,7 +2709,7 @@
     <order>
         <name>Right Lung BID [30Fx]</name>
         <prefix>LunR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -3114,7 +3114,7 @@
     <order>
         <name>Medi Lung BID [30Fx]</name>
         <prefix>Medi_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

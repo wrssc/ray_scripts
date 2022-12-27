@@ -28,7 +28,7 @@
     <order>
         <name>Abdomen [15Fx]</name>
         <prefix>Abdo_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -308,7 +308,7 @@
     <order>
         <name>Liver Hypofractionated [10Fx]</name>
         <prefix>Livr_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

@@ -17,7 +17,7 @@
     <order>
         <name>Prostate SBRT ArmA [5Fx 4500cGy]</name>
         <prefix>Pros_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <fractions>5</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
@@ -488,7 +488,7 @@
     <order>
         <name>Prostate SBRT ArmB [5Fx 4500cGy]</name>
         <prefix>Pros_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <fractions>5</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>

@@ -23,7 +23,7 @@
     <order>
         <name>Brain Fractionated [60 Gy]</name>
         <prefix>Glio_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -599,7 +599,7 @@
     <order>
         <name>Brain Hypofractionated [15Fx 40.05 Gy]</name>
         <prefix>Glio_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1131,7 +1131,7 @@
     <order>
         <name>Brain WBRT</name>
         <prefix>Brai_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

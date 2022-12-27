@@ -22,7 +22,7 @@
     <order>
         <name>Spine or Bone SBRT [5Fx]</name>
         <prefix>SpiX_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -723,7 +723,7 @@
     <order>
         <name>Spine or Bone SBRT [3Fx]</name>
         <prefix>SpiX_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1354,7 +1354,7 @@
     <order>
         <name>Spine or Bone SBRT [1Fx]</name>
         <prefix>SpiX_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
