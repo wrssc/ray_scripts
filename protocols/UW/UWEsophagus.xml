@@ -23,7 +23,7 @@
     <order>
         <name>Esophagus [28 Fx]</name>
         <prefix>Esop_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -50,7 +50,7 @@
     <order>
         <name>Esophagus [23Fx]</name>
         <prefix>Esop_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
