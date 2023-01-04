@@ -1501,6 +1501,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 #
                 # Set beam splitting preferences
                 for beams in ts.BeamSettings:
+                    mu = beams.ForBeam.BeamMU
                     if mu > 0:
                         logging.debug(
                             'This beamset is already optimized beam-splitting preferences not applied')
