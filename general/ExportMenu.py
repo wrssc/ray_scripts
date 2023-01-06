@@ -84,7 +84,7 @@ def main():
         except Exception:
             plan_approved = False
 
-        # If approved we can toggle the export status of blocked structures:
+        # If approved we can toggle the export status of blocked structures to ensure blocked structures are exported
         if plan_approved:
             try:
                 for plan_opt in plan.PlanOptimizations:
