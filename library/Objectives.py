@@ -37,6 +37,7 @@ import logging
 import xml.etree.ElementTree
 from collections import OrderedDict
 import re
+import math
 import UserInterface
 import StructureOperations
 import Goals
@@ -430,7 +431,17 @@ def add_objective(obj, exam, case, plan, beamset,
             obj.find('dose').text = float(s_dose) * 100
             dose = float(obj.find('dose').text) * 100
     else:
-        dose = float(obj.find('dose').text) * 100
+        if obj.find('dose').attrib["units"] == "BED":
+            ab = float(obj.find('dose').attrib["ab"])
+            bed = float(obj.find('dose').text)
+            num_fx = float(beamset.FractionationPattern.NumberOfFractions)
+            logging.debug(
+                f'Solving Dose for {bed:.0f} Gy_{ab:.0f} in {num_fx:.0f}')
+            dose = bed_calculation(bed, alphabeta=ab, num_fx=num_fx)
+            logging.info(
+                f'{obj.find("name").text} Dose for {bed:.0f} Gy_{ab:.0f} in {num_fx:.0f} fractions is {dose:.0f} Gy')
+        else:
+            dose = float(obj.find('dose').text) * 100
     #
     # Read the weight variable
     if s_weight:
@@ -664,7 +675,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
                         '  returning lowest available index{}'.format(index[i]))
         return index[i]
     elif i == len(prot_vol) - 1:
-        message = f'Target volume {vol:.2f} > RTOG volume limits {prot_vol[i]:.2f}'\
+        message = f'Target volume {vol:.2f} > RTOG volume limits {prot_vol[i]:.2f}' \
                   + ' returning goals for highest available volume'
         connect.await_user_input(message)
         logging.warning(message)
@@ -715,6 +726,48 @@ def residual_volume(structure_name, goal_volume, case, exam):
         return residual_percentage
 
 
+def solve_quadratic(a, b, c):
+    """
+    Solve the quadratic equation of form
+    ax^2 + bx +c = 0
+    :param a: coefficient of squared term
+    :param b: coefficient of linear term
+    :param c: constant term
+    :return:
+    """
+    d = (b * b) - (4 * a * c)
+    if d > 0.:
+        root1 = (-b - math.sqrt(d)) / (2 * a)
+        root2 = (-b + math.sqrt(d)) / (2 * a)
+        if root1 > root2:
+            return root1, root2
+        else:
+            return root2, root1
+    else:
+        return None, None
+
+
+def bed_calculation(bed, alphabeta, num_fx):
+    """
+    Compute the physical dose for the current fractionation given the BED
+    BED = Total dose * (1 + (Fraction dose / αβ))
+    Solve:
+        D^2 + N * αβ * D - N * αβ * BED
+    :param bed: Biologically effective dose in Gy_αβ
+    :param alphabeta: alpha beta ratio
+    :param num_fx: number of fractions in current plan
+    :return: The input BED converted to the fraction dose
+    """
+    dose1, dose2 = solve_quadratic(a=1.,
+                                   b=num_fx * alphabeta,
+                                   c=-1. * num_fx * alphabeta * bed)
+    logging.debug(f'Dose for {bed:.0f} Gy_{alphabeta:.0f} in {num_fx:.0f} fractions is ({dose1:.0f},{dose2:.0f}) Gy')
+    if dose1 and dose2:
+        return dose1
+    else:
+        return None
+
+
 def conditional_overlap(structure_name, goal_volume, case, exam, comp_structure, isodose):
     """Evaluate the overlap between structure_name and comp_structure
     then modify goal volume and dose.
@@ -734,7 +787,9 @@ def conditional_overlap(structure_name, goal_volume, case, exam, comp_structure,
 def knowledge_based_goal(structure_name, goal_type, case, exam,
                          isodose=None,
                          res_vol=None,
-                         comp_structure=None):
+                         comp_structure=None,
+                         num_fx=None,
+                         alphabeta=None):
     """
     knowledge_based_goals will handle the knowledge based goals by goal type
     at this time the
@@ -765,6 +820,10 @@ def knowledge_based_goal(structure_name, goal_type, case, exam,
                                                   case=case,
                                                   exam=exam)
         know_analysis['units'] = '%'
+    elif goal_type in ['BED']:
+        know_analysis['dose'] = bed_calculation(bed=isodose,
+                                                alphabeta=alphabeta,
+                                                num_fx=num_fx)
     elif goal_type in ['overlap']:
         know_analysis = conditional_overlap(structure_name=structure_name,
                                             goal_volume=res_vol,
@@ -1176,13 +1235,23 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                     vol = g.find('volume').text
                 else:
                     vol = None
+                # Look for a/b
+                try:
+                    alphabeta = float(g.find('dose').attrib['alphabeta'])
+                    num_fx = float(beamset.FractionationPattern.NumberOfFractions)
+                except KeyError:
+                    alphabeta = None
+                    num_fx = None
+
                 know_goal = knowledge_based_goal(
                     structure_name=p_r,
                     goal_type=g.find('type').attrib['know'],
                     case=case,
                     exam=exam,
-                    isodose=g.find('dose').text,
-                    res_vol=vol)
+                    isodose=float(g.find('dose').text),
+                    res_vol=vol,
+                    num_fx=num_fx,
+                    alphabeta=alphabeta)
                 # use a dictionary for storing the return values
                 try:
                     g.find('index').text = str(know_goal['index'])
