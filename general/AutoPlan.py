@@ -601,6 +601,7 @@ def autoplan(testing_bypass_dialogs={}):
         logging.info('Custom goal additions skipped for debugging.')
     else:
         connect.await_user_input('Add any custom goals from the TPO.')
+    # TODO: Need this step to be done prior to isocenter placement to ensure no collisions
     #
     # Add support structures here
     # Support structures come from beamset data.
