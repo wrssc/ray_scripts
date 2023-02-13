@@ -485,6 +485,7 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=[192, 192, 192]):
 
     # Boolean Definitions
     roi_exclude.append('Avoid_Skin_PRV05')
+    roi_exclude.append('Lungs')
     temp_defs = {
         "StructureName": eval_name,
         "ExcludeFromExport": False,
@@ -973,7 +974,8 @@ def make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
 def calc_ffs_iso(pd_ffs, target):
     pois = [p.Name for p in pd_ffs.case.PatientModel.PointsOfInterest]
     if 'SimFiducials' not in pois:
-        connect.await_user_input('Place SimFiducial point')
+        AutoPlanOperations.place_fiducial(rso=pd_ffs, poi_name='SimFiducials')
+        connect.await_user_input('Place SimFiducial point in FFS, then toggle to HFS and place it there too')
     pm = pd_ffs.case.PatientModel
     sim_coords = pm.StructureSets[pd_ffs.exam.Name].LocalizationPoiGeometry.Point
     target_coords = pm.StructureSets[pd_ffs.exam.Name].RoiGeometries[target].GetCenterOfRoi()
@@ -1034,33 +1036,42 @@ def make_ffs_isodoses(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, rx):
 
 
 def get_new_grid(case, beamset_a, beamset_b):
+    # Return a dose grid for beamset_a that includes all voxels used in beamset_b
     # Update the dose grid for plan a using b's grid.
     dg_a = beamset_a.GetDoseGrid()
     dg_b = beamset_b.GetDoseGrid()
-    a = {'Corner': transform_poi(case, dg_a.Corner, beamset_a, beamset_b), 'VoxelSize': dg_a.VoxelSize,
-         'NrVoxels': dg_a.NrVoxels}
-
-    # Convert the corner point of a to b
-    b = {'Corner': dg_b.Corner, 'VoxelSize': dg_b.VoxelSize, 'NrVoxels': dg_b.NrVoxels}
-    # Get lower corner
-    lower_corner = {'x': min(a['Corner']['x'], b['Corner']['x']),
-                    'y': min(a['Corner']['y'], b['Corner']['y']),
-                    'z': min(a['Corner']['z'], b['Corner']['z'])}
-    # Upper corner
-    a_grid = {'x': a['Corner']['x'] + a['VoxelSize']['x'] * a['NrVoxels']['x'],
-              'y': a['Corner']['y'] + a['VoxelSize']['y'] * a['NrVoxels']['y'],
-              'z': a['Corner']['z'] + a['VoxelSize']['z'] * a['NrVoxels']['z']}
-    b_grid = {'x': b['Corner']['x'] + b['VoxelSize']['x'] * b['NrVoxels']['x'],
-              'y': b['Corner']['y'] + b['VoxelSize']['y'] * b['NrVoxels']['y'],
-              'z': b['Corner']['z'] + b['VoxelSize']['z'] * b['NrVoxels']['z']}
-    upper_corner = {'x': max(a_grid['x'], b_grid['x']),
-                    'y': max(a_grid['y'], b_grid['y']),
-                    'z': max(a_grid['z'], b_grid['z'])}
-    # Number of voxels with new corners
-    nr_voxels = {'x': math.ceil(upper_corner['x'] - lower_corner['x']) / b['VoxelSize']['x'],
-                 'y': math.ceil(upper_corner['y'] - lower_corner['y']) / b['VoxelSize']['y'],
-                 'z': math.ceil(upper_corner['z'] - lower_corner['z']) / b['VoxelSize']['z']}
-    new_grid = {'Corner': lower_corner, 'NrVoxels': nr_voxels, 'VoxelSize': b['VoxelSize']}
+    # Find minimum and maximum extent of beamset_a dose grid
+    min_a = {'x': dg_a.Corner['x'],
+             'y': dg_a.Corner['y'],
+             'z': dg_a.Corner['z']}
+    max_a = {'x': dg_a.Corner['x'] + dg_a.VoxelSize['x'] * dg_a.NrVoxels['x'],
+             'y': dg_a.Corner['y'] + dg_a.VoxelSize['y'] * dg_a.NrVoxels['y'],
+             'z': dg_a.Corner['z'] + dg_a.VoxelSize['z'] * dg_a.NrVoxels['z']}
+    # Find minimum and maximum extent of beamset_b dose grid
+    min_b = {'x': dg_b.Corner['x'],
+             'y': dg_b.Corner['y'],
+             'z': dg_b.Corner['z']}
+    max_b = {'x': dg_b.Corner['x'] + dg_b.VoxelSize['x'] * dg_b.NrVoxels['x'],
+             'y': dg_b.Corner['y'] + dg_b.VoxelSize['y'] * dg_b.NrVoxels['y'],
+             'z': dg_b.Corner['z'] + dg_b.VoxelSize['z'] * dg_b.NrVoxels['z']}
+    # Transform beamset_b dose grid extrema to image set a coordinates
+    t_b_min = transform_poi(case, min_b, beamset_b, beamset_a)
+    t_b_max = transform_poi(case, max_b, beamset_b, beamset_a)
+    # Find the inferior-most grid
+    lower_corner = {'x': min(min_a['x'], t_b_min['x']),
+                    'y': min(min_a['y'], t_b_min['y']),
+                    'z': min(min_a['z'], t_b_min['z']),
+                    }
+    # Find the superior-most grid
+    upper_corner = {'x': max(max_a['x'], t_b_max['x']),
+                    'y': max(max_a['y'], t_b_max['y']),
+                    'z': max(max_a['z'], t_b_max['z']),
+                    }
+    new_grid = {'Corner': {'x': lower_corner['x'], 'y': lower_corner['y'], 'z': lower_corner['z']},
+                'NrVoxels': {'x': math.ceil(upper_corner['x'] - lower_corner['x']) / dg_a.VoxelSize['x'],
+                             'y': math.ceil(upper_corner['y'] - lower_corner['y']) / dg_a.VoxelSize['y'],
+                             'z': math.ceil(upper_corner['z'] - lower_corner['z']) / dg_a.VoxelSize['z']},
+                'VoxelSize': dg_a.VoxelSize}
     return new_grid
 
 
@@ -1078,8 +1089,11 @@ def transform_poi(case, point, from_name, to_name):
     if reg is None:
         reg = case.GetTransform(FromFrameOfReference=to_name.FrameOfReference,
                                 ToFrameOfReference=from_name.FrameOfReference)
-        reg_inv = np.reshape(reg, (4, 4))
-        M = np.linalg.inv(reg_inv)
+        if reg is None:
+            sys.exit(f'No Registration between {from_name} to {to_name}')
+        else:
+            reg_inv = np.reshape(reg, (4, 4))
+            M = np.linalg.inv(reg_inv)
     else:
         M = np.reshape(reg, (4, 4))
 
@@ -1325,11 +1339,13 @@ def main():
                     for bs in tp.BeamSets:
                         if bs.DicomPlanLabel == selections['-FFS BEAMSET-']:
                             ffs_beamset = bs
+                            break
                 if tp.Name == selections['-HFS PLAN-']:
                     hfs_plan = tp
                     for bs in tp.BeamSets:
                         if bs.DicomPlanLabel == selections['-HFS BEAMSET-']:
                             hfs_beamset = bs
+                            break
             if not all([ffs_beamset, ffs_plan, hfs_beamset, hfs_plan]):
                 sys.exit('No HFS FFS Beamsets defined')
 
@@ -1343,7 +1359,7 @@ def main():
             pd_hfs = Pd(error=[],
                         patient=GeneralOperations.find_scope(level='Patient'),
                         case=GeneralOperations.find_scope(level='Case'),
-                        exam=ffs_exam,
+                        exam=hfs_exam,
                         db=GeneralOperations.find_scope(level='PatientDB'),
                         plan=hfs_plan,
                         beamset=hfs_beamset)
@@ -1355,15 +1371,21 @@ def main():
         pd_ffs.beamset.UpdateDoseGrid(Corner=new_ffs_grid['Corner'],
                                       VoxelSize=new_ffs_grid['VoxelSize'],
                                       NumberOfVoxels=new_ffs_grid['NrVoxels'])
+        # TODO: Recompute all doses in the plan since they seem to be required for summation
         # Recompute all doses:
-        pd_ffs.beamset.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose', ForceRecompute=False)
-        pd_hfs.beamset.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose', ForceRecompute=False)
+        for p in pd_ffs.case.TreatmentPlans:
+            for b in p.BeamSets:
+                try:
+                    b.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose', ForceRecompute=False)
+                except Exception as e:
+                    # Invalid operation error when trying to compute already computed doses
+                    pass
 
         pd_ffs.beamset.ComputeDoseOnAdditionalSets(OnlyOneDosePerImageSet=False,
                                                    AllowGridExpansion=True,
                                                    ExaminationNames=[pd_hfs.exam.Name],
                                                    FractionNumbers=[0],
-                                                   ComputeBeamDoses=False)
+                                                   ComputeBeamDoses=True)
         # Create summation
         retval_0 = pd_hfs.case.CreateSummedDose(DoseName="TBI",
                                                 FractionNumber=0,
