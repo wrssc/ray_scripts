@@ -851,6 +851,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
     __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+    derived_suffixes = ["_Eval","_EZ"]
     # Adding error handling
     error_message = []
     # Potential inputs, patient, case, exam, beamset, protocol path, filename
@@ -982,29 +983,68 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     required_locations = (order.findall('./required/roi'))
     logging.debug('Required {}'.format(required_locations))
     # Use the following loop to find the targets in protocol matching the names above
+    # Find all protocol targets ignoring any derived targets
+    derived_keywords = ['^.*_Eval.*?$', '^.*_EZ.*?$']
+    derived_targets = []
     for s in goal_locations:
         for g in s:
-            g_name = g.find('name').text
             # Priorities should be even for targets and append unique elements only
             # into the protocol_targets list
-            if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
-                protocol_targets.append(g_name)
-                k = str(i)
-                # Python doesn't sort lists....
-                k_name = k.zfill(2) + 'Aname_' + g_name
-                k_dose = k.zfill(2) + 'Bdose_' + g_name
-                target_inputs[k_name] = 'Match a plan target to ' + g_name
-                target_options[k_name] = plan_targets
-                target_datatype[k_name] = 'combo'
-                target_required.append(k_name)
-                target_inputs[
-                    k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
-                target_required.append(k_dose)
-                i += 1
-                # Exact matches get an initial guess in the dropdown
-                for t in plan_targets:
-                    if g_name == t:
-                        target_initial[k_name] = t
+            if int(g.find('priority').text) % 2 == 0:
+                g_name = g.find('name').text
+                for r in derived_keywords:
+                    if re.search(r, g_name) and g_name not in derived_targets:
+                        derived_targets.append(g_name)
+                try:
+                    d_name = g.find('dose').attrib['roi']
+                except KeyError:
+                    d_name = ""
+                if g_name not in protocol_targets and g_name not in derived_targets:
+                    protocol_targets.append(g_name)
+                elif g_name not in protocol_targets and d_name and d_name not in protocol_targets:
+                    protocol_targets.append(d_name)
+        # Use the following loop to find the targets in protocol matching the names above
+    i = 1
+    for p in protocol_targets:
+        k = str(i)
+        # Python doesn't sort lists....
+        k_name = k.zfill(2) + 'Aname_' + p
+        k_dose = k.zfill(2) + 'Bdose_' + p
+        target_inputs[k_name] = 'Match a plan target to ' + p
+        target_options[k_name] = plan_targets
+        target_datatype[k_name] = 'combo'
+        target_required.append(k_name)
+        target_inputs[k_dose] = 'Provide dose for protocol target: ' + p + ' Dose in cGy'
+        target_required.append(k_dose)
+        i += 1
+        # Exact matches get an initial guess in the dropdown
+        for t in plan_targets:
+            if p == t:
+                target_initial[k_name] = t
+
+    # for s in goal_locations:
+    #     for g in s:
+    #         g_name = g.find('name').text
+    #         # Priorities should be even for targets and append unique elements only
+    #         # into the protocol_targets list
+    #         if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
+    #             protocol_targets.append(g_name)
+    #             k = str(i)
+    #             # Python doesn't sort lists....
+    #             k_name = k.zfill(2) + 'Aname_' + g_name
+    #             k_dose = k.zfill(2) + 'Bdose_' + g_name
+    #             target_inputs[k_name] = 'Match a plan target to ' + g_name
+    #             target_options[k_name] = plan_targets
+    #             target_datatype[k_name] = 'combo'
+    #             target_required.append(k_name)
+    #             target_inputs[
+    #                 k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
+    #             target_required.append(k_dose)
+    #             i += 1
+    #             # Exact matches get an initial guess in the dropdown
+    #             for t in plan_targets:
+    #                 if g_name == t:
+    #                     target_initial[k_name] = t
 
     # Warn the user they are missing organs at risk specified in the order
     rois = []  # List of contours in plan
@@ -1020,16 +1060,16 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                 protocol_rois.append(r_name)
             if not any(o == r_name for o in rois) and r_name not in missing_contours:
                 missing_contours.append(r_name)
-    for s in goal_locations:
-        for g in s:
-            g_name = g.find('name').text
-            if g_name not in protocol_rois:
-                protocol_rois.append(g_name)
-            # Add a quick check if the contour exists in RS
-            # This step is slow, we may want to gather all rois into a list and look for it
-            if int(g.find('priority').text) % 2:
-                if not any(r == g_name for r in rois) and g_name not in missing_contours:
-                    missing_contours.append(g_name)
+    # for s in goal_locations:
+    #     for g in s:
+    #         g_name = g.find('name').text
+    #         if g_name not in protocol_rois:
+    #             protocol_rois.append(g_name)
+    #         # Add a quick check if the contour exists in RS
+    #         # This step is slow, we may want to gather all rois into a list and look for it
+    #         if int(g.find('priority').text) % 2:
+    #             if not any(r == g_name for r in rois) and g_name not in missing_contours:
+    #                 missing_contours.append(g_name)
 
     # Launch the matching script here. Then check for any missing that remain. Supply function with rois and
     # protocol_rois
@@ -1126,13 +1166,34 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             p_n = g.find('name').text
             p_d = g.find('dose').text
             p_t = g.find('type').text
+            try:
+                p_rel = g.find('dose').attrib['roi']
+            except KeyError:
+                p_rel = ""
+            # Handle derived rois that resulted from remapping to protocol
+            suffixes = [ds for ds in derived_suffixes if ds in p_n]
+            if len(suffixes) == 1:
+                suffix = suffixes[0]
+                p_parent = p_n.replace(suffix,"")
+            elif len(suffixes) > 1:
+                suffix = ""
+                p_parent = ""
+                logging.error(f'Too many derived matches for this goal structure name {p_n} unacceptable')
+            else:
+                suffix = ""
+                p_parent = ""
             # Change the name for the roi goal if the user has matched it to a target
             if p_n in translation_map:
                 # Change the roi name the goal uses to the matched value
                 g.find('name').text = translation_map[p_n][0]
-
                 logging.debug('Reassigned protocol target name:{} to {}'.format(
                     p_n, g.find('name').text))
+            elif p_parent in translation_map:
+                g.find('name').text = translation_map[p_parent][0] + suffix
+                logging.debug('Reassigned derived protocol target name:{} to {}'.format(
+                    p_n, g.find('name').text))
+
+
             # TODO: Exception catching in here for an unresolved reference
             # If the goal is relative change the name of the dose attribution
             # Change the dose to the user-specified level
