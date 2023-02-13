@@ -248,6 +248,17 @@ def find_validation_status(order):
         else:
             validation_properties['author'] = None
             logging.debug('No author specified')
+        if val_elem.find('final_dose').text:
+            value = val_elem.find('final_dose').text
+            if value == "True":
+                validation_properties['final_dose'] = True
+                logging.debug('Run Final Dose is True')
+            else:
+                validation_properties['final_dose'] = False
+                logging.debug('Run Final Dose is False')
+        else:
+            validation_properties['final_dose'] = False
+            logging.debug('Run Final Dose is False')
     else:
         validation_properties['author'] = None
         validation_properties['status'] = False
