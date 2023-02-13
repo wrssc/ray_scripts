@@ -369,6 +369,12 @@ def find_isocenter_parameters(case, exam, beamset, iso_target=None,
     # TODO Add a check on the support structures. If any are placed in -y so much
     # TODO they cause a collision, warn user and place iso correctly
     if lateral_zero:
+        iso_x = 0.
+    else:
+        iso_x = isocenter_position.x
+
+
+    if lateral_zero:
         ptv_center = {'x': 0.,
                       'y': isocenter_position.y,
                       'z': isocenter_position.z}

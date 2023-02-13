@@ -1423,55 +1423,41 @@
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <volume units="%">80</volume>
-                <dose units="Gy">40</dose>
+                <volume units="%">50</volume>
+                <dose units="Gy">35</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">45</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">60</dose>
+                <volume units="%">35</volume>
+                <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dir="le">Mean</type>
+                <dose units="Gy">24</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
                 <dose units="Gy">30</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">40</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <volume units="%">40</volume>
+                <volume units="%">35</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">60</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">26</dose>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1684,55 +1670,41 @@
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <volume units="%">80</volume>
-                <dose units="Gy">40</dose>
+                <volume units="%">50</volume>
+                <dose units="Gy">35</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">45</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">60</dose>
+                <volume units="%">35</volume>
+                <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dir="le">Mean</type>
+                <dose units="Gy">24</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
                 <dose units="Gy">30</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">40</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <volume units="%">40</volume>
+                <volume units="%">35</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">60</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">26</dose>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1945,55 +1917,41 @@
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <volume units="%">80</volume>
-                <dose units="Gy">40</dose>
+                <volume units="%">50</volume>
+                <dose units="Gy">35</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">45</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">30</volume>
-                <dose units="Gy">60</dose>
+                <volume units="%">35</volume>
+                <dose units="Gy">50</dose>
                 <priority>1</priority>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dir="le">Mean</type>
+                <dose units="Gy">24</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
                 <dose units="Gy">30</dose>
-                <priority>1</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">60</volume>
-                <dose units="Gy">40</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dir="le">VX</type>
-                <volume units="%">40</volume>
+                <volume units="%">35</volume>
                 <dose units="Gy">45</dose>
                 <priority>3</priority>
             </roi>
             <roi>
                 <name>Heart</name>
-                <type dir="le">VX</type>
-                <volume units="%">20</volume>
-                <dose units="Gy">60</dose>
-                <priority>3</priority>
-            </roi>
-            <roi>
-                <name>Heart</name>
                 <type dir="le">Mean</type>
-                <dose units="Gy">26</dose>
+                <dose units="Gy">20</dose>
                 <priority>3</priority>
             </roi>
             <roi>
