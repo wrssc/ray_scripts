@@ -2,6 +2,7 @@
 
 """
 import re
+import math
 from dateutil import parser
 import datetime
 import numpy as np
@@ -322,6 +323,7 @@ def get_supports(rso):
             supports.append(r.Name)
     return supports
 
+
 # CONTOUR CHECKS
 def get_roi_list(case, exam_name=None):
     """
@@ -506,7 +508,6 @@ def subtract_sources(rso, name, roi_A, roi_B):
         return None
 
 
-
 def intersect_sources(rso, name, sources):
     margins = {
         "Type": 'Expand',
@@ -658,6 +659,117 @@ def check_localization(rso):
     return pass_result, message_str
 
 
+def find_nearest(array, values):
+    # Finds the nearest values of the numpy array values in the array, array
+    array = np.asarray(array)
+    idx = [(np.abs(array - v)).argmin() for v in values]
+    return array[idx]
+
+
+def get_slice_positions(rso):
+    # Get slice positions in linear array
+    slice_positions = np.array(rso.exam.Series[0].ImageStack.SlicePositions)
+    #
+    # Starting corner of the image set
+    image_corner = rso.exam.Series[0].ImageStack.Corner
+    #
+    # Actual z positions
+    dicom_slice_positions = image_corner.z + slice_positions
+    return dicom_slice_positions
+
+
+def extract_grid(rg, bb, voxel_size, slice_positions):
+    """
+    Resample the roi geometry (rg) of an roi onto a grid defined by that roi's bounding box
+    Returns a 3D array of the roi resampled onto a grid,
+    the values of the returned array are 0-255 depending on how much of that voxel is covered by the roi
+    The 3D form is [z, y*x] for faster sorting by axial position
+    :param rg: rso geometry (case.PatientModel.StructureSets[exam].RoiGeometries[roi])
+    :param bb: bounding box
+    :param voxel_size: dict {'x','y','z'}: desired voxel size
+    :param slice_positions: array of CT slice positions in z
+    :return: an array resampled on the grid: [z, x*y]
+    """
+    # Find nearest CT slices to the bounding box of the geometry
+    z0 = find_nearest(slice_positions, [bb[0]['z']])[0]
+    z1 = find_nearest(slice_positions, [bb[1]['z']])[0]
+    new_grid = {'Corner': {'x': bb[0]['x'], 'y': bb[0]['y'], 'z': bb[0]['z']},
+                'NrVoxels': {'x': int(math.ceil(bb[1]['x'] - bb[0]['x']) / voxel_size['x']),
+                             'y': int(math.ceil(bb[1]['y'] - bb[0]['y']) / voxel_size['y']),
+                             'z': int((z1 - z0) / voxel_size['z'])},
+                'VoxelSize': voxel_size}
+    resampled = rg.GetRoiGeometryAsVoxels(Corner=new_grid['Corner'],
+                                          VoxelSize=new_grid['VoxelSize'],
+                                          NrVoxels=new_grid['NrVoxels'])
+    return resampled.reshape(new_grid['NrVoxels']['z'],
+                             new_grid['NrVoxels']['y'] * new_grid['NrVoxels']['x'])
+
+
+def find_gaps(rg, voxel_size, slice_positions):
+    """
+    Find discontinuities in the supplied geometry in the sup/inf direction
+    :param rg: rso geometry (case.PatientModel.StructureSets[exam].RoiGeometries[roi])
+    :param voxel_size: dict {'x','y','z'}: desired voxel size
+    :param slice_positions: array of CT slice positions in z
+    :return: a list of slice positions which are missing contours
+    """
+    # Determine a bounding box for the contour
+    bb = rg.GetBoundingBox()
+    roi_voxels = extract_grid(rg, bb, voxel_size, slice_positions)
+    empty_slices = np.where(~np.any(roi_voxels[:-1], axis=1))[0]
+    if empty_slices.size > 0:
+        return empty_slices * voxel_size['z'] + bb[0]['z']
+    else:
+        return None
+
+
+def check_contour_gaps(rso):
+    """
+    Look for S/I discontinuties in all rois that have contours and are not derived by resampling the roi
+    onto a small grid and looking for empty slices
+    :param rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+
+    :return: message (list str): [Pass_Status, Message String]
+
+    Test Patient:
+        Tomo3D_Skin: ZZUWQA_Tomo3D_SkinInvolved: Contours not labeled "Gaps" don't have gaps
+
+    """
+    # Look through all available rois that have contours for gaps
+    message_str = ""
+    # All Rois with contours
+
+    rois = [rg.OfRoi.Name for rg in rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries if
+            rg.HasContours() and rg.OfRoi.DerivedRoiExpression is None]
+    # Get slice positions
+    slices = get_slice_positions(rso)
+    # Get the slice thickness
+    delta_z = slices[1] - slices[0]
+    voxel_size = {'x': 0.4, 'y': 0.4, 'z': delta_z}
+    gaps = {}
+    for r in rois:
+        # Get the roi geometry
+        rg = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[r]
+        # Find any gaps
+        gap_list_r = find_gaps(rg, voxel_size, slice_positions=slices)
+        if gap_list_r is not None:
+            # Reduce the array to a list of unique positions
+            out = list(set(gap_list_r))
+            out_str = ["{0:0.1f}".format(round(o, 1)) for o in out]
+            gaps[r] = out_str
+    if gaps:
+        # Build the output message
+        pass_result = FAIL
+        message_str = 'Gaps in contours: '
+        for roi, gap_position in gaps.items():
+            message_str += f'{roi}{gap_position} '
+        message_str = message_str.replace("'","").rstrip()
+    else:
+        pass_result = PASS
+        message_str = 'No gaps found in current contour set'
+    return pass_result, message_str
+
+
 def match_image_directions(rso):
     # Match the directions that a correctly oriented image should have
     patient_position = str(rso.exam.PatientPosition)
@@ -705,3 +817,324 @@ def match_image_directions(rso):
         message_str = 'Image set {} is not rotated'.format(rso.exam.Name)
 
     return pass_result, message_str
+
+
+def exists_roi(case, rois, return_exists=False):
+    """See if rois is in the list
+    If return_exists is True return the names of the existing rois,
+    If it is False, return a boolean list of each structure's existence
+    """
+    if type(rois) is not list:
+        rois = [rois]
+
+    defined_rois = []
+    for r in case.PatientModel.RegionsOfInterest:
+        defined_rois.append(r.Name)
+
+    roi_exists = []
+
+    for r in rois:
+        pattern = r"^" + r + "$"
+        if any(
+                re.match(pattern, current_roi, re.IGNORECASE)
+                for current_roi in defined_rois
+        ):
+            if return_exists:
+                roi_exists.append(r)
+            else:
+                roi_exists.append(True)
+        else:
+            if not return_exists:
+                roi_exists.append(False)
+
+    return roi_exists
+
+
+def case_insensitive_structure_search(case, structure_name, roi_list=None):
+    """
+    Check if a case insensitive match to the structure_name exists and
+    return the name or None
+    :param case: raystation case
+    :param structure_name:structure name to be tested
+    :param roi_list: list of rois to look in, if not specified, use all rois
+    :return: list of names defined in RayStation, if only one structure is found return a string
+             or [] if no match was found.
+    """
+    # If no roi_list is given, build it using all roi in the case
+    if roi_list is None:
+        roi_list = []
+        for s in case.PatientModel.StructureSets:
+            for r in s.RoiGeometries:
+                if r.OfRoi.Name not in roi_list:
+                    roi_list.append(r.OfRoi.Name)
+
+    matched_rois = []
+    for current_roi in roi_list:
+        if re.search(r"^" + structure_name + "$", current_roi, re.IGNORECASE):
+            if not re.search(r"^" + structure_name + "$", current_roi):
+                matched_rois.append(current_roi)
+    if len(matched_rois) == 1:
+        matched_rois = matched_rois[0]
+    return matched_rois
+
+
+def check_structure_exists(
+        case, structure_name, roi_list=None,
+        option="Check", exam=None):
+    """
+    Verify if a structure with the exact name specified exists or not
+    :param case: Current RS case
+    :param structure_name: the name of the structure to be confirmed
+    :param roi_list: a list of available ROIs as RS RoiGeometries to check
+                     against
+    :param option: desired behavior
+        Delete - deletes structure if found
+        Check - simply returns true or false if found
+        Wait - prompt user to create structure if not found
+    :param exam: Current RS exam, if supplied the script deletes geometry only,
+                 otherwise contour is deleted
+    :return: Logical - True if structure is present in ROI List,
+                       False otherwise
+    """
+
+    # If no roi_list is given, build it using all roi in the case
+    if roi_list is None:
+        roi_list = []
+        for s in case.PatientModel.StructureSets:
+            for r in s.RoiGeometries:
+                if r not in roi_list:
+                    roi_list.append(r)
+
+    if any(roi.OfRoi.Name == structure_name for roi in roi_list):
+        if exam is not None:
+            structure_has_contours_on_exam = (
+                case.PatientModel.StructureSets[exam.Name]
+                    .RoiGeometries[structure_name]
+                    .HasContours()
+            )
+        else:
+            structure_has_contours_on_exam = False
+
+        if option == "Delete":
+            if structure_has_contours_on_exam:
+                case.PatientModel.StructureSets[exam.Name].RoiGeometries[
+                    structure_name
+                ].DeleteGeometry()
+                return False
+            else:
+                case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
+                return True
+        elif option == "Check":
+            if exam is not None and structure_has_contours_on_exam:
+                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
+                return True
+            elif exam is not None:
+                # logging.info("Structure {} has no contours on exam {}".format(structure_name, exam.Name))
+                return False
+            else:
+                # logging.info("Structure {} exists in this Case {}".format(structure_name, case.Name))
+                return True
+        elif option == "Wait":
+            if structure_has_contours_on_exam:
+                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
+                return True
+            else:
+                connect.await_user_input("Create the structure {} and continue script."
+                                         .format(structure_name))
+    else:
+        return False
+
+
+def structure_approved(case, roi_name, examination=None):
+    """
+    Check if structure is approved anywhere in this patient, if an exam is supplied
+    only the exam supplied is checked for the approved contour
+    :param case: RS case
+    :param roi_name: string containing name of roi
+    :param examination: RS examination object
+    :return: True if structure is approved somewhere
+    """
+    struct_exists = exists_roi(case=case, rois=roi_name)
+    # If the structure is undefined, then is is not approved
+    if not struct_exists:
+        return False
+    else:
+        for s in case.PatientModel.StructureSets:
+            if examination is not None and s.OnExamination.Name != examination.Name:
+                continue
+            else:
+                for a in s.SubStructureSets:
+                    try:
+                        if a.Review.ApprovalStatus == 'Approved':
+                            for r in a.RoiStuctures:
+                                if r.OfRoi.Name == roi_name:
+                                    return True
+                    except AttributeError:
+                        continue
+        return False
+
+
+def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
+    """
+    Thoughtful creation of structures that can determine if the structure exists,
+    determine the geometry exists on this examination
+    -Create it with a suffix if the geometry exists and is locked on the current examination
+    Is the structure name already in use?
+        *<No>  -> Make it and return the RoiGeometry on this examination
+        *<Yes> Are there contours defined for roi_name in this case?
+            **<No> -> return the RoiGeometry on this examination
+            **<Yes> Is the geometry approved somewhere in the case?
+                ***<No> Either delete it (delete_existing), or prompt the user to decide to delete or supply a suffix
+                ***<Yes> Is the geometry approved on this exam?
+                    ****<No> -> Either delete it (delete_existing),
+                                or append a supplied or default suffix
+                    ****<Yes> -> Return None (delete_existing),
+                                 or append a supplied or default suffix
+    :param case:
+    :param examination:
+    :param roi_name: string containing name of roi to be created
+    :param delete_existing: delete any existing roi with name roi_name so long as it isn't approved
+    :param suffix: append the suffix string to the name of a contour
+    :return: new_structure_name: the RoiGeometries object of roi_name or its suffix-modified name
+    """
+    # First we want to work with the case insensitive match to the structure name supplied
+    roi_name_ci = case_insensitive_structure_search(case=case, structure_name=roi_name)
+    # Convert this from a list to an individual structure
+    roi_name_exists = check_structure_exists(
+        case=case, option="Check", structure_name=roi_name
+    )
+    # struct_exists is true if the roi_name is already defined
+    if roi_name_ci:
+        struct_exists = True
+    elif roi_name_exists:
+        roi_name_ci = roi_name
+        struct_exists = True
+    else:
+        roi_name_ci = roi_name
+        struct_exists = False
+
+    # geometry_exists_in_case is True if any examination
+    # in this case has contours for this roi_name_ci
+    geometry_exists_in_case = check_structure_exists(
+        case=case, structure_name=roi_name_ci, option="Check"
+    )
+    # geometry_exists is True if this examination has contours
+    geometry_exists = check_structure_exists(
+        case=case, structure_name=roi_name_ci, option="Check", exam=examination
+    )
+    # Look through all structure sets in the patient to see if
+    # roi name is approved on an exam in this patient
+    geometry_approved = structure_approved(
+        case=case, roi_name=roi_name_ci, examination=examination
+    )
+    # If the call has been made without a suffix or deletion instructions, prompt user.
+    if delete_existing is None and suffix is None:
+        if geometry_exists and not geometry_approved:
+            # Prompt the user to make a decision between deleting existing geometry and a suffix
+            suffix = dialog_create_roi()
+            if suffix is None:
+                delete_existing = True
+            else:
+                delete_existing = False
+
+    if struct_exists:
+        # Does the existing structure have any contours defined
+        if geometry_exists_in_case:
+            # Are the existing contours on this exam?
+            if geometry_exists:
+                # Is the existing geometry approved?
+                if geometry_approved:
+                    # TODO if delete_existing is selected, prompt the user to unapprove or quit
+                    if delete_existing:
+                        # Delete the existing geometry and return
+                        # the empty geometry on the current exam
+                        return None
+                    else:
+                        # We can't delete the existing approved geometry, so we'll need to append
+                        i = 0
+                        if suffix is None:
+                            suffix = "_R"
+                        updated_roi_name = roi_name + suffix + str(i)
+                        while any(exists_roi(case=case, rois=updated_roi_name)):
+                            i += 1
+                            updated_roi_name = roi_name + suffix + str(i)
+                        # Make a new roi using the updated name
+                        case.PatientModel.CreateRoi(Name=updated_roi_name)
+                        return case.PatientModel.StructureSets[
+                            examination.Name
+                        ].RoiGeometries[updated_roi_name]
+                else:
+                    # The geometry is not approved on this examination
+                    if delete_existing:
+                        # Delete the existing geometry and return
+                        # the empty geometry on the current exam
+                        case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                            roi_name_ci
+                        ].DeleteGeometry
+                        return case.PatientModel.StructureSets[
+                            examination.Name
+                        ].RoiGeometries[roi_name_ci]
+                    else:
+                        # We don't want to delete the existing geometry, so we'll need to append
+                        if suffix is None:
+                            suffix = "_R"
+                        i = 1
+                        updated_roi_name = roi_name + suffix + str(i)
+                        while any(exists_roi(case=case, rois=updated_roi_name)):
+                            logging.debug(
+                                "Roi {} found in list. Checking next available.".format(
+                                    updated_roi_name
+                                )
+                            )
+                            i += 1
+                            updated_roi_name = roi_name + suffix + str(i)
+                        # Make a new roi using the updated name
+                        case.PatientModel.CreateRoi(Name=updated_roi_name)
+                        return case.PatientModel.StructureSets[
+                            examination.Name
+                        ].RoiGeometries[updated_roi_name]
+            else:
+                # Geometry exists but not on the current exam,
+                # return the empty geometry on the current exam
+                return case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                    roi_name_ci
+                ]
+        else:
+            # The existing structure is empty on all exams,
+            # return the empty geometry on the current exam
+            return case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                roi_name_ci
+            ]
+    else:
+        # The roi does not exist, so make it and return the empty geometry for this exam
+        case.PatientModel.CreateRoi(Name=roi_name_ci)
+        return case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+            roi_name_ci
+        ]
+
+
+def make_high_z(case, exam, desired_name):
+    threshold = 3025  # Highest HU value on the scanner
+    # Redraw the ExternalClean structure if necessary
+    if check_structure_exists(
+            case=case,
+            structure_name=desired_name,
+            exam=exam,
+            option="Check"):
+        roi_geom = case.PatientModel.StructureSets[exam.Name].RoiGeometries[
+            desired_name]
+    else:
+        roi_geom = create_roi(
+            case=case,
+            examination=exam,
+            roi_name=desired_name,
+            delete_existing=False,
+            suffix="",
+        )
+    if not roi_geom.HasContours():
+        roi_geom.GrayLevelThreshold(Examination=exam,
+                               LowThreshold=int(0.9*threshold),
+                               HighThreshold=threshold,
+                               PetUnit="",
+                               CbctUnit=None,
+                               BoundingBox=None)
