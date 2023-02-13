@@ -66,6 +66,7 @@ __help__ = 'TODO: No Help'
 
 import sys
 import os
+import re
 
 # sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 # sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
@@ -85,13 +86,16 @@ import autoplan_whole_brain
 import FinalDose
 
 # from Objectives import add_goals_and_objectives_from_protocol
+derived_keywords = ['^.*_Eval.*?$', '^.*_EZ.*?$']
+
 
 def target_dialog(case, protocol, order, use_orders=True):
     # TODO autoload with order data, search prescription, and warn user unassigned are ignored
     # Find RS targets
     plan_targets = StructureOperations.find_targets(case=case)
     protocol_targets = []
-
+    # Handle the derived targets that use doses from user-specified target levels
+    derived_targets = []
     # Build second dialog
     target_inputs = {'00_nfx': 'Number of fractions'}
     target_initial = {}
@@ -108,31 +112,44 @@ def target_dialog(case, protocol, order, use_orders=True):
             target_required.append('00_site')
     else:
         goal_locations = (protocol.findall('./goals/roi'))
-    # Use the following loop to find the targets in protocol matching the names above
-    i = 1
+    # Find all protocol targets ignoring any derived targets
     for s in goal_locations:
         for g in s:
-            g_name = g.find('name').text
             # Priorities should be even for targets and append unique elements only
             # into the protocol_targets list
-            if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
-                protocol_targets.append(g_name)
-                k = str(i)
-                # Python doesn't sort lists....
-                k_name = k.zfill(2) + 'Aname_' + g_name
-                k_dose = k.zfill(2) + 'Bdose_' + g_name
-                target_inputs[k_name] = 'Match a plan target to ' + g_name
-                target_options[k_name] = plan_targets
-                target_datatype[k_name] = 'combo'
-                target_required.append(k_name)
-                target_inputs[
-                    k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
-                target_required.append(k_dose)
-                i += 1
-                # Exact matches get an initial guess in the dropdown
-                for t in plan_targets:
-                    if g_name == t:
-                        target_initial[k_name] = t
+            if int(g.find('priority').text) % 2 == 0:
+                g_name = g.find('name').text
+                for r in derived_keywords:
+                    if re.search(r,g_name) and g_name not in derived_targets:
+                        derived_targets.append(g_name)
+                try:
+                    d_name = g.find('dose').attrib['roi']
+                except KeyError:
+                    d_name = ""
+                if g_name not in protocol_targets and g_name not in derived_targets:
+                    protocol_targets.append(g_name)
+                elif g_name not in protocol_targets and d_name and d_name not in protocol_targets:
+                    protocol_targets.append(d_name)
+
+    # Use the following loop to find the targets in protocol matching the names above
+    i = 1
+    for p in protocol_targets:
+        k = str(i)
+        # Python doesn't sort lists....
+        k_name = k.zfill(2) + 'Aname_' + p
+        k_dose = k.zfill(2) + 'Bdose_' + p
+        target_inputs[k_name] = 'Match a plan target to ' + p
+        target_options[k_name] = plan_targets
+        target_datatype[k_name] = 'combo'
+        target_required.append(k_name)
+        target_inputs[
+            k_dose] = 'Provide dose for protocol target: ' + p + ' Dose in cGy'
+        target_required.append(k_dose)
+        i += 1
+        # Exact matches get an initial guess in the dropdown
+        for t in plan_targets:
+            if p == t:
+                target_initial[k_name] = t
 
     target_dose_level_dialog = UserInterface.InputDialog(
         inputs=target_inputs,
@@ -164,7 +181,6 @@ def target_dialog(case, protocol, order, use_orders=True):
             if 'dose' in i:
                 # Append _dose to the key name
                 pd = p + '_dose'
-                # Not sure if this loop is still needed
                 translation_map[p][1] = (float(v) / 100.)
                 translation_map[p][2] = 'Gy'
     return (site, num_fx, translation_map)
@@ -330,9 +346,9 @@ def autoplan(testing_bypass_dialogs={}):
     ap_report['time_user'][0] = timer()
     #
     # Select the protocol
-    i = 0
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    status_index = 0
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     logging.debug("Loading file {}".format(input_protocol_name))
     (protocol_file, protocol) = AutoPlanOperations.select_protocol(folder=path_protocols,
                                                                    protocol_name=input_protocol_name)
@@ -345,8 +361,8 @@ def autoplan(testing_bypass_dialogs={}):
         sys.exit("Script complete")
     #
     # Select the TPO
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
 
     order = AutoPlanOperations.select_order(protocol, order_name=input_order_name)
     order_name = order.find('name').text
@@ -356,9 +372,9 @@ def autoplan(testing_bypass_dialogs={}):
     rx = AutoPlanOperations.find_rx(order)
     #
     # Match the protocol targets and doses to the beamset the user is making
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
-    if not testing_bypass_dialogs:
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
+    if not translation_map:
         # Prompt user for target map
         (site, num_fx, translation_map) = target_dialog(case=rso.case, protocol=protocol, order=order, use_orders=True)
     #
@@ -394,11 +410,11 @@ def autoplan(testing_bypass_dialogs={}):
     # TODO: Sort machines by technique
     # Machines
     machines = GeneralOperations.get_all_commissioned(machine_type=None)
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     #
     # Add beamset
-    if not testing_bypass_dialogs:
+    if not beamset_name:
         (beamset_name, iso_target, machine) = beamset_dialog(protocol, available_targets)
     logcrit('User selected Beamset:{bs}, machine:{m}, Isocenter Position:{iso}'.format(
         bs=beamset_name, m=machine, iso=iso_target))
@@ -410,9 +426,9 @@ def autoplan(testing_bypass_dialogs={}):
     #   match to the machine attribute in the technique tag of the prescription tag in the order
     p = order.find('prescription')
     for t in p.findall('technique'):
-        if t.attrib('machine').text == machine:
-            delivery_technique = t.attrib('technique').text
-            delivery_modality = t.attrib('modality').text
+        if t.attrib['machine'] == machine:
+            delivery_technique = t.attrib['technique']
+            delivery_modality = t.attrib['modality']
             break
     beamsets = BeamOperations.load_beamsets(beamset_type=delivery_technique,beamset_modality=delivery_modality)
     for bt in order.findall('beamset_template'):
@@ -434,12 +450,20 @@ def autoplan(testing_bypass_dialogs={}):
     beamset_defs.machine = machine
     beamset_defs.iso_target = iso_target
     # Build ALL_PTVs if needed
+
     if iso_target == 'All_PTVs':
+        filtered_list = []
+        for ast_tar in assigned_targets:
+            derived_sources = [re.search(r, ast_tar) for r in derived_keywords]
+            logging.debug(f'Derived sources {derived_sources}')
+            if not any(derived_sources):
+                filtered_list.append(ast_tar)
+        logging.debug(f'Filtered List {filtered_list}')
         StructureOperations.make_all_ptvs(
             patient=rso.patient,
             case=rso.case,
             exam=rso.exam,
-            sources=assigned_targets
+            sources=filtered_list
         )
 
     # Beamset elements derived from the protocol
@@ -495,8 +519,8 @@ def autoplan(testing_bypass_dialogs={}):
     # elif os.path.isfile(file_name):
 
     #
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     # Load the existing plan or create a new one
     try:
         info = rso.case.QueryPlanInfo(Filter={'Name': plan_name})
@@ -515,8 +539,8 @@ def autoplan(testing_bypass_dialogs={}):
 
     rso.patient.Save()
     rso.plan.SetCurrent()
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     # Load beamset
     rs_beam_set = BeamOperations.create_beamset(patient=rso.patient,
                                                 case=rso.case,
@@ -572,8 +596,8 @@ def autoplan(testing_bypass_dialogs={}):
     ap_report['time_plan'][1] = timer()
     #
     # Set any overrides
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     if user_prompts:
         connect.await_user_input(
             'Set any required material overrides and continue the script.')
@@ -582,16 +606,16 @@ def autoplan(testing_bypass_dialogs={}):
 
     #
     # Place the SimFiducial Point
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
-    if testing_bypass_dialogs:
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
+    if user_prompts:
         logging.debug('SimFiducial placement skipped for test')
     else:
         AutoPlanOperations.place_fiducial(rso=rso, poi_name='SimFiducials')
     #
     # Set any blocking or bolus
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     try:
         ui = connect.get_current('ui')
         ui.TitleBar.MenuItem['Plan optimization'].Button_Plan_optimization.Click()
@@ -599,26 +623,26 @@ def autoplan(testing_bypass_dialogs={}):
         ui.Workspace.TabControl['Objectives/constraints'].TabItem['Protect'].Select()
     except:
         logging.debug("Could not click on the patient protection window")
-    if testing_bypass_dialogs:
+    if not user_prompts:
         logging.info('Blocking page skipped for testing')
     else:
         connect.await_user_input(
             'Navigate to the Plan design page, set any blocking or bolus.')
     #
-    if testing_bypass_dialogs:
+    if not user_prompts:
         logging.info('Custom goal additions skipped for debugging.')
     else:
         connect.await_user_input('Add any custom goals from the TPO.')
     #
     # Add support structures here
     # Support structures come from beamset data.
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     strip_roi_support = beamset_etree.find('roi_support').text
     strip_roi_support = strip_roi_support.replace(" ", "")
     strip_roi_support = strip_roi_support.strip()
     beamset_defs.support_roi = strip_roi_support.split(",")
-    if testing_bypass_dialogs:
+    if user_prompts:
         logging.info('Loading support {} skipped for testing'.format(beamset_defs.support_roi))
     else:
         AutoPlanOperations.load_supports(rso=rso, supports=beamset_defs.support_roi)
@@ -630,8 +654,8 @@ def autoplan(testing_bypass_dialogs={}):
     ap_report['time_user'][1] = timer()
 
     # Planning structures added
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     ap_report['time_roi'][0] = timer()
     # Use cGy naming convention
     translation_map = AutoPlanOperations.convert_translation_map(translation_map, unit=r'cGy')
@@ -647,8 +671,8 @@ def autoplan(testing_bypass_dialogs={}):
     ap_report['time_roi'][1] = timer()
     #
     # Add goals and objectives
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     ap_report['time_goals'][0] = timer()
     translation_map = AutoPlanOperations.convert_translation_map(translation_map, unit=r'Gy')
     goals_added = Objectives.add_goals_and_objectives_from_protocol(
@@ -666,13 +690,13 @@ def autoplan(testing_bypass_dialogs={}):
     ap_report['time_goals'][1] = timer()
     #
     # Optimize using the protocol optimization technique for this delivery type
-    auto_status.next_step(text=script_steps[i][1])
-    i += 1
+    auto_status.next_step(text=script_steps[status_index][1])
+    status_index += 1
     rso.patient.Save()
     #
     # Check if this order has been validated. If not give user a bail option
     validation = AutoPlanOperations.find_validation_status(order)
-    if testing_bypass_dialogs:
+    if user_prompts:
         logging.info('Validation status ({}) check skipped for testing'.format(validation['status']))
     else:
         if not validation['status']:
@@ -707,12 +731,13 @@ def autoplan(testing_bypass_dialogs={}):
         logging.warning('Autoscaling not possible')
     #
     # Run Final Dose Calculation
-    ap_report['time_final_dose'][0] = timer()
-    try:
-        FinalDose.final_dose(site=site[0:4], technique=beamset_defs.description)
-    except:
-        logging.debug('Final Dose run unsuccessful')
-    ap_report['time_final_dose'][1] = timer()
+    if validation['final_dose']:
+        ap_report['time_final_dose'][0] = timer()
+        try:
+            FinalDose.final_dose(site=site[0:4], technique=beamset_defs.description)
+        except:
+            logging.debug('Final Dose run unsuccessful')
+        ap_report['time_final_dose'][1] = timer()
     #
     rso.patient.Save()
     ap_report['time_all'][1] = timer()
@@ -755,7 +780,17 @@ def autoplan(testing_bypass_dialogs={}):
 
 
 def main():
-    autoplan()
+    testing_bypass_dialogs = {
+    'protocol_name': 'UW WBHA',
+    'order_name': 'Brain-WBRT-Hippocampal Avoidance [30Gy CC001]',
+    'num_fx': '10',
+    'site': 'Brai',
+    'translation_map':'',
+    'beamset_name':'Tomo-Brain-FW2.5',
+    'iso_target': 'All_PTVs',
+    'machine': 'HDA0488',
+    'user_prompts': False}
+    autoplan(testing_bypass_dialogs={})
 
 
 if __name__ == '__main__':
