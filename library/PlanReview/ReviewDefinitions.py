@@ -1,14 +1,26 @@
 import os
 
+# OUTPUT DIR
+OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\dev_logs"
 icon_dir = os.path.join(os.path.dirname(__file__), ".\Icons")
 RED_CIRCLE = os.path.join(icon_dir, "Red_Circle_icon.png")
 GREEN_CIRCLE = os.path.join(icon_dir, "Green_Circle_icon.png")
 YELLOW_CIRCLE = os.path.join(icon_dir, "Yellow_Circle_icon.png")
 BLUE_CIRCLE = os.path.join(icon_dir, "Blue_Circle_icon.png")
+UW_HEALTH_LOGO = os.path.join(icon_dir, "UW_Health_Logo.png")
 # RESULT STRINGS
 PASS = "Pass"
 FAIL = "Fail"
 ALERT = "Alert"
+
+# Level keys
+LEVELS = {
+    'PATIENT_KEY': "PATIENT_LEVEL",
+    'EXAM_KEY': "EXAM_LEVEL",
+    'PLAN_KEY': "PLAN_LEVEL",
+    'BEAMSET_KEY': "BEAMSET_LEVEL",
+    'RX_KEY': "RX_LEVEL",
+    'LOG_KEY': "LOG_LEVEL"}
 
 #
 # LOG PARSING INFO
@@ -31,7 +43,7 @@ PACEMAKER_SEARCH_DISTANCE = 10.  # cm distance over which to look for the 2 Gy d
 PACEMAKER_DISTANCE_TOLERANCE = 2.  # cm distance from which we want the 2 Gy line to be away from the pacer
 SUPPORT_TOLERANCE = 2.0  # cm, the minimum distance between external and any support at isocenter
 TRUEBEAM_MAX_DIAMETER = 80.0  # cm, the "pin" diameter of the TrueBeam
-HDA_MAX_DIAMETER = 85.0 # cm, the cover diameter of the Tomo HDA
+HDA_MAX_DIAMETER = 85.0  # cm, the cover diameter of the Tomo HDA
 #
 # PLANNING DEFAULTS
 DOSE_FRACTION_PAIRS = [(4, 2000), (5, 2000)]  # Often mixed up fractionations
@@ -152,15 +164,18 @@ TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
 # PLANNING PREFERENCES - CLINICAL
 TOMO_PREFERENCES = {'ABDOMEN': {'ALIAS': ['Abdo_THI', 'Livr_THI', 'Panc_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.6},
                     'BRAIN': {'ALIAS': ['Brai_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.6},
-                    'BREAST': {'ALIAS': ['BreL_THI', 'BreR_THI', 'ChwL_THI', 'ChwR_THI'], 'MF_HIGH': 2.8, 'MF_LOW': 2.4},
+                    'BREAST': {'ALIAS': ['BreL_THI', 'BreR_THI', 'ChwL_THI', 'ChwR_THI'], 'MF_HIGH': 2.8,
+                               'MF_LOW': 2.4},
                     'CSI': {'ALIAS': ['CSI_THI'], 'MF_HIGH': 2.2, 'MF_LOW': 1.8},
-                    'EXTREMITY': {'ALIAS': ['ArmL_THI', 'ArmR_THI', 'LegL_THI', 'LegR_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 2.0},
+                    'EXTREMITY': {'ALIAS': ['ArmL_THI', 'ArmR_THI', 'LegL_THI', 'LegR_THI'], 'MF_HIGH': 2.4,
+                                  'MF_LOW': 2.0},
                     'GYN': {'ALIAS': ['Vulv_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.8},
                     'HN': {'ALIAS': ['NecB_THI', 'NecR_THI', 'NecL_THI'], 'MF_HIGH': 2.6, 'MF_LOW': 2.2},
-                    'LUNG-NO-SBRT': {'ALIAS': ['LunL_THI', 'LunR_THI', 'LunB_THI', 'Medi_THI'], 'MF_HIGH': 2.8, 'MF_LOW': 2.4},
+                    'LUNG-NO-SBRT': {'ALIAS': ['LunL_THI', 'LunR_THI', 'LunB_THI', 'Medi_THI'], 'MF_HIGH': 2.8,
+                                     'MF_LOW': 2.4},
                     'LUNG-SBRT': {'ALIAS': PLAN_NAMES['LUNG_SBRT'], 'MF_HIGH': 1.4, 'MF_LOW': 1.2},
                     'PELVIS': {'ALIAS': ['Pelv_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.8},
                     'PROSTATE-LOW-RISK': {'ALIAS': ['Pros_THI'], 'MF_HIGH': 2.2, 'MF_LOW': 1.6},
-                    'PROSTATE-HIGH-RISK': {'ALIAS': ['ProN_THI','ProF_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 2.0},
-                    'TOMO_3D': {'ALIAS': ['T3D'],'MF_HIGH':2.2,'MF_LOW':1.1},
-}
+                    'PROSTATE-HIGH-RISK': {'ALIAS': ['ProN_THI', 'ProF_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 2.0},
+                    'TOMO_3D': {'ALIAS': ['T3D'], 'MF_HIGH': 2.2, 'MF_LOW': 1.1},
+                    }

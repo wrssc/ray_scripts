@@ -43,13 +43,6 @@ __credits__ = ['']
 
 """
 
- TODO: Check contour interpolation
-   Find Ptv,Ctv, Gtv
-   
-   if goals: get those - otherwise get all
-   check slices for gaps
-
- TODO: Check for slice alignment and rotation alignment 1899458
  TODO: Check Beamsets for same machine
 
  TODO: Check for same iso, and same number of fractions in
@@ -69,6 +62,10 @@ __credits__ = ['']
      Put a box around them
      look at the gaps and if they exceed some threshold throw an alert
 
+ TODO: If beamsets are approved
+    Check the Entrance/Exit is blocked on some things
+    Check that treat settings are used/appropriate
+    
  TODO: Tomo Time Check
    def check_tomo_time(bs):
      Look at the plan type. Use the normal tomo mod factors
@@ -319,7 +316,33 @@ def build_tree_element(parent_key, child_key, pass_result, message_str):
     else:
         icon = BLUE_CIRCLE
     elements.append([parent_key, child_key, child_key, pass_result, icon])
-    elements.append([child_key, pass_result, message_str, pass_result, icon])
+    elements.append([child_key, parent_key + '.' + child_key, message_str, pass_result, icon])
+    return elements
+
+
+def build_document_row(child_key, pass_result, message_str, comment=None):
+    """
+    Build a single row of the
+    :param child_key:
+    :param pass_result:
+    :param message_str:
+    :param comment:
+    :return: a list containing the elements for the document
+    [icon, child_key, message_str, comment]
+    """
+    elements = []
+    if pass_result == FAIL:
+        icon = RED_CIRCLE
+    elif pass_result == PASS:
+        icon = GREEN_CIRCLE
+    elif pass_result == ALERT:
+        icon = YELLOW_CIRCLE
+    else:
+        icon = BLUE_CIRCLE
+    if type(message_str) is list and len(message_str) == 2:
+        elements.append([message_str[1][4], message_str[1][0], message_str[1][2], comment])
+    else:
+        elements.append([icon, child_key, message_str, comment])
     return elements
 
 
@@ -340,7 +363,7 @@ def parse_level_tests(level_tests):
 def insert_tests_return_fails(level_tests, treedata, fails):
     if level_tests:
         for m in level_tests:
-            treedata.Insert(m[0], m[1], m[2], [m[3]], icon=m[4])  # Note the list of the last entry. Can this be of use?
+            treedata.Insert(m[0], m[1], m[2], [m[3], ""], icon=m[4])  # Consider adding Comment field in list
             if m[1] == FAIL or m[1] == ALERT:
                 fails.append(f"TEST: {m[0]}: {m[1]}: {m[2]}")
         return True
@@ -359,6 +382,8 @@ def get_exam_level_tests(rso):
             (ExamTests.compare_exam_date, {}),
         "Localization Point Exists":
             (ExamTests.check_localization, {}),
+        "Contours are interpolated":
+            (ExamTests.check_contour_gaps, {}),
         "Image Is Axially Oriented":
             (ExamTests.match_image_directions, {}),
     }
@@ -403,7 +428,7 @@ def get_beamset_level_tests(rso, physics_review=True):
             (BeamSetReviewTests.check_dose_grid, {}),
         "Planning Risk Volume Assessment":
             (BeamSetReviewTests.check_prv_status, {}),
-        "Couch Zero Clearance Check":
+        "Couch Zero Full Rotation Clearance Check":
             (BeamSetReviewTests.check_isocenter_clearance, {}),
     }
 
@@ -444,7 +469,7 @@ def get_beamset_level_tests(rso, physics_review=True):
 #    cx = am.PrincipalContext(am.ContextType.Domain)
 #    principal = am.UserPrincipal.FindByIdentity(cx, 1, staff_id)
 
-def check_plan(physics_review=True):
+def check_plan(physics_review=True, rso=None):
     #
     try:
         user_name = str(Environment.UserName)
@@ -454,27 +479,28 @@ def check_plan(physics_review=True):
 
     treedata = sg.TreeData()
 
-    # Initialize return variable
-    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
-    # Get current patient, case, exam
-    rso = Pd(error=[],
-             patient=GeneralOperations.find_scope(level='Patient'),
-             case=GeneralOperations.find_scope(level='Case'),
-             exam=GeneralOperations.find_scope(level='Examination'),
-             db=GeneralOperations.find_scope(level='PatientDB'),
-             plan=GeneralOperations.find_scope(level='Plan'),
-             beamset=GeneralOperations.find_scope(level='BeamSet'))
+    if not rso:
+        # Initialize return variable
+        Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
+        # Get current patient, case, exam
+        rso = Pd(error=[],
+                 patient=GeneralOperations.find_scope(level='Patient'),
+                 case=GeneralOperations.find_scope(level='Case'),
+                 exam=GeneralOperations.find_scope(level='Examination'),
+                 db=GeneralOperations.find_scope(level='PatientDB'),
+                 plan=GeneralOperations.find_scope(level='Plan'),
+                 beamset=GeneralOperations.find_scope(level='BeamSet'))
     r = comment_to_clipboard(rso)
     #
     # Tree Levels
-    patient_key = ("pt", "Patient: " + rso.patient.PatientID)
-    exam_key = ("e", "Exam: " + rso.exam.Name)
-    plan_key = ("p", "Plan: " + rso.plan.Name)
-    beamset_key = ("b", "Beam Set: " + rso.beamset.DicomPlanLabel)
-    rx_key = ("rx", "Prescription")
-    log_key = ("log", "Logging")
+    patient_key = (LEVELS['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
+    exam_key = (LEVELS['EXAM_KEY'], "Exam: " + rso.exam.Name)
+    plan_key = (LEVELS['PLAN_KEY'], "Plan: " + rso.plan.Name)
+    beamset_key = (LEVELS['BEAMSET_KEY'], "Beam Set: " + rso.beamset.DicomPlanLabel)
+    rx_key = (LEVELS['RX_KEY'], "Prescription")
+    log_key = (LEVELS['LOG_KEY'], "Logging")
     #
-    # Final log message
+
     test_results = []
 
     """
@@ -524,6 +550,7 @@ def check_plan(physics_review=True):
         message_logs = parse_log_file(lines=lines, parent_key=log_key[0], phrases=KEEP_PHRASES)
     # Execute tests
     exam_level_tests = []
+    exam_level_doc = []
     for key, p_func in patient_checks_dict.items():
         pass_result, message = p_func[0](rso=rso, **p_func[1])
         message_dicom = build_tree_element(parent_key=exam_key[0],
@@ -531,11 +558,18 @@ def check_plan(physics_review=True):
                                            pass_result=pass_result,
                                            message_str=message)
         exam_level_tests.extend(message_dicom)
+        document_dicom = build_document_row(child_key=key,
+                                            message_str=message,
+                                            pass_result=pass_result,
+                                            comment="exam comment")
+        exam_level_doc.extend(document_dicom)
+
     """
     Execute Plan Level Checks
     """
     # Plan LevelChecks
     plan_level_tests = []
+    plan_level_doc = []
     for key, pl_func in plan_checks_dict.items():
         pass_result, message = pl_func[0](rso=rso, **pl_func[1])
         message = build_tree_element(parent_key=plan_key[0],
@@ -543,10 +577,17 @@ def check_plan(physics_review=True):
                                      pass_result=pass_result,
                                      message_str=message)
         plan_level_tests.extend(message)
+        document_plan = build_document_row(child_key=key,
+                                           message_str=message,
+                                           pass_result=pass_result,
+                                           comment="plan comment")
+        plan_level_doc.extend(document_plan)
 
     #
     # BEAMSET LEVEL CHECKS
     beamset_level_tests = []
+    beamset_level_doc = []
+
     #
     # Run dialog parse
     dialog_key = 'Beamset Template Selection'
@@ -558,6 +599,11 @@ def check_plan(physics_review=True):
                                  pass_result=beamset_dialog[dialog_key][0],
                                  message_str=beamset_dialog[dialog_key][1])
     beamset_level_tests.extend(message)
+    document_beamset = build_document_row(child_key=dialog_key,
+                                          message_str=beamset_dialog[dialog_key][1],
+                                          pass_result=beamset_dialog[dialog_key][0],
+                                          comment="beamset comment")
+    beamset_level_doc.extend(document_beamset)
     for k, v in beamset_dialog.items():
         if k != dialog_key:
             message = build_tree_element(parent_key=dialog_key,
@@ -565,6 +611,11 @@ def check_plan(physics_review=True):
                                          pass_result=v[0],
                                          message_str=v[1])
             beamset_level_tests.extend(message)
+            document_beamset = build_document_row(child_key=k,
+                                                  message_str=v[1],
+                                                  pass_result=v[0],
+                                                  comment="beamset comment")
+            beamset_level_doc.extend(document_beamset)
     # Read the treatment planning order selection
     dialog_key = 'Treatment Planning Order Selection'
     tpo_dialog = parse_treatment_planning_order_selection(beamset_name=rso.beamset.DicomPlanLabel,
@@ -575,6 +626,11 @@ def check_plan(physics_review=True):
                                  pass_result=tpo_dialog[dialog_key][0],
                                  message_str=tpo_dialog[dialog_key][1])
     beamset_level_tests.extend(message)
+    document_beamset = build_document_row(child_key=dialog_key,
+                                          message_str=tpo_dialog[dialog_key][1],
+                                          pass_result=tpo_dialog[dialog_key][0],
+                                          comment="beamset comment")
+    beamset_level_doc.extend(document_beamset)
     for k, v in tpo_dialog.items():
         if k != dialog_key:
             message = build_tree_element(parent_key=dialog_key,
@@ -582,6 +638,11 @@ def check_plan(physics_review=True):
                                          pass_result=v[0],
                                          message_str=v[1])
             beamset_level_tests.extend(message)
+            document_beamset = build_document_row(child_key=k,
+                                                  message_str=v[1],
+                                                  pass_result=v[0],
+                                                  comment="beamset comment")
+            beamset_level_doc.extend(document_beamset)
     # Run others
     for key, b_func in beamset_checks_dict.items():
         pass_result, message = b_func[0](rso=rso, **b_func[1])
@@ -590,11 +651,16 @@ def check_plan(physics_review=True):
                                      pass_result=pass_result,
                                      message_str=message)
         beamset_level_tests.extend(message)
+        document_beamset = build_document_row(child_key=beamset_key[0],
+                                              message_str=message,
+                                              pass_result=pass_result,
+                                              comment="beamset comment")
+        beamset_level_doc.extend(document_beamset)
     # TREE BUILDING
     #
     # Insert main (patient) node
-    patient_level_pass, patient_icon = parse_level_tests(exam_level_tests+plan_level_tests+beamset_level_tests)
-    treedata.Insert("", patient_key[0], patient_key[1], patient_level_pass,icon=patient_icon)
+    patient_level_pass, patient_icon = parse_level_tests(exam_level_tests + plan_level_tests + beamset_level_tests)
+    treedata.Insert("", patient_key[0], patient_key[1], patient_level_pass, icon=patient_icon)
     # Insert Exam Level Nodes
     exam_level_pass, exam_icon = parse_level_tests(exam_level_tests)
     treedata.Insert(patient_key[0], exam_key[0], exam_key[1], exam_level_pass, icon=exam_icon)
@@ -619,20 +685,35 @@ def check_plan(physics_review=True):
     # TODO is it possible to specify which columns are expanded by pass fail?
     sg.theme('Topanga')
     col_widths = [20]
-    col1 = sg.Column([[sg.Frame('ReviewChecks:',
-                                [[
-                                    sg.Tree(
-                                        data=treedata,
-                                        headings=['Checks', ],
-                                        auto_size_columns=False,
-                                        num_rows=40,
-                                        col0_width=120,
-                                        col_widths=col_widths,
-                                        key='-TREE-',
-                                        show_expanded=False,
-                                        justification="left",
-                                        enable_events=True),
-                                ], [sg.Button('Ok'), sg.Button('Cancel')]])]], pad=(0, 0))
+    comment_visible = False
+    bottom = [[sg.Button('Cancel'),
+              sg.Button('Comment'),
+               sg.Frame('',
+                        [[sg.InputText('Replace',key='-COMMENT TEXT-'),
+                          sg.Button('Ok')]],
+                        visible=comment_visible,
+                        key='-COMMENT TEXT VISIBLE-'
+                        )
+               ,
+              sg.Button('Done')]]
+    col1 = sg.Frame('ReviewChecks:',
+                    [
+                        [
+                            sg.Tree(
+                                data=treedata,
+                                headings=['Result', 'Comment'],
+                                auto_size_columns=False,
+                                num_rows=40,
+                                col0_width=120,
+                                col_widths=col_widths,
+                                key='-TREE-',
+                                show_expanded=False,
+                                justification="left",
+                                enable_events=True),
+                        ],
+                        [sg.Frame('', bottom)],
+                    ],
+                    pad=(0, 0))
     layout = [[col1]]
 
     window = sg.Window('Plan Review: ' + user_name, layout)
@@ -641,7 +722,7 @@ def check_plan(physics_review=True):
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
             break
-        elif event in 'Ok':
+        elif event in 'Done':
             if test_results and not physics_review:
                 now = datetime.now()
                 dt_string = now.strftime("(%H:%M) %B %d, %Y")
@@ -649,12 +730,130 @@ def check_plan(physics_review=True):
                 for tr in test_results:
                     logging.warning(f"\t{tr}")
             break
+        elif event in 'Comment':
+            logging.debug(f'Event noted {event}, with values{values}')
+            active_node = values['-TREE-'][0]
+            logging.debug(f'Key is {treedata[active_node]}')
+            # window['-COMMENT TEXT-'].update(window[active_node].get_text())
+            # window['-COMMENT TEXT VISIBLE-'].update(visible=True)
+            #{'-TREE-': ['BEAMSET_LEVEL.Beamset Template Selection'],
+            # '-COMMENT TEXT-': "{'-TREE-': ['PLAN_LEVEL.Plan approval status'], ""'-COMMENT TEXT-': ''}"}
+
     window.close()
     r.destroy()
+    return {'Test_Exam': exam_level_tests,
+            'Test_Plan': plan_level_tests,
+            'Test_BeamSet': beamset_level_tests}
+
+
+from docx import Document
+from docx.shared import Inches
+from docx.enum.table import WD_ALIGN_VERTICAL
+import parser
+
+
+def generate_doc(rso, tests):
+    # Output file
+    file_name = rso.patient.PatientID + "_" + rso.beamset.DicomPlanLabel + ".doc"
+    output_file = os.path.join(OUTPUT_DIR, file_name)
+    header_text = "Photon VMAT Physics Review"
+    # Get approval info:
+    approval_status = BeamSetReviewTests.approval_info(rso.plan, rso.beamset)
+    if approval_status.beamset_approved:
+        current_time = str(rso.beamset.Review.ReviewTime)
+    else:
+        current_time = 'NA'
+
+    demographics = {
+        'Name': rso.patient.Name,
+        'MRN': rso.patient.PatientID,
+        'Beamset Name': rso.beamset.DicomPlanLabel,
+        'Approval Time': current_time}
+    # Responses to non-scriptable questions
+    plan_questions = tests['Test_BeamSet']
+    # plan_questions = [('Plan Name consistent with TPO', 'Y', 'Sample Input'),
+    #                   ('Plan approved by MD', 'NA', 'Preplan'),
+    #                   ]
+
+    # Begin
+    document = Document()
+    section = document.sections[0]
+    section.left_margin = Inches(0.5)
+    section.right_margin = Inches(0.5)
+    # Add header
+
+    header = section.header
+    paragraph = header.paragraphs[0]
+    # Add logo
+    logo_run = paragraph.add_run()
+    logo_run.add_picture(UW_HEALTH_LOGO, width=Inches(1.0))
+    text_run = paragraph.add_run()
+    text_run.text = '\t' + header_text  # For center align of text
+    text_run.style = "Heading 1 Char"
+
+    paragraph = document.add_paragraph()
+    # Add Top Row Demographics
+    table = document.add_table(rows=2, cols=4, style='Medium Grid 1 Accent 2')
+    for index, k in enumerate(demographics):
+        row_key = table.rows[0]
+        row_value = table.rows[1]
+        row_key.cells[index].text = k
+        row_value.cells[index].text = demographics[k]
+    # Add the plan checks
+    paragraph = document.add_paragraph()
+    document = add_check_list_table(tests['Test_BeamSet'], document)
+
+    document.save(output_file)
+    print('Complete')
+
+
+def add_check_list_table(check_results, document, title=None):
+    logging.debug(f'{check_results}')
+    n_cols = 3  # Icon, Testname, Result, Comment
+    table_properties = {'NCOL': 4,
+                        'WIDTH_COL': [(0, 0.25), (1, 1.), (2, 3.), (3, 3.)]}
+    table = document.add_table(rows=1, cols=table_properties['NCOL'],
+                               style='Light Grid Accent 2')
+    i = 0
+    for r in enumerate(check_results):
+        row = table.rows[i]
+        child_list = r[1]
+        if i == 0:
+            row.cells[0].text = 'Status'
+            row.cells[1].text = 'Test Performed'
+            row.cells[2].text = 'Result'
+            row.cells[3].text = 'Reviewer Comment'
+            table.add_row()
+            i += 1
+        elif child_list[0] not in LEVELS.values():
+            logging.debug('Child list {}'.format(child_list))
+            row.cells[0].add_paragraph().add_run().add_picture(child_list[4],
+                                                               width=Inches(0.2),
+                                                               height=Inches(0.2))
+            row.cells[1].text = child_list[0]
+            row.cells[2].text = child_list[2]
+            table.add_row()
+            i += 1
+        for index, width in table_properties['WIDTH_COL']:
+            for cell in table.columns[index].cells:
+                cell.width = Inches(width)
+                cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    return document
 
 
 def main(physics_review=True):
-    check_plan(physics_review)
+    # Initialize return variable
+    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
+    # Get current patient, case, exam
+    rso = Pd(error=[],
+             patient=GeneralOperations.find_scope(level='Patient'),
+             case=GeneralOperations.find_scope(level='Case'),
+             exam=GeneralOperations.find_scope(level='Examination'),
+             db=GeneralOperations.find_scope(level='PatientDB'),
+             plan=GeneralOperations.find_scope(level='Plan'),
+             beamset=GeneralOperations.find_scope(level='BeamSet'))
+    tests = check_plan(physics_review, rso=rso)
+    generate_doc(rso, tests=tests)
 
 
 if __name__ == '__main__':
