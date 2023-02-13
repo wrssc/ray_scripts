@@ -70,6 +70,114 @@ clr.AddReference("System.Drawing")
 from GeneralOperations import logcrit as logcrit
 import UserInterface
 
+# Commonly underdoses structures
+# Plan structures matched in this list will be selected for checkbox elements below
+UNDERDOSE_STRUCTURES = [
+    "GreatVes",
+    "A_Aorta",
+    "Bag_Bowel",
+    "Bowel_Small",
+    "Bowel_Large",
+    "BrachialPlex_L_PRV05",
+    "BrachialPlex_L",
+    "BrachialPlex_R",
+    "BrachialPlex_R_PRV05",
+    "Brainstem",
+    "Bronchus",
+    "Bronchus_L",
+    "Bronchus_R",
+    "CaudaEquina",
+    "Cochlea_L",
+    "Cochlea_R",
+    "Duodenum",
+    "Esophagus",
+    "Genitalia",
+    "Heart",
+    "Eye_L",
+    "Eye_R",
+    "Hippocampus_L",
+    "Hippocampus_L_PRV05",
+    "Hippocampus_R",
+    "Hippocampus_R_PRV05",
+    "Larynx",
+    "Lens_R",
+    "Lens_L",
+    "Bone_Mandible",
+    "OpticChiasm",
+    "OpticNrv_L",
+    "OpticNrv_R",
+    "Rectum",
+    "Retina_L",
+    "Retina_R",
+    "SpinalCord",
+    "SpinalCord_PRV02",
+    "Trachea",
+    "V_Pulmonary",
+]
+
+# Common uniformly dosed areas
+# Plan structures matched in this list will be selected for checkbox elements below
+UNIFORM_STRUCTURES = [
+    "A_Aorta_PRV05",
+    "Bag_Bowel",
+    "Bladder",
+    "Bowel_Small",
+    "Bowel_Large",
+    "Brainstem",
+    "Brainstem_PRV03",
+    "Bronchus_PRV05",
+    "Bronchus_L_PRV05",
+    "Bronchus_R_PRV05",
+    "CaudaEquina_PRV05",
+    "Cavity_Oral",
+    "Cochlea_L_PRV05",
+    "Cochlea_R_PRV05",
+    "Esophagus",
+    "Esophagus_PRV05",
+    "Duodenum_PRV05",
+    "Heart",
+    "Larynx",
+    "Lens_L_PRV05",
+    "Lens_R_PRV05",
+    "Lips",
+    "Mandible",
+    "Musc_Constrict",
+    "OpticChiasm_PRV03",
+    "OpticNerv_L_PRV03",
+    "OpticNerv_R_PRV03",
+    "Rectum",
+    "SpinalCord",
+    "SpinalCord_PRV05",
+    "Stomach",
+    "Trachea",
+    "V_Pulmonary_PRV05",
+    "Vulva",
+]
+
+# Regex expressions for target
+TARGET_EXPRESSIONS = ["^PTV", "^ITV", "^GTV", "^CTV"]
+# Regex expressions for planning structs
+PLANNING_EXPRESSIONS = [
+        "^OTV",
+        "^sOTV",
+        "^opt",
+        "^sPTV",
+        "_EZ_",
+        "^ring",
+        "_PTV[0-9]",
+        "^Ring",
+        "^Normal",
+        "^OAR_PTV",
+        "^IGRT",
+        "^AllPTV",
+        "^InnerAir",
+        "z_derived",
+        "Uniform",
+        "^UnderDose",
+        "Air",
+        "FieldOfView",
+        "All_PTVs"
+    ]
 
 def exclude_from_export(case, rois):
     """Toggle export
@@ -1155,35 +1263,12 @@ def filter_rois(plan_rois, skip_targets=True, skip_planning=True):
     :param skip_planning:
     :return: filtered_rois
     """
-    # Regex expressions for targets
-    target_expressions = ["^PTV", "^ITV", "^GTV", "^CTV"]
-    # Regex expressions for planning structs
-    planning_expressions = [
-        "^OTV",
-        "^sOTV",
-        "^opt",
-        "^sPTV",
-        "_EZ_",
-        "^ring",
-        "_PTV[0-9]",
-        "^Ring",
-        "^Normal",
-        "^OAR_PTV",
-        "^IGRT",
-        "^AllPTV",
-        "^InnerAir",
-        "z_derived",
-        "Uniform",
-        "^UnderDose",
-        "Air",
-        "FieldOfView",
-        "All_PTVs"
-    ]
+
     regex_list = []
     if skip_targets:
-        regex_list.extend(target_expressions)
+        regex_list.extend(TARGET_EXPRESSIONS)
     if skip_planning:
-        regex_list.extend(planning_expressions)
+        regex_list.extend(PLANNING_EXPRESSIONS)
     # Given the above arguments, filter the list using the regex and return the result
     filtered_rois = []
     for r in plan_rois:
@@ -2841,6 +2926,33 @@ def make_externalclean(
     return roi_geom
 
 
+def make_high_z(case, exam, desired_name):
+    threshold = 3025  # Highest HU value on the scanner
+    # Redraw the ExternalClean structure if necessary
+    if check_structure_exists(
+            case=case,
+            structure_name=desired_name,
+            exam=exam,
+            option="Check"):
+        roi_geom = case.PatientModel.StructureSets[exam.Name].RoiGeometries[
+            desired_name]
+    else:
+        roi_geom = create_roi(
+            case=case,
+            examination=exam,
+            roi_name=desired_name,
+            delete_existing=False,
+            suffix="",
+        )
+    if not roi_geom.HasContours():
+        roi_geom.GrayLevelThreshold(Examination=exam,
+                               LowThreshold=int(0.9*threshold),
+                               HighThreshold=threshold,
+                               PetUnit="",
+                               CbctUnit=None,
+                               BoundingBox=None)
+
+
 def make_all_ptvs(patient, case, exam, sources):
     # Generate the All_PTVs combined PTV from
     # sources: a list of source roi names
@@ -2870,7 +2982,9 @@ def trim_supports(patient, case, exam):
     # External type contour
     # Inputs: RS Objects: patient, case, exam
     # returns: error: None if successful
-    support_name = find_types(case=case, roi_type='Support')
+    supports = find_types(case=case, roi_type='Support')
+    allowed = ['TrueBeamCouch', 'TomoCouch']
+    support_name = [s for s in supports if s in allowed]
     #
     # Find extents of external
     si = case.PatientModel.StructureSets[exam.Name] \
@@ -3395,8 +3509,10 @@ def find_order(protocol, order_name):
     else:
         return None
 
+
 import PySimpleGUI as sg
 import os
+
 
 def build_planning_strategy_frame(site_event, sites,
                                   protocol_event, protocols,
@@ -3911,90 +4027,6 @@ def planning_structures(
 
     if run_status:
         status.next_step(text="Please fill out the following input dialogs")
-    # Commonly underdoses structures
-    # Plan structures matched in this list will be selected for checkbox elements below
-    # TODO: move this list to the xml file for a given protocol
-    UnderStructureChoices = [
-        "GreatVes",
-        "A_Aorta",
-        "Bag_Bowel",
-        "Bowel_Small",
-        "Bowel_Large",
-        "BrachialPlex_L_PRV05",
-        "BrachialPlex_L",
-        "BrachialPlex_R",
-        "BrachialPlex_R_PRV05",
-        "Brainstem",
-        "Bronchus",
-        "Bronchus_L",
-        "Bronchus_R",
-        "CaudaEquina",
-        "Cochlea_L",
-        "Cochlea_R",
-        "Duodenum",
-        "Esophagus",
-        "Genitalia",
-        "Heart",
-        "Eye_L",
-        "Eye_R",
-        "Hippocampus_L",
-        "Hippocampus_L_PRV05",
-        "Hippocampus_R",
-        "Hippocampus_R_PRV05",
-        "Larynx",
-        "Lens_R",
-        "Lens_L",
-        "Bone_Mandible",
-        "OpticChiasm",
-        "OpticNrv_L",
-        "OpticNrv_R",
-        "Rectum",
-        "Retina_L",
-        "Retina_R",
-        "SpinalCord",
-        "SpinalCord_PRV02",
-        "Trachea",
-        "V_Pulmonary",
-    ]
-
-    # Common uniformly dosed areas
-    # Plan structures matched in this list will be selected for checkbox elements below
-    UniformStructureChoices = [
-        "A_Aorta_PRV05",
-        "Bag_Bowel",
-        "Bladder",
-        "Bowel_Small",
-        "Bowel_Large",
-        "Brainstem",
-        "Brainstem_PRV03",
-        "Bronchus_PRV05",
-        "Bronchus_L_PRV05",
-        "Bronchus_R_PRV05",
-        "CaudaEquina_PRV05",
-        "Cavity_Oral",
-        "Cochlea_L_PRV05",
-        "Cochlea_R_PRV05",
-        "Esophagus",
-        "Esophagus_PRV05",
-        "Duodenum_PRV05",
-        "Heart",
-        "Larynx",
-        "Lens_L_PRV05",
-        "Lens_R_PRV05",
-        "Lips",
-        "Mandible",
-        "Musc_Constrict",
-        "OpticChiasm_PRV03",
-        "OpticNerv_L_PRV03",
-        "OpticNerv_R_PRV03",
-        "Rectum",
-        "SpinalCord",
-        "SpinalCord_PRV05",
-        "Stomach",
-        "Trachea",
-        "V_Pulmonary_PRV05",
-        "Vulva",
-    ]
 
     # Prompt the user for the number of targets, uniform dose needed, sbrt flag, underdose needed
     if planning_structure_selections is None:
@@ -4027,15 +4059,17 @@ def planning_structures(
     for r in case.PatientModel.RegionsOfInterest:
         if r.Type == "Ptv":
             TargetMatches.append(r.Name)
-        if r.Name in UniformStructureChoices:
+        if r.Name in UNIFORM_STRUCTURES:
             UniformMatches.append(r.Name)
-        if r.Name in UnderStructureChoices:
+        if r.Name in UNDERDOSE_STRUCTURES:
             UnderMatches.append(r.Name)
         if r.OrganData.OrganType == "OrganAtRisk":
             AllOars.append(r.Name)
 
     translation_mapping = {}
     if dialog2_response is not None:
+        logging.debug(f'Number of targets{number_of_targets}')
+        logging.debug('Source list {}'.format(dialog2_response.items()))
         input_source_list = [None] * number_of_targets
         source_doses = [None] * number_of_targets
         indx = 0
@@ -4096,6 +4130,15 @@ def planning_structures(
                     source_doses[indx] = v
             else:
                 logging.warning("No dialog elements returned. Script unsuccessful")
+        filtered_list = []
+        for i in input_source_list:
+            derived_sources = [re.search(r,i) for r in PLANNING_EXPRESSIONS]
+            logging.debug(f'Derived sources {derived_sources}')
+            if not derived_sources:
+                filtered_list.append(i)
+        input_source_list = filtered_list
+
+
 
     # Generate Scan Lengths
     if generate_combined_ptv:
@@ -4546,8 +4589,8 @@ def planning_structures(
                     "VisualizeStructure": False,
                     "VisualizationType": "Filled",
                     "StructColor": TargetColors[i],
-                    "OperationA": "Union",
-                    "SourcesA": [t],
+                    "OperationA": "Intersection",
+                    "SourcesA": [t, "ExternalClean"],
                     "MarginTypeA": "Expand",
                     "ExpA": [0] * 6,
                     "OperationB": "Union",
@@ -4566,8 +4609,8 @@ def planning_structures(
                     "VisualizeStructure": False,
                     "VisualizationType": "Filled",
                     "StructColor": TargetColors[i],
-                    "OperationA": "Union",
-                    "SourcesA": [t],
+                    "OperationA": "Intersection",
+                    "SourcesA": [t, "ExternalClean"],
                     "MarginTypeA": "Expand",
                     "ExpA": [0] * 6,
                     "OperationB": "Union",
@@ -4697,6 +4740,38 @@ def planning_structures(
                         eval_subtract
                     )
                 )
+        """
+        Make Evals for MD targets on the principle that we don't want planning structures
+        mixing with actual MD targets. Only underdose, skin, and targets outside the external
+        are subtracted.
+        """
+        md_eval_subtract = [e for e in eval_subtract]
+        for i, t in enumerate(input_source_list):
+            logging.debug("Creating Eval from {}".format(t))
+            # Set the Sources Structure for Evals
+            PTVEval_defs = {
+                "StructureName": t + '_Eval',
+                "ExcludeFromExport": False,
+                "VisualizeStructure": False,
+                "StructColor": TargetColors[i],
+                "OperationA": "Intersection",
+                "SourcesA": [t, "ExternalClean"],
+                "MarginTypeA": "Expand",
+                "ExpA": [0] * 6,
+                "OperationB": "Union",
+                "SourcesB": md_eval_subtract,
+                "MarginTypeB": "Expand",
+                "ExpB": [0] * 6,
+                "OperationResult": "Subtraction",
+                "MarginTypeR": "Expand",
+                "ExpR": [0] * 6,
+                "StructType": "Ptv",
+            }
+            make_boolean_structure(
+                patient=patient, case=case, examination=examination, **PTVEval_defs
+            )
+            md_eval_subtract.append(t)
+            newly_generated_rois.append(PTVEval_defs.get("StructureName"))
 
         for index, target in enumerate(PTVList):
             logging.debug(
