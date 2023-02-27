@@ -265,7 +265,7 @@ def build_string_clip(beamset, responses, verification_plan):
     dialog_dict['By'] = os.getenv('username')
     # Negative sign for shifts relative to isocenter
     dialog_dict['X-shift'] = "{:.1f} mm".format(-10. * iso['x'])
-    dialog_dict['Y-shift'] = "{:.1f} mm".format(-10. * iso['y'])
+    dialog_dict['Y-shift'] = "{:.1f} mm".format(10. * iso['y'])
     dialog_dict['Z-shift'] = "{:.1f} mm".format(-10. * iso['z'])
 
     comment = ""
@@ -306,6 +306,7 @@ def prompt_qa_name(qa_plan_name):
     else:
         return response['Name']
 
+
 def clipboard_gui(beamset, user_prompt, verification_plan):
     """
     Simple gui to copy message to clipboard
@@ -315,15 +316,16 @@ def clipboard_gui(beamset, user_prompt, verification_plan):
     :return: None but copies string message to clipboard
     """
     dialog_name = 'DQA Exported'
-    layout = [[sg.Button('Quit'),sg.Button('Copy QA Message')]]
-    window = sg.Window('DQA Complete',layout,default_element_size=(40,2),grab_anywhere=True)
+    layout = [[sg.Button('Quit'), sg.Button('Copy QA Message')]]
+    window = sg.Window('DQA Complete', layout, default_element_size=(40, 2), grab_anywhere=True)
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == 'Quit':
             break
         elif event == 'Copy QA Message':
-            comment_to_clipboard(beamset,user_prompt,verification_plan)
+            comment_to_clipboard(beamset, user_prompt, verification_plan)
     window.close()
+
 
 def qa_gui(plan):
     # Find all beamsets in this plan
@@ -498,10 +500,10 @@ def shift_iso(verification_plan, percent_dose_region=80.):
                                                                                                               a['y'],
                                                                                                               a['z'])
         + "Closest shift coordinates are [x,y,z]: [{},{},{}]".format(shift['x'], shift['y'], shift['z']))
-    iso_name = "".join((verification_plan.BeamSet.DicomPlanLabel,
-                        f"_X:{shift['x']:03.0f}",
-                        f"_Y:{shift['y']:03.0f}",
-                        f"_Z:{shift['z']:03.0f}"))
+    iso_name = verification_plan.BeamSet.DicomPlanLabel \
+            +"_X:{:03.0f}".format(10. * shift['x'])\
+            +"_Y:{:03.0f}".format(-10. * shift['y'])\
+            +"_Z:{:03.0f}".format(10. * shift['z'])
     # Shift the isocenter of the beams
     for b in beams:
         b.Isocenter.EditIsocenter(Name=iso_name, Position=shift, Color="Purple")
@@ -653,7 +655,7 @@ def main():
                                    gantry_period=gantry_period,
                                    couch_speed=couch_speed,
                                    filters=filters)
-        clipboard_gui(beamset,user_prompt,verification_plan)
+        clipboard_gui(beamset, user_prompt, verification_plan)
 
     # Finish up
     if program_success:
