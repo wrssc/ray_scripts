@@ -378,6 +378,73 @@ def run_dicom_integrity_tool(
 
         return copied_tree
 
+    def check_nominal_plan_dose(dicom_match_tree):
+
+        copied_tree = deepcopy(dicom_match_tree)
+        CHECK_KEYS = ["TargetPrescriptionDose"]
+
+        copied_tree.tree_label = "Check Nominal Plan Dose"
+        copied_tree.remove_all_items_except(["DoseReferenceSequence"])
+
+        dr_sequence_list = copied_tree.get_element_from_key(
+            "DoseReferenceSequence"
+        ).sequence_list
+
+        for dr in dr_sequence_list:
+
+            # Prune extra items
+            dr.remove_all_items_except(CHECK_KEYS)
+
+        return copied_tree
+
+    def check_number_of_plan_fractions(dicom_match_tree):
+
+        copied_tree = deepcopy(dicom_match_tree)
+        CHECK_KEYS = ["NumberOfFractionsPlanned"]
+
+        copied_tree.tree_label = "Check Number of Plan Fractions"
+        copied_tree.remove_all_items_except(["FractionGroupSequence"])
+
+        sequence_list = copied_tree.get_element_from_key(
+            "FractionGroupSequence"
+        ).sequence_list
+
+        for item in sequence_list:
+
+            # Prune extra items
+            item.remove_all_items_except(CHECK_KEYS)
+
+        return copied_tree
+
+    def check_referenced_planning_image_uids(dicom_match_tree):
+
+        copied_tree = deepcopy(dicom_match_tree)
+        CHECK_KEYS = ["FrameOfReferenceUID", "StudyInstanceUID"]
+
+        copied_tree.tree_label = "Check Referenced Planning Image UIDs"
+        copied_tree.remove_all_items_except(CHECK_KEYS)
+
+        return copied_tree
+
+    def check_structure_set_uids(dicom_match_tree):
+
+        copied_tree = deepcopy(dicom_match_tree)
+        CHECK_KEYS = ["ReferencedSOPClassUID","ReferencedSOPInstanceUID"]
+
+        copied_tree.tree_label = "Check Structure Set UIDs"
+        copied_tree.remove_all_items_except(["ReferencedStructureSetSequence"])
+
+        sequence_list = copied_tree.get_element_from_key(
+            "ReferencedStructureSetSequence"
+        ).sequence_list
+
+        for item in sequence_list:
+
+            # Prune extra items
+            item.remove_all_items_except(CHECK_KEYS)
+
+        return copied_tree
+
     def check_beams_match(dicom_match_tree):
 
         copied_tree = deepcopy(dicom_match_tree)
@@ -438,6 +505,11 @@ def run_dicom_integrity_tool(
 
     # Run Tests
     sequence_list.append(check_plan_names_match(dicom_match_tree))
+    sequence_list.append(check_nominal_plan_dose(dicom_match_tree))
+    sequence_list.append(check_number_of_plan_fractions(dicom_match_tree))
+    sequence_list.append(check_referenced_planning_image_uids(dicom_match_tree))
+    sequence_list.append(check_structure_set_uids(dicom_match_tree))
+
     sequence_list.append(check_beams_match(dicom_match_tree))
     sequence_list.append(check_mu(dicom_match_tree))
 
