@@ -281,6 +281,7 @@ UNIQUE_TO_RAYSTATION = {
     "GantryPitchRotationDirection": (return_expected_unique_to_raystation, {}),
     "BolusID": (return_expected_unique_to_raystation, {}),
     "EffectiveWedgeAngle": (return_expected_unique_to_raystation, {}),
+    "ApplicatorDescription": (return_expected_unique_to_raystation, {}),
 }
 
 UNIQUE_TO_ARIA = {
@@ -338,6 +339,9 @@ UNIQUE_TO_ARIA = {
         return_expected_unique_to_aria,
         {"comment": "Tolerance tables are unique to Aria"},
     ),
+    "ApplicatorApertureShape": (return_expected_unique_to_aria, {}),
+    "ApplicatorOpening": (return_expected_unique_to_aria, {}),
+
 }
 
 PROCESS_FUNCTION_DICT = {

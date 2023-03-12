@@ -429,7 +429,7 @@ def run_dicom_integrity_tool(
     def check_structure_set_uids(dicom_match_tree):
 
         copied_tree = deepcopy(dicom_match_tree)
-        CHECK_KEYS = ["ReferencedSOPClassUID","ReferencedSOPInstanceUID"]
+        CHECK_KEYS = ["ReferencedSOPClassUID", "ReferencedSOPInstanceUID"]
 
         copied_tree.tree_label = "Check Structure Set UIDs"
         copied_tree.remove_all_items_except(["ReferencedStructureSetSequence"])
@@ -445,6 +445,7 @@ def run_dicom_integrity_tool(
 
         return copied_tree
 
+    """
     def check_beams_match(dicom_match_tree):
 
         copied_tree = deepcopy(dicom_match_tree)
@@ -466,6 +467,75 @@ def run_dicom_integrity_tool(
 
         for beam in list_of_beams_to_delete:
             beam_sequence_list.remove(beam)
+
+        return copied_tree
+    """
+
+    def check_beam_parameter(dicom_match_tree, check_keys, check_label):
+
+        copied_tree = deepcopy(dicom_match_tree)
+
+        copied_tree.tree_label = check_label
+        copied_tree.remove_all_items_except("BeamSequence")
+
+        # Beam are isolated. Eliminate setup fields.
+        beam_sequence_list = copied_tree.get_element_from_key(
+            "BeamSequence"
+        ).sequence_list
+
+        # Delete setup fields
+        list_of_beams_to_delete = []
+        for beam in beam_sequence_list:
+            vp = beam.get_element_from_key("TreatmentDeliveryType").value_pair
+
+            if vp[1] != "TREATMENT":
+                list_of_beams_to_delete.append(beam)
+
+        for beam in list_of_beams_to_delete:
+            beam_sequence_list.remove(beam)
+
+        # Prune items not in check keys
+        for beam in beam_sequence_list:
+
+            # Prune extra items
+            beam.remove_all_items_except(check_keys)
+
+        return copied_tree
+
+    def check_control_point_parameter(dicom_match_tree, check_keys, check_label):
+
+        copied_tree = deepcopy(dicom_match_tree)
+
+        copied_tree.tree_label = check_label
+        copied_tree.remove_all_items_except("BeamSequence")
+
+        # Beam are isolated. Eliminate setup fields.
+        beam_sequence_list = copied_tree.get_element_from_key(
+            "BeamSequence"
+        ).sequence_list
+
+        # Delete setup fields
+        list_of_beams_to_delete = []
+        for beam in beam_sequence_list:
+            vp = beam.get_element_from_key("TreatmentDeliveryType").value_pair
+
+            if vp[1] != "TREATMENT":
+                list_of_beams_to_delete.append(beam)
+
+        for beam in list_of_beams_to_delete:
+            beam_sequence_list.remove(beam)
+
+        # Cycle though control points
+        for beam in beam_sequence_list:
+
+            # Prune all but ControlPointSequence
+            beam.remove_all_items_except("ControlPointSequence")
+            control_point_sequence_list = beam.get_element_from_key(
+                "ControlPointSequence"
+            ).sequence_list
+
+            for cp in control_point_sequence_list:
+                cp.remove_all_items_except(check_keys)
 
         return copied_tree
 
@@ -504,17 +574,83 @@ def run_dicom_integrity_tool(
         return copied_tree
 
     # Run Tests
+    # Overall Plan
     sequence_list.append(check_plan_names_match(dicom_match_tree))
     sequence_list.append(check_nominal_plan_dose(dicom_match_tree))
+    sequence_list.append(check_mu(dicom_match_tree))
     sequence_list.append(check_number_of_plan_fractions(dicom_match_tree))
     sequence_list.append(check_referenced_planning_image_uids(dicom_match_tree))
     sequence_list.append(check_structure_set_uids(dicom_match_tree))
 
-    sequence_list.append(check_beams_match(dicom_match_tree))
-    sequence_list.append(check_mu(dicom_match_tree))
+    # Each Treatment Beam
+    zipped_parameters = zip(
+        [
+            ["BeamName", "BeamNumber"],
+            ["TreatmentMachineName"],
+            ["NumberOfWedges", "WedgeSequence"],
+            ["NumberOfControlPoints"],
+            ["NumberOfBoli"],
+            ["ReferencedBolusSequence"],
+            ["ApplicatorSequence"],
+            ["BlockSequence"],
+        ],
+        [
+            "Check Beam Names",
+            "Check Treatment Machine",
+            "Check Wedge Beam Parameters",
+            "Check Number of Control Points",
+            "Check Number of Boli",
+            "Check Bolus Name and Referenced ROI Number",
+            "Check Electron Applicator",
+            "Check Electron Block",
+        ],
+    )
+
+    for check_keys, check_label in zipped_parameters:
+        sequence_list.append(
+            check_beam_parameter(
+                dicom_match_tree, check_keys=check_keys, check_label=check_label,
+            )
+        )
+
+    # Each Control Point
+    zipped_parameters = zip(
+        [
+            ["GantryAngle"],
+            ["GantryRotationDirection"],
+            ["BeamLimitingDeviceAngle"],
+            ["PatientSupportAngle"],
+            ["IsocenterPosition"],
+            ["NominalBeamEnergy"],
+            ["BeamLimitingDevicePositionSequence"],
+            ["WedgePositionSequence"],
+            ["DoseRateSet"],
+            ["CumulativeMetersetWeight"],
+        ],
+        [
+            "Check Gantry Angles",
+            "Check Gantry Rotation Direction",
+            "Check Collimator Angles",
+            "Check Table Angles",
+            "Check Isocenter Position",
+            "Check Beam Energy",
+            "Check Jaws and MLCs",
+            "Check Wedge Control Point Parameters",
+            "Check Dose Rate",
+            "Check Relative Meterset Weight for each Control Point",
+        ],
+    )
+
+    for check_keys, check_label in zipped_parameters:
+        sequence_list.append(
+            check_control_point_parameter(
+                dicom_match_tree, check_keys=check_keys, check_label=check_label,
+            )
+        )
 
     # Update sequence and check matching
     aptr_sequence_pair.sequence_list = sequence_list
+    aptr_dicom_tree_pair.prune_empty_trees_and_sequences()
     aptr_dicom_tree_pair.update_match_result_recursive()
 
     aptr_treedata = aptr_dicom_tree_pair.get_treedata(show_matches=True)
@@ -666,16 +802,18 @@ def run_dicom_integrity_tool(
 
 if __name__ == "__main__":
 
+    # VMAT w/ and w/o bolus plans
     file_path = Path(
         r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588"
     )
     raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
     aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
-    aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
+    # aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
 
-    file_path = Path(r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs")
+    # EDW Plan
+    # file_path = Path(r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs")
 
-    raystation_filename = r"RP1.2.752.243.1.1.20220628154229160.2400.53002.dcm"
-    aria_filename = r"RP.3596693.ArmL_2DC_R0A0.dcm"
+    # raystation_filename = r"RP1.2.752.243.1.1.20220628154229160.2400.53002.dcm"
+    # aria_filename = r"RP.3596693.ArmL_2DC_R0A0.dcm"
 
     run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)

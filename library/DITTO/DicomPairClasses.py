@@ -147,6 +147,9 @@ class ElementPair:
     def update_match_result_recursive(self):
         pass
 
+    def prune_empty_trees_and_sequences(self):
+        pass
+
     def __str__(self):
         depth_str = self.depth * "  "
         out_str = ""
@@ -275,6 +278,20 @@ class SequencePair:
             item.update_match_result_recursive()
 
         self.update_match_result()
+
+    def prune_empty_trees_and_sequences(self):
+
+        pruned_items = []
+        for item in self.sequence_list:
+            if isinstance(item, DicomTreePair):
+                item.prune_empty_trees_and_sequences()
+
+                # Check to see if item is now empty.
+                if len(item.tree_list) == 0:
+                    pruned_items.append(item)
+
+        for item in pruned_items:
+            self.sequence_list.remove(item)
 
     def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
@@ -477,6 +494,20 @@ class DicomTreePair:
             item.update_match_result_recursive()
 
         self.update_match_result()
+
+    def prune_empty_trees_and_sequences(self):
+
+        pruned_items = []
+        for item in self.tree_list:
+            if isinstance(item, SequencePair):
+                item.prune_empty_trees_and_sequences()
+
+                # Check to see if item is now empty.
+                if len(item.sequence_list) == 0:
+                    pruned_items.append(item)
+
+        for item in pruned_items:
+            self.tree_list.remove(item)
 
     def is_acceptable_match(self, acceptable_results=DEFAULT_ACCEPTABLE_RESULTS):
         return self.match_result in acceptable_results
