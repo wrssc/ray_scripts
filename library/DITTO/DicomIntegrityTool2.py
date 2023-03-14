@@ -5,6 +5,8 @@ import PySimpleGUI as sg
 from DicomPairClasses import ElementPair, SequencePair, DicomTreePair
 from ProcessingFunctions import PROCESS_FUNCTION_DICT
 from copy import deepcopy
+import json
+import datetime
 
 ATTRIBUTE_MATCH_DICT = {
     "BeamSequence": "BeamNumber",
@@ -335,6 +337,51 @@ def compare_dicomrt_plans(filepath1, filepath2):
     return dicom_pair_tree
 
 
+def report_failing_test_func(aptr_dicom_tree_pair, mrn="0000000", plan_name="Plan"):
+
+    failing_results = []
+    list_of_checks = aptr_dicom_tree_pair.get_element_from_key(
+        "Aria Plan Transfer Review"
+    ).sequence_list
+    for check in list_of_checks:
+        if not check.is_acceptable_match():
+            failing_results.append(check.tree_label)
+
+    failing_results_string = "\n".join(failing_results)
+    layout = [
+        [sg.Text(f"Failing Tests: {failing_results_string}")],
+        [sg.Text("Please add additional clinical context in the box below.")],
+        [sg.Multiline(s=(45, 3), key="-MULTILINE-")],
+        [sg.Button("Report")],
+    ]
+
+    window = sg.Window("Report Failing Test", layout)
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Exit":
+            break
+
+        if event == "Report":
+            report_dict = {
+                "id": mrn,
+                "plan name": plan_name,
+                "failing results": failing_results,
+                "context": values["-MULTILINE-"],
+            }
+            json_object = json.dumps(report_dict, indent=4)
+
+            root = Path(
+                r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DITTO_logs"
+            )
+            filename = f"{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}_{mrn}_{plan_name}.json"
+            with open(root / filename, "w") as file:
+                file.write(json_object)
+            break
+
+    window.close()
+
+
 def run_dicom_integrity_tool(
     filepath1, filepath2, file_label1="DICOM File 1", file_label2="DICOM File 2",
 ):
@@ -349,7 +396,7 @@ def run_dicom_integrity_tool(
 
     aptr_sequence_pair = SequencePair(
         parent=aptr_dicom_tree_pair,
-        attribute_name="AriaPlanTransferReview",
+        attribute_name="Aria Plan Transfer Review",
         sequence_list=[],
         comment="",
         depth=1,
@@ -544,7 +591,7 @@ def run_dicom_integrity_tool(
         copied_tree = deepcopy(dicom_match_tree)
         CHECK_KEYS = ["FractionGroupSequence"]
 
-        copied_tree.tree_label = "Check Beam MU and Beam Doses"
+        copied_tree.tree_label = "Check Beam MU"
         copied_tree.remove_all_items_except(CHECK_KEYS)
 
         fg_sequence_list = copied_tree.get_element_from_key(
@@ -562,8 +609,8 @@ def run_dicom_integrity_tool(
             list_of_beams_to_delete = []
             for beam in beam_sequence_list:
                 try:
-                    beam.get_element_from_key("BeamDose")
-                    beam.remove_all_items_except(["BeamDose", "BeamMeterset"])
+                    beam.get_element_from_key("BeamMeterset")
+                    beam.remove_all_items_except(["BeamMeterset"])
 
                 except RuntimeError:
                     list_of_beams_to_delete.append(beam)
@@ -733,7 +780,7 @@ def run_dicom_integrity_tool(
                 tooltip="TIP2",
             )
         ],
-        [sg.Button("Print")],
+        [sg.Button("Report Failing Test")],
     ]
 
     window = sg.Window("Dicom Integrity Tool", layout, resizable=True)
@@ -797,6 +844,13 @@ def run_dicom_integrity_tool(
 
             window["-DMT_DEBUG-"].update(tree_key)
 
+        if event == "Report Failing Test":
+            mrn = dmt_dicom_match_tree.get_element_from_key("PatientID").value_pair[0]
+            plan_name = dmt_dicom_match_tree.get_element_from_key(
+                "RTPlanName"
+            ).value_pair[0]
+            report_failing_test_func(aptr_dicom_tree_pair, mrn=mrn, plan_name=plan_name)
+
     window.close()
 
 
@@ -806,14 +860,16 @@ if __name__ == "__main__":
     file_path = Path(
         r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588"
     )
-    raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
-    aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
+    # raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
+    # aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
     # aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
 
     # EDW Plan
-    # file_path = Path(r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs")
+    file_path = Path(
+        r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs\Plan_EDW"
+    )
 
-    # raystation_filename = r"RP1.2.752.243.1.1.20220628154229160.2400.53002.dcm"
-    # aria_filename = r"RP.3596693.ArmL_2DC_R0A0.dcm"
+    raystation_filename = r"RP1.2.752.243.1.1.20220628154229160.2400.53002.dcm"
+    aria_filename = r"RP.3596693.ArmL_2DC_R0A0.dcm"
 
     run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)
