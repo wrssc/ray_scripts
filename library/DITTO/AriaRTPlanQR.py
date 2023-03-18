@@ -30,7 +30,7 @@ import pydicom
 import pynetdicom
 import tempfile
 import PySimpleGUI as sg
-import os
+import sys
 import pathlib
 import socket
 
@@ -403,11 +403,27 @@ def aria_qr(root_dir=None):
     print("Aria plan " + selected_aria + " saved to " + str(aria_file_location))
 
     # Export the RayStation beamset file
-    case.ScriptableDicomExport(
-        ExportFolderPath=str(root_dir),
-        BeamSets=["%s:%s" % (plan.Name, selected_rs)],
-        IgnorePreConditionWarnings=True,
-    )
+    try:
+        case.ScriptableDicomExport(
+            ExportFolderPath=str(root_dir),
+            BeamSets=["%s:%s" % (plan.Name, selected_rs)],
+            IgnorePreConditionWarnings=True,
+        )
+    except:
+        yes_or_no = sg.popup_yes_no(
+            "You must save to run the APTR tool. Do you want to save the patient?"
+        )
+        if yes_or_no == "Yes":
+            get_current("Patient").Save()
+
+            case.ScriptableDicomExport(
+                ExportFolderPath=str(root_dir),
+                BeamSets=["%s:%s" % (plan.Name, selected_rs)],
+                IgnorePreConditionWarnings=True,
+            )
+        else:
+            sys.exit(0)
+
     rs_file_location = pathlib.Path(
         root_dir, ("RP" + plan.BeamSets[selected_rs].ModificationInfo.DicomUID + ".dcm")
     )

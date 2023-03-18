@@ -11,6 +11,8 @@ import AriaRTPlanQR
 import DicomIntegrityTool2
 import logging
 
+
+
 aria_file_location, rs_file_location, selected_rs = AriaRTPlanQR.aria_qr()
 
 logging.debug(f"Aria file location: {aria_file_location}")
