@@ -497,6 +497,7 @@ def check_isocenter_clearance(rso):
     pass_result = PASS
     delete_rois = []
     violation_rois = []
+    overlap_rois = []
     #
     # Take the first beam
     # TODO: Evaluate the structure at each couch angle in the beams
@@ -530,6 +531,7 @@ def check_isocenter_clearance(rso):
                                                roi_B=diam_name)
         if ss.RoiGeometries[r_overlap].HasContours():
             violation_rois.append(r)
+            overlap_rois.append(r_overlap)
         else:
             delete_rois.append(r_overlap)
     # Delete non-problematic contours
@@ -544,6 +546,16 @@ def check_isocenter_clearance(rso):
     else:
         pass_result = FAIL
         message_str += f'{violation_rois} is ≤ {SUPPORT_TOLERANCE} cm from the {roi_name}. '
+
+    # Exclude violation rois from export
+    for v in overlap_rois:
+        if '_overlap' in v:
+            rso.case.PatientModel.ToggleExcludeFromExport(ExcludeFromExport=True,
+                                                          RegionOfInterests=[v],
+                                                          PointsOfInterests=[])
+            print('Exclude from export toggled for {}'.format(v))
+        else:
+            print('No overlap in {} type {}'.format(v,type(v)))
 
     return pass_result, message_str
 

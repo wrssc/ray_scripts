@@ -2,6 +2,7 @@
 
 """
 import re
+import sys  # TODO delete
 from dateutil import parser
 import datetime
 import numpy as np
@@ -386,7 +387,7 @@ def make_fov(rso, fov_name, inner_fov_name):
         bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
         image_fov = bb[1].x - bb[0].x
     fov_outer = float(image_fov) / 10.  # mm-> cm
-    fov_inner = float(image_fov) / 10. - 1.  # mm-> cm
+    fov_inner = float(image_fov) / 10. - 2.  # mm-> cm
     #
     # Align along z
     axis = {"x": 0, "y": 0, "z": 1}
@@ -542,7 +543,7 @@ def intersect_sources(rso, name, sources):
     rso.case.PatientModel.RegionsOfInterest[name].UpdateDerivedGeometry(
         Examination=rso.exam, Algorithm="Auto"
     )
-    rso.case.PatientModel.RegionsOfInterest[name].DeleteExpression()
+    # rso.case.PatientModel.RegionsOfInterest[name].DeleteExpression()
 
 
 def external_overlaps_fov(rso, **kwargs):
@@ -565,7 +566,9 @@ def external_overlaps_fov(rso, **kwargs):
     contraction = FIELD_OF_VIEW_PREFERENCES['CONTRACTION']
     name_intersection_roi = FIELD_OF_VIEW_PREFERENCES['NAME_INTERSECTION']
     message_str = None
-    sources = [inner_fov_name]
+    exclude_from_export = []
+    to_delete = [inner_fov_name]
+    sources = []
     #
     # Find external
     ext_name = get_external(rso)
@@ -576,7 +579,8 @@ def external_overlaps_fov(rso, **kwargs):
         fov_exists = True
     else:
         fov_exists = make_fov(rso, fov_name, inner_fov_name)
-        sources.append(fov_name)
+        to_delete.append(fov_name)
+        exclude_from_export.append(fov_name)
     #
     # Check initial inputs
     if not ext_name:
@@ -603,10 +607,13 @@ def external_overlaps_fov(rso, **kwargs):
             w_name = pm.GetUniqueRoiName(DesiredName=w['Name'])
             make_wall(rso, name=w_name, outer_name=w['Outer_Source'], inner_name=w['Inner_Source'], exp=w['In_Expand'])
             sources.append(w_name)
+            to_delete.append(w_name)
+            exclude_from_export.append(w_name)
         #
         # Intersect the walls
         intersect_name = pm.GetUniqueRoiName(DesiredName=name_intersection_roi)
         intersect_sources(rso, intersect_name, sources)
+        exclude_from_export.append(intersect_name)
         #
         # Get the extent of the targets
         if not target_extent:
@@ -625,8 +632,16 @@ def external_overlaps_fov(rso, **kwargs):
             suspect_slices = np.empty(shape=0)
         #
         # Clean up
-        sources.append(intersect_name)
-        for s in sources:
+        for e in exclude_from_export:
+            try:
+                rso.case.PatientModel.ToggleExcludeFromExport(ExcludeFromExport=True,
+                                                              RegionOfInterests=[e],
+                                                              PointsOfInterests=[])
+            except:
+                pass
+        to_delete.append(intersect_name)
+
+        for s in to_delete:
             pm.RegionsOfInterest[s].DeleteRoi()
         if suspect_slices.size > 0:
             pass_result = FAIL
