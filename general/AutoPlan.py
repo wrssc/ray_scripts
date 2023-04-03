@@ -567,9 +567,9 @@ def autoplan(testing_bypass_dialogs={}):
             iso_target=beamset_defs.iso_target,
             lateral_zero=lateral_zero)
     except Exception:
-        logging.warning(
-            'Aborting, could not locate center of {}'.format(beamset_defs.iso_target))
-        sys.exit('Failed to place isocenter')
+        warning = 'Aborting, could not locate center of {}'.format(beamset_defs.iso_target)
+        logging.warning(warning)
+        sys.exit(warning)
     # Parse Tomo versus VMAT
     if beamset_defs.technique == 'TomoHelical':
         if len(beams) > 1:
@@ -770,7 +770,6 @@ def autoplan(testing_bypass_dialogs={}):
     logging.info('Time making planning structs {} s'.format(ap_report['time_roi'][1] - ap_report['time_roi'][0]))
     logging.info('Time adding goals {} s'.format(ap_report['time_goals'][1] - ap_report['time_goals'][0]))
     logging.info('Time optimizing {} s'.format(ap_report['time_opt'][1] - ap_report['time_opt'][0]))
-    logging.info('Time in FinalDose {} s'.format(ap_report['time_final_dose'][1] - ap_report['time_final_dose'][0]))
     logging.info('Time in script {} s'.format(ap_report['time_all'][1] - ap_report['time_all'][0]))
     return (pd_out)
 
