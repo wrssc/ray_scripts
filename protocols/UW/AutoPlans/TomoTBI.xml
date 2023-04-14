@@ -33,9 +33,14 @@
             <technique modality="Photons" technique="TomoHelical" code="FFS" machine="HDA0488">TomoHelical</technique>
             <technique modality="Photons" technique="TomoHelical" code="FFS" machine="HDA0477">TomoHelical</technique>
         </prescription>
-        <commissioned_range>
-            <fraction_dose upper="2" lower="1.5"></fraction_dose>
-        </commissioned_range>
+        <validation>
+            <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2" lower="1.5">True</fraction_dose>
+            </validation_range>
+            <final_dose>False</final_dose>
+        </validation>
         <goals>
             <roi>
                 <name>PTV_p_FFS_Eval</name>
@@ -591,9 +596,14 @@
             <technique modality="Photons" technique="TomoHelical" code="HFS" machine="HDA0488">TomoHelical</technique>
             <technique modality="Photons" technique="TomoHelical" code="HFS" machine="HDA0477">TomoHelical</technique>
         </prescription>
-        <commissioned_range>
-            <fraction_dose upper="2" lower="1.5"></fraction_dose>
-        </commissioned_range>
+        <validation>
+            <validation_status>True</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2" lower="1.5">True</fraction_dose>
+            </validation_range>
+            <final_dose>False</final_dose>
+        </validation>
         <goals>
             <roi>
                 <name>PTV_p_HFS_Eval</name>
