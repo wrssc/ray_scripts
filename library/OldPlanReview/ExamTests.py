@@ -71,12 +71,15 @@ def match_exactly(value1, value2):
 
 def check_exam_data(rso):
     """
-
+    Checks the RayStation plan information versus the native CT DICOM header.
+    Patient Name match is a case insensitive comparison excluding middle name
+    Gender match on M/F/O vs M/F/O/Unknown/None
+    Date of birth match by using parser to pull a Y/M/D date ignoring time
+    PatientID is an exact match (string equality)
     Args:
         kwargs:'rso': (object): Named tuple of ScriptObjects
     Returns:
         (Pass/Fail/Alert, Message to Display)
-    # TODO: Parse date/time of birth and ignore time of birth
     """
 
     modality_tag = (0x0008, 0x0060)
@@ -110,15 +113,15 @@ def check_exam_data(rso):
 
 def compare_exam_date(rso):
     """
-    Check if date occurred within tolerance
-    Ideally we'll use the approval date, if not, we'll use the last saved by,
+    Check if examination date occurred within tolerance set by DAYS_SINCE_SIM
+    First it checks for a RayStation approval date, then we'll use the last saved by,
     if not we'll use right now!
+
     Args:
         kwargs:'rso': (object): Named tuple of ScriptObjects
     Returns:
         (Pass/Fail/Alert, Message to Display)
     Test Patient:
-
         Pass (all but Gender): ZZ_RayStation^CT_Artifact, 20210408SPF
               Case 1: TB_HFS_ArtFilt: Lsha_3DC_R0A0
         Fail: Script_Testing^Plan_Review, #ZZUWQA_ScTest_01May2022:
@@ -666,6 +669,41 @@ def find_nearest(array, values):
     return array[idx]
 
 
+def check_support_material(rso):
+    """
+    For the list of accepted supports defined in ReviewDefinitions.py->Materials
+    assure the correct material name has been assigned
+    :param rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+
+    :return: message (list str): [Pass_Status, Message String]
+    """
+    rois = get_roi_list(rso.case)
+    message_str = ""
+    correct_supports = []
+    for r in rois:
+        try:
+            correct_material_name = MATERIALS[r]
+        except KeyError:
+            continue
+        try:
+            material_name = rso.case.PatientModel.RegionsOfInterest[r].RoiMaterial.OfMaterial.Name
+            if material_name != correct_material_name:
+                message_str += r + ' incorrectly assigned as ' + material_name
+            else:
+                correct_supports.append(r)
+        except AttributeError:
+            message_str += r + ' not overriden! '
+    if message_str:
+        pass_result = FAIL
+    else:
+        pass_result = PASS
+        if correct_supports:
+            message_str = "Supports [" + ",".join(correct_supports) + "] Correctly overriden"
+        else:
+            message_str = "No supports found"
+    return pass_result, message_str
+
+
 def get_slice_positions(rso):
     # Get slice positions in linear array
     slice_positions = np.array(rso.exam.Series[0].ImageStack.SlicePositions)
@@ -723,9 +761,14 @@ def find_gaps(rg, voxel_size, slice_positions):
         return None
 
 
+def consecutive(data, stepsize=1):
+    return np.split(data, np.where(np.diff(data) >= stepsize)[0] + 1)
+
+
 def check_contour_gaps(rso):
     """
-    Look for S/I discontinuties in all rois that have contours and are not derived by resampling the roi
+    Look for S/I discontinuties in all rois that have contours and are not derived by resampling
+    the roi
     onto a small grid and looking for empty slices
     :param rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
 
@@ -733,37 +776,47 @@ def check_contour_gaps(rso):
 
     Test Patient:
         Tomo3D_Skin: ZZUWQA_Tomo3D_SkinInvolved: Contours not labeled "Gaps" don't have gaps
+        Tomo Leg: ZZUWQA_14Mar2023_01: GTV_Combo has the kinds of gaps I can think of
 
     """
     # Look through all available rois that have contours for gaps
     message_str = ""
     # All Rois with contours
-
-    rois = [rg.OfRoi.Name for rg in rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries if
-            rg.HasContours() and rg.OfRoi.DerivedRoiExpression is None]
+    rois_with_contours = [rg.OfRoi.Name for rg in
+                          rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries if
+                          rg.HasContours()]
     # Get slice positions
     slices = get_slice_positions(rso)
-    # Get the slice thickness
+    # Get the slice thickness of the CT
     delta_z = slices[1] - slices[0]
-    voxel_size = {'x': 0.4, 'y': 0.4, 'z': delta_z}
+    voxel_size = {'x': 0.2, 'y': 0.2, 'z': delta_z}
+    # Build a dictionary with key = roi name, and values
+    # of the gap strings
     gaps = {}
-    for r in rois:
+    for roi in rois_with_contours:
         # Get the roi geometry
-        rg = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[r]
+        roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi]
         # Find any gaps
-        gap_list_r = find_gaps(rg, voxel_size, slice_positions=slices)
-        if gap_list_r is not None:
-            # Reduce the array to a list of unique positions
-            out = list(set(gap_list_r))
-            out_str = ["{0:0.1f}".format(round(o, 1)) for o in out]
-            gaps[r] = out_str
+        roi_gaps = find_gaps(roi_geometry, voxel_size, slice_positions=slices)
+        if roi_gaps is not None:
+            # Create an array of the sorted list of unique gap positions
+            slices_with_gaps = np.array(sorted(list(set(roi_gaps))))
+            gap_positions = []
+            gap_groups = consecutive(slices_with_gaps, delta_z + 1e-6)
+            for g in gap_groups:
+                if g.shape[0] > 1:
+                    gap_positions.append("({0:0.1f}-{1:0.1f})"
+                                         .format(round(g[0], 1), round(g[-1], 1)))
+                else:
+                    gap_positions.append("{0:0.1f}".format(round(g[0], 1)))
+            gaps[roi] = gap_positions
+
     if gaps:
-        # Build the output message
         pass_result = FAIL
         message_str = 'Gaps in contours: '
-        for roi, gap_position in gaps.items():
-            message_str += f'{roi}{gap_position} '
-        message_str = message_str.replace("'","").rstrip()
+        for roi, gap_positions in gaps.items():
+            message_str += f'{roi}{gap_positions} '
+        message_str = message_str.replace("'", "").rstrip()
     else:
         pass_result = PASS
         message_str = 'No gaps found in current contour set'
@@ -1133,8 +1186,8 @@ def make_high_z(case, exam, desired_name):
         )
     if not roi_geom.HasContours():
         roi_geom.GrayLevelThreshold(Examination=exam,
-                               LowThreshold=int(0.9*threshold),
-                               HighThreshold=threshold,
-                               PetUnit="",
-                               CbctUnit=None,
-                               BoundingBox=None)
+                                    LowThreshold=int(0.9 * threshold),
+                                    HighThreshold=threshold,
+                                    PetUnit="",
+                                    CbctUnit=None,
+                                    BoundingBox=None)

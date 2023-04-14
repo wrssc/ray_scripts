@@ -1588,7 +1588,7 @@ def check_plan():
     if check_overlap:
         message_fov = external_overlaps_fov(pd=pd, parent_key=exam_key[0], target_extent=target_extent)
         exam_level_tests.extend(message_fov)
-    # Exam tests complete. Update value
+    # Exam qa_tests complete. Update value
     exam_level_pass = "Pass"
     exam_icon = GREEN_CIRCLE
     if any([m[3] for m in exam_level_tests if m[3] == "Fail"]):
