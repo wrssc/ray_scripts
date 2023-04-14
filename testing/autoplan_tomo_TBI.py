@@ -771,26 +771,38 @@ def register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, ):
         suffix=None,
         delete=False,
     )
+    # Check for existing registration
+    approved = False
+    for r in pd_ffs.case.Registrations:
+        if r.RegistrationSource.FromExamination.Name == hfs_scan_name \
+                and r.RegistrationSource.ToExamination.Name == ffs_scan_name \
+                and r.Review:
+            try:
+                if r.Review.ApprovalStatus == 'Approved':
+                    approved = True
+            except AttributeError:
+                approved = False
+            break
+    if not approved:
+        pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
+            FloatingExaminationName=ffs_scan_name,
+            ReferenceExaminationName=hfs_scan_name,
+            UseOnlyTranslations=False,
+            HighWeightOnBones=False,
+            InitializeImages=True,
+            FocusRoisNames=[],
+            RegistrationName=None)
 
-    pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
-        FloatingExaminationName=ffs_scan_name,
-        ReferenceExaminationName=hfs_scan_name,
-        UseOnlyTranslations=False,
-        HighWeightOnBones=False,
-        InitializeImages=True,
-        FocusRoisNames=[],
-        RegistrationName=None)
-
-    # Refine on bones
-    pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
-        FloatingExaminationName=ffs_scan_name,
-        ReferenceExaminationName=hfs_scan_name,
-        UseOnlyTranslations=False,
-        HighWeightOnBones=True,
-        InitializeImages=False,
-        FocusRoisNames=[],
-        RegistrationName=None)
-    # Also create a bounding box on both images about the junction point and set the ROI there
+        # Refine on bones
+        pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
+            FloatingExaminationName=ffs_scan_name,
+            ReferenceExaminationName=hfs_scan_name,
+            UseOnlyTranslations=False,
+            HighWeightOnBones=True,
+            InitializeImages=False,
+            FocusRoisNames=[],
+            RegistrationName=None)
+        # Also create a bounding box on both images about the junction point and set the ROI there
 
 
 def load_normal_mbs(pd_hfs, pd_ffs):
@@ -963,7 +975,8 @@ def make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
     # HFS avoid starts at junction point - number of dose levels * dim_si
     hfs_avoid_start = hfs_poi_junction.Point.z - dim_si * float(len(j_i))
     # TODO: underive and delete geometry on avoid volumes defined on incorrect scans
-    #       Delete all empty geometriest for junction ffs doses immediately after they are all created
+    #       Delete all empty geometriest for junction ffs doses immediately after they are all
+    #       created
     #  False     Create HFS and FFS eval structs for treatment
     #       ADD prompt for dir block on avoidances
     # then map them over
@@ -971,11 +984,32 @@ def make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
     make_ptv(pdata=pd_hfs, junction_prefix=JUNCTION_PREFIX_HFS, avoid_name=AVOID_HFS_NAME)
 
 
+def check_fiducials(pd, fiducial_name):
+    # Check all potential exams to ensure the fiducial is defined
+    fiducial_check = []
+    pois = [p.Name for p in pd.case.PatientModel.PointsOfInterest]
+    if fiducial_name not in pois:
+        return False, False
+    for ss in pd.case.PatientModel.StructureSets:
+        if not ss.PoiGeometries[fiducial_name].Point:
+            fiducial_check.append(False)
+        else:
+            fiducial_check.append(True)
+    return True, all(fiducial_check)
+
+
 def calc_ffs_iso(pd_ffs, target):
-    pois = [p.Name for p in pd_ffs.case.PatientModel.PointsOfInterest]
-    if 'SimFiducials' not in pois:
+    fiducial_point_name = 'SimFiducials'
+    point_exists, point_defined = check_fiducials(pd_ffs, fiducial_name=fiducial_point_name)
+    if not point_exists:
         AutoPlanOperations.place_fiducial(rso=pd_ffs, poi_name='SimFiducials')
-        connect.await_user_input('Place SimFiducial point in FFS, then toggle to HFS and place it there too')
+        connect.await_user_input(
+            'Place SimFiducial point in FFS, then toggle to HFS and place it there too')
+        point_exists, point_defined = check_fiducials(pd_ffs, fiducial_name=fiducial_point_name)
+    elif not point_defined:
+        connect.await_user_input(
+            'Place SimFiducial point in FFS, then toggle to HFS and place it there too')
+
     pm = pd_ffs.case.PatientModel
     sim_coords = pm.StructureSets[pd_ffs.exam.Name].LocalizationPoiGeometry.Point
     target_coords = pm.StructureSets[pd_ffs.exam.Name].RoiGeometries[target].GetCenterOfRoi()
@@ -983,7 +1017,7 @@ def calc_ffs_iso(pd_ffs, target):
     iso_name = pm.GetUniqueRoiName(DesiredName='ROI_ffs_iso')
     pm.CreateRoi(Name=iso_name,
                  Color='Pink',
-                 Type='Bolus')
+                 Type='Control')
     iso_roi = pm.RegionsOfInterest[iso_name]
     iso_roi.CreateSphereGeometry(Radius=1.0,
                                  Examination=pd_ffs.exam,
@@ -1202,7 +1236,8 @@ def main():
     if do_structure_definitions:
         #
         # Load the Tomo Supports for the couch
-        AutoPlanOperations.load_supports(rso=pd_hfs, supports=["TomoCouch"])
+        AutoPlanOperations.load_supports(rso=pd_hfs,
+                                         supports=["TomoCouch", "Baseplate_Override_PMMA"])
         AutoPlanOperations.load_supports(rso=pd_ffs, supports=["TomoCouch"])
 
         # # Also create a bounding box on both images about the junction point and set the ROI there
@@ -1215,7 +1250,6 @@ def main():
         # Build lung contours and avoidance on the HFS scan
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         make_lung_contours(pd_hfs, color=[192, 192, 192])
-        ## TODO: There is still a bug in target definitions allowing targets to extend beyond junctions
 
         make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name)
         # # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
