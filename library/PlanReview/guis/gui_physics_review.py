@@ -122,6 +122,7 @@ def create_tab_manual_checks(failed_tests, main_width):
     for key in CHECK_BOXES:
         # Create a frame for the current key
         frame_layout = []
+        total_items = 0
         for item in CHECK_BOXES[key]:
             # Checklist item text and Radio buttons on the same row
             row1 = [sg.Text(item['text'], ),  # size=(max_check, 2)),
@@ -135,23 +136,17 @@ def create_tab_manual_checks(failed_tests, main_width):
                                  background_color='#E5DECE')
                     ]
             frame_layout.append(row1)
-        # Pad the last row if needed to keep elements from splitting over columns
-        # if (len(frame_layout) // 2) % 2 != 0:
-        #     frame_layout.append([sg.Text('')])
-        #     frame_layout.append([sg.Text('')])
-        # num_rows = len(frame_layout) // 2
-        # if num_rows > 4:
-        #     scroll = True
-        # else:
-        #     scroll = False
-        # two_column_frame = [sg.Column(frame_layout[:num_rows],
-        #                               vertical_alignment='t',),
-        #                     sg.Column(frame_layout[num_rows:],
-        #                               vertical_alignment='t')]
+            total_items += 1
+        if total_items > 5:
+            scroll = True
+            v_size = 150
+        else:
+            scroll = False
+            v_size = 0
         frame = sg.Frame(key, [[sg.Column(frame_layout,
-                                          scrollable=True,
+                                          scrollable=scroll,
                                           vertical_scroll_only=True,
-                                          size=(1300, 150))]])
+                                          size=(1300, v_size))]])
 
         layout.append([frame])
 
