@@ -626,6 +626,14 @@
                 <dose units="%" roi="PTV_p_HFS">115</dose>
                 <priority>4</priority>
             </roi>
+            <!-- Kidneys -->
+            <roi>
+                <name>Kidneys</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">9</dose>
+                <priority>3</priority>
+            </roi>
+            <!-- Pacemaker -->
             <roi>
                 <name>Pacemaker</name>
                 <type>Max</type>
@@ -633,6 +641,14 @@
                 <dose units="Gy">5</dose>
                 <priority>1</priority>
             </roi>
+            <!-- Lungs -->
+            <roi>
+                <name>Lungs</name>
+                <type dir="lt">Mean</type>
+                <dose units="Gy">6.6</dose>
+                <priority>3</priority>
+            </roi>
+            <!-- Junctions -->
             <roi>
                 <name>hfs_junction_10%Rx</name>
                 <type dir="ge">VX</type>
@@ -648,18 +664,11 @@
                 <priority>7</priority>
             </roi>
             <roi>
-                <name>hfs_junction_10%Rx</name>
-                <type dir="le">DX</type>
-                <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p_HFS">20</dose>
-                <priority>200</priority>
-            </roi>
-            <roi>
                 <name>hfs_junction_20%Rx</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">20</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_20%Rx</name>
@@ -673,14 +682,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_HFS">30</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_30%Rx</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">30</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_30%Rx</name>
@@ -694,14 +703,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_HFS">40</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_40%Rx</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">40</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_40%Rx</name>
@@ -715,14 +724,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_HFS">50</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_50%Rx</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">50</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_50%Rx</name>
@@ -736,14 +745,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_HFS">60</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_60%Rx</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">60</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_60%Rx</name>
@@ -757,14 +766,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_70%Rx</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_70%Rx</name>
@@ -778,14 +787,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_HFS">80</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_80%Rx</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">80</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_80%Rx</name>
@@ -799,14 +808,14 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_HFS">90</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_90%Rx</name>
                 <type dir="ge">VX</type>
                 <volume units="%">90</volume>
                 <dose units="%" roi="PTV_p_HFS">90</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <roi>
                 <name>hfs_junction_90%Rx</name>
@@ -820,7 +829,7 @@
                 <type dir="le">DX</type>
                 <volume units="%">2</volume>
                 <dose units="%" roi="PTV_p_HFS">100</dose>
-                <priority>200</priority>
+                <priority>7</priority>
             </roi>
             <goalset>
                 <name>QUANTEC</name>
@@ -865,6 +874,13 @@
                 <type>Max</type>
                 <dose units="%" roi="PTV_p_HFS">105</dose>
                 <weight>3500</weight>
+            </roi>
+            <!-- Kidneys -->
+            <roi>
+                <name>Kidneys</name>
+                <type a="1">MaxEud</type>
+                <dose units="%" roi="PTV_p_HFS">70</dose>
+                <weight>40</weight>
             </roi>
             <!-- Lungs -->
             <roi>
