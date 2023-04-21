@@ -209,9 +209,9 @@ def iter_optimization_config_etree(etree):
                 o_c['mod_target'] = float(o.find("reduce_mod").attrib["mod_target"])
             else:
                 o_c['reduce_mod'] = False
-                o_c['mod_target'] = False
+                o_c['mod_target'] = None
         except AttributeError:
-            o_c['reduce_mod'] = True
+            o_c['reduce_mod'] = False
             o_c['mod_target'] = None
         #
         # Reduce Time
