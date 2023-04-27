@@ -17,10 +17,14 @@ Inputs::
 Dependencies::
 	Note that protocols are assumed to have even priorities describing targets
 
-:versions
+Version History::
+
 1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
+
 1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
+
 2.0.0 Adding the clinical objectives for IMRT
+
 2.0.1 HotFix for an error with a target that is too large for RTOG goals.
 
 
@@ -881,7 +885,8 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
 
     TODO: Change the main to a callable function taking the protocol path as an input`
     TODO: Add goal loop for secondary - unspecified target goals
-    :versions
+
+    Version History:
     1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
     1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
     2.0.0 Adding the clinical objectives for IMRT
