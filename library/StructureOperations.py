@@ -158,26 +158,34 @@ UNIFORM_STRUCTURES = [
 TARGET_EXPRESSIONS = ["^PTV", "^ITV", "^GTV", "^CTV"]
 # Regex expressions for planning structs
 PLANNING_EXPRESSIONS = [
-        "^OTV",
-        "^sOTV",
-        "^opt",
-        "^sPTV",
-        "_EZ_",
-        "^ring",
-        "_PTV[0-9]",
-        "^Ring",
-        "^Normal",
-        "^OAR_PTV",
-        "^IGRT",
-        "^AllPTV",
-        "^InnerAir",
-        "z_derived",
-        "Uniform",
-        "^UnderDose",
-        "Air",
-        "FieldOfView",
-        "All_PTVs"
-    ]
+    "^OTV",
+    "^sOTV",
+    "^opt",
+    "^sPTV",
+    "_EZ_",
+    "^ring",
+    "_PTV[0-9]",
+    "^Ring",
+    "^Normal",
+    "^OAR_PTV",
+    "^IGRT",
+    "^AllPTV",
+    "^InnerAir",
+    "z_derived",
+    "Uniform",
+    "^UnderDose",
+    "Air",
+    "FieldOfView",
+    "All_PTVs"
+]
+
+
+def any_regex_match(regex_list, text):
+    for pattern in regex_list:
+        if re.search(pattern, text):
+            return True
+    return False
+
 
 def exclude_from_export(case, rois):
     """Toggle export
@@ -675,7 +683,8 @@ def change_roi_type(case, roi_name, roi_type):
     # Set the organ type if necessary
     for k, v in type_dict.items():
         if not roi_type:
-            error_message.append('Could not change organ type of {} to {}'.format(roi_name, roi_type))
+            error_message.append(
+                'Could not change organ type of {} to {}'.format(roi_name, roi_type))
         elif any(roi_type in types for types in v):
             if current_organ_type == k:
                 error_message.append(
@@ -865,17 +874,21 @@ def check_structure_exists(
                 return True
         elif option == "Check":
             if exam is not None and structure_has_contours_on_exam:
-                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
+                # logging.info("Structure {} has contours on exam {}".format(structure_name,
+                # exam.Name))
                 return True
             elif exam is not None:
-                # logging.info("Structure {} has no contours on exam {}".format(structure_name, exam.Name))
+                # logging.info("Structure {} has no contours on exam {}".format(structure_name,
+                # exam.Name))
                 return False
             else:
-                # logging.info("Structure {} exists in this Case {}".format(structure_name, case.Name))
+                # logging.info("Structure {} exists in this Case {}".format(structure_name,
+                # case.Name))
                 return True
         elif option == "Wait":
             if structure_has_contours_on_exam:
-                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
+                # logging.info("Structure {} has contours on exam {}".format(structure_name,
+                # exam.Name))
                 return True
             else:
                 logging.info("Structure {} not found on exam {}, prompted user to create"
@@ -980,7 +993,8 @@ def compute_comparison_statistics(
          'Precision': float: ROIA intersect ROIB | / | ROIA union ROIB |
          'Sensitivity': float: 1 - | ROIB not ROIA | / | ROIA |
          'Specificity': float: | ROIA intersect ROIB | / | ROIA |
-         'MeanDistanceToAgreement': float: Mean distance to agreement computed from average of minimum voxel distances
+         'MeanDistanceToAgreement': float: Mean distance to agreement computed from average of
+         minimum voxel distances
          'MaxDistanceToAgreement': float: Maximum of minimum distances between voxels (Hausdorff)
          }
     """
@@ -1088,7 +1102,8 @@ def compute_comparison_statistics(
     # t2 = datetime.datetime.now()
     # delta1 = t1 - t0
     # delta2 = t2 - t1
-    # logging.debug('Time contour create and delete {}, Time analyze {}'.format(delta1.total_seconds(), delta2.total_seconds()))
+    # logging.debug('Time contour create and delete {}, Time analyze {}'.format(
+    # delta1.total_seconds(), delta2.total_seconds()))
     return stats
 
 
@@ -1355,7 +1370,9 @@ def match_gui(matches, elements, df_rois=None):
         ],
         [sg.Frame(
             layout=[
-                [sg.Text('Suffix to be used for any structure that cannot be renamed, e.g. _A for adaptive')],
+                [sg.Text(
+                    'Suffix to be used for any structure that cannot be renamed, e.g. _A for '
+                    'adaptive')],
                 [sg.InputText('_A', key='-SUFFIX-')]
             ],
             title='Existing Structures',
@@ -1970,7 +1987,8 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                         **derived_defs
                     )
                     # TODO check if its empty and then delete it if has no contours on any exam
-                    # If subtraction and If A/B are both zero just check the Dice coefficient of each contour in Source A with source B.
+                    # If subtraction and If A/B are both zero just check the Dice coefficient of
+                    # each contour in Source A with source B.
                     msg.append("{} created.".format(derived_roi_name))
                 else:
                     msg.append("Unable to create {}".format(derived_roi_name))
@@ -2036,7 +2054,8 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
         if len(df_e) > 1:
             logging.warning(
                 "Too many matching {}. That makes me a sad panda. :(".format(e)
-                + "It is likely the protocol file contains multiple references to the same structure"
+                + "It is likely the protocol file contains multiple references to the same "
+                  "structure"
             )
         elif df_e.empty:
             logging.debug("{} was not found in the protocol list".format(e))
@@ -2286,7 +2305,8 @@ def renumber_roi(case):
 
 def dialog_create_roi():
     """
-    Dialog to ascertain the user preference of overwrite or append on a new roi with existing geometry
+    Dialog to ascertain the user preference of overwrite or append on a new roi with existing
+    geometry
 
     :return: overwrite or append
     """
@@ -2325,7 +2345,8 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
         *<Yes> Are there contours defined for roi_name in this case?
             **<No> -> return the RoiGeometry on this examination
             **<Yes> Is the geometry approved somewhere in the case?
-                ***<No> Either delete it (delete_existing), or prompt the user to decide to delete or supply a suffix
+                ***<No> Either delete it (delete_existing), or prompt the user to decide to
+                delete or supply a suffix
                 ***<Yes> Is the geometry approved on this exam?
                     ****<No> -> Either delete it (delete_existing),
                                 or append a supplied or default suffix
@@ -2946,11 +2967,11 @@ def make_high_z(case, exam, desired_name):
         )
     if not roi_geom.HasContours():
         roi_geom.GrayLevelThreshold(Examination=exam,
-                               LowThreshold=int(0.9*threshold),
-                               HighThreshold=threshold,
-                               PetUnit="",
-                               CbctUnit=None,
-                               BoundingBox=None)
+                                    LowThreshold=int(0.9 * threshold),
+                                    HighThreshold=threshold,
+                                    PetUnit="",
+                                    CbctUnit=None,
+                                    BoundingBox=None)
 
 
 def make_all_ptvs(patient, case, exam, sources):
@@ -3366,10 +3387,14 @@ class PlanningStructurePreferences:
 import sys
 
 rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"
-sys.path.append("U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW")
-sys.path.append("U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW\\AutoPlans")
 sys.path.append(
-    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW\\beamset_templates")
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW")
+sys.path.append(
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW"
+    "\\AutoPlans")
+sys.path.append(
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW"
+    "\\beamset_templates")
 from os import path, listdir
 import xml
 
@@ -3422,7 +3447,8 @@ def get_qualities(pd):
     try:
         pbb = machine.PhotonBeamQualities
     except AttributeError:
-        logging.debug('No nominal energy attribute for beamset {}'.format(pd.beamset.DicomPlanLabel))
+        logging.debug(
+            'No nominal energy attribute for beamset {}'.format(pd.beamset.DicomPlanLabel))
         return qualities
     for q in pbb:
         q_str = "{:.0f}".format(q.NominalEnergy)
@@ -3439,7 +3465,8 @@ def get_isos(pd):
         for b in bs.Beams:
             if bs.DicomPlanLabel not in isos.keys():
                 iso_name = bs.DicomPlanLabel + ':' + b.Isocenter.Annotation.Name
-                isos[iso_name] = {'-Beamset Name-': bs.DicomPlanLabel, '-Iso Name-': b.Isocenter.Annotation.Name}
+                isos[iso_name] = {'-Beamset Name-': bs.DicomPlanLabel,
+                                  '-Iso Name-': b.Isocenter.Annotation.Name}
     return isos
 
 
@@ -3631,7 +3658,8 @@ class Target:
 def init_target_assignments(max_targets):
     target_assignments = []
     for i in range(max_targets):
-        target_assignments.append(Target(i + 1, 'Target' + str(i + 1), "", "", 0.0, None, Isocenter("", "", "")))
+        target_assignments.append(
+            Target(i + 1, 'Target' + str(i + 1), "", "", 0.0, None, Isocenter("", "", "")))
     return target_assignments
 
 
@@ -3716,7 +3744,8 @@ def dialog_planning_structures(protocol_dir, planning_strategies, plan_targets):
                        'TITLE': 'Target selections',
                        # 'SIZE': (frame_width,100),
                        'JUST': 'center',
-                       'layout': [frames['-GENERAL STRATEGY-']['-FRAME-'], frames['-TARGET SETTINGS-']['-FRAME-']]
+                       'layout': [frames['-GENERAL STRATEGY-']['-FRAME-'],
+                                  frames['-TARGET SETTINGS-']['-FRAME-']]
                        }
     first_column = [
         [sg.Text(
@@ -3815,7 +3844,8 @@ def dialog_number_of_targets():
     dialog1 = UserInterface.InputDialog(
         inputs={
             "1": "Enter Number of Targets",
-            "2": "Enter the beginning target number, e.g. start numbering at 2 for PTV2, PTV3, PTV4 ...",
+            "2": "Enter the beginning target number, e.g. start numbering at 2 for PTV2, PTV3, "
+                 "PTV4 ...",
             "3": "Priority 1 goals present: Use Underdosing",
             "4": "Targets overlap sensitive structures: Use UniformDoses",
             "5": "Use InnerAir to avoid high-fluence due to cavities",
@@ -4005,7 +4035,8 @@ def planning_structures(
             + " as primary and run this script"
         )
         sys.exit("This script cannot be run on image sets with approved plans.")
-    # Interestingly, RS is throwing a ValueError in the console, but system error when executed in CPython
+    # Interestingly, RS is throwing a ValueError in the console, but system error when executed
+    # in CPython
     except Exception:
         logging.debug(
             "Exam {} does not have approved structures. Proceeding".format(
@@ -4132,13 +4163,11 @@ def planning_structures(
                 logging.warning("No dialog elements returned. Script unsuccessful")
         filtered_list = []
         for i in input_source_list:
-            derived_sources = [re.search(r,i) for r in PLANNING_EXPRESSIONS]
+            derived_sources = [re.search(r, i) for r in PLANNING_EXPRESSIONS]
             logging.debug(f'Derived sources {derived_sources}')
             if not derived_sources:
                 filtered_list.append(i)
         input_source_list = filtered_list
-
-
 
     # Generate Scan Lengths
     if generate_combined_ptv:
@@ -4168,7 +4197,8 @@ def planning_structures(
                     "input1_underdose": "Select UnderDose Structures",
                     "input2_underdose": "Select UnderDose OAR",
                     "input3_underdose": "Select UnderDose OAR",
-                    "input4_under_standoff": "UnderDose Standoff: x cm gap between targets and UnderDose volume",
+                    "input4_under_standoff": "UnderDose Standoff: x cm gap between targets and "
+                                             "UnderDose volume",
                 },
                 datatype={
                     "input1_underdose": "check",
@@ -4222,7 +4252,8 @@ def planning_structures(
                     "input1_uniform": "Select UniformDose Structures",
                     "input2_uniform": "Select UniformDose OAR",
                     "input3_uniform": "Select UniformDose OAR",
-                    "input4_uniform_standoff": "UniformDose Standoff: x cm gap between targets and UniformDose volume",
+                    "input4_uniform_standoff": "UniformDose Standoff: x cm gap between targets "
+                                               "and UniformDose volume",
                 },
                 datatype={
                     "input1_uniform": "check",
