@@ -117,11 +117,11 @@ from System import Environment
 from datetime import datetime
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'OldPlanReview'))
-import ExamTests
-import BeamSetReviewTests
-import PlanReviewTests
-from ReviewDefinitions import *
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/OldPlanReview'))
+from OldPlanReview.ExamTests import *
+from OldPlanReview.BeamSetReviewTests import *
+from OldPlanReview.PlanReviewTests import *
+from OldPlanReview.ReviewDefinitions import *
 import GeneralOperations
 
 
