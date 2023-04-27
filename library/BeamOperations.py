@@ -82,9 +82,7 @@ PROTOCOL_FOLDER = r'../protocols'
 INSTITUTION_FOLDER = r'UW'
 BEAMSET_FOLDER = r'beamset_templates'
 PATH_BEAMSETS = os.path.join(os.path.dirname(__file__),
-                          PROTOCOL_FOLDER, INSTITUTION_FOLDER, BEAMSET_FOLDER)
-
-
+                             PROTOCOL_FOLDER, INSTITUTION_FOLDER, BEAMSET_FOLDER)
 
 clr.AddReference('System')
 
@@ -318,7 +316,8 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
 
     return dialog_beamset
 
-def check_isocenter_position(case,exam,beamset,iso_position):
+
+def check_isocenter_position(case, exam, beamset, iso_position):
     """
 
     :param case:
@@ -332,6 +331,7 @@ def check_isocenter_position(case,exam,beamset,iso_position):
     #
     # Check supports against tolerances
 
+
 def find_isocenter_parameters(case, exam, beamset, iso_target=None,
                               iso_poi=None,
                               existing_iso=None,
@@ -344,8 +344,13 @@ def find_isocenter_parameters(case, exam, beamset, iso_target=None,
             isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
                 RoiGeometries[iso_target].GetCenterOfRoi()
         except Exception:
-            logging.warning('Aborting, could not locate center of {}'.format(iso_target))
-            sys.exit('Failed to place isocenter')
+            if not case.PatientModel.StructureSets[exam.Name] \
+                    .RoiGeometries[iso_target].HasContours():
+                warning = 'Aborting, could not locate center of {} on exam {}'.format(iso_target, exam.Name)
+            else:
+                warning = 'Aborting, could not locate center of {}'.format(iso_target)
+            logging.warning(warning)
+            sys.exit(warning)
     elif iso_poi:
         try:
             isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
@@ -372,7 +377,6 @@ def find_isocenter_parameters(case, exam, beamset, iso_target=None,
         iso_x = 0.
     else:
         iso_x = isocenter_position.x
-
 
     if lateral_zero:
         ptv_center = {'x': 0.,
