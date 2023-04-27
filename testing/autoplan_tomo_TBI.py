@@ -75,7 +75,6 @@ JUNCTION_PREFIX_FFS = "ffs_junction_"
 JUNCTION_PREFIX_HFS = "hfs_junction_"
 JUNCTION_POINT = "junction"
 TARGET_HFS = "PTV_p_HFS"
-MACHINE = "HDA0488"
 MBS_ROIS = {'Kidney_L': {'CaseType': "Abdomen",
                          'ModelName': r"Kidney (Left)",
                          'RoiName': r"Kidney_L",
@@ -1219,6 +1218,9 @@ def tbi_gui():
     layout = [
                  [sg.T('Enter Number of Fractions'), sg.In(key='-NFX-')],
                  [sg.T('Enter TOTAL Dose in cGy'), sg.In(key='-TDOSE-')],
+                 [sg.T('Enter Treatment Machine'), sg.Combo(["HDA0488",
+                                                             "HDA0477"],
+                                                            key='-MACHINE-')],
                  [sg.Checkbox('Generate FFS Planning Structures',
                               default=True,
                               key='-FFS STRUCTURES-')],
@@ -1268,6 +1270,7 @@ def main():
     make_ffs_isodose_structs = tbi_selections['-FFS ISODOSE-']
     hfs_autoplan = tbi_selections['-HFS PLAN-']
     dose_summation = tbi_selections['-SUM DOSE-']
+    machine = tbi_selections['-MACHINE-']
 
     # Look for HFS/FFS Scans
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -1343,7 +1346,7 @@ def main():
             'translation_map': {ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')},
             'beamset_name': BEAMSET_FFS,
             'iso_target': iso_target,
-            'machine': MACHINE,
+            'machine': machine,
             'user_prompts': True,
         }
         pd_ffs_out = autoplan(testing_bypass_dialogs=tbi_ffs_protocol)
@@ -1380,7 +1383,7 @@ def main():
             'translation_map': {ORDER_TARGET_NAME_HFS: (TARGET_HFS, rx, r'cGy')},
             'beamset_name': BEAMSET_HFS,
             'iso_target': TARGET_HFS,
-            'machine': MACHINE,
+            'machine': machine,
             'user_prompts': True,
         }
         pd_hfs_out = autoplan(testing_bypass_dialogs=tbi_hfs_protocol)
