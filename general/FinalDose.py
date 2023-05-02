@@ -16,9 +16,12 @@
         control point spacing, and sim fiducial point
 
     1.1.0 Added RS10 support and updated to python 3.6
+
     1.2.0 Update to python 3.8 and RS 3.8
+
     2.0.0 Added intregration of the review script in to replace some of the checks performed in
           FinalDose steps
+
 
     Validation Notes:
     Test Patient:
@@ -70,6 +73,7 @@ from GeneralOperations import logcrit as logcrit
 import StructureOperations
 import clr
 import os
+import re
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../helper_scripts'))
 import init_physics_06Dec2022
@@ -130,7 +134,7 @@ def final_dose(site=None, technique=None):
     check_lateral_pa = False
     cps_test = False
     # Set up the workflow steps.
-    steps = []
+    steps = ['Exclude irrelevant rois from export']
     if 'Tomo' not in beamset.DeliveryTechnique and beamset.Modality != 'Electrons':
         if check_lateral_pa:
             steps.append('Check Laterality')
@@ -168,6 +172,24 @@ def final_dose(site=None, technique=None):
                                         docstring=__doc__,
                                         help=__help__)
     status.next_step('Checking beam names')
+
+    # Exclude irrelevant rois
+
+    rois_for_export = []
+    # All structures with a clinical goal
+    for ef in plan.TreatmentCourse.EvaluationFunctions:
+        rois_for_export.append(ef.ForRegionOfInterest.Name)
+    # All GTVs and CTVs
+    rois_for_export.extend(StructureOperations.find_types(case, 'Gtv'))
+    rois_for_export.extend(StructureOperations.find_types(case, 'Ctv'))
+    ptvs = StructureOperations.find_types(case, 'Ptv')
+    ptvs_for_export = []
+    # Exclude known planning structure types
+    reg_ex_patterns = [r'\bOTV', r'\bsOTVu', r'\bPTV\d{1,2}_']
+    for ptv in ptvs:
+        if not StructureOperations.any_regex_match(reg_ex_patterns, ptv):
+            rois_for_export.append(ptv)
+    StructureOperations.exclude_from_export(case, rois_for_export)
 
     if check_lateral_pa:
         # Check the lateral PA for clearance
@@ -271,20 +293,19 @@ def final_dose(site=None, technique=None):
             sys.exit(cps_error)
         status.next_step('Reviewed Control Point Spacing, computing dose if necessary')
 
+
+
+
+
+
+
+
     if beamset.Modality == 'Photons':
         dose_algorithm = 'CCDose'
         if 'Tomo' in beamset.DeliveryTechnique:
             # TODO: Better exception handling here.
             message = compute_dose(beamset, dose_algorithm=dose_algorithm)
             status.next_step(message)
-            # try:
-            #    beamset.ComputeDose(ComputeBeamDoses=True,
-            #                        DoseAlgorithm=dose_algorithm,
-            #                        ForceRecompute=False)
-            #    status.next_step('Recomputed Dose, finding DSP')
-            # except Exception:
-            #    status.next_step('Dose recomputation unnecessary, finding DSP')
-            #    logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
             # Set the DSP for the plan and recompute dose to force an update of the DSP
             BeamOperations.set_dsp(plan=plan,
                                    beam_set=beamset)
