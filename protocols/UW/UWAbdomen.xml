@@ -73,12 +73,16 @@
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning</Instruction>
+            <Instruction type="Special Instructions" radio="Yes,No"
+                         combo="" comment="">Adaptive Replanning</Instruction>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+            <Instruction type="Special Instructions"
+                         radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
                          comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to treatment</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+            <Instruction type="Treatment Instructions"
+                         radio="Yes,No" combo="" comment="">NPO for 4 hours prior to treatment</Instruction>
+            <Instruction type="Treatment Instructions"
+                         radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <validation>
             <validation_status>False</validation_status>
