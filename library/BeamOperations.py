@@ -346,7 +346,8 @@ def find_isocenter_parameters(case, exam, beamset, iso_target=None,
         except Exception:
             if not case.PatientModel.StructureSets[exam.Name] \
                     .RoiGeometries[iso_target].HasContours():
-                warning = 'Aborting, could not locate center of {} on exam {}'.format(iso_target, exam.Name)
+                warning = 'Aborting, could not locate center of {} on exam {}'.format(iso_target,
+                                                                                      exam.Name)
             else:
                 warning = 'Aborting, could not locate center of {}'.format(iso_target)
             logging.warning(warning)
@@ -2157,7 +2158,10 @@ def lock_jaws_to_current(plan_opt):
     message = ""
     for treatsettings in plan_opt.OptimizationParameters.TreatmentSetupSettings:
         for b in treatsettings.BeamSettings:
-            s0 = b.ForBeam.Segments[0]
+            try:
+                s0 = b.ForBeam.Segments[0]
+            except IndexError:
+                sys.exit('Cannot set jaw positions without existing segments')
             jaw_positions[b.ForBeam.Name] = {
                 'x1': math.ceil(10 * s0.JawPositions[0]) / 10,
                 'x2': math.floor(10 * s0.JawPositions[1]) / 10,
