@@ -10,6 +10,7 @@ image_root = Path(__file__).parent / "images"
 RED_CIRCLE = image_root / "red_circle_icon.png"
 GREEN_CIRCLE = image_root / "green_circle_icon.png"
 BLUE_CIRCLE = image_root / "blue_circle_icon.png"
+YELLOW_CIRCLE = image_root / "yellow_circle_icon.png"
 
 
 class Result(Flag):
@@ -21,18 +22,21 @@ class Result(Flag):
     ELEMENT_ACCEPTABLE_NEAR_MATCH = 5
     ELEMENT_EXPECTED_UNIQUE_TO_1 = 6
     ELEMENT_EXPECTED_UNIQUE_TO_2 = 7
-    ELEMENT_BOTH_NONE = 6
+    ELEMENT_BOTH_NONE = 8
+    ELEMENT_WARNING = 9
 
     SEQUENCE_MATCH = 10
     SEQUENCE_MISMATCH = 11
     SEQUENCE_UNIQUE_TO_1 = 12
     SEQUENCE_UNIQUE_TO_2 = 13
     SEQUENCE_EMPTY = 14
+    SEQUENCE_WARNING = 15
 
     DICOM_TREE_MATCH = 20
     DICOM_TREE_MISMATCH = 21
     DICOM_TREE_UNIQUE_TO_1 = 22
     DICOM_TREE_UNIQUE_TO_2 = 23
+    DICOM_TREE_WARNING = 24
 
     SKIPPED = 99
     UNKNOWN = 100
@@ -108,6 +112,9 @@ class ElementPair:
 
     def is_unique_to_dataset2(self):
         return self.match_result == Result.ELEMENT_UNIQUE_TO_2
+
+    def is_warning(self):
+        return self.match_result == Result.ELEMENT_WARNING
 
     def get_treedata(self, treedata=None, show_matches=False):
 
@@ -237,7 +244,7 @@ class SequencePair:
 
     def update_match_result(self):
         """
-        There are five possible match statuses:
+        There are six possible match statuses:
 
         We will test them in the following order.
         SEQUENCE_EMPTY
@@ -248,6 +255,8 @@ class SequencePair:
             All items in sequence_list are unique to dataset 2
         SEQUENCE_MATCH
             All items in sequence_list are True on is_acceptable_match()
+        SEQUENCE_WARNING
+            ALL items in sequence_list are True on is_acceptable_match or is_warning()
         SEQUENCE_MISMATCH
             Anything else
         """
@@ -262,6 +271,10 @@ class SequencePair:
         acceptable_match_list = [
             item.is_acceptable_match() for item in self.sequence_list
         ]
+        acceptable_match_or_warning_list = [
+            (item.is_warning() or item.is_acceptable_match())
+            for item in self.sequence_list
+        ]
 
         if all(unique_1_list):
             self.match_result = Result.SEQUENCE_UNIQUE_TO_1
@@ -269,6 +282,8 @@ class SequencePair:
             self.match_result = Result.SEQUENCE_UNIQUE_TO_2
         elif all(acceptable_match_list):
             self.match_result = Result.SEQUENCE_MATCH
+        elif all(acceptable_match_or_warning_list):
+            self.match_result = Result.SEQUENCE_WARNING
         else:
             self.match_result = Result.SEQUENCE_MISMATCH
 
@@ -305,6 +320,9 @@ class SequencePair:
     def is_unique_to_dataset2(self):
         return self.match_result == Result.SEQUENCE_UNIQUE_TO_2
 
+    def is_warning(self):
+        return self.match_result == Result.SEQUENCE_WARNING
+
     def get_treedata(self, treedata=None, show_matches=False):
 
         if treedata is None:
@@ -314,6 +332,8 @@ class SequencePair:
 
             if item.is_unique_to_dataset1() or item.is_unique_to_dataset2():
                 icon = BLUE_CIRCLE
+            elif item.is_warning():
+                icon = YELLOW_CIRCLE
             elif item.is_acceptable_match():
                 icon = GREEN_CIRCLE
             else:
@@ -471,6 +491,8 @@ class DicomTreePair:
             All items in tree_list are unique to dataset 2
         DICOM_TREE_MATCH
             All items in tree_list are True on is_acceptable_match()
+        DICOM_TREE_WARNING
+            ALL items in tree_list are True on is_acceptable_match or is_warning()
         DICOM_TREE_MISMATCH
             Anything else
         """
@@ -478,6 +500,9 @@ class DicomTreePair:
         unique_1_list = [item.is_unique_to_dataset1() for item in self.tree_list]
         unique_2_list = [item.is_unique_to_dataset2() for item in self.tree_list]
         acceptable_match_list = [item.is_acceptable_match() for item in self.tree_list]
+        acceptable_match_or_warning_list = [
+            (item.is_warning() or item.is_acceptable_match()) for item in self.tree_list
+        ]
 
         if all(unique_1_list):
             self.match_result = Result.DICOM_TREE_UNIQUE_TO_1
@@ -485,6 +510,8 @@ class DicomTreePair:
             self.match_result = Result.DICOM_TREE_UNIQUE_TO_2
         elif all(acceptable_match_list):
             self.match_result = Result.DICOM_TREE_MATCH
+        elif all(acceptable_match_or_warning_list):
+            self.match_result = Result.DICOM_TREE_WARNING
         else:
             self.match_result = Result.DICOM_TREE_MISMATCH
 
@@ -521,6 +548,9 @@ class DicomTreePair:
     def is_unique_to_dataset2(self):
         return self.match_result == Result.DICOM_TREE_UNIQUE_TO_2
 
+    def is_warning(self):
+        return self.match_result == Result.DICOM_TREE_WARNING
+
     def return_global_key(self):
         if self.parent is None:
             return self.tree_label
@@ -537,6 +567,8 @@ class DicomTreePair:
 
             if item.is_unique_to_dataset1() or item.is_unique_to_dataset2():
                 icon = BLUE_CIRCLE
+            elif item.is_warning():
+                icon = YELLOW_CIRCLE
             elif item.is_acceptable_match():
                 icon = GREEN_CIRCLE
             else:

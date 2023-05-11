@@ -112,6 +112,13 @@ def return_expected_mismatch(element_pair, comment=""):
         return (element_pair.match_result, comment)
 
 
+def return_warning(element_pair, comment=""):
+    if element_pair.match_result == Result.ELEMENT_MISMATCH:
+        return (Result.ELEMENT_WARNING, comment)
+    else:
+        return (element_pair.match_result, comment)
+
+
 def return_expected_unique_to_raystation(element_pair, comment=""):
     # Verify that the first item is unique.
     if element_pair.is_unique_to_dataset1():
@@ -182,7 +189,7 @@ def process_wedge_position_sequence(element_pair, comment=""):
         else:
             return return_expected_unique_to_raystation(
                 element_pair,
-                comment="Wedge position parameters are  unique to RayStation for ControlPoint index > 0",
+                comment="Wedge position parameters are unique to RayStation for ControlPoint index > 0",
             )
 
     # Ran out of special cases, return raw match result
@@ -341,7 +348,6 @@ UNIQUE_TO_ARIA = {
     ),
     "ApplicatorApertureShape": (return_expected_unique_to_aria, {}),
     "ApplicatorOpening": (return_expected_unique_to_aria, {}),
-
 }
 
 PROCESS_FUNCTION_DICT = {
