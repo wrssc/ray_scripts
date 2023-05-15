@@ -293,13 +293,6 @@ def final_dose(site=None, technique=None):
             sys.exit(cps_error)
         status.next_step('Reviewed Control Point Spacing, computing dose if necessary')
 
-
-
-
-
-
-
-
     if beamset.Modality == 'Photons':
         dose_algorithm = 'CCDose'
         if 'Tomo' in beamset.DeliveryTechnique:
