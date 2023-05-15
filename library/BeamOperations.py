@@ -370,7 +370,7 @@ def find_isocenter_parameters(case, exam, beamset, iso_target=None,
                               iso_poi=None,
                               existing_iso=None,
                               lateral_zero=False,
-                              iso_name = None,
+                              iso_name=None,
                               ):
     """Function to return the dict object needed for isocenter placement from the center of a
     supplied
@@ -427,11 +427,11 @@ def find_isocenter_parameters(case, exam, beamset, iso_target=None,
     isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
     if iso_name:
         isocenter_parameters['Name'] = iso_name
-        isocenter_parameters['NameOfIsocenterToRef'] =iso_name
+        isocenter_parameters['NameOfIsocenterToRef'] = iso_name
     else:
         isocenter_parameters['Name'] = "iso_" + beamset.DicomPlanLabel
         isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + beamset.DicomPlanLabel
-    isocenter_parameters['Position']=ptv_center
+    isocenter_parameters['Position'] = ptv_center
     logging.info('Isocenter chosen based on center of {}.'.format(iso_target) +
                  'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
                      ptv_center['x'],
@@ -542,7 +542,7 @@ def create_beamset(patient, case, exam, plan,
     return beamset
 
 
-def beam_name_exists(beamset,name):
+def beam_name_exists(beamset, name):
     exists = False
     for b in beamset.Beams:
         if b.Name == name:
@@ -550,14 +550,14 @@ def beam_name_exists(beamset,name):
     return exists
 
 
-def get_unique_name(beamset,name):
-    exists = beam_name_exists(beamset,name)
+def get_unique_name(beamset, name):
+    exists = beam_name_exists(beamset, name)
     if exists:
         # Generate a unique stream using a counter
         counter = 1
         while True:
             unique_string = f"{name}_{counter}"
-            if not beam_name_exists(beamset,unique_string):
+            if not beam_name_exists(beamset, unique_string):
                 return unique_string
             counter += 1
     else:
@@ -583,7 +583,7 @@ def place_beams_in_beamset(iso, beamset, beams):
                     b.gantry_stop_angle, b.rotation_dir,
                     b.collimator_angle, b.couch_angle))
 
-            beam_name = get_unique_name(beamset,b.name)
+            beam_name = get_unique_name(beamset, b.name)
             beamset.CreateArcBeam(ArcStopGantryAngle=b.gantry_stop_angle,
                                   ArcRotationDirection=b.rotation_dir,
                                   BeamQualityId=b.energy,
@@ -593,8 +593,8 @@ def place_beams_in_beamset(iso, beamset, beams):
                                   GantryAngle=b.gantry_start_angle,
                                   CouchRotationAngle=b.couch_angle,
                                   CollimatorAngle=b.collimator_angle)
-            beams_added.append( {'Name': beam_name,
-                                      'IsoName': iso['Name']})
+            beams_added.append({'Name': beam_name,
+                                'IsoName': iso['Name']})
 
     elif beamset.DeliveryTechnique == "SMLC":
         for b in beams:
@@ -613,13 +613,13 @@ def place_beams_in_beamset(iso, beamset, beams):
                                      CouchRotationAngle=b.couch_angle,
                                      CollimatorAngle=b.collimator_angle)
             beams_added.append({'Name': b.name,
-                                      'IsoName': iso['Name']})
+                                'IsoName': iso['Name']})
     for b in beams:
         if b.jaw_limits:
             result = lock_jaws(plan=pd.plan,
-                                              beamset=pd.beamset,
-                                              beam_name=b.name,
-                                              limits=b.jaw_limits)
+                               beamset=pd.beamset,
+                               beam_name=b.name,
+                               limits=b.jaw_limits)
             logging.info(result)
     return beams_added
 
