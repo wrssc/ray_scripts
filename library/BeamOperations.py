@@ -215,7 +215,8 @@ def patient_position_map(exam_position):
 
 def beamset_dialog(case, filename=None, path=None, order_name=None):
     """
-    Ask user for information required to load a beamset including the desired protocol beamset to load.
+    Ask user for information required to load a beamset including the desired protocol beamset to
+    load.
 
     :param case: current case from RS
     :param folder: folder name of the location of the protocol files
@@ -225,7 +226,8 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     """
     # Define an empty BeamSet object that will be the returned object
     dialog_beamset = BeamSet()
-    # TODO: Uncomment in version 9 to load the available machine inputs from current commissioned list
+    # TODO: Uncomment in version 9 to load the available machine inputs from current commissioned
+    #  list
     machine_db = connect.get_current('MachineDB')
     # try:
     #    machines = machine_db.QueryCommissionedMachineInfo(Filter={'IsLinac': True})
@@ -239,7 +241,8 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     # TODO Test gating option
     # TODO Load all available beamsets found in a file
     available_modality = ['Photons', 'Electrons']
-    available_technique = ['Conformal', 'SMLC', 'VMAT', 'DMLC', 'ConformalArc', 'TomoHelical', 'TomoDirect']
+    available_technique = ['Conformal', 'SMLC', 'VMAT', 'DMLC', 'ConformalArc', 'TomoHelical',
+                           'TomoDirect']
     # machine_list = ['TrueBeam', 'TrueBeamSTx']
 
     # Open the user supplied filename located at folder and return a list of available beamsets
@@ -326,17 +329,51 @@ def check_isocenter_position(case, exam, beamset, iso_position):
     :param iso_position: (dict) {'x':,'y','z'}
     :return: correction: (dict)
     """
-    #
-    # Find all supports
-    #
-    # Check supports against tolerances
+
+
+#
+# Find all supports
+#
+# Check supports against tolerances
+
+
+def find_multi_iso_parameters(case, exam, beamset, iso_pois,
+                              lateral_zero=False):
+    isocenters = []
+    for p in iso_pois:
+        try:
+            isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
+                PoiGeometries[p].Point
+        except Exception:
+            logging.warning('Aborting, could not locate center of {}'.format(p))
+            sys.exit('Failed to place isocenter at Point {}'.format(p))
+        if lateral_zero:
+            center = {'x': 0.,
+                      'y': isocenter_position.y,
+                      'z': isocenter_position.z}
+        else:
+            center = {'x': isocenter_position.x,
+                      'y': isocenter_position.y,
+                      'z': isocenter_position.z}
+        isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=center)
+        isocenter_parameters['Name'] = f"iso_{p}" + beamset.DicomPlanLabel
+        isocenter_parameters['NameOfIsocenterToRef'] = f"iso_{p}" + beamset.DicomPlanLabel
+        logging.info('Isocenter chosen based on {}.'.format(p) +
+                     f'Parameters are: x={center["x"]},'
+                     f' y={center["y"]}:, '
+                     f'z={center["z"]}, '
+                     f'assigned to isocenter name{isocenter_parameters["Name"]}')
+        isocenters.append(isocenter_parameters)
 
 
 def find_isocenter_parameters(case, exam, beamset, iso_target=None,
                               iso_poi=None,
                               existing_iso=None,
-                              lateral_zero=False):
-    """Function to return the dict object needed for isocenter placement from the center of a supplied
+                              lateral_zero=False,
+                              iso_name = None,
+                              ):
+    """Function to return the dict object needed for isocenter placement from the center of a
+    supplied
     name of a structure"""
 
     if iso_target:
@@ -388,8 +425,13 @@ def find_isocenter_parameters(case, exam, beamset, iso_target=None,
                       'y': isocenter_position.y,
                       'z': isocenter_position.z}
     isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
-    isocenter_parameters['Name'] = "iso_" + beamset.DicomPlanLabel
-    isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + beamset.DicomPlanLabel
+    if iso_name:
+        isocenter_parameters['Name'] = iso_name
+        isocenter_parameters['NameOfIsocenterToRef'] =iso_name
+    else:
+        isocenter_parameters['Name'] = "iso_" + beamset.DicomPlanLabel
+        isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + beamset.DicomPlanLabel
+    isocenter_parameters['Position']=ptv_center
     logging.info('Isocenter chosen based on center of {}.'.format(iso_target) +
                  'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
                      ptv_center['x'],
@@ -408,16 +450,28 @@ def create_beamset(patient, case, exam, plan,
                    order_name=None,
                    create_setup_beams=True,
                    rename_existing=False):
-    """ Create a beamset by opening a dialog with user or loading from scratch
-    Currently relies on finding out information via a dialog. I would like it to optionally take the elements
-    from the BeamSet class and return the result
+    """
+    This function creates a beamset for radiation treatment planning. It either opens a dialog with
+    the user to gather information or uses the provided parameters. It follows certain coding
+    conventions for clarity and readability.
 
-    Running as a dialog:
-    BeamOperations.create_beamset(patient=patient, case=case, exam=exam, plan=plan, dialog=True)
+    Parameters:
+    - patient: The patient object
+    - case: The case object
+    - exam: The exam object
+    - plan: The plan object
+    - BeamSet: An optional BeamSet object
+    - dialog: A boolean indicating whether to run the function as a dialog or not (default is True)
+    - filename: The name of the file to load the beamset from (only used if dialog is False)
+    - path: The path to the file (only used if dialog is False)
+    - order_name: The name of the order (only used if dialog is False)
+    - create_setup_beams: A boolean indicating whether to create setup beams (default is True)
+    - rename_existing: A boolean indicating whether to rename an existing beamset with a suffix or
+    fail (default is False)
 
-    Running using the BeamSet class
-
-       """
+    Returns:
+    - The created beamset object or None if not successful
+    """
     if dialog:
         b = beamset_dialog(case=case, filename=filename, path=path, order_name=order_name)
     elif BeamSet is not None:
@@ -452,70 +506,62 @@ def create_beamset(patient, case, exam, plan,
                     beamset_exists = False
             # Replace input beamset_defs name with update
             if b.DicomName != new_bs_name:
-                logging.debug('Beamset {} exists! Replacing with {}'.format(b.DicomName, new_bs_name))
+                logging.debug(
+                    'Beamset {} exists! Replacing with {}'.format(b.DicomName, new_bs_name))
                 b.DicomName = new_bs_name
 
-    # TODO: Eliminate exception upon transition to 11
-    try:
-        plan.AddNewBeamSet(
-            Name=b.DicomName,
-            ExaminationName=exam.Name,
-            MachineName=b.machine,
-            Modality=b.modality,
-            TreatmentTechnique=b.technique,
-            PatientPosition=patient_position_map(exam.PatientPosition),
-            NumberOfFractions=b.number_of_fractions,
-            CreateSetupBeams=create_setup_beams,
-            UseLocalizationPointAsSetupIsocenter=False,
-            Comment="",
-            RbeModelReference=None,
-            EnableDynamicTrackingForVero=False,
-            NewDoseSpecificationPointNames=[],
-            NewDoseSpecificationPoints=[],
-            MotionSynchronizationTechniqueSettings=None)
-    except:
-        plan.AddNewBeamSet(
-            Name=b.DicomName,
-            ExaminationName=exam.Name,
-            MachineName=b.machine,
-            Modality=b.modality,
-            TreatmentTechnique=b.technique,
-            PatientPosition=patient_position_map(exam.PatientPosition),
-            NumberOfFractions=b.number_of_fractions,
-            CreateSetupBeams=create_setup_beams,
-            UseLocalizationPointAsSetupIsocenter=False,
-            Comment="",
-            RbeModelName=None,
-            EnableDynamicTrackingForVero=False,
-            NewDoseSpecificationPointNames=[],
-            NewDoseSpecificationPoints=[],
-            MotionSynchronizationTechniqueSettings=None,
-            ToleranceTableLabel=None)
+    plan.AddNewBeamSet(
+        Name=b.DicomName,
+        ExaminationName=exam.Name,
+        MachineName=b.machine,
+        Modality=b.modality,
+        TreatmentTechnique=b.technique,
+        PatientPosition=patient_position_map(exam.PatientPosition),
+        NumberOfFractions=b.number_of_fractions,
+        CreateSetupBeams=create_setup_beams,
+        UseLocalizationPointAsSetupIsocenter=False,
+        Comment="",
+        RbeModelName=None,
+        EnableDynamicTrackingForVero=False,
+        NewDoseSpecificationPointNames=[],
+        NewDoseSpecificationPoints=[],
+        MotionSynchronizationTechniqueSettings=None,
+        ToleranceTableLabel=None)
 
     beamset = plan.BeamSets[b.DicomName]
     patient.Save()
-    # TODO: Delete upper level try in RS 11
     try:
-        # RS 10
-        beamset.AddDosePrescriptionToRoi(RoiName=b.rx_target,
-                                         DoseVolume=b.rx_volume,
-                                         PrescriptionType='DoseAtVolume',
-                                         DoseValue=b.total_dose,
-                                         RelativePrescriptionLevel=1,
-                                         AutoScaleDose=True)
-    except AttributeError:
-        # RS 11
-        try:
-            beamset.AddRoiPrescriptionDoseReference(RoiName=b.rx_target,
-                                                    DoseVolume=b.rx_volume,
-                                                    PrescriptionType='DoseAtVolume',
-                                                    DoseValue=b.total_dose,
-                                                    RelativePrescriptionLevel=1)
-            # TODO Must deal separately with scale to dose
-            # beamset.ScaleToPrimaryPrescriptionDoseReference
-        except:
-            logging.warning('Unable to set prescription')
+        beamset.AddRoiPrescriptionDoseReference(RoiName=b.rx_target,
+                                                DoseVolume=b.rx_volume,
+                                                PrescriptionType='DoseAtVolume',
+                                                DoseValue=b.total_dose,
+                                                RelativePrescriptionLevel=1)
+        # beamset.ScaleToPrimaryPrescriptionDoseReference
+    except:
+        logging.warning('Unable to set prescription')
     return beamset
+
+
+def beam_name_exists(beamset,name):
+    exists = False
+    for b in beamset.Beams:
+        if b.Name == name:
+            exists = True
+    return exists
+
+
+def get_unique_name(beamset,name):
+    exists = beam_name_exists(beamset,name)
+    if exists:
+        # Generate a unique stream using a counter
+        counter = 1
+        while True:
+            unique_string = f"{name}_{counter}"
+            if not beam_name_exists(beamset,unique_string):
+                return unique_string
+            counter += 1
+    else:
+        return name
 
 
 def place_beams_in_beamset(iso, beamset, beams):
@@ -524,34 +570,40 @@ def place_beams_in_beamset(iso, beamset, beams):
     :param iso: isocenter data dictionary
     :param beamset: beamset to which to add beams
     :param beams: list of Beam objects
-    :return:
+    :return: beams_added: dict
     """
+    beams_added = []
     if beamset.DeliveryTechnique == "DynamicArc":
         for b in beams:
-            logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
-                          'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
-                b.number, b.technique, b.name,
-                b.energy, b.gantry_start_angle,
-                b.gantry_stop_angle, b.rotation_dir,
-                b.collimator_angle, b.couch_angle))
+            logging.info(
+                ('Loading Beam {}. Type {}, Name {}, Energy {}, StartAngle {}, StopAngle {}, ' +
+                 'RotationDirection {}, CollimatorAngle {}, CouchAngle {} ').format(
+                    b.number, b.technique, b.name,
+                    b.energy, b.gantry_start_angle,
+                    b.gantry_stop_angle, b.rotation_dir,
+                    b.collimator_angle, b.couch_angle))
 
+            beam_name = get_unique_name(beamset,b.name)
             beamset.CreateArcBeam(ArcStopGantryAngle=b.gantry_stop_angle,
                                   ArcRotationDirection=b.rotation_dir,
                                   BeamQualityId=b.energy,
                                   IsocenterData=iso,
-                                  Name=b.name,
-                                  Description=b.name,
+                                  Name=beam_name,
+                                  Description=beam_name,
                                   GantryAngle=b.gantry_start_angle,
                                   CouchRotationAngle=b.couch_angle,
                                   CollimatorAngle=b.collimator_angle)
+            beams_added.append( {'Name': beam_name,
+                                      'IsoName': iso['Name']})
 
     elif beamset.DeliveryTechnique == "SMLC":
         for b in beams:
-            logging.info(('Loading Beam {}. Type {}, Name {}, Energy {}, Gantry Angle {}, Couch Angle {}, ' +
-                          'CollimatorAngle {},').format(
-                b.number, b.technique, b.name,
-                b.energy, b.gantry_start_angle, b.couch_angle,
-                b.collimator_angle))
+            logging.info(
+                ('Loading Beam {}. Type {}, Name {}, Energy {}, Gantry Angle {}, Couch Angle {}, ' +
+                 'CollimatorAngle {},').format(
+                    b.number, b.technique, b.name,
+                    b.energy, b.gantry_start_angle, b.couch_angle,
+                    b.collimator_angle))
 
             beamset.CreatePhotonBeam(BeamQualityId=b.energy,
                                      IsocenterData=iso,
@@ -560,6 +612,16 @@ def place_beams_in_beamset(iso, beamset, beams):
                                      GantryAngle=b.gantry_start_angle,
                                      CouchRotationAngle=b.couch_angle,
                                      CollimatorAngle=b.collimator_angle)
+            beams_added.append({'Name': b.name,
+                                      'IsoName': iso['Name']})
+    for b in beams:
+        if b.jaw_limits:
+            result = lock_jaws(plan=pd.plan,
+                                              beamset=pd.beamset,
+                                              beam_name=b.name,
+                                              limits=b.jaw_limits)
+            logging.info(result)
+    return beams_added
 
 
 def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
@@ -589,8 +651,9 @@ def place_tomo_beam_in_beamset(plan, iso, beamset, beam):
         if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
             ts_settings = tss
             if verbose_logging:
-                logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
-                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam.name))
+                logging.debug(
+                    'TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                        tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam.name))
             for bs in ts_settings.BeamSettings:
                 if bs.ForBeam.Name == beam.name:
                     beam_found = True
@@ -652,8 +715,9 @@ def place_tomodirect_beams_in_beamset(plan, iso, beamset, beams):
             if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
                 ts_settings = tss
                 if verbose_logging:
-                    logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
-                        tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, b.name))
+                    logging.debug(
+                        'TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                            tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, b.name))
                 for bs in ts_settings.BeamSettings:
                     if bs.ForBeam.Name == b.name:
                         beam_found = True
@@ -731,7 +795,8 @@ def modify_tomo_beam_properties(settings, plan, beamset, beam):
                         if 'max_delivery_time_factor' in settings.keys():
                             max_delivery_time_factor = settings['max_delivery_time_factor']
                         else:
-                            max_delivery_time_factor = bs.TomoPropertiesPerBeam.MaxDeliveryTimeFactor
+                            max_delivery_time_factor = \
+                                bs.TomoPropertiesPerBeam.MaxDeliveryTimeFactor
                         try:
                             bs.TomoPropertiesPerBeam.EditTomoBasedBeamOptimizationSettings(
                                 JawMode=jaw_mode,
@@ -745,7 +810,8 @@ def modify_tomo_beam_properties(settings, plan, beamset, beam):
                         except Exception as e:
                             try:
                                 if 'No changes to save' in e.Message:
-                                    logging.info('No changes to save in modifying tomo beam properties')
+                                    logging.info(
+                                        'No changes to save in modifying tomo beam properties')
                                     pass
                                 else:
                                     logging.exception(u'{}'.format(e.Message))
@@ -833,7 +899,8 @@ def check_pa(plan, beam):
         # Find the distance of the corners of the dose grid from isocenter
         corners = np.empty([8, 3])
         sq_diff = np.zeros([8, 2])
-        # The dose grid corners are going to need to be converted to patient coordinates for this to work...
+        # The dose grid corners are going to need to be converted to patient coordinates for this
+        # to work...
         # start at lower left and raster up
         corners[0, :] = [lc_x, lc_y, lc_z]
         corners[1, :] = [uc_x, lc_y, lc_z]
@@ -858,10 +925,12 @@ def check_pa(plan, beam):
         logging.debug('Maximum distance is to corner {} at position (x, y, z): ({}, {}, {})'.format(
             max_corner, corners[max_corner, 0], corners[max_corner, 1], corners[max_corner, 2]))
         if max_corner % 2 == 0:
-            # Lower (negative) corner, clearance issue is on HFS's left, recommend using beam down the right
+            # Lower (negative) corner, clearance issue is on HFS's left, recommend using beam
+            # down the right
             return 180.1
         else:
-            # Upper (positive) corner, clearance issue is on HFS's right, recommend using beam down the left
+            # Upper (positive) corner, clearance issue is on HFS's right, recommend using beam
+            # down the left
             return 179.9
 
         # Find the corner farthest from iso
@@ -869,7 +938,8 @@ def check_pa(plan, beam):
 
 def rename_isocenter(plan, beamset):
     # Look for all isocenters used in the plan and build a set
-    beamset_isocenters = set([str(b.Isocenter.Annotation.Name) for bs in plan.BeamSets for b in bs.Beams])
+    beamset_isocenters = set(
+        [str(b.Isocenter.Annotation.Name) for bs in plan.BeamSets for b in bs.Beams])
     # Find an unused isocenter name
     iso_name_found = False
     iso_count = 0
@@ -890,7 +960,8 @@ def rename_isocenter(plan, beamset):
 #     for b in beamset.Beams:
 #         rec_gantry_angle = check_pa(beam=b)
 #         if rec_gantry_angle is not None:
-#             logging.debug('Beam {} potential gantry clearance issue. Recommend changing gantry angle from {} to {}'
+#             logging.debug('Beam {} potential gantry clearance issue. Recommend changing gantry
+#             angle from {} to {}'
 #                           .format(b.Name, b.GantryAngle, rec_gantry_angle))
 #             if b.Name not in beam_status:
 #                 beam_status[b.Name] = {'PA_Check':}
@@ -971,7 +1042,8 @@ def rename_beams(site_name=None, input_technique=None):
     # Oddly enough, Electrons are DeliveryTechnique = 'SMLC'
     if technique not in supported_rs_techniques:
         logging.warning('Technique: {} unsupported in renaming script'.format(technique))
-        raise IOError("Technique unsupported, manually name beams according to clinical convention.")
+        raise IOError(
+            "Technique unsupported, manually name beams according to clinical convention.")
     # These are the techniques associated with billing codes in the clinic
     # they will be imported
     # Separate the billing list by technique
@@ -1004,7 +1076,8 @@ def rename_beams(site_name=None, input_technique=None):
     if not site_name and not input_technique:
         # Prompt the user for Site Name and Billing technique
         dialog = UserInterface.InputDialog(inputs={'Site': 'Enter a Site name, e.g. BreL',
-                                                   'Technique': 'Select Treatment Technique (Billing)'},
+                                                   'Technique': 'Select Treatment Technique ('
+                                                                'Billing)'},
                                            datatype={'Technique': 'combo'},
                                            initial={'Technique': 'Select',
                                                     'Site': initial_sitename},
@@ -1033,7 +1106,8 @@ def rename_beams(site_name=None, input_technique=None):
     # Turn on set-up fields
     beamset.PatientSetup.UseSetupBeams = True
     logging.debug(
-        'Renaming and adding set up fields to Beam Set with name {}, patdelivery_time_factor {}, technique {}'.
+        'Renaming and adding set up fields to Beam Set with name {}, patdelivery_time_factor {}, '
+        'technique {}'.
             format(beamset.DicomPlanLabel, beamset.PatientPosition, beamset.DeliveryTechnique))
     # Rename isocenters
     rename_isocenter(plan, beamset)
@@ -1606,11 +1680,14 @@ def rename_beams(site_name=None, input_technique=None):
 class mlc_properties:
     """
     Class of mlc_properties:
-    using an RS beam object a number of parameters of the MLC bank, and the specific segments are evaluated
+    using an RS beam object a number of parameters of the MLC bank, and the specific segments are
+    evaluated
 
-    has_segments: determines whether segments have been defined for this field (electron fields don't have segments)
+    has_segments: determines whether segments have been defined for this field (electron fields
+    don't have segments)
     beam: the original beam RS object- arguable as to whether another copy of this is needed
-    max_tip: if the beam has an MLC, this will determine the maximum position the MLC can extend from the CAX
+    max_tip: if the beam has an MLC, this will determine the maximum position the MLC can extend
+    from the CAX
     num_leaves_per_bank: the number of MLC leaves in a bank
 
     banks: a numpy array of MLC segment positions
@@ -1642,7 +1719,8 @@ class mlc_properties:
                 # Maximum leaf out of carriage distance [cm]
                 self.max_leaf_carriage = mlc_physics.Carriage.MaxLeafOutOfCarriageDistance
                 # Grab the leaf centers and widths
-                self.leaf_centers = current_machine.Physics.MlcPhysics.UpperLayer.LeafCenterPositions
+                self.leaf_centers = \
+                    current_machine.Physics.MlcPhysics.UpperLayer.LeafCenterPositions
                 self.leaf_widths = current_machine.Physics.MlcPhysics.UpperLayer.LeafWidths
                 # Grab the distance behind the x-jaw a dynamic leaf is supposed to be placed
                 self.leaf_jaw_overlap = current_machine.Physics.MlcPhysics.LeafJawOverlap
@@ -1669,7 +1747,8 @@ class mlc_properties:
                 for cp in range(1, self.number_segments):
                     # for s in beam.Segments:
                     s = beam.Segments[cp]
-                    # Take the bank positions on X1-bank, and X2 Bank and put them in column 0, 1 respectively
+                    # Take the bank positions on X1-bank, and X2 Bank and put them in column 0,
+                    # 1 respectively
                     bank = np.column_stack((s.LeafPositions[0], s.LeafPositions[1]))
                     self.banks = np.dstack((self.banks, bank))
                 # Determine if leaves are in retracted position
@@ -1701,7 +1780,8 @@ class mlc_properties:
     def stationary_leaf_gaps(self):
         threshold = 1e-6
         # Find the MLC gaps that are closed (set to the minimum moving leaf opening) and return them
-        # If stationary_only is True, return only leaf gaps that are closed to minimum and do not move in the next
+        # If stationary_only is True, return only leaf gaps that are closed to minimum and do not
+        # move in the next
         # control point
         # closed leaf gaps: [# MLC, # Banks, #Control points]
         if not self.has_segments:
@@ -1711,7 +1791,8 @@ class mlc_properties:
         number_of_control_points = leaf_gaps.shape[2]
         for cp in range(number_of_control_points):
             for l in range(leaf_gaps.shape[0]):
-                # Only flag leaves that have a difference in position equal to the minimum moving leaf gap
+                # Only flag leaves that have a difference in position equal to the minimum moving
+                # leaf gap
                 diff = abs(self.banks[l, 0, cp] - self.banks[l, 1, cp])
                 # If the leaf is defined as non-dynamic (0, 0) then ignore it.
                 if self.banks[l, 0, cp] == 0 and self.banks[l, 1, cp] == 0:
@@ -1725,7 +1806,8 @@ class mlc_properties:
                     leaf_gaps[l, :, cp] = False
                 else:
                     #
-                    # Check if the leaf gap is a "closed leaf gap" that is not moving in adjacent control points
+                    # Check if the leaf gap is a "closed leaf gap" that is not moving in adjacent
+                    # control points
                     # See if leaf pair moves from one iteration to the next
                     #
                     # First control point only evaluate ahead two control points for changes
@@ -1748,8 +1830,10 @@ class mlc_properties:
                         x2_diff_1 = abs(self.banks[l, 1, cp + 1] - self.banks[l, 1, cp])
                     x1_diff = [x1_diff_0, x1_diff_1]
                     x2_diff = [x2_diff_0, x2_diff_1]
-                    # Evaluate each control point difference to see if it is less than the threshold for equivalence
-                    if all(x1 <= threshold for x1 in x1_diff) and all(x2 <= threshold for x2 in x2_diff):
+                    # Evaluate each control point difference to see if it is less than the
+                    # threshold for equivalence
+                    if all(x1 <= threshold for x1 in x1_diff) and all(
+                            x2 <= threshold for x2 in x2_diff):
                         leaf_gaps[l, :, cp] = True
                     else:
                         leaf_gaps[l, :, cp] = False
@@ -1773,7 +1857,8 @@ class mlc_properties:
         return leaf_gaps
 
     def max_opening(self):
-        # Find the maximum open top and bottom leaf and maximum opening in x1 and x2 directions ignoring
+        # Find the maximum open top and bottom leaf and maximum opening in x1 and x2 directions
+        # ignoring
         # MLC's that are set to the minimum leaf opening
         # Determine if a leaf pair separation exceeds the minimum leaf separation if not zero
         # the gap
@@ -1792,10 +1877,12 @@ class mlc_properties:
         right_leaf_number = np.argmin(max_open_x1)
         max_open_x2 = np.amax(max_x2_bank)
         left_leaf_number = np.argmin(max_open_x2)
-        # Solve for the index of the first nonzero element in min_x1_bank and the last non-zero element
+        # Solve for the index of the first nonzero element in min_x1_bank and the last non-zero
+        # element
         top_leaf_number = np.max(np.argwhere(min_x1_bank))
         bottom_leaf_number = np.min(np.argwhere(min_x1_bank))
-        max_open_y1 = self.leaf_centers[bottom_leaf_number] - 0.5 * self.leaf_widths[bottom_leaf_number]
+        max_open_y1 = self.leaf_centers[bottom_leaf_number] - 0.5 * self.leaf_widths[
+            bottom_leaf_number]
         max_open_y2 = self.leaf_centers[top_leaf_number] + 0.5 * self.leaf_widths[top_leaf_number]
         return {'max_open_x1': max_open_x1, 'max_right_leaf': right_leaf_number,
                 'max_open_x2': max_open_x2, 'max_left_leaf': left_leaf_number,
@@ -1898,7 +1985,8 @@ def maximum_leaf_carriage_extent(beam):
 
 
 def repair_leaf_gap(beam):
-    """ Find all of the closed leaves. Repair the leaf gap rounding problem so that the leaves are spaced
+    """ Find all of the closed leaves. Repair the leaf gap rounding problem so that the leaves
+    are spaced
         by exactly the minimum leaf gap. Return success.
     """
     # Adjustment factor is the factor to increment each leaf position by until the
@@ -1943,7 +2031,8 @@ def repair_leaf_gap(beam):
                     'should be moved from {} to {}'
                     .format(initial_beam_mlc[i, 0, j], beam_mlc.banks[i, 0, j]))
     if np.all(np.equal(initial_beam_mlc, beam_mlc.banks)):
-        logging.debug('Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
+        logging.debug(
+            'Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
     else:
         # Set the leaf positions to the np array (one-by-one...ugh)
         for cp in range(len(beam.Segments)):
@@ -1985,12 +2074,14 @@ def filter_leaves(beam):
     if not beam_mlc.has_segments:
         error = "MLC filtering failed. No segments"
         return error
-    # Find the first and last leaf that is not covered by the jaw if the jaw was set exactly to the leaf boundaries
+    # Find the first and last leaf that is not covered by the jaw if the jaw was set exactly to
+    # the leaf boundaries
     # The indexing on the MLC goes from 0, (at the x1) jaw to the maximum at the y1 jaw
     max_open = beam_mlc.max_opening()
     x1_jaw = max_open['max_open_x1']
     x2_jaw = max_open['max_open_x2']
-    # Leaves that are outside the y-jaw positions and outside left and right jaw positions are moved to
+    # Leaves that are outside the y-jaw positions and outside left and right jaw positions are
+    # moved to
     # the RS endorsed distance behind the jaws
     offset = beam_mlc.leaf_jaw_overlap + 0.8
     # Find the leaves needing adjustment
@@ -2025,7 +2116,8 @@ def filter_leaves(beam):
                         .format(initial_beam_mlc[i, 0, j], beam_mlc.banks[i, 0, j]))
 
     if np.all(np.equal(initial_beam_mlc, beam_mlc.banks)):
-        logging.debug('Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
+        logging.debug(
+            'Beam {} Filtered and initial arrays are equal. No filtering applied'.format(beam.Name))
     else:
         # Set the leaf positions to the np array (one-by-one...ugh)
         for cp in range(len(beam.Segments)):
@@ -2073,7 +2165,8 @@ def check_mlc_jaw_positions(jaw_positions, mlc_positions):
         delta_x1 = jaw_positions['X1'] - max_x1_bank
         delta_x2 = jaw_positions['X2'] - min_x2_bank
     else:
-        # The beam has no segments, jaws only. Set these variables to something that does not influence calc
+        # The beam has no segments, jaws only. Set these variables to something that does not
+        # influence calc
         # i.e. return no violation
         delta_x1 = delta_x2 = 0
 
@@ -2092,8 +2185,7 @@ def lock_jaws(plan, beamset, beam_name, limits):
     """
 
     Args:
-        plan: pl:w
-        an from RS
+        plan: plan from RS
         beamset: beamset from RS
         beam_name: beam name str
         limits: {
@@ -2223,7 +2315,8 @@ def check_y_jaw_positions(jaw_positions, beam):
         logging.debug('beam: {} is a jaw-only field, without segments'.format(beam.Name))
         return error
 
-    # Maximum MLC defined positions: Leaf Center + 0.2 Leaf_Width this ensures at least a full millimeter
+    # Maximum MLC defined positions: Leaf Center + 0.2 Leaf_Width this ensures at least a full
+    # millimeter
     # of cushion for jaw inaccuracies on a 5 mm leaf and 2 mm on a 1 cm leaf
     current_mlc_physics = current_machine.Physics.MlcPhysics
     max_y1_jaw_limit = current_mlc_physics.UpperLayer.LeafCenterPositions[0] - \
@@ -2282,7 +2375,8 @@ def rounded_jaw_positions(beam):
     use_jaw_offset = False
     use_round_open = False
     use_round_closed = False
-    # Check for the equivalent square area, and do not use jaw offsets if the limit is larger than 3 cm^2
+    # Check for the equivalent square area, and do not use jaw offsets if the limit is larger
+    # than 3 cm^2
     # get the ciao for this beam
     a = s0.JawPositions[1] - s0.JawPositions[0]
     b = s0.JawPositions[3] - s0.JawPositions[2]
@@ -2312,19 +2406,23 @@ def rounded_jaw_positions(beam):
             use_jaw_offset = False
         else:
             # Now find the maximum Top and Bottom MLC positions
-            # Raystation starts moving leaves to the midplane, so we want to find the first open, and
+            # Raystation starts moving leaves to the midplane, so we want to find the first open,
+            # and
             # last open MLC leaf pair.
             # compute leaf difference
             max_open = beam_mlc.max_opening()
-            [max_open_x1, max_open_x2, max_open_y1, max_open_y2] = max_open['max_open_x1'], max_open['max_open_x2'], \
-                                                                   max_open['max_open_y1'], max_open['max_open_y2']
+            [max_open_x1, max_open_x2, max_open_y1, max_open_y2] = max_open['max_open_x1'], \
+                                                                   max_open['max_open_x2'], \
+                                                                   max_open['max_open_y1'], \
+                                                                   max_open['max_open_y2']
             x1_jaw_standoff = math.floor(10 * (max_open_x1 - x_jaw_offset)) / 10
             x2_jaw_standoff = math.ceil(10 * (max_open_x2 + x_jaw_offset)) / 10
             y1_jaw_standoff = math.floor(10 * (max_open_y1 - y_jaw_offset)) / 10
             y2_jaw_standoff = math.ceil(10 * (max_open_y2 + y_jaw_offset)) / 10
     else:
         logging.debug('Beam {}: X1:{}, X2:{}, Y1:{}, Y2:{}; Calculated Eq Square Field {}'.format(
-            beam.Name, s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3],
+            beam.Name, s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2],
+            s0.JawPositions[3],
             equivalent_square_field_size
         ))
     # Check jaws
@@ -2342,8 +2440,9 @@ def rounded_jaw_positions(beam):
             # Default then to round open
             use_round_open = True
         else:
-            logging.debug('Beam: {}: Equivalent Sq. Field Size is {}, Jaw Standoff offsets used'.format(
-                beam.Name, equivalent_square_field_size))
+            logging.debug(
+                'Beam: {}: Equivalent Sq. Field Size is {}, Jaw Standoff offsets used'.format(
+                    beam.Name, equivalent_square_field_size))
     if use_round_open:
         jaw_positions['Y1'] = round_open_t_jaw
         jaw_positions['Y2'] = round_open_b_jaw
@@ -2355,9 +2454,13 @@ def rounded_jaw_positions(beam):
             # Default then to rounding both jaws closed
             use_round_closed = True
             if error_y_msg:
-                logging.debug('Beam {} Y-Jaws: could not be rounded open, error {}'.format(beam.Name, error_y_msg))
+                logging.debug(
+                    'Beam {} Y-Jaws: could not be rounded open, error {}'.format(beam.Name,
+                                                                                 error_y_msg))
             if error_x_msg:
-                logging.debug('Beam {} X-Jaws: could not be rounded open, error {}'.format(beam.Name, error_x_msg))
+                logging.debug(
+                    'Beam {} X-Jaws: could not be rounded open, error {}'.format(beam.Name,
+                                                                                 error_x_msg))
     if use_round_closed:
         jaw_positions['Y1'] = round_closed_t_jaw
         jaw_positions['Y2'] = round_closed_b_jaw
@@ -2366,9 +2469,11 @@ def rounded_jaw_positions(beam):
         error_y_msg = check_y_jaw_positions(jaw_positions, beam)
         error_x_msg = check_mlc_jaw_positions(jaw_positions, beam_mlc)
         if error_y_msg:
-            logging.debug('Beam {} Y-Jaws: could not be rounded, error {}'.format(beam.Name, error_y_msg))
+            logging.debug(
+                'Beam {} Y-Jaws: could not be rounded, error {}'.format(beam.Name, error_y_msg))
         if error_x_msg:
-            logging.debug('Beam {} X-Jaws: could not be rounded, error {}'.format(beam.Name, error_x_msg))
+            logging.debug(
+                'Beam {} X-Jaws: could not be rounded, error {}'.format(beam.Name, error_x_msg))
     return jaw_positions
 
 
@@ -2396,7 +2501,8 @@ def round_jaws(beamset):
     """
     Rounds the jaws.
     For each beam, the first segment is examined for appropriate rounding.
-    Rounding is by default, to round open. However, if insufficient MLC travel is available, the X jaws will be
+    Rounding is by default, to round open. However, if insufficient MLC travel is available,
+    the X jaws will be
     rounded closed.
     Open: X1/Y1 will be rounded down to nearest mm, X2/Y2 rounded up
     Closed: X2/Y1 will be rounded down to nearest mm, X1/Y2 rounded up
@@ -2413,15 +2519,20 @@ def round_jaws(beamset):
 
         if not jaws_rounded(beam=b):
             s0 = b.Segments[0]
-            init_positions = [s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2], s0.JawPositions[3]]
+            init_positions = [s0.JawPositions[0], s0.JawPositions[1], s0.JawPositions[2],
+                              s0.JawPositions[3]]
             j0 = rounded_jaw_positions(b)
             for s in b.Segments:
                 s.JawPositions = [j0['X1'], j0['X2'], j0['Y1'], j0['Y2']]
             GeneralOperations.logcrit('Beam {}: jaw positions changed '.format(b.Name) +
-                                      '<X1: {0:.2f}->{1:.2f}>, '.format(init_positions[0], s.JawPositions[0]) +
-                                      '<X2: {0:.2f}->{1:.2f}>, '.format(init_positions[1], s.JawPositions[1]) +
-                                      '<Y1: {0:.2f}->{1:.2f}>, '.format(init_positions[2], s.JawPositions[2]) +
-                                      '<Y2: {0:.2f}->{1:.2f}>'.format(init_positions[3], s.JawPositions[3]))
+                                      '<X1: {0:.2f}->{1:.2f}>, '.format(init_positions[0],
+                                                                        s.JawPositions[0]) +
+                                      '<X2: {0:.2f}->{1:.2f}>, '.format(init_positions[1],
+                                                                        s.JawPositions[1]) +
+                                      '<Y1: {0:.2f}->{1:.2f}>, '.format(init_positions[2],
+                                                                        s.JawPositions[2]) +
+                                      '<Y2: {0:.2f}->{1:.2f}>'.format(init_positions[3],
+                                                                      s.JawPositions[3]))
         else:
             GeneralOperations.logcrit('Beam {}: jaw positions do not need rounding.'.format(b.Name))
     success = True
@@ -2430,7 +2541,8 @@ def round_jaws(beamset):
 
 def mu_rounded(beam):
     """
-    Compute the monitor units for the raystation beam to the nearest MU using the Round_Half_Up strategy
+    Compute the monitor units for the raystation beam to the nearest MU using the Round_Half_Up
+    strategy
     :param beam:
     :return: a rounded float of the beam MU
     """
@@ -2474,7 +2586,8 @@ def round_mu(beamset):
         else:
             mu_i = b.BeamMU
             b.BeamMU = mu_rounded(b)
-            GeneralOperations.logcrit('Beam {0} MU changed from {1:.2f} to {2}'.format(b.Name, mu_i, b.BeamMU))
+            GeneralOperations.logcrit(
+                'Beam {0} MU changed from {1:.2f} to {2}'.format(b.Name, mu_i, b.BeamMU))
     return True
 
 
@@ -2589,8 +2702,10 @@ def find_dsp(plan, beam_set, dose_per_fraction=None, Beam=None):
     if np.amax(pd_np) < rx:
         logging.debug('max = {}'.format(np.amax(pd_np)))
         logging.debug('target = {}'.format(rx))
-        raise ValueError('Max beam dose is too low. Cannot find a DSP. Max Dose in Beamset is {}, for Rx {}'.format(
-            np.amax(pd_np), rx))
+        raise ValueError(
+            'Max beam dose is too low. Cannot find a DSP. Max Dose in Beamset is {}, '
+            'for Rx {}'.format(
+                np.amax(pd_np), rx))
 
     rx_points = np.array([])
     while rx_points.size == 0:
@@ -2663,7 +2778,8 @@ def find_dsp_centroid(plan, beam_set, percent_max=None):
         t_init = t
         rx_points = np.argwhere(pd >= rx * t)
         t = t_init - tolerance
-    logging.info('Tolerance used for the supplied dose {} agreement was > {} Gy'.format(rx, rx * t_init))
+    logging.info(
+        'Tolerance used for the supplied dose {} agreement was > {} Gy'.format(rx, rx * t_init))
 
     logging.debug('Finding centroid of matching dose points')
     length = rx_points.shape[0]  # total number of points
@@ -2733,7 +2849,8 @@ def set_dsp(plan, beam_set, percent_rx=100., method='MU'):
     else:
         raise ValueError('No DSP was set, check execution details for clues.')
 
-    # TODO: set this one up as an optional iteration for the case of multiple beams and multiple DSP's
+    # TODO: set this one up as an optional iteration for the case of multiple beams and multiple
+    #  DSP's
 
     for i, beam in enumerate(beam_set.Beams):
         beam.SetDoseSpecificationPoint(Name=dsp_name)
@@ -2766,6 +2883,12 @@ def load_beams_xml(filename, beamset_name, path):
             beam.name = str(b.find('Name').text)
             beam.technique = str(b.find('DeliveryTechnique').text)
             beam.energy = str(b.find('Energy').text)
+
+            if b.find('Isocenter') is None:
+                beam.iso = {}
+            else:
+                beam.iso = {'type': b.find('Isocenter').attrib['type'],
+                            }
 
             if b.find('GantryAngle') is None:
                 beam.gantry_start_angle = None
@@ -2899,8 +3022,9 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
         if tss.ForTreatmentSetup.DicomPlanLabel == beamset.DicomPlanLabel:
             ts_settings = tss
             if verbose_logging:
-                logging.debug('TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
-                    tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam_name))
+                logging.debug(
+                    'TreatmentSetupSettings:{} matches Beamset:{} looking for beam {}'.format(
+                        tss.ForTreatmentSetup.DicomPlanLabel, beamset.DicomPlanLabel, beam_name))
             for bs in ts_settings.BeamSettings:
                 if bs.ForBeam.Name == beam_name:
                     beam_found = True
@@ -2929,10 +3053,11 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
                                current_beam.ForBeam.InitialJawPositions[2],
                                current_beam.ForBeam.InitialJawPositions[3]]
             if verbose_logging:
-                logging.debug(('aperture limits found on beam {} of initial jaw positions: x1 = {}, ' +
-                               'x2 = {}, y1 = {}, y2 = {}')
-                              .format(beam_name, existing_limits[0], existing_limits[1],
-                                      existing_limits[2], existing_limits[3]))
+                logging.debug(
+                    ('aperture limits found on beam {} of initial jaw positions: x1 = {}, ' +
+                     'x2 = {}, y1 = {}, y2 = {}')
+                        .format(beam_name, existing_limits[0], existing_limits[1],
+                                existing_limits[2], existing_limits[3]))
         else:
             existing_limits = [None] * 4
             if verbose_logging:
@@ -2980,7 +3105,9 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
     if not limits_met:
         if current_beam.ForBeam.BeamMU > 0:
             if verbose_logging:
-                logging.debug('Beam has MU. Changing jaw limit with an optimized beam is not possible without reset')
+                logging.debug(
+                    'Beam has MU. Changing jaw limit with an optimized beam is not possible '
+                    'without reset')
             return False
         if change:
             current_beam.EditBeamOptimizationSettings(
@@ -2992,12 +3119,13 @@ def check_beam_limits(beam_name, plan, beamset, limit, change=False, verbose_log
                 SelectCollimatorAngle='False',
                 AllowBeamSplit='False',
                 OptimizationTypes=['SegmentOpt', 'SegmentMU'])
-            logging.info('Beam {}: Changed jaw limits x1: {} => {}, x2: {} = {}, y1: {} => {}, y2: {} => {}'
-                         .format(beam_name,
-                                 existing_limits[0], current_beam.ForBeam.InitialJawPositions[0],
-                                 existing_limits[1], current_beam.ForBeam.InitialJawPositions[1],
-                                 existing_limits[2], current_beam.ForBeam.InitialJawPositions[2],
-                                 existing_limits[3], current_beam.ForBeam.InitialJawPositions[3]))
+            logging.info(
+                'Beam {}: Changed jaw limits x1: {} => {}, x2: {} = {}, y1: {} => {}, y2: {} => {}'
+                    .format(beam_name,
+                            existing_limits[0], current_beam.ForBeam.InitialJawPositions[0],
+                            existing_limits[1], current_beam.ForBeam.InitialJawPositions[1],
+                            existing_limits[2], current_beam.ForBeam.InitialJawPositions[2],
+                            existing_limits[3], current_beam.ForBeam.InitialJawPositions[3]))
             return True
         else:
             logging.info(('Aperture check shows that limit on {} are not current. Limits should be '
@@ -3024,14 +3152,17 @@ def emc_calc_params(beamset):
     # Return electron monte carlo computational parameters
     for bd in beamset.FractionDose.BeamDoses:
         max_uncertainty = max(max_uncertainty, bd.DoseValues.RelativeStatisticalUncertainty)
-        min_histories = min(min_histories, bd.DoseValues.AlgorithmProperties.MonteCarloHistoriesPerAreaFluence)
+        min_histories = min(min_histories,
+                            bd.DoseValues.AlgorithmProperties.MonteCarloHistoriesPerAreaFluence)
 
     return {'NormUnc': max_uncertainty, 'MinHist': min_histories}
 
 
 class EmcTest:
-    # Class used in output of the EMC test, where bool will be T/F depending on clinical uncertainties met
-    # and hist will return the number of suggested histories if the calculation of dose needs to be rerun
+    # Class used in output of the EMC test, where bool will be T/F depending on clinical
+    # uncertainties met
+    # and hist will return the number of suggested histories if the calculation of dose needs to
+    # be rerun
     def __init__(self):
         self.bool = True
         self.hist = None
@@ -3043,19 +3174,24 @@ def check_emc(beamset, stat_limit=0.01, histories=5e5):
     :param beamset: RS beamset
     :param stat_limit: limit on the maximum uncertainty normalized to the maximum dose
     :param histories: number of e mc histories
-    :return: EmcTest: True if meeting both standard clinical goals, otherwise a new recommended number of histories
+    :return: EmcTest: True if meeting both standard clinical goals, otherwise a new recommended
+    number of histories
     """
     eval_current_emc = emc_calc_params(beamset)
     if eval_current_emc['MinHist'] < histories or eval_current_emc['NormUnc'] > stat_limit:
         EmcTest.bool = False
-        stat_limit_hist = int(eval_current_emc['MinHist'] * (eval_current_emc['NormUnc'] / stat_limit) ** 2.)
+        stat_limit_hist = int(
+            eval_current_emc['MinHist'] * (eval_current_emc['NormUnc'] / stat_limit) ** 2.)
         EmcTest.hist = max(histories, stat_limit_hist)
-        logging.info('Electron MC check showed an uncertainty of {} recommend increasing histories from {} to {}'
-                     .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist'], EmcTest.hist))
+        logging.info(
+            'Electron MC check showed an uncertainty of {} recommend increasing histories from {} '
+            'to {}'
+                .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist'], EmcTest.hist))
     else:
         EmcTest.bool = True
-        logging.info('Electron MC check showed clinically-acceptable uncertainty {} and histories {}'
-                     .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
+        logging.info(
+            'Electron MC check showed clinically-acceptable uncertainty {} and histories {}'
+                .format(eval_current_emc['NormUnc'], eval_current_emc['MinHist']))
 
     return EmcTest
 
