@@ -433,7 +433,7 @@ class DicomTreePair:
                         return item.get_element_from_key(">".join(key_parts[1:]))
 
             raise RuntimeError(
-                f"get_valuepair_from_key could not find child with key {key_parts[0]}"
+                f"get_element_from_key could not find child with key {key_parts[0]}"
             )
 
     def get_subtree_that_excludes(self, name_list, in_place=False):

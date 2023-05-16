@@ -297,10 +297,6 @@ UNIQUE_TO_ARIA = {
         return_expected_unique_to_aria,
         {"comment": "AccessoryCode is set in RayStation by DicomExport.py"},
     ),
-    "DoseRateSet": (
-        return_expected_unique_to_aria,
-        {"comment": "Dose Rate is set in Raystation by DicomExport.py"},
-    ),
     "TableTopLateralPosition": (return_expected_unique_to_aria, {}),
     "TableTopLongitudinalPosition": (return_expected_unique_to_aria, {}),
     "TableTopVerticalPosition": (return_expected_unique_to_aria, {}),

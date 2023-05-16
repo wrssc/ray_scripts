@@ -1,5 +1,4 @@
 from pathlib import Path
-from xml.dom.minidom import Element
 import pydicom
 import PySimpleGUI as sg
 from DicomPairClasses import ElementPair, SequencePair, DicomTreePair, Result
@@ -442,6 +441,10 @@ def run_dicom_integrity_tool(
             # Prune extra items
             dr.remove_all_items_except(CHECK_KEYS)
 
+        # This test will produce a failing result if the user defines multiple
+        # prescriptions in RayStation, which is a feature in version 11B.
+        # This code will check to see if there is one matching prescription and
+        # zero mismatches. If so, it will assign the warning status.
         if not copied_tree.is_acceptable_match():
 
             count_match = 0
@@ -460,13 +463,25 @@ def run_dicom_integrity_tool(
                 else:
                     count_mismatch += 1
 
-            comment = (
+            summary_comment = (
                 f"Matching Rx: {count_match}, "
                 f"Unique Rx: {count_unique_1 + count_unique_2}, "
                 f"Mismatching Rx: {count_mismatch}"
             )
 
-            copied_tree.comment = comment
+            copied_tree.comment = summary_comment
+
+            if (count_match > 0) and (count_mismatch == 0) and (count_unique_1 > 0) and (count_unique_2 == 0):
+                for dr in dr_sequence_list:
+                    element = dr.get_element_from_key("TargetPrescriptionDose")
+                    if element.is_unique_to_dataset1():
+                        element.match_result = Result.ELEMENT_WARNING
+                        element.comment = "Prescription is unique to RayStation"
+                copied_tree.comment = (
+                    "There is at least one matching prescription, plus "
+                    "additional prescriptions that are unique to RayStation. "
+                ) + copied_tree.comment
+                copied_tree.update_match_result_recursive()
 
         return copied_tree
 
@@ -606,6 +621,61 @@ def run_dicom_integrity_tool(
 
             for cp in control_point_sequence_list:
                 cp.remove_all_items_except(check_keys)
+
+        # The Dose Rate check may fail if the dose rate was intentionally changed
+        # Aria or modified during plan export by RayStation scripting. Doing so is
+        # standard for PRDR. If the plan name has the PRD designation and the dose
+        # rate value is 100, we will apply a warning.
+        if not copied_tree.is_acceptable_match() and check_keys[0] == "DoseRateSet":
+
+            # Condition 1: Plan is PRDR
+            plan_name_element = dicom_match_tree.get_element_from_key("RTPlanName")
+            if plan_name_element.is_acceptable_match():
+                plan_name = plan_name_element.value_pair[0]
+
+            billing_part = plan_name.split("_")[1].lower()
+
+            condition_1 = False
+            if billing_part == "prd":
+                condition_1 = True
+
+            # Condition 2: All control points have a dose rate = 100
+            # Cycle though control points
+            copied_tree.prune_empty_trees_and_sequences()
+            beam_sequence_list = copied_tree.get_element_from_key(
+                "BeamSequence"
+            ).sequence_list
+
+            list_of_dose_rates = []
+            for beam in beam_sequence_list:
+                control_point_sequence_list = beam.get_element_from_key(
+                    "ControlPointSequence"
+                ).sequence_list
+                for cp in control_point_sequence_list:
+                    element = cp.get_element_from_key("DoseRateSet")
+                    list_of_dose_rates.append(element.value_pair[1])
+
+            condition_2 = all(rate == 100 for rate in list_of_dose_rates)
+
+            if condition_1 and condition_2:
+                # Cycle though control points
+                beam_sequence_list = copied_tree.get_element_from_key(
+                    "BeamSequence"
+                ).sequence_list
+                for beam in beam_sequence_list:
+                    control_point_sequence_list = beam.get_element_from_key(
+                        "ControlPointSequence"
+                    ).sequence_list
+                    for cp in control_point_sequence_list:
+                        element = cp.get_element_from_key("DoseRateSet")
+                        element.match_result = Result.ELEMENT_WARNING
+                        element.comment = (
+                            "Aria Dose Rate = 100 MU/min, and the plan is PRDR"
+                        )
+
+                copied_tree.comment = (
+                    "Aria Dose Rate = 100 MU/min for all fields, and the plan is PRDR."
+                )
 
         return copied_tree
 
@@ -929,5 +999,13 @@ if __name__ == "__main__":
 
     raystation_filename = r"RP1.2.752.243.1.1.20230321151237111.2000.28646.dcm"
     aria_filename = r"RP.0783795.Pros_SBR_R1A0.dcm"
+
+    # PRDR Plan
+    file_path = Path(
+        r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs\Plan_PRD"
+    )
+
+    raystation_filename = r"RP1.2.752.243.1.1.20230505175511462.2000.81312.dcm"
+    aria_filename = r"RP.3084251.Brai_PRD_R0A0.dcm"
 
     run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)
