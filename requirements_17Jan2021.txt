@@ -3,7 +3,7 @@ XlsxWriter==1.2.7
 pydicom==2.0.0
 scipy==1.4.1
 numpy==1.22.0
-requests==2.22.0
+requests==2.31.0
 clr==1.0.3
 connect==0.2
 pynetdicom==1.5.5
