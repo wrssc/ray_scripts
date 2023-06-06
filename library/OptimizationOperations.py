@@ -115,175 +115,148 @@ import BeamOperations
 from GeneralOperations import logcrit as logcrit
 
 
-def iter_optimization_config_etree(etree):
-    """Load the elements of the optimization_config tag into a dictionary
+def get_node_text(node, name, default=""):
+    """
+    Helper function to get the text from a node.
 
-    Arguments:
-        etree {[elementtree]} -- optimization_config tag
+    Args:
+        node (xml.etree.ElementTree.Element): Parent node.
+        name (str): Child node name.
+        default (str): Default value to return if child node does not exist.
 
     Returns:
-        oc_preferences -- a dictionary for reading into a dataframe
+        str: Text of the child node or default value.
+    """
+    try:
+        return node.find(name).text
+    except AttributeError:
+        return default
+
+
+def get_node_attrib(node, name, attrib_name, r_type=str, default=None):
+    """
+    Helper function to get the attribute from a node.
+
+    Args:
+        node (xml.etree.ElementTree.Element): Parent node.
+        name (str): Child node name.
+        attrib_name (str): Attribute name.
+        r_type (variable) : Return variable type
+        default (Any): Default value to return if child node or attribute does not exist.
+
+    Returns:
+        Any: Attribute value of the child node or default value.
+    """
+    try:
+        return r_type(node.find(name).attrib[attrib_name])
+    except AttributeError:
+        return default
+
+
+def get_boolean_text(node, name, default=False):
+    """
+    Helper function to get the boolean text from a node.
+
+    Args:
+        node (xml.etree.ElementTree.Element): Parent node.
+        name (str): Child node name.
+        default (bool): Default value to return if child node does not exist.
+
+    Returns:
+        bool: Boolean value of the text of the child node or default value.
+    """
+    return get_node_text(node, name, str(default)).lower() == "true"
+
+
+def iter_optimization_config_etree(etree):
+    """
+    Load the elements of the optimization_config tag into a dictionary.
+
+    Args:
+        etree (xml.etree.ElementTree.Element): optimization_config tag.
+
+    Returns:
+        dict: A dictionary for reading into a dataframe.
     """
     os_config = {'optimization_config': []}
+
     for o in etree.iter('optimization_config'):
         o_c = {}
-        #
-        # Optimization Configuration Name
-        try:
-            o_c["name"] = o.find("name").text
-        except AttributeError:
-            o_c["name"] = ""
-        #
-        # Description
-        try:
-            o_c["description"] = o.find("description").text
-        except AttributeError:
-            o_c["description"] = ""
-        #
+        # Optimization Configuration Name and Description
+        o_c["name"] = get_node_text(o, "name")
+        o_c["description"] = get_node_text(o, "description")
         # Initial iteration
-        try:
-            o_c["initial"] = o.find("initial").text
-            o_c["initial_max_it"] = int(o.find("initial").attrib["max_it"])
-            o_c["initial_int_it"] = int(o.find("initial").attrib["int_it"])
-        except AttributeError:
-            o_c["initial"] = ""
-            o_c["initial_max_it"] = None
-            o_c["initial_int_it"] = None
-        #
+        o_c["initial"] = get_node_text(o, "initial")
+        o_c["initial_max_it"] = get_node_attrib(
+            o, "initial", "max_it", r_type=int)
+        o_c["initial_int_it"] = get_node_attrib(o, "initial", "int_it",
+                                                r_type=int)
         # Warmstart iteration
-        try:
-            o_c["warmstart"] = o.find("warmstart").text
-            o_c["warmstart_max_it"] = int(o.find("warmstart").attrib["max_it"])
-            o_c["warmstart_int_it"] = int(o.find("warmstart").attrib["int_it"])
-            o_c["warmstart_n"] = int(o.find("warmstart").attrib["n"])
-        except AttributeError:
-            o_c["warmstart"] = ""
-            o_c["warmstart_max_it"] = None
-            o_c["warmstart_int_it"] = None
-            o_c["warmstart_n"] = None
-        #
+        o_c["warmstart"] = get_node_text(o, "warmstart")
+        o_c["warmstart_max_it"] = get_node_attrib(o, "warmstart", "max_it",
+                                                  r_type=int)
+        o_c["warmstart_int_it"] = get_node_attrib(o, "warmstart", "int_it",
+                                                  r_type=int)
+        o_c["warmstart_n"] = get_node_attrib(o, "warmstart", "n",
+                                             r_type=int)
         # Vary Dose Grid
-        try:
-            o_c["vary_grid"] = o.find("vary_grid").text
-            if o_c["vary_grid"] == "True":
-                o_c["vary_grid"] = True
-                o_c["dose_dim1"] = float(o.find("vary_grid").attrib["dose_dim1"])
-                o_c["dose_dim2"] = float(o.find("vary_grid").attrib["dose_dim2"])
-                o_c["dose_dim3"] = float(o.find("vary_grid").attrib["dose_dim3"])
-                o_c["dose_dim4"] = float(o.find("vary_grid").attrib["dose_dim4"])
-            else:
-                o_c["vary_grid"] = False
-                o_c["dose_dim1"] = None
-                o_c["dose_dim2"] = None
-                o_c["dose_dim3"] = None
-                o_c["dose_dim4"] = None
-        except AttributeError:
-            o_c["vary_grid"] = False
-            o_c["dose_dim1"] = None
-            o_c["dose_dim2"] = None
-            o_c["dose_dim3"] = None
-            o_c["dose_dim4"] = None
-        #
+        o_c["vary_grid"] = get_boolean_text(o, "vary_grid")
+        o_c["dose_dim1"] = get_node_attrib(o, "vary_grid", "dose_dim1",
+                                           r_type=float) \
+            if o_c["vary_grid"] else None
+        o_c["dose_dim2"] = get_node_attrib(o, "vary_grid", "dose_dim2",
+                                           r_type=float) \
+            if o_c["vary_grid"] else None
+        o_c["dose_dim3"] = get_node_attrib(o, "vary_grid", "dose_dim3",
+                                           r_type=float) \
+            if o_c["vary_grid"] else None
+        o_c["dose_dim4"] = get_node_attrib(o, "vary_grid", "dose_dim4",
+                                           r_type=float) \
+            if o_c["vary_grid"] else None
+        # repeat for dose_dim2, dose_dim3, dose_dim4
         # Fluence Only
-        try:
-            o_c['fluence_only'] = o.find("fluence_only").text
-            if o_c['fluence_only'] == "True":
-                o_c['fluence_only'] = True
-            else:
-                o_c['fluence_only'] = False
-        except AttributeError:
-            o_c['fluence_only'] = False
-        #
+        o_c['fluence_only'] = get_boolean_text(o, "fluence_only")
         # Reset Beams
-        try:
-            o_c['reset_beams'] = o.find("reset_beams").text
-            if o_c['reset_beams'] == "True":
-                o_c['reset_beams'] = True
-            else:
-                o_c['reset_beams'] = False
-        except AttributeError:
-            o_c['reset_beams'] = False
-        #
+        o_c['reset_beams'] = get_boolean_text(o, "reset_beams")
         # Reduce Mod
-        try:
-            o_c['reduce_mod'] = o.find("reduce_mod").text
-            if o_c['reduce_mod'] == "True":
-                o_c['reduce_mod'] = True
-                o_c['mod_target'] = float(o.find("reduce_mod").attrib["mod_target"])
-            else:
-                o_c['reduce_mod'] = False
-                o_c['mod_target'] = None
-        except AttributeError:
-            o_c['reduce_mod'] = False
-            o_c['mod_target'] = None
-        #
+        o_c['reduce_mod'] = get_boolean_text(o, "reduce_mod")
+        o_c['mod_target'] = get_node_attrib(o, "reduce_mod", "mod_target",
+                                            r_type=float) \
+            if o_c['reduce_mod'] else None
         # Reduce Time
-        try:
-            o_c['reduce_time'] = o.find("reduce_time").text
-            if o_c['reduce_time'] == "True":
-                o_c['reduce_time'] = True
-            else:
-                o_c['reduce_time'] = False
-        except AttributeError:
-            o_c['reduce_time'] = False
-        #
+        o_c['reduce_time'] = get_boolean_text(o, "reduce_time")
         # Reduce OAR
-        try:
-            o_c['reduce_oar'] = o.find("reduce_oar").text
-            if o_c['reduce_oar'] == "True":
-                o_c['reduce_oar'] = True
-            else:
-                o_c['reduce_oar'] = False
-        except AttributeError:
-            o_c['reduce_oar'] = False
-        #
+        o_c['reduce_oar'] = get_boolean_text(o, "reduce_oar")
         # Segment weight
-        try:
-            o_c['segment_weight'] = o.find("segment_weight").text
-            if o_c['segment_weight'] == "True":
-                o_c['segment_weight'] = True
-            else:
-                o_c['segment_weight'] = False
-        except AttributeError:
-            o_c['segment_weight'] = False
-        #
+        o_c['segment_weight'] = get_boolean_text(o, "segment_weight")
+        # Rescale Dose to primary prescription after each warmstart
+        o_c['rescale_after_warmstart'] = get_boolean_text(o, "rescale_after_warmstart", default=False)
+        # Treat settings
+        o_c['use_treat_settings'] = get_boolean_text(o, 'use_treat_settings', default=True)
         # Prompt for structure blocking/protection
-        try:
-            o_c['block_prompt'] = o.find("block_prompt").text
-            if o_c['block_prompt'] == "True":
-                o_c['block_prompt'] = True
-            else:
-                o_c['block_prompt'] = False
-        except AttributeError:
-            o_c['block_prompt'] = False
-        #
+        o_c['block_prompt'] = get_boolean_text(o, "block_prompt")
         # Robustness optimization
-        try:
-            o_c['robust'] = o.find("robust").text
-            if o_c['robust'] == "True":
-                o_c['robust'] = True
-                o_c['robust_sup'] = float(o.find("robust").attrib["sup"])
-                o_c['robust_inf'] = float(o.find("robust").attrib["inf"])
-                o_c['robust_ant'] = float(o.find("robust").attrib["ant"])
-                o_c['robust_post'] = float(o.find("robust").attrib["post"])
-                o_c['robust_right'] = float(o.find("robust").attrib["right"])
-                o_c['robust_left'] = float(o.find("robust").attrib["left"])
-            else:
-                o_c['robust'] = False
-                o_c['robust_sup'] = None
-                o_c['robust_inf'] = None
-                o_c['robust_ant'] = None
-                o_c['robust_post'] = None
-                o_c['robust_right'] = None
-                o_c['robust_left'] = None
-        except AttributeError:
-            o_c['robust'] = False
-            o_c['robust_sup'] = None
-            o_c['robust_inf'] = None
-            o_c['robust_ant'] = None
-            o_c['robust_post'] = None
-            o_c['robust_right'] = None
-            o_c['robust_left'] = None
+        o_c['robust'] = get_boolean_text(o, "robust")
+        if o_c['robust']:
+            o_c['robust_sup'] = get_node_attrib(o, "robust", "sup",
+                                                r_type=float)
+            o_c['robust_inf'] = get_node_attrib(o, "robust", "inf",
+                                                r_type=float)
+            o_c['robust_ant'] = get_node_attrib(o, "robust", "ant",
+                                                r_type=float)
+            o_c['robust_post'] = get_node_attrib(o, "robust", "post",
+                                                 r_type=float)
+            o_c['robust_right'] = get_node_attrib(o, "robust", "right",
+                                                  r_type=float)
+            o_c['robust_left'] = get_node_attrib(o, "robust", "left",
+                                                 r_type=float)
+            o_c['position_uncertainty'] = get_node_attrib(
+                o, "robust", "position_uncertainty")
+        else:
+            o_c['robust_sup'] = o_c['robust_inf'] = o_c['robust_ant'] = \
+                o_c['robust_post'] = o_c['position_uncertainty'] = None
+            o_c['robust_right'] = o_c['robust_left'] = None
+
         # Append the resulting configuration to the dictionary
         os_config['optimization_config'].append(o_c)
     return os_config
@@ -526,7 +499,7 @@ def check_min_jaws(plan_opt, min_dim):
                     logging.info(
                         'Jaw size offset necessary on beam: {}, X = {}, Y = {}, with min '
                         'dimension {}'
-                            .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
+                        .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
                     jaw_change = True
                     try:
                         # Uncomment to automatically set jaw limits
@@ -544,7 +517,7 @@ def check_min_jaws(plan_opt, min_dim):
                 else:
                     logging.info(
                         'Jaw size offset unnecessary on beam:{}, X={}, Y={}, with min dimension={}'
-                            .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
+                        .format(b.ForBeam.Name, min_x_aperture, min_y_aperture, min_dim))
             else:
                 logging.debug("Beam {} is not optimized".format(b.ForBeam.Name))
     if jaw_change:
@@ -625,6 +598,7 @@ def reduce_oar_dose(plan_optimization):
 
 
 def add_robust_parameters(plan_optimization,
+                          position_uncertainty,
                           robust_superior,
                           robust_inferior,
                           robust_anterior,
@@ -637,6 +611,10 @@ def add_robust_parameters(plan_optimization,
     only positional robustness currently supported
 
     :param plan_optimization: the RS TreatmentPlans:PlanOptimization Object
+    :param position_uncertainty: Position uncertainty argument, possible values:
+                                 "Universal" (apply to whole beamset),
+                                 "IndependentBeams" (apply to each beam),
+                                 "IndependentIsocenters" (apply to each iso)
     :param robust_superior: superior distance [cm] over which to evaluate robustness
     :param robust_inferior: inferior distance [cm] over which to evaluate robustness
     :param robust_right: right distance [cm] over which to evaluate robustness
@@ -647,6 +625,13 @@ def add_robust_parameters(plan_optimization,
     TODO: Support robustness on multiple images
 
     """
+    logging.debug(
+        f'Robust optimization on used for beamset:'
+        f'{plan_optimization.OptimizedBeamSets.DicomPlanLabel} '
+        f'with positional uncertainty {position_uncertainty}, with scenario '
+        f'Superior {robust_superior}, Inferior {robust_inferior}, '
+        f'Posterior {robust_posterior}, Anterior {robust_anterior}, '
+        f'Right{robust_right}, Left{robust_left}')
     #
     # Parse exam argument
     if robust_exams:
@@ -662,22 +647,21 @@ def add_robust_parameters(plan_optimization,
         PositionUncertaintyLeft=robust_left,
         PositionUncertaintyRight=robust_right,
         DensityUncertainty=0,
-        PositionUncertaintySetting="Universal",
+        # TODO: add a param for robustness.
+        PositionUncertaintySetting=position_uncertainty,
         IndependentLeftRight=True,
         IndependentAnteriorPosterior=True,
         IndependentSuperiorInferior=True,
         ComputeExactScenarioDoses=False,
         NamesOfNonPlanningExaminations=exams)
     if exams:
-        logging.info('Robust optimization on used for beamset:{} on exams {}, with scenario'.format(
-            plan_optimization.OptimizedBeamSets.DicomPlanLabel, exams) +
-                     'Superior {s}, Inferior {i}, Posterior {p}, Anterior {a}, Right{r}, Left{l}'
-                     .format(s=robust_superior,
-                             i=robust_inferior,
-                             a=robust_anterior,
-                             p=robust_posterior,
-                             r=robust_right,
-                             l=robust_left))
+        logging.info(
+            f'Robust optimization on used for beamset:'
+            f'{plan_optimization.OptimizedBeamSets.DicomPlanLabel} '
+            f'on exams {exams}, with scenario '
+            f'Superior {robust_superior}, Inferior {robust_inferior}, '
+            f'Posterior {robust_posterior}, Anterior {robust_anterior}, '
+            f'Right{robust_right}, Left{robust_left}')
     else:
         logging.info('Robust optimization on used for beamset:{}, with scenario'.format(
             plan_optimization.OptimizedBeamSets.DicomPlanLabel) +
@@ -849,7 +833,10 @@ def parse_evaluation_function(progress_of_optimization, rtp_function, rf_i):
         dfp_data['HighDose'] = None
         dfp_data['LowDose'] = None
         dfp_data['Distance'] = None
-        dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+        try:
+            dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+        except AttributeError:
+            dfp_data['FinalValue'] = None
     elif regular:
         dfp_data['Roi'] = RTPFunction.ForRegionOfInterest.Name
         dfp_data['FunctionType'] = RTPFunction.DoseFunctionParameters.FunctionType
@@ -864,7 +851,10 @@ def parse_evaluation_function(progress_of_optimization, rtp_function, rf_i):
         dfp_data['HighDose'] = None
         dfp_data['LowDose'] = None
         dfp_data['Distance'] = None
-        dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+        try:
+            dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+        except AttributeError:
+            dfp_data['FinalValue'] = None
     elif dfo:
         dfp_data['Roi'] = RTPFunction.ForRegionOfInterest.Name
         dfp_data['FunctionType'] = 'DFO'
@@ -875,7 +865,10 @@ def parse_evaluation_function(progress_of_optimization, rtp_function, rf_i):
         dfp_data['HighDose'] = RTPFunction.DoseFunctionParameters.HighDoseLevel
         dfp_data['LowDose'] = RTPFunction.DoseFunctionParameters.LowDoseLevel
         dfp_data['Distance'] = RTPFunction.DoseFunctionParameters.LowDoseDistance
-        dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+        try:
+            dfp_data['FinalValue'] = RTPFunction.FunctionValue.FunctionValue
+        except AttributeError:
+            dfp_data['FinalValue'] = None
 
     # Columns of iteration number for each function
     iterations = progress_of_optimization.Iterations
@@ -978,7 +971,6 @@ def output_iteration_data(poo, warmstart_number,
             row = parse_evaluation_function(poo, rf, rf_i=objective_index)
             row.update(beam_dict)
             df_1 = df_1.append(row, ignore_index=True)
-            logging.debug('Made it through objective {}'.format(objective_index))
             objective_index += 1
 
         # Output
@@ -1090,6 +1082,27 @@ def update_delivery_time(plan, beamset, previous_objective_value, old_delivery_t
     return delivery_time, message, continue_reduction
 
 
+def update_background_dose(plan, plan_optimization):
+    """
+    Update the background doses for this plan_optimization
+    :param plan: RS plan object
+    :param plan_optimization: RS plan optimization object
+    :return: None
+    """
+    # Determine the optimization for this beamset. If background dose is
+    # used, then compute it.
+    if plan_optimization.BackgroundDose:
+        optimized_beamsets = [bs.DicomPlanLabel for bs in plan.BeamSets
+                              if all([b.HasValidSegments for b in bs.Beams])]
+        for obs in optimized_beamsets:
+            try:
+                plan.BeamSets[obs].ComputeDose(ComputeBeamDoses=False,
+                                               DoseAlgorithm='CCDose',
+                                               ForceRecompute=False)
+            except Exception as e:
+                pass
+
+
 def reset_iteration(iteration, status):
     # Go back one iteration, and update all status variables to reflect the reversal
     iteration -= 1
@@ -1164,7 +1177,9 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     # TODO: Make this a beamset setting in the xml protocols
     small_field_names = ['_SRS_', '_SBR_', '_FSR_', '_LLL_', '_LUL_', '_RLL_', '_RML_', '_RUL_']
     large_field_names = ['TBI__FFS', 'TBI__HFS', 'HFS__TBI', 'FFS__TBI',
-                         'TBI_FFS', 'TBI_HFS', 'HFS_TBI', 'FFS_TBI']
+                         'TBI_FFS', 'TBI_HFS', 'HFS_TBI', 'FFS_TBI',
+                         'TBI__VMA']
+
     # Choose the minimum field size in cm
     min_dim = 2
     # Parameters used for iteration number
@@ -1173,7 +1188,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     second_maximum_iteration = optimization_inputs.get('second_max_it', 30)
     second_intermediate_iteration = optimization_inputs.get('second_int_it', 15)
     use_treat_settings = optimization_inputs.get('use_treat_settings', True)
-    treat_margin = optimization_inputs.get('treat_margin', None)
+    treat_margin = optimization_inputs.get('treat_margins', None)
 
     vary_grid = optimization_inputs.get('vary_grid', False)
     # Grid Sizes
@@ -1208,11 +1223,15 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             patient_info = patients[0]
 
     segment_weight = optimization_inputs.get('segment_weight', False)
+    rescale = optimization_inputs.get('rescale_after_warmstart', False)
+    treat_margins = optimization_inputs.get('treat_margins', True)
     gantry_spacing = optimization_inputs.get('gantry_spacing', 2)
     close_status = optimization_inputs.get('close_status', False)
     # Check if a robustness scenario is to be used
     robust_optimization = optimization_inputs.get('robust', False)
     if robust_optimization:
+        robust_position_uncertainty = optimization_inputs.get(
+            'position_uncertainty', None)
         robust_superior = optimization_inputs.get('robust_sup', None)
         robust_inferior = optimization_inputs.get('robust_inf', None)
         robust_anterior = optimization_inputs.get('robust_ant', None)
@@ -1244,6 +1263,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         dose_dim_initial = dose_dim1
     elif any(a in beamset.DicomPlanLabel for a in large_field_names):
         dose_dim_initial = 0.4
+        logging.debug(f'Large field name is in use {beamset.DicomPlanLabel}')
     elif any(a in beamset.DicomPlanLabel for a in small_field_names):
         dose_dim_initial = 0.15
     else:
@@ -1377,8 +1397,14 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                                         verbose_logging=False)
     plan_optimization = plan.PlanOptimizations[rs_opt_key]
     plan_optimization_parameters = plan.PlanOptimizations[rs_opt_key].OptimizationParameters
+    # Determine the optimization for this beamset. If background dose is
+    # used, then compute it.
+    update_background_dose(plan, plan_optimization)
+    #
+    # ROBUST OPTIMIZATION
     if robust_optimization:
         add_robust_parameters(plan_optimization=plan_optimization,
+                              position_uncertainty=robust_position_uncertainty,
                               robust_superior=robust_superior,
                               robust_inferior=robust_inferior,
                               robust_anterior=robust_anterior,
@@ -1425,8 +1451,9 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                                       current_grid.VoxelSize.z])
         update_voxelsize = np.array([dose_dim_initial] * 3)
         if approximate_lte(current_voxelsize, update_voxelsize):
-            logging.debug('Dose grid is {} <= {}. No grid changes'.format(current_grid.VoxelSize.x,
-                                                                          dose_dim_initial))
+            logging.debug(
+                f'Dose grid is {current_grid.VoxelSize.x} <= {dose_dim_initial}'
+                f'. No grid changes')
         else:
             beamset.SetDefaultDoseGrid(
                 VoxelSize={
@@ -1434,7 +1461,8 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     'y': dose_dim_initial,
                     'z': dose_dim_initial})
             plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-            logging.debug('Dose grid initialized with voxel size {}'.format(dose_dim_initial))
+            logging.debug(
+                f'Dose grid initialized with voxel size {dose_dim_initial}')
     else:
         beamset.SetDefaultDoseGrid(
             VoxelSize={
@@ -1442,7 +1470,8 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                 'y': dose_dim_initial,
                 'z': dose_dim_initial})
         plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-        logging.debug('Dose grid initialized with voxel size {}'.format(dose_dim_initial))
+        logging.debug(
+            f'Dose grid initialized with voxel size {dose_dim_initial}')
         patient.Save()
 
     # Reset
@@ -1451,8 +1480,9 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
         status.next_step("Resetting Optimization")
 
     if plan_optimization.ProgressOfOptimization:
-        prior_history = parse_culmulative_objective_value(plan, beamset,
-                                                          prior_history=prior_history)
+        prior_history = parse_culmulative_objective_value(
+            plan, beamset,
+            prior_history=prior_history)
         if prior_history is not None:
             logging.debug(f"Prior History: {prior_history}")
             current_objective_function = prior_history[-1]
@@ -1728,12 +1758,19 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
             logging.info(
                 'Current iteration = {} of {}'.format(optimization_iteration + 1,
                                                       maximum_iteration))
+            update_background_dose(plan, plan_optimization)
             #
             # OPTIMIZATION
             # Run the optimization
             time_0, time_1, success, message = run_optimization(plan_optimization)
             if not success:
                 sys.exit(message)
+            #
+            # Rescale to primary prescription if needed.
+            if rescale:
+                beamset.ScaleToPrimaryPrescriptionDoseReference(
+                    LockedBeamNames=None,
+                    EvaluateOptimizationFunctionsAfterScaling=True)
             #
             # POST OPTIMIZATION
             #
