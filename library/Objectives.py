@@ -1002,8 +1002,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             # Launch the dialog
             response = input_dialog.show()
             # Link root to selected protocol ElementTree
-            logcrit("Treatment Planning Order selected: {}".format(
-                input_dialog.values['i']))
+            logcrit(f"Treatment Planning Order selected: {input_dialog.values['i']}")
             # Update the order name
 
             # I believe this loop can be eliminated with we can use a different function
@@ -1086,30 +1085,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             if p == t:
                 target_initial[k_name] = t
 
-    # for s in goal_locations:
-    #     for g in s:
-    #         g_name = g.find('name').text
-    #         # Priorities should be even for targets and append unique elements only
-    #         # into the protocol_targets list
-    #         if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
-    #             protocol_targets.append(g_name)
-    #             k = str(i)
-    #             # Python doesn't sort lists....
-    #             k_name = k.zfill(2) + 'Aname_' + g_name
-    #             k_dose = k.zfill(2) + 'Bdose_' + g_name
-    #             target_inputs[k_name] = 'Match a plan target to ' + g_name
-    #             target_options[k_name] = plan_targets
-    #             target_datatype[k_name] = 'combo'
-    #             target_required.append(k_name)
-    #             target_inputs[
-    #                 k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
-    #             target_required.append(k_dose)
-    #             i += 1
-    #             # Exact matches get an initial guess in the dropdown
-    #             for t in plan_targets:
-    #                 if g_name == t:
-    #                     target_initial[k_name] = t
-
     # Warn the user they are missing organs at risk specified in the order
     rois = []  # List of contours in plan
     protocol_rois = []  # List of all the regions of interest specified in the protocol
@@ -1124,17 +1099,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                 protocol_rois.append(r_name)
             if not any(o == r_name for o in rois) and r_name not in missing_contours:
                 missing_contours.append(r_name)
-    # for s in goal_locations:
-    #     for g in s:
-    #         g_name = g.find('name').text
-    #         if g_name not in protocol_rois:
-    #             protocol_rois.append(g_name)
-    #         # Add a quick check if the contour exists in RS
-    #         # This step is slow, we may want to gather all rois into a list and look for it
-    #         if int(g.find('priority').text) % 2:
-    #             if not any(r == g_name for r in rois) and g_name not in missing_contours:
-    #                 missing_contours.append(g_name)
-
     # Launch the matching script here. Then check for any missing that remain. Supply function with rois and
     # protocol_rois
     if not filename:
@@ -1374,6 +1338,10 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
         objectives = objsets.findall('./objectives/roi')
         for o in objectives:
             o_n = o.find('name').text
+            #
+            # Determine any beamset restrictions
+            value = o.find('type').attrib.get('restrict_to_beamset')
+            restrict_to_beamset = beamset.DicomPlanLabel if value == "True" else None
             # o_t = o.find('type').text
             o_d = o.find('dose').text
             if o_n in translation_map:
@@ -1398,7 +1366,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                                   s_roi=s_roi,
                                   s_dose=s_dose,
                                   s_weight=None,
-                                  restrict_beamset=None,
+                                  restrict_beamset=restrict_to_beamset,
                                   checking=True)
                 else:
                     logging.debug(
@@ -1416,6 +1384,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                               s_roi=s_roi,
                               s_dose=s_dose,
                               s_weight=None,
-                              restrict_beamset=None,
+                              restrict_beamset=restrict_to_beamset,
                               checking=True)
     return error_message
