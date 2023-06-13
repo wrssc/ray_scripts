@@ -34,7 +34,6 @@ ATTRIBUTE_MATCH_DICT = {
 
 
 def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=""):
-
     dicom_tree_pair = DicomTreePair(
         parent=parent,
         tree_list=[],
@@ -52,7 +51,6 @@ def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=
 
     # Loop over all keywords in the first DICOM file
     for ds1_keyword in ds1.dir():
-
         if ds1_keyword in PROCESS_FUNCTION_DICT:
             process_func, kwargs = PROCESS_FUNCTION_DICT[ds1_keyword]
         else:
@@ -60,7 +58,6 @@ def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=
 
         # CASE 1: The item is not a Sequence
         if ds1[ds1_keyword].VR != "SQ":
-
             if ds1_keyword not in ds2.dir():
                 value_pair = (ds1[ds1_keyword].value, None)
             else:
@@ -88,7 +85,6 @@ def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=
         # to use for matching. Check ATTRIBUTE_MATCH_DICT to see if one is specified.
         # If not, skip it.
         if ds1_keyword not in ATTRIBUTE_MATCH_DICT.keys():
-
             tree_list.append(
                 SequencePair(
                     parent=dicom_tree_pair,
@@ -113,7 +109,6 @@ def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=
         # and we want to preserve that information for analysis.
         match_keyword = ATTRIBUTE_MATCH_DICT[ds1_keyword]
         if ds1_keyword not in ds2.dir():
-
             sequence_pair = SequencePair(
                 parent=dicom_tree_pair,
                 attribute_name=ds1_keyword,
@@ -125,7 +120,6 @@ def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=
 
             sequence_list = []
             for item1 in ds1[ds1_keyword]:
-
                 label = f"{match_keyword}={item1[match_keyword].value}"
 
                 sequence_list.append(
@@ -231,7 +225,6 @@ def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=
             process_func, kwargs = None, None
 
         if ds2[ds2_keyword].VR != "SQ":
-
             # Address Unique attributes in ds2
             if ds2_keyword not in ds1.dir():
                 value_pair = (None, ds2[ds2_keyword].value)
@@ -255,7 +248,6 @@ def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=
         if (ds2_keyword not in ATTRIBUTE_MATCH_DICT.keys()) and (
             ds2_keyword not in ds1.dir()
         ):
-
             sequence_pair = SequencePair(
                 parent=dicom_tree_pair,
                 attribute_name=ds2_keyword,
@@ -288,7 +280,6 @@ def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=
             sequence_list = []
 
             for item2 in ds2[ds2_keyword]:
-
                 label = f"{match_keyword}={item2[match_keyword].value}"
 
                 sequence_list.append(
@@ -316,7 +307,7 @@ def create_dicom_tree_pair(ds1, ds2, parent, depth=0, parent_key="", tree_label=
 
 
 def compare_dicomrt_plans(filepath1, filepath2):
-    """ Compares two DICOM-RT Plan files
+    """Compares two DICOM-RT Plan files
 
     PARAMETERS
     ----------
@@ -337,7 +328,6 @@ def compare_dicomrt_plans(filepath1, filepath2):
 
 
 def report_failing_test_func(aptr_dicom_tree_pair, mrn="0000000", plan_name="Plan"):
-
     failing_results = []
     list_of_checks = aptr_dicom_tree_pair.get_element_from_key(
         "Aria Plan Transfer Review"
@@ -382,15 +372,21 @@ def report_failing_test_func(aptr_dicom_tree_pair, mrn="0000000", plan_name="Pla
 
 
 def run_dicom_integrity_tool(
-    filepath1, filepath2, file_label1="DICOM File 1", file_label2="DICOM File 2",
+    filepath1,
+    filepath2,
+    file_label1="DICOM File 1",
+    file_label2="DICOM File 2",
 ):
-
     ds1 = pydicom.dcmread(filepath1, force=True)
     ds2 = pydicom.dcmread(filepath2, force=True)
 
     # Start APTR
     aptr_dicom_tree_pair = DicomTreePair(
-        parent=None, tree_list=[], depth=0, parent_key="", tree_label="",
+        parent=None,
+        tree_list=[],
+        depth=0,
+        parent_key="",
+        tree_label="",
     )
 
     aptr_sequence_pair = SequencePair(
@@ -415,7 +411,6 @@ def run_dicom_integrity_tool(
     )
 
     def check_plan_names_match(dicom_match_tree):
-
         copied_tree = deepcopy(dicom_match_tree)
         CHECK_KEYS = ["RTPlanLabel", "RTPlanName"]
 
@@ -425,7 +420,6 @@ def run_dicom_integrity_tool(
         return copied_tree
 
     def check_nominal_plan_dose(dicom_match_tree):
-
         copied_tree = deepcopy(dicom_match_tree)
         CHECK_KEYS = ["TargetPrescriptionDose"]
 
@@ -437,7 +431,6 @@ def run_dicom_integrity_tool(
         ).sequence_list
 
         for dr in dr_sequence_list:
-
             # Prune extra items
             dr.remove_all_items_except(CHECK_KEYS)
 
@@ -446,7 +439,6 @@ def run_dicom_integrity_tool(
         # This code will check to see if there is one matching prescription and
         # zero mismatches. If so, it will assign the warning status.
         if not copied_tree.is_acceptable_match():
-
             count_match = 0
             count_mismatch = 0
             count_unique_1 = 0
@@ -471,7 +463,12 @@ def run_dicom_integrity_tool(
 
             copied_tree.comment = summary_comment
 
-            if (count_match > 0) and (count_mismatch == 0) and (count_unique_1 > 0) and (count_unique_2 == 0):
+            if (
+                (count_match > 0)
+                and (count_mismatch == 0)
+                and (count_unique_1 > 0)
+                and (count_unique_2 == 0)
+            ):
                 for dr in dr_sequence_list:
                     element = dr.get_element_from_key("TargetPrescriptionDose")
                     if element.is_unique_to_dataset1():
@@ -486,7 +483,6 @@ def run_dicom_integrity_tool(
         return copied_tree
 
     def check_number_of_plan_fractions(dicom_match_tree):
-
         copied_tree = deepcopy(dicom_match_tree)
         CHECK_KEYS = ["NumberOfFractionsPlanned"]
 
@@ -498,14 +494,12 @@ def run_dicom_integrity_tool(
         ).sequence_list
 
         for item in sequence_list:
-
             # Prune extra items
             item.remove_all_items_except(CHECK_KEYS)
 
         return copied_tree
 
     def check_referenced_planning_image_uids(dicom_match_tree):
-
         copied_tree = deepcopy(dicom_match_tree)
         CHECK_KEYS = ["FrameOfReferenceUID", "StudyInstanceUID"]
 
@@ -515,7 +509,6 @@ def run_dicom_integrity_tool(
         return copied_tree
 
     def check_structure_set_uids(dicom_match_tree):
-
         copied_tree = deepcopy(dicom_match_tree)
         CHECK_KEYS = ["ReferencedSOPClassUID", "ReferencedSOPInstanceUID"]
 
@@ -527,7 +520,6 @@ def run_dicom_integrity_tool(
         ).sequence_list
 
         for item in sequence_list:
-
             # Prune extra items
             item.remove_all_items_except(CHECK_KEYS)
 
@@ -557,7 +549,6 @@ def run_dicom_integrity_tool(
         return copied_tree
 
     def check_beam_parameter(dicom_match_tree, check_keys, check_label):
-
         copied_tree = deepcopy(dicom_match_tree)
 
         copied_tree.tree_label = check_label
@@ -581,14 +572,12 @@ def run_dicom_integrity_tool(
 
         # Prune items not in check keys
         for beam in beam_sequence_list:
-
             # Prune extra items
             beam.remove_all_items_except(check_keys)
 
         return copied_tree
 
     def check_control_point_parameter(dicom_match_tree, check_keys, check_label):
-
         copied_tree = deepcopy(dicom_match_tree)
 
         copied_tree.tree_label = check_label
@@ -612,7 +601,6 @@ def run_dicom_integrity_tool(
 
         # Cycle though control points
         for beam in beam_sequence_list:
-
             # Prune all but ControlPointSequence
             beam.remove_all_items_except("ControlPointSequence")
             control_point_sequence_list = beam.get_element_from_key(
@@ -622,25 +610,43 @@ def run_dicom_integrity_tool(
             for cp in control_point_sequence_list:
                 cp.remove_all_items_except(check_keys)
 
+        # This is necessary to perform check below, but may slow down program
+        copied_tree.prune_empty_trees_and_sequences()
+        copied_tree.update_match_result_recursive()
+
         # The Dose Rate check may fail if the dose rate was intentionally changed
         # Aria or modified during plan export by RayStation scripting. Doing so is
         # standard for PRDR. If the plan name has the PRD designation and the dose
         # rate value is 100, we will apply a warning.
-        if not copied_tree.is_acceptable_match() and check_keys[0] == "DoseRateSet":
-
+        if (not copied_tree.is_acceptable_match()) and (check_keys[0] == "DoseRateSet"):
             # Condition 1: Plan is PRDR
             plan_name_element = dicom_match_tree.get_element_from_key("RTPlanName")
-            if plan_name_element.is_acceptable_match():
+
+            c1_comment = ""
+            condition_1 = False
+            if not plan_name_element.is_acceptable_match():
+                c1_comment = (
+                    "Plan names do not match, so cannot determine if the plan is PRDR."
+                )
+            else:
                 plan_name = plan_name_element.value_pair[0]
 
-            billing_part = plan_name.split("_")[1].lower()
+                # Determine if plan name is in standard format
+                plan_name_parts = plan_name.split("_")
+                if (len(plan_name_parts) != 3) or (len(plan_name_parts[1]) != 3):
+                    c1_comment = f"The plan name {plan_name} is not in standard format, so cannot determine if the plan is PRDR."
+                else:
+                    billing_part = plan_name_parts[1].lower()
 
-            condition_1 = False
-            if billing_part == "prd":
-                condition_1 = True
+                    if billing_part == "prd":
+                        condition_1 = True
+                        c1_comment = f"The plan type '{billing_part}' is PRDR."
+                    else:
+                        c1_comment = f"The plan type '{billing_part}' is not PRDR."
 
             # Condition 2: All control points have a dose rate = 100
             # Cycle though control points
+
             copied_tree.prune_empty_trees_and_sequences()
             beam_sequence_list = copied_tree.get_element_from_key(
                 "BeamSequence"
@@ -656,6 +662,12 @@ def run_dicom_integrity_tool(
                     list_of_dose_rates.append(element.value_pair[1])
 
             condition_2 = all(rate == 100 for rate in list_of_dose_rates)
+            if condition_2:
+                c2_comment = "The Aria Dose Rate = 100 MU/min for all fields"
+            else:
+                c2_comment = (
+                    "The Aria Dose Rate does not equal 100 MU/min for all fields."
+                )
 
             if condition_1 and condition_2:
                 # Cycle though control points
@@ -673,14 +685,11 @@ def run_dicom_integrity_tool(
                             "Aria Dose Rate = 100 MU/min, and the plan is PRDR"
                         )
 
-                copied_tree.comment = (
-                    "Aria Dose Rate = 100 MU/min for all fields, and the plan is PRDR."
-                )
+            copied_tree.comment = c1_comment + " " + c2_comment
 
         return copied_tree
 
     def check_mu(dicom_match_tree):
-
         copied_tree = deepcopy(dicom_match_tree)
 
         # Get list of beams that are treatment fields:
@@ -716,7 +725,6 @@ def run_dicom_integrity_tool(
 
         # Delete setup fields
         for fg in fg_sequence_list:
-
             # Prune extra items
             fg.remove_all_items_except(["ReferencedBeamSequence"])
             beam_sequence_list = fg.get_element_from_key(
@@ -725,7 +733,6 @@ def run_dicom_integrity_tool(
 
             list_of_beams_to_delete = []
             for beam in beam_sequence_list:
-
                 vp = beam.get_element_from_key("ReferencedBeamNumber").value_pair
                 if (vp[0] not in list_of_treatment_beams) and (
                     vp[1] not in list_of_treatment_beams
@@ -776,7 +783,9 @@ def run_dicom_integrity_tool(
     for check_keys, check_label in zipped_parameters:
         sequence_list.append(
             check_beam_parameter(
-                dicom_match_tree, check_keys=check_keys, check_label=check_label,
+                dicom_match_tree,
+                check_keys=check_keys,
+                check_label=check_label,
             )
         )
 
@@ -811,7 +820,9 @@ def run_dicom_integrity_tool(
     for check_keys, check_label in zipped_parameters:
         sequence_list.append(
             check_control_point_parameter(
-                dicom_match_tree, check_keys=check_keys, check_label=check_label,
+                dicom_match_tree,
+                check_keys=check_keys,
+                check_label=check_label,
             )
         )
 
@@ -826,10 +837,16 @@ def run_dicom_integrity_tool(
         [
             sg.Tree(
                 data=aptr_treedata,
-                headings=["Result", "Comments",],
+                headings=[
+                    "Result",
+                    "Comments",
+                ],
                 auto_size_columns=False,
                 col0_width=50,
-                col_widths=[30, 60,],
+                col_widths=[
+                    30,
+                    60,
+                ],
                 num_rows=30,
                 key="-APTR_TREE-",
                 show_expanded=False,
@@ -862,10 +879,16 @@ def run_dicom_integrity_tool(
         [
             sg.Tree(
                 data=dmt_treedata,
-                headings=["Result", "Comments",],
+                headings=[
+                    "Result",
+                    "Comments",
+                ],
                 auto_size_columns=False,
                 col0_width=50,
-                col_widths=[30, 60,],
+                col_widths=[
+                    30,
+                    60,
+                ],
                 num_rows=30,
                 key="-DMT_TREE-",
                 show_expanded=False,
@@ -911,11 +934,9 @@ def run_dicom_integrity_tool(
             break
 
         if event in "-APTR_TREE-":
-
             tree_key = values["-APTR_TREE-"][0]
 
             if ">" in tree_key:
-
                 value1, value2 = aptr_dicom_tree_pair.get_valuepair_from_key(
                     tree_key[1:]
                 )
@@ -937,11 +958,9 @@ def run_dicom_integrity_tool(
                 window["-APTR_COMMENT-"].update(element.comment)
 
         if event in "-DMT_TREE-":
-
             tree_key = values["-DMT_TREE-"][0]
 
             if ">" in tree_key:
-
                 value1, value2 = dmt_dicom_match_tree.get_valuepair_from_key(
                     tree_key[1:]
                 )
@@ -974,7 +993,6 @@ def run_dicom_integrity_tool(
 
 
 if __name__ == "__main__":
-
     # VMAT w/ and w/o bolus plans
     file_path = Path(
         r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588"
@@ -1007,5 +1025,13 @@ if __name__ == "__main__":
 
     raystation_filename = r"RP1.2.752.243.1.1.20230505175511462.2000.81312.dcm"
     aria_filename = r"RP.3084251.Brai_PRD_R0A0.dcm"
+
+    # SRS Plan
+    file_path = Path(
+        r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs\Plan_SRS"
+    )
+
+    raystation_filename = r"RP_RayStation_SRS.dcm"
+    aria_filename = r"RP_Aria_SRS.dcm"
 
     run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)
