@@ -25,3 +25,12 @@ codestyles/*
 *.history
 .env
 .pylintrc
+conf.py
+index.rst
+make.bat
+Makefile
+docs/
+docs/*
+_build/
+_static/
+_templates/

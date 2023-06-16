@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Gyn/Pelvis</name>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
     <ct>
         <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
         <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
@@ -15,7 +16,7 @@
     <order>
         <name>Bladder Conventional [Primary+Boost]</name>
         <prefix>Blad_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_pri</name>
                 <type>DX</type>
@@ -286,7 +287,7 @@
     <order>
         <name>Gyn [25Fx]</name>
         <prefix>Pelv_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -595,7 +596,7 @@
     <order>
         <name>Gyn [28Fx]</name>
         <prefix>Pelv_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -858,7 +859,7 @@
     <order>
         <name>Gyn [Vulva]</name>
         <prefix>Vulv_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1151,7 +1152,7 @@
     <order>
         <name>Gyn [Endometrium]</name>
         <prefix>Endo_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p></name>
                 <type>DX</type>
@@ -1386,7 +1387,7 @@
     <order>
         <name>Gyn [Cervix]</name>
         <prefix>Cerv_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p></name>
                 <type>DX</type>
@@ -1621,7 +1622,7 @@
     <order>
         <name>Gyn [Uterus]</name>
         <prefix>Uter_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p></name>
                 <type>DX</type>
@@ -1856,7 +1857,7 @@
     <order>
         <name>Gyn [Vagina]</name>
         <prefix>Vagi_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p></name>
                 <type>DX</type>

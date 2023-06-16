@@ -106,11 +106,11 @@ def get_relative_volume(rs_obj, roi_name, vol_evaluation_absolute):
     """
      Get the relative value of an roi (0 vol to 100%) from the
      absolute volume of a structure. Return the relative volume
-     rs_obj: A namedtuple containing the raystation script objects defined in main
+     patient_data: A namedtuple containing the raystation script objects defined in main
              of note:
-                       rs_obj.case is the current case
-                       rs_obj.exam is the current exam
-                       rs_obj.beamset is the current beamset
+                       patient_data.case is the current case
+                       patient_data.exam is the current exam
+                       patient_data.beamset is the current beamset
      roi_name: Name of roi of interest
      vol_evaluation_absolute: absolute volume of interest in cc
      Returns the relative volume of the roi_name structure between 0 and 1.0
@@ -125,11 +125,11 @@ def get_maximum_dose_roi_at_volume(rs_obj, beam_name, roi_name, volume_units):
     """
      Get the fractional dose value of an roi (0 vol to 100%) from the
      absolute volume of a structure. Return the relative volume
-     rs_obj: A namedtuple containing the raystation script objects defined in main
+     patient_data: A namedtuple containing the raystation script objects defined in main
              of note:
-                       rs_obj.case is the current case
-                       rs_obj.exam is the current exam
-                       rs_obj.beamset is the current beamset
+                       patient_data.case is the current case
+                       patient_data.exam is the current exam
+                       patient_data.beamset is the current beamset
      beam_dose: name of beam of interest
      roi_name: Name of roi of interest
      volume_units: DICT: {"UNITS": '%' or 'cc', "VOL": <Volume relative or abs>}
@@ -164,11 +164,11 @@ def sorted_beamset_dict(rs_obj):
 def get_dose_dataframes(rs_obj, volume_units, beam_dict):
     """
      For the beamset: For each beam in the beamset get the MU, Max, Mean, and iso doses
-     rs_obj: A namedtuple containing the raystation script objects defined in main
+     patient_data: A namedtuple containing the raystation script objects defined in main
              of note:
-                       rs_obj.case is the current case
-                       rs_obj.exam is the current exam
-                       rs_obj.beamset is the current beamset
+                       patient_data.case is the current case
+                       patient_data.exam is the current exam
+                       patient_data.beamset is the current beamset
      volume_units: DICT: {"UNITS": '%' or 'cc', "VOL": <Volume relative or abs>}
      beam_dict: LIST: [{'BEAM_NAME': Raystation Beam Number}]
                 A list sorted by the desired order of the pandas dataframe, e.g. beam number

@@ -1,5 +1,10 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
     <name>UW Spine SBRT</name>
+    <AnatomicGroup>Body</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
         <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>
@@ -18,12 +23,11 @@
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
         <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
         <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
     </prescription>
     <order>
         <name>Spine SBRT [3Fx] [3600cGy]</name>
         <prefix>SpiX_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -34,7 +38,6 @@
             <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <validation>
             <validation_status>True</validation_status>
@@ -588,7 +591,7 @@
     <order>
         <name>Spine or Bone SBRT [5Fx]</name>
         <prefix>SpiX_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -599,7 +602,6 @@
             <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <goals>
             <roi>

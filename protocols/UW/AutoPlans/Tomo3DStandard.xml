@@ -1,5 +1,10 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
     <name>UW Tomo3D</name>
+    <AnatomicGroup>Head,Neck,Thorax,Abdomen,Pelvis,Limb,Body</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>
@@ -15,13 +20,12 @@
         <frequency>Daily</frequency>
         <imaging>Pre-treatment CBCT</imaging>
         <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0477">TomoHelical</technique>
     </prescription>
 
     <order>
         <name>Multiple Target Tomo3D</name>
         <prefix>Site</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -42,7 +46,6 @@
             </roi>
             <fractions>10</fractions>
             <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <validation>
             <validation_status>True</validation_status>
@@ -341,7 +344,6 @@
         <prefix>Site</prefix>
         <prescription>
             <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0477">TomoHelical</technique>
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

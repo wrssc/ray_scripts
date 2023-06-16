@@ -416,7 +416,6 @@ def main():
     # Move the patient, not the couch, due to limited range
     current_technique = pd.beamset.DeliveryTechnique
     if 'Tomo' in current_technique:
-        lateral_zero = True
         logging.info('Tomo plan selected, lateral will be set to zero')
     else:
         lateral_zero = False
@@ -435,7 +434,8 @@ def main():
             iso_target=iso['ROI'],
             iso_poi=iso['POI'],
             existing_iso=iso['ISO_0'],
-            lateral_zero=lateral_zero)
+            lateral_zero=lateral_zero,
+            )
     except Exception:
         logging.warning(
             'Aborting, could not locate center of {}'.format(iso))

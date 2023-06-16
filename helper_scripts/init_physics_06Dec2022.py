@@ -117,11 +117,11 @@ from System import Environment
 from datetime import datetime
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/PlanReview'))
-import ExamTests
-import BeamSetReviewTests
-import PlanReviewTests
-from ReviewDefinitions import *
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/OldPlanReview'))
+from OldPlanReview.ExamTests import *
+from OldPlanReview.BeamSetReviewTests import *
+from OldPlanReview.PlanReviewTests import *
+from OldPlanReview.ReviewDefinitions import *
 import GeneralOperations
 
 
@@ -378,7 +378,7 @@ def get_exam_level_tests(rso):
 def get_plan_level_tests(rso, physics_review=True):
     plan_checks_dict = {
         "Plan approval status":
-            (PlanReviewTests.check_plan_approved, {"physics_review": physics_review})
+            (PlanReviewTests.check_plan_approved, {"do_physics_review": physics_review})
     }
     return plan_checks_dict
 
@@ -386,7 +386,7 @@ def get_plan_level_tests(rso, physics_review=True):
 def get_beamset_level_tests(rso, physics_review=True):
     beamset_checks_dict = {
         "Beamset approval status":
-            (BeamSetReviewTests.check_beamset_approved, {"physics_review": physics_review}),
+            (BeamSetReviewTests.check_beamset_approved, {"do_physics_review": physics_review}),
         "Isocenter Position Identical":
             (BeamSetReviewTests.check_common_isocenter, {"tolerance": 1e-15}),
         "Check Fractionation":
@@ -520,7 +520,7 @@ def check_plan(physics_review=True):
     if check_patient_logs:
         lines = read_log_file(patient_id=rso.patient.PatientID)
         message_logs = parse_log_file(lines=lines, parent_key=log_key[0], phrases=KEEP_PHRASES)
-    # Execute tests
+    # Execute qa_tests
     exam_level_tests = []
     for key, p_func in patient_checks_dict.items():
         pass_result, message = p_func[0](rso=rso, **p_func[1])

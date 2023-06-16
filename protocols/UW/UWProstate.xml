@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Prostate</name>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
     <ct>
         <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
         <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
@@ -17,7 +18,7 @@
     <order>
         <name>Prostate +/- Nodes [28 Fractions 7000cGy]</name>
         <prefix>ProN_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <fractions>28</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
@@ -911,7 +912,7 @@
     <order>
         <name>Prostate +/- Nodes [20 Fractions 6000cGy]</name>
         <prefix>ProN_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <fractions>20</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
@@ -1333,7 +1334,7 @@
     <order>
         <name>ProstateFossa and Nodes Conventional</name>
         <prefix>PFoN_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <fractions>33</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
@@ -1610,7 +1611,7 @@
     <order>
         <name>ProstateFossa Conventional</name>
         <prefix>PFos_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <fractions>37</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
@@ -1873,7 +1874,7 @@
     <order>
         <name>ProstateFossa + Nodes Hypofrac [25Fx] [6250cGy]</name>
         <prefix>PFoN _</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <fractions>25</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
@@ -2233,7 +2234,7 @@
     <order>
         <name>Prostate and Nodes + HDR [23Fx 4600cGy]</name>
         <prefix>Pros_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -2491,7 +2492,7 @@
     <order>
         <name>Prostate and Nodes Primary+Bst [RTOG0924]</name>
         <prefix>ProN_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_pri</name>
                 <type>DX</type>
@@ -2500,7 +2501,7 @@
             </roi>
             <fractions>25</fractions>
         </prescription>
-        <prescription>
+        <prescription number="1" sequence="Boost1">
             <roi>
                 <name>PTV_bst</name>
                 <type>DX</type>

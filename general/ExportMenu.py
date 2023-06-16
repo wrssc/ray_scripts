@@ -84,7 +84,22 @@ def main():
         except Exception:
             plan_approved = False
 
-        if not plan_approved:
+        # If approved we can toggle the export status of blocked structures to ensure blocked structures are exported
+        if plan_approved:
+            try:
+                for plan_opt in plan.PlanOptimizations:
+                    for opt_beamset in plan_opt.OptimizedBeamSets:
+                        if opt_beamset.DicomPlanLabel == beamset.DicomPlanLabel:
+                            blocked_rois = [roi.Name for roi in opt_beamset.BeamCreationRules.RoisEnableForPlanning]
+                            case.PatientModel.ToggleExcludeFromExport(ExcludeFromExport=False,
+                                                                     RegionOfInterests=blocked_rois)
+                            patient.Save()
+                            break
+            except AttributeError:
+                logging.debug('Could not toggle export status of any blocked rois because plan is not approved')
+
+
+        else:
             approve = UserInterface.QuestionBox('The selected plan is not currently approved. Would you like to ' +
                                                 'approve it prior to export?', 'Approve Plan')
             if approve.yes:

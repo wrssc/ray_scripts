@@ -1,20 +1,20 @@
 # Plan Checks
-import BeamSetReviewTests
-from ReviewDefinitions import *
+from PlanReview.utils import get_approval_info
+from PlanReview.review_definitions import PASS, FAIL, ALERT
 
 
 def check_plan_approved(rso, **kwargs):
     """
     Check if a plan is approved
     Args: rso: Named Tuple of RS script objects
-        physics_review: Bool: True if expected status of plan is approved
+        do_physics_review: Bool: True if expected status of plan is approved
 
     Returns:
         message: [str1, ...]: [parent_key, child_key, child_key display, result_value]
 
     """
-    physics_review = kwargs.get('physics_review')
-    approval_status = BeamSetReviewTests.approval_info(rso.plan, rso.beamset)
+    physics_review = kwargs.get('do_physics_review')
+    approval_status = get_approval_info(rso.plan, rso.beamset)
     if approval_status.plan_approved:
         message_str = "Plan: {} was approved by {} on {}".format(
             rso.plan.Name,

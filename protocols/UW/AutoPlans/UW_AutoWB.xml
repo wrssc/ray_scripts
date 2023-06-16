@@ -1,5 +1,6 @@
 <protocol>
     <name>UW WholeBrain</name>
+    <AnatomicGroup>Head</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD</protocol>
         <protocol institution="UWHC">XRT_HEAD_WITH_CONTRAST</protocol>
@@ -21,7 +22,7 @@
     <order>
         <name>Brain-WBRT</name>
         <prefix>Brai_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

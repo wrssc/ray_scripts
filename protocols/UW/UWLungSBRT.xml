@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Lung SBRT</name>
+    <AnatomicGroup>Thorax</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
         <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>
@@ -21,7 +22,7 @@
     <order>
         <name>Left Lung SBRT [5Fx] [5000cGy]</name>
         <prefix>LuLx_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1117,7 +1118,7 @@
     <order>
         <name>Right Lung SBRT [5Fx 60 Gy]</name>
         <prefix>LuRx_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1469,7 +1470,7 @@
     <order>
         <name>Left Lung SBRT [4Fx] [4800cGy]</name>
         <prefix>LuLx_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1848,7 +1849,7 @@
     <order>
         <name>Right Lung SBRT [4Fx] [4800cGy]</name>
         <prefix>LuRx_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -2227,7 +2228,7 @@
     <order>
         <name>Left Lung SBRT [3Fx] [3600cGy]</name>
         <prefix>LuLx_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -2606,7 +2607,7 @@
     <order>
         <name>Right Lung SBRT [3Fx] [3600cGy]</name>
         <prefix>LuRx_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -2989,7 +2990,7 @@
     <order>
         <name>Left Lung [8Fx] [6000cGy]</name>
         <prefix>LuLx_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -3442,7 +3443,7 @@
     <order>
         <name>Right Lung [8Fx] [6000cGy]</name>
         <prefix>LuRx_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

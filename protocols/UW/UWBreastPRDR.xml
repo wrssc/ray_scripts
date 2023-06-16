@@ -1,4 +1,5 @@
 <protocol version="1">
+    <AnatomicGroup>Breast</AnatomicGroup>
     <notes date="06APR2022">Created</notes>
     <name>UW Breast PRDR</name>
     <ct>
@@ -9,6 +10,7 @@
         <protocol institution="JC">5.1 Lung without contrast 0.8sec</protocol>
     </ct>
     <institutions>
+
         <institution>UWHC</institution>
         <institution>East</institution>
         <institution>Johnson Creek</institution>
@@ -21,13 +23,13 @@
     <order>
         <name>Left Chestwall Conventional [no Boost]</name>
         <prefix>ChwL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <technique modality="Photons" technique="SMLC" code="PRD" machine="TrueBeam">SMLC</technique>
             <roi>
-                <name>PTV_p_Chestwall</name>
+                <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -331,13 +333,13 @@
     <order>
         <name>Right Chestwall Conventional [no Boost]</name>
         <prefix>ChwR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <technique modality="Photons" technique="SMLC" code="PRD" machine="TrueBeam">SMLC</technique>
             <roi>
-                <name>PTV_p_Eval</name>
+                <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>

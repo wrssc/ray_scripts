@@ -1,6 +1,79 @@
 """ Automated Plan - TomoTBI
 
-    How To Use:
+    This module contains various functions used in a TBI (Total Body Irradiation)
+    treatment planning script.
+
+    1. Call `tbi_gui()` function to launch the GUI and prompt the user to select various options
+    for TBI planning.
+    2. Extract the user-selected options from the returned dictionary object.
+    3. Use `GeneralOperations.find_scope()` function to find the current case and examination and
+    then look for HFS and FFS scans.
+    4. Initialize named tuple `Pd` with error, db, case, patient, exam, plan, and beamset fields.
+    5. Assign `Pd` values for HFS and FFS scans, which include patient, case, examination,
+    and database.
+    6. If user selected `do_structure_definitions`, then load the couch support and create lung
+    contours and avoid volumes on the HFS scan.
+    7. If user selected `ffs_autoplan`, calculate the isocenter position and run the autoplan
+    function for FFS scan using the TomoTherapy FFS protocol.
+    8. If user selected `make_ffs_isodose_structs`, reset the primary-secondary arrangement,
+    save the patient, set the current plan and beamset, and then create FFS isodose structures.
+    9. If user selected `hfs_autoplan`, calculate the isocenter position and run the autoplan
+    function for HFS scan using the TomoTherapy HFS protocol.
+    10. If user selected `dose_summation`, prompt the user to select beamsets for FFS and HFS
+    scans, create a new grid for each scan, recompute all doses in the plan, and then create the
+    dose summation.
+    11. If fiducial markers are present, use them to register and transform the two scans.
+    12. Call `make_tbi_planning_structs()` function to create the TBI planning structures.
+    13. Call `tbi_gui()` function to prompt the user to select the TBI planning structures and
+    other options.
+    14. If user selected `make_avoid`, create the avoid structure.
+    15. If user selected `make_ptv`, create the PTV structure.
+    16. If user selected `make_unsubtracted_dose_structures`, create the unsubtracted dose
+    structures.
+    17. If user selected `make_dose_structures`, create the dose structures.
+    18. If user selected `make_junction_contour`, create the junction contour.
+    19. If user selected `make_kidneys_contours`, create the kidney contours.
+    20. If user selected `make_lung_contours`, create the lung contours.
+    21. Call `update_dose_grid()` function to update the dose grid for the TBI structures.
+    22. Call `reset_primary_secondary()` function to reset the primary and secondary scans.
+    23. Call `make_tbi_planning_structs()` function to create the TBI planning structures again.
+    24. Call `make_ffs_isodose_structs()` function to create the FFS isodose structures again.
+    25. Call `update_dose_grid()` function to update the dose grid again.
+    26. Save the patient.
+
+    Summary of functions:
+    check_external: checks if an external file exists.
+    check_structure_exists: checks if a structure exists.
+    get_most_inferior: gets the most inferior coordinate from an array of coordinates.
+    get_center: gets the center coordinate of a list of coordinates.
+    find_junction_coords: finds the junction point coordinates between two CT scans.
+    place_poi: places a point of interest (POI) on a scan.
+    convert_array_to_transform: converts an array to a transform.
+    determine_prefix: determines the prefix for a structure name.
+    find_roi_prefix: finds the prefix for a ROI structure.
+    update_all_remove_expression: updates all instances of a remove expression.
+    make_junction_contour: makes the junction contour.
+    make_kidneys_contours: makes the kidneys contours.
+    make_lung_contours: makes the lung contours.
+    get_roi_geometries: gets the geometries of ROIs.
+    make_avoid: makes an avoid structure.
+    make_ptv: makes a PTV structure.
+    make_unsubtracted_dose_structures: makes unsubtracted dose structures.
+    make_dose_structures: makes dose structures.
+    reset_primary_secondary: resets the primary and secondary scan for a given patient.
+    update_dose_grid: updates the dose grid for a given beamset.
+    register_images: registers two CT scans.
+    load_normal_mbs: loads the normal MBS settings.
+    make_tbi_planning_structs: makes the planning structures for a TBI.
+    check_fiducials: checks the fiducial points for a given scan.
+    calc_ffs_iso: calculates the isocenter for the FFS (Free From Scan) planning.
+    make_ffs_isodoses: makes the FFS isodose structures.
+    get_new_grid: gets the new dose grid for a given beamset.
+    find_transform: finds the transform between two scans.
+    transform_poi: transforms a point of interest (POI).
+    find_eval_dose: finds the evaluation dose for a given plan.
+    tbi_gui: launches a GUI for TBI planning.
+    main: runs all of the previous functions.
 
     Validation Notes:
     Test Patient: MR#
@@ -54,12 +127,12 @@ from AutoPlan import autoplan
 # Structure template defaults
 COUCH_SUPPORT_STRUCTURE_TEMPLATE = "UW Support"
 HFS_COUCH_SUPPORT_STRUCTURE_EXAMINATION = "Supine Patient"
-HFS_COUCH_SUPPORT_STRUCTURE_EXAMINATION = "Supine Patient"
 COUCH_SOURCE_ROI_NAMES = {
     "TrueBeam": "TrueBeamCouch",
     "TomoTherapy": "TomoCouch"
 }
 LUNG_AVOID_NAME = "Lungs_m07"
+LUNG_EVAL_NAME = "Lungs_Eval"
 EXTERNAL_NAME = "ExternalClean"
 AVOID_HFS_NAME = "Avoid_HFS"
 AVOID_FFS_NAME = "Avoid_FFS"
@@ -68,7 +141,6 @@ ORDER_NAME_FFS = "TomoTBI_FFS"
 ORDER_TARGET_NAME_FFS = "PTV_p_FFS"
 ORDER_NAME_HFS = "TomoTBI_HFS"
 ORDER_TARGET_NAME_HFS = "PTV_p_HFS"
-ORDER_NAME_HFS = "TomoTBI_HFS"
 BEAMSET_FFS = "Tomo_TBI_FFS_FW50"
 BEAMSET_HFS = "Tomo_TBI_HFS_FW50"
 TARGET_FFS = "PTV_p_FFS"
@@ -76,7 +148,6 @@ JUNCTION_PREFIX_FFS = "ffs_junction_"
 JUNCTION_PREFIX_HFS = "hfs_junction_"
 JUNCTION_POINT = "junction"
 TARGET_HFS = "PTV_p_HFS"
-MACHINE = "HDA0488"
 MBS_ROIS = {'Kidney_L': {'CaseType': "Abdomen",
                          'ModelName': r"Kidney (Left)",
                          'RoiName': r"Kidney_L",
@@ -102,9 +173,12 @@ def check_external(roi_list):
     else:
         logging.debug('No external contour designated')
         connect.await_user_input(
-            'No External contour type designated. Give a contour an External type and continue script.')
+            'No External contour type designated. Give a contour'
+            'an External type and continue '
+            'script.')
         if any(roi.OfRoi.Type == 'External' for roi in roi_list):
-            logging.debug('No external contour designated after prompt recommend exit')
+            logging.debug('No external contour designated after'
+                          'prompt recommend exit')
             return False
 
 
@@ -116,12 +190,13 @@ def check_structure_exists(case, structure_name, roi_list, option):
                             structure_name + 'found - deleting and creating')
         elif option == 'Check':
             connect.await_user_input(
-                'Contour {} Exists - Verify its accuracy and continue script'.format(
-                    structure_name))
+                f'Contour {structure_name} Exists - Verify its accuracy'
+                ' and continue script')
         return True
     else:
         logging.info('check_structure_exists: '
-                     'Structure {} not found, and will be created'.format(structure_name))
+                     f'Structure {structure_name} not found,'
+                     'and will be created')
         return False
 
 
@@ -179,7 +254,7 @@ def find_junction_coords(pd_hfs):
 def place_poi(pd_hfs, coord_hfs):
     # Create a junction point and use the coordinates determined above
 
-    poi_status = StructureOperations.create_poi(
+    _ = StructureOperations.create_poi(
         case=pd_hfs.case,
         exam=pd_hfs.exam,
         coords=[coord_hfs['x'], coord_hfs['y'], coord_hfs['z']],
@@ -224,19 +299,24 @@ def update_all_remove_expression(pdata, roi_name):
         )
     try:
         pdata.case.PatientModel.RegionsOfInterest[roi_name].DeleteExpression()
-    except:
+    except Exception as e:
         pass
 
 
-def make_junction_contour(pdata, junct_name, z_start, dim_si, dose_level, color=[192, 192, 192]):
+def make_junction_contour(pdata, z_start,
+                          dim_si, dose_level, color=None):
     #  Make the Box Roi and junction region in the area of interest
     #
     # Get exam orientation
+    if color is None:
+        color = [192, 192, 192]
     prefix = determine_prefix(pdata.exam)
     if prefix == 'ffs':
         si = -1.
     elif prefix == 'hfs':
         si = 1.
+    else:
+        sys.exit(f'Unknown patient orientation {prefix}')
     # Find the name of the external contour
     external_name = StructureOperations.find_types(pdata.case, roi_type='External')[0]
     #
@@ -292,21 +372,54 @@ def make_junction_contour(pdata, junct_name, z_start, dim_si, dose_level, color=
     }
     StructureOperations.make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
-    type_msg = StructureOperations.change_roi_type(
+    _ = StructureOperations.change_roi_type(
         case=pdata.case,
         roi_name=junction_name,
         roi_type='Ptv')
-    # update_all_remove_expression(pdata=pdata,roi_name=box_name)
+    # update_all_remove_expression(patient_data=patient_data,roi_name=box_name)
     update_all_remove_expression(pdata=pdata, roi_name=junction_name)
     pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
 
 
-def make_lung_contours(pdata, color=[192, 192, 192]):
+def make_kidneys_contours(pdata, color=None):
+    """
+        Make the Kidneys
+        """
+    #
+    # Boolean Definitions for Kidneys
+    if color is None:
+        color = [192, 192, 192]
+    kidneys_defs = {
+        "StructureName": "Kidneys",
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": color,
+        "OperationA": "Union",
+        "SourcesA": ["Kidney_L", "Kidney_R"],
+        "MarginTypeA": "Expand",
+        "ExpA": [0] * 6,
+        "OperationB": "Union",
+        "SourcesB": [],
+        "MarginTypeB": "Expand",
+        "ExpB": [0] * 6,
+        "OperationResult": "None",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Undefined",
+    }
+    StructureOperations.make_boolean_structure(
+        patient=pdata.patient, case=pdata.case,
+        examination=pdata.exam, **kidneys_defs)
+
+
+def make_lung_contours(pdata, color=None):
     """
     Make the Lungs and avoidance structures for lung
     """
     #
     # Boolean Definitions for Lungs
+    if color is None:
+        color = [192, 192, 192]
     lungs_defs = {
         "StructureName": "Lungs",
         "ExcludeFromExport": True,
@@ -349,6 +462,28 @@ def make_lung_contours(pdata, color=[192, 192, 192]):
     }
     StructureOperations.make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lung_avoid_defs)
+    #
+    # Boolean Definitions for Lung Evaluation
+    lung_eval_defs = {
+        "StructureName": LUNG_AVOID_NAME,
+        "ExcludeFromExport": True,
+        "VisualizeStructure": False,
+        "StructColor": color,
+        "OperationA": "Union",
+        "SourcesA": ["Lungs"],
+        "MarginTypeA": "Contract",
+        "ExpA": [1.0] * 6,
+        "OperationB": "Union",
+        "SourcesB": [],
+        "MarginTypeB": "Expand",
+        "ExpB": [0] * 6,
+        "OperationResult": "None",
+        "MarginTypeR": "Expand",
+        "ExpR": [0] * 6,
+        "StructType": "Undefined",
+    }
+    StructureOperations.make_boolean_structure(
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lung_eval_defs)
 
 
 def get_roi_geometries(case, exam, roi_name):
@@ -358,11 +493,11 @@ def get_roi_geometries(case, exam, roi_name):
     return None
 
 
-def make_avoid(pdata, z_start, avoid_name, color=[192, 192, 192]):
+def make_avoid(pdata, z_start, avoid_name, color=None):
     """ Build the avoidance structure used in making the PTV
-        pdata: kind of like PDiddy, but with data, see below
+        patient_data: kind of like PDiddy, but with data, see below
         z_start (float): starting location of the junction
-        avoid_name (str): Name of the structure to include all avoidance voxels
+        otv_name (str): Name of the structure to include all avoidance voxels
         avoid_color (opt list[r,g,b]): color of output structure
         Recipe for avoidance volume:
         Take the z_start, build a box that is everything above this position
@@ -371,6 +506,8 @@ def make_avoid(pdata, z_start, avoid_name, color=[192, 192, 192]):
     """
     #
     # Find the name of the external contour
+    if color is None:
+        color = [192, 192, 192]
     external_name = StructureOperations.find_types(pdata.case, roi_type='External')[0]
     # Get exam orientation
     prefix = determine_prefix(pdata.exam)
@@ -430,7 +567,7 @@ def make_avoid(pdata, z_start, avoid_name, color=[192, 192, 192]):
     }
     StructureOperations.make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
-    # update_all_remove_expression(pdata=pdata,roi_name=box_name)
+    # update_all_remove_expression(patient_data=patient_data,roi_name=box_name)
     update_all_remove_expression(pdata=pdata, roi_name=avoid_name)
     pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
 
@@ -438,10 +575,13 @@ def make_avoid(pdata, z_start, avoid_name, color=[192, 192, 192]):
 # TODO: Make PTV_p_Eval_HFS(-skin and 7 mm lungs)
 #       Make PTV_p_Eval_FFS(-skin)
 
-def make_ptv(pdata, junction_prefix, avoid_name, color=[192, 192, 192]):
-    # Find all contours matching prefix and along with avoid_name return the external minus these objects
+def make_ptv(pdata, junction_prefix, avoid_name, color=None):
+    # Find all contours matching prefix and along with otv_name return the external minus these
+    # objects
     #
     # Get exam orientation
+    if color is None:
+        color = [192, 192, 192]
     prefix = determine_prefix(pdata.exam)
     if prefix == 'ffs':
         si = -1.
@@ -477,14 +617,14 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=[192, 192, 192]):
     }
     StructureOperations.make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
-    type_msg = StructureOperations.change_roi_type(
+    _ = StructureOperations.change_roi_type(
         case=pdata.case,
         roi_name=ptv_name,
         roi_type='Ptv')
     # Make Eval structure
-
     # Boolean Definitions
     roi_exclude.append('Avoid_Skin_PRV05')
+    roi_exclude.append('Lungs')
     temp_defs = {
         "StructureName": eval_name,
         "ExcludeFromExport": False,
@@ -505,7 +645,7 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=[192, 192, 192]):
     }
     StructureOperations.make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
-    type_msg = StructureOperations.change_roi_type(
+    _ = StructureOperations.change_roi_type(
         case=pdata.case,
         roi_name=eval_name,
         roi_type='Ptv')
@@ -516,9 +656,10 @@ def make_unsubtracted_dose_structures(pdata, rx, dose_thresholds_normalized):
     """
     Make the structure for the dose threshold supplied
     makes unsubtracted_doses (RS Region of Interest Object) with name like <5%Rx>
-    pdata: exactly the same as pdiddy
+    patient_data: exactly the same as pdiddy
     rx (float): Prescription (normalizing) dose in cGy
-    dose_thresholds_normalized ({dose_roi_names: dose_levels(int)}): percentages of prescription dose
+    dose_thresholds_normalized ({dose_roi_names: dose_levels(int)}): percentages of prescription
+    dose
     """
     for n, d in dose_thresholds_normalized.items():
         threshold_level = (float(d) / 100.) * float(rx)  # Threshold in cGy
@@ -697,7 +838,7 @@ def make_dose_structures(pdata, isodoses, rx):
             isodose_contours.append(roi_name)
     # for i in isodose_contours:
     #     try:
-    #         update_all_remove_expression(pdata, i)
+    #         update_all_remove_expression(patient_data, i)
     #     except:
     #         pass
     for d in delete_rois:
@@ -712,7 +853,7 @@ def reset_primary_secondary(exam1, exam2):
 
 
 def update_dose_grid(pdata):
-    # TODO: This still dooesn't work. The two dose grids need to be compared using a common
+    # TODO: This still doesn't work. The two dose grids need to be compared using a common
     # point on the patient since the dose grid is relative to the patient on the two scans.
 
     pm = pdata.case.PatientModel
@@ -770,33 +911,46 @@ def register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, ):
         suffix=None,
         delete=False,
     )
+    # Check for existing registration
+    approved = False
+    for r in pd_ffs.case.Registrations:
+        if r.RegistrationSource.FromExamination.Name == hfs_scan_name \
+                and r.RegistrationSource.ToExamination.Name == ffs_scan_name \
+                and r.Review:
+            try:
+                if r.Review.ApprovalStatus == 'Approved':
+                    approved = True
+            except AttributeError:
+                approved = False
+            break
+    if not approved:
+        pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
+            FloatingExaminationName=ffs_scan_name,
+            ReferenceExaminationName=hfs_scan_name,
+            UseOnlyTranslations=False,
+            HighWeightOnBones=False,
+            InitializeImages=True,
+            FocusRoisNames=[],
+            RegistrationName=None)
 
-    pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
-        FloatingExaminationName=ffs_scan_name,
-        ReferenceExaminationName=hfs_scan_name,
-        UseOnlyTranslations=False,
-        HighWeightOnBones=False,
-        InitializeImages=True,
-        FocusRoisNames=[],
-        RegistrationName=None)
-
-    # Refine on bones
-    pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
-        FloatingExaminationName=ffs_scan_name,
-        ReferenceExaminationName=hfs_scan_name,
-        UseOnlyTranslations=False,
-        HighWeightOnBones=True,
-        InitializeImages=False,
-        FocusRoisNames=[],
-        RegistrationName=None)
-    # Also create a bounding box on both images about the junction point and set the ROI there
+        # Refine on bones
+        pd_hfs.case.ComputeGrayLevelBasedRigidRegistration(
+            FloatingExaminationName=ffs_scan_name,
+            ReferenceExaminationName=hfs_scan_name,
+            UseOnlyTranslations=False,
+            HighWeightOnBones=True,
+            InitializeImages=False,
+            FocusRoisNames=[],
+            RegistrationName=None)
+        # Also create a bounding box on both images about the junction point and set the ROI there
 
 
 def load_normal_mbs(pd_hfs, pd_ffs):
     reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
     # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
     # Loop through MBS rois, if present, pop.
-    rois = [r.OfRoi.Name for r in pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name].RoiGeometries
+    rois = [r.OfRoi.Name for r in
+            pd_hfs.case.PatientModel.StructureSets[pd_hfs.exam.Name].RoiGeometries
             if r.HasContours]
     logging.debug('Type of MBS_ROIS is {} '.format(type(MBS_ROIS)))
     mbs_list = [v for k, v in MBS_ROIS.items() if k not in rois]
@@ -818,7 +972,8 @@ def load_normal_mbs(pd_hfs, pd_ffs):
             CustomStatistics=None,
             CustomSettings=None)
     # Loop through MBS rois, if present, pop.
-    rois = [r.OfRoi.Name for r in pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name].RoiGeometries
+    rois = [r.OfRoi.Name for r in
+            pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name].RoiGeometries
             if r.HasContours]
     mbs_list = [v for k, v in MBS_ROIS.items() if k not in rois]
     adapt_list = [k for k in MBS_ROIS.keys() if k not in rois]
@@ -937,7 +1092,6 @@ def make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
 
     for i in range(len(j_i)):
         make_junction_contour(pd_ffs,
-                              junct_name='Junction',
                               z_start=ffs_poi_junction.Point.z - dim_si * float(i),
                               dim_si=dim_si,
                               dose_level=str(int(j_i[i])) + "%Rx",
@@ -953,7 +1107,6 @@ def make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
         z_start = hfs_poi_junction.Point.z - dim_si * float(len(j_i) - i)
         logging.debug('Z location for Junction {} is {}'.format(str(j_i[i]), z_start))
         make_junction_contour(pd_hfs,
-                              junct_name='Junction',
                               z_start=z_start,
                               dim_si=dim_si,
                               dose_level=str(int(j_i[i])) + "%Rx",
@@ -962,7 +1115,8 @@ def make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
     # HFS avoid starts at junction point - number of dose levels * dim_si
     hfs_avoid_start = hfs_poi_junction.Point.z - dim_si * float(len(j_i))
     # TODO: underive and delete geometry on avoid volumes defined on incorrect scans
-    #       Delete all empty geometriest for junction ffs doses immediately after they are all created
+    #       Delete all empty geometriest for junction ffs doses immediately after they are all
+    #       created
     #  False     Create HFS and FFS eval structs for treatment
     #       ADD prompt for dir block on avoidances
     # then map them over
@@ -970,10 +1124,32 @@ def make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
     make_ptv(pdata=pd_hfs, junction_prefix=JUNCTION_PREFIX_HFS, avoid_name=AVOID_HFS_NAME)
 
 
+def check_fiducials(pd, fiducial_name):
+    # Check all potential exams to ensure the fiducial is defined
+    fiducial_check = []
+    pois = [p.Name for p in pd.case.PatientModel.PointsOfInterest]
+    if fiducial_name not in pois:
+        return False, False
+    for ss in pd.case.PatientModel.StructureSets:
+        if not ss.PoiGeometries[fiducial_name].Point:
+            fiducial_check.append(False)
+        else:
+            fiducial_check.append(True)
+    return True, all(fiducial_check)
+
+
 def calc_ffs_iso(pd_ffs, target):
-    pois = [p.Name for p in pd_ffs.case.PatientModel.PointsOfInterest]
-    if 'SimFiducials' not in pois:
-        connect.await_user_input('Place SimFiducial point')
+    fiducial_point_name = 'SimFiducials'
+    point_exists, point_defined = check_fiducials(pd_ffs, fiducial_name=fiducial_point_name)
+    if not point_exists:
+        AutoPlanOperations.place_fiducial(rso=pd_ffs, poi_name='SimFiducials')
+        connect.await_user_input(
+            'Place SimFiducial point in FFS, then toggle to HFS and place it there too')
+        point_exists, point_defined = check_fiducials(pd_ffs, fiducial_name=fiducial_point_name)
+    elif not point_defined:
+        connect.await_user_input(
+            'Place SimFiducial point in FFS, then toggle to HFS and place it there too')
+
     pm = pd_ffs.case.PatientModel
     sim_coords = pm.StructureSets[pd_ffs.exam.Name].LocalizationPoiGeometry.Point
     target_coords = pm.StructureSets[pd_ffs.exam.Name].RoiGeometries[target].GetCenterOfRoi()
@@ -981,7 +1157,7 @@ def calc_ffs_iso(pd_ffs, target):
     iso_name = pm.GetUniqueRoiName(DesiredName='ROI_ffs_iso')
     pm.CreateRoi(Name=iso_name,
                  Color='Pink',
-                 Type='Bolus')
+                 Type='Control')
     iso_roi = pm.RegionsOfInterest[iso_name]
     iso_roi.CreateSphereGeometry(Radius=1.0,
                                  Examination=pd_ffs.exam,
@@ -1017,7 +1193,7 @@ def make_ffs_isodoses(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, rx):
     # for n in j_i:
     #     name = JUNCTION_PREFIX_FFS +str(n)+'%Rx'
     #     j_names[name] = (n+10, n, n-5)
-    #     isodose_names = make_dose_structures(pd_ffs, isodoses=j_names, rx=rx)
+    #     isodose_names = make_dose_structures(patient_data, isodoses=j_names, rx=rx)
     #     break
     # Map the junction point
     non_empty_isodose_names = []
@@ -1034,33 +1210,43 @@ def make_ffs_isodoses(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, rx):
 
 
 def get_new_grid(case, beamset_a, beamset_b):
+    # Return a dose grid for beamset_a that includes all voxels used in beamset_b
     # Update the dose grid for plan a using b's grid.
     dg_a = beamset_a.GetDoseGrid()
     dg_b = beamset_b.GetDoseGrid()
-    a = {'Corner': transform_poi(case, dg_a.Corner, beamset_a, beamset_b), 'VoxelSize': dg_a.VoxelSize,
-         'NrVoxels': dg_a.NrVoxels}
-
-    # Convert the corner point of a to b
-    b = {'Corner': dg_b.Corner, 'VoxelSize': dg_b.VoxelSize, 'NrVoxels': dg_b.NrVoxels}
-    # Get lower corner
-    lower_corner = {'x': min(a['Corner']['x'], b['Corner']['x']),
-                    'y': min(a['Corner']['y'], b['Corner']['y']),
-                    'z': min(a['Corner']['z'], b['Corner']['z'])}
-    # Upper corner
-    a_grid = {'x': a['Corner']['x'] + a['VoxelSize']['x'] * a['NrVoxels']['x'],
-              'y': a['Corner']['y'] + a['VoxelSize']['y'] * a['NrVoxels']['y'],
-              'z': a['Corner']['z'] + a['VoxelSize']['z'] * a['NrVoxels']['z']}
-    b_grid = {'x': b['Corner']['x'] + b['VoxelSize']['x'] * b['NrVoxels']['x'],
-              'y': b['Corner']['y'] + b['VoxelSize']['y'] * b['NrVoxels']['y'],
-              'z': b['Corner']['z'] + b['VoxelSize']['z'] * b['NrVoxels']['z']}
-    upper_corner = {'x': max(a_grid['x'], b_grid['x']),
-                    'y': max(a_grid['y'], b_grid['y']),
-                    'z': max(a_grid['z'], b_grid['z'])}
-    # Number of voxels with new corners
-    nr_voxels = {'x': math.ceil(upper_corner['x'] - lower_corner['x']) / b['VoxelSize']['x'],
-                 'y': math.ceil(upper_corner['y'] - lower_corner['y']) / b['VoxelSize']['y'],
-                 'z': math.ceil(upper_corner['z'] - lower_corner['z']) / b['VoxelSize']['z']}
-    new_grid = {'Corner': lower_corner, 'NrVoxels': nr_voxels, 'VoxelSize': b['VoxelSize']}
+    # Find minimum and maximum extent of beamset_a dose grid
+    min_a = {'x': dg_a.Corner['x'],
+             'y': dg_a.Corner['y'],
+             'z': dg_a.Corner['z']}
+    max_a = {'x': dg_a.Corner['x'] + dg_a.VoxelSize['x'] * dg_a.NrVoxels['x'],
+             'y': dg_a.Corner['y'] + dg_a.VoxelSize['y'] * dg_a.NrVoxels['y'],
+             'z': dg_a.Corner['z'] + dg_a.VoxelSize['z'] * dg_a.NrVoxels['z']}
+    # Find minimum and maximum extent of beamset_b dose grid
+    min_b = {'x': dg_b.Corner['x'],
+             'y': dg_b.Corner['y'],
+             'z': dg_b.Corner['z']}
+    max_b = {'x': dg_b.Corner['x'] + dg_b.VoxelSize['x'] * dg_b.NrVoxels['x'],
+             'y': dg_b.Corner['y'] + dg_b.VoxelSize['y'] * dg_b.NrVoxels['y'],
+             'z': dg_b.Corner['z'] + dg_b.VoxelSize['z'] * dg_b.NrVoxels['z']}
+    # Transform beamset_b dose grid extrema to image set a coordinates
+    t_b_min = transform_poi(case, min_b, beamset_b, beamset_a)
+    t_b_max = transform_poi(case, max_b, beamset_b, beamset_a)
+    # Find the inferior-most grid
+    lower_corner = {'x': min(min_a['x'], t_b_min['x']),
+                    'y': min(min_a['y'], t_b_min['y']),
+                    'z': min(min_a['z'], t_b_min['z']),
+                    }
+    # Find the superior-most grid
+    upper_corner = {'x': max(max_a['x'], t_b_max['x']),
+                    'y': max(max_a['y'], t_b_max['y']),
+                    'z': max(max_a['z'], t_b_max['z']),
+                    }
+    new_grid = {'Corner': {'x': lower_corner['x'], 'y': lower_corner['y'], 'z': lower_corner['z']},
+                'NrVoxels': {
+                    'x': math.ceil(upper_corner['x'] - lower_corner['x']) / dg_a.VoxelSize['x'],
+                    'y': math.ceil(upper_corner['y'] - lower_corner['y']) / dg_a.VoxelSize['y'],
+                    'z': math.ceil(upper_corner['z'] - lower_corner['z']) / dg_a.VoxelSize['z']},
+                'VoxelSize': dg_a.VoxelSize}
     return new_grid
 
 
@@ -1078,8 +1264,11 @@ def transform_poi(case, point, from_name, to_name):
     if reg is None:
         reg = case.GetTransform(FromFrameOfReference=to_name.FrameOfReference,
                                 ToFrameOfReference=from_name.FrameOfReference)
-        reg_inv = np.reshape(reg, (4, 4))
-        M = np.linalg.inv(reg_inv)
+        if reg is None:
+            sys.exit(f'No Registration between {from_name} to {to_name}')
+        else:
+            reg_inv = np.reshape(reg, (4, 4))
+            M = np.linalg.inv(reg_inv)
     else:
         M = np.reshape(reg, (4, 4))
 
@@ -1092,7 +1281,8 @@ def find_eval_dose(case, beamset_name, exam_name):
     for fe in case.TreatmentDelivery.FractionEvaluations:
         for de in fe.DoseOnExaminations:
             for d in de.DoseEvaluations:
-                if d.ForBeamSet.DicomPlanLabel == beamset_name and de.OnExamination.Name == exam_name:
+                if d.ForBeamSet.DicomPlanLabel == beamset_name and de.OnExamination.Name == \
+                        exam_name:
                     return d
 
 
@@ -1101,6 +1291,8 @@ def tbi_gui():
     layout = [
                  [sg.T('Enter Number of Fractions'), sg.In(key='-NFX-')],
                  [sg.T('Enter TOTAL Dose in cGy'), sg.In(key='-TDOSE-')],
+                 [sg.T('Enter Treatment Machine'), sg.Combo(["HDA0488"],
+                                                            key='-MACHINE-')],
                  [sg.Checkbox('Generate FFS Planning Structures',
                               default=True,
                               key='-FFS STRUCTURES-')],
@@ -1140,6 +1332,23 @@ def tbi_gui():
 
 
 def main():
+    """
+    Runs a series of functions to perform TBI planning and dose summation.
+
+    Pseudocode:
+    1. Call tbi_gui() function to obtain user input.
+    2. Retrieve the necessary variables from user input.
+    3. Find HFS and FFS scans, assign them to variables.
+    4. Initialize a named tuple for the patient, case, exam, plan, and beamset.
+    5. If requested by the user, load couch supports and build lung contours and avoidance on the
+    HFS scan.
+    6. If requested by the user, plan FFS and HFS.
+    7. If requested by the user, make isodoses for FFS.
+    8. If requested by the user, perform dose summation.
+
+    Returns: None
+    """
+
     # Launch gui
     tbi_selections = tbi_gui()
 
@@ -1150,6 +1359,7 @@ def main():
     make_ffs_isodose_structs = tbi_selections['-FFS ISODOSE-']
     hfs_autoplan = tbi_selections['-HFS PLAN-']
     dose_summation = tbi_selections['-SUM DOSE-']
+    machine = tbi_selections['-MACHINE-']
 
     # Look for HFS/FFS Scans
     temp_case = GeneralOperations.find_scope(level='Case')
@@ -1186,9 +1396,11 @@ def main():
                 beamset=None)
 
     if do_structure_definitions:
+        # TODO: Integrate VMAT option here for TrueBeam couch
         #
         # Load the Tomo Supports for the couch
-        AutoPlanOperations.load_supports(rso=pd_hfs, supports=["TomoCouch"])
+        AutoPlanOperations.load_supports(rso=pd_hfs,
+                                         supports=["TomoCouch", "Baseplate_Override_PMMA"])
         AutoPlanOperations.load_supports(rso=pd_ffs, supports=["TomoCouch"])
 
         # # Also create a bounding box on both images about the junction point and set the ROI there
@@ -1201,18 +1413,19 @@ def main():
         # Build lung contours and avoidance on the HFS scan
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         make_lung_contours(pd_hfs, color=[192, 192, 192])
-        ## TODO: There is still a bug in target definitions allowing targets to extend beyond junctions
 
         make_tbi_planning_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name)
         # # TODO: CHECK FOR PLANNING STRUCTURES AND THEN ADD ANY MISSING
         # # TODO: Set junction colors to the optimal isodose color
         # # TODO: underive and delete geometry on avoid volumes defined on incorrect scans
-        # #       Delete all empty geometriest for junction ffs doses immediately after they are all created
+        # #       Delete all empty geometriest for junction ffs doses immediately after they are
+        # all created
         # #       Create HFS and FFS eval structs for treatment
         # # then map them over
     if ffs_autoplan:
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         #
+        # This phase is Tomo-specific and
         # FFS Planning
         # FFS protocol declarations
         iso_target = calc_ffs_iso(pd_ffs, target=JUNCTION_PREFIX_FFS + "90%Rx")
@@ -1224,10 +1437,10 @@ def main():
             'translation_map': {ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')},
             'beamset_name': BEAMSET_FFS,
             'iso_target': iso_target,
-            'machine': MACHINE,
+            'machine': machine,
             'user_prompts': True,
         }
-        pd_ffs_out = autoplan(testing_bypass_dialogs=tbi_ffs_protocol)
+        pd_ffs_out = autoplan(autoplan_parameters=tbi_ffs_protocol)
 
     if make_ffs_isodose_structs:
         # Get isodoses
@@ -1261,10 +1474,10 @@ def main():
             'translation_map': {ORDER_TARGET_NAME_HFS: (TARGET_HFS, rx, r'cGy')},
             'beamset_name': BEAMSET_HFS,
             'iso_target': TARGET_HFS,
-            'machine': MACHINE,
+            'machine': machine,
             'user_prompts': True,
         }
-        pd_hfs_out = autoplan(testing_bypass_dialogs=tbi_hfs_protocol)
+        pd_hfs_out = autoplan(autoplan_parameters=tbi_hfs_protocol)
     #
     if dose_summation:
         # Update the current variables if needed.
@@ -1325,11 +1538,13 @@ def main():
                     for bs in tp.BeamSets:
                         if bs.DicomPlanLabel == selections['-FFS BEAMSET-']:
                             ffs_beamset = bs
+                            break
                 if tp.Name == selections['-HFS PLAN-']:
                     hfs_plan = tp
                     for bs in tp.BeamSets:
                         if bs.DicomPlanLabel == selections['-HFS BEAMSET-']:
                             hfs_beamset = bs
+                            break
             if not all([ffs_beamset, ffs_plan, hfs_beamset, hfs_plan]):
                 sys.exit('No HFS FFS Beamsets defined')
 
@@ -1343,7 +1558,7 @@ def main():
             pd_hfs = Pd(error=[],
                         patient=GeneralOperations.find_scope(level='Patient'),
                         case=GeneralOperations.find_scope(level='Case'),
-                        exam=ffs_exam,
+                        exam=hfs_exam,
                         db=GeneralOperations.find_scope(level='PatientDB'),
                         plan=hfs_plan,
                         beamset=hfs_beamset)
@@ -1355,15 +1570,22 @@ def main():
         pd_ffs.beamset.UpdateDoseGrid(Corner=new_ffs_grid['Corner'],
                                       VoxelSize=new_ffs_grid['VoxelSize'],
                                       NumberOfVoxels=new_ffs_grid['NrVoxels'])
+        # TODO: Recompute all doses in the plan since they seem to be required for summation
         # Recompute all doses:
-        pd_ffs.beamset.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose', ForceRecompute=False)
-        pd_hfs.beamset.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose', ForceRecompute=False)
+        for p in pd_ffs.case.TreatmentPlans:
+            for b in p.BeamSets:
+                try:
+                    b.ComputeDose(ComputeBeamDoses=False, DoseAlgorithm='CCDose',
+                                  ForceRecompute=False)
+                except Exception as e:
+                    # Invalid operation error when trying to compute already computed doses
+                    pass
 
         pd_ffs.beamset.ComputeDoseOnAdditionalSets(OnlyOneDosePerImageSet=False,
                                                    AllowGridExpansion=True,
                                                    ExaminationNames=[pd_hfs.exam.Name],
                                                    FractionNumbers=[0],
-                                                   ComputeBeamDoses=False)
+                                                   ComputeBeamDoses=True)
         # Create summation
         retval_0 = pd_hfs.case.CreateSummedDose(DoseName="TBI",
                                                 FractionNumber=0,
