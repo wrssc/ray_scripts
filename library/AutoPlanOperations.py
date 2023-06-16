@@ -36,24 +36,20 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import sys
 import os
-import csv
-import logging
 import xml
 import re
 import pandas
-import numpy as np
-import random
 import logging
 from collections import OrderedDict, namedtuple
-from io import BytesIO
 
 import connect
-import GeneralOperations
 import StructureOperations
 import BeamOperations
 import UserInterface
-from Objectives import add_goals_and_objectives_from_protocol
 from OptimizationOperations import optimize_plan, iter_optimization_config_etree
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../structure_definition'))
+from AddSupportStructures import deploy_couch_model
+
 
 InstitutionInputsSupportStructuresExamination = "Supine Patient"
 InstitutionInputsSupportStructureTemplate = "UW Support"
@@ -97,7 +93,7 @@ def select_protocol(folder, protocol_name=None):
         # Skip the dialog
         protocol_et = protocols[protocol_name][0]
         file_name = protocols[protocol_name][1]
-        return (file_name, protocol_et)
+        return file_name, protocol_et
     else:
         # Prompt user for desired protocol
         p_n = list(protocols.keys())
@@ -121,7 +117,7 @@ def select_protocol(folder, protocol_name=None):
         protocol_name = dialog.values['i']
         protocol_et = protocols[protocol_name][0]
         file_name = protocols[protocol_name][1]
-        return (file_name, protocol_et)
+        return file_name, protocol_et
 
 
 def order_dict(protocol):
@@ -209,10 +205,10 @@ def find_rx(order):
     # Set the nominal plan dose to the first roi found
     rx_target = t.find('name').text
     rx_volume = float(t.find('volume').text)
+    rois = {}
     if t.find('dose').text:
         nominal_plan_dose = float(t.find('dose').text) * 100.  # Gy to cGy
         #
-        rois = {}
         # Ensure no other roi has a higher dose.
         for t in order_targets:
             td = float(t.find('dose').text) * 100.  # Gy to cGy
@@ -227,46 +223,48 @@ def find_rx(order):
 
 
 def find_validation_status(order):
-    val_elem = order.find('validation')
-    logging.debug('Val element is {}'.format(val_elem))
-    validation_properties = {}
-    if val_elem:
-        if val_elem.find('validation_status').text:
-            value = val_elem.find('validation_status').text
-            if value == "True":
-                validation_properties['status'] = True
-                logging.debug('Val status is True')
-            else:
-                validation_properties['status'] = False
-                logging.debug('Val status is Not True')
-        else:
-            validation_properties['status'] = False
-            logging.debug('No status found')
-        if val_elem.find('author').text:
-            validation_properties['author'] = val_elem.find('author').text
-            logging.debug('Author is found')
-        else:
-            validation_properties['author'] = None
-            logging.debug('No author specified')
-        if val_elem.find('final_dose').text:
-            value = val_elem.find('final_dose').text
-            if value == "True":
-                validation_properties['final_dose'] = True
-                logging.debug('Run Final Dose is True')
-            else:
-                validation_properties['final_dose'] = False
-                logging.debug('Run Final Dose is False')
-        else:
-            validation_properties['final_dose'] = False
-            logging.debug('Run Final Dose is False')
+    """
+    Find the validation status in the order.
+    This module is designed to find the validation status of an order.
+    If the validation status is found in the order, it extracts and returns
+    the details in a dictionary format. If the validation status is not found,
+    it sets default values and returns them.
+
+    :param order: XML element containing the order information.
+    :return: Dictionary containing the validation status details.
+    """
+    validation_element = order.find('validation')
+
+    if validation_element:
+        fields = ['validation_status', 'author', 'final_dose', 'copy_final_plan']
+        values = {}
+
+        for field in fields:
+            element = validation_element.find(field)
+            values[field] = element.text if element is not None else None
+
+        status = values['validation_status']
+        author = values['author']
+        final_dose = values['final_dose']
+        copy_final_plan = values['copy_final_plan']
+        validation_info = {
+            'status': status if status is not None else True,
+            'author': author,
+            'final_dose': final_dose if final_dose is not None else True,
+            'copy_final_plan': copy_final_plan if copy_final_plan is not None else True
+        }
     else:
-        validation_properties['author'] = None
-        validation_properties['status'] = False
-        logging.debug('No author or status in this file')
-    return validation_properties
+        validation_info = {
+            'status': False,
+            'author': None,
+            'final_dose': True,
+            'copy_final_plan': True
+        }
+    logging.debug(f"Validation Information: {validation_info}")
+    return validation_info
 
 
-def select_blocking(case, protocol, order):
+def select_blocking(case):
     # TODO: Prompt user when blocking is supported in RayStation
     # Let the user pick the structures that should be available for blocking
     plan_rois = StructureOperations.find_organs_at_risk(case)
@@ -297,8 +295,8 @@ def place_fiducial(rso, poi_name):
         ui.TitleBar.MenuItem['Patient modeling'].Button_Patient_modeling.Click()
         ui.TabControl_ToolBar.TabItem['POI tools'].Select()
         ui.ToolPanel.TabItem['POIs'].Select()
-    except:
-        logging.debug("Could not click on the patient modeling window")
+    except Exception as e:
+        logging.debug(f"Could not click on the patient modeling window {e}")
 
     poi = StructureOperations.find_localization_poi(case=rso.case,
                                                     exam=rso.exam)
@@ -312,8 +310,8 @@ def place_fiducial(rso, poi_name):
                 'Ensure Correct placement of the {} Point and continue script.'.format(poi_name))
         else:
             connect.await_user_input(
-                'Localization point {} has no coordinates in this exam. Place the point and continue the script.'
-                    .format(poi_name))
+                f'Localization point {poi_name} has no coordinates in this exam.'
+                f' Place the point and continue the script.')
 
     else:
         StructureOperations.create_poi(case=rso.case,
@@ -323,7 +321,8 @@ def place_fiducial(rso, poi_name):
                                        color='Green',
                                        rs_type='LocalizationPoint')
         connect.await_user_input(
-            'Ensure Correct placement of the {} Point and continue script.'.format(poi_name))
+            f'Ensure Correct placement of the {poi_name} '
+            f'Point and continue script.')
 
 
 def query_patient_info(patient_id, first_name, last_name):
@@ -353,6 +352,7 @@ def load_case(patient_info, case_name, patient=None):
     if not patient:
         patient = load_patient(patient_info)
     cases = db.QueryCaseInfo(PatientInfo=patient_info)
+    case_info = None
     if cases:
         for c in cases:
             if c['Name'] == case_name:
@@ -365,7 +365,6 @@ def load_case(patient_info, case_name, patient=None):
 
 
 def load_exam(case, exam_name):
-    db = connect.get_current("PatientDB")
     try:
         return case.Examinations[exam_name]
     except IndexError:
@@ -375,7 +374,8 @@ def load_exam(case, exam_name):
 def load_plan(case, plan_name):
     try:
         info = case.QueryPlanInfo(Filter={'Name': plan_name})
-    except:
+    except Exception as e:
+        logging.debug(f'Plan loading not possible: {e}')
         info = None
     if info:
         return case.TreatmentPlans[plan_name]
@@ -416,20 +416,21 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name,
                     'Exam': None,
                     'Plan': None,
                     'BeamSet': None}
-    patient_info = query_patient_info(patient_id=patient_id, first_name=first_name, last_name=last_name)
+    patient_info = query_patient_info(patient_id=patient_id, first_name=first_name,
+                                      last_name=last_name)
     if patient_info:
         patient_data['Patient'] = load_patient(patient_info)
         patient = patient_data['Patient']
     else:
-        patient_data['Error'] = ['Patient {} {}, ID: {} not found'
-                                     .format(first_name, last_name, patient_id)]
+        patient_data['Error'] = [f'Patient {first_name} {last_name},'
+                                 f' ID: {patient_id} not found']
         return patient_data
 
     # Load case
     # See if the case exists
     patient_data['Case'] = load_case(patient_info, case_name=case_name, patient=patient)
     if not patient_data['Case']:
-        patient_data['Error'].append('Case {} not found'.format(case_name))
+        patient_data['Error'].append(f'Case {case_name} not found')
         return patient_data
     else:
         case = patient_data['Case']
@@ -437,7 +438,7 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name,
     # Load examination
     patient_data['Exam'] = load_exam(case=patient_data['Case'], exam_name=exam_name)
     if not patient_data['Exam']:
-        patient_data['Error'].append('Exam {} not found'.format(exam_name))
+        patient_data['Error'].append(f'Exam {exam_name} not found')
         return patient_data
     else:
         exam = patient_data['Exam']
@@ -457,7 +458,8 @@ def load_patient_data(patient_id, first_name, last_name, case_name, exam_name,
             )
             patient_data['Plan'] = case.TreatmentPlans[plan_name]
         if beamset_name:
-            patient_data['BeamSet'] = load_beamset(plan=patient_data['Plan'], beamset_name=beamset_name)
+            patient_data['BeamSet'] = load_beamset(plan=patient_data['Plan'],
+                                                   beamset_name=beamset_name)
 
     return patient_data
 
@@ -472,7 +474,7 @@ def set_overrides(rso):
         if pattern.match(r.Name):
             override_rois.append(r.Name)
     logging.debug('Structures to override {}'.format(override_rois))
-
+    rs_material = m = rs_m_match = None
     if override_rois:
         for o in override_rois:
             (name, status, material) = o.split("_")
@@ -487,10 +489,10 @@ def set_overrides(rso):
             try:
                 rso.case.PatientModel.RegionsOfInterest[o].SetRoiMaterial(
                     Material=rs_material)
-                logging.info("Override applied to {} of {}: {} g/cc"
-                             .format(o, m.Name, m.MassDensity))
-            except Exception:
-                logging.warning('{} not found in material list using {}'.format(material, rs_m_match))
+                logging.info(f"Override applied to {o} of {m.Name}: {m.MassDensity} g/cc")
+            except Exception as e:
+                logging.warning(f'{material} not found in material '
+                                f'list using {rs_m_match}: {e}')
 
 
 def fill_couch(case, exam, couch_roi_name):
@@ -505,7 +507,7 @@ def fill_couch(case, exam, couch_roi_name):
         # Note: A while loop is necessary because the maximum expansion is
         # 15 cm. This expansion may need to be repeated, hence the loop.
         while couch.GetBoundingBox()[0]["z"] > extent_inf:
-            MarginSettings = {
+            margin_settings = {
                 'Type': "Expand",
                 'Superior': 0,
                 'Inferior': 15,
@@ -517,12 +519,12 @@ def fill_couch(case, exam, couch_roi_name):
             couch.OfRoi.CreateMarginGeometry(
                 Examination=exam,
                 SourceRoiName=couch_roi_name,
-                MarginSettings=MarginSettings)
+                MarginSettings=margin_settings)
 
         # Perform a single contraction to match image boundaries
         contract_inf = extent_inf - couch.GetBoundingBox()[0]["z"]
 
-        MarginSettings = {
+        margin_settings = {
             'Type': "Contract",
             'Superior': 0,
             'Inferior': contract_inf,
@@ -534,13 +536,13 @@ def fill_couch(case, exam, couch_roi_name):
         couch.OfRoi.CreateMarginGeometry(
             Examination=exam,
             SourceRoiName=couch_roi_name,
-            MarginSettings=MarginSettings
+            MarginSettings=margin_settings
         )
     # If inferior edge of couch is outside image boundary
     elif couch.GetBoundingBox()[0]["z"] < extent_inf:
         # Contract couch until it is within image boundary
         while couch.GetBoundingBox()[0]["z"] < extent_inf:
-            MarginSettings = {
+            margin_settings = {
                 'Type': "Contract",
                 'Superior': 0,
                 'Inferior': 15,
@@ -552,12 +554,12 @@ def fill_couch(case, exam, couch_roi_name):
             couch.OfRoi.CreateMarginGeometry(
                 Examination=exam,
                 SourceRoiName=couch_roi_name,
-                MarginSettings=MarginSettings)
+                MarginSettings=margin_settings)
 
         # Perform a single expansion to match image boundaries
         expand_inf = couch.GetBoundingBox()[0]["z"] - extent_inf
 
-        MarginSettings = {
+        margin_settings = {
             'Type': "Expand",
             'Superior': 0,
             'Inferior': expand_inf,
@@ -569,7 +571,7 @@ def fill_couch(case, exam, couch_roi_name):
         couch.OfRoi.CreateMarginGeometry(
             Examination=exam,
             SourceRoiName=couch_roi_name,
-            MarginSettings=MarginSettings
+            MarginSettings=margin_settings
         )
         logging.info(
             "Successfully matched the TrueBeam Couch to the inferior image boundary"
@@ -579,7 +581,7 @@ def fill_couch(case, exam, couch_roi_name):
     if couch.GetBoundingBox()[1]["z"] < extent_sub:
         # Extend couch until it exceeds image boundary
         while couch.GetBoundingBox()[1]["z"] < extent_sub:
-            MarginSettings = {
+            margin_settings = {
                 'Type': "Expand",
                 'Superior': 15,
                 'Inferior': 0,
@@ -591,13 +593,13 @@ def fill_couch(case, exam, couch_roi_name):
             couch.OfRoi.CreateMarginGeometry(
                 Examination=exam,
                 SourceRoiName=couch_roi_name,
-                MarginSettings=MarginSettings
+                MarginSettings=margin_settings
             )
 
         # Perform a single contraction to match image boundaries
         contract_sup = couch.GetBoundingBox()[1]["z"] - extent_sub
 
-        MarginSettings = {
+        margin_settings = {
             'Type': "Contract",
             'Superior': contract_sup,
             'Inferior': 0,
@@ -609,13 +611,13 @@ def fill_couch(case, exam, couch_roi_name):
         couch.OfRoi.CreateMarginGeometry(
             Examination=exam,
             SourceRoiName=couch_roi_name,
-            MarginSettings=MarginSettings
+            MarginSettings=margin_settings
         )
     # If superior edge of couch is outside image boundary
     elif couch.GetBoundingBox()[1]["z"] > extent_sub:
         # Contract couch until it is within image boundary
         while couch.GetBoundingBox()[1]["z"] > extent_sub:
-            MarginSettings = {
+            margin_settings = {
                 'Type': "Contract",
                 'Superior': 15,
                 'Inferior': 0,
@@ -627,13 +629,13 @@ def fill_couch(case, exam, couch_roi_name):
             couch.OfRoi.CreateMarginGeometry(
                 Examination=exam,
                 SourceRoiName=couch_roi_name,
-                MarginSettings=MarginSettings
+                MarginSettings=margin_settings
             )
 
         # Perform a single expansion to match image boundaries
         expand_sup = extent_sub - couch.GetBoundingBox()[1]["z"]
 
-        MarginSettings = {
+        margin_settings = {
             'Type': "Expand",
             'Superior': expand_sup,
             'Inferior': 0,
@@ -645,7 +647,7 @@ def fill_couch(case, exam, couch_roi_name):
         couch.OfRoi.CreateMarginGeometry(
             Examination=exam,
             SourceRoiName=couch_roi_name,
-            MarginSettings=MarginSettings
+            MarginSettings=margin_settings
         )
 
         logging.info(
@@ -653,7 +655,7 @@ def fill_couch(case, exam, couch_roi_name):
         )
 
 
-def load_supports(rso, supports):
+def load_supports(rso, supports, quiet=False):
     # Load the contours listed and have the user check.
     # rso: TODO fill in
     # supports: list of support structure names
@@ -680,8 +682,48 @@ def load_supports(rso, supports):
     # Compute the structures not yet named
     remain = list(set(supports) - set(loaded))
     logging.debug('Supports:{} were loaded. {} remain'.format(loaded, remain))
+    couch = None
+    for s in remain:
+        if rso.exam.PatientPosition == 'HFS':
+            if s == COUCH_SOURCE_ROI_NAMES['TrueBeam']:
+                # Deploy the TrueBeam couch
+                couch = deploy_couch_model(
+                    rso.case,
+                    support_structure_template=InstitutionInputsSupportStructureTemplate,
+                    support_structures_examination=InstitutionInputsSupportStructuresExamination,
+                    source_roi_names=[COUCH_SOURCE_ROI_NAMES['TrueBeam']]
+                )
+                break
+            elif s == COUCH_SOURCE_ROI_NAMES['TomoTherapy']:
+                couch = deploy_couch_model(
+                    rso.case,
+                    support_structure_template=InstitutionInputsSupportStructureTemplate,
+                    support_structures_examination=InstitutionInputsSupportStructuresExamination,
+                    source_roi_names=[COUCH_SOURCE_ROI_NAMES['TomoTherapy']]
+                )
+                break
+        else:
+            support_template = rso.db.LoadTemplatePatientModel(
+                templateName=InstitutionInputsSupportStructureTemplate,
+                lockMode='Read')
+            if s == COUCH_SOURCE_ROI_NAMES['TrueBeam'] or \
+                    s == COUCH_SOURCE_ROI_NAMES['TomoTherapy']:
+
+                rso.case.PatientModel.CreateStructuresFromTemplate(
+                    SourceTemplate=rs_template,
+                    SourceExaminationName=InstitutionInputsSupportStructuresExamination,
+                    SourceRoiNames=[s],
+                    SourcePoiNames=[],
+                    AssociateStructuresByName=True,
+                    TargetExamination=rso.exam,
+                    InitializationOption='AlignImageCenters'
+                )
+                fill_couch(case=rso.case, exam=rso.exam, couch_roi_name=s)
+                couch = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[s]
+    if couch:
+        remain.remove(couch.OfRoi.Name)
     if remain:
-        support_template = rso.db.LoadTemplatePatientModel(
+        _ = rso.db.LoadTemplatePatientModel(
             templateName=InstitutionInputsSupportStructureTemplate,
             lockMode='Read')
 
@@ -694,12 +736,10 @@ def load_supports(rso, supports):
             TargetExamination=rso.exam,
             InitializationOption='AlignImageCenters'
         )
-    for s in remain:
-        if s == COUCH_SOURCE_ROI_NAMES['TrueBeam'] or \
-                s == COUCH_SOURCE_ROI_NAMES['TomoTherapy']:
-            fill_couch(case=rso.case, exam=rso.exam, couch_roi_name=s)
-    connect.await_user_input(
-        'Ensure the supports {} are loaded correctly, and continue script'.format(supports))
+    if not quiet:
+        connect.await_user_input(
+            f'Ensure the supports {supports} are loaded correctly, '
+            f'on exam {rso.exam.Name} and continue script')
 
 
 def convert_translation_map(translation_map, unit):
@@ -830,7 +870,7 @@ def load_planning_structures(case, filename, path, workflow_name, translation_ma
         pp.use_inner_air = False
     # TODO: move all references to dialog response to planning_prefs
 
-    dialog1_response = {
+    _ = {
         'number_of_targets': pp.number_of_targets,
         'generate_underdose': pp.use_under_dose,
         'generate_uniformdose': pp.use_uniform_dose,
@@ -923,9 +963,9 @@ def load_planning_structures(case, filename, path, workflow_name, translation_ma
 def load_configuration_optimize_beamset(filename, path, rso,
                                         name=None, technique=None,
                                         output_data_dir=None,
-                                        bypass_user_prompts=False):
+                                        bypass_user_prompts=False,
+                                        optimize=True):
     """Optimize the plan
-
     Arguments:
         filename of the protocol we are using
         path to the protocol
@@ -985,6 +1025,8 @@ def load_configuration_optimize_beamset(filename, path, rso,
         'fluence_only': df_wf.fluence_only.values[0],
         'reset_beams': df_wf.reset_beams.values[0],
         'segment_weight': df_wf.segment_weight.values[0],
+        'rescale_after_warmstart': df_wf.rescale_after_warmstart.values[0],
+        'use_treat_settings': df_wf.use_treat_settings.values[0],
         'reduce_oar': df_wf.reduce_oar.values[0],
         'reduce_mod': df_wf.reduce_mod.values[0],
         'patient_db': rso.db,
@@ -997,6 +1039,7 @@ def load_configuration_optimize_beamset(filename, path, rso,
         'robust_post': df_wf.robust_post.values[0],
         'robust_right': df_wf.robust_right.values[0],
         'robust_left': df_wf.robust_left.values[0],
+        'position_uncertainty': df_wf.position_uncertainty.values[0],
         'output_data_dir': output_data_dir,
         "save": True,
         "close_status": True}
@@ -1014,13 +1057,17 @@ def load_configuration_optimize_beamset(filename, path, rso,
         connect.await_user_input(
             'Navigate to the Plan design page and set any blocking.')
     # Optimize the plan
-    optimization_report = optimize_plan(patient=rso.patient,
-                                        case=rso.case,
-                                        exam=rso.exam,
-                                        plan=rso.plan,
-                                        beamset=rso.beamset,
-                                        **OptimizationParameters)
-    return optimization_report
+    if optimize:
+        optimization_report = optimize_plan(patient=rso.patient,
+                                            case=rso.case,
+                                            exam=rso.exam,
+                                            plan=rso.plan,
+                                            beamset=rso.beamset,
+                                            **OptimizationParameters)
+        return optimization_report
+    else:
+        return None
+
     """ try:
         optimization_report = optimize_plan(patient=rso.patient,
                         case=rso.case,
