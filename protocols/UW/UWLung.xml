@@ -53,7 +53,7 @@
             </Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
@@ -71,28 +71,28 @@
                 <name>ITV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -371,7 +371,7 @@
             </Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
@@ -389,28 +389,28 @@
                 <name>ITV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -752,7 +752,7 @@
             </Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
@@ -770,28 +770,28 @@
                 <name>ITV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -1069,7 +1069,7 @@
             </Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
@@ -1087,28 +1087,28 @@
                 <name>ITV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -1386,7 +1386,7 @@
             </Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
@@ -1395,24 +1395,24 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1467,7 +1467,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">105</dose>
+                <dose units="%" roi="PTV">105</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1487,7 +1487,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1501,7 +1501,7 @@
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1658,7 +1658,7 @@
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
 
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
@@ -1667,24 +1667,24 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -1739,7 +1739,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">105</dose>
+                <dose units="%" roi="PTV">105</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1759,7 +1759,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -1773,7 +1773,7 @@
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -1930,7 +1930,7 @@
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
 
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
@@ -1939,24 +1939,24 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -2011,7 +2011,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">105</dose>
+                <dose units="%" roi="PTV">105</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2031,7 +2031,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2045,7 +2045,7 @@
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2201,7 +2201,7 @@
             </Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
@@ -2210,24 +2210,24 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="%">2</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>2</priority>
             </roi>
             <roi>
@@ -2282,7 +2282,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">105</dose>
+                <dose units="%" roi="PTV">105</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2302,7 +2302,7 @@
                 <name>Esophagus</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2316,7 +2316,7 @@
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
                 <volume units="cc">0.1</volume>
-                <dose units="%" roi="PTV_p">110</dose>
+                <dose units="%" roi="PTV">110</dose>
                 <priority>1</priority>
             </roi>
             <roi>
@@ -2486,7 +2486,7 @@
             </Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">45</dose>
@@ -2495,45 +2495,45 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">95</dose>
+                <dose units="%" roi="PTV">95</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="le">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">105</dose>
+                <dose units="%" roi="PTV">105</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
-                <dose units="%" roi="PTV_p">125</dose>
+                <dose units="%" roi="PTV">125</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
-                <dose units="%" roi="PTV_p">120</dose>
+                <dose units="%" roi="PTV">120</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -2799,63 +2799,63 @@
         </goals>
         <objectives>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>5</weight>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>1</weight>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">105.5</dose>
+                <dose units="%" roi="PTV">105.5</dose>
                 <weight>25</weight>
             </roi>
             <roi>
                 <name>ExternalClean</name>
                 <type dist="0.2" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="95">100</dose>
+                <dose units="%" roi="PTV" low="95">100</dose>
                 <weight>150</weight>
             </roi>
             <roi>
                 <name>ExternalClean</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <dose units="%" roi="PTV" low="90">100</dose>
                 <weight>100</weight>
             </roi>
             <roi>
                 <name>ExternalClean</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <dose units="%" roi="PTV" low="50">100</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>Esophagus</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <dose units="%" roi="PTV" low="50">100</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">102.2</dose>
+                <dose units="%" roi="PTV">102.2</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <dose units="%" roi="PTV" low="50">100</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">102.2</dose>
+                <dose units="%" roi="PTV">102.2</dose>
                 <weight>1</weight>
             </roi>
             <roi>
@@ -2875,13 +2875,13 @@
             <roi>
                 <name>SpinalCord</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">53.3</dose>
+                <dose units="%" roi="PTV">53.3</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
                 <name>SpinalCord_PRV03</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">62.2</dose>
+                <dose units="%" roi="PTV">62.2</dose>
                 <weight>0.1</weight>
             </roi>
         </objectives>
@@ -2915,7 +2915,7 @@
             </Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">45</dose>
@@ -2924,45 +2924,45 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">95</dose>
+                <dose units="%" roi="PTV">95</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="le">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">105</dose>
+                <dose units="%" roi="PTV">105</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
-                <dose units="%" roi="PTV_p">125</dose>
+                <dose units="%" roi="PTV">125</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
-                <dose units="%" roi="PTV_p">120</dose>
+                <dose units="%" roi="PTV">120</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -3228,63 +3228,63 @@
         </goals>
         <objectives>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>5</weight>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>1</weight>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">105.5</dose>
+                <dose units="%" roi="PTV">105.5</dose>
                 <weight>25</weight>
             </roi>
             <roi>
                 <name>ExternalClean</name>
                 <type dist="0.2" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="95">100</dose>
+                <dose units="%" roi="PTV" low="95">100</dose>
                 <weight>150</weight>
             </roi>
             <roi>
                 <name>ExternalClean</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <dose units="%" roi="PTV" low="90">100</dose>
                 <weight>100</weight>
             </roi>
             <roi>
                 <name>ExternalClean</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <dose units="%" roi="PTV" low="50">100</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>Esophagus</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <dose units="%" roi="PTV" low="50">100</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">102.2</dose>
+                <dose units="%" roi="PTV">102.2</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <dose units="%" roi="PTV" low="50">100</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">102.2</dose>
+                <dose units="%" roi="PTV">102.2</dose>
                 <weight>1</weight>
             </roi>
             <roi>
@@ -3304,13 +3304,13 @@
             <roi>
                 <name>SpinalCord</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">53.3</dose>
+                <dose units="%" roi="PTV">53.3</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
                 <name>SpinalCord_PRV03</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">62.2</dose>
+                <dose units="%" roi="PTV">62.2</dose>
                 <weight>0.1</weight>
             </roi>
         </objectives>
@@ -3344,7 +3344,7 @@
             </Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">45</dose>
@@ -3353,45 +3353,45 @@
         </prescription>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">95</dose>
+                <dose units="%" roi="PTV">95</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="le">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">105</dose>
+                <dose units="%" roi="PTV">105</dose>
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">95</volume>
-                <dose units="%" roi="PTV_p">100</dose>
+                <dose units="%" roi="PTV">100</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
-                <dose units="%" roi="PTV_p">125</dose>
+                <dose units="%" roi="PTV">125</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
                 <volume units="cc">0.03</volume>
-                <dose units="%" roi="PTV_p">120</dose>
+                <dose units="%" roi="PTV">120</dose>
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type dir="ge">DX</type>
                 <volume units="%">98</volume>
-                <dose units="%" roi="PTV_p">90</dose>
+                <dose units="%" roi="PTV">90</dose>
                 <priority>4</priority>
             </roi>
             <roi>
@@ -3657,63 +3657,63 @@
         </goals>
         <objectives>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>5</weight>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>1</weight>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">105.5</dose>
+                <dose units="%" roi="PTV">105.5</dose>
                 <weight>25</weight>
             </roi>
             <roi>
                 <name>ExternalClean</name>
                 <type dist="0.2" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="95">100</dose>
+                <dose units="%" roi="PTV" low="95">100</dose>
                 <weight>150</weight>
             </roi>
             <roi>
                 <name>ExternalClean</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="90">100</dose>
+                <dose units="%" roi="PTV" low="90">100</dose>
                 <weight>100</weight>
             </roi>
             <roi>
                 <name>ExternalClean</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <dose units="%" roi="PTV" low="50">100</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>Esophagus</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <dose units="%" roi="PTV" low="50">100</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Esophagus_PRV05</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">102.2</dose>
+                <dose units="%" roi="PTV">102.2</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="50">100</dose>
+                <dose units="%" roi="PTV" low="50">100</dose>
                 <weight>1</weight>
             </roi>
             <roi>
                 <name>Heart</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">102.2</dose>
+                <dose units="%" roi="PTV">102.2</dose>
                 <weight>1</weight>
             </roi>
             <roi>
@@ -3733,13 +3733,13 @@
             <roi>
                 <name>SpinalCord</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">53.3</dose>
+                <dose units="%" roi="PTV">53.3</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
                 <name>SpinalCord_PRV03</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">62.2</dose>
+                <dose units="%" roi="PTV">62.2</dose>
                 <weight>0.1</weight>
             </roi>
         </objectives>
@@ -3750,127 +3750,127 @@
             <roi>
                 <name>OTV1_</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">109.7</dose>
+                <dose units="%" roi="PTV">109.7</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p">117.9</dose>
+                <dose units="%" roi="PTV">117.9</dose>
                 <weight>200</weight>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV1_EZ</name>
                 <type a="1">MinEud</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>10</weight>
             </roi>
             <roi>
                 <name>sOTVu1_</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p">102.5</dose>
+                <dose units="%" roi="PTV">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>ring1_</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="5">100</dose>
+                <dose units="%" roi="PTV" low="5">100</dose>
                 <weight>5</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p2">102.5</dose>
+                <dose units="%" roi="PTV2">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p2">109.7</dose>
+                <dose units="%" roi="PTV2">109.7</dose>
                 <weight>50</weight>
             </roi>
             <roi>
-                <name>PTV_p2</name>
+                <name>PTV2</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p2">102.5</dose>
+                <dose units="%" roi="PTV2">102.5</dose>
                 <weight>0.1</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
                 <type>Min</type>
-                <dose units="%" roi="PTV_p2">102.5</dose>
+                <dose units="%" roi="PTV2">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p2">102.5</dose>
+                <dose units="%" roi="PTV2">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
                 <type>Max</type>
-                <dose units="%" roi="PTV_p2">117.9</dose>
+                <dose units="%" roi="PTV2">117.9</dose>
                 <weight>200</weight>
             </roi>
             <roi>
                 <name>OTV2_EZ</name>
                 <type a="1">MinEud</type>
-                <dose units="%" roi="PTV_p2">102.5</dose>
+                <dose units="%" roi="PTV2">102.5</dose>
                 <weight>10</weight>
             </roi>
             <roi>
                 <name>sOTVu2_</name>
                 <type>UD</type>
-                <dose units="%" roi="PTV_p2">102.5</dose>
+                <dose units="%" roi="PTV2">102.5</dose>
                 <weight>50</weight>
             </roi>
             <roi>
                 <name>ring2_</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p2" low="5">100</dose>
+                <dose units="%" roi="PTV2" low="5">100</dose>
                 <weight>5</weight>
             </roi>
             <roi>
                 <name>Ring_HD</name>
                 <type dist="2" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="20">100</dose>
+                <dose units="%" roi="PTV" low="20">100</dose>
                 <weight>5</weight>
             </roi>
             <roi>
                 <name>Ring_LD</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <dose units="%" roi="PTV" low="5">40</dose>
                 <weight>5</weight>
             </roi>
             <roi>
                 <name>Normal_2cm</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p" low="5">40</dose>
+                <dose units="%" roi="PTV" low="5">40</dose>
                 <weight>5</weight>
             </roi>
         </objectives>
