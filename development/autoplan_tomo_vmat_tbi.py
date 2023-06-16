@@ -158,8 +158,10 @@ SUP_FFS_ORDER, MID_FFS_ORDER, INF_FFS_ORDER = 'VMAT_TBI_FFS_PELVIS', \
     'VMAT_TBI_FFS_LEGS', \
     'VMAT_TBI_FFS_FEET'
 ORDER_TARGET_NAME_HFS = "PTV_p_HFS"
-BEAMSET_FFS_TOMO = "Tomo_TBI_FFS_FW50"
-BEAMSET_HFS_TOMO = "Tomo_TBI_HFS_FW50"
+BEAMSET_TEMPLATE_FFS_TOMO = "Tomo_TBI_FFS_FW50"
+BEAMSET_NAME_FFS_TOMO = "FFS__TBI_Tomo"
+BEAMSET_TEMPLATE_HFS_TOMO = "Tomo_TBI_HFS_FW50"
+BEAMSET_NAME_HFS_TOMO = "HFS__TBI_Tomo"
 BEAMSET_HFS_VMAT = "VMAT-HFS-TBI"
 BEAMSET_FFS_VMAT = "VMAT-FFS-TBI"
 TOMO_MACHINE = "HDA0488"
@@ -2131,34 +2133,62 @@ def make_generic_junction_structs(rs_obj, z_junct,
             j_name=j_name)
 
 
-def tomo_calc_ffs_iso(pd_ffs, target):
-    fiducial_point_name = 'SimFiducials'
-    point_exists, point_defined = check_fiducials(pd_ffs, fiducial_name=fiducial_point_name)
-    if not point_exists:
-        AutoPlanOperations.place_fiducial(rso=pd_ffs, poi_name='SimFiducials')
-        connect.await_user_input(
-            'Place SimFiducial point in FFS, then toggle to HFS and place it there too')
-        point_exists, point_defined = check_fiducials(pd_ffs, fiducial_name=fiducial_point_name)
-    elif not point_defined:
-        connect.await_user_input(
-            'Place SimFiducial point in FFS, then toggle to HFS and place it there too')
+def tomo_calc_ffs_iso(patient_data_ffs, target):
+    """
+    This function creates a fiducial point (SimFiducial) if it does not exist,
+    and prompts the user to place it. It then calculates the coordinates of an
+    isocenter and creates an ROI named 'ROI_ffs_iso' at that location.
 
-    pm = pd_ffs.case.PatientModel
-    sim_coords = pm.StructureSets[pd_ffs.exam.Name].LocalizationPoiGeometry.Point
-    target_coords = pm.StructureSets[pd_ffs.exam.Name].RoiGeometries[target].GetCenterOfRoi()
+    Args:
+        patient_data_ffs (Object): Object containing the patient case and examination information.
+        target (str): Name of the target ROI.
+
+    Returns:
+        iso_name (str): Name of the created isocenter ROI.
+    """
+
+    fiducial_point_name = 'SimFiducials'
+
+    # Check if fiducials exist and are defined
+    point_exists, point_defined = check_fiducials(patient_data_ffs, fiducial_name=fiducial_point_name)
+
+    if not point_exists:
+        # If fiducial point doesn't exist, create one
+        AutoPlanOperations.place_fiducial(rso=patient_data_ffs, poi_name='SimFiducials')
+
+        # Prompt the user to place the fiducial point in both FFS and HFS
+        connect.await_user_input('Place SimFiducial point in FFS, then toggle to HFS and place it there too')
+        point_exists, point_defined = check_fiducials(patient_data_ffs, fiducial_name=fiducial_point_name)
+    elif not point_defined:
+        # If fiducial point exists but is not defined, prompt the user to define it
+        connect.await_user_input('Place SimFiducial point in FFS, then toggle to HFS and place it there too')
+
+    pm = patient_data_ffs.case.PatientModel
+
+    # Retrieve the coordinates of the fiducial point and the center of the target ROI
+    sim_coords = pm.StructureSets[patient_data_ffs.exam.Name].LocalizationPoiGeometry.Point
+    target_coords = pm.StructureSets[patient_data_ffs.exam.Name].RoiGeometries[target].GetCenterOfRoi()
+
+    # Define isocenter coordinates
     iso_coord = {'x': 0., 'y': target_coords['y'], 'z': sim_coords['z']}
+
+    # Create a unique name for the new ROI
     iso_name = pm.GetUniqueRoiName(DesiredName='ROI_ffs_iso')
+
+    # Create new ROI at the isocenter
     pm.CreateRoi(Name=iso_name,
                  Color='Pink',
                  Type='Control')
     iso_roi = pm.RegionsOfInterest[iso_name]
+
+    # Define the geometry of the new ROI as a small sphere at the isocenter
     iso_roi.CreateSphereGeometry(Radius=1.0,
-                                 Examination=pd_ffs.exam,
+                                 Examination=patient_data_ffs.exam,
                                  Center=iso_coord,
                                  Representation='Voxels',
                                  VoxelSize=0.01)
-    return iso_name
 
+    return iso_name
 
 def make_ffs_isodoses(pd_hfs, pd_ffs, rx, prefix):
     #
@@ -2539,75 +2569,10 @@ def main():
         make_structures(pd_hfs, pd_ffs, make_vmat_plan, make_tomo_plan, testing)
         if make_vmat_plan:
             hfs_multiplan, ffs_multiplan = make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx)
-        # make_derived_rois(pd_hfs, pd_ffs)
-        # if make_vmat_plan:
-        #     # Load the Tomo Supports for the couch
-        #     reset_primary_secondary(pd_hfs.exam, pd_ffs.exam)
-        #     AutoPlanOperations.load_supports(rso=pd_hfs,
-        #                                      supports=["TrueBeamCouch", "Baseplate_Override_PMMA"],
-        #                                      quiet=testing)
-        #     reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-        #     AutoPlanOperations.load_supports(rso=pd_ffs, supports=["TrueBeamCouch"],
-        #                                      quiet=testing)
-        # elif make_tomo_plan:
-        #     # Load TrueBeam couch and baseplate
-        #     reset_primary_secondary(pd_hfs.exam, pd_ffs.exam)
-        #     AutoPlanOperations.load_supports(rso=pd_hfs,
-        #                                      supports=["TomoCouch", "Baseplate_Override_PMMA"],
-        #                                      quiet=testing)
-        #     reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-        #     AutoPlanOperations.load_supports(rso=pd_ffs, supports=["TomoCouch"],
-        #                                      quiet=testing)
-        #
-        # register_images(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, testing)
-        #
-        # reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-        # load_normal_mbs(pd_hfs, pd_ffs, quiet=testing)
-        # # Build lung contours a avoidance on the HFS scan
-        # reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
-        # make_lung_contours(pd_hfs, color=[192, 192, 192])
-        #
-        # ffs_poi_junction, hfs_poi_junction = make_central_junction_structs(
-        #     pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name)
-        #
-        # if make_vmat_plan:
-        #     #
-        #     # HFS
-        #     # Add points for isocenters in VMAT
-        #     if not hfs_poi_junction:
-        #         hfs_poi_junction = pd_hfs.case.PatientModel \
-        #             .StructureSets[pd_hfs.exam.Name].PoiGeometries[JUNCTION_POINT]
-        #     hfs_junction_width = place_hfs_vmat_pois(pd_hfs, hfs_poi_junction)
-        #     hfs_pois = find_pois(pd_hfs)
-        #     # Add the midfield junctions
-        #     make_midfield_junctions(pd_hfs, hfs_pois, junction_width=hfs_junction_width)
-        #     # Iterate over POIs and create OTVs
-        #     for index, point in enumerate(hfs_pois):
-        #         make_otv(pd_hfs, point, index, hfs_junction_width, hfs_pois)
-        #
-        #     # Do the same for FFS
-        #     if not ffs_poi_junction:
-        #         ffs_poi_junction = pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name] \
-        #             .PoiGeometries[JUNCTION_POINT]
-        #     ffs_junction_width = place_ffs_vmat_pois(
-        #         pd_ffs, ffs_poi_junction, len(hfs_pois))
-        #     ffs_pois = find_pois(pd_ffs)
-        #     make_midfield_junctions(pd_ffs, ffs_pois, junction_width=ffs_junction_width)
-        #     for index, point in enumerate(ffs_pois):
-        #         make_otv(pd_ffs, point, index, ffs_junction_width, ffs_pois)
-        #
-        #     hfs_multiplan, ffs_multiplan = multiplan_data(
-        #         hfs_pois, ffs_pois, nfx=nfx, rx=rx)
 
     if ffs_autoplan:
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         #
-        # This phase is VMAT-Specific and should be moved to its own function
-        # Ideally, we would load the first two beamsets and do the optimization
-        # only on them, however, we'd need specific fall off objectives on
-        # the last beamset to avoid a lack of robustness.
-        # Perhaps optimize  in pairs (0,1), (1,2), (2,3) with the lowest beamset
-        # going into the background?
         # FFS Planning
         # FFS protocol declarations
         if make_vmat_plan:
@@ -2615,27 +2580,29 @@ def main():
             ffs_pois = find_pois(pd_ffs)
             hfs_multiplan, ffs_multiplan = multiplan_data(
                 hfs_pois, ffs_pois, nfx=nfx, rx=rx)
-            logging.debug(f'HFS Multi {hfs_multiplan}')
-            logging.debug(f'FFS Multi {ffs_multiplan}')
             pd_ffs_out = multi_autoplan(ffs_multiplan)
         #
         # Compute the locations of the isocenters in the VMAT FFS Location
         # Load each treating beamset
         # Load the objectives of the VMAT autoplan
         if make_tomo_plan:
-            iso_target = tomo_calc_ffs_iso(pd_ffs, target=JUNCTION_PREFIX_FFS + "90%Rx")
+            iso_target = tomo_calc_ffs_iso(pd_ffs, target=JUNCTION_PREFIX_FFS + "10%Rx")
             tbi_ffs_protocol = {
                 'protocol_name': PROTOCOL_NAME_TOMO,
+                'translation_map': {ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')},
                 'order_name': ORDER_NAME_FFS_TOMO,
+                'planning_strategy': 'Sequential',
+                'optimization_instructions': {},
                 'num_fx': nfx,
                 'site': 'TBI_',
-                'translation_map': {ORDER_TARGET_NAME_FFS: (TARGET_FFS, rx, r'cGy')},
-                'beamset_name': BEAMSET_FFS_TOMO,
-                'iso_target': iso_target,
+                'beamset_name': BEAMSET_NAME_FFS_TOMO,
                 'machine': TOMO_MACHINE,
+                'beamset_template': BEAMSET_TEMPLATE_FFS_TOMO,
+                'iso': {'type': 'ROI', 'target': iso_target},
+                'optimize': True,
                 'user_prompts': True,
             }
-            pd_ffs_out = autoplan(autoplan_parameters=tbi_ffs_protocol)
+            pd_ffs_out = multi_autoplan([tbi_ffs_protocol])
 
     if make_ffs_isodose_structs and make_tomo_plan:
         # TODO: Redefine acquisition of these to be determined based on
@@ -2663,18 +2630,23 @@ def main():
         #
         # HFS Planning
         # HFS protocol declarations
+        iso_target = tomo_calc_ffs_iso(pd_ffs, target=TARGET_HFS)
         tbi_hfs_protocol = {
             'protocol_name': PROTOCOL_NAME_TOMO,
+            'translation_map': {ORDER_TARGET_NAME_HFS: (TARGET_HFS, rx, r'cGy')},
             'order_name': ORDER_NAME_HFS_TOMO,
+            'planning_strategy': 'Sequential',
+            'optimization_instructions': {},
             'num_fx': nfx,
             'site': 'TBI_',
-            'translation_map': {ORDER_TARGET_NAME_HFS: (TARGET_HFS, rx, r'cGy')},
-            'beamset_name': BEAMSET_HFS_TOMO,
-            'iso_target': TARGET_HFS,
+            'beamset_name': BEAMSET_NAME_HFS_TOMO,
             'machine': TOMO_MACHINE,
+            'beamset_template': BEAMSET_TEMPLATE_HFS_TOMO,
+            'iso': {'type': 'ROI', 'target': iso_target},
+            'optimize': True,
             'user_prompts': True,
         }
-        pd_hfs_out = autoplan(autoplan_parameters=tbi_hfs_protocol)
+        pd_hfs_out = autoplan(autoplan_parameters=[tbi_hfs_protocol])
     #
 
     if make_ffs_isodose_structs and make_vmat_plan:
