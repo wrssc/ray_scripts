@@ -206,7 +206,7 @@ MCS_TOLERANCES = {'MCS': {'MEAN': 0.369,
                           'SIGMA': 0.188},
                   }
 
-TOMO_DATA = {'MACHINES': ['HDA0488', 'HDA0477'],
+TOMO_DATA = {'MACHINES': ['HDA0488'],
              'PLAN_TR_SUFFIX': r'_Tr',
              'LATERAL_ISO_MARGIN': 2.,  # cm
              'SUPPORTS': ['TomoCouch']
