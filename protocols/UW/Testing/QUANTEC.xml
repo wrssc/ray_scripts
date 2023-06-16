@@ -1,0 +1,520 @@
+<goalsets>
+    <set>
+        <name>QUANTEC</name>
+        <roi>
+            <name>Brain</name>
+            <type>Max</type>
+            <dose units="Gy">60</dose>
+            <description>Symptomatic necrosis risk up to 3%</description>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type>Max</type>
+            <dose units="Gy">72</dose>
+            <description>Symptomatic necrosis risk 5%</description>
+        </roi>
+        <roi>
+            <name>Brain</name>
+            <type>Max</type>
+            <dose units="Gy">90</dose>
+            <description>Symptomatic necrosis risk 10%</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type>Max</type>
+            <dose units="Gy">54</dose>
+            <description>Permanent cranial neuropathy risk up to 5%</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type dir="le">DX</type>
+            <volume units="cc">1</volume>
+            <dose units="Gy">59</dose>
+            <description>Permanent cranial neuropathy risk up to 5%, 1-10 cc</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type>Max</type>
+            <dose units="Gy">64</dose>
+            <description>Permanent cranial neuropathy risk up to 5%, point dose well below 1 cc</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>Max</type>
+            <dose units="Gy">55</dose>
+            <description>Optic neuropathy risk up to 3%</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>Max</type>
+            <dose units="Gy">60</dose>
+            <description>Optic neuropathy risk 7%</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>Max</type>
+            <dose units="Gy">55</dose>
+            <description>Optic neuropathy risk up to 3%</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>Max</type>
+            <dose units="Gy">60</dose>
+            <description>Optic neuropathy risk 7%</description>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>Max</type>
+            <dose units="Gy">55</dose>
+            <description>Optic neuropathy risk up to 3%</description>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>Max</type>
+            <dose units="Gy">60</dose>
+            <description>Optic neuropathy risk 7%</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">50</dose>
+            <description>Myelopathy risk 0.2%, including full cord cross section</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">60</dose>
+            <description>Myelopathy risk 6%, including full cord cross section</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">69</dose>
+            <description>Myelopathy risk 50%, including full cord cross section</description>
+        </roi>
+        <roi>
+            <name>Cochlea_L</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">45</dose>
+            <description>Sensory neural hearing loss risk up to 30%, hearing at 4 kHz</description>
+        </roi>
+        <roi>
+            <name>Cochlea_R</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">45</dose>
+            <description>Sensory neural hearing loss risk up to 30%, hearing at 4 kHz</description>
+        </roi>
+        <roi>
+            <name>Parotid_Total</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">25</dose>
+            <description>Long term parotid salivary function reduced to 25% of pre-RT level risk up to 20%, combined parotid glands</description>
+        </roi>
+        <roi>
+            <name>Parotid_Total</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">39</dose>
+            <description>Long term parotid salivary function reduced to 25% of pre-RT level risk up to 50%, combined parotid glands</description>
+        </roi>
+        <roi>
+            <name>Parotid_L</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">20</dose>
+            <description>Long term parotid salivary function reduced to 25% of pre-RT level up to 20%, only one parotid gland spared</description>
+        </roi>
+        <roi>
+            <name>Constrictors</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">50</dose>
+            <description>Symptomatic dysphagia and aspiration risk up to 20%</description>
+        </roi>
+        <roi>
+            <name>Larynx</name>
+            <type>Max</type>
+            <dose units="Gy">66</dose>
+            <description>Vocal dysfunction risk up to 20% with chemotherapy, based on single study</description>
+        </roi>
+        <roi>
+            <name>Larynx</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">50</dose>
+            <description>Aspiration risk up to 30% with chemotherapy, based on single study</description>
+        </roi>
+        <roi>
+            <name>Larynx</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">44</dose>
+            <description>Edema risk up to 20% without chemotherapy, based on single study</description>
+        </roi>
+        <roi>
+            <name>Larynx</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">50</dose>
+            <volume units="%">27</volume>
+            <description>Edema risk up to 20% without chemotherapy, based on single study</description>
+        </roi>
+        <roi>
+            <name>Lung_Total</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">20</dose>
+            <volume units="%">30</volume>
+            <description>Symptomatic pneumonitis risk up to 20%, combined lung</description>
+        </roi>
+        <roi>
+            <name>Lung_Total</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">7</dose>
+            <description>Symptomatic pneumonitis risk 5%, excludes purposeful whole lung irradiation</description>
+        </roi>
+        <roi>
+            <name>Lung_Total</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">13</dose>
+            <description>Symptomatic pneumonitis risk 10%, excludes purposeful whole lung irradiation</description>
+        </roi>
+        <roi>
+            <name>Lung_Total</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">20</dose>
+            <description>Symptomatic pneumonitis risk 20%, excludes purposeful whole lung irradiation</description>
+        </roi>
+        <roi>
+            <name>Lung_Total</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">24</dose>
+            <description>Symptomatic pneumonitis risk 30%, excludes purposeful whole lung irradiation</description>
+        </roi>
+        <roi>
+            <name>Lung_Total</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">27</dose>
+            <description>Symptomatic pneumonitis risk 40%, excludes purposeful whole lung irradiation</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">34</dose>
+            <description>Grade 3 or higher acute esophagitis risk 5-20%</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">35</dose>
+            <volume units="%">50</volume>
+            <description>Grade 2 or higher acute esophagitis risk up to 30%</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">50</dose>
+            <volume units="%">40</volume>
+            <description>Grade 2 or higher acute esophagitis risk up to 30%</description>
+        </roi>
+        <roi>
+            <name>Esophagus</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">70</dose>
+            <volume units="%">20</volume>
+            <description>Grade 2 or higher acute esophagitis risk up to 30%</description>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">26</dose>
+            <description>Pericarditis risk up to 15%, based on single study</description>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">30</dose>
+            <volume units="%">46</volume>
+            <description>Pericarditis risk up to 15%, based on single study</description>
+        </roi>
+        <roi>
+            <name>Heart</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">25</dose>
+            <volume units="%">10</volume>
+            <description>Long-term cardiac mortality risk up to 1%, overly safe risk estimate</description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">30</dose>
+            <description>Classic RILD risk up to 5%, excluding patients with pre-existing liver disease or hepatocellular carcinoma</description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">42</dose>
+            <description>Classic RILD risk up to 50%, excluding patients with pre-existing liver disease or hepatocellular carcinoma</description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">28</dose>
+            <description>Classic RILD risk up to 5% in patients with Child-Pugh A preexisting liver disease or hepatocellular carcinoma, excluding hepatitis B reactivation</description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">36</dose>
+            <description>Classic RILD risk up to 50% in patients with Child-Pugh A preexisting liver disease or hepatocellular carcinoma, excluding hepatitis B reactivation</description>
+        </roi>
+        <roi>
+            <name>Kidney_Total</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">15</dose>
+            <description>Clinically relevant renal dysfunction risk up to 5%, 15-18 Gy</description>
+        </roi>
+        <roi>
+            <name>Kidney_Total</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">28</dose>
+            <description>Clinically relevant renal dysfunction risk up to 50%</description>
+        </roi>
+        <roi>
+            <name>Kidney_Total</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">12</dose>
+            <volume units="%">55</volume>
+            <description>Clinically relevant renal dysfunction risk up to 5%</description>
+        </roi>
+        <roi>
+            <name>Kidney_Total</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">20</dose>
+            <volume units="%">32</volume>
+            <description>Clinically relevant renal dysfunction risk up to 5%</description>
+        </roi>
+        <roi>
+            <name>Kidney_Total</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">23</dose>
+            <volume units="%">30</volume>
+            <description>Clinically relevant renal dysfunction risk up to 5%</description>
+        </roi>
+        <roi>
+            <name>Kidney_Total</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">28</dose>
+            <volume units="%">20</volume>
+            <description>Clinically relevant renal dysfunction risk up to 5%</description>
+        </roi>
+        <roi>
+            <name>Stomach</name>
+            <type dir="lt">DX</type>
+            <volume units="%">100</volume>
+            <dose units="Gy">45</dose>
+            <description>Ulceration risk up to 7%</description>
+        </roi>
+        <roi>
+            <name>SmallBowel</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">15</dose>
+            <volume units="cc">120</volume>
+            <description>Grade 3 or higher toxicity risk up to 10%, individual loops</description>
+        </roi>
+        <roi>
+            <name>BowelBag</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">45</dose>
+            <volume units="cc">195</volume>
+            <description>Grade 3 or higher toxicity risk up to 10%, entire potential space within the peritoneal cavity</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">50</dose>
+            <volume units="%">50</volume>
+            <description>Grade 2 or higher late rectal toxicity risk up to 15%, Grade 3 up to 10%, prostate cancer treatment</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">60</dose>
+            <volume units="%">35</volume>
+            <description>Grade 2 or higher late rectal toxicity risk up to 15%, Grade 3 up to 10%, prostate cancer treatment</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">65</dose>
+            <volume units="%">25</volume>
+            <description>Grade 2 or higher late rectal toxicity risk up to 15%, Grade 3 up to 10%, prostate cancer treatment</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">70</dose>
+            <volume units="%">20</volume>
+            <description>Grade 2 or higher late rectal toxicity risk up to 15%, Grade 3 up to 10%, prostate cancer treatment</description>
+        </roi>
+        <roi>
+            <name>Rectum</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">75</dose>
+            <volume units="%">15</volume>
+            <description>Grade 2 or higher late rectal toxicity risk up to 15%, Grade 3 up to 10%, prostate cancer treatment</description>
+        </roi>
+        <roi>
+            <name>Bladder</name>
+            <type>Max</type>
+            <dose units="Gy">65</dose>
+            <description>Grade 3 or higher late RTOG toxicity risk up to 6%, bladder cancer treatment</description>
+        </roi>
+        <roi>
+            <name>Bladder</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">65</dose>
+            <volume units="%">50</volume>
+            <description>Grade 3 or higher late RTOG toxicity risk, prostate cancer treatment, based on RTOG 0415</description>
+        </roi>
+        <roi>
+            <name>Bladder</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">70</dose>
+            <volume units="%">35</volume>
+            <description>Grade 3 or higher late RTOG toxicity risk, prostate cancer treatment, based on RTOG 0415</description>
+        </roi>
+        <roi>
+            <name>Bladder</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">75</dose>
+            <volume units="%">25</volume>
+            <description>Grade 3 or higher late RTOG toxicity risk, prostate cancer treatment, based on RTOG 0415</description>
+        </roi>
+        <roi>
+            <name>Bladder</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">80</dose>
+            <volume units="%">15</volume>
+            <description>Grade 3 or higher late RTOG toxicity risk, prostate cancer treatment, based on RTOG 0415</description>
+        </roi>
+        <roi>
+            <name>PenileBulb</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">50</dose>
+            <description>Severe erectile dysfunction risk up to 35%</description>
+        </roi>
+        <roi>
+            <name>PenileBulb</name>
+            <type dir="lt">DX</type>
+            <volume units="%">90</volume>
+            <dose units="Gy">50</dose>
+            <description>Severe erectile dysfunction risk up to 35%</description>
+        </roi>
+        <roi>
+            <name>PenileBulb</name>
+            <type dir="lt">DX</type>
+            <volume units="%">60</volume>
+            <dose units="Gy">70</dose>
+            <description>Severe erectile dysfunction risk up to 35%, D60-70</description>
+        </roi>
+    </set>
+    <set>
+        <name>QUANTEC-SRS</name>
+        <roi>
+            <name>Brain</name>
+            <type dir="le">VX</type>
+            <volume units="cc">5</volume>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Symptomatic necrosis risk up to 20%, rapid rise above 10 cc, 5-10cc</description>
+        </roi>
+        <roi>
+            <name>BrainStem</name>
+            <type>Max</type>
+            <dose units="Gy">12.5</dose>
+            <fractions>1</fractions>
+            <description>Permanent cranial neuropathy risk up to 5%, for patients with acoustic tumors</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_L</name>
+            <type>Max</type>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Optic neuropathy risk up to 10%</description>
+        </roi>
+        <roi>
+            <name>OpticNerve_R</name>
+            <type>Max</type>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Optic neuropathy risk up to 10%</description>
+        </roi>
+        <roi>
+            <name>Chiasm</name>
+            <type>Max</type>
+            <dose units="Gy">12</dose>
+            <fractions>1</fractions>
+            <description>Optic neuropathy risk up to 10%</description>
+        </roi>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">13</dose>
+            <fractions>1</fractions>
+            <description>Myelopathy risk 1%, single fraction partial cord cross-section irradiated</description>
+        </roi>
+        <roi>
+            <name>Cochlea_L</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">14</dose>
+            <fractions>1</fractions>
+            <description>Sensory neural hearing loss risk up to 25%, serviceable hearing</description>
+        </roi>
+        <roi>
+            <name>Cochlea_R</name>
+            <type dir="le">Mean</type>
+            <dose units="Gy">14</dose>
+            <fractions>1</fractions>
+            <description>Sensory neural hearing loss risk up to 25%, serviceable hearing</description>
+        </roi>
+    </set>
+    <set>
+        <name>QUANTEC-SBRT</name>
+        <roi>
+            <name>SpinalCord</name>
+            <type>Max</type>
+            <dose units="Gy">20</dose>
+            <fractions>3</fractions>
+            <description>Myelopathy risk 1%, 3 fractions partial cord cross-section irradiated</description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">13</dose>
+            <fractions>3</fractions>
+            <description>Classic RILD risk up to 5%, 3 fractions primary liver treatment</description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">18</dose>
+            <fractions>6</fractions>
+            <description>Classic RILD risk up to 5%, 6 fractions primary liver treatment</description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">15</dose>
+            <fractions>3</fractions>
+            <description>Classic RILD risk up to 5%, 3 fractions metastatic liver treatment</description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">Mean</type>
+            <dose units="Gy">20</dose>
+            <fractions>6</fractions>
+            <description>Classic RILD risk up to 5%, 6 fractions metastatic liver treatment</description>
+        </roi>
+        <roi>
+            <name>Liver-GTV</name>
+            <type dir="lt">VX</type>
+            <dose units="Gy">15</dose>
+            <volume units="cc" type="residual">700</volume>
+            <description>Classic RILD risk up to 5%, 3-5 fractions</description>
+        </roi>
+    </set>
+</goalsets>

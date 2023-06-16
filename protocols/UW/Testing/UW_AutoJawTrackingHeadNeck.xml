@@ -1,7 +1,3 @@
-<!--
-  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
-  -->
-
 <protocol>
     <name>UW Head and Neck</name>
     <AnatomicGroup>Neck</AnatomicGroup>
@@ -71,6 +67,7 @@
                 <ArcRotationDirection>Clockwise</ArcRotationDirection>
                 <CollimatorAngle>15</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
             <beam>
                 <BeamNumber>2</BeamNumber>
@@ -82,6 +79,7 @@
                 <ArcRotationDirection>Clockwise</ArcRotationDirection>
                 <CollimatorAngle>0</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
             <beam>
                 <BeamNumber>3</BeamNumber>
@@ -93,6 +91,7 @@
                 <ArcRotationDirection>Clockwise</ArcRotationDirection>
                 <CollimatorAngle>15</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
             <beam>
                 <BeamNumber>4</BeamNumber>
@@ -104,6 +103,7 @@
                 <ArcRotationDirection>Clockwise</ArcRotationDirection>
                 <CollimatorAngle>0</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
             <beam>
                 <BeamNumber>5</BeamNumber>
@@ -115,6 +115,7 @@
                 <ArcRotationDirection>Clockwise</ArcRotationDirection>
                 <CollimatorAngle>15</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
             <beam>
                 <BeamNumber>6</BeamNumber>
@@ -126,6 +127,7 @@
                 <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
                 <CollimatorAngle>355</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
             <beam>
                 <BeamNumber>7</BeamNumber>
@@ -137,6 +139,7 @@
                 <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
                 <CollimatorAngle>0</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
             <beam>
                 <BeamNumber>8</BeamNumber>
@@ -148,6 +151,7 @@
                 <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
                 <CollimatorAngle>355</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
             <beam>
                 <BeamNumber>9</BeamNumber>
@@ -159,6 +163,7 @@
                 <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
                 <CollimatorAngle>0</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
             <beam>
                 <BeamNumber>10</BeamNumber>
@@ -170,6 +175,7 @@
                 <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
                 <CollimatorAngle>355</CollimatorAngle>
                 <CouchAngle>0</CouchAngle>
+                <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
             </beam>
 
         </beamset>
@@ -2628,7 +2634,7 @@
         </objectives>
     </objectiveset>
     <beamset>
-        <name>2 Arc VMAT - HN</name>
+        <name>6X_WFF_2Arc_VMAT</name>
         <technique>VMAT</technique>
         <DicomName>____VMA_R_A_</DicomName>
         <description>Arc set for head and neck planning</description>
@@ -2643,6 +2649,7 @@
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>15</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
         <beam>
             <BeamNumber>2</BeamNumber>
@@ -2654,13 +2661,199 @@
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>345</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
-     </beamset>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>90</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>6X_FFF_2Arc_VMAT</name>
+        <technique>VMAT</technique>
+        <DicomName>____VMA_R_A_</DicomName>
+        <description>Arc set for head and neck planning</description>
+        <roi_support>Sframe_F1_TBCouch_HN</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>345</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>90</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>10X_WFF_2Arc_VMAT</name>
+        <technique>VMAT</technique>
+        <DicomName>____VMA_R_A_</DicomName>
+        <description>Arc set for head and neck planning</description>
+        <roi_support>Sframe_F1_TBCouch_HN</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc</Name>
+            <Energy>10</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc</Name>
+            <Energy>10</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>345</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc</Name>
+            <Energy>10</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>90</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>10X_FFF_2Arc_VMAT</name>
+        <technique>VMAT</technique>
+        <DicomName>____VMA_R_A_</DicomName>
+        <description>Arc set for head and neck planning</description>
+        <roi_support>Sframe_F1_TBCouch_HN</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>345</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>90</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>15X_WFF_2Arc_VMAT</name>
+        <technique>VMAT</technique>
+        <DicomName>____VMA_R_A_</DicomName>
+        <description>Arc set for head and neck planning</description>
+        <roi_support>Sframe_F1_TBCouch_HN</roi_support>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc</Name>
+            <Energy>15</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc</Name>
+            <Energy>15</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>345</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc</Name>
+            <Energy>15</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>90</CollimatorAngle>
+            <CouchAngle>0</CouchAngle>
+            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+
     <beamset>
         <name>Tomo-Brain-FW2.5</name>
         <technique>TomoHelical</technique>
         <DicomName>NecX_THI_R_A_</DicomName>
-        <description>Protocol for Head and Neck </description>
+        <description>Protocol for Head and Neck</description>
         <roi_support>TomoCouch,S-frame</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
@@ -2737,16 +2930,17 @@
     <optimization_config>
         <name>8 warmstarts</name>
         <description>8 warmstart optimization</description>
-        <technique>TomoHelical</technique>
-        <initial max_it="30" int_it="10">Iteration 0</initial>
-        <warmstart max_it="12" int_it="2" n="8">Iteration_1to8</warmstart>
+        <technique>VMAT</technique>
+        <initial max_it="50" int_it="15">Iteration 0</initial>
+        <warmstart max_it="20" int_it="8" n="8">Iteration_1to8</warmstart>
         <vary_grid>False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
-        <reduce_mod mod_target="2.3">True</reduce_mod>
+        <reduce_mod mod_target="2.3">False</reduce_mod>
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
-        <block_prompt>True</block_prompt>
+        <use_treat_settings>False</use_treat_settings>
+        <block_prompt>False</block_prompt>
     </optimization_config>
     <optimization_config>
         <name>12 warmstarts</name>
@@ -2757,7 +2951,7 @@
         <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">True</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
-        <reduce_oar>True</reduce_oar>
-        <segment_weight>True</segment_weight>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
     </optimization_config>
 </protocol>

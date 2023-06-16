@@ -16,7 +16,6 @@
         <frequency>Daily</frequency>
         <imaging>Pre-treatment CBCT</imaging>
         <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0477">TomoHelical</technique>
     </prescription>
 
     <order>
@@ -31,7 +30,6 @@
             </roi>
             <fractions>4</fractions>
             <technique modality="Photons" technique="TomoHelical" code="FFS" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="FFS" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <validation>
             <validation_status>True</validation_status>
@@ -594,7 +592,6 @@
             </roi>
             <fractions>4</fractions>
             <technique modality="Photons" technique="TomoHelical" code="HFS" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="HFS" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <validation>
             <validation_status>True</validation_status>
@@ -1689,7 +1686,7 @@
         <reduce_oar>False</reduce_oar>
         <segment_weight>False</segment_weight>
         <block_prompt>True</block_prompt>
-        <robust sup="1" inf="1" ant="1" post="1" right="1" left="1">True</robust>
+        <robust sup="0.7" inf="0.7" ant="0" post="0" right="0" left="0" position_uncertainty="IndependentIsocenters">True</robust>
     </optimization_config>
     <optimization_config>
         <name>12 warmstarts Tomo</name>
