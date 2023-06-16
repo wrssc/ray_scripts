@@ -149,7 +149,7 @@ def get_node_attrib(node, name, attrib_name, r_type=str, default=None):
     """
     try:
         return r_type(node.find(name).attrib[attrib_name])
-    except AttributeError:
+    except KeyError:
         return default
 
 
