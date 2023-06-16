@@ -217,7 +217,8 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
                     parent_beamset_name, daughter_plan.Name))
                 sys.exit('Could not find transferred beamset for export')
             elif daughter_beamset.FractionationPattern.NumberOfFractions != b.FractionationPattern.NumberOfFractions:
-                logging.error('Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
+                logging.error(
+                    'Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
                 sys.exit('Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
 
             daughter_plan.SetCurrent()
@@ -268,7 +269,8 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
                     parent_beamset_name, daughter_plan.Name))
                 sys.exit('Could not find transferred beamset for export')
             elif daughter_beamset.FractionationPattern.NumberOfFractions != b.FractionationPattern.NumberOfFractions:
-                logging.error('Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
+                logging.error(
+                    'Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
                 sys.exit('Retrieved wrong beamset for {}, alert script Admin immediately!'.format(b.DicomPlanLabel))
 
             daughter_plan.SetCurrent()
@@ -279,7 +281,7 @@ def export_tomo_plan(patient, exam, case, parent_plan, parent_beamset, script_st
             if rs_test_only:
                 success = True
             else:
-                logging.debug('Sending {}_{} to iDMS'.format(parent_plan_iDMS_name,daughter_beamset.DicomPlanLabel))
+                logging.debug('Sending {}_{} to iDMS'.format(parent_plan_iDMS_name, daughter_beamset.DicomPlanLabel))
                 success = DicomExport.send(case=case,
                                            destination='RayGateway',
                                            parent_plan=parent_plan_iDMS_name,
