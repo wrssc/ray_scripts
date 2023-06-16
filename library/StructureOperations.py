@@ -194,8 +194,8 @@ def exclude_from_export(case, rois):
         case.PatientModel.ToggleExcludeFromExport(
             ExcludeFromExport=True, RegionOfInterests=rois, PointsOfInterests=[]
         )
-    except Exception:
-        logging.warning(f"Unable to exclude {rois} from export")
+    except Exception as e:
+        logging.warning(f"Unable to exclude {rois} from export: {e}")
 
 
 def include_in_export(case, rois):
@@ -217,16 +217,16 @@ def include_in_export(case, rois):
                     ExcludeFromExport=False, RegionOfInterests=r, PointsOfInterests=[]
                 )
 
-            except Exception:
-                logging.warning(f"Unable to include {rois} in export")
+            except Exception as e:
+                logging.warning(f"Unable to include {rois} in export: {e}")
         else:
             try:
                 case.PatientModel.ToggleExcludeFromExport(
                     ExcludeFromExport=True, RegionOfInterests=r, PointsOfInterests=[]
                 )
 
-            except Exception:
-                logging.warning(f"Unable to exclude {rois} from export")
+            except Exception as e:
+                logging.warning(f"Unable to exclude {rois} from export {e}")
 
 
 def exists_roi(case, rois, return_exists=False):
@@ -566,7 +566,8 @@ def change_roi_color(case, roi_name, rgb):
         error_message = f"Structure {roi_name} is approved, cannot change color"
         return error_message
     if not all(exists_roi(case=case, rois=roi_name)):
-        error_message = f"Structure {roi_name} not found on case {case}"
+        error_message = f"Structure {roi_name} could not be changed to " \
+                        f"{rgb} because it was not found in {case}"
         return error_message
     # Convert rgb list to system color
     sys_rgb = define_sys_color(rgb)
@@ -882,7 +883,6 @@ def check_structure_exists(
                     f"Create the structure {structure_name} "
                     f"and continue script.")
     else:
-        logging.debug(f"{structure_name} not found")
         return False
 
 
@@ -1528,7 +1528,8 @@ def iter_standard_rois(etree):
     return rois
 
 
-def check_derivation(case, examination, **kwargs):
+# noinspection PyPep8Naming
+def check_derivation(case, **kwargs):
     """
     Will need an existing structure where StructureName is
     TODO: Write a check_derivation for "Wall types"
@@ -1600,7 +1601,7 @@ def check_derivation(case, examination, **kwargs):
             return False
     except AttributeError:
         if (
-                MarginTypeA != None
+                MarginTypeA is not None
                 and current_a_expression.ExpandContractType != MarginTypeA
         ):
             logging.debug("A expand/contract type expected to be something")
@@ -2193,8 +2194,13 @@ def dialog_create_roi():
 
 def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
     """
-    Thoughtful creation of structures that can determine if the structure exists,
-    determine the geometry exists on this examination
+    The function create_roi performs a series of checks to determine the status of a
+    structure's ROI before creating the structure or making changes. It provides an
+    extensive flow of conditions to handle different scenarios of the ROI status.
+    It handles the cases of when the structure or geometry doesn't exist, if it exists
+    but is not approved, or if it is approved, and takes actions accordingly.
+
+    Workflow:
     -Create it with a suffix if the geometry exists and is locked on the current examination
     Is the structure name already in use?
         *<No>  -> Make it and return the RoiGeometry on this examination
@@ -2231,24 +2237,14 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
         roi_name_ci = roi_name
         struct_exists = False
 
-    logging.debug(
-        f"{roi_name_ci} is defined somewhere in this case {struct_exists}"
-    )
     # geometry_exists_in_case is True if any examination
     # in this case has contours for this roi_name_ci
     geometry_exists_in_case = check_structure_exists(
         case=case, structure_name=roi_name_ci, option="Check"
     )
-    logging.debug(
-        f"{roi_name_ci} geometry exists in case: {geometry_exists_in_case}"
-    )
     # geometry_exists is True if this examination has contours
     geometry_exists = check_structure_exists(
         case=case, structure_name=roi_name_ci, option="Check", exam=examination
-    )
-    logging.debug(
-        f"{roi_name_ci} geometry exists in exam"
-        f" {examination.Name}: {geometry_exists}"
     )
     # Look through all structure sets in the patient to see if
     # roi name is approved on an exam in this patient
@@ -2256,9 +2252,11 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
         case=case, roi_name=roi_name_ci, examination=examination
     )
     logging.debug(
-        f"{roi_name_ci} geometry approved in "
-        f"exam {examination.Name}: {geometry_approved}"
-    )
+        f"{roi_name_ci} defined in case: {struct_exists}, geometry exists in case: "
+        f"{geometry_exists_in_case}, "
+        f"geometry exists in current exam {examination.Name}: {geometry_exists}, "
+        f"with approved geometry: {geometry_approved}.")
+
     # If the call has been made without a suffix or deletion instructions, prompt user.
     if delete_existing is None and suffix is None:
         if geometry_exists and not geometry_approved:
@@ -2385,7 +2383,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
         )
     except:
         create_roi(case, examination, StructureName, delete_existing=True, suffix=None)
-    already_derived = check_derivation(case=case, examination=examination, **kwargs)
+    already_derived = check_derivation(case=case, **kwargs)
     if already_derived:
         logging.debug(f"{StructureName} is already derived.")
     else:
@@ -3226,6 +3224,8 @@ class PlanningStructurePreferences:
         self.uniform_properties = {'structures': [], 'standoff': None}
         self.uniform_dose_oar = {}
         self.generate_otv = None
+        self.generate_ptv = None
+        self.generate_eval = None
         self.use_under_dose = None
         self.under_dose_properties = {'structures': [], 'standoff': None}
         self.under_dose_oar = {}
@@ -3946,7 +3946,7 @@ def planning_structures(
 
     translation_mapping = {}
     if dialog2_response is not None:
-        logging.debug(f'Number of targets{number_of_targets}')
+        logging.debug(f'Number of targets: {number_of_targets}')
         logging.debug(f'Source list {dialog2_response.items()}')
         input_source_list = [None] * number_of_targets
         source_doses = [None] * number_of_targets
