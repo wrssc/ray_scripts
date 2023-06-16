@@ -1256,8 +1256,8 @@ def get_boolean_defs(
     :param r_margin_type: Margin type for Resulting operation. Default is "Expand".
     :param result: Result of A/B  None, Intersection, Subtraction. Default is None
     :param color: List representing the color of the structure. Default is [192, 192, 192].
-    :param export: Boolean to indicate if the structure should be excluded from export. Default
-    is False.
+    :param export: Boolean to indicate if the structure should be
+                   excluded from export. Default is False.
     :param visualize: Boolean to indicate if the structure should be visualized. Default is False.
     :param type: Type of the structure. Default is "Unknown".
     :return: Dictionary with Boolean structure definitions.
