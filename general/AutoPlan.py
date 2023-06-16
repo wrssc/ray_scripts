@@ -81,7 +81,7 @@ import StructureOperations
 import Objectives
 import BeamOperations
 import AutoPlanOperations
-from PlanOperations import find_optimization_index
+from PlanOperations import find_optimization_index, compute_dose
 import autoplan_whole_brain
 import FinalDose
 
@@ -120,7 +120,7 @@ def target_dialog(case, protocol, order, use_orders=True):
             if int(g.find('priority').text) % 2 == 0:
                 g_name = g.find('name').text
                 for r in derived_keywords:
-                    if re.search(r,g_name) and g_name not in derived_targets:
+                    if re.search(r, g_name) and g_name not in derived_targets:
                         derived_targets.append(g_name)
                 try:
                     d_name = g.find('dose').attrib['roi']
@@ -256,33 +256,92 @@ def beamset_dialog(protocol, order_targets):
     return beamset_name, iso_target, machine
 
 
-def autoplan(testing_bypass_dialogs={}):
+def multi_autoplan(multi_plan_parameters):
+    for m in multi_plan_parameters:
+        autoplan_parameters = {
+            'protocol_name': m['protocol_name'],
+            'order_name': m['order_name'],
+            'num_fx': m['num_fx'],
+            'site': m['site'],
+            'machine': m['machine'],
+            'translation_map': m.get('translation_map', None),
+            'beamset_name': m.get('beamset_name', None),
+            'beamset_template': m.get('beamset_template', None),
+            'iso_target': m.get('iso_target', None),
+            'iso_poi': m.get('iso_poi', None),
+            'iso': m.get('iso', None),
+            'user_prompts': m.get('user_prompts', True),
+            'optimize': m.get('optimize', True),
+            'optimization_instructions': m.get('optimization_instructions', None)
+        }
+        logging.debug(f'M is {m}')
+        logging.debug(f'Autoplan {autoplan_parameters}')
+        autoplan(autoplan_parameters=autoplan_parameters)
+        connect.await_user_input('Completed optimization of current beamset. Please review and continue')
+
+
+def copy_plan_set_copy_current(rso, new_plan_name):
+    # Copy the plan and create a named tuple for return
+    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
+    rso.case.CopyPlan(PlanName=rso.plan.Name,
+                      NewPlanName=new_plan_name,
+                      KeepBeamSetNames=False)
+    rso.patient.Save()
+    rso.case.TreatmentPlans[new_plan_name].SetCurrent()
+    rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name].SetCurrent()
+    #
+    # Create the return variable noting that people get whiny about _replace and we should
+    # eventually get around to using dataclasses
+    pd_out = Pd(error=[],
+                patient=GeneralOperations.find_scope(level='Patient'),
+                case=GeneralOperations.find_scope(level='Case'),
+                exam=GeneralOperations.find_scope(level='Examination'),
+                db=GeneralOperations.find_scope(level='PatientDB'),
+                plan=rso.case.TreatmentPlans[new_plan_name],
+                beamset=rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name])
+    return pd_out
+
+
+def autoplan(autoplan_parameters, **kwargs):
     ap_report = {}
+    background = ""
     #
     # In testing mode, skip the dialog prompts
-    if testing_bypass_dialogs:
-        input_protocol_name = testing_bypass_dialogs['protocol_name']
-        input_order_name = testing_bypass_dialogs['order_name']
-        num_fx = testing_bypass_dialogs['num_fx']
-        site = testing_bypass_dialogs['site']
-        translation_map = testing_bypass_dialogs['translation_map']
-        beamset_name = testing_bypass_dialogs['beamset_name']
-        iso_target = testing_bypass_dialogs['iso_target']
-        machine = testing_bypass_dialogs['machine']
-        try:
-            user_prompts = testing_bypass_dialogs['user_prompts']
-        except KeyError:
-            user_prompts = False
+    if autoplan_parameters:
+        input_protocol_name = autoplan_parameters['protocol_name']
+        input_order_name = autoplan_parameters['order_name']
+        num_fx = autoplan_parameters['num_fx']
+        site = autoplan_parameters['site']
+        translation_map = autoplan_parameters.get('translation_map', None)
+        beamset_template = autoplan_parameters.get('beamset_template', None)
+        beamset_name = autoplan_parameters.get('beamset_name', None)
+        iso_target = autoplan_parameters.get('iso_target', None)
+        iso_poi = autoplan_parameters.get('iso_poi', None)
+        iso_dict = autoplan_parameters.get('iso', {})
+        machine = autoplan_parameters['machine']
+        user_prompts = autoplan_parameters.get('user_prompts', None)
+        optimize = autoplan_parameters.get('optimize', True)
+        multi_plan_parameters = kwargs.get('beamset_list', [])
+        optimization_instructions = autoplan_parameters.get('optimization_instructions', {})
+        if optimization_instructions:
+            background = optimization_instructions.get('optimize_with_background', "")
     else:
         input_protocol_name = None
         input_order_name = None
         num_fx = None
         user_prompts = True
         beamset_etree = None
+        beamset_template = None
         beamset_name = None
         iso_target = None
+        iso_poi = None
         machine = None
+        iso_dict = {'type': None, 'target': None}
         translation_map = {}
+        optimize = True
+        multi_plan_parameters = []
+    logging.debug(f'Optimization Parameters: user_prompts:'
+                  f'{user_prompts}, optimize {optimize}')
     #
     # Hard-coded path to protocols
     protocol_folder = r'../protocols'
@@ -291,21 +350,30 @@ def autoplan(testing_bypass_dialogs={}):
     path_protocols = os.path.join(os.path.dirname(__file__),
                                   protocol_folder, institution_folder, autoplan_folder)
 
-    path_to_output = os.path.normpath("Q:\\RadOnc\\RayStation\\RayScripts\\AutoPlanData")
+    path_to_output = os.path.normpath(
+        "Q:\\RadOnc\\RayStation\\RayScripts\\AutoPlanData")
     #
     # Create status steps for dialog
     script_steps = {
         0: ('Select Protocol (Site)', 'Choose main protocol for autoplan'),
-        1: ('Select Treatment Planning Order', 'Choose the treatment planning order we are using'),
-        2: ('Assign Targets/Doses to TPO, Declare number of fractions', 'Match the protocol targets to current plan'),
+        1: ('Select Treatment Planning Order',
+            'Choose the treatment planning order we are using'),
+        2: ('Assign Targets/Doses to TPO, Declare number of fractions',
+            'Match the protocol targets to current plan'),
         3: ('Select Beamset', 'Chose the beamset you want to load'),
         4: ('Add a plan', 'Building the plan'),
         5: ('Load beamset', 'Beamset specified is being loaded'),
-        6: ('Assign any overrides', 'Review the densities in use in the plan and assign material values'),
-        # 6:('Review and assign any overrides', '<name>_Override_TissueTypes are being overridden'),
-        7: ('Set the sim-fiducial point', 'Make sure the localization point matches BBs'),
-        8: ('Select any blocking/bolus', 'Ensure the Entrance/Exit is selected for blocked structures'),
-        9: ('Support Structure Loading', 'Ensure the support structures are properly placed'),
+        6: ('Assign any overrides',
+            'Review the densities in use in the plan and assign material values'),
+        # 6:('Review and assign any overrides',
+        # '<name>_Override_TissueTypes are being overridden'),
+        7: ('Set the sim-fiducial point',
+            'Make sure the localization point matches BBs'),
+        8: (
+            'Select any blocking/bolus',
+            'Ensure the Entrance/Exit is selected for blocked structures'),
+        9: ('Support Structure Loading',
+            'Ensure the support structures are properly placed'),
         10: ('Load Planning Structures', 'Loading rings, normals, otvs etc'),
         11: ('Loading goals', 'Load goals from the TPO you selected'),
         12: ('Optimize Plan', 'Optimizing plan. Copy and finish')
@@ -344,8 +412,10 @@ def autoplan(testing_bypass_dialogs={}):
 
     # Start user time
     ap_report['time_user'][0] = timer()
+
     #
     # Select the protocol
+
     status_index = 0
     auto_status.next_step(text=script_steps[status_index][1])
     status_index += 1
@@ -353,12 +423,13 @@ def autoplan(testing_bypass_dialogs={}):
     (protocol_file, protocol) = AutoPlanOperations.select_protocol(folder=path_protocols,
                                                                    protocol_name=input_protocol_name)
     protocol_name = protocol.find('name').text
-    logging.debug('Selected protocol:{} for loading from file:{}'.format(protocol_name, protocol_file))
+    logging.debug(
+        'Selected protocol:{} for loading from file:{}'.format(protocol_name, protocol_file))
     #
     # If the protocol_name is UW WholeBrain execute the whole brain script and quit
     if protocol_name == "UW WholeBrain":
         autoplan_whole_brain.main()
-        sys.exit("Script complete")
+        return
     #
     # Select the TPO
     auto_status.next_step(text=script_steps[status_index][1])
@@ -366,7 +437,7 @@ def autoplan(testing_bypass_dialogs={}):
 
     order = AutoPlanOperations.select_order(protocol, order_name=input_order_name)
     order_name = order.find('name').text
-    logcrit("Treatment Planning Order selected: {}".format(order.find('name').text))
+    logcrit(f"Treatment Planning Order selected: {order.find('name').text}")
     #
     # Determine the protocol prescription parameters
     rx = AutoPlanOperations.find_rx(order)
@@ -376,19 +447,23 @@ def autoplan(testing_bypass_dialogs={}):
     status_index += 1
     if not translation_map:
         # Prompt user for target map
-        (site, num_fx, translation_map) = target_dialog(case=rso.case, protocol=protocol, order=order, use_orders=True)
+        (site, num_fx, translation_map) = target_dialog(case=rso.case,
+                                                        protocol=protocol,
+                                                        order=order,
+                                                        use_orders=True)
     #
     # Log results of the user target/dose assignments
     log_str = ""
-    translation_map = AutoPlanOperations.convert_translation_map(translation_map, unit=r'cGy')
+    translation_map = AutoPlanOperations.convert_translation_map(
+        translation_map, unit=r'cGy')
     for k, v in rx.rois.items():
         try:
             log_str += '[{p}->{pl}, {pd}->{pld}] '.format(
                 p=k, pd=v, pl=translation_map[k][0], pld=translation_map[k][1])
         except KeyError:
             log_str += '[{p}->Unmapped, {pd}->Unmapped]'.format(p=k, pd=v)
-    logcrit('Number of fractions protocol->beamset: [{}->{}]'.format(rx.fx, num_fx))
-    logcrit('Target mapping of [protocol->beamset]: {}'.format(log_str))
+    logcrit(f'Number of fractions protocol->beamset: [{rx.fx}->{num_fx}]')
+    logcrit(f'Target mapping of [protocol->beamset]: {log_str}')
     #
     # Find all target names to be used
     assigned_targets = [v[0] for v in translation_map.values() if v[0]]
@@ -414,13 +489,16 @@ def autoplan(testing_bypass_dialogs={}):
     status_index += 1
     #
     # Add beamset
-    if not beamset_name:
-        (beamset_name, iso_target, machine) = beamset_dialog(protocol, available_targets)
-    logcrit('User selected Beamset:{bs}, machine:{m}, Isocenter Position:{iso}'.format(
-        bs=beamset_name, m=machine, iso=iso_target))
+    if not beamset_template:
+        (beamset_template, iso_target, machine) = beamset_dialog(protocol,
+                                                                 available_targets)
+    logcrit(
+        f'User selected Beamset:{beamset_template}, machine:{machine},'
+        f'Isocenter Position:{iso_target}')
     beamset_defs = BeamOperations.BeamSet()
     # Beamset element
-    # I think we want to grab a preferred beamset name out of autoplan file or be able to take as input
+    # I think we want to grab a preferred beamset name out of autoplan file or be able to take as
+    # input
     # Look for a beamset_template call, if one is found, get the template from beamset_templates dir
     # TODO add modality here based on machine. User chose the machine, so we should be able to
     #   match to the machine attribute in the technique tag of the prescription tag in the order
@@ -430,12 +508,13 @@ def autoplan(testing_bypass_dialogs={}):
             delivery_technique = t.attrib['technique']
             delivery_modality = t.attrib['modality']
             break
-    beamsets = BeamOperations.load_beamsets(beamset_type=delivery_technique,beamset_modality=delivery_modality)
+    beamsets = BeamOperations.load_beamsets(beamset_type=delivery_technique,
+                                            beamset_modality=delivery_modality)
     for bt in order.findall('beamset_template'):
         beamset_etree = BeamOperations.find_beamset_element(beamsets)
     # Look for a hard coded beamset in this file.
     for b in protocol.findall('beamset'):
-        if b.find('name').text == beamset_name:
+        if b.find('name').text == beamset_template:
             beamset_etree = b
             break
 
@@ -449,6 +528,7 @@ def autoplan(testing_bypass_dialogs={}):
     beamset_defs.total_dose = translation_map[rx.target][1]  # rx.dose
     beamset_defs.machine = machine
     beamset_defs.iso_target = iso_target
+    beamset_defs.iso_poi = iso_poi
     # Build ALL_PTVs if needed
 
     if iso_target == 'All_PTVs':
@@ -477,7 +557,10 @@ def autoplan(testing_bypass_dialogs={}):
         beamset_defs.machine = technique_elem.attrib['machine']
     beamset_defs.modality = technique_elem.attrib['modality']
     code = technique_elem.attrib['code']
-    beamset_defs.name = site[0:4] + '_' + code + '_Auto'
+    if not beamset_name:
+        beamset_defs.name = site[0:4] + '_' + code + '_Auto'
+    else:
+        beamset_defs.name = beamset_name
     plan_name = site[0:4] + '_' + code + '_Auto'
     new_plan_name = site[0:4] + '_' + code + '_R0A0'
     beamset_defs.DicomName = beamset_defs.name
@@ -503,7 +586,8 @@ def autoplan(testing_bypass_dialogs={}):
     #     'TargetDose04','ProtocolTarget03','BeamsetPath','BeamsetFile',
     #     'ProtocolBeamset','Machine','Isotarget','PlanningStructurePath',
     #     'PlanningStructureFile','PlanningStructureWorkflow','GoalPath'
-    #     'GoalFile','ProtocolName','OrderName','OptimizationPath','OptimizationFile','OptimizationWorkflow'
+    #     'GoalFile','ProtocolName','OrderName','OptimizationPath','OptimizationFile',
+    #     'OptimizationWorkflow'
     #  }
     #  out_message =
 
@@ -554,42 +638,138 @@ def autoplan(testing_bypass_dialogs={}):
     rso.patient.Save()
     rs_beam_set.SetCurrent()
     rso = rso._replace(beamset=connect.get_current('BeamSet'))
+    if background:
+        rso.plan.UpdateDependency(
+            DependentBeamSetName=rso.beamset.DicomPlanLabel,
+            BackgroundBeamSetName=background,
+            DependencyUpdate="CreateDependency"
+        )
+
     # Set beams from the protocol
-    beams = BeamOperations.load_beams_xml(filename=protocol_file,
-                                          beamset_name=beamset_name,
-                                          path=path_protocols)
-    # Place isocenter
-    try:
-        beamset_defs.iso = BeamOperations.find_isocenter_parameters(
-            case=rso.case,
-            exam=rso.exam,
-            beamset=rs_beam_set,
-            iso_target=beamset_defs.iso_target,
-            lateral_zero=lateral_zero)
-    except Exception:
-        warning = 'Aborting, could not locate center of {}'.format(beamset_defs.iso_target)
-        logging.warning(warning)
-        sys.exit(warning)
-    # Parse Tomo versus VMAT
-    if beamset_defs.technique == 'TomoHelical':
-        if len(beams) > 1:
-            logging.warning('Invalid tomo beamset in {}, more than one Tomo beam found.'.format(
-                beamset_defs.name))
-        else:
-            beam = beams[0]
-        BeamOperations.place_tomo_beam_in_beamset(plan=rso.plan, iso=beamset_defs.iso,
-                                                  beamset=rs_beam_set, beam=beam)
-        # Beams loaded successfully
-        beams_load = True
-    elif beamset_defs.technique == 'VMAT' or beamset_defs.technique == 'SMLC':
-        BeamOperations.place_beams_in_beamset(iso=beamset_defs.iso, beamset=rs_beam_set,
-                                              beams=beams)
-        # Beams loaded successfully
-        beams_load = True
+    if multi_plan_parameters:
+        for m in multi_plan_parameters:
+            if beamset_defs.iso_target:
+                iso_target = beamset_defs.iso_target
+                iso_poi = None
+                existing_iso = None
+                iso_name = iso_target
+            elif m['iso']['type'] == 'POI':
+                iso_target = None
+                iso_poi = m['iso']['target']
+                existing_iso = None
+                iso_name = iso_poi
+            elif m['iso']['type'] == 'ROI':
+                iso_target = m['iso']['target']
+                iso_poi = None
+                existing_iso = None
+                iso_name = m['iso']['target']
+            iso_parameters = BeamOperations.find_isocenter_parameters(
+                case=rso.case,
+                exam=rso.exam,
+                beamset=rs_beam_set,
+                iso_target=iso_target,
+                iso_poi=iso_poi,
+                existing_iso=existing_iso,
+                lateral_zero=lateral_zero,
+                iso_name=iso_name)
+            beams = BeamOperations.load_beams_xml(filename=protocol_file,
+                                                  beamset_name=beamset_template,
+                                                  path=path_protocols)
+            # Parse Tomo versus VMAT
+            if beamset_defs.technique == 'TomoHelical':
+                if len(beams) > 1:
+                    logging.error(
+                        f'Invalid tomo beamset in {beamset_defs.name}, '
+                        f'more than one Tomo beam found.')
+                else:
+                    beam = beams[0]
+                BeamOperations.place_tomo_beam_in_beamset(
+                    plan=rso.plan,
+                    iso=iso_parameters,
+                    beamset=rs_beam_set,
+                    beam=beam)
+                # Beams loaded successfully
+                beams_load = True
+            elif beamset_defs.technique == 'VMAT' \
+                    or beamset_defs.technique == 'SMLC':
+                _ = BeamOperations.place_beams_in_beamset(
+                    iso=iso_parameters,
+                    plan=rso.plan,
+                    beamset=rs_beam_set,
+                    beams=beams)
+                # Beams loaded successfully
+                beams_load = True
+            else:
+                now_u_dunit = 'Unsupported beamset technique ' \
+                              f'{beamset_defs.technique}'
+                logging.error(now_u_dunit)
+                sys.exit(now_u_dunit)
     else:
-        now_u_dunit = 'Unsupported beamset technique {}'.format(beamset_defs.technique)
-        logging.debug('Unsupported beamset technique {}'.format(beamset_defs.technique))
-        sys.exit(now_u_dunit)
+        if beamset_defs.iso_target:
+            iso_target = beamset_defs.iso_target
+            iso_poi = None
+            existing_iso = None
+            iso_name = iso_target
+        elif iso_dict['type'] == 'POI':
+            iso_target = None
+            iso_poi = iso_dict['target']
+            existing_iso = None
+            iso_name = iso_poi
+        elif iso_dict['type'] == 'ROI':
+            iso_target = iso_dict['target']
+            iso_poi = None
+            existing_iso = None
+            iso_name = iso_dict['target']
+        else:
+            existing_iso = None
+            iso_name = None
+        beams = BeamOperations.load_beams_xml(filename=protocol_file,
+                                              beamset_name=beamset_template,
+                                              path=path_protocols)
+        # Place isocenter
+        try:
+            iso_parameters = BeamOperations.find_isocenter_parameters(
+                case=rso.case,
+                exam=rso.exam,
+                beamset=rs_beam_set,
+                iso_target=iso_target,
+                iso_poi=iso_poi,
+                existing_iso=existing_iso,
+                lateral_zero=lateral_zero,
+                iso_name=iso_name)
+            beamset_defs.iso = iso_parameters
+        except Exception:
+            warning = f'Aborting, could not locate ' \
+                      f'center of {beamset_defs.iso_target}'
+            logging.warning(warning)
+            sys.exit(warning)
+        # Parse Tomo versus VMAT
+        if beamset_defs.technique == 'TomoHelical':
+            if len(beams) > 1:
+                logging.error(
+                    f'Invalid tomo beamset in {beamset_defs.name}, '
+                    f'more than one Tomo beam found.')
+            else:
+                beam = beams[0]
+            BeamOperations.place_tomo_beam_in_beamset(plan=rso.plan,
+                                                      iso=beamset_defs.iso,
+                                                      beamset=rs_beam_set,
+                                                      beam=beam)
+            # Beams loaded successfully
+            beams_load = True
+        elif beamset_defs.technique == 'VMAT' \
+                or beamset_defs.technique == 'SMLC':
+            BeamOperations.place_beams_in_beamset(plan=rso.plan,
+                                                  iso=beamset_defs.iso,
+                                                  beamset=rs_beam_set,
+                                                  beams=beams)
+            # Beams loaded successfully
+            beams_load = True
+        else:
+            now_u_dunit = f'Unsupported beamset technique' \
+                          f' {beamset_defs.technique}'
+            logging.debug(now_u_dunit)
+            sys.exit(now_u_dunit)
 
     #
     # Beam building complete
@@ -609,9 +789,9 @@ def autoplan(testing_bypass_dialogs={}):
     auto_status.next_step(text=script_steps[status_index][1])
     status_index += 1
     if user_prompts:
-        logging.debug('SimFiducial placement skipped for test')
-    else:
         AutoPlanOperations.place_fiducial(rso=rso, poi_name='SimFiducials')
+    else:
+        logging.debug('SimFiducial placement skipped for test')
     #
     # Set any blocking or bolus
     auto_status.next_step(text=script_steps[status_index][1])
@@ -644,13 +824,17 @@ def autoplan(testing_bypass_dialogs={}):
     strip_roi_support = strip_roi_support.strip()
     beamset_defs.support_roi = strip_roi_support.split(",")
     if user_prompts:
-        logging.info('Loading support {} skipped for testing'.format(beamset_defs.support_roi))
-    else:
-        AutoPlanOperations.load_supports(rso=rso, supports=beamset_defs.support_roi)
+        AutoPlanOperations.load_supports(rso=rso,
+                                         supports=beamset_defs.support_roi,
+                                         quiet=user_prompts)
+        # TODO: Replace with DJJs call
         # Trim supports
         StructureOperations.trim_supports(patient=rso.patient,
                                           case=rso.case,
                                           exam=rso.exam)
+    else:
+        logging.info(f'Loading support {beamset_defs.support_roi} '
+                     f'skipped for testing')
     # time_user complete
     ap_report['time_user'][1] = timer()
 
@@ -659,24 +843,28 @@ def autoplan(testing_bypass_dialogs={}):
     status_index += 1
     ap_report['time_roi'][0] = timer()
     # Use cGy naming convention
-    translation_map = AutoPlanOperations.convert_translation_map(translation_map, unit=r'cGy')
+    translation_map = AutoPlanOperations.convert_translation_map(
+        translation_map, unit=r'cGy')
     ps_elem = protocol.find('planning_structure_set')
     workflow_name = ps_elem.find('name').text
-    ps_result = AutoPlanOperations.load_planning_structures(
-        case=rso.case,
-        filename=protocol_file,
-        path=path_protocols,
-        workflow_name=workflow_name,
-        translation_map=translation_map
-    )
+    make_ps = ps_elem.find('name').attrib.get('make_structures', "True") == "True"
+    if make_ps:
+        _ = AutoPlanOperations.load_planning_structures(
+            case=rso.case,
+            filename=protocol_file,
+            path=path_protocols,
+            workflow_name=workflow_name,
+            translation_map=translation_map
+        )
     ap_report['time_roi'][1] = timer()
     #
     # Add goals and objectives
     auto_status.next_step(text=script_steps[status_index][1])
     status_index += 1
     ap_report['time_goals'][0] = timer()
-    translation_map = AutoPlanOperations.convert_translation_map(translation_map, unit=r'Gy')
-    goals_added = Objectives.add_goals_and_objectives_from_protocol(
+    translation_map = AutoPlanOperations.convert_translation_map(
+        translation_map, unit=r'Gy')
+    _ = Objectives.add_goals_and_objectives_from_protocol(
         case=rso.case,
         plan=rso.plan,
         exam=rso.exam,
@@ -698,99 +886,111 @@ def autoplan(testing_bypass_dialogs={}):
     # Check if this order has been validated. If not give user a bail option
     validation = AutoPlanOperations.find_validation_status(order)
     if user_prompts:
-        logging.info('Validation status ({}) check skipped for testing'.format(validation['status']))
+        logging.info(
+            f'Validation status ({validation["status"]}) '
+            f'check skipped for testing')
     else:
-        if not validation['status']:
-            connect.await_user_input('This template was authored by {} and is being tested. '
-                                     .format(validation['author']) +
-                                     'Continue optimization or stop the script execution.\n' +
-                                     'If you continue, please let the author know how it went and check goals!')
+        if not validation['status'] and user_prompts:
+            connect.await_user_input(
+                f'This template was authored by {validation["author"]}'
+                f'and is being tested. ' 
+                f'Continue optimization or stop the script execution.\n' 
+                f'If you continue, please let the author know how it went and '
+                f'check goals!'
+            )
         else:
-            logging.info("Autoplan validity: {} by {}.".format(validation['status'], validation['author'])
-                         + "Template has been validated and is proceeding with optimization.")
+            logging.info(
+                f"Autoplan template is fully vetted: {validation['status']}."
+                f"Author: {validation['author']}.")
+            logging.debug(
+                f"Perform final dose on completion {validation['final_dose']}")
+            logging.debug(
+                f"Copy plan to R0A0 upon completion {validation['copy_final_plan']}")
 
     ap_report['time_opt'][0] = timer()
+    logging.debug(f'Optimize is {optimize}')
     opt_status = AutoPlanOperations.load_configuration_optimize_beamset(
         filename=protocol_file,
         path=path_protocols,
         rso=rso,
         technique=beamset_defs.technique,
         output_data_dir=path_to_output,
-        bypass_user_prompts=True
+        bypass_user_prompts=True,
+        optimize=optimize
     )
     ap_report['time_opt'][1] = timer()
-    # Enable autoscale
-    # Find current Beamset Number and determine plan optimization
-    opt_indx = find_optimization_index(plan=rso.plan, beamset=rso.beamset,
-                                       verbose_logging=False)
-    # Turn on autoscale
-    if 'Tomo' not in beamset_defs.technique:
-        rso.plan.PlanOptimizations[opt_indx].AutoScaleToPrescription = True
-        compute_dose_message = PlanOperations.compute_dose(beamset=rso.beamset, dose_algorithm='CCDose')
-        logging.info(compute_dose_message)
-    else:
-        logging.warning('Autoscaling not possible')
-    #
-    # Run Final Dose Calculation
-    if validation['final_dose']:
-        ap_report['time_final_dose'][0] = timer()
-        try:
-            FinalDose.final_dose(site=site[0:4], technique=beamset_defs.description)
-        except:
-            logging.debug('Final Dose run unsuccessful')
-        ap_report['time_final_dose'][1] = timer()
-    #
-    rso.patient.Save()
-    ap_report['time_all'][1] = timer()
-    #
-    # Save the patient
-    rso.patient.Save()
-    # Copy the plan and make current
-    rso.case.CopyPlan(PlanName=plan_name, NewPlanName=new_plan_name, KeepBeamSetNames=False)
-    rso.patient.Save()
-    rso.case.TreatmentPlans[new_plan_name].SetCurrent()
-    rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name].SetCurrent()
-    #
-    # Create the return variable noting that people get whiny about _replace and we should
-    # eventually get around to using dataclasses
-    pd_out = Pd(error=[],
-                patient=GeneralOperations.find_scope(level='Patient'),
-                case=GeneralOperations.find_scope(level='Case'),
-                exam=GeneralOperations.find_scope(level='Examination'),
-                db=GeneralOperations.find_scope(level='PatientDB'),
-                plan=rso.case.TreatmentPlans[new_plan_name],
-                beamset=rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name])
-    # Update doses
-    # rso.beamset.FractionDose.UpdateDoseGridStructures()
-    # rso.case.TreatmentPlans[new_plan_name].BeamSets[new_plan_name].FractionDose.UpdateDoseGridStructures()
-    # rso.plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
-    logging.info('Autoplanning Report')
-    logging.info('Time in user operations {} s'.format(ap_report['time_user'][1] - ap_report['time_user'][0]))
-    logging.info('Time building plan {} s'.format(ap_report['time_plan'][1] - ap_report['time_plan'][0]))
-    logging.info('Time making planning structs {} s'.format(ap_report['time_roi'][1] - ap_report['time_roi'][0]))
-    logging.info('Time adding goals {} s'.format(ap_report['time_goals'][1] - ap_report['time_goals'][0]))
-    logging.info('Time optimizing {} s'.format(ap_report['time_opt'][1] - ap_report['time_opt'][0]))
-    logging.info('Time in script {} s'.format(ap_report['time_all'][1] - ap_report['time_all'][0]))
-    return (pd_out)
+    if opt_status:
+        # Enable autoscale
+        # Find current Beamset Number and determine plan optimization
+        opt_indx = find_optimization_index(plan=rso.plan, beamset=rso.beamset,
+                                           verbose_logging=False)
+        # Turn on autoscale
+        if 'Tomo' not in beamset_defs.technique:
+            try:
+                rso.beamset.SetAutoScaleToPrimaryPrescription(AutoScale=True)
+                compute_dose_message = compute_dose(beamset=rso.beamset,
+                                                    dose_algorithm='CCDose')
+                logging.info(compute_dose_message)
+            except Exception as e:
+                logging.warning(f'Autoscaling not possible {e}')
+        #
+        # Run Final Dose Calculation
+        if validation['final_dose']:
+            ap_report['time_final_dose'][0] = timer()
+            try:
+                FinalDose.final_dose(site=site[0:4],
+                                     technique=beamset_defs.description)
+            except:
+                logging.debug('Final Dose run unsuccessful')
+            ap_report['time_final_dose'][1] = timer()
+        #
+        rso.patient.Save()
+        ap_report['time_all'][1] = timer()
+        #
+        # Save the patient
+        rso.patient.Save()
+        if validation['copy_final_plan']:
+            pd_out = copy_plan_set_copy_current(rso,new_plan_name)
+        else:
+            pd_out = rso
+        # Update doses
+        # rso.beamset.FractionDose.UpdateDoseGridStructures()
+        # rso.case.TreatmentPlans[new_plan_name].BeamSets[
+        # new_plan_name].FractionDose.UpdateDoseGridStructures()
+        # rso.plan.TreatmentCourse.TotalDose.UpdateDoseGridStructures()
+        logging.info('Autoplanning Report')
+        logging.info(f'Time in user operations '
+                     f'{ap_report["time_user"][1] - ap_report["time_user"][0]} s')
+        logging.info(f'Time building plan '
+                     f'{ap_report["time_plan"][1] - ap_report["time_plan"][0]} s')
+        logging.info(f'Time making planning structs '
+                     f'{ap_report["time_roi"][1] - ap_report["time_roi"][0]} s')
+        logging.info(f'Time adding goals '
+                     f'{ap_report["time_goals"][1] - ap_report["time_goals"][0]} s')
+        logging.info(f'Time optimizing '
+                     f'{ap_report["time_opt"][1] - ap_report["time_opt"][0]} s')
+        logging.info(f'Time in script '
+                     f'{ap_report["time_all"][1] - ap_report["time_all"][0]} s')
+        return (pd_out)
 
-    #
-    # TODO: Export the autoplan and objectives, weights and goal values
-    #
-    # TODO: Ask user if they want to anonymize and save. If yes, pull up the TPL and save
+        #
+        # TODO: Export the autoplan and objectives, weights and goal values
+        #
+        # TODO: Ask user if they want to anonymize and save. If yes, pull up the TPL and save
 
 
 def main():
     testing_bypass_dialogs = {
-    'protocol_name': 'UW WBHA',
-    'order_name': 'Brain-WBRT-Hippocampal Avoidance [30Gy CC001]',
-    'num_fx': '10',
-    'site': 'Brai',
-    'translation_map':'',
-    'beamset_name':'Tomo-Brain-FW2.5',
-    'iso_target': 'All_PTVs',
-    'machine': 'HDA0488',
-    'user_prompts': False}
-    autoplan(testing_bypass_dialogs={})
+        'protocol_name': 'UW WBHA',
+        'order_name': 'Brain-WBRT-Hippocampal Avoidance [30Gy CC001]',
+        'num_fx': '10',
+        'site': 'Brai',
+        'translation_map': '',
+        'beamset_name': 'Tomo-Brain-FW2.5',
+        'iso_target': 'All_PTVs',
+        'machine': 'HDA0488',
+        'user_prompts': False}
+    autoplan(autoplan_parameters={})
 
 
 if __name__ == '__main__':
