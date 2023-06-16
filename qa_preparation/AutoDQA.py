@@ -71,7 +71,7 @@ import pyperclip
 import PySimpleGUI as sg
 
 clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871',
-                                   'TrueBeam3744', 'HDA0477', 'HDA0488'],
+                                   'TrueBeam3744', 'HDA0488'],
                   '--QA_DEVICES--': ['Plus_02 (JC)', 'Plus_04 (UH)',
                                      'Plus_05 (EC)', 'Plus_06 (UH)'],
                   '--X_GRID--': [-3.0, -2.0, -1.0, 0., 1.0, 2.0, 3.0, ],

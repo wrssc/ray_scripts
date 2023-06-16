@@ -16,7 +16,6 @@
         <frequency>Daily</frequency>
         <imaging>Pre-treatment CBCT</imaging>
         <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0477">TomoHelical</technique>
     </prescription>
 
     <order>
@@ -43,7 +42,6 @@
             </roi>
             <fractions>10</fractions>
             <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <commissioned_range>
             <fraction_dose upper="5" lower="1.8"></fraction_dose>
@@ -324,7 +322,6 @@
         <prefix>Site</prefix>
         <prescription>
             <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0477">TomoHelical</technique>
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

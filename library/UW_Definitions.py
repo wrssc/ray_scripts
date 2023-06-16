@@ -1,4 +1,4 @@
-TOMO_DATA = {'MACHINES': ['HDA0488', 'HDA0477'],
+TOMO_DATA = {'MACHINES': ['HDA0488'],
              'PLAN_TR_SUFFIX': r'_Tr',
              'LATERAL_ISO_MARGIN': 2.,  # cm
              'SUPPORTS': ['TomoCouch','S-frame'],

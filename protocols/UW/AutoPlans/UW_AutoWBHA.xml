@@ -33,7 +33,6 @@
             <fractions>10</fractions>
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
@@ -432,7 +431,6 @@
             <fractions>10</fractions>
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>

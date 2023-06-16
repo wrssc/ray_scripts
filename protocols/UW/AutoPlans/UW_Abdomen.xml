@@ -1,5 +1,5 @@
 <protocol>
-    <name>UW Abdomen</name>
+    <name>UW Abdomen-AUTO</name>
     <AnatomicGroup>Abdomen</AnatomicGroup>
     <ct>
         <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
@@ -20,7 +20,6 @@
         <imaging>Weekly kV</imaging>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
         </technique>
@@ -57,7 +56,6 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
         <validation>
@@ -337,7 +335,6 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
         <validation>

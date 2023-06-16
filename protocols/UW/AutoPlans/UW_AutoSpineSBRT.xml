@@ -19,7 +19,6 @@
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
         <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
         <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
     </prescription>
     <order>
         <name>Spine SBRT [3Fx] [3600cGy]</name>
@@ -35,7 +34,6 @@
             <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <validation>
             <validation_status>True</validation_status>
@@ -600,7 +598,6 @@
             <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="3DC" code="SBR" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <goals>
             <roi>
