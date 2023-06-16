@@ -1,6 +1,79 @@
 """ Automated Plan - TomoTBI
 
-    How To Use:
+    This module contains various functions used in a TBI (Total Body Irradiation)
+    treatment planning script.
+
+    1. Call `tbi_gui()` function to launch the GUI and prompt the user to select various options
+    for TBI planning.
+    2. Extract the user-selected options from the returned dictionary object.
+    3. Use `GeneralOperations.find_scope()` function to find the current case and examination and
+    then look for HFS and FFS scans.
+    4. Initialize named tuple `Pd` with error, db, case, patient, exam, plan, and beamset fields.
+    5. Assign `Pd` values for HFS and FFS scans, which include patient, case, examination,
+    and database.
+    6. If user selected `do_structure_definitions`, then load the couch support and create lung
+    contours and avoid volumes on the HFS scan.
+    7. If user selected `ffs_autoplan`, calculate the isocenter position and run the autoplan
+    function for FFS scan using the TomoTherapy FFS protocol.
+    8. If user selected `make_ffs_isodose_structs`, reset the primary-secondary arrangement,
+    save the patient, set the current plan and beamset, and then create FFS isodose structures.
+    9. If user selected `hfs_autoplan`, calculate the isocenter position and run the autoplan
+    function for HFS scan using the TomoTherapy HFS protocol.
+    10. If user selected `dose_summation`, prompt the user to select beamsets for FFS and HFS
+    scans, create a new grid for each scan, recompute all doses in the plan, and then create the
+    dose summation.
+    11. If fiducial markers are present, use them to register and transform the two scans.
+    12. Call `make_tbi_planning_structs()` function to create the TBI planning structures.
+    13. Call `tbi_gui()` function to prompt the user to select the TBI planning structures and
+    other options.
+    14. If user selected `make_avoid`, create the avoid structure.
+    15. If user selected `make_ptv`, create the PTV structure.
+    16. If user selected `make_unsubtracted_dose_structures`, create the unsubtracted dose
+    structures.
+    17. If user selected `make_dose_structures`, create the dose structures.
+    18. If user selected `make_junction_contour`, create the junction contour.
+    19. If user selected `make_kidneys_contours`, create the kidney contours.
+    20. If user selected `make_lung_contours`, create the lung contours.
+    21. Call `update_dose_grid()` function to update the dose grid for the TBI structures.
+    22. Call `reset_primary_secondary()` function to reset the primary and secondary scans.
+    23. Call `make_tbi_planning_structs()` function to create the TBI planning structures again.
+    24. Call `make_ffs_isodose_structs()` function to create the FFS isodose structures again.
+    25. Call `update_dose_grid()` function to update the dose grid again.
+    26. Save the patient.
+
+    Summary of functions:
+    check_external: checks if an external file exists.
+    check_structure_exists: checks if a structure exists.
+    get_most_inferior: gets the most inferior coordinate from an array of coordinates.
+    get_center: gets the center coordinate of a list of coordinates.
+    find_junction_coords: finds the junction point coordinates between two CT scans.
+    place_poi: places a point of interest (POI) on a scan.
+    convert_array_to_transform: converts an array to a transform.
+    determine_prefix: determines the prefix for a structure name.
+    find_roi_prefix: finds the prefix for a ROI structure.
+    update_all_remove_expression: updates all instances of a remove expression.
+    make_junction_contour: makes the junction contour.
+    make_kidneys_contours: makes the kidneys contours.
+    make_lung_contours: makes the lung contours.
+    get_roi_geometries: gets the geometries of ROIs.
+    make_avoid: makes an avoid structure.
+    make_ptv: makes a PTV structure.
+    make_unsubtracted_dose_structures: makes unsubtracted dose structures.
+    make_dose_structures: makes dose structures.
+    reset_primary_secondary: resets the primary and secondary scan for a given patient.
+    update_dose_grid: updates the dose grid for a given beamset.
+    register_images: registers two CT scans.
+    load_normal_mbs: loads the normal MBS settings.
+    make_tbi_planning_structs: makes the planning structures for a TBI.
+    check_fiducials: checks the fiducial points for a given scan.
+    calc_ffs_iso: calculates the isocenter for the FFS (Free From Scan) planning.
+    make_ffs_isodoses: makes the FFS isodose structures.
+    get_new_grid: gets the new dose grid for a given beamset.
+    find_transform: finds the transform between two scans.
+    transform_poi: transforms a point of interest (POI).
+    find_eval_dose: finds the evaluation dose for a given plan.
+    tbi_gui: launches a GUI for TBI planning.
+    main: runs all of the previous functions.
 
     Validation Notes:
     Test Patient: MR#
@@ -303,7 +376,7 @@ def make_junction_contour(pdata, z_start,
         case=pdata.case,
         roi_name=junction_name,
         roi_type='Ptv')
-    # update_all_remove_expression(pdata=pdata,roi_name=box_name)
+    # update_all_remove_expression(patient_data=patient_data,roi_name=box_name)
     update_all_remove_expression(pdata=pdata, roi_name=junction_name)
     pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
 
@@ -422,9 +495,9 @@ def get_roi_geometries(case, exam, roi_name):
 
 def make_avoid(pdata, z_start, avoid_name, color=None):
     """ Build the avoidance structure used in making the PTV
-        pdata: kind of like PDiddy, but with data, see below
+        patient_data: kind of like PDiddy, but with data, see below
         z_start (float): starting location of the junction
-        avoid_name (str): Name of the structure to include all avoidance voxels
+        otv_name (str): Name of the structure to include all avoidance voxels
         avoid_color (opt list[r,g,b]): color of output structure
         Recipe for avoidance volume:
         Take the z_start, build a box that is everything above this position
@@ -494,7 +567,7 @@ def make_avoid(pdata, z_start, avoid_name, color=None):
     }
     StructureOperations.make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
-    # update_all_remove_expression(pdata=pdata,roi_name=box_name)
+    # update_all_remove_expression(patient_data=patient_data,roi_name=box_name)
     update_all_remove_expression(pdata=pdata, roi_name=avoid_name)
     pdata.case.PatientModel.RegionsOfInterest[box_name].DeleteRoi()
 
@@ -503,7 +576,7 @@ def make_avoid(pdata, z_start, avoid_name, color=None):
 #       Make PTV_p_Eval_FFS(-skin)
 
 def make_ptv(pdata, junction_prefix, avoid_name, color=None):
-    # Find all contours matching prefix and along with avoid_name return the external minus these
+    # Find all contours matching prefix and along with otv_name return the external minus these
     # objects
     #
     # Get exam orientation
@@ -583,7 +656,7 @@ def make_unsubtracted_dose_structures(pdata, rx, dose_thresholds_normalized):
     """
     Make the structure for the dose threshold supplied
     makes unsubtracted_doses (RS Region of Interest Object) with name like <5%Rx>
-    pdata: exactly the same as pdiddy
+    patient_data: exactly the same as pdiddy
     rx (float): Prescription (normalizing) dose in cGy
     dose_thresholds_normalized ({dose_roi_names: dose_levels(int)}): percentages of prescription
     dose
@@ -765,7 +838,7 @@ def make_dose_structures(pdata, isodoses, rx):
             isodose_contours.append(roi_name)
     # for i in isodose_contours:
     #     try:
-    #         update_all_remove_expression(pdata, i)
+    #         update_all_remove_expression(patient_data, i)
     #     except:
     #         pass
     for d in delete_rois:
@@ -1120,7 +1193,7 @@ def make_ffs_isodoses(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name, rx):
     # for n in j_i:
     #     name = JUNCTION_PREFIX_FFS +str(n)+'%Rx'
     #     j_names[name] = (n+10, n, n-5)
-    #     isodose_names = make_dose_structures(pd_ffs, isodoses=j_names, rx=rx)
+    #     isodose_names = make_dose_structures(patient_data, isodoses=j_names, rx=rx)
     #     break
     # Map the junction point
     non_empty_isodose_names = []
@@ -1218,8 +1291,7 @@ def tbi_gui():
     layout = [
                  [sg.T('Enter Number of Fractions'), sg.In(key='-NFX-')],
                  [sg.T('Enter TOTAL Dose in cGy'), sg.In(key='-TDOSE-')],
-                 [sg.T('Enter Treatment Machine'), sg.Combo(["HDA0488",
-                                                             "HDA0477"],
+                 [sg.T('Enter Treatment Machine'), sg.Combo(["HDA0488"],
                                                             key='-MACHINE-')],
                  [sg.Checkbox('Generate FFS Planning Structures',
                               default=True,
@@ -1260,6 +1332,23 @@ def tbi_gui():
 
 
 def main():
+    """
+    Runs a series of functions to perform TBI planning and dose summation.
+
+    Pseudocode:
+    1. Call tbi_gui() function to obtain user input.
+    2. Retrieve the necessary variables from user input.
+    3. Find HFS and FFS scans, assign them to variables.
+    4. Initialize a named tuple for the patient, case, exam, plan, and beamset.
+    5. If requested by the user, load couch supports and build lung contours and avoidance on the
+    HFS scan.
+    6. If requested by the user, plan FFS and HFS.
+    7. If requested by the user, make isodoses for FFS.
+    8. If requested by the user, perform dose summation.
+
+    Returns: None
+    """
+
     # Launch gui
     tbi_selections = tbi_gui()
 
@@ -1307,6 +1396,7 @@ def main():
                 beamset=None)
 
     if do_structure_definitions:
+        # TODO: Integrate VMAT option here for TrueBeam couch
         #
         # Load the Tomo Supports for the couch
         AutoPlanOperations.load_supports(rso=pd_hfs,
@@ -1335,6 +1425,7 @@ def main():
     if ffs_autoplan:
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         #
+        # This phase is Tomo-specific and
         # FFS Planning
         # FFS protocol declarations
         iso_target = calc_ffs_iso(pd_ffs, target=JUNCTION_PREFIX_FFS + "90%Rx")
@@ -1349,7 +1440,7 @@ def main():
             'machine': machine,
             'user_prompts': True,
         }
-        pd_ffs_out = autoplan(testing_bypass_dialogs=tbi_ffs_protocol)
+        pd_ffs_out = autoplan(autoplan_parameters=tbi_ffs_protocol)
 
     if make_ffs_isodose_structs:
         # Get isodoses
@@ -1386,7 +1477,7 @@ def main():
             'machine': machine,
             'user_prompts': True,
         }
-        pd_hfs_out = autoplan(testing_bypass_dialogs=tbi_hfs_protocol)
+        pd_hfs_out = autoplan(autoplan_parameters=tbi_hfs_protocol)
     #
     if dose_summation:
         # Update the current variables if needed.
