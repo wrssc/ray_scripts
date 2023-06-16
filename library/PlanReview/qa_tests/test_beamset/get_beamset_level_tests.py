@@ -39,8 +39,6 @@ def get_beamset_level_tests(rso, physics_review=True):
             (check_dose_grid, {}),
         "Planning Risk Volume Assessment":
             (check_prv_status, {}),
-        "Couch Zero Full Rotation Clearance Check":
-            (check_isocenter_clearance, {}),
     }
 
     # Plan check for VMAT

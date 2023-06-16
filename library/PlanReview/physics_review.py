@@ -47,169 +47,38 @@ __credits__ = ['']
 
 import sys
 import os
-
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'qa_tests'))
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'qa_tests/test_plan'))
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), 'qa_tests/test_beamst'))
+import PySimpleGUI as sg
 import logging
 from collections import namedtuple
-from guis import build_tree_element, comment_to_clipboard, \
-    build_review_tree, launch_physics_review_gui
-from utils.get_user_name import get_user_name
-from review_definitions import LEVELS
-from documentation import generate_doc
-from qa_tests.test_examination import get_exam_level_tests
-from qa_tests.test_plan import get_plan_level_tests
-from qa_tests.test_beamset import get_beamset_level_tests
-from qa_tests.test_beamset import parse_beamset_selection
-from qa_tests.test_plan import parse_order_selection
-from qa_tests.analyze_logs import retrieve_logs
-
 from GeneralOperations import find_scope
 
-"""
-TODOs:
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
+from PlanReview.guis import build_tree_element, comment_to_clipboard, \
+    build_review_tree, launch_physics_review_gui
+from PlanReview.utils.get_user_name import get_user_name
+from PlanReview.review_definitions import LEVELS
+from PlanReview.documentation.generate_physics_document import generate_doc
+from PlanReview.qa_tests.test_examination import get_exam_level_tests
+from PlanReview.qa_tests.test_plan import get_plan_level_tests
+from PlanReview.qa_tests.test_beamset import get_beamset_level_tests
+from PlanReview.qa_tests.test_beamset import parse_beamset_selection
+from PlanReview.qa_tests.test_plan import parse_order_selection
+from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
-
- TODO: Check Beamsets for same machine
-
- TODO: Check for same iso, and same number of fractions in
-   different beamsets, and flag for merge
-
- TODO:
-   Check bad regions of Frame
-
- TODO:
-   def check_plan_name(bs):
-     Check plan name for appropriate
-     Measure target length of prostate for pros
-
- TODO: Look for big gaps between targets
-   def check_target_spacing(bs):
-     Find all targets
-     Put a box around them
-     look at the gaps and if they exceed some threshold throw an alert
-
- TODO: If beamsets are approved
-    Check the Entrance/Exit is blocked on some things
-    Check that treat settings are used/appropriate
-    
- TODO: Tomo Time Check
-   def check_tomo_time(bs):
-     Look at the plan type. Use the normal tomo mod factors
-     Abdomen; 1.6 - 2.4
-     Brain; 1.6 - 2.4
-     Breast; 2.4 - 2.8
-     Cranio - Spinal; 1.8 - 2.2
-     Extremity; 2.0 - 2.4
-     Gyn; 1.8 - 2.4
-     H & N; 2.2 - 2.6
-     Lung(non - SBRT); 2.4 - 2.8
-     Lung(SBRT); 1.2 - 1.4
-     Pelvis; 1.8 - 2.4
-     Prostate(low; risk)    1.6 - 2.2
-     Prostate(high; risk)    2.0 - 2.4
-
-
- TODO: Check collisions
-   put a circle down at isocenter equal in dimension to ganty (collimator 
-   pin)/bore clearance
-   union patient/supports
-   determine gantry positions
-
- TODO:
-   def - check the front edges of the couch and suspended headboard
-
- TODO:
-   Flag all ROIs not made in MIM with goals
-
- TODO: Stray voxel check/
-
- TODO: Check clinical goal
-   if a clinical goal is not met, look at the objective list to see if it is 
-   constrained
-   
- TODO: Add test on currently commissioned beams for timestamp
- 
- TODO: Check if an arc has the same couch and start/stop. if so, collimator 
- angles should differ
-
- TODO: FRONT PAGE CHECKS
- * TPO versus doses used in plan
- * CT Orientation
- * Number of slices and scan date
- * Special instructions
- * Energy
- 
- TODO: Objective type is correct: for anything with min goals, should be 
- PTV/GTV/CTV
- 
- TODO: IS there any higher order way to search for an identify a beamset
- for better tracking
-
-In parse_order_selection:
-TODO: Take a reg-exp as a list for input for matching a dialog and for
-    each desired phrase loop over the phrases for a match
-TODO: Add the target matching that takes place for this step with
-    consideration of the pre-logcrit syntax and post-logcrit syntax
-
-"""
-
-
-def physics_review(do_physics_review=True, rso=None):
+def automated_check_tree(rso, do_physics_review,beamsets=None):
     """
-        patient_key
-            |
-             -- Patient Checks
-            |
-             -- exam_key
-                    |
-                     -- DICOM Checks
-            |
-             -- structure_key
-                    |
-                     -- Structure Checks
-             -- plan_key
-                    |
-                     -- Plan Checks
-             - beamset_key
-                    |
-                     -- Beamset Checks
-            |
-             -- Logs
+        Builds and returns a review tree for a radiotherapy treatment plan
+        using PySimpleGUI.
+
+        Args:
+            rso: The radiotherapy structure object.
+            do_physics_review: A boolean value indicating whether to
+            perform physics review.
+
+        Returns:
+            A tuple containing the tree data and tree children.
     """
-    # Initialize return variable
-    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan',
-                           'beamset'])
-    # Get current patient, case, exam
-    rso = Pd(error=[],
-             patient=find_scope(level='Patient'),
-             case=find_scope(level='Case'),
-             exam=find_scope(level='Examination'),
-             db=find_scope(level='PatientDB'),
-             plan=find_scope(level='Plan'),
-             beamset=find_scope(level='BeamSet'))
-    #
-    user_name = get_user_name()
-    logging.info(f'Physics review script launched by {user_name}')
 
-    # tree_data = sg.TreeData()
-
-    if not rso:
-        # Initialize return variable
-        Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan',
-                               'beamset'])
-        # Get current patient, case, exam
-        rso = Pd(error=[],
-                 patient=find_scope(level='Patient'),
-                 case=find_scope(level='Case'),
-                 exam=find_scope(level='Examination'),
-                 db=find_scope(level='PatientDB'),
-                 plan=find_scope(level='Plan'),
-                 beamset=find_scope(level='BeamSet'))
-    r = comment_to_clipboard(rso)
-    #
     # Tree Levels (move these to tree building)
     patient_key = (LEVELS['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
     exam_key = (LEVELS['EXAM_KEY'], "Exam: " + rso.exam.Name)
@@ -322,13 +191,106 @@ def physics_review(do_physics_review=True, rso=None):
                                   plan_level_tests,
                                   beamset_level_tests,
                                   message_logs)
+    return tree_data, tree_children
 
-    # Gui
-    launch_physics_review_gui(rso, tree_data, tree_children)
 
-    r.destroy()
-    tests = {'Test_Exam': exam_level_tests,
-             'Test_Plan': plan_level_tests,
-             'Test_BeamSet': beamset_level_tests}
+def perform_exam_tests(rso):
+    tests = []
+    exam_level_tests = get_exam_level_tests(rso)
+    for key, p_func in exam_level_tests.items():
+        pass_result, message = p_func[0](rso=rso, **p_func[1])
+        node, child = build_tree_element(key[0], key[1], pass_result, message)
+        tests.append({"exam_level_tests": [node, child]})
+    return tests
+
+
+def perform_plan_tests(rso, do_physics_review):
+    tests = []
+    plan_level_tests = get_plan_level_tests(rso, do_physics_review)
+    for key, p_func in plan_level_tests.items():
+        pass_result, message = p_func[0](rso=rso, **p_func[1])
+        node, child = build_tree_element(key[0], key[1], pass_result, message)
+        tests.append({"plan_level_tests": [node, child]})
+    return tests
+
+
+def perform_beamset_tests(rso, do_physics_review):
+    tests = []
+    beamset_level_tests = get_beamset_level_tests(rso, do_physics_review)
+    for key, b_func in beamset_level_tests.items():
+        pass_result, message = b_func[0](rso=rso, **b_func[1])
+        node, child = build_tree_element(key[0], key[1], pass_result, message)
+        tests.append({"beamset_level_tests": [node, child]})
+    return tests
+
+
+def physics_review(do_physics_review=True, rso=None):
+    """
+        patient_key
+            |
+             -- Patient Checks
+            |
+             -- exam_key
+                    |
+                     -- DICOM Checks
+            |
+             -- structure_key
+                    |
+                     -- Structure Checks
+             -- plan_key
+                    |
+                     -- Plan Checks
+             - beamset_key
+                    |
+                     -- Beamset Checks
+             - alt_beamset_key
+                    |
+                     -- Other Beamset Checks
+            |
+             -- Logs
+    """
+    # Initialize return variable
+    Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan',
+                           'beamset'])
+    # Get current patient, case, exam
+    rso = Pd(error=[],
+             patient=find_scope(level='Patient'),
+             case=find_scope(level='Case'),
+             exam=find_scope(level='Examination'),
+             db=find_scope(level='PatientDB'),
+             plan=find_scope(level='Plan'),
+             beamset=find_scope(level='BeamSet'))
+    #
+    user_name = get_user_name()
+    logging.info(f'Physics review script launched by {user_name}')
+
+    # tree_data = sg.TreeData()
+
+    if not rso:
+        # Initialize return variable
+        Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan',
+                               'beamset'])
+        # Get current patient, case, exam
+        rso = Pd(error=[],
+                 patient=find_scope(level='Patient'),
+                 case=find_scope(level='Case'),
+                 exam=find_scope(level='Examination'),
+                 db=find_scope(level='PatientDB'),
+                 plan=find_scope(level='Plan'),
+                 beamset=find_scope(level='BeamSet'))
+    # r = comment_to_clipboard(rso)
+    #
+    doc_only = False
+    if doc_only:
+        tests=None
+        header=None
+    else:
+        # Gui
+        tests,header = launch_physics_review_gui(rso)
+        if not tests and not header:
+            sys.exit('Physics review canceled')
+
+    # r.destroy()
     if do_physics_review:
-        generate_doc(rso, tests=tests)
+        generate_doc(rso, tests=tests, header_data=header, test_mode=doc_only)
+        sg.popup('Form submitted successfully.')

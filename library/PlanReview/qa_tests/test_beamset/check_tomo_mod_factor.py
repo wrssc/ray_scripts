@@ -142,20 +142,24 @@ def check_tomo_mod_factor(rso):
         mod_factor = compute_mod_factor(beam=b)
         if not site_found:
             pass_result = ALERT
-            message_str += f"No matching body site found for Beam {b.Name} MF: {mod_factor:.2f}"
+            message_str += f"No matching body site found for Beam {b.Name}" \
+                           f" MF: {mod_factor:.2f}"
         elif mod_factor < mod_low:
             pass_result = ALERT
-            message_str += f"Beam {b.Name} MF < {mod_low:.2f} for site {site_found}"
+            message_str += f"Beam {b.Name} MF < {mod_low:.2f} " \
+                           f"for site {site_found}"
         elif mod_factor > mod_high:
             if site_found == 'T3D':
                 pass_result = FAIL
-                message_str += f"Beam {b.Name} MF > {mod_high:.2f} for site {site_found}. " \
+                message_str += f"Beam {b.Name} MF > {mod_high:.2f} " \
+                               f"for site {site_found}. " \
                                f"Reoptimization REQUIRED"
             else:
                 pass_result = ALERT
-                message_str += f"Beam {b.Name} MF > {mod_high:.2f} for site {site_found}"
+                message_str += f"Beam {b.Name} MF > {mod_high:.2f} " \
+                               f"for site {site_found}"
         else:
             pass_result = PASS
-            message_str += f"Beam {b.Name} MF ({mod_factor:.2f}) ideal {mod_low:.2f} ≤ MF ≤ {
-            mod_high:.2f}"
+            message_str += f"Beam {b.Name} MF ({mod_factor:.2f}) ideal" \
+                           f"{mod_low:.2f} ≤ MF ≤ {mod_high:.2f}"
     return pass_result, message_str

@@ -90,7 +90,7 @@ def insert_tests_return_fails(test_data, treedata, fails):
 
 
 def build_review_tree(rso, exam_level_tests, plan_level_tests,
-                      beamset_level_tests, message_logs):
+                      beamset_level_tests, sandbox_level_tests, message_logs):
     test_results = []  # Something is probably going to be broken on final dose
     # Tree Levels
     patient_key = (LEVELS['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
@@ -98,6 +98,7 @@ def build_review_tree(rso, exam_level_tests, plan_level_tests,
     plan_key = (LEVELS['PLAN_KEY'], "Plan: " + rso.plan.Name)
     beamset_key = (
         LEVELS['BEAMSET_KEY'], "Beam Set: " + rso.beamset.DicomPlanLabel)
+    sandbox_key = (LEVELS['SANDBOX_KEY'], "Sandbox: ")
     rx_key = (LEVELS['RX_KEY'], "Prescription")
     log_key = (LEVELS['LOG_KEY'], "Logging")
     #
@@ -125,6 +126,12 @@ def build_review_tree(rso, exam_level_tests, plan_level_tests,
     tree_data.Insert(patient_key[0], beamset_key[0], beamset_key[1],
                      beamset_level_pass, icon=beamset_icon)
     insert_tests_return_fails(beamset_level_tests, tree_data, test_results)
+    #
+    # Insert Sandbox Level Nodes
+    sandbox_level_pass, sandbox_icon = parse_level_tests(sandbox_level_tests)
+    tree_data.Insert(patient_key[0], sandbox_key[0], sandbox_key[1],
+                     sandbox_level_pass, icon=sandbox_icon)
+    insert_tests_return_fails(sandbox_level_tests, tree_data, test_results)
     #
     # Log Level
     tree_data.Insert(patient_key[0], log_key[0], log_key[1], "")
