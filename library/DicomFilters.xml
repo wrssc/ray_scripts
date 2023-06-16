@@ -1,3 +1,7 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+  -->
+
 <filters>
     <filter type="machine/energy">
         <from><machine>TrueBeam</machine><energy type="photons">6</energy></from>
