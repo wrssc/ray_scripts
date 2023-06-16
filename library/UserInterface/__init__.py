@@ -7,7 +7,6 @@ from .MessageBox import RichTextBox
 from .InputDialog import InputDialog
 from .MatchDialog import MatchDialog
 from .ScriptStatus import ScriptStatus
-from .PySimpScriptStatus import PySimpScriptStatus
 from .TpoDialog import TpoDialog
 from .PlanDialog import PlanDialog
 from .PSInputDialog import PSInputDialog
