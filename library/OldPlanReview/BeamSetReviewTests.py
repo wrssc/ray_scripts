@@ -707,7 +707,7 @@ def make_unsubtracted_dose_structure(pdata, dose_value):
     """
     Make the structure for the dose threshold supplied
     makes unsubtracted_doses (RS Region of Interest Object) with name like <5%Rx>
-    pdata: exactly the same as pdiddy
+    patient_data: exactly the same as pdiddy
     dose_thresholds_normalized ({dose_roi_names: dose_levels(int)}): dose levels in cGy
     """
     # threshold_level = (float(d) / 100.) * float(rx)  # Threshold in cGy
