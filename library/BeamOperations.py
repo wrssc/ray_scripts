@@ -237,7 +237,7 @@ def beamset_dialog(case, filename=None, path=None, order_name=None):
     #            machine_list.append(m['Name'])
     # except:
     #    logging.debug('Unable to find machine list still...')
-    machine_list = ['TrueBeam', 'TrueBeamSTx', 'HDA0477', 'HDA0488']
+    machine_list = ['TrueBeam', 'TrueBeamSTx', 'HDA0488']
     # TODO Test gating option
     # TODO Load all available beamsets found in a file
     available_modality = ['Photons', 'Electrons']
@@ -366,78 +366,124 @@ def find_multi_iso_parameters(case, exam, beamset, iso_pois,
         isocenters.append(isocenter_parameters)
 
 
-def find_isocenter_parameters(case, exam, beamset, iso_target=None,
-                              iso_poi=None,
-                              existing_iso=None,
-                              lateral_zero=False,
-                              iso_name=None,
-                              ):
+def find_center(case, exam, target, use_poi):
+    """Finds the center of target using either ROI or POI geometries.
+
+    Args:
+        case (object): A patient case.
+        exam (object): An exam instance.
+        target: Target to locate the center of.
+        use_poi: Flag to determine if POI geometries should be used.
+
+    Returns:
+        The position of the center.
+
+    Raises:
+        SystemExit: If the center of target cannot be located.
+    """
+    try:
+        if use_poi:
+            center_position = case.PatientModel.StructureSets[exam.Name]. \
+                PoiGeometries[target].Point
+        else:
+            center_position = case.PatientModel.StructureSets[exam.Name]. \
+                RoiGeometries[target].GetCenterOfRoi()
+        return center_position
+    except Exception:
+        warning = f'Aborting, could not locate center of {target} on exam {exam.Name}' if not \
+            use_poi else \
+            f'Aborting, could not locate center of {target}'
+        logging.warning(warning)
+        sys.exit(warning)
+
+
+def find_existing_isocenter(case, isocenter_name):
+    """Find the existing isocenter by name from beamsets.
+
+    Args:
+        case (object): A patient case.
+        isocenter_name: The name of the isocenter.
+
+    Returns:
+        The position of the isocenter if found, None otherwise.
+    """
+    beamsets = [bs for p in case.TreatmentPlans for bs in p.BeamSets]
+    for bs in beamsets:
+        try:
+            for b in bs.Beams:
+                if b.Isocenter.Annotation.Name == isocenter_name:
+                    return b.Isocenter.Position
+        except:
+            pass
+    return None
+
+
+def find_isocenter_parameters(case: object,
+                              exam: object,
+                              beamset: object,
+                              iso_target: str = None,
+                              iso_poi: str = None,
+                              existing_iso: str = None,
+                              lateral_zero: bool = False,
+                              iso_name: str = None) -> dict:
     """Function to return the dict object needed for isocenter placement from the center of a
-    supplied
-    name of a structure"""
+    supplied name of a structure.
 
+    Args:
+        case (object): A patient case.
+        exam (object): An exam instance.
+        beamset (object): The beam set to be used.
+        iso_target (str): The name of the target structure for isocenter.
+        iso_poi (str): The name of the point of interest for isocenter.
+        existing_iso (str): The name of an existing isocenter.
+        lateral_zero (bool): Flag to determine if isocenter should be placed at
+        zero in lateral direction.
+        iso_name (str): The name of the isocenter to be created.
+
+    Returns:
+        dict: The parameters of the isocenter. The dictionary contains the
+              following keys:
+              'Name' - Name of the isocenter.
+              'NameOfIsocenterToRef' - Reference name of the isocenter.
+              'Position' - A dictionary containing the x, y, and z coordinates
+                           of the isocenter.
+    """
+    # Locate isocenter position based on provided arguments
     if iso_target:
-        try:
-            isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
-                RoiGeometries[iso_target].GetCenterOfRoi()
-        except Exception:
-            if not case.PatientModel.StructureSets[exam.Name] \
-                    .RoiGeometries[iso_target].HasContours():
-                warning = 'Aborting, could not locate center of {} on exam {}'.format(iso_target,
-                                                                                      exam.Name)
-            else:
-                warning = 'Aborting, could not locate center of {}'.format(iso_target)
-            logging.warning(warning)
-            sys.exit(warning)
+        isocenter_position = find_center(case, exam, iso_target, False)
     elif iso_poi:
-        try:
-            isocenter_position = case.PatientModel.StructureSets[exam.Name]. \
-                PoiGeometries[iso_poi].Point
-        except Exception:
-            logging.warning('Aborting, could not locate center of {}'.format(iso_poi))
-            sys.exit('Failed to place isocenter at Point {}'.format(iso_poi))
+        isocenter_position = find_center(case, exam, iso_poi, True)
     elif existing_iso:
-        beamsets = [bs for p in case.TreatmentPlans for bs in p.BeamSets]
-        for bs in beamsets:
-            try:
-                for b in bs.Beams:
-                    if b.Isocenter.Annotation.Name == existing_iso:
-                        isocenter_position = b.Isocenter.Position
-                        break
-            except:
-                pass
+        isocenter_position = find_existing_isocenter(case, existing_iso)
 
-    # Place isocenter
-    # TODO Add a check on laterality at this point (if -7< x < 7 ) put out a warning
-    # TODO Add a check on the support structures. If any are placed in -y so much
-    # TODO they cause a collision, warn user and place iso correctly
-    if lateral_zero:
-        iso_x = 0.
-    else:
-        iso_x = isocenter_position.x
+    # Adjust isocenter position based on lateral_zero flag
+    ptv_center = {'x': 0 if lateral_zero else isocenter_position.x,
+                  'y': isocenter_position.y,
+                  'z': isocenter_position.z}
 
-    if lateral_zero:
-        ptv_center = {'x': 0.,
-                      'y': isocenter_position.y,
-                      'z': isocenter_position.z}
-    else:
-        ptv_center = {'x': isocenter_position.x,
-                      'y': isocenter_position.y,
-                      'z': isocenter_position.z}
-    isocenter_parameters = beamset.CreateDefaultIsocenterData(Position=ptv_center)
+    # Create isocenter data
+    isocenter_parameters = beamset.CreateDefaultIsocenterData(
+        Position=ptv_center)
+
+    # Assign isocenter name
     if iso_name:
         isocenter_parameters['Name'] = iso_name
         isocenter_parameters['NameOfIsocenterToRef'] = iso_name
     else:
-        isocenter_parameters['Name'] = "iso_" + beamset.DicomPlanLabel
-        isocenter_parameters['NameOfIsocenterToRef'] = "iso_" + beamset.DicomPlanLabel
+        default_name = "iso_" + beamset.DicomPlanLabel
+        isocenter_parameters['Name'] = default_name
+        isocenter_parameters['NameOfIsocenterToRef'] = default_name
+
+        # Assign position to isocenter parameters
     isocenter_parameters['Position'] = ptv_center
-    logging.info('Isocenter chosen based on center of {}.'.format(iso_target) +
-                 'Parameters are: x={}, y={}:, z={}, assigned to isocenter name{}'.format(
-                     ptv_center['x'],
-                     ptv_center['y'],
-                     ptv_center['z'],
-                     isocenter_parameters['Name']))
+
+    # Log the chosen isocenter
+    logging.info(f'Isocenter chosen based on center of {iso_target}. '
+                 f'Parameters are: '
+                 f'x={ptv_center["x"]}, '
+                 f'y={ptv_center["y"]}, '
+                 f'z={ptv_center["z"]}, '
+                 f'assigned to isocenter name {isocenter_parameters["Name"]}')
 
     return isocenter_parameters
 
@@ -564,10 +610,11 @@ def get_unique_name(beamset, name):
         return name
 
 
-def place_beams_in_beamset(iso, beamset, beams):
+def place_beams_in_beamset(iso, plan, beamset, beams):
     """
     Put beams in place based on a list of Beam objects
     :param iso: isocenter data dictionary
+    :param plan: RS plan object
     :param beamset: beamset to which to add beams
     :param beams: list of Beam objects
     :return: beams_added: dict
@@ -595,6 +642,12 @@ def place_beams_in_beamset(iso, beamset, beams):
                                   CollimatorAngle=b.collimator_angle)
             beams_added.append({'Name': beam_name,
                                 'IsoName': iso['Name']})
+            if b.jaw_limits:
+                result = lock_jaws(plan=plan,
+                                   beamset=beamset,
+                                   beam_name=beam_name,
+                                   limits=b.jaw_limits)
+                logging.info(result)
 
     elif beamset.DeliveryTechnique == "SMLC":
         for b in beams:
@@ -614,13 +667,12 @@ def place_beams_in_beamset(iso, beamset, beams):
                                      CollimatorAngle=b.collimator_angle)
             beams_added.append({'Name': b.name,
                                 'IsoName': iso['Name']})
-    for b in beams:
-        if b.jaw_limits:
-            result = lock_jaws(plan=pd.plan,
-                               beamset=pd.beamset,
-                               beam_name=b.name,
-                               limits=b.jaw_limits)
-            logging.info(result)
+            if b.jaw_limits:
+                result = lock_jaws(plan=plan,
+                                   beamset=beamset,
+                                   beam_name=b.name,
+                                   limits=b.jaw_limits)
+                logging.info(result)
     return beams_added
 
 
