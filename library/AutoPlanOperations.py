@@ -36,7 +36,7 @@ __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
 import sys
 import os
-import xml
+import xml.etree.ElementTree as Et
 import re
 import pandas
 import logging
@@ -70,7 +70,7 @@ def load_protocols(folder):
     # Search protocol list, parsing each XML file for protocols and goalsets
     for f in os.listdir(folder):
         if f.endswith('.xml'):
-            tree = xml.etree.ElementTree.parse(os.path.join(folder, f))
+            tree = Et.parse(os.path.join(folder, f))
             if tree.getroot().tag == 'protocol':
                 n = tree.find('name').text
                 protocols[n] = [None, None]
@@ -813,7 +813,7 @@ def load_planning_structures(case, filename, path, workflow_name, translation_ma
     if not wf:
         return 'NA'
     file = filename
-    tree_pp = xml.etree.ElementTree.parse(
+    tree_pp = Et.parse(
         os.path.join(os.path.dirname(__file__), path, file))
     # Planning preferences loaded into dict
     dict_pp = StructureOperations \
@@ -985,7 +985,7 @@ def load_configuration_optimize_beamset(filename, path, rso,
 
     # XML target is a tag called optimization_config
     key_oc = 'optimization_config'
-    tree_oc = xml.etree.ElementTree.parse(
+    tree_oc = Et.parse(
         os.path.join(os.path.dirname(__file__), path, filename))
     # Search the tree for the appropriate beamset type
     for o in tree_oc.findall('optimization_config'):
