@@ -1340,9 +1340,9 @@ def match_gui(matches, elements, df_rois=None):
                         )
                     ],
                 ],
-                title='Target Colors Selection',
+                title='Color Selection',
                 relief=sg.RELIEF_SUNKEN,
-                tooltip='Select a color template for targets',
+                tooltip='Select a color template',
                 key=frames[1]
             ),
         ],
