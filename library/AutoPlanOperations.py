@@ -298,8 +298,7 @@ def place_fiducial(rso, poi_name):
     except Exception as e:
         logging.debug(f"Could not click on the patient modeling window {e}")
 
-    poi = StructureOperations.find_localization_poi(case=rso.case,
-                                                    exam=rso.exam)
+    poi = StructureOperations.find_localization_poi(case=rso.case)
     if poi:
         poi_name = poi.Name
         poi_has_coord = StructureOperations.has_coordinates_poi(case=rso.case,
