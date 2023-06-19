@@ -57,8 +57,26 @@ import connect
 import re
 import numpy as np
 import pandas as pd
+import xml.etree.ElementTree as Et
 import clr
 import System.Drawing
+import sys
+from os import path, listdir
+
+rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"
+sys.path.append(
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW")
+sys.path.append(
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW"
+    "\\AutoPlans")
+sys.path.append(
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW"
+    "\\beamset_templates")
+
+PROTOCOL_FOLDER = path.join(rab_git, 'protocols')
+INSTITUTION_FOLDER = r'UW'
+BEAMSET_FOLDER = r'beamset_templates'
+PATH_BEAMSETS = path.join(PROTOCOL_FOLDER, INSTITUTION_FOLDER, BEAMSET_FOLDER)
 
 clr.AddReference("System.Drawing")
 
@@ -326,7 +344,7 @@ def has_coordinates_poi(case, exam, poi):
             sys.exit("Script cancelled")
 
 
-def find_localization_poi(case, exam):
+def find_localization_poi(case):
     # Find the localization point if it exists
     # return poi object or none
     pois = case.PatientModel.PointsOfInterest
@@ -409,8 +427,7 @@ def check_roi(case, exam, rois):
         for r in rois:
             if (
                     case.PatientModel.StructureSets[exam.Name]
-                            .RoiGeometries[r]
-                            .HasContours()
+                        .RoiGeometries[r].HasContours()
             ):
                 roi_passes.append(True)
             else:
@@ -471,8 +488,8 @@ def max_coordinates(case, exam, rois):
 
     ret = (
         case.PatientModel.StructureSets[exam.Name]
-            .RoiGeometries[rois]
-            .SetRepresentation(Representation="Contours")
+        .RoiGeometries[rois]
+        .SetRepresentation(Representation="Contours")
     )
     logging.debug(f"ret of operation is {ret}")
 
@@ -485,8 +502,8 @@ def max_coordinates(case, exam, rois):
 
         contours = (
             case.PatientModel.StructureSets[exam]
-                .RoiGeometries[rois]
-                .PrimaryShape.Contours
+            .RoiGeometries[rois]
+            .PrimaryShape.Contours
         )
 
         for contour in contours:
@@ -541,7 +558,7 @@ def change_to_263_color(case, roi_name, df_rois=None):
                     institution_folder,
                 )
             )
-        tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+        tree = Et.parse(os.path.join(paths[0], files[0][2]))
         rois_dict = iter_standard_rois(tree)
         df_rois = pd.DataFrame(rois_dict["rois"])
 
@@ -808,8 +825,8 @@ def exams_containing_roi(case, structure_name, roi_list=None, exam=None):
             logging.debug(f"type ss {ss} and rg {rg}")
             e_has_contours = (
                 case.PatientModel.StructureSets[e]
-                    .RoiGeometries[structure_name]
-                    .HasContours()
+                .RoiGeometries[structure_name]
+                .HasContours()
             )
             if e_has_contours:
                 roi_found.append(e)
@@ -847,8 +864,8 @@ def check_structure_exists(
         if exam is not None:
             structure_has_contours_on_exam = (
                 case.PatientModel.StructureSets[exam.Name]
-                    .RoiGeometries[structure_name]
-                    .HasContours()
+                .RoiGeometries[structure_name]
+                .HasContours()
             )
         else:
             structure_has_contours_on_exam = False
@@ -1365,23 +1382,27 @@ def match_gui(matches, elements, df_rois=None):
         grab_anywhere=False
     )
 
+    submitted = False  # Flag to track if the Submit button was clicked
+
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == "Cancel":
-            responses = {}
-            break
+            logging.info("Matching dialog cancelled by user")
+            sys.exit("Matching Dialog Cancelled")
         elif event == "Submit":
+            submitted = True
             suffix = values['-SUFFIX-']
             values.pop('-SUFFIX-')
             color_scheme = values['-COLOR SCHEME-']
             values.pop('-COLOR SCHEME-')
-            responses = values
+            responses = {k: values[k] for k in matches.keys()}
             break
     window.close()
-    # Parse responses
-    if responses == {}:
+
+    # Check if the Submit button was clicked and if any changes were made
+    if not submitted and not any(responses.values()):
         logging.info("Matching dialog cancelled by user")
-        sys.exit("Matching Dialog Cancelled")
+        raise RuntimeError("Matching Dialog Cancelled")
     dialog_result = {}
     for r, m in responses.items():
         dialog_result[r] = find_gui_match(m, elements, df_rois)
@@ -1899,13 +1920,13 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
         standard_names = []
         for f in os.listdir(paths[1]):
             if f.endswith(".xml"):
-                tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
+                tree = Et.parse(os.path.join(paths[1], f))
                 prot_rois = tree.findall(".//roi")
                 for r in prot_rois:
                     if not any(i in r.find("name").text for i in standard_names):
                         standard_names.append(r.find("name").text)
 
-        tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+        tree = Et.parse(os.path.join(paths[0], files[0][2]))
         roi263 = tree.findall("./" + "roi")
         rois_dict = iter_standard_rois(tree)
         df_rois = pd.DataFrame(rois_dict["rois"])
@@ -2112,7 +2133,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                 else:
                     logging.debug(f"Direct rename {k} to {return_rois[k]}")
                     case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
-    return return_rois
+    return return_rois, color_scheme
 
 
 def structure_approved(case, roi_name, examination=None):
@@ -3234,26 +3255,6 @@ class PlanningStructurePreferences:
         self.plan_type = None
 
 
-import sys
-
-rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"
-sys.path.append(
-    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW")
-sys.path.append(
-    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW"
-    "\\AutoPlans")
-sys.path.append(
-    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW"
-    "\\beamset_templates")
-from os import path, listdir
-import xml
-
-PROTOCOL_FOLDER = path.join(rab_git, 'protocols')
-INSTITUTION_FOLDER = r'UW'
-BEAMSET_FOLDER = r'beamset_templates'
-PATH_BEAMSETS = path.join(PROTOCOL_FOLDER, INSTITUTION_FOLDER, BEAMSET_FOLDER)
-
-
 def load_beamsets(beamset_type, beamset_modality):
     """
     params: folder: the file folder containing xml files of autoplanning protocols
@@ -3265,7 +3266,7 @@ def load_beamsets(beamset_type, beamset_modality):
     # Search file list for xml files containing templates
     for f in listdir(PATH_BEAMSETS):
         if f.endswith('.xml'):
-            tree = xml.etree.ElementTree.parse(path.join(PATH_BEAMSETS, f))
+            tree = Et.parse(path.join(PATH_BEAMSETS, f))
             if tree.getroot().tag == 'templates':
                 if beamset_type in [t.text for t in tree.findall('type')] \
                         and beamset_modality in tree.find('modality').text:
@@ -3331,7 +3332,7 @@ def load_protocols(folder):
     # Search protocol list, parsing each XML file for protocols and goalsets
     for f in os.listdir(folder):
         if f.endswith('.xml'):
-            tree = xml.etree.ElementTree.parse(os.path.join(folder, f))
+            tree = Et.parse(os.path.join(folder, f))
             if tree.getroot().tag == 'protocol':
                 n = tree.find('name').text
                 protocols[n] = [None, None]

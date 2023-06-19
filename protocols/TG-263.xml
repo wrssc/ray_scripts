@@ -2844,9 +2844,26 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>GTV1</name>
+        <TG263PrimaryName>GTV1</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV1</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>PTV1</name>
         <TG263PrimaryName>PTV1</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
+        <Description>Planning Target Volume Single Target</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
         <RTROIInterpretedType>Ptv</RTROIInterpretedType>
@@ -2861,9 +2878,26 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>GTV2</name>
+        <TG263PrimaryName>GTV2</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV2</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>PTV2</name>
         <TG263PrimaryName>PTV2</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
+        <Description>Planning Target Volume Single Target</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
         <RTROIInterpretedType>Ptv</RTROIInterpretedType>
@@ -2878,9 +2912,26 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>GTV3</name>
+        <TG263PrimaryName>GTV3</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV3</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>PTV3</name>
         <TG263PrimaryName>PTV3</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
+        <Description>Planning Target Volume Single Target</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
         <RTROIInterpretedType>Ptv</RTROIInterpretedType>
@@ -2895,17 +2946,51 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>GTV4</name>
+        <TG263PrimaryName>GTV4</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV4</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>PTV4</name>
         <TG263PrimaryName>PTV4</TG263PrimaryName>
-        <Description>Planning Target Volume for Target 4</Description>
+        <Description>Planning Target Volume Single Target</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
         <RTROIInterpretedType>Ptv</RTROIInterpretedType>
         <MajorCategory>PTV</MajorCategory>
         <MinorCategory></MinorCategory>
-        <AnatomicGroup>Thorax</AnatomicGroup>
+        <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>PTV4</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>GTV5</name>
+        <TG263PrimaryName>GTV5</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV5</TG263ReverseOrderName>
         <Export></Export>
         <FMAID></FMAID>
         <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
@@ -2914,7 +2999,7 @@
     <roi>
         <name>PTV5</name>
         <TG263PrimaryName>PTV5</TG263PrimaryName>
-        <Description>Planning Target Volume for the right upper lobe of the lung</Description>
+        <Description>Planning Target Volume Single Target</Description>
         <NCIt></NCIt>
         <TargetType>Target</TargetType>
         <RTROIInterpretedType>Ptv</RTROIInterpretedType>
@@ -2923,6 +3008,278 @@
         <AnatomicGroup>Body</AnatomicGroup>
         <NCharacters>4</NCharacters>
         <TG263ReverseOrderName>PTV5</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>GTV6</name>
+        <TG263PrimaryName>GTV6</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV6</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>PTV6</name>
+        <TG263PrimaryName>PTV6</TG263PrimaryName>
+        <Description>Planning Target Volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Target</TargetType>
+        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <MajorCategory>PTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>PTV6</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>GTV7</name>
+        <TG263PrimaryName>GTV7</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV7</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>PTV7</name>
+        <TG263PrimaryName>PTV7</TG263PrimaryName>
+        <Description>Planning Target Volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Target</TargetType>
+        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <MajorCategory>PTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>PTV7</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>GTV8</name>
+        <TG263PrimaryName>GTV8</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV8</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>PTV9</name>
+        <TG263PrimaryName>PTV9</TG263PrimaryName>
+        <Description>Planning Target Volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Target</TargetType>
+        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <MajorCategory>PTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>PTV9</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>GTV10</name>
+        <TG263PrimaryName>GTV10</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV10</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>PTV10</name>
+        <TG263PrimaryName>PTV10</TG263PrimaryName>
+        <Description>Planning Target Volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Target</TargetType>
+        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <MajorCategory>PTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>PTV10</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>GTV11</name>
+        <TG263PrimaryName>GTV11</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV11</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>PTV11</name>
+        <TG263PrimaryName>PTV11</TG263PrimaryName>
+        <Description>Planning Target Volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Target</TargetType>
+        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <MajorCategory>PTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>PTV11</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>GTV12</name>
+        <TG263PrimaryName>GTV12</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV12</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>PTV12</name>
+        <TG263PrimaryName>PTV12</TG263PrimaryName>
+        <Description>Planning Target Volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Target</TargetType>
+        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <MajorCategory>PTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>PTV12</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>GTV13</name>
+        <TG263PrimaryName>GTV13</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV13</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>PTV13</name>
+        <TG263PrimaryName>PTV13</TG263PrimaryName>
+        <Description>Planning Target Volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Target</TargetType>
+        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <MajorCategory>PTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>PTV13</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>GTV14</name>
+        <TG263PrimaryName>GTV14</TG263PrimaryName>
+        <Description>Gross tumor volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>GTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>GTV14</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="127" blue="0" Hex="#ff7f00">BrewerOrange</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>PTV14</name>
+        <TG263PrimaryName>PTV14</TG263PrimaryName>
+        <Description>Planning Target Volume Single Target</Description>
+        <NCIt></NCIt>
+        <TargetType>Target</TargetType>
+        <RTROIInterpretedType>Ptv</RTROIInterpretedType>
+        <MajorCategory>PTV</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Body</AnatomicGroup>
+        <NCharacters>4</NCharacters>
+        <TG263ReverseOrderName>PTV14</TG263ReverseOrderName>
         <Export></Export>
         <FMAID></FMAID>
         <Color red="106" green="61" blue="154" Hex="#6a3d9a">BrewerPurple</Color>
