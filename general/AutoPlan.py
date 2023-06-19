@@ -322,11 +322,11 @@ def autoplan(autoplan_parameters, **kwargs):
         machine = autoplan_parameters['machine']
         user_prompts = autoplan_parameters.get('user_prompts', None)
         optimize = autoplan_parameters.get('optimize', True)
+        ignore_status = autoplan_parameters.get('ignore_status',False)
         multi_plan_parameters = kwargs.get('beamset_list', [])
         optimization_instructions = autoplan_parameters.get('optimization_instructions', {})
         if optimization_instructions:
             background = optimization_instructions.get('optimize_with_background', "")
-        ignore_status = autoplan_parameters.get('ignore_status',False)
     else:
         input_protocol_name = None
         input_order_name = None
@@ -341,6 +341,7 @@ def autoplan(autoplan_parameters, **kwargs):
         iso_dict = {'type': None, 'target': None}
         translation_map = {}
         optimize = True
+        ignore_status = False
         multi_plan_parameters = []
     logging.debug(f'Optimization Parameters: user_prompts:'
                   f'{user_prompts}, optimize {optimize}')
