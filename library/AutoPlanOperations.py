@@ -245,8 +245,8 @@ def find_validation_status(order):
 
         status = values['validation_status']
         author = values['author']
-        final_dose = values['final_dose']
-        copy_final_plan = values['copy_final_plan']
+        final_dose = True if values['final_dose'] == "True" else False
+        copy_final_plan = True if values['copy_final_plan'] == "True" else False
         validation_info = {
             'status': status if status is not None else True,
             'author': author,
