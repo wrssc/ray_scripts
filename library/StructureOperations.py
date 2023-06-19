@@ -4011,9 +4011,10 @@ def planning_structures(
         filtered_list = []
         for i in input_source_list:
             derived_sources = [re.search(r, i) for r in PLANNING_EXPRESSIONS]
-            logging.debug(f'Derived sources {derived_sources}')
-            if not derived_sources:
+            if not any(derived_sources):
                 filtered_list.append(i)
+            else:
+                logging.debug(f'{i} is a derived source')
         input_source_list = filtered_list
 
     # Generate Scan Lengths
