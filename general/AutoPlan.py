@@ -272,7 +272,8 @@ def multi_autoplan(multi_plan_parameters):
             'iso': m.get('iso', None),
             'user_prompts': m.get('user_prompts', True),
             'optimize': m.get('optimize', True),
-            'optimization_instructions': m.get('optimization_instructions', None)
+            'optimization_instructions': m.get('optimization_instructions', None),
+            'ignore_status': True,
         }
         logging.debug(f'M is {m}')
         logging.debug(f'Autoplan {autoplan_parameters}')
@@ -325,6 +326,7 @@ def autoplan(autoplan_parameters, **kwargs):
         optimization_instructions = autoplan_parameters.get('optimization_instructions', {})
         if optimization_instructions:
             background = optimization_instructions.get('optimize_with_background', "")
+        ignore_status = autoplan_parameters.get('ignore_status',False)
     else:
         input_protocol_name = None
         input_order_name = None
@@ -354,40 +356,41 @@ def autoplan(autoplan_parameters, **kwargs):
         "Q:\\RadOnc\\RayStation\\RayScripts\\AutoPlanData")
     #
     # Create status steps for dialog
-    script_steps = {
-        0: ('Select Protocol (Site)', 'Choose main protocol for autoplan'),
-        1: ('Select Treatment Planning Order',
-            'Choose the treatment planning order we are using'),
-        2: ('Assign Targets/Doses to TPO, Declare number of fractions',
-            'Match the protocol targets to current plan'),
-        3: ('Select Beamset', 'Chose the beamset you want to load'),
-        4: ('Add a plan', 'Building the plan'),
-        5: ('Load beamset', 'Beamset specified is being loaded'),
-        6: ('Assign any overrides',
-            'Review the densities in use in the plan and assign material values'),
-        # 6:('Review and assign any overrides',
-        # '<name>_Override_TissueTypes are being overridden'),
-        7: ('Set the sim-fiducial point',
-            'Make sure the localization point matches BBs'),
-        8: (
-            'Select any blocking/bolus',
-            'Ensure the Entrance/Exit is selected for blocked structures'),
-        9: ('Support Structure Loading',
-            'Ensure the support structures are properly placed'),
-        10: ('Load Planning Structures', 'Loading rings, normals, otvs etc'),
-        11: ('Loading goals', 'Load goals from the TPO you selected'),
-        12: ('Optimize Plan', 'Optimizing plan. Copy and finish')
-    }
-    steps = []
-    instruct = []
-    for k, v in script_steps.items():
-        steps.append(v[0])
-        instruct.append(v[1])
+    if not ignore_status:
+        script_steps = {
+            0: ('Select Protocol (Site)', 'Choose main protocol for autoplan'),
+            1: ('Select Treatment Planning Order',
+                'Choose the treatment planning order we are using'),
+            2: ('Assign Targets/Doses to TPO, Declare number of fractions',
+                'Match the protocol targets to current plan'),
+            3: ('Select Beamset', 'Chose the beamset you want to load'),
+            4: ('Add a plan', 'Building the plan'),
+            5: ('Load beamset', 'Beamset specified is being loaded'),
+            6: ('Assign any overrides',
+                'Review the densities in use in the plan and assign material values'),
+            # 6:('Review and assign any overrides',
+            # '<name>_Override_TissueTypes are being overridden'),
+            7: ('Set the sim-fiducial point',
+                'Make sure the localization point matches BBs'),
+            8: (
+                'Select any blocking/bolus',
+                'Ensure the Entrance/Exit is selected for blocked structures'),
+            9: ('Support Structure Loading',
+                'Ensure the support structures are properly placed'),
+            10: ('Load Planning Structures', 'Loading rings, normals, otvs etc'),
+            11: ('Loading goals', 'Load goals from the TPO you selected'),
+            12: ('Optimize Plan', 'Optimizing plan. Copy and finish')
+        }
+        steps = []
+        instruct = []
+        for k, v in script_steps.items():
+            steps.append(v[0])
+            instruct.append(v[1])
 
-    auto_status = UserInterface.ScriptStatus(
-        steps=steps,
-        docstring=__doc__,
-        help=__help__)
+        auto_status = UserInterface.ScriptStatus(
+            steps=steps,
+            docstring=__doc__,
+            help=__help__)
     # Initialize times
     ap_report['time_all'] = [None] * 2
     ap_report['time_user'] = [None] * 2
@@ -415,10 +418,10 @@ def autoplan(autoplan_parameters, **kwargs):
 
     #
     # Select the protocol
-
-    status_index = 0
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        status_index = 0
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     logging.debug("Loading file {}".format(input_protocol_name))
     (protocol_file, protocol) = AutoPlanOperations.select_protocol(folder=path_protocols,
                                                                    protocol_name=input_protocol_name)
@@ -432,8 +435,9 @@ def autoplan(autoplan_parameters, **kwargs):
         return
     #
     # Select the TPO
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
 
     order = AutoPlanOperations.select_order(protocol, order_name=input_order_name)
     order_name = order.find('name').text
@@ -443,8 +447,9 @@ def autoplan(autoplan_parameters, **kwargs):
     rx = AutoPlanOperations.find_rx(order)
     #
     # Match the protocol targets and doses to the beamset the user is making
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     if not translation_map:
         # Prompt user for target map
         (site, num_fx, translation_map) = target_dialog(case=rso.case,
@@ -485,8 +490,9 @@ def autoplan(autoplan_parameters, **kwargs):
     # TODO: Sort machines by technique
     # Machines
     machines = GeneralOperations.get_all_commissioned(machine_type=None)
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     #
     # Add beamset
     if not beamset_template:
@@ -603,8 +609,9 @@ def autoplan(autoplan_parameters, **kwargs):
     # elif os.path.isfile(file_name):
 
     #
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     # Load the existing plan or create a new one
     try:
         info = rso.case.QueryPlanInfo(Filter={'Name': plan_name})
@@ -623,8 +630,9 @@ def autoplan(autoplan_parameters, **kwargs):
 
     rso.patient.Save()
     rso.plan.SetCurrent()
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     # Load beamset
     rs_beam_set = BeamOperations.create_beamset(patient=rso.patient,
                                                 case=rso.case,
@@ -776,8 +784,9 @@ def autoplan(autoplan_parameters, **kwargs):
     ap_report['time_plan'][1] = timer()
     #
     # Set any overrides
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     if user_prompts:
         connect.await_user_input(
             'Set any required material overrides and continue the script.')
@@ -786,16 +795,18 @@ def autoplan(autoplan_parameters, **kwargs):
 
     #
     # Place the SimFiducial Point
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     if user_prompts:
         AutoPlanOperations.place_fiducial(rso=rso, poi_name='SimFiducials')
     else:
         logging.debug('SimFiducial placement skipped for test')
     #
     # Set any blocking or bolus
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     try:
         ui = connect.get_current('ui')
         ui.TitleBar.MenuItem['Plan optimization'].Button_Plan_optimization.Click()
@@ -817,8 +828,9 @@ def autoplan(autoplan_parameters, **kwargs):
     #
     # Add support structures here
     # Support structures come from beamset data.
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     strip_roi_support = beamset_etree.find('roi_support').text
     strip_roi_support = strip_roi_support.replace(" ", "")
     strip_roi_support = strip_roi_support.strip()
@@ -839,8 +851,9 @@ def autoplan(autoplan_parameters, **kwargs):
     ap_report['time_user'][1] = timer()
 
     # Planning structures added
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     ap_report['time_roi'][0] = timer()
     # Use cGy naming convention
     translation_map = AutoPlanOperations.convert_translation_map(
@@ -859,8 +872,9 @@ def autoplan(autoplan_parameters, **kwargs):
     ap_report['time_roi'][1] = timer()
     #
     # Add goals and objectives
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     ap_report['time_goals'][0] = timer()
     translation_map = AutoPlanOperations.convert_translation_map(
         translation_map, unit=r'Gy')
@@ -879,8 +893,9 @@ def autoplan(autoplan_parameters, **kwargs):
     ap_report['time_goals'][1] = timer()
     #
     # Optimize using the protocol optimization technique for this delivery type
-    auto_status.next_step(text=script_steps[status_index][1])
-    status_index += 1
+    if not ignore_status:
+        auto_status.next_step(text=script_steps[status_index][1])
+        status_index += 1
     rso.patient.Save()
     #
     # Check if this order has been validated. If not give user a bail option
