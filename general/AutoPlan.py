@@ -357,6 +357,9 @@ def autoplan(autoplan_parameters, **kwargs):
         "Q:\\RadOnc\\RayStation\\RayScripts\\AutoPlanData")
     #
     # Create status steps for dialog
+    auto_status = None
+    status_index = ""
+    script_steps = []
     if not ignore_status:
         script_steps = {
             0: ('Select Protocol (Site)', 'Choose main protocol for autoplan'),
@@ -490,7 +493,7 @@ def autoplan(autoplan_parameters, **kwargs):
 
     # TODO: Sort machines by technique
     # Machines
-    machines = GeneralOperations.get_all_commissioned(machine_type=None)
+    _ = GeneralOperations.get_all_commissioned(machine_type=None)
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
@@ -509,14 +512,18 @@ def autoplan(autoplan_parameters, **kwargs):
     # Look for a beamset_template call, if one is found, get the template from beamset_templates dir
     # TODO add modality here based on machine. User chose the machine, so we should be able to
     #   match to the machine attribute in the technique tag of the prescription tag in the order
+    delivery_technique = delivery_modality = None
     p = order.find('prescription')
     for t in p.findall('technique'):
         if t.attrib['machine'] == machine:
             delivery_technique = t.attrib['technique']
             delivery_modality = t.attrib['modality']
             break
+    if not delivery_modality and not delivery_technique:
+        raise RuntimeError('Technique and status are not found in TPO prescription template')
     beamsets = BeamOperations.load_beamsets(beamset_type=delivery_technique,
                                             beamset_modality=delivery_modality)
+    beamset_etree = technique_elem = None
     for bt in order.findall('beamset_template'):
         beamset_etree = BeamOperations.find_beamset_element(beamsets)
     # Look for a hard coded beamset in this file.
