@@ -76,7 +76,7 @@ import os
 import re
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../helper_scripts'))
-import init_physics_06Dec2022
+import init_physics_19Jun2023
 
 clr.AddReference("System.Xml")
 import System
@@ -103,6 +103,53 @@ def compute_dose(beamset, dose_algorithm):
             logging.exception(u'{}'.format(e.Message))
             sys.exit(u'{}'.format(e.Message))
         return message
+
+
+import logging
+
+
+def process_rois_for_export(plan, case):
+    """Exports regions of interest (ROIs) based on specified criteria.
+
+    Args:
+        case: The case object containing patient information.
+        plan: The plan object containing treatment information.
+    """
+    rois_for_export = []
+
+    # All structures with a clinical goal
+    for ef in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
+        rois_for_export.append(ef.ForRegionOfInterest.Name)
+
+    # All GTVs and CTVs
+    rois_for_export.extend(StructureOperations.find_types(case, 'Gtv'))
+    rois_for_export.extend(StructureOperations.find_types(case, 'Ctv'))
+
+    ptvs = StructureOperations.find_types(case, 'Ptv')
+    reg_ex_patterns = [r'\bOTV', r'\bsOTVu', r'\bPTV\d{1,2}_']
+
+    # Exclude known planning structure types
+    for ptv in ptvs:
+        if not StructureOperations.any_regex_match(reg_ex_patterns, ptv):
+            rois_for_export.append(ptv)
+
+    rois_for_export = list(set(rois_for_export))
+    successful_exclusion = []
+
+    for r in case.PatientModel.RegionsOfInterest:
+        try:
+            if r in rois_for_export:
+                StructureOperations.include_in_export(case, [r.Name])
+            else:
+                StructureOperations.exclude_from_export(case, [r.Name])
+                successful_exclusion.append(r)
+        except Exception as e:
+            if r in rois_for_export:
+                logging.debug(f'Unsuccessful in including {r.Name}: {e}')
+            else:
+                logging.debug(f'Unsuccessful in excluding {r.Name}: {e}')
+
+    logging.info(f'Successfully excluded: {successful_exclusion} from export.')
 
 
 def final_dose(site=None, technique=None):
@@ -173,23 +220,8 @@ def final_dose(site=None, technique=None):
                                         help=__help__)
     status.next_step('Checking beam names')
 
-    # Exclude irrelevant rois
-
-    rois_for_export = []
-    # All structures with a clinical goal
-    for ef in plan.TreatmentCourse.EvaluationFunctions:
-        rois_for_export.append(ef.ForRegionOfInterest.Name)
-    # All GTVs and CTVs
-    rois_for_export.extend(StructureOperations.find_types(case, 'Gtv'))
-    rois_for_export.extend(StructureOperations.find_types(case, 'Ctv'))
-    ptvs = StructureOperations.find_types(case, 'Ptv')
-    ptvs_for_export = []
-    # Exclude known planning structure types
-    reg_ex_patterns = [r'\bOTV', r'\bsOTVu', r'\bPTV\d{1,2}_']
-    for ptv in ptvs:
-        if not StructureOperations.any_regex_match(reg_ex_patterns, ptv):
-            rois_for_export.append(ptv)
-    StructureOperations.exclude_from_export(case, rois_for_export)
+    # Exclude irrelevant rois from export
+    process_rois_for_export(plan, case)
 
     if check_lateral_pa:
         # Check the lateral PA for clearance
@@ -204,7 +236,7 @@ def final_dose(site=None, technique=None):
         BeamOperations.rename_beams(site_name=site, input_technique=technique)
         status.next_step('Renamed Beams, checking external integrity')
 
-    init_physics_06Dec2022.main(physics_review=False)
+    init_physics_19Jun2023.main(physics_review=False)
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
     if external_test:
         external_error = True
