@@ -105,51 +105,49 @@ def compute_dose(beamset, dose_algorithm):
         return message
 
 
-import logging
-
-
 def process_rois_for_export(plan, case):
     """Exports regions of interest (ROIs) based on specified criteria.
 
     Args:
-        case: The case object containing patient information.
-        plan: The plan object containing treatment information.
+        plan (Plan): The RS plan object containing treatment information.
+        case (Case): The RS case object containing patient information.
     """
-    rois_for_export = []
+    # Gather ROIs with a clinical goal
+    rois_for_export = [ef.ForRegionOfInterest.Name for ef in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions]
 
-    # All structures with a clinical goal
-    for ef in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
-        rois_for_export.append(ef.ForRegionOfInterest.Name)
-
-    # All GTVs and CTVs
+    # Add GTVs and CTVs
     rois_for_export.extend(StructureOperations.find_types(case, 'Gtv'))
     rois_for_export.extend(StructureOperations.find_types(case, 'Ctv'))
 
+    # Add PTVs excluding known planning structure types
     ptvs = StructureOperations.find_types(case, 'Ptv')
     reg_ex_patterns = [r'\bOTV', r'\bsOTVu', r'\bPTV\d{1,2}_']
-
-    # Exclude known planning structure types
     for ptv in ptvs:
         if not StructureOperations.any_regex_match(reg_ex_patterns, ptv):
             rois_for_export.append(ptv)
 
+    # Add ROIs containing "block" to the export list
+    block_pattern = r'\b\w*block\w*\b'
+    for r in case.PatientModel.RegionsOfInterest:
+        if re.search(block_pattern, r.Name, flags=re.IGNORECASE):
+            rois_for_export.append(r.Name)
+
+    # Remove duplicates and prepare lists for successful inclusion/exclusion
     rois_for_export = list(set(rois_for_export))
+    successful_inclusion = []
     successful_exclusion = []
 
+    # Include or exclude ROIs based on the export list
     for r in case.PatientModel.RegionsOfInterest:
-        try:
-            if r in rois_for_export:
-                StructureOperations.include_in_export(case, [r.Name])
-            else:
-                StructureOperations.exclude_from_export(case, [r.Name])
-                successful_exclusion.append(r)
-        except Exception as e:
-            if r in rois_for_export:
-                logging.debug(f'Unsuccessful in including {r.Name}: {e}')
-            else:
-                logging.debug(f'Unsuccessful in excluding {r.Name}: {e}')
+        if r.Name in rois_for_export:
+            StructureOperations.include_in_export(case, [r.Name])
+            successful_inclusion.append(r.Name)
+        else:
+            StructureOperations.exclude_from_export(case, [r.Name])
+            successful_exclusion.append(r.Name)
 
-    logging.info(f'Successfully excluded: {successful_exclusion} from export.')
+    logging.info(f'For Export Structures Included: {successful_inclusion}')
+    logging.debug(f'For Export Structures Excluded: {successful_exclusion}')
 
 
 def final_dose(site=None, technique=None):

@@ -232,19 +232,11 @@ def include_in_export(case, rois):
         if r in rois:
             try:
                 case.PatientModel.ToggleExcludeFromExport(
-                    ExcludeFromExport=False, RegionOfInterests=r, PointsOfInterests=[]
+                    ExcludeFromExport=False, RegionOfInterests=[r], PointsOfInterests=[]
                 )
 
             except Exception as e:
                 logging.warning(f"Unable to include {rois} in export: {e}")
-        else:
-            try:
-                case.PatientModel.ToggleExcludeFromExport(
-                    ExcludeFromExport=True, RegionOfInterests=r, PointsOfInterests=[]
-                )
-
-            except Exception as e:
-                logging.warning(f"Unable to exclude {rois} from export {e}")
 
 
 def exists_roi(case, rois, return_exists=False):
