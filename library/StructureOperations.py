@@ -208,12 +208,15 @@ def exclude_from_export(case, rois):
     if type(rois) is not list:
         rois = [rois]
 
-    try:
-        case.PatientModel.ToggleExcludeFromExport(
-            ExcludeFromExport=True, RegionOfInterests=rois, PointsOfInterests=[]
-        )
-    except Exception as e:
-        logging.warning(f"Unable to exclude {rois} from export: {e}")
+    for r in rois:
+        if not case.PatientModel.RegionsOfInterest[r].ExcludeFromExport:
+            try:
+                case.PatientModel.ToggleExcludeFromExport(
+                    ExcludeFromExport=True, RegionOfInterests=[r],
+                    PointsOfInterests=[]
+                )
+            except Exception as e:
+                logging.warning(f"Unable to exclude {rois} from export: {e}")
 
 
 def include_in_export(case, rois):
@@ -229,14 +232,14 @@ def include_in_export(case, rois):
         defined_rois.append(r.Name)
 
     for r in defined_rois:
-        if r in rois:
+        if r in rois and case.PatientModel.RegionsOfInterest[r].ExcludeFromExport:
             try:
                 case.PatientModel.ToggleExcludeFromExport(
                     ExcludeFromExport=False, RegionOfInterests=[r], PointsOfInterests=[]
                 )
 
             except Exception as e:
-                logging.warning(f"Unable to include {rois} in export: {e}")
+                logging.warning(f"Unable to include {r} in export: {e}")
 
 
 def exists_roi(case, rois, return_exists=False):

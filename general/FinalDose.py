@@ -113,24 +113,53 @@ def process_rois_for_export(plan, case):
         case (Case): The RS case object containing patient information.
     """
     # Gather ROIs with a clinical goal
-    rois_for_export = [ef.ForRegionOfInterest.Name for ef in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions]
+    rois_for_review = [ef.ForRegionOfInterest.Name for ef in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions]
 
-    # Add GTVs and CTVs
-    rois_for_export.extend(StructureOperations.find_types(case, 'Gtv'))
-    rois_for_export.extend(StructureOperations.find_types(case, 'Ctv'))
+    # Add GTVs, CTVs, and PTVs
+    rois_for_review.extend(StructureOperations.find_types(case, 'Gtv'))
+    rois_for_review.extend(StructureOperations.find_types(case, 'Ctv'))
+    rois_for_review.extend(StructureOperations.find_types(case, 'Ptv'))
 
-    # Add PTVs excluding known planning structure types
-    ptvs = StructureOperations.find_types(case, 'Ptv')
-    reg_ex_patterns = [r'\bOTV', r'\bsOTVu', r'\bPTV\d{1,2}_']
-    for ptv in ptvs:
-        if not StructureOperations.any_regex_match(reg_ex_patterns, ptv):
-            rois_for_export.append(ptv)
+    # Define exclusion reg-ex patterns
+    exclude_patterns = [
+        "^OTV", "^sOTV",
+        "^opt", "^sPTV",
+        "_EZ_", "^ring",
+        "_PTV[0-9]", "^Ring",
+        "^Normal", "^OAR_PTV",
+        "^IGRT", "^InnerAir",
+        "z_derived", "Uniform",
+        "^UnderDose", "Air",
+        "FieldOfView", "^PTV[0-9]_Eval"
+    ]
+    rois_for_export = []
+    for r in rois_for_review:
+        if not StructureOperations.any_regex_match(exclude_patterns, r):
+            rois_for_export.append(r)
 
     # Add ROIs containing "block" to the export list
-    block_pattern = r'\b\w*block\w*\b'
+    include_patterns = [r'(?i)\b\w*block\w*\b']
     for r in case.PatientModel.RegionsOfInterest:
-        if re.search(block_pattern, r.Name, flags=re.IGNORECASE):
+        if StructureOperations.any_regex_match(include_patterns, r.Name):
             rois_for_export.append(r.Name)
+
+    # Add in any structures that were used in a prescription due to an RS
+    # bug
+    for tp in case.TreatmentPlans:
+        for bs in tp.BeamSets:
+            try:
+                roi_name = bs.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name
+                if roi_name not in rois_for_export:
+                    rois_for_export.append(roi_name)
+            except Exception as e:
+                logging.debug(f'Reviewing prescription type for {bs.DicomPlanLabel} '
+                              f'prescription type does not have all attributes for '
+                              f'checking structure-dependent prescription '
+                              f'error message: {e}')
+
+    # Add support and bolus structures
+    rois_for_export.extend(StructureOperations.find_types(case, 'Bolus'))
+    rois_for_export.extend(StructureOperations.find_types(case, 'Support'))
 
     # Remove duplicates and prepare lists for successful inclusion/exclusion
     rois_for_export = list(set(rois_for_export))
@@ -139,6 +168,7 @@ def process_rois_for_export(plan, case):
 
     # Include or exclude ROIs based on the export list
     for r in case.PatientModel.RegionsOfInterest:
+        logging.debug(f'addressing roi {r.Name}')
         if r.Name in rois_for_export:
             StructureOperations.include_in_export(case, [r.Name])
             successful_inclusion.append(r.Name)
