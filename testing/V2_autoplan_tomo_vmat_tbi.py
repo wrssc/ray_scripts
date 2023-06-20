@@ -1042,8 +1042,6 @@ def get_roi_geometry(case, exam, roi_name):
     return None
 
 
-
-
 def make_otv(pdata: namedtuple, poi_name: str, point_index: int,
              junction_width: float, pois: List[str], color: Optional[List[int]] = None) -> None:
     """
