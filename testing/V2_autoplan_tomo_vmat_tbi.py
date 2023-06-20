@@ -140,6 +140,7 @@ from collections import namedtuple
 import numpy as np
 import PySimpleGUI as sg
 import re
+from typing import Optional, List
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 from AutoPlan import multi_autoplan, autoplan
@@ -307,7 +308,7 @@ def check_prerequisites(pd_ffs, pd_hfs, do_structure_definition,
         # Check that each poi has a valid position
         for poi in pois_ffs + pois_hfs:
             try:
-                position = get_point_position(pd_ffs if poi in pois_ffs else pd_hfs, poi)
+                _ = get_point_position(pd_ffs if poi in pois_ffs else pd_hfs, poi)
             except RuntimeError as e:
                 raise RuntimeError("Missing position data for POI. " + str(e))
 
@@ -388,7 +389,7 @@ def check_midfield_junctions(patient_data, poi_name_list):
             if re.search(junction_pattern, roi.Name):
                 matching_roi = roi
                 # Check if the ROI has contours
-                if roi_has_contours(patient_data,roi.Name):
+                if roi_has_contours(patient_data, roi.Name):
                     no_contours = False
                 break  # Exit the loop as soon as the first match is found
         if matching_roi is None or no_contours:
@@ -1041,52 +1042,61 @@ def get_roi_geometry(case, exam, roi_name):
     return None
 
 
-def make_otv(pdata, poi_name, point_index, junction_width, pois, color=None):
+
+
+def make_otv(pdata: namedtuple, poi_name: str, point_index: int,
+             junction_width: float, pois: List[str], color: Optional[List[int]] = None) -> None:
     """
-    Generate OTV.
+    Generate the optimization target volume used in inverse planning.
+    It consists of the entire patient (using the External) at the location of
+    the isocenter minus the junctions.
 
     Args:
-        patient_data: Patient data.
-        point: Point of interest.
-        iso_number: Isocenter number.
-        orientation (str): Orientation of the patient - 'HFS' or 'FFS'.
-        color: Color for the OTV.
+        pdata (PatientData): Patient data.
+        poi_name (str): Point of interest.
+        point_index (int): Index of the point.
+        junction_width (float): Width of the junction.
+        pois (List[str]): List of points of interest.
+        color (Optional[List[int]]): Color for the OTV.
 
     Returns:
         None
     """
+    # Ensure the poi contains an integer at the end.
     iso_number = validate_poi_name(poi_name)
+    # Get patient orientation
     orientation = pdata.case.Examinations[pdata.exam.Name].PatientPosition
     junction_pair = determine_junction_pair(point_index, pois, junction_width, orientation)
-    #
-    # Find the name of the external contour
+
     patient_model = pdata.case.PatientModel
     if color is None:
         color = COLORS[iso_number]
+    # Find the name of the external contour
     external_name = find_types(pdata.case, roi_type='External')[0]
+
     # Set OTV name
     otv_name = f'OTV_iso{iso_number}'
+
     # Get exam orientation
     additional_avoidances = []
     prefix = determine_prefix(pdata.exam)
     if prefix == 'ffs':
         additional_avoidances = [
-            r.Name for r in patient_model.RegionsOfInterest
-            if 'junction' in r.Name]
+            r.Name for r in patient_model.RegionsOfInterest if 'junction' in r.Name]
         additional_avoidances.append(AVOID_FFS_NAME)
     elif prefix == 'hfs':
         additional_avoidances = [
-            r.Name for r in patient_model.RegionsOfInterest
-            if 'junction' in r.Name]
-        additional_avoidances.append(LUNG_AVOID_NAME)  # Subtract the lung volumes
+            r.Name for r in patient_model.RegionsOfInterest if 'junction' in r.Name]
+        additional_avoidances.append(LUNG_AVOID_NAME)
         additional_avoidances.append(AVOID_HFS_NAME)
+
     # Make the box geometry
-    # Make a box ROI that starts at isocenter_position and ends at isocenter_position + dim_si
     z_center, length = determine_otv_center_length(
         pdata, poi_name, prefix, junction_pair)
     box_name = 'otv_box_' + str(round(int(poi_name[-1]), 1))
     box_name = make_box(pdata, box_name, length=length, z_center=z_center)
-    temp_defs = get_boolean_defs(
+
+    temp_definitions = get_boolean_defs(
         roi_name=otv_name,
         a_sources=[external_name, box_name],
         a_operation="Intersection",
@@ -1096,12 +1106,16 @@ def make_otv(pdata, poi_name, point_index, junction_width, pois, color=None):
         r_margin_type="Contract",
         result="Subtraction",
         color=color,
-        type="Ptv",
+        roi_type="Ptv",
     )
+
     make_boolean_structure(
-        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
+        patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_definitions)
+
     update_all_remove_expression(pdata=pdata, roi_name=otv_name)
+
     _ = volume_threshold_roi(pdata, otv_name, min_vol=0.1)
+
     patient_model.RegionsOfInterest[box_name].DeleteRoi()
 
 
@@ -2190,6 +2204,7 @@ def tomo_calc_ffs_iso(patient_data_ffs, target):
 
     return iso_name
 
+
 def make_ffs_isodoses(pd_hfs, pd_ffs, rx, prefix):
     #
     ffs_scan_name = pd_ffs.exam.Name
@@ -2350,7 +2365,7 @@ def tbi_gui(bypass=False):
         [sg.Text('Enter TOTAL Dose in cGy'), sg.Input(key='-TDOSE-')],
         [sg.Radio('Generate Tomo Plan', "RADIO1",
                   default=True, key='-TOMO-',
-                  tooltip='Choose only one, but choose wisely', enable_events = True),
+                  tooltip='Choose only one, but choose wisely', enable_events=True),
          sg.Radio('Generate VMAT Plan', "RADIO1", default=False, key='-VMAT-', enable_events=True)],
         [sg.Checkbox('Generate Planning Structures', default=True, key='-FFS STRUCTURES-',
                      tooltip='Lungs, central junction, kidneys, etc...')],
