@@ -35,6 +35,7 @@ import connect
 import UserInterface
 import DicomExport
 import TomoExport
+from StructureOperations import include_in_export
 
 
 def main():
@@ -90,9 +91,10 @@ def main():
                 for plan_opt in plan.PlanOptimizations:
                     for opt_beamset in plan_opt.OptimizedBeamSets:
                         if opt_beamset.DicomPlanLabel == beamset.DicomPlanLabel:
-                            blocked_rois = [roi.Name for roi in opt_beamset.BeamCreationRules.RoisEnableForPlanning]
-                            case.PatientModel.ToggleExcludeFromExport(ExcludeFromExport=False,
-                                                                     RegionOfInterests=blocked_rois)
+                            blocked_rois = [roi.Name for roi in opt_beamset.BeamCreationRules.RoisEnableForPlanning
+                                            if roi.OrganData.OrganType != 'Target']
+                            logging.debug(f'Attempting to include {blocked_rois}')
+                            include_in_export(case, blocked_rois)
                             patient.Save()
                             break
             except AttributeError:
