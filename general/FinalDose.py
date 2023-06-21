@@ -138,7 +138,8 @@ def process_rois_for_export(plan, case):
             rois_for_export.append(r)
 
     # Add ROIs containing "block" to the export list
-    include_patterns = [r'(?i)\b\w*block\w*\b']
+    # Add any ROIs labeled Fiducials
+    include_patterns = [r'(?i)\b\w*block\w*\b', r'(?i)\b\w*fiducial\w*\b']
     for r in case.PatientModel.RegionsOfInterest:
         if StructureOperations.any_regex_match(include_patterns, r.Name):
             rois_for_export.append(r.Name)
