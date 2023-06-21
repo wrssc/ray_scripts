@@ -157,9 +157,10 @@ def process_rois_for_export(plan, case):
                               f'checking structure-dependent prescription '
                               f'error message: {e}')
 
-    # Add support and bolus structures
+    # Add support, external, and bolus structures
     rois_for_export.extend(StructureOperations.find_types(case, 'Bolus'))
     rois_for_export.extend(StructureOperations.find_types(case, 'Support'))
+    rois_for_export.extend(StructureOperations.find_types(case, 'External'))
 
     # Remove duplicates and prepare lists for successful inclusion/exclusion
     rois_for_export = list(set(rois_for_export))
