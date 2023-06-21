@@ -433,7 +433,7 @@ def roi_has_contours(patient_data, structure_name):
     return False
 
 
-def volume_threshold_roi(patient_data, roi_name, min_vol=1, max_vol=1e6):
+def volume_threshold_roi(patient_data, roi_name, min_vol=1., max_vol=1.e6):
     if roi_in_list(patient_data.case, roi_name):
         if roi_has_contours(patient_data, roi_name):
             roi = patient_data.case.PatientModel.RegionsOfInterest[roi_name]
@@ -1247,7 +1247,7 @@ def get_boolean_defs(
         roi_name, a_sources, a_operation, a_exp=None, a_margin_type="Expand",
         b_sources=None, b_operation="Union", b_exp=None, b_margin_type="Expand",
         r_exp=None, r_margin_type="Expand", result="None",
-        color=None, export=False, visualize=False, type="Undefined"
+        color=None, export=False, visualize=False, roi_type="Undefined"
 ):
     """
     Returns a dictionary with Boolean structure definitions.
@@ -1271,7 +1271,7 @@ def get_boolean_defs(
     :param export: Boolean to indicate if the structure should be
                    excluded from export. Default is False.
     :param visualize: Boolean to indicate if the structure should be visualized. Default is False.
-    :param type: Type of the structure. Default is "Unknown".
+    :param roi_type: Type of the structure. Default is "Unknown".
     :return: Dictionary with Boolean structure definitions.
     """
 
@@ -1297,7 +1297,7 @@ def get_boolean_defs(
         "MarginTypeR": r_margin_type,
         "ExpR": r_exp,
         "OperationResult": result,
-        "StructType": type,
+        "StructType": roi_type,
     }
 
     return definitions
