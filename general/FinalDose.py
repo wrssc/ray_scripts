@@ -73,7 +73,6 @@ from GeneralOperations import logcrit as logcrit
 import StructureOperations
 import clr
 import os
-import re
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../helper_scripts'))
 import init_physics_19Jun2023
