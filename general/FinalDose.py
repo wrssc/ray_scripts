@@ -129,7 +129,8 @@ def process_rois_for_export(plan, case):
         "^IGRT", "^InnerAir",
         "z_derived", "Uniform",
         "^UnderDose", "Air",
-        "FieldOfView", "^PTV[0-9]_Eval"
+        "FieldOfView", "^PTV[0-9]_Eval", "_junction_",
+        "_iso\d{2}"
     ]
     rois_for_export = []
     for r in rois_for_review:

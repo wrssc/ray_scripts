@@ -242,16 +242,15 @@ def find_validation_status(order):
         for field in fields:
             element = validation_element.find(field)
             values[field] = element.text if element is not None else None
-
-        status = values['validation_status']
+        status = True if values['validation_status'] == "True" else False
         author = values['author']
-        final_dose = True if values['final_dose'] == "True" else False
-        copy_final_plan = True if values['copy_final_plan'] == "True" else False
+        final_dose = False if values['final_dose'] == "False" else True
+        copy_final_plan = False if values['copy_final_plan'] == "False" else True
         validation_info = {
-            'status': status if status is not None else True,
+            'status': status,
             'author': author,
-            'final_dose': final_dose if final_dose is not None else True,
-            'copy_final_plan': copy_final_plan if copy_final_plan is not None else True
+            'final_dose': final_dose,
+            'copy_final_plan': copy_final_plan
         }
     else:
         validation_info = {
