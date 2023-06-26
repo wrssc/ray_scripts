@@ -282,8 +282,8 @@ def physics_review(do_physics_review=True, rso=None):
     #
     doc_only = False
     if doc_only:
-        tests=None
-        header=None
+        tests = None
+        header = None
     else:
         # Gui
         tests,header = launch_physics_review_gui(rso)
