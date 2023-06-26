@@ -2246,7 +2246,7 @@ def tomo_calc_iso(patient_data, target):
 
     # Create a unique name for the new ROI
     iso_name = pm.GetUniqueRoiName(
-        DesiredName=f'iso_{patient_data.beamset.DicomPlanLabel}_{prefix}')
+        DesiredName=f'{prefix}_iso')
 
     # Create new ROI at the isocenter
     pm.CreateRoi(Name=iso_name,
@@ -2538,7 +2538,7 @@ def tbi_gui(bypass=False):
             '-VMAT-': False,
             '-FFS PLAN-': False,
             '-HFS PLAN-': True,
-            '-FFS ISODOSE-': True,
+            '-FFS ISODOSE-': False,
             '-FFS STRUCTURES-': False,
             '-SUM DOSE-': True
         }
@@ -2716,7 +2716,7 @@ def main():
         #
         # HFS Planning
         # HFS protocol declarations
-        iso_target = tomo_calc_iso(pd_ffs, target=TARGET_HFS)
+        iso_target = tomo_calc_iso(pd_hfs, target=TARGET_HFS)
         tbi_hfs_protocol = {
             'protocol_name': PROTOCOL_NAME_TOMO,
             'translation_map': {
@@ -2733,7 +2733,7 @@ def main():
             'optimize': True,
             'user_prompts': True,
         }
-        pd_hfs_out = autoplan(autoplan_parameters=[tbi_hfs_protocol])
+        pd_hfs_out = multi_autoplan([tbi_hfs_protocol])
     #
 
     if make_ffs_isodose_structs and make_vmat_plan:
