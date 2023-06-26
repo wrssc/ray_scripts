@@ -1,7 +1,6 @@
 <!--
   ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
   -->
-
 <protocol>
     <name>UW Tomo TBI</name>
     <AnatomicGroup>Body</AnatomicGroup>
