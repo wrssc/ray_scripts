@@ -223,7 +223,10 @@ def invalidate_doses(case):
         for bs in p.BeamSets:
             for b in bs.Beams:
                 original_mu = b.BeamMU
-                b.BeamMU = original_mu
+                try:
+                    b.BeamMU = original_mu
+                except:
+                    pass
 
 
 def test_inputs_optimization(s):
@@ -547,7 +550,9 @@ def main():
             beams_load = True
 
         elif beamset_defs.technique == 'VMAT':
-            BeamOperations.place_beams_in_beamset(iso=beamset_defs.iso, beamset=rs_beam_set,
+            BeamOperations.place_beams_in_beamset(iso=beamset_defs.iso,
+                                                  plan=plan,
+                                                  beamset=rs_beam_set,
                                                   beams=beams)
             # Beams loaded successfully
             beams_load = True

@@ -1,6 +1,6 @@
 """ Fiducial Contouring
 
-    User guided contouring of gold markers for fiducial trackingdatetime A combination of a date and a time. Attributes: ()
+    User guided contouring of gold markers for fiducial tracking
     0.0.0 Guides user through fiducial placement for prostate SBRT
 
     Validation Notes:
@@ -103,7 +103,8 @@ def main():
             sys.exit("Fiducial script cancelled")
         try:
             num_fiducials = int(dialog1_response["1"])
-        except:
+        except Exception as e:
+            logging.warning(f'User opted for no fiducials: {e}')
             num_fiducials = None
     logging.debug("User selected {} fiducials".format(num_fiducials))
     # Find center of patient
@@ -135,6 +136,7 @@ def main():
     # Drop the cylindrical object and prompt the user to re-position it.
     for n in range(num_fiducials):
         point_name = fiducial_prefix + str(n + 1) + "_POI"
+        point_name = case.PatientModel.GetUniqueRoiName(DesiredName=point_name)
         point_coords = [external_center.x, external_center.y, external_center.z]
         create_poi_error = StructureOperations.create_poi(
             case=case,
@@ -148,29 +150,29 @@ def main():
         if create_poi_error:
             message = ""
             for e in create_poi_error:
-                message.append(e)
-            logging.warning('Failed to set {}: {}'.format(point_name,message))
+                message += e
+            logging.warning(f'Failed to set {point_name}: {message}')
         else:
-            logging.info('POI {} created'.format(point_name))
+            logging.info(f'POI {point_name} created')
 
         # Initialize the fiducial_center to be at the same point as external_center
         fiducial_position = case.PatientModel.StructureSets[exam.Name] \
-                            .RoiGeometries[external_name] \
-                            .GetCenterOfRoi()
+            .RoiGeometries[external_name] \
+            .GetCenterOfRoi()
         # Check to make sure the user moved the poi
-        while (fiducial_position == external_center):
+        while fiducial_position == external_center:
             # Prompt the user to place the poi at the slice intersection
             connect.await_user_input(
-                "Zoom in on fiducial {}.".format(n + 1)
-                + " Place crosshairs {} at its geometric center.".format(point_name)
+                f"Zoom in on fiducial {n + 1}."
+                + f" Place crosshairs {point_name} at its geometric center."
                 + " Select 'Set to slice intersection '"
             )
             fiducial_position = case.PatientModel.StructureSets[exam.Name] \
-                                .PoiGeometries[point_name].Point
+                .PoiGeometries[point_name].Point
         logging.debug(
-            "Point placed at x = {}, y = {}, z = {}".format(
-                fiducial_position.x, fiducial_position.y, fiducial_position.z
-            )
+            f"Point placed at x = {fiducial_position.x},"
+            f" y = {fiducial_position.y}, "
+            f"z = {fiducial_position.z}"
         )
         # Delete POI
         case.PatientModel.PointsOfInterest[point_name].DeleteRoi()
@@ -204,9 +206,8 @@ def main():
             .GetCenterOfRoi()
         )
         logging.debug(
-            "GrayLevelAutocontour moved fiducial center to x = {}, y = {}, z = {}".format(
-                fiducial_position.x, fiducial_position.y, fiducial_position.z
-            )
+            f"GrayLevelAutocontour moved fiducial center to x = {fiducial_position.x},"
+            f" y = {fiducial_position.y}, z = {fiducial_position.z}"
         )
         # At this time, RS can only take a single direction for the axis alignment.
         # However, as a TODO: should use least squares to find transformation matrix
@@ -229,9 +230,8 @@ def main():
         #   HFS: x~L/R, y~A/P,  z~S/I
         initial_axis = {"x": 0, "y": 0, "z": 1}
         logging.debug(
-            "Coordinates of axis are {}, {}, {}".format(
-                initial_axis["x"], initial_axis["y"], initial_axis["z"]
-            )
+            f"Coordinates of axis are {initial_axis['x']},"
+            f" {initial_axis['y']}, {initial_axis['z']}"
         )
         # Place the seed
         fiducial_geom.OfRoi.CreateCylinderGeometry(
@@ -280,8 +280,8 @@ def main():
         msg = StructureOperations.change_to_263_color(case=case, roi_name=prv_name)
         if msg is not None:
             logging.debug(msg)
-    logcrit("Fiducial Contouring script ran successfully on {} fiducials".format(num_fiducials))
-
+    logcrit(f"Fiducial Contouring script ran "
+            f"successfully on {num_fiducials} fiducials")
 
 
 if __name__ == "__main__":

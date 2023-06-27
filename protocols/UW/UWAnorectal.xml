@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Anorectal</name>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
     <ct>
         <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
         <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
@@ -12,7 +13,7 @@
     </institutions>
     <diagnoses>
     </diagnoses>
-    <prescription>
+    <prescription number="0" sequence="Primary">
         <roi>
             <name>PTV_p</name>
             <type>DX</type>

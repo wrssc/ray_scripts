@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Spine SBRT</name>
+    <AnatomicGroup>Body</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
         <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>
@@ -21,7 +22,7 @@
     <order>
         <name>Spine or Bone SBRT [5Fx]</name>
         <prefix>SpiX_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -722,7 +723,7 @@
     <order>
         <name>Spine or Bone SBRT [3Fx]</name>
         <prefix>SpiX_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -1353,7 +1354,7 @@
     <order>
         <name>Spine or Bone SBRT [1Fx]</name>
         <prefix>SpiX_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

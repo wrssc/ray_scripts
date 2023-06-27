@@ -1,5 +1,6 @@
 <protocol version="1">
     <notes date="06APR2022">Created</notes>
+    <AnatomicGroup>Breast</AnatomicGroup>
     <name>UW PRDR Breast</name>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
@@ -21,7 +22,7 @@
     <order>
         <name>Left Chestwall Conventional [no Boost]</name>
         <prefix>ChwL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <technique modality="Photons" technique="SMLC" code="PRD" machine="TrueBeam">SMLC</technique>
             <roi>
                 <name>PTV_p_Chestwall</name>
@@ -340,7 +341,7 @@
     <order>
         <name>Right Chestwall Conventional [no Boost]</name>
         <prefix>ChwR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <technique modality="Photons" technique="SMLC" code="PRD" machine="TrueBeam">SMLC</technique>
             <roi>
                 <name>PTV_p_Eval</name>

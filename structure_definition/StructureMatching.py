@@ -8,6 +8,7 @@ Looks for conflicting structure names that will be a problem when matching occur
 Version History:
 1.0.0 Production
 1.0.1 RS 11B Update
+1.0.2 Added SRS option for color scheme choices
 
 Script: Matches all plan rois with TG-263 based normal structures returning a sorted list of
 the most likely matches based on: exact match, previously matched names (aliases) or levenshtein match
@@ -48,28 +49,43 @@ __copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 __help__ = ''
 
 import os
-import sys
+from pathlib import Path
 import logging
-import random
-import csv
-## R: The only function you are using is ElementTree. I recommend:
-##> import xml.etree.ElementTree as ET
-## and then below
-##> tree = ET.parse(file)
-import xml
+import xml.etree.ElementTree as Et
 import pandas as pd
 import re
 
 # Local imports
 import connect
-## R: How does python know how to find these libraries? Is there another
-## script that adds them to the path?
-import BeamOperations
-import Objectives
-import Beams
 import StructureOperations
-import UserInterface
 from GeneralOperations import find_scope
+
+
+def custom_color(roi_name, template):
+    logging.debug(f'Change color called for {roi_name} with template {template}')
+    if template == 'SRS MultiTarget':
+        if roi_name.startswith('PTV') or roi_name.startswith('GTV'):
+            number = roi_name[3:]  # Extract the number from ROI name (assuming it follows the pattern PTV* or GTV*)
+            try:
+                number = int(number)
+                color_index = number % 10  # Get the color index based on the number (1 to 10)
+                srs_colors = {
+                    1: [255, 0, 0],
+                    2: [255, 128, 0],
+                    3: [255, 255, 0],
+                    4: [128, 255, 0],
+                    5: [0, 255, 128],
+                    6: [0, 255, 255],
+                    7: [0, 128, 255],
+                    8: [0, 0, 255],
+                    9: [128, 0, 255],
+                    10: [255, 0, 255]
+                }
+                return srs_colors[color_index]
+            except ValueError:
+                pass
+    return None  # Return None if the conditions are not met or there is an error
+
 
 def main():
     # Get current patient, case, exam, and plan
@@ -79,38 +95,28 @@ def main():
     scope = find_scope()
     beamset = scope['BeamSet']
     # Open the 263 Dataframe
-    ## R: PYTHON 3 NOTE: It is considered best practice in Python 3 to replace
-    ## "os.path" with the pathlib library, which was added to the standard
-    ## library for Python3. pathlib will improve the readability of this section:
-    ##> from pathlib import Path
-    ##> file = Path("..") / "protocols" / "TG-263.xml"
-    ##> tree = ET.parse(file)
-    ## *****
-    ## R: This strikes me as a lot of code for loading a single file,
-    ## even for os.path. Why is the loop needed?
-    ## P: I kept this in place in the event that files outside of the TG-263.xml file
-    ##    should be included in the structure matching. If this ends up being not worthwhile
-    ##    I can ditch the loop.
-    files = [[r"../protocols", r"", r"TG-263.xml"]]  # , [r"../protocols", r"UW", r""]]
+    files = [[r"../protocols", r"", r"TG-263.xml"]]
     paths = []
+
     for i, f in enumerate(files):
         secondary_protocol_folder = f[0]
         institution_folder = f[1]
-        paths.append(os.path.join(os.path.dirname(__file__),
-                                  secondary_protocol_folder,
-                                  institution_folder))
-    tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+        path = Path(__file__).resolve().parent / secondary_protocol_folder / institution_folder
+        paths.append(path)
+
+    tree = Et.parse(paths[0] / files[0][2])
     rois_dict = StructureOperations.iter_standard_rois(tree)
+    # Open the xml file as a dataframe
     df_rois = pd.DataFrame(rois_dict["rois"])
 
     # Make ExternalClean
     external_name = 'ExternalClean'
     _ = StructureOperations.make_externalclean(patient=patient,
-                                                       case=case,
-                                                       examination=exam,
-                                                       structure_name=external_name,
-                                                       suffix=None,
-                                                       delete=True)
+                                               case=case,
+                                               examination=exam,
+                                               structure_name=external_name,
+                                               suffix=None,
+                                               delete=False)
     plan_rois = StructureOperations.find_types(case=case)
     # filter the structure list
     filtered_plan_rois = []
@@ -129,7 +135,7 @@ def main():
             connect.await_user_input(user_message)
         filtered_plan_rois.append(r)
 
-    results = StructureOperations.match_roi(patient=patient,
+    results, color_scheme = StructureOperations.match_roi(patient=patient,
                                             examination=exam,
                                             case=case,
                                             plan_rois=filtered_plan_rois)
@@ -148,18 +154,23 @@ def main():
                 roi, e_name
             ))
             # Set color of matched structures
-            if df_e.RGBColor.values[0] is not None:
+            color = custom_color(roi,color_scheme)
+            if color:
+                msg = StructureOperations.change_roi_color(case=case, roi_name=e_name, rgb=color)
+                if msg is not None:
+                    logging.debug(f'{e_name} could not change color. {msg}')
+            elif df_e.RGBColor.values[0] is not None:
                 e_rgb = [int(x) for x in df_e.RGBColor.values[0]]
                 msg = StructureOperations.change_roi_color(case=case, roi_name=e_name, rgb=e_rgb)
                 if msg is not None:
-                    logging.debug('{} could not change color. {}'.format(e_name, msg))
+                    logging.debug(f'{e_name} could not change color. {msg}')
             # Set type and OrganType of matched structures
             if df_e.RTROIInterpretedType.values[0] is not None:
                 e_type = df_e.RTROIInterpretedType.values[0]
                 msg = StructureOperations.change_roi_type(case=case, roi_name=e_name,
                                                           roi_type=e_type)
                 if msg is not None:
-                    logging.debug('{} could not change type. {}'.format(e_name, msg))
+                    logging.debug(f'{e_name} could not change type. {msg}')
             # Create PRV's
             msg = StructureOperations.create_prv(patient=patient,
                                                  case=case,
@@ -181,7 +192,7 @@ def main():
                 msg = StructureOperations.change_roi_type(case=case, roi_name=roi,
                                                           roi_type=roi_type)
                 if msg is not None:
-                    logging.debug('{}: could not change type. {}'.format(roi, msg))
+                    logging.debug(f'{roi}: could not change type. {msg}')
     msg = StructureOperations.create_derived(patient=patient,
                                              case=case,
                                              examination=exam,
@@ -200,17 +211,14 @@ def main():
         study_description = exam_dicom_data['StudyModule']['StudyDescription']
     except KeyError:
         study_description = 'None'
-        # logging.debug('Exam {} has no Study Description'.format(exam.Name))
     try:
         protocol_name = exam_dicom_data['SeriesModule']['ProtocolName']
     except KeyError:
         protocol_name = 'None'
-        # logging.debug('Exam {} has no Protocol Name'.format(exam.Name))
     try:
         series_description = exam_dicom_data['SeriesModule']['SeriesDescription']
     except KeyError:
         series_description = 'None'
-        # logging.debug('Exam {} has no Series Description'.format(exam.Name))
     if beamset is not None:
         beamset_name = beamset.DicomPlanLabel
     else:
@@ -219,20 +227,15 @@ def main():
     # Output the resulting matches
     with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory),
               'a') as match_file:
-        match_file.write('StudyDescription:{},'.format(study_description))
-        match_file.write('ProtocolName:{},'.format(protocol_name))
-        match_file.write('SeriesDescription:{},'.format(series_description))
-        match_file.write('Beamset:{},'.format(beamset_name))
+        match_file.write(f'StudyDescription:{study_description},')
+        match_file.write(f'ProtocolName:{protocol_name},')
+        match_file.write(f'SeriesDescription:{series_description},')
+        match_file.write(f'Beamset:{beamset_name},')
         i = 0
         for k, v in results.items():
-            match_file.write('{v}:{k},'.format(k=k, v=v))
+            match_file.write(f'{v}:{k},')
         match_file.write('\n')
 
-    ## with open(os.path.normpath('{}/Matched_Structures.txt').format(log_directory)) as csvfile:
-    ##     label_data = csv.DictReader(csvfile)
-    ##     for row in label_data:
-    ##         for k, v in row.items():
-    ##             logging.debug('Match {} to user input {}'.format(k, v))
 
 
 if __name__ == '__main__':

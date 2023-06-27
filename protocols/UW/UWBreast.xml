@@ -1,6 +1,7 @@
 <protocol version="1">
+    <AnatomicGroup>Breast</AnatomicGroup>
     <notes date="12Jan2022">Updated TPO for improved coverage of IMN in higher than 2 Gy per fraction cases\n
-        More stringent esopagheal constraints added to conventional, hypofrac, and alliance.
+        More stringent esophageal constraints added to conventional, hypofrac, and alliance.
     </notes>
     <name>UW Breast</name>
     <ct>
@@ -81,18 +82,18 @@
     <order>
         <name>Left Breast Hypofractionated [with Boost]</name>
         <prefix>BreL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCW">40.05</dose>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_Lump">40.05</dose>
             </roi>
             <fractions>15</fractions>
             <motion>Free breathing</motion>
@@ -100,12 +101,12 @@
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
-        <prescription>
+        <prescription number="1" sequence="Boost1">
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">10</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_Lump">10</dose>
             </roi>
             <fractions>5</fractions>
             <motion>Free breathing</motion>
@@ -312,12 +313,12 @@
     <order>
         <name>Left Breast Hypofractionated [no Boost]</name>
         <prefix>BreL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">40.05</dose>
             </roi>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
@@ -443,29 +444,29 @@
     <order>
         <name>Right Breast Hypofractionated [with Boost]</name>
         <prefix>BreR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">40.05</dose>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">40.05</dose>
             </roi>
             <fractions>15</fractions>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
-        <prescription>
+        <prescription number="1" sequence="Boost1">
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">10</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_Lump">10</dose>
             </roi>
             <fractions>5</fractions>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
@@ -654,12 +655,12 @@
     <order>
         <name>Right Breast Hypofractionated [no Boost]</name>
         <prefix>BreR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">40.05</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">40.05</dose>
             </roi>
             <fractions>15</fractions>
         </prescription>
@@ -784,12 +785,12 @@
     <order>
         <name>Left Breast Conventional [with Boost]</name>
         <prefix>BreL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -813,7 +814,7 @@
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_Lump">50</dose>
             </roi>
             <fractions>25</fractions>
             <motion>Free breathing</motion>
@@ -1142,12 +1143,12 @@
     <order>
         <name>Left Breast Conventional [no Boost]</name>
         <prefix>BreL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -1408,12 +1409,18 @@
     <order>
         <name>Left Chestwall Conventional [with Boost]</name>
         <prefix>ChwL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
-                <name>PTV_p_Chestwall</name>
+                <name>PTV_p_BrCW_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
+            </roi>
+            <roi>
+                <name>PTV_p_Scar_Eval</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105" reference="PTV_p_Scar">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -1433,24 +1440,18 @@
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="105">50</dose>
             </roi>
-            <roi>
-                <name>PTV_p_Lump_Eval</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
-            </roi>
             <fractions>25</fractions>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
-        <prescription>
+        <prescription number="1" sequence="Boost1">
             <roi>
-                <name>PTV_p_Lump_Eval</name>
+                <name>PTV_p_Scar_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">10</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_Scar">10</dose>
             </roi>
             <fractions>5</fractions>
             <motion>Free breathing</motion>
@@ -1766,12 +1767,12 @@
     <order>
         <name>Left Chestwall Conventional [no Boost]</name>
         <prefix>ChwL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
-                <name>PTV_p_Chestwall</name>
+                <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -2032,18 +2033,18 @@
     <order>
         <name>Right Breast Conventional [with Boost]</name>
         <prefix>BreR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
             </roi>
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_Lump">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -2067,12 +2068,12 @@
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
-        <prescription>
+        <prescription number="1" sequence="Boost1">
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">10</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_Lump">10</dose>
             </roi>
             <fractions>5</fractions>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
@@ -2370,12 +2371,12 @@
     <order>
         <name>Right Breast Conventional [no Boost]</name>
         <prefix>BreR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -2619,18 +2620,18 @@
     <order>
         <name>Right Chestwall Conventional [with Boost]</name>
         <prefix>ChwR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
-                <name>PTV_p_Chestwall</name>
+                <name>PTV_p_BrCW</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
             </roi>
             <roi>
-                <name>PTV_p_Lump_Eval</name>
+                <name>PTV_p_Scar_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_Scar">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -2654,12 +2655,12 @@
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
-        <prescription>
+        <prescription number="1" sequence="Boost1">
             <roi>
-                <name>PTV_p_Lump_Eval</name>
+                <name>PTV_p_Scar_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">10</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_Scar">10</dose>
             </roi>
             <fractions>5</fractions>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
@@ -2957,12 +2958,12 @@
     <order>
         <name>Right Chestwall Conventional [no Boost]</name>
         <prefix>ChwR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
-                <name>PTV_p_Chestwall</name>
+                <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">50</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">50</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -3206,12 +3207,12 @@
     <order>
         <name>Left Breast or Chestwall Hypofrac - Alliance</name>
         <prefix>BreL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">42.5</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">42.5</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>
@@ -3432,12 +3433,12 @@
     <order>
         <name>Right Breast or Chestwall Hypofrac - Alliance</name>
         <prefix>BreR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="105">42.5</dose>
+                <dose units="Gy" idl="105" reference="PTV_p_BrCw">42.5</dose>
             </roi>
             <roi>
                 <name>PTV_n1_SCV</name>

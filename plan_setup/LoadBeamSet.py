@@ -403,25 +403,25 @@ def main():
     # Initialize return variable
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
-    pd = Pd(error=[],
+    patient_data = Pd(error=[],
             patient=find_scope(level='Patient'),
             case=find_scope(level='Case'),
             exam=find_scope(level='Examination'),
             db=find_scope(level='PatientDB'),
             plan=find_scope(level='Plan'),
             beamset=find_scope(level='BeamSet'))
-    if not pd.beamset:
+    if not patient_data.beamset:
         sys.exit('A Beamset must be loaded to proceed')
     #
     # Move the patient, not the couch, due to limited range
-    current_technique = pd.beamset.DeliveryTechnique
+    current_technique = patient_data.beamset.DeliveryTechnique
     if 'Tomo' in current_technique:
         lateral_zero = True
         logging.info('Tomo plan selected, lateral will be set to zero')
     else:
         lateral_zero = False
 
-    beamset_name, filename, iso, energy = beamset_dialog(pd)
+    beamset_name, filename, iso, energy = beamset_dialog(patient_data)
 
     beams = BeamOperations.load_beams_xml(filename=filename,
                                           beamset_name=beamset_name,
@@ -429,13 +429,14 @@ def main():
     # Place isocenter
     try:
         iso_params = BeamOperations.find_isocenter_parameters(
-            case=pd.case,
-            exam=pd.exam,
-            beamset=pd.beamset,
+            case=patient_data.case,
+            exam=patient_data.exam,
+            beamset=patient_data.beamset,
             iso_target=iso['ROI'],
             iso_poi=iso['POI'],
             existing_iso=iso['ISO_0'],
-            lateral_zero=lateral_zero)
+            lateral_zero=lateral_zero,
+            )
     except Exception:
         logging.warning(
             'Aborting, could not locate center of {}'.format(iso))
@@ -444,21 +445,22 @@ def main():
     # Parse Tomo versus VMAT
     if current_technique == 'TomoHelical':
         beam = beams[0]
-        BeamOperations.place_tomo_beam_in_beamset(plan=pd.plan, iso=iso_params,
-                                                  beamset=pd.beamset, beam=beam)
+        BeamOperations.place_tomo_beam_in_beamset(plan=patient_data.plan, iso=iso_params,
+                                                  beamset=patient_data.beamset, beam=beam)
     elif current_technique == 'DynamicArc' or current_technique == 'SMLC':
         BeamOperations.place_beams_in_beamset(iso=iso_params,
-                                              beamset=pd.beamset,
+                                              plan=patient_data.plan,
+                                              beamset=patient_data.beamset,
                                               beams=beams)
         for b in beams:
             if b.jaw_limits:
-                result = BeamOperations.lock_jaws(plan=pd.plan,
-                                                  beamset=pd.beamset,
+                result = BeamOperations.lock_jaws(plan=patient_data.plan,
+                                                  beamset=patient_data.beamset,
                                                   beam_name=b.name,
                                                   limits=b.jaw_limits)
                 logging.info(result)
 
-        for b in pd.beamset.Beams:
+        for b in patient_data.beamset.Beams:
             b.BeamQualityId = energy
     else:
         now_u_dunit = 'Unsupported beamset technique {}'.format(beams[0].technique)

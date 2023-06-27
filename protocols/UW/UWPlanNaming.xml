@@ -1,0 +1,632 @@
+<BodySite>
+   <Site>
+    <SiteName>Brai</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>BRAIN</Description>
+   </Site>
+   <Site>
+    <SiteName>ChkL</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>LEFT CHEEK</Description>
+   </Site>
+   <Site>
+    <SiteName>ChkR</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>RIGHT CHEEK</Description>
+   </Site>
+   <Site>
+    <SiteName>EarL</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>LEFT EAR</Description>
+   </Site>
+   <Site>
+    <SiteName>EarR</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>RIGHT EAR</Description>
+   </Site>
+   <Site>
+    <SiteName>EyeB</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>BILATERAL EYES</Description>
+   </Site>
+   <Site>
+    <SiteName>EyeL</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>LEFT EYE</Description>
+   </Site>
+   <Site>
+    <SiteName>EyeR</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>RIGHT EYE</Description>
+   </Site>
+   <Site>
+    <SiteName>Foss</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>POSTERIOR FOSSA</Description>
+   </Site>
+   <Site>
+    <SiteName>LipB</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>BOTH LIP(S)</Description>
+   </Site>
+   <Site>
+    <SiteName>LipI</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>LOWER LIP</Description>
+   </Site>
+   <Site>
+    <SiteName>LipS</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>UPPER LIP</Description>
+   </Site>
+   <Site>
+    <SiteName>Naso</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>NASOPHARYNX</Description>
+   </Site>
+   <Site>
+    <SiteName>Skul</SiteName>
+    <AnatomicGroup>Head</AnatomicGroup>
+    <Description>SKULL</Description>
+   </Site>
+    <Site>
+        <SiteName>WBHA</SiteName>
+        <AnatomicGroup>Head</AnatomicGroup>
+        <Description>WHOLE BRAIN HIPPOCAMPAL AVOIDANCE</Description>
+    </Site>
+   <Site>
+    <SiteName>Lary</SiteName>
+    <AnatomicGroup>Neck</AnatomicGroup>
+    <Description>LARYNX</Description>
+   </Site>
+   <Site>
+    <SiteName>NecB</SiteName>
+    <AnatomicGroup>Neck</AnatomicGroup>
+    <Description>BILATERAL Neck INCLUDES NODES</Description>
+   </Site>
+   <Site>
+    <SiteName>NecL</SiteName>
+    <AnatomicGroup>Neck</AnatomicGroup>
+    <Description>LEFT Neck INCLUDES NODES</Description>
+   </Site>
+   <Site>
+    <SiteName>NecR</SiteName>
+    <AnatomicGroup>Neck</AnatomicGroup>
+    <Description>RIGHT Neck INCLUDES NODES</Description>
+   </Site>
+   <Site>
+    <SiteName>AxiL</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>LEFT AXILLA</Description>
+   </Site>
+   <Site>
+    <SiteName>AxiR</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>RIGHT AXILLA</Description>
+   </Site>
+   <Site>
+    <SiteName>BreB</SiteName>
+    <AnatomicGroup>Breast</AnatomicGroup>
+    <Description>BILATERAL BREAST</Description>
+   </Site>
+   <Site>
+    <SiteName>BreL</SiteName>
+    <AnatomicGroup>Breast</AnatomicGroup>
+    <Description>LEFT BREAST</Description>
+   </Site>
+   <Site>
+    <SiteName>BreR</SiteName>
+    <AnatomicGroup>Breast</AnatomicGroup>
+    <Description>RIGHT BREAST</Description>
+   </Site>
+   <Site>
+    <SiteName>ChwB</SiteName>
+    <AnatomicGroup>Breast</AnatomicGroup>
+    <Description>BILATERAL Chest WALL (W/O BREAST)</Description>
+   </Site>
+   <Site>
+    <SiteName>ChwL</SiteName>
+    <AnatomicGroup>Breast</AnatomicGroup>
+    <Description>LEFT Chest WALL</Description>
+   </Site>
+   <Site>
+    <SiteName>ChwR</SiteName>
+    <AnatomicGroup>Breast</AnatomicGroup>
+    <Description>RIGHT Chest WALL</Description>
+   </Site>
+   <Site>
+    <SiteName>Esop</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>ESOPHAGUS</Description>
+   </Site>
+   <Site>
+    <SiteName>LunB</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>BILATERAL LUNG</Description>
+   </Site>
+   <Site>
+    <SiteName>LunL</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>LEFT LUNG</Description>
+   </Site>
+   <Site>
+    <SiteName>LunR</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>RIGHT LUNG</Description>
+   </Site>
+   <Site>
+    <SiteName>LuLL</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>LEFT LUNG (LOWER LOBE)</Description>
+   </Site>
+   <Site>
+    <SiteName>LuLU</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>LEFT LUNG (UPPER LOBE)</Description>
+   </Site>
+   <Site>
+    <SiteName>LuRL</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>RIGHT LUNG (LOWER LOBE)</Description>
+   </Site>
+   <Site>
+    <SiteName>LuRM</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>RIGHT LUNG (MIDDLE LOBE)</Description>
+   </Site>
+   <Site>
+    <SiteName>LuRU</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>RIGHT LUNG (UPPER LOBE)</Description>
+   </Site>
+   <Site>
+    <SiteName>Medi</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>MEDIASTINUM</Description>
+   </Site>
+   <Site>
+    <SiteName>RibL</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>LEFT RIBS</Description>
+   </Site>
+   <Site>
+    <SiteName>RibR</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>RIGHT RIBS</Description>
+   </Site>
+   <Site>
+    <SiteName>ScaB</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>BILATERAL SCAPULA</Description>
+   </Site>
+   <Site>
+    <SiteName>ScaL</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>LEFT SCAPULA</Description>
+   </Site>
+   <Site>
+    <SiteName>ScaR</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>RIGHT SCAPULA</Description>
+   </Site>
+   <Site>
+    <SiteName>ScnB</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>BILATERAL SUPRACLAVICULAR NODES</Description>
+   </Site>
+   <Site>
+    <SiteName>ScnL</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>LEFT SUPRACLAVICULAR NODES</Description>
+   </Site>
+   <Site>
+    <SiteName>ScnR</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>RIGHT SUPRACLAVICULAR NODES</Description>
+   </Site>
+   <Site>
+    <SiteName>Ster</SiteName>
+    <AnatomicGroup>Thorax</AnatomicGroup>
+    <Description>STERNUM</Description>
+   </Site>
+   <Site>
+    <SiteName>Abdo</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>Abdomen</Description>
+   </Site>
+   <Site>
+    <SiteName>AdrL</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>LEFT ADRENAL</Description>
+   </Site>
+   <Site>
+    <SiteName>AdrR</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>RIGHT ADRENAL</Description>
+   </Site>
+   <Site>
+    <SiteName>Bile</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>BILE DUCT</Description>
+   </Site>
+   <Site>
+    <SiteName>Coln</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>COLON</Description>
+   </Site>
+   <Site>
+    <SiteName>Epig</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>EPIGASTRIUM</Description>
+   </Site>
+   <Site>
+    <SiteName>Gall</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>GALL BLADDER</Description>
+   </Site>
+   <Site>
+    <SiteName>KidL</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>LEFT KIDNEY</Description>
+   </Site>
+   <Site>
+    <SiteName>KidR</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>RIGHT KIDNEY</Description>
+   </Site>
+   <Site>
+    <SiteName>Livr</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>LIVER</Description>
+   </Site>
+   <Site>
+    <SiteName>Panc</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>PANCREAS</Description>
+   </Site>
+   <Site>
+    <SiteName>Stom</SiteName>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
+    <Description>STOMACH</Description>
+   </Site>
+   <Site>
+    <SiteName>Anus</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>ANUS</Description>
+   </Site>
+   <Site>
+    <SiteName>Blad</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>BLADDER</Description>
+   </Site>
+   <Site>
+    <SiteName>ButB</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>BILATERAL BUTTOCKS</Description>
+   </Site>
+   <Site>
+    <SiteName>ButL</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>LEFT BUTTOCK</Description>
+   </Site>
+   <Site>
+    <SiteName>ButR</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>RIGHT BUTTOCK</Description>
+   </Site>
+   <Site>
+    <SiteName>Cerv</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>CERVIX</Description>
+   </Site>
+   <Site>
+    <SiteName>Endo</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>ENDOMETRIUM</Description>
+   </Site>
+   <Site>
+    <SiteName>PelB</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>BILATERAL Pelvis</Description>
+   </Site>
+   <Site>
+    <SiteName>PelL</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>LEFT Pelvis</Description>
+   </Site>
+   <Site>
+    <SiteName>PelR</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>RIGHT Pelvis</Description>
+   </Site>
+   <Site>
+    <SiteName>Peni</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>PENIS</Description>
+   </Site>
+   <Site>
+    <SiteName>Pros</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>PROSTATE</Description>
+   </Site>
+    <Site>
+    <SiteName>ProN</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>PROSTATE WITH NODES</Description>
+    </Site>
+    <Site>
+        <SiteName>ProF</SiteName>
+        <AnatomicGroup>Pelvis</AnatomicGroup>
+        <Description>PROSTATIC FOSSA </Description>
+    </Site>
+    <Site>
+        <SiteName>PrFN</SiteName>
+        <AnatomicGroup>Pelvis</AnatomicGroup>
+        <Description>PROSTATIC FOSSA WITH NODES</Description>
+    </Site>
+   <Site>
+    <SiteName>Rect</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>RECTUM (INCLUDES SIGMOID)</Description>
+   </Site>
+   <Site>
+    <SiteName>Scro</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>SCROTUM</Description>
+   </Site>
+   <Site>
+    <SiteName>TesB</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>BILATERAL TESTIS</Description>
+   </Site>
+   <Site>
+    <SiteName>TesL</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>LEFT TESTIS</Description>
+   </Site>
+   <Site>
+    <SiteName>TesR</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>RIGHT TESTIS</Description>
+   </Site>
+   <Site>
+    <SiteName>Uter</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>UTERUS</Description>
+   </Site>
+   <Site>
+    <SiteName>Vagi</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>VAGINA</Description>
+   </Site>
+   <Site>
+    <SiteName>Vulv</SiteName>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
+    <Description>VULVA</Description>
+   </Site>
+   <Site>
+    <SiteName>Sacr</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>SACRUM</Description>
+   </Site>
+   <Site>
+    <SiteName>SpCT</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>CERVICAL &amp; THORACIC SPINE</Description>
+   </Site>
+   <Site>
+    <SiteName>SpiC</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>CERVICAL SPINE</Description>
+   </Site>
+   <Site>
+    <SiteName>SpiL</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>LUMBAR SPINE</Description>
+   </Site>
+   <Site>
+    <SiteName>SpiT</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>THORACIC SPINE</Description>
+   </Site>
+   <Site>
+    <SiteName>SpiW</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>WHOLE SPINE</Description>
+   </Site>
+   <Site>
+    <SiteName>SpLS</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>LUMBO-SACRAL SPINE</Description>
+   </Site>
+   <Site>
+    <SiteName>SpTL</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>THORACIC &amp; LUMBAR SPINE</Description>
+   </Site>
+   <Site>
+    <SiteName>ArmL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT ARM</Description>
+   </Site>
+   <Site>
+    <SiteName>ArmR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT ARM</Description>
+   </Site>
+   <Site>
+    <SiteName>Fing</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>FINGER (INCLUDING THUMBS)</Description>
+   </Site>
+   <Site>
+    <SiteName>HanL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT HAND</Description>
+   </Site>
+   <Site>
+    <SiteName>HanR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT HAND</Description>
+   </Site>
+   <Site>
+    <SiteName>ShoB</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>BILATERAL SHOULDER</Description>
+   </Site>
+   <Site>
+    <SiteName>ShoL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT SHOULDER</Description>
+   </Site>
+   <Site>
+    <SiteName>ShoR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT SHOULDER</Description>
+   </Site>
+   <Site>
+    <SiteName>AnkL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT ANKLE</Description>
+   </Site>
+   <Site>
+    <SiteName>AnkR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT ANKLE</Description>
+   </Site>
+   <Site>
+    <SiteName>FemL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT FEMUR</Description>
+   </Site>
+   <Site>
+    <SiteName>FemR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT FEMUR</Description>
+   </Site>
+   <Site>
+    <SiteName>FooL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT FOOT</Description>
+   </Site>
+   <Site>
+    <SiteName>FooR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT FOOT</Description>
+   </Site>
+   <Site>
+    <SiteName>HipB</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>BILATERAL HIP</Description>
+   </Site>
+   <Site>
+    <SiteName>HipL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT HIP</Description>
+   </Site>
+   <Site>
+    <SiteName>HipR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT HIP</Description>
+   </Site>
+   <Site>
+    <SiteName>KneL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT KNEE</Description>
+   </Site>
+   <Site>
+    <SiteName>KneR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT KNEE</Description>
+   </Site>
+   <Site>
+    <SiteName>LegL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT LEG</Description>
+   </Site>
+   <Site>
+    <SiteName>LegR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT LEG</Description>
+   </Site>
+   <Site>
+    <SiteName>ToeL</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>LEFT TOES</Description>
+   </Site>
+   <Site>
+    <SiteName>ToeR</SiteName>
+    <AnatomicGroup>Limb</AnatomicGroup>
+    <Description>RIGHT TOES</Description>
+   </Site>
+   <Site>
+    <SiteName>TBI</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>Total body irradiation</Description>
+   </Site>
+   <Site>
+    <SiteName>TLI</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>Total lymphoid irradiation</Description>
+   </Site>
+   <Site>
+    <SiteName>TSET</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>Total skin electron treatment</Description>
+   </Site>
+   <Site>
+    <SiteName>Back</SiteName>
+    <AnatomicGroup>Skin</AnatomicGroup>
+    <Description>SKIN OR SOFT TISSUE OF BACK</Description>
+   </Site>
+   <Site>
+    <SiteName>Chin</SiteName>
+    <AnatomicGroup>Skin</AnatomicGroup>
+    <Description>CHIN</Description>
+   </Site>
+   <Site>
+    <SiteName>Fore</SiteName>
+    <AnatomicGroup>Skin</AnatomicGroup>
+    <Description>FOREHead</Description>
+   </Site>
+   <Site>
+    <SiteName>MuSk</SiteName>
+    <AnatomicGroup>Skin</AnatomicGroup>
+    <Description>MULTIPLE SKIN</Description>
+   </Site>
+   <Site>
+    <SiteName>Nose</SiteName>
+    <AnatomicGroup>Skin</AnatomicGroup>
+    <Description>NOSE</Description>
+   </Site>
+   <Site>
+        <SiteName>Scal</SiteName>
+        <AnatomicGroup>Skin</AnatomicGroup>
+        <Description>SCALP</Description>
+   </Site>
+   <Site>
+    <SiteName>ScpB</SiteName>
+    <AnatomicGroup>Skin</AnatomicGroup>
+    <Description>BILATERAL SCALP</Description>
+   </Site>
+   <Site>
+    <SiteName>ScpL</SiteName>
+    <AnatomicGroup>Skin</AnatomicGroup>
+    <Description>LEFT SCALP</Description>
+   </Site>
+   <Site>
+    <SiteName>ScpR</SiteName>
+    <AnatomicGroup>Skin</AnatomicGroup>
+    <Description>RIGHT SCALP</Description>
+   </Site>
+   <Site>
+    <SiteName>CSI</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>Craniospinal</Description>
+   </Site>
+   <Site>
+    <SiteName>Mets</SiteName>
+    <AnatomicGroup>Body</AnatomicGroup>
+    <Description>Plans with multiple metstatic sites under one plan</Description>
+   </Site>
+</BodySite>

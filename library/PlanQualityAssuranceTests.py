@@ -1,6 +1,6 @@
 """ Plan Quality Tests
 
-    A module listing a number of tests that can be used to ensure plan quality
+    A module listing a number of qa_tests that can be used to ensure plan quality
 
     simfiducial_test: looks for a simfiducial that:
                         exists
@@ -18,7 +18,7 @@
     You should have received a copy of the GNU General Public License along with
     this program. If not, see <http://www.gnu.org/licenses/>.
 
-    1.0.0 Updated with multiple tests including cps, gridsize and external overlap
+    1.0.0 Updated with multiple qa_tests including cps, gridsize and external overlap
     1.0.1 Bug fix to handle cases with no External or support structures designated
     """
 
