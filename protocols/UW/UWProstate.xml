@@ -292,6 +292,13 @@
                 <volume units="%">15</volume>
                 <priority>3</priority>
             </roi>
+             <roi>
+                 <name>SeminalVes</name>
+                 <type dir="lt">DX</type>
+                 <dose units="%" roi="PTV_p">107</dose>
+                 <volume units="cc">0.03</volume>
+                 <priority>3</priority>
+             </roi>
             <roi>
                 <name>Skin_PRV03</name>
                 <type dir="lt">DX</type>
@@ -846,6 +853,13 @@
                 <dose units="Gy">57</dose>
                 <weight>10</weight>
             </roi>
+             <roi>
+                 <name>SeminalVes</name>
+                 <type dir="lt">DX</type>
+                 <dose units="%" roi="PTV_p">107</dose>
+                 <volume units="cc">0.03</volume>
+                 <priority>3</priority>
+             </roi>
             <roi>
                 <name>Skin_PRV03</name>
                 <type dir="lt" constraint="True">DX</type>
@@ -1301,6 +1315,13 @@
                 <priority>3</priority>
             </roi>
             <roi>
+                <name>SeminalVes</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>Skin_PRV03</name>
                 <type dir="lt">DX</type>
                 <dose units="Gy">30</dose>
@@ -1571,6 +1592,13 @@
                 <priority>3</priority>
             </roi>
             <roi>
+                <name>SeminalVes</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
                 <name>Skin_PRV03</name>
                 <type dir="lt">DX</type>
                 <dose units="Gy">30</dose>
@@ -1831,6 +1859,13 @@
                 <type dir="lt">VX</type>
                 <dose units="Gy">65</dose>
                 <volume units="%">17</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SeminalVes</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
             <roi>
@@ -2142,6 +2177,13 @@
                 <type dir="lt">VX</type>
                 <dose units="Gy">50</dose>
                 <volume units="%">50</volume>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>SeminalVes</name>
+                <type dir="lt">DX</type>
+                <dose units="%" roi="PTV_p">107</dose>
+                <volume units="cc">0.03</volume>
                 <priority>3</priority>
             </roi>
             <roi>
