@@ -245,7 +245,7 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
     return num_beamsets
 
 
-def get_review_gui_values(window, failed_tests, check_boxes, comment_box):
+def get_review_gui_values(window, failed_tests, check_boxes, comment_box_key):
     """
     Extracts the values entered into the PySimpleGUI dialog and sorts them by keys.
 
@@ -253,7 +253,6 @@ def get_review_gui_values(window, failed_tests, check_boxes, comment_box):
     - window: PySimpleGUI Window object representing the GUI
     - failed_tests: list of failed tests from the review_definitions module
     - check_boxes: dictionary of completed check boxes the user has filled in
-    - comment_box: dictionary with contents of the Comments frame.
 
     Returns:
     - sorted_values: dictionary of values sorted by keys
@@ -266,8 +265,13 @@ def get_review_gui_values(window, failed_tests, check_boxes, comment_box):
             num_beamsets=int(window[KEY_BEAMSET_COUNT].get()))
     else:
         preplan_values = extract_preplan_values(window, num_beamsets=1)
+    if window[comment_box_key].get():
+        comment_box_values = {comment_box_key: window[comment_box_key].get()}
+    else:
+        comment_box_values = {}
 
-    manual_values = extract_manual_values(window, failed_tests, check_boxes, comment_box)
+    manual_values = extract_manual_values(window, failed_tests, check_boxes)
+    manual_values.update(comment_box_values)
     sorted_values = merge_dicts(preplan_values, manual_values)
 
     return sorted_values
@@ -659,8 +663,10 @@ def launch_physics_review_gui(rso):
                 header_data = extract_preplan_values(window, num_beamsets)
                 break
         if event == 'Save':
-            review_file_name = save_review(rso, get_review_gui_values(window, failed_tests,
-                                                                      check_box_copy))
+            review_file_name = save_review(
+                rso, get_review_gui_values(
+                    window, failed_tests, check_box_copy,
+                    create_key('-USER-COMMENTS-')))
 
     window.close()
 
