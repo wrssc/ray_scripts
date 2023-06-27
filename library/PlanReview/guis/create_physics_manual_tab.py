@@ -1,4 +1,4 @@
-import PySimpleGUI as sg
+import PySimpleGUI as Sg
 import sys
 from PlanReview.review_definitions import PASS, FAIL, ALERT, NA, \
     RED_CIRCLE, GREEN_CIRCLE, YELLOW_CIRCLE, BLUE_CIRCLE, \
@@ -66,8 +66,8 @@ def create_manual_check_row(item, max_check):
     phrases = item['options'].split(',')
     test_name = item['test_name']
     row_key = item['key']
-    radios = [sg.Column(
-        [[sg.Radio(
+    radios = [Sg.Column(
+        [[Sg.Radio(
             phrase,
             group_id=create_key(row_key),
             default=False,
@@ -78,16 +78,16 @@ def create_manual_check_row(item, max_check):
         pad=(0, 0))
         for phrase in phrases
     ]
-    row = [sg.Column(
-        [[sg.Text(
+    row = [Sg.Column(
+        [[Sg.Text(
             test_name,
             size=(int(max_check * 0.7), 1),
             pad=(0, 0))]],
         justification='left',
         expand_x=True),
         *radios,
-        sg.Column(
-            [[sg.InputText(
+        Sg.Column(
+            [[Sg.InputText(
                 size=(int(max_check), 1),
                 key=create_key(f'{row_key}{KEY_CHECK}{KEY_INPUT_TEXT}'),
                 enable_events=True,
@@ -147,7 +147,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
 
     # Create a tab for each key in check_boxes
     for key in check_boxes:
-        layout = [[sg.Text('Select an option for each item:')]]
+        layout = [[Sg.Text('Select an option for each item:')]]
         frame_layout = []
         total_items = 0
         for item in check_boxes[key]:
@@ -155,20 +155,20 @@ def create_tab_manual_checks(check_boxes, passing_tests,
             frame_layout.append(row1)
             total_items += 1
 
-        frame = sg.Frame(key, [[sg.Column(frame_layout,
+        frame = Sg.Frame(key, [[Sg.Column(frame_layout,
                                           size=(int(hsize * 0.95),
                                                 #int(vsize * total_items * 0.04)),
                                                 int(vsize * 0.74)),
-                                          scrollable=True,vertical_scroll_only=True)]])
+                                          scrollable=True, vertical_scroll_only=True)]])
         layout.append([frame])
         # Failed tests
         rows = []
         for comment, result, icon, test_key in failed_tests:
             if test_key is not None and test_key == key:
-                rows.append([sg.Image(icon),
-                             sg.Text(result, #size=(max_check*0.9, None),
+                rows.append([Sg.Image(icon),
+                             Sg.Text(result,  #size=(max_check*0.9, None),
                                      auto_size_text=True, justification='left'),
-                             sg.InputText(default_text=f"{comment}: Comment",
+                             Sg.InputText(default_text=f"{comment}: Comment",
                                           key=create_key(comment),
                                           size=(int(max_check), None),
                                           enable_events=True, pad=((40, 0), (0, 0)),
@@ -176,9 +176,9 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                                           background_color='#ffffff', border_width=0,
                                           justification='left', tooltip=comment)])
         if rows:
-            frame_failed_tests = sg.Frame('Failed Tests',
-                                          [[sg.Column([*rows],
-                                                        size=(int(hsize * 0.95),
+            frame_failed_tests = Sg.Frame('Failed Tests',
+                                          [[Sg.Column([*rows],
+                                                      size=(int(hsize * 0.95),
                                                               int(vsize * 0.13)),
                                                       scrollable=True,
                                                       vertical_scroll_only=True)]])
@@ -189,10 +189,10 @@ def create_tab_manual_checks(check_boxes, passing_tests,
         for v in passing_tests:
             test_key = v['review_tab']
             if test_key is not None and test_key == key:
-                rows.append([sg.Image(v['icon']),
-                             sg.Text(v['result'], #size=(max_check*0.8, None),
+                rows.append([Sg.Image(v['icon']),
+                             Sg.Text(v['result'],  #size=(max_check*0.8, None),
                                      auto_size_text=True, justification='left'),
-                             sg.InputText(default_text=v['comment'],
+                             Sg.InputText(default_text=v['comment'],
                                           key=create_key(f"{v['test_name']}"),
                                           size=(int(max_check), None),
                                           enable_events=True, pad=((40, 0), (0, 0)),
@@ -200,24 +200,24 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                                           background_color='#ffffff', border_width=0,
                                           justification='left', tooltip=v['comment'])])
         if rows:
-            frame_passed_tests = sg.Frame('Passing Tests',
-                                          [[sg.Column([*rows],
+            frame_passed_tests = Sg.Frame('Passing Tests',
+                                          [[Sg.Column([*rows],
                                                       size=(int(hsize * 0.95),
                                                             int(vsize * 0.13)),
                                                       scrollable=True,
                                                       vertical_scroll_only=True)]])
 
             layout.append([frame_passed_tests])
-        tab = sg.Tab(key, [[sg.Column(layout)]])
+        tab = Sg.Tab(key, [[Sg.Column(layout)]])
         tabs.append(tab)
 
     # Create a tab for failed tests
     rows = []
     for comment, result, icon, test_key in failed_tests:
-        rows.append([sg.Image(icon),
-                     sg.Text(result, size=(max_check, None),
+        rows.append([Sg.Image(icon),
+                     Sg.Text(result, size=(max_check, None),
                              auto_size_text=True, justification='left'),
-                     sg.InputText(default_text=f"{comment}: Comment",
+                     Sg.InputText(default_text=f"{comment}: Comment",
                                   key=create_key(comment),
                                   size=(int(max_check), None),
                                   enable_events=True, pad=((40, 0), (0, 0)),
@@ -225,14 +225,14 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                                   background_color='#ffffff', border_width=0,
                                   justification='left', tooltip=comment)])
 
-    frame_failed_tests = sg.Frame('Failed Tests',
+    frame_failed_tests = Sg.Frame('Failed Tests',
                                   [[
-                                      sg.Column([*rows],
+                                      Sg.Column([*rows],
                                                 size=(int(hsize * 0.95),
                                                       int(vsize * 0.13)))]])
 
     layout_failed_tests = [[frame_failed_tests]]
-    tab_failed_tests = sg.Tab('Failed Tests', [[sg.Column(layout_failed_tests)]])
+    tab_failed_tests = Sg.Tab('Failed Tests', [[Sg.Column(layout_failed_tests)]])
     tabs.append(tab_failed_tests)
 
     return tabs
@@ -242,7 +242,7 @@ def old_create_tab_manual_checks(check_boxes, failed_tests, hsize=1200, vsize=12
     max_check = max([len(item['test_name']) for key in check_boxes
                      for item in check_boxes[key]])
 
-    layout = [[sg.Text('Select an option for each item:')]]
+    layout = [[Sg.Text('Select an option for each item:')]]
     for key in check_boxes:
         frame_layout = []
         total_items = 0
@@ -252,12 +252,12 @@ def old_create_tab_manual_checks(check_boxes, failed_tests, hsize=1200, vsize=12
             total_items += 1
 
         if total_items > 5:
-            frame = sg.Frame(key, [[sg.Column(frame_layout,
+            frame = Sg.Frame(key, [[Sg.Column(frame_layout,
                                               scrollable=True,
                                               vertical_scroll_only=True,
                                               size=(int(hsize * 0.95), int(vsize * 0.13)))]])
         else:
-            frame = sg.Frame(key, [[sg.Column(frame_layout,
+            frame = Sg.Frame(key, [[Sg.Column(frame_layout,
                                               size=(int(hsize * 0.95),
                                                     int(vsize * total_items * 0.03)))]])
 
@@ -265,10 +265,10 @@ def old_create_tab_manual_checks(check_boxes, failed_tests, hsize=1200, vsize=12
 
     rows = []
     for comment, result, icon in failed_tests:
-        rows.append([sg.Image(icon),
-                     sg.Text(result, size=(max_check, None),
+        rows.append([Sg.Image(icon),
+                     Sg.Text(result, size=(max_check, None),
                              auto_size_text=True, justification='left'),
-                     sg.InputText(default_text=f"{comment}: Comment",
+                     Sg.InputText(default_text=f"{comment}: Comment",
                                   key=create_key(comment),
                                   size=(int(max_check), None),
                                   enable_events=True, pad=((40, 0), (0, 0)),
@@ -276,18 +276,18 @@ def old_create_tab_manual_checks(check_boxes, failed_tests, hsize=1200, vsize=12
                                   background_color='#ffffff', border_width=0,
                                   justification='left', tooltip=comment)])
 
-    frame_failed_tests = sg.Frame('Failed Tests',
-                                  [[sg.Column([*rows],
+    frame_failed_tests = Sg.Frame('Failed Tests',
+                                  [[Sg.Column([*rows],
                                               scrollable=True,
                                               vertical_scroll_only=True,
                                               size=(int(hsize * 0.95),
                                                     int(vsize * 0.13)))]])
     layout.append([frame_failed_tests])
-    column = sg.Column(layout,
+    column = Sg.Column(layout,
                        scrollable=True,
                        vertical_scroll_only=True,
                        size=(hsize, vsize))
-    tab = sg.Tab('Miller Time', [[column]])
+    tab = Sg.Tab('Miller Time', [[column]])
     return tab
 
 
