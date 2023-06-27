@@ -1754,10 +1754,6 @@ def make_central_junction_structs(pd_hfs, pd_ffs, hfs_scan_name, ffs_scan_name):
     ffs_poi_junction = pd_ffs.case.PatientModel.StructureSets[pd_ffs.exam.Name] \
         .PoiGeometries[JUNCTION_POINT]
 
-    # make_generic_junction_structs(patient_data,
-    #                              z_junct=ffs_poi_junction.Point.z,
-    #                               junction_width=CENTRAL_JUNCTION_WIDTH,
-    #                             )
     # IsoDose levels:
     j_i = [10, 20, 30, 40, 50, 60, 70, 80, 90]
     dim_si = CENTRAL_JUNCTION_WIDTH / len(j_i)
