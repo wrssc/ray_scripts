@@ -245,13 +245,15 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
     return num_beamsets
 
 
-def get_review_gui_values(window, failed_tests, check_boxes):
+def get_review_gui_values(window, failed_tests, check_boxes, comment_box):
     """
-    Extracts the values entered in the PySimpleGUI dialog and sorts them by keys.
+    Extracts the values entered into the PySimpleGUI dialog and sorts them by keys.
 
     Parameters:
     - window: PySimpleGUI Window object representing the GUI
     - failed_tests: list of failed tests from the review_definitions module
+    - check_boxes: dictionary of completed check boxes the user has filled in
+    - comment_box: dictionary with contents of the Comments frame.
 
     Returns:
     - sorted_values: dictionary of values sorted by keys
@@ -265,7 +267,7 @@ def get_review_gui_values(window, failed_tests, check_boxes):
     else:
         preplan_values = extract_preplan_values(window, num_beamsets=1)
 
-    manual_values = extract_manual_values(window, failed_tests, check_boxes)
+    manual_values = extract_manual_values(window, failed_tests, check_boxes, comment_box)
     sorted_values = merge_dicts(preplan_values, manual_values)
 
     return sorted_values
@@ -449,7 +451,7 @@ def launch_physics_review_gui(rso):
     left_width = 120
     right_width = 10
     width_fac = 9  # Average should be around 8 pixels per char
-    height_fac = 14 # Average pixel height should be 18 char per line
+    height_fac = 14  # Average pixel height should be 18 char per line
     hsize = (left_width + right_width) * width_fac
     vsize = hlines * height_fac
     # Variable initialization
@@ -510,16 +512,16 @@ def launch_physics_review_gui(rso):
     ]]
     # Comment Frame
     side = [[sg.Text('Comments', text_color='blue', font=('Arial', 12, 'bold'))],
-             [sg.Multiline(default_text='',
-                          size=(30, int(0.9*hlines)),
+            [sg.Multiline(default_text='',
+                          size=(30, int(0.9 * hlines)),
                           autoscroll=True,
                           auto_size_text=True,
-                          key='-USER-COMMENTS-')
+                          key=create_key('-USER-COMMENTS-'))
              ]]
 
     layout = [
         [sg.Column([
-            [sg.Frame('', top,vertical_alignment='top')],
+            [sg.Frame('', top, vertical_alignment='top')],
             [sg.TabGroup([[sg.Tab('External Information',
                                   create_preplan_information_tab(protocols,
                                                                  sites,
@@ -529,8 +531,8 @@ def launch_physics_review_gui(rso):
                                                                  targets, ))
                            ]],
                          key='tab_group')],
-            [sg.Frame('', bottom,vertical_alignment='bottom')]
-        ],),
+            [sg.Frame('', bottom, vertical_alignment='bottom')]
+        ], ),
             sg.Column([[sg.VSeperator()]]),
             # Vertical line to separate the comments from the left side of the GUI
             sg.Column(side, vertical_alignment='top')],
@@ -619,11 +621,23 @@ def launch_physics_review_gui(rso):
             # Build next tab
             check_box_copy = build_manual_check_box_list(rso, beamsets=[
                 rso.beamset.DicomPlanLabel])
-            passing_tests, failed_tests = get_manual_failing_tests(tree_children,
-                                                                   )
-            tab2 = create_tab_manual_checks(check_box_copy, failed_tests,
+            passing_tests, failed_tests = get_manual_failing_tests(
+                tree_children, )
+            # TODO: Eliminate this
+            i = 0
+            for p in passing_tests:
+                i += 1
+                logging.debug(f'Passing test{i}: {p}')
+            i = 0
+            for f in failed_tests:
+                i += 1
+                logging.debug(f'Failed test{i}: {f}')
+            # TODO END
+            tabs = create_tab_manual_checks(check_box_copy, passing_tests,
+                                            failed_tests,
                                             hsize=hsize, vsize=vsize)
-            tab_group.add_tab(tab2)
+            for tab in tabs:
+                tab_group.add_tab(tab)
 
             window['Review and Logs'].select()
 
