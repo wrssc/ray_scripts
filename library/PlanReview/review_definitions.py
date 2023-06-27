@@ -46,10 +46,19 @@ FRONT_TAB = [
     "Energy specified"
 
 ]
+REVIEW_LEVELS = {'PLAN_DATA': 'Plan Data',
+                 'PREPLAN_DATA': 'Preplanning Data',
+                 'PATIENT_MODEL': 'Patient Modeling',
+                 'PLAN_DESIGN': 'Plan Design',
+                 'PLAN_EVAL': 'Plan Evaluation',
+                 'OPTIMIZATION': 'Optimization',
+                 'ADAPTIVE': 'Adaptive',
+                 'MOBIUS': 'Mobius',
+                 }
 #
 # CHECKBOXES are qa_tests that must be manually performed
 CHECK_BOXES_PHYSICS_REVIEW = {
-    'Plan Data': [
+    REVIEW_LEVELS['PLAN_DATA']: [
         {'key': 'plan_name_tpo',
          'test_name': 'Plan Name is consistent with TPO',
          'options': 'Yes,NA,No'},
@@ -58,7 +67,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
          'options': 'Yes,NA,No',
          'replaced': 'qa_tests.test_beamset.check_beamset_approved'},
     ],
-    'Preplanning Data': [
+    REVIEW_LEVELS['PREPLAN_DATA']: [
         {'key': 'ct_images_match',
          'test_name': 'CT images match RayStation Modality/Patient Name/MRN',
          'options': 'Yes,NA,No'},
@@ -83,7 +92,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
          'test_name': 'Special instructions (FB, MIBH) are noted in treatment planning order',
          'options': 'Yes,NA,No'},
     ],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'md_approved_mim',
          'test_name': 'If contoured in MIM, MD approved session',
          'options' :'Yes,NA,No'},
@@ -124,7 +133,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
          'test_name': 'Bolus and custom devices are physically and dosimetrically realistic',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'beam_names_correct',
          'test_name': 'Beam Names are correct',
          'options': 'Yes,NA,No'},
@@ -159,7 +168,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
          'test_name': 'Prescription is based on volume (preferred) or isodose line',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Evaluation': [
+    REVIEW_LEVELS['PLAN_EVAL']: [
         {'key': 'dose_distribution',
          'test_name': 'Dose distribution looks reasonable',
          'options': 'Yes,NA,No'},
@@ -168,7 +177,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
                       'goals and reasonably addressed',
          'options': 'Yes,NA,No'},
     ],
-    'Mobius': [
+    REVIEW_LEVELS['MOBIUS']: [
         {'key': 'couch_removal_height',
          'test_name': 'Confirm couch removal height',
          'options': 'Yes,NA,No'},
@@ -194,17 +203,17 @@ CHECK_BOXES_PHYSICS_REVIEW = {
 
 }
 CHECK_BOXES_PHYSICS_REVIEW_3D = {
-    'Plan Data': [
+    REVIEW_LEVELS['PLAN_DATA']: [
     ],
-    'Preplanning Data': [
+    REVIEW_LEVELS['PREPLAN_DATA']: [
     ],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'sim_fiducials_alignment',
          'test_name': 'SimFiducials localization point alignment matches BBs,'
                       ' or AlignRT is noted in CT Sim',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'modality_energy',
          'test_name': 'Modality and Energy match TPO',
          'options': 'Yes,NA,No'},
@@ -228,17 +237,15 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
          'test_name': 'Beam divergence is appropriate',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Evaluation': [
+    REVIEW_LEVELS['PLAN_EVAL']: [
     ],
-    'Mobius': [
+    REVIEW_LEVELS['MOBIUS']: [
     ]
 }
 CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
-    'Plan Settings': [
+    REVIEW_LEVELS['PREPLAN_DATA']: [
     ],
-    'Preplanning Data': [
-    ],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'sim_fiducials_alignment',
          'test_name': 'SimFiducials localization point alignment matches BBs,'
                       ' or AlignRT is noted in CT Sim',
@@ -250,7 +257,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
          'test_name': 'PRV volumes are drawn for serial OARs',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'modality_energy',
          'test_name': 'Modality, Energy match TPO',
          'options': 'Yes,NA,No'},
@@ -282,7 +289,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
                       'or multiple isocenter optimization)',
          'options': 'Yes,NA,No'},
     ],
-    'Optimization': [
+    REVIEW_LEVELS['OPTIMIZATION']: [
         {'key': 'objective_type',
          'test_name': 'Objective type is correct for targets/OAR',
          'options': 'Yes,NA,No'},
@@ -290,14 +297,14 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
          'test_name': 'Optimization settings: 2-degree gantry spacing',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Evaluation': [
+    REVIEW_LEVELS['PLAN_EVAL']: [
     ],
-    'Mobius': [
+    REVIEW_LEVELS['MOBIUS']: [
     ]
 }
 
 CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'modality_energy_matches_tpo',
          'test_name': 'Modality, Energy matches TPO',
          'options': 'Yes,NA,No'},
@@ -318,27 +325,27 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
          'test_name': 'Beam MU reasonable',
          'options': 'Yes,NA,No'},
     ],
-    'Electron Dose': [
+    REVIEW_LEVELS['PLAN_EVAL']: [
         {'key': 'histories_per_cm2',
          'test_name': 'Number of histories ≥500K per cm2',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Settings': [],
-    'Preplanning Data': [],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [],
+    REVIEW_LEVELS['PREPLAN_DATA']: [],
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'sim_fiducials_alignment',
          'test_name': 'SimFiducials localization point alignment matches'
                       ' BBs, or AlignRT is noted '
                       'in CT Sim',
          'options': 'Yes,NA,No'},
     ],
-    'Optimization': [],
-    'Plan Evaluation': [],
-    'Mobius': [],
+    REVIEW_LEVELS['OPTIMIZATION']: [],
+    REVIEW_LEVELS['PLAN_EVAL']: [],
+    REVIEW_LEVELS['MOBIUS']: [],
 }
 
 CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'tomocouch_inserted_correctly',
          'test_name': 'TomoCouch is inserted correctly',
          'options': 'Yes,NA,No'},
@@ -346,7 +353,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
          'test_name': 'SimFiducials localization point alignment matches BBs',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'patient_shifts_no_collision',
          'test_name': 'Patient shifts will not lead to a collision',
          'options': 'Yes,NA,No'},
@@ -371,7 +378,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
          'test_name': 'Treatment Isocenter lateral < 2 cm',
          'options': 'Yes,NA,No'},
     ],
-    'Optimization': [
+    REVIEW_LEVELS['OPTIMIZATION']: [
         {'key': 'optimization_on_targets_external',
          'test_name': 'Optimization on targets and External only',
          'options': 'Yes,NA,No'},
@@ -390,7 +397,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
          'test_name': 'Jaw mode is Dynamic',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Evaluation': [
+    REVIEW_LEVELS['PLAN_EVAL']: [
         {'key': 'plan_dvh_goals_identical',
          'test_name': 'Plan DVH and goals are identical to the _Auto plan',
          'options': 'Yes,NA,No'},
@@ -405,13 +412,12 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
                       ' in RayStation',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Settings': [],
-    'Preplanning Data': [],
-    'Mobius': [],
+    REVIEW_LEVELS['PREPLAN_DATA']: [],
+    REVIEW_LEVELS['MOBIUS']: [],
 }
 
 CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'tomocouch_inserted_correctly',
          'test_name': 'TomoCouch is inserted correctly',
          'options': 'Yes,NA,No'},
@@ -429,7 +435,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
                       ' in RayStation',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'beamsets_assigned_same_machine',
          'test_name': 'Beamsets are assigned to the same machine',
          'options': 'Yes,NA,No'},
@@ -448,7 +454,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
                       'or explained in Dosimetry Safety Sheet',
          'options': 'Yes,NA,No'},
     ],
-    'Optimization': [
+    REVIEW_LEVELS['OPTIMIZATION']: [
         {'key': 'objective_type_correct',
          'test_name': 'Objective type is correct for targets/OAR',
          'options': 'Yes,NA,No'},
@@ -467,10 +473,9 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
          'test_name': 'Review Beam\'s eye view',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Evaluation': [],
-    'Plan Settings': [],
-    'Preplanning Data': [],
-    'Mobius': [],
+    REVIEW_LEVELS['PLAN_EVAL']: [],
+    REVIEW_LEVELS['PREPLAN_DATA']: [],
+    REVIEW_LEVELS['MOBIUS']: [],
 }
 
 CHECK_BOXES = {
@@ -503,7 +508,7 @@ CHECK_BOXES = {
          'test_name': 'Order generated for TLDs if needed',
          'options': 'Yes,NA,No'}
     ],
-    'Simulation': [
+    REVIEW_LEVELS['PREPLAN_DATA']: [
         {'key': 'immobilization',
          'test_name': 'Immobilization matches protocol',
          'options': 'Yes,NA,No'},
@@ -511,7 +516,7 @@ CHECK_BOXES = {
          'test_name': 'No significant artifacts present',
          'options': 'Yes,NA,No'},
     ],
-    'Contouring': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'contoured',
          'test_name': 'If contoured in MIM MD approved session',
          'options': 'Yes,NA,No'},
@@ -528,7 +533,7 @@ CHECK_BOXES = {
          'test_name': 'Density overrides Material assignment appropriate',
          'options': 'Yes,NA,No'},
     ],
-    'Dose Calculation': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'ptv_skin',
          'test_name': 'PTV skin involvement confirmed',
          'options': 'Yes,NA,No'},
@@ -543,7 +548,7 @@ CHECK_BOXES = {
 }
 # SAFETY REVIEWS FOR DOSE
 CHECK_BOXES_DOSE = {
-    'Patient Data': [
+    REVIEW_LEVELS['PREPLAN_DATA']: [
         {'key': 'primary_image_set',
          'test_name': 'Correct image set used as primary',
          'options': 'Yes,NA,No'},
@@ -560,7 +565,7 @@ CHECK_BOXES_DOSE = {
          'test_name': 'Slice thickness appropriate for plan type',
          'options': 'Yes,NA,No'},
     ],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'approved_structure_set',
          'test_name': 'MD approved structure set',
          'options': 'Yes,NA,No'},
@@ -580,7 +585,7 @@ CHECK_BOXES_DOSE = {
          'test_name': 'CT cutoff addressed',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'plan_beam_names',
          'test_name': 'Plan and beam set names match treatment site',
          'options': 'Yes,NA,No'},
@@ -603,9 +608,9 @@ CHECK_BOXES_DOSE = {
 }
 
 CHECK_BOXES_DOSE_ELECTRON = {
-    'Patient Data': [
+    REVIEW_LEVELS['PREPLAN_DATA']: [
     ],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'density_overrides',
          'test_name': 'Density overrides set appropriately and do not overlap external',
          'options': 'Yes,NA,No'},
@@ -613,7 +618,7 @@ CHECK_BOXES_DOSE_ELECTRON = {
          'test_name': 'TrueBeam couch structure present and set to correct height',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'en_face_beam_angle',
          'test_name': 'En face beam angle used',
          'options': 'Yes,NA,No'},
@@ -655,9 +660,9 @@ CHECK_BOXES_DOSE_ELECTRON = {
 }
 
 CHECK_BOXES_DOSE_TOMO = {
-    'Patient Data Management': [
+    REVIEW_LEVELS['PREPLAN_DATA']: [
     ],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'generate_planning_structure_script',
          'test_name': 'Generate planning structure script used',
          'options': 'Yes,NA,No'},
@@ -668,14 +673,14 @@ CHECK_BOXES_DOSE_TOMO = {
          'test_name': 'Tomo couch structure present and set to correct height',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'beam_added_no_collision',
          'test_name': 'Beam added with no collision via machine geometry',
          'options': 'Yes,NA,No'},
         {'key': 'isocenter_offsets',
          'test_name': 'Isocenter lateral offset < 3 cm and In/Out offset < 18 cm',
          'options': 'Yes,NA,No'}],
-    'Plan Optimization': [
+    REVIEW_LEVELS['OPTIMIZATION']: [
         {'key': 'clinical_goals_script',
          'test_name': 'Clinical goals script used and matches TPO template name',
          'options': 'Yes,NA,No'},
@@ -701,16 +706,16 @@ CHECK_BOXES_DOSE_TOMO = {
          'test_name': 'Plan optimization script used',
          'options': 'Yes,NA,No'},
     ],
-    'Adaptive Planning': [
+    REVIEW_LEVELS['ADAPTIVE']: [
         {'key': 'idms_adaptive',
          'test_name': 'iDMS Adaptive: treated fractions discontinued in new plan',
          'options': 'Yes,NA,No'},
     ]
 }
 CHECK_BOXES_DOSE_3D = {
-    'Patient Data': [
+    REVIEW_LEVELS['PREPLAN_DATA']: [
     ],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'highz_artifacts',
          'test_name': 'High-Z artifacts & density overrides addressed: Choose One',
          'options': 'Yes,NA,No'},
@@ -718,7 +723,7 @@ CHECK_BOXES_DOSE_3D = {
          'test_name': 'TrueBeam couch structure present and set to correct height',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'btv_created',
          'test_name': 'BTV created and derived based on PTV',
          'options': 'Yes,NA,No'},
@@ -739,9 +744,9 @@ CHECK_BOXES_DOSE_3D = {
 }
 
 CHECK_BOXES_DOSE_TOMO_3D = {
-    'Patient Data Management': [
+    REVIEW_LEVELS['PREPLAN_DATA']: [
     ],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'highz_artifacts',
          'test_name': 'High-Z artifacts & density overrides addressed: Choose One',
          'options': 'Yes,NA,No'},
@@ -752,12 +757,12 @@ CHECK_BOXES_DOSE_TOMO_3D = {
          'test_name': 'Sim Fiducial point set to match BB location or Shifts Document',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'non_repro_tpo_structures_blocked',
          'test_name': 'Only non-reproducible and TPO-indicated structures blocked',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Optimization': [
+    REVIEW_LEVELS['OPTIMIZATION']: [
         {'key': 'tpo_clinical_goals',
          'test_name': 'TPO Clinical Goals Entered',
          'options': 'Yes,NA,No'},
@@ -774,7 +779,7 @@ CHECK_BOXES_DOSE_TOMO_3D = {
          'test_name': 'Treatment time appropriate for plan',
          'options': 'Yes,NA,No'},
     ],
-    'Adaptive': [
+    REVIEW_LEVELS['ADAPTIVE']: [
         {'key': 'idms_adaptive',
          'test_name': 'iDMS Adaptive: treated fractions discontinued in new plan',
          'options': 'Yes,NA,No'},
@@ -782,14 +787,14 @@ CHECK_BOXES_DOSE_TOMO_3D = {
 }
 
 CHECK_BOXES_DOSE_VMAT = {
-    'Patient Data Management': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
     ],
-    'Patient Modeling': [
+    REVIEW_LEVELS['PATIENT_MODEL']: [
         {'key': 'planning_structure_script',
          'test_name': 'Generate planning structure script used',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Design': [
+    REVIEW_LEVELS['PLAN_DESIGN']: [
         {'key': 'dose_grid_resolution_SBRT',
          'test_name': 'Dose grid resolution set to 0.2 (or 0.15 for SBRT)',
          'options': 'Yes,NA,No'},
@@ -797,7 +802,7 @@ CHECK_BOXES_DOSE_VMAT = {
          'test_name': 'Isocenter lateral offset < 5 cm for plans using full arcs',
          'options': 'Yes,NA,No'},
     ],
-    'Plan Optimization': [
+    REVIEW_LEVELS['OPTIMIZATION']: [
         {'key': 'clinical_goals_script_tpo',
          'test_name': 'Clinical goals script used and matches TPO template name',
          'options': 'Yes,NA,No'},
