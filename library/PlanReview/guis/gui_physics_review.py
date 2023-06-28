@@ -265,13 +265,15 @@ def get_review_gui_values(window, failed_tests, check_boxes, comment_box_key):
             num_beamsets=int(window[KEY_BEAMSET_COUNT].get()))
     else:
         preplan_values = extract_preplan_values(window, num_beamsets=1)
+    # Get the data from the comment box if any.
     if window[comment_box_key].get():
-        comment_box_values = {comment_box_key: window[comment_box_key].get()}
+        main_window_values = {
+            '-MAIN WINDOW-': {comment_box_key: window[comment_box_key].get()}}
     else:
-        comment_box_values = {}
-
+        main_window_values = {'-MAIN WINDOW-': {comment_box_key: ''}}
+    # Get the data from the first tab
     manual_values = extract_manual_values(window, failed_tests, check_boxes)
-    manual_values.update(comment_box_values)
+    manual_values.update(main_window_values)
     sorted_values = merge_dicts(preplan_values, manual_values)
 
     return sorted_values
