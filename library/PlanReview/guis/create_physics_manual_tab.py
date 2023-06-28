@@ -99,7 +99,7 @@ def create_manual_check_row(item, max_check):
     return row
 
 
-def extract_manual_values(window, failed_tests, check_boxes, comment_box):
+def extract_manual_values(window, failed_tests, check_boxes):
     sorted_values = {}
     for key in check_boxes:
         sorted_values[key] = {}
