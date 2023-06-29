@@ -200,7 +200,8 @@ def tuple_key_to_str(value):
 
 def str_key_to_tuple(value):
     if isinstance(value, dict):
-        return {str_key_to_tuple(k): str_key_to_tuple(v) for k, v in value.items()}
+        return {
+            str_key_to_tuple(k): str_key_to_tuple(v) for k, v in value.items()}
     elif isinstance(value, str) and '||' in value:
         return tuple(int(x) if x.isdigit() else x for x in value.split('||'))
     return value
@@ -221,11 +222,16 @@ def save_review(rso, values):
 
 
 def load_main_window(window, values):
+    for key, value in values.items():
+        try:
+            logging.debug(f"Checking window {key} with {value}")
+        except:
+            pass
     main_window_data = values.get(KEY_MAIN_WINDOW, {})
     logging.debug(f"Loading main window data: {main_window_data}")
     for key, value in main_window_data.items():
-        window[key].update(value)
         logging.debug(f"Updating window {key} with {value}")
+        window[key].update(value)
 
 
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
