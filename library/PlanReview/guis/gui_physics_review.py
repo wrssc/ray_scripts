@@ -223,19 +223,22 @@ def save_review(rso, values):
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
                 maximum_beamset_count, check_box_copy, file_name=None):
     if not file_name:
-        file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review.json"
+        file_name = f"{rso.patient.PatientID}_" \
+                    f"{rso.beamset.DicomPlanLabel}_review.json"
     try:
         with open(os.path.join(OUTPUT_DIR, file_name), "r") as f:
             values = json.load(f)
     except FileNotFoundError:
         sg.popup("No saved review found!")
         return
-    order_name = None
-    protocol = None
 
     values = str_key_to_tuple(values)
     # Add missing keys to the window.key_dict
     update_window_key_dict(window, values.keys())
+    # Load the main window data. Right now it is "-USER-COMMENTS-"
+    main_window_data = values.get('-MAIN_WINDOW-', {})
+    for key, value in main_window_data.items():
+        window[key].update(value)
 
     load_preplan(window, values, sites, protocols, instructions, maximum_beamset_count,
                  maximum_target_number)
@@ -529,24 +532,20 @@ def launch_physics_review_gui(rso):
         [sg.Column([
             [sg.Frame('', top, vertical_alignment='top')],
             [sg.TabGroup([[sg.Tab('External Information',
-                                  create_preplan_information_tab(protocols,
-                                                                 sites,
-                                                                 orders,
-                                                                 instructions,
-                                                                 beamsets,
-                                                                 targets, ))
+                                  create_preplan_information_tab(
+                                      protocols, sites, orders, instructions,
+                                      beamsets, targets, ))
                            ]],
                          key='tab_group')],
             [sg.Frame('', bottom, vertical_alignment='bottom')]
         ], ),
             sg.Column([[sg.VSeperator()]]),
-            # Vertical line to separate the comments from the left side of the GUI
+            # Vertical line to separate the comments from the left side
             sg.Column(side, vertical_alignment='top')],
     ]
 
-    window = sg.Window('Plan Review: ' + get_user_name(),
-                       layout,
-                       resizable=True)
+    window = sg.Window(
+        f'Plan Review: {get_user_name()}', layout, resizable=True)
     review_file_name = None
 
     while True:  # Event Loop
@@ -557,9 +556,10 @@ def launch_physics_review_gui(rso):
             break
 
         elif event == 'Load':
-            num_beamsets = load_review(window, rso, sites, protocols,
-                                       instructions, maximum_target_number,
-                                       max_beamset_count, check_box_copy, review_file_name)
+            num_beamsets = load_review(
+                window, rso, sites, protocols, instructions,
+                maximum_target_number, max_beamset_count,
+                check_box_copy, review_file_name)
             logging.debug(f'Values are {tuple_key_to_str(values)}')
             logging.debug(f'Sim data {values[KEY_SIM_DATE]}, {values[KEY_SLICES]}')
 
@@ -574,7 +574,8 @@ def launch_physics_review_gui(rso):
         # First tab Events
         elif event == KEY_SITE_SELECT:
             site_name = values[KEY_SITE_SELECT]
-            update_preplan_protocols(window, site_name, KEY_PROTOCOL_SELECT, protocols)
+            update_preplan_protocols(window, site_name, KEY_PROTOCOL_SELECT,
+                                     protocols)
         # Update the potential protocol choices based on those for this site
         elif event == KEY_PROTOCOL_SELECT:
             protocol = protocols[values[KEY_PROTOCOL_SELECT]]
@@ -582,13 +583,15 @@ def launch_physics_review_gui(rso):
         elif event == KEY_ORDER_SELECT:
             order_name = values[KEY_ORDER_SELECT]
             update_preplan_frequencies(window, protocol, order_name)
-            update_preplan_instructions(window, protocol, order_name, instructions)
+            update_preplan_instructions(window, protocol, order_name,
+                                        instructions)
 
         # Trigger update_beamset_rows when the number of beamsets changes
         elif KEY_BEAMSET_COUNT in event:
             num_beamsets = int(values[event])
-            update_preplan_beamset_rows(window, values, num_beamsets,
-                                        max_beamset_count, maximum_target_number)
+            update_preplan_beamset_rows(
+                window, values, num_beamsets, max_beamset_count,
+                maximum_target_number)
 
         if KEY_BEAMSET_TARGET_COUNT in event:
             _, beamset_i = event
@@ -599,7 +602,8 @@ def launch_physics_review_gui(rso):
         # Trigger calculate_dose_per_fraction when the dose value changes
         if KEY_BEAMSET_DOSE in event:
             _, beamset_i, target_i = event
-            calculate_preplan_dose_per_fraction(values, window, beamset_i, target_i)
+            calculate_preplan_dose_per_fraction(
+                values, window, beamset_i, target_i)
 
         # Trigger calculate_dose_per_fraction when the number of fractions in a beamset changes
         if KEY_BEAMSET + KEY_FRACTIONS in event:
