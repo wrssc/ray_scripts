@@ -285,11 +285,9 @@ def get_review_gui_values(window, failed_tests, check_boxes, comment_box_key):
     # Get the data from the comment box if any.
     if window[comment_box_key].get():
         main_window_values = {
-            KEY_MAIN_WINDOW:
-                {comment_box_key: window[create_key(KEY_USER_COMMENT)].get()}}
+            KEY_MAIN_WINDOW: {comment_box_key: window[KEY_USER_COMMENT].get()}}
     else:
-        main_window_values = {KEY_MAIN_WINDOW:
-                                  {create_key(KEY_USER_COMMENT): ''}}
+        main_window_values = {KEY_MAIN_WINDOW: {KEY_USER_COMMENT: ''}}
     # Get the data from the first tab
     manual_values = extract_manual_values(window, failed_tests, check_boxes)
     manual_values.update(main_window_values)
@@ -541,7 +539,7 @@ def launch_physics_review_gui(rso):
                           size=(30, int(0.9 * hlines)),
                           autoscroll=True,
                           auto_size_text=True,
-                          key=create_key(KEY_USER_COMMENT))
+                          key=KEY_USER_COMMENT)
              ]]
 
     layout = [
@@ -688,7 +686,7 @@ def launch_physics_review_gui(rso):
             review_file_name = save_review(
                 rso, get_review_gui_values(
                     window, failed_tests, check_box_copy,
-                    create_key(KEY_USER_COMMENT)))
+                    KEY_USER_COMMENT))
 
     window.close()
 
