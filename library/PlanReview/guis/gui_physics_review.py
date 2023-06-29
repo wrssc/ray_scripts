@@ -220,6 +220,12 @@ def save_review(rso, values):
     return file_name
 
 
+def load_main_window(window, values):
+    main_window_data = values.get(KEY_MAIN_WINDOW, {})
+    for key, value in main_window_data.items():
+        window[key].update(value)
+
+
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
                 maximum_beamset_count, check_box_copy, file_name=None):
     if not file_name:
@@ -235,14 +241,14 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
     values = str_key_to_tuple(values)
     # Add missing keys to the window.key_dict
     update_window_key_dict(window, values.keys())
-    # Load the main window data. Right now it is "-USER-COMMENTS-"
-    main_window_data = values.get('-MAIN_WINDOW-', {})
-    for key, value in main_window_data.items():
-        window[key].update(value)
-
-    load_preplan(window, values, sites, protocols, instructions, maximum_beamset_count,
-                 maximum_target_number)
+    # Load the main window data. Right now it is KEY_USER_COMMENT
+    load_main_window(window, values)
+    # Load preplan frame contents
+    load_preplan(window, values, sites, protocols, instructions,
+                 maximum_beamset_count, maximum_target_number)
+    # Load the manual (check box) tab contents
     load_manual(window, values, check_box_copy)
+    # Determine the number of beamsets
     num_beamsets = int(window[KEY_BEAMSET_COUNT].get()) \
         if window[KEY_BEAMSET_COUNT].get() else 1
     return num_beamsets
@@ -525,7 +531,7 @@ def launch_physics_review_gui(rso):
                           size=(30, int(0.9 * hlines)),
                           autoscroll=True,
                           auto_size_text=True,
-                          key=create_key('-USER-COMMENTS-'))
+                          key=create_key(KEY_USER_COMMENT))
              ]]
 
     layout = [
@@ -672,7 +678,7 @@ def launch_physics_review_gui(rso):
             review_file_name = save_review(
                 rso, get_review_gui_values(
                     window, failed_tests, check_box_copy,
-                    create_key('-USER-COMMENTS-')))
+                    create_key(KEY_USER_COMMENT)))
 
     window.close()
 
