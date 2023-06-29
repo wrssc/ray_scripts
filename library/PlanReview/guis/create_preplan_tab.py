@@ -147,7 +147,8 @@ def update_preplan_beamset_rows(main_window, values, num_beamsets, max_beamsets,
     # Update the visibility of beamset rows based on the user's selection
     for i in range(max_beamsets):
         is_visible = i < num_beamsets
-        main_window[create_key(KEY_BEAMSET + KEY_F, i)].update(visible=is_visible)  # Update the visibility of the frame
+        main_window[create_key(KEY_BEAMSET + KEY_F, i)].update(
+            visible=is_visible)  # Update the visibility of the frame
         main_window[create_key(KEY_BEAMSET_COUNT + KEY_T, i)].update(visible=is_visible)
         main_window[create_key(KEY_BEAMSET_SELECT, i)].update(visible=is_visible)
         main_window[create_key(KEY_BEAMSET_TARGET_COUNT + KEY_T, i)].update(visible=is_visible)
@@ -589,7 +590,7 @@ def create_preplan_information_tab(protocols, sites, orders, instructions, beams
                       [sg.Text('', size=(5, 1))],  # Empty space
                       [sg.Text('CT Scan Date:', pad=(20, 0)),
                        sg.Input('', key=KEY_SIM_DATE,
-                                size=(10,1)),
+                                size=(10, 1)),
                        sg.CalendarButton('Select date', target=KEY_SIM_DATE,
                                          format='%Y-%m-%d')],
                       [sg.Text('Number of CT Slices: ', pad=(20, 0)),
@@ -694,9 +695,8 @@ def extract_preplan_values(main_window, num_beamsets=1):
                     treatment_instructions[key] = value.get()
 
     # Get the Beamset Information values
-    beamset_dict = {}
-    beamset_dict[KEY_BEAMSET_COUNT] = main_window[KEY_BEAMSET_COUNT].get() \
-        if main_window[KEY_BEAMSET_COUNT].get() else ''
+    beamset_dict = {KEY_BEAMSET_COUNT: main_window[KEY_BEAMSET_COUNT].get()
+        if main_window[KEY_BEAMSET_COUNT].get() else ''}
     for i in range(num_beamsets):
         beamset_dict[create_key(KEY_BEAMSET_SELECT, i)] = \
             main_window[create_key(KEY_BEAMSET_SELECT, i)].get() \
@@ -736,8 +736,8 @@ def tuple_key_to_str(value):
     return value
 
 
-def load_preplan(window, values, sites, protocols, instructions, maximum_beamset_count,
-                 maximum_target_number):
+def load_preplan(window, values, sites, protocols, instructions,
+                 maximum_beamset_count, maximum_target_number):
     order_name = None
     protocol = None
 
@@ -778,3 +778,4 @@ def load_preplan(window, values, sites, protocols, instructions, maximum_beamset
                             for k, v in inner_dict.items()}
         update_preplan_beamset_rows(window, flattened_values, num_beamsets,
                                     maximum_beamset_count, maximum_target_number)
+
