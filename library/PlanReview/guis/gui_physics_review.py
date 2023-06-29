@@ -222,8 +222,10 @@ def save_review(rso, values):
 
 def load_main_window(window, values):
     main_window_data = values.get(KEY_MAIN_WINDOW, {})
+    logging.debug(f"Loading main window data: {main_window_data}")
     for key, value in main_window_data.items():
         window[key].update(value)
+        logging.debug(f"Updating window {key} with {value}")
 
 
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
