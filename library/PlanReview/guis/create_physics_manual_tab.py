@@ -144,6 +144,9 @@ def create_tab_manual_checks(check_boxes, passing_tests,
     max_check = max([len(item['test_name']) for key in check_boxes
                      for item in check_boxes[key]])
     tabs = []
+    vsize_check = int(vsize * 0.68)
+    vsize_failed = int(1 - vsize_check / 2.)
+    vsize_passed = int(1 - vsize_check / 2.)
 
     # Create a tab for each key in check_boxes
     for key in check_boxes:
@@ -156,17 +159,17 @@ def create_tab_manual_checks(check_boxes, passing_tests,
             total_items += 1
 
         frame = Sg.Frame(key, [[Sg.Column(frame_layout,
-                                          size=(int(hsize * 0.95),
-                                                #int(vsize * total_items * 0.04)),
-                                                int(vsize * 0.74)),
-                                          scrollable=True, vertical_scroll_only=True)]])
+                                          size=(int(hsize * 0.95), vsize_check),
+                                          # int(vsize * total_items * 0.04)),
+                                          scrollable=True,
+                                          vertical_scroll_only=True)]])
         layout.append([frame])
         # Failed tests
         rows = []
         for comment, result, icon, test_key in failed_tests:
             if test_key is not None and test_key == key:
                 rows.append([Sg.Image(icon),
-                             Sg.Text(result,  #size=(max_check*0.9, None),
+                             Sg.Text(result,  # size=(max_check*0.9, None),
                                      auto_size_text=True, justification='left'),
                              Sg.InputText(default_text=f"{comment}: Comment",
                                           key=create_key(comment),
@@ -177,11 +180,12 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                                           justification='left', tooltip=comment)])
         if rows:
             frame_failed_tests = Sg.Frame('Failed Tests',
-                                          [[Sg.Column([*rows],
-                                                      size=(int(hsize * 0.95),
-                                                              int(vsize * 0.13)),
-                                                      scrollable=True,
-                                                      vertical_scroll_only=True)]])
+                                          [[Sg.Column(
+                                              [*rows],
+                                              size=(int(hsize * 0.95),
+                                                    vsize_failed),
+                                              scrollable=True,
+                                              vertical_scroll_only=True)]])
 
             layout.append([frame_failed_tests])
         # Passing tests
@@ -190,20 +194,22 @@ def create_tab_manual_checks(check_boxes, passing_tests,
             test_key = v['review_tab']
             if test_key is not None and test_key == key:
                 rows.append([Sg.Image(v['icon']),
-                             Sg.Text(v['result'],  #size=(max_check*0.8, None),
+                             Sg.Text(v['result'],  # size=(max_check*0.8, None),
                                      auto_size_text=True, justification='left'),
-                             Sg.InputText(default_text=v['comment'],
-                                          key=create_key(f"{v['test_name']}"),
-                                          size=(int(max_check), None),
-                                          enable_events=True, pad=((40, 0), (0, 0)),
-                                          text_color='#000000',
-                                          background_color='#ffffff', border_width=0,
-                                          justification='left', tooltip=v['comment'])])
+                             Sg.InputText(
+                                 default_text=v['comment'],
+                                 key=create_key(f"{v['test_name']}"),
+                                 size=(int(max_check), None),
+                                 enable_events=True, pad=((40, 0), (0, 0)),
+                                 text_color='#000000',
+                                 background_color='#ffffff',
+                                 border_width=0, justification='left',
+                                 tooltip=v['comment'])])
         if rows:
             frame_passed_tests = Sg.Frame('Passing Tests',
                                           [[Sg.Column([*rows],
                                                       size=(int(hsize * 0.95),
-                                                            int(vsize * 0.13)),
+                                                            vsize_passed),
                                                       scrollable=True,
                                                       vertical_scroll_only=True)]])
 
@@ -229,7 +235,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                                   [[
                                       Sg.Column([*rows],
                                                 size=(int(hsize * 0.95),
-                                                      int(vsize * 0.13)))]])
+                                                      vsize_failed))]])
 
     layout_failed_tests = [[frame_failed_tests]]
     tab_failed_tests = Sg.Tab('Failed Tests', [[Sg.Column(layout_failed_tests)]])
