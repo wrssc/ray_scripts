@@ -62,7 +62,7 @@ def generate_event_key(*args):
     return "_".join(str(arg) for arg in args)
 
 
-def create_manual_check_row(item, max_check):
+def create_manual_check_row(item, max_check, user_text_length=80):
     phrases = item['options'].split(',')
     test_name = item['test_name']
     row_key = item['key']
@@ -74,25 +74,26 @@ def create_manual_check_row(item, max_check):
             key=create_key(f'{row_key}{KEY_CHECK}{KEY_RADIO}{phrase}'),
             enable_events=True)]],
         justification='center',
-        expand_x=True,
+        expand_x=False,
         pad=(0, 0))
         for phrase in phrases
     ]
     row = [Sg.Column(
         [[Sg.Text(
             test_name,
-            size=(int(max_check * 0.7), 1),
-            pad=(0, 0))]],
+            size=(int(max_check), 1), # pad=(0, 0))
+        )
+        ]],
         justification='left',
-        expand_x=True),
+        expand_x=False),
         *radios,
         Sg.Column(
             [[Sg.InputText(
-                size=(int(max_check), 1),
+                size=(user_text_length, 1),
                 key=create_key(f'{row_key}{KEY_CHECK}{KEY_INPUT_TEXT}'),
                 enable_events=True,
                 background_color='#E5DECE', pad=(0, 0))]],
-            justification='right',
+            justification='left',
             expand_x=True),
     ]
 
@@ -139,52 +140,114 @@ def search_string(input_string):
         return None, input_string
 
 
+def create_auto_check_row(comment, result, icon, key_name, max_check, user_text_x):
+    row = [Sg.Column(
+        [[Sg.Image(icon),
+          Sg.Text(result, size=(max_check,1), justification='left')]],
+    ),
+        Sg.Column([[Sg.InputText(default_text=f"{comment}: Comment",
+                                 key=create_key(key_name),
+                                 size=(user_text_x, 1),
+                                 expand_x=True,
+                                 enable_events=True, # pad=((40, 0), (0, 0)),
+                                 text_color='#000000',
+                                 background_color='#ffffff', border_width=0,
+                                 justification='left', tooltip=comment)]]),
+    ]
+    return row
+
+
+def max_test_length(checks, key):
+    max_char = max([len(item[key]) for item in checks])
+    return max_char
+
+def determine_frame_properties(hsize, vsize, key, check_boxes,
+                               failed_tests, passing_tests):
+    # Line size
+    pix_per_line = 14
+    max_text_length = max_test_length(check_boxes[key],'test_name')
+    total_check_lines = len(check_boxes[key])
+    # Count lines in fail
+    total_fail_lines = 0
+    for comment, result, icon, test_key in failed_tests:
+        if test_key is not None and test_key == key:
+            total_fail_lines += 1
+    # Count lines in passing
+    total_pass_lines = 0
+    for v in passing_tests:
+        test_key = v['review_tab']
+        if test_key is not None and test_key == key:
+            total_pass_lines += 1
+    total_lines = total_check_lines + total_pass_lines + total_fail_lines
+    # Compute sizes
+    frame_x = int(0.99 * hsize)
+    frame_check = int(vsize * total_check_lines/total_lines)
+    frame_pass = 1 if total_pass_lines == 0 else int(vsize*total_pass_lines/total_lines)
+    frame_fail = 1 if total_fail_lines == 0 else int(vsize*total_fail_lines/total_lines)
+    frame_data = {
+        'check_size': (frame_x,frame_check),
+        'pass_size': (frame_x, frame_pass),
+        'fail_size': (frame_x, frame_fail)
+    }
+    if total_check_lines > 3:
+        frame_data['check_scroll'] = True
+    else:
+        frame_data['check_scroll'] = False
+    if total_pass_lines > 3:
+        frame_data['pass_scroll'] = True
+    else:
+        frame_data['pass_scroll'] = False
+    if total_fail_lines > 3:
+        frame_data['fail_scroll'] = True
+    else:
+        frame_data['fail_scroll'] = False
+    return frame_data
+
+
 def create_tab_manual_checks(check_boxes, passing_tests,
                              failed_tests, hsize=1200, vsize=1200):
     max_check = max([len(item['test_name']) for key in check_boxes
                      for item in check_boxes[key]])
     tabs = []
-    vsize_check = int(vsize * 0.68)
-    vsize_failed = int(1 - vsize_check / 2.)
-    vsize_passed = int(1 - vsize_check / 2.)
+    pixels_per_char = 8
+    frame_check_y = int(vsize * 0.6)
+    frame_fail_y = int((vsize - frame_check_y) / 2.)
+    frame_pass_y = int((vsize - frame_check_y) / 2.)
+    frame_x = int(0.99 * hsize)
+    user_text_x = int(0.3 * hsize / pixels_per_char)
 
     # Create a tab for each key in check_boxes
     for key in check_boxes:
         layout = [[Sg.Text('Select an option for each item:')]]
         frame_layout = []
         total_items = 0
+
+        max_tab_length = max_test_length(check_boxes[key], 'test_name')
+        frame_data = determine_frame_properties(hsize,vsize,key, check_boxes,failed_tests,passing_tests)
+
         for item in check_boxes[key]:
-            row1 = create_manual_check_row(item, max_check)
+            row1 = create_manual_check_row(item, max_tab_length, user_text_x)
             frame_layout.append(row1)
             total_items += 1
 
         frame = Sg.Frame(key, [[Sg.Column(frame_layout,
-                                          size=(int(hsize * 0.95), vsize_check),
-                                          # int(vsize * total_items * 0.04)),
-                                          scrollable=True,
+                                          size=frame_data['check_size'],
+                                          scrollable=frame_data['check_scroll'],
                                           vertical_scroll_only=True)]])
         layout.append([frame])
         # Failed tests
         rows = []
         for comment, result, icon, test_key in failed_tests:
             if test_key is not None and test_key == key:
-                rows.append([Sg.Image(icon),
-                             Sg.Text(result,  # size=(max_check*0.9, None),
-                                     auto_size_text=True, justification='left'),
-                             Sg.InputText(default_text=f"{comment}: Comment",
-                                          key=create_key(comment),
-                                          size=(int(max_check), None),
-                                          enable_events=True, pad=((40, 0), (0, 0)),
-                                          text_color='#000000',
-                                          background_color='#ffffff', border_width=0,
-                                          justification='left', tooltip=comment)])
+                rows.append(
+                    create_auto_check_row(
+                        comment, result, icon, comment, max_check, user_text_x))
         if rows:
             frame_failed_tests = Sg.Frame('Failed Tests',
                                           [[Sg.Column(
                                               [*rows],
-                                              size=(int(hsize * 0.95),
-                                                    vsize_failed),
-                                              scrollable=True,
+                                              size=frame_data['fail_size'],
+                                              scrollable=frame_data['fail_scroll'],
                                               vertical_scroll_only=True)]])
 
             layout.append([frame_failed_tests])
@@ -193,108 +256,25 @@ def create_tab_manual_checks(check_boxes, passing_tests,
         for v in passing_tests:
             test_key = v['review_tab']
             if test_key is not None and test_key == key:
-                rows.append([Sg.Image(v['icon']),
-                             Sg.Text(v['result'],  # size=(max_check*0.8, None),
-                                     auto_size_text=True, justification='left'),
-                             Sg.InputText(
-                                 default_text=v['comment'],
-                                 key=create_key(f"{v['test_name']}"),
-                                 size=(int(max_check), None),
-                                 enable_events=True, pad=((40, 0), (0, 0)),
-                                 text_color='#000000',
-                                 background_color='#ffffff',
-                                 border_width=0, justification='left',
-                                 tooltip=v['comment'])])
+                comment = v['comment']
+                icon = v['icon']
+                result = v['result']
+                key_name = v['test_name']
+                rows.append(
+                    create_auto_check_row(
+                        comment, result, icon, key_name, max_check, user_text_x))
         if rows:
             frame_passed_tests = Sg.Frame('Passing Tests',
                                           [[Sg.Column([*rows],
-                                                      size=(int(hsize * 0.95),
-                                                            vsize_passed),
-                                                      scrollable=True,
+                                                      size=frame_data['pass_size'],
+                                                      scrollable=frame_data['pass_scroll'],
                                                       vertical_scroll_only=True)]])
 
             layout.append([frame_passed_tests])
         tab = Sg.Tab(key, [[Sg.Column(layout)]])
         tabs.append(tab)
 
-    # Create a tab for failed tests
-    rows = []
-    for comment, result, icon, test_key in failed_tests:
-        rows.append([Sg.Image(icon),
-                     Sg.Text(result, size=(max_check, None),
-                             auto_size_text=True, justification='left'),
-                     Sg.InputText(default_text=f"{comment}: Comment",
-                                  key=create_key(comment),
-                                  size=(int(max_check), None),
-                                  enable_events=True, pad=((40, 0), (0, 0)),
-                                  text_color='#000000',
-                                  background_color='#ffffff', border_width=0,
-                                  justification='left', tooltip=comment)])
-
-    frame_failed_tests = Sg.Frame('Failed Tests',
-                                  [[
-                                      Sg.Column([*rows],
-                                                size=(int(hsize * 0.95),
-                                                      vsize_failed))]])
-
-    layout_failed_tests = [[frame_failed_tests]]
-    tab_failed_tests = Sg.Tab('Failed Tests', [[Sg.Column(layout_failed_tests)]])
-    tabs.append(tab_failed_tests)
-
     return tabs
-
-
-def old_create_tab_manual_checks(check_boxes, failed_tests, hsize=1200, vsize=1200):
-    max_check = max([len(item['test_name']) for key in check_boxes
-                     for item in check_boxes[key]])
-
-    layout = [[Sg.Text('Select an option for each item:')]]
-    for key in check_boxes:
-        frame_layout = []
-        total_items = 0
-        for item in check_boxes[key]:
-            row1 = create_manual_check_row(item, max_check)
-            frame_layout.append(row1)
-            total_items += 1
-
-        if total_items > 5:
-            frame = Sg.Frame(key, [[Sg.Column(frame_layout,
-                                              scrollable=True,
-                                              vertical_scroll_only=True,
-                                              size=(int(hsize * 0.95), int(vsize * 0.13)))]])
-        else:
-            frame = Sg.Frame(key, [[Sg.Column(frame_layout,
-                                              size=(int(hsize * 0.95),
-                                                    int(vsize * total_items * 0.03)))]])
-
-        layout.append([frame])
-
-    rows = []
-    for comment, result, icon in failed_tests:
-        rows.append([Sg.Image(icon),
-                     Sg.Text(result, size=(max_check, None),
-                             auto_size_text=True, justification='left'),
-                     Sg.InputText(default_text=f"{comment}: Comment",
-                                  key=create_key(comment),
-                                  size=(int(max_check), None),
-                                  enable_events=True, pad=((40, 0), (0, 0)),
-                                  text_color='#000000',
-                                  background_color='#ffffff', border_width=0,
-                                  justification='left', tooltip=comment)])
-
-    frame_failed_tests = Sg.Frame('Failed Tests',
-                                  [[Sg.Column([*rows],
-                                              scrollable=True,
-                                              vertical_scroll_only=True,
-                                              size=(int(hsize * 0.95),
-                                                    int(vsize * 0.13)))]])
-    layout.append([frame_failed_tests])
-    column = Sg.Column(layout,
-                       scrollable=True,
-                       vertical_scroll_only=True,
-                       size=(hsize, vsize))
-    tab = Sg.Tab('Miller Time', [[column]])
-    return tab
 
 
 # Define a function to handle events related to radio buttons
@@ -375,11 +355,10 @@ def get_manual_failing_tests(tree_children):
     # Find failing tests and determine total number of rows
     failed_tests = []
     for comment, child_key, result, pass_fail, icon in tree_children:
+        review_tab, comment = search_string(comment)
         if pass_fail != PASS:
-            review_tab, comment = search_string(comment)
             failed_tests.append([comment, str(result), str(icon), review_tab])
         else:
-            review_tab, comment = search_string(comment)
             passing_tests.append(
                 {'test_name': str(comment), 'result': str(result),
                  'icon': str(icon),
@@ -431,18 +410,19 @@ def process_failed_tests(window, failures):
     Args:
         window (PySimpleGUI.Window): The PySimpleGUI window object.
         failures (list): A list of failed tests, where each item is a tuple containing a
-        comment, result,
+        comment, result, icon file string, and the tab to which this was assigned
             and icon.
 
     Returns:
         list: A list of parsed failed tests.
     """
     failed_list = []
-    for comment, test_result, icon in failures:
+    for comment, test_result, icon, topic in failures:
         parsed_item = {
             'test_name': repr(comment),
             'result': repr(test_result),
             'icon': RED_CIRCLE,
+            'topic': topic,
             'comment': repr(window[create_key(comment)].get())
         }
         failed_list.append(parsed_item)

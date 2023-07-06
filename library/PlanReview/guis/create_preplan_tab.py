@@ -567,7 +567,8 @@ def update_plan_names(window, plan_name_event, plan_name_dict, current_plan_name
     window[plan_name_event].update(value=current_plan_name, values=plan_names)
 
 
-def create_preplan_information_tab(protocols, sites, orders, instructions, beamsets, targets):
+def create_preplan_information_tab(protocols, sites, orders,
+                                   instructions, beamsets, targets,hsize=1200,vsize=1200):
     """
     Create the layout for the CT Scan tab in the main window.
 
@@ -581,7 +582,10 @@ def create_preplan_information_tab(protocols, sites, orders, instructions, beams
     # Create the layout for treatment planning order selection
     order_selection_layout = create_order_selection_layout(protocols, sites,
                                                            orders, instructions)
-
+    frame_x = int(0.99 * hsize)
+    frame_ct_y = int(vsize * 0.15)
+    frame_tpo_y = int(0.5 * vsize)
+    frame_bs_y = int(vsize - frame_ct_y - frame_tpo_y)
     # Create the overall layout for the CT Scan tab
     ct_scan_layout = [
         # CT Information frame
@@ -598,6 +602,7 @@ def create_preplan_information_tab(protocols, sites, orders, instructions, beams
                       [sg.Text('', size=(5, 1))],  # Empty space
                   ],
                   element_justification='l',
+                  size=(frame_x,frame_ct_y),
                   font=('Helvetica', 11, 'bold'))
          ],
 
@@ -606,10 +611,10 @@ def create_preplan_information_tab(protocols, sites, orders, instructions, beams
                   [[sg.Column(order_selection_layout,
                               scrollable=True,
                               vertical_scroll_only=True,
-                              size=(800, 400))]],
+                              size=(frame_x,frame_tpo_y))]],
                   font=('Helvetica', 11, 'bold'),
                   element_justification='l',
-                  size=(800, 400),
+                  size=(frame_x,frame_tpo_y),
                   )
          ],
 
@@ -628,6 +633,7 @@ def create_preplan_information_tab(protocols, sites, orders, instructions, beams
                       beamset_layout,
                       [sg.Text('', size=(5, 1))],  # Empty space
                   ],
+                  size=(frame_x,frame_bs_y),
                   font=('Helvetica', 11, 'bold'),
                   element_justification='l')],
 

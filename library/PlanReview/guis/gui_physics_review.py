@@ -523,7 +523,7 @@ def launch_physics_review_gui(rso):
                   size=(8, 2),
                   pad=((0, 60), (1, 1)),
                   border_width=2),
-        sg.Button('Done',
+        sg.Button('Generate Report',
                   size=(8, 2),
                   pad=((0, 60), (1, 1)),
                   border_width=2),
@@ -548,7 +548,7 @@ def launch_physics_review_gui(rso):
             [sg.TabGroup([[sg.Tab('External Information',
                                   create_preplan_information_tab(
                                       protocols, sites, orders, instructions,
-                                      beamsets, targets, ))
+                                      beamsets, targets,hsize,vsize ))
                            ]],
                          key='tab_group')],
             [sg.Frame('', bottom, vertical_alignment='bottom')]
@@ -626,6 +626,7 @@ def launch_physics_review_gui(rso):
             calculate_preplan_dose_per_fraction(values, window, beamset_i, target_i)
 
         if event == 'submit_button':
+            # TODO: NEED A CHECK ON ESSENTIAL KEYS HERE
             num_beamsets = int(values.get(KEY_BEAMSET_COUNT, 1))
             # Display the progress bar
             progress_window, progress_bar = display_progress_bar()
@@ -647,16 +648,6 @@ def launch_physics_review_gui(rso):
                 rso.beamset.DicomPlanLabel])
             passing_tests, failed_tests = get_manual_failing_tests(
                 tree_children, )
-            # TODO: Eliminate this
-            i = 0
-            for p in passing_tests:
-                i += 1
-                logging.debug(f'Passing test{i}: {p}')
-            i = 0
-            for f in failed_tests:
-                i += 1
-                logging.debug(f'Failed test{i}: {f}')
-            # TODO END
             tabs = create_tab_manual_checks(check_box_copy, passing_tests,
                                             failed_tests,
                                             hsize=hsize, vsize=vsize)
@@ -671,7 +662,7 @@ def launch_physics_review_gui(rso):
             if KEY_CHECK + KEY_RADIO in event[0]:
                 on_manual_radio_button_click(window, event)
 
-        elif event == 'Done':
+        elif event == 'Generate Report':
             is_valid = on_done_button_click(window, values, check_box_copy)
             # Perform the form submission logic
             if is_valid:

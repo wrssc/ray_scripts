@@ -284,9 +284,8 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
          'test_name': 'Overlap with prior RT is reviewed',
          'options': 'Yes,NA,No'},
         {'key': 'plan_setup',
-         'test_name': 'Plan setup: Use of beam set dependency is appropriate'
-                      ' (for previous dose '
-                      'or multiple isocenter optimization)',
+         'test_name': 'Dependency settings of beam set appropriate'
+                      ' (background/co-optimization)',
          'options': 'Yes,NA,No'},
     ],
     REVIEW_LEVELS['OPTIMIZATION']: [
