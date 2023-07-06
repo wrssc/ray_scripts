@@ -17,12 +17,10 @@ def generate_doc(rso, tests, header_data, test_mode=False):
     else:
         dump_tests_to_json(tests, file_name='tests.json')
         dump_tests_to_json(header_data, file_name='header.json')
-    logging.debug(
-        f'Test keys for beamset {header_data["-SIMULATION_DATA-"]["-BEAMSET-"]} ')
     # logging.debug(f'Header data is {json.dumps(tuple_key_to_str(header_data))}\n\n')
     # Output file
     file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}.doc"
-    output_file = os.path.join(OUTPUT_DIR, file_name)
+    output_file = os.path.join(OUTPUT_DIR,rso.patient.PatientID,file_name)
 
     footer_text = "Photon VMAT Physics Review"
     # Get approval info:
