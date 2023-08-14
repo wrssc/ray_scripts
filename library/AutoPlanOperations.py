@@ -47,9 +47,9 @@ import StructureOperations
 import BeamOperations
 import UserInterface
 from OptimizationOperations import optimize_plan, iter_optimization_config_etree
+
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../structure_definition'))
 from AddSupportStructures import deploy_couch_model
-
 
 InstitutionInputsSupportStructuresExamination = "Supine Patient"
 InstitutionInputsSupportStructureTemplate = "UW Support"
@@ -706,7 +706,6 @@ def load_supports(rso, supports, quiet=False):
                 lockMode='Read')
             if s == COUCH_SOURCE_ROI_NAMES['TrueBeam'] or \
                     s == COUCH_SOURCE_ROI_NAMES['TomoTherapy']:
-
                 rso.case.PatientModel.CreateStructuresFromTemplate(
                     SourceTemplate=rs_template,
                     SourceExaminationName=InstitutionInputsSupportStructuresExamination,
@@ -958,11 +957,9 @@ def load_planning_structures(case, filename, path, workflow_name, translation_ma
     return success
 
 
-def load_configuration_optimize_beamset(filename, path, rso,
-                                        name=None, technique=None,
-                                        output_data_dir=None,
-                                        bypass_user_prompts=False,
-                                        optimize=True):
+def load_configuration_optimize_beamset(
+        filename, path, rso, name=None, technique=None, output_data_dir=None,
+        bypass_user_prompts=False, optimize=True):
     """Optimize the plan
     Arguments:
         filename of the protocol we are using
