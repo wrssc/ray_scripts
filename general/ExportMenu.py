@@ -166,6 +166,7 @@ def main():
         filters = ['Ignore machine name',
                    'Internal Target RPM Gated Treatment (NOT ALIGN RT) ',
                    'Reference Point has no geometric location',
+                   'Use SRS table calculation',
                    'No Filters']
         # 'Convert machine energy (FFF)',
         # 'Set couch to (0, 100, 0)',
@@ -202,7 +203,7 @@ def main():
         inputs['e'] = 'Export options:'
         types['e'] = 'check'
         options['e'] = filters
-        initial['e'] = [False, False, False, False]
+        initial['e'] = [False, False, False, False, False]
 
     dialog = UserInterface.InputDialog(inputs=inputs,
                                        datatype=types,
@@ -239,7 +240,7 @@ def main():
 
         else:
             # No filters if option 3 selected
-            if filters[3] in response['e']:
+            if filters[4] in response['e']:
                 logging.info('User selected to disable all filters in export')
                 f = None
                 response['e'] = []
@@ -258,6 +259,7 @@ def main():
                 # TODO: PA setting
                 # No autopa
                 pa_threshold = None
+                use_srs_coords=False
             else:
                 if not filters[0] in response['e']:
                     f.append('machine')
@@ -274,6 +276,11 @@ def main():
                 else:
                     ref_point_location = True
                     logging.info('Reference point location preserved in export')
+                if filters[3] in response['e']:
+                    use_srs_coords = True
+                    logging.info('User indicates SRS table coordinates should be used')
+                else:
+                    use_srs_coords = False
                 #
                 # Filters to always be applied
                 # PRDR Dose Rate
@@ -287,7 +294,8 @@ def main():
                 alpha = 7.72  # cm
                 beta = 36.39  # cm
                 gamma = -0.13  # cm
-                if any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
+
+                if use_srs_coords or any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
                         'HeadFirstSupine' in beamset.PatientSetup.OfTreatmentSetup.PatientPosition:
                     try:
                         #

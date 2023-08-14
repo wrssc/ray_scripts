@@ -965,13 +965,22 @@ def output_iteration_data(poo, warmstart_number,
             its_list.append(int(i))
         cols = cols + iterations.tolist() + ['FinalValue']
         logging.debug('Headers are {}'.format(cols))
-        df_1 = pd.DataFrame(columns=cols)
+        # df_1 = pd.DataFrame(columns=cols)
+        # objective_index = 0
+        # for rf in rtp_functions:
+        #     row = parse_evaluation_function(poo, rf, rf_i=objective_index)
+        #     row.update(beam_dict)
+        #     df_1 = df_1.append(row, ignore_index=True)
+        #     objective_index += 1
         objective_index = 0
+        rows = []  # Create an empty list to store rows
         for rf in rtp_functions:
             row = parse_evaluation_function(poo, rf, rf_i=objective_index)
             row.update(beam_dict)
-            df_1 = df_1.append(row, ignore_index=True)
+            rows.append(row)  # Add the row to the list
             objective_index += 1
+        # Create DataFrame from the list of dictionaries
+        df_1 = pd.DataFrame(rows, columns=cols)
 
         # Output
         df_1.to_pickle(iteration_output_file)
@@ -1917,7 +1926,13 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
                     try:
                         plan.PlanOptimizations[rs_opt_key].RunOptimization()
                     except Exception as e:
-                        return f'Exception occurred during optimization: {e}'
+                        if "Maximum leaf out of carriage" in str(e):
+                            connect.await_user_input(
+                                f"An issue with MLC optimization has occurred"
+                                f"Reduce the jaw limits in beam optimization settings."
+                                f"Error: {e}")
+                        else:
+                            return f'Exception occurred during optimization: {e}'
                     if plan_optimization.ProgressOfOptimization.Iterations is not None:
                         prior_history = parse_culmulative_objective_value(
                             plan, beamset, prior_history=prior_history)
