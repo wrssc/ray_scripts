@@ -1048,7 +1048,7 @@ def check_plan(physics_review=True, rso=None):
                                   justification="left",
                                   enable_events=True),
                           ],
-                          # [sg.Frame('', bottom)],
+                          # [Sg.Frame('', bottom)],
                       ],
                       pad=(0, 0))
              ]]
@@ -1070,7 +1070,7 @@ def check_plan(physics_review=True, rso=None):
     tab3 = create_tab_manual_checks(failed_tests)
 
     layout = [[sg.TabGroup([[sg.Tab('Review and Logs', tab1)],
-                            # [sg.Tab('Comments', tab2)],
+                            # [Sg.Tab('Comments', tab2)],
                             [tab3]])],
               [sg.Frame('', bottom)],
               ]
