@@ -261,6 +261,7 @@ def multi_autoplan(multi_plan_parameters):
         autoplan_parameters = {
             'protocol_name': m['protocol_name'],
             'order_name': m['order_name'],
+            'exam': m.get('exam', None),
             'num_fx': m['num_fx'],
             'site': m['site'],
             'machine': m['machine'],
@@ -271,14 +272,17 @@ def multi_autoplan(multi_plan_parameters):
             'iso_poi': m.get('iso_poi', None),
             'iso': m.get('iso', None),
             'user_prompts': m.get('user_prompts', True),
+            'beamset_exists_skip': m.get('beamset_exists_skip',False),
             'optimize': m.get('optimize', True),
             'optimization_instructions': m.get('optimization_instructions', None),
             'ignore_status': True,
         }
         logging.debug(f'M is {m}')
         logging.debug(f'Autoplan {autoplan_parameters}')
-        autoplan(autoplan_parameters=autoplan_parameters)
+        if not autoplan_parameters['beamset_exists_skip']:
+            m['rso'] = autoplan(autoplan_parameters=autoplan_parameters)
         connect.await_user_input('Completed optimization of current beamset. Please review and continue')
+    return multi_plan_parameters
 
 
 def copy_plan_set_copy_current(rso, new_plan_name):
@@ -313,6 +317,7 @@ def autoplan(autoplan_parameters, **kwargs):
         input_order_name = autoplan_parameters['order_name']
         num_fx = autoplan_parameters['num_fx']
         site = autoplan_parameters['site']
+        exam_name = autoplan_parameters.get('exam',None)
         translation_map = autoplan_parameters.get('translation_map', None)
         beamset_template = autoplan_parameters.get('beamset_template', None)
         beamset_name = autoplan_parameters.get('beamset_name', None)
@@ -337,6 +342,7 @@ def autoplan(autoplan_parameters, **kwargs):
         beamset_name = None
         iso_target = None
         iso_poi = None
+        exam_name=None
         machine = None
         iso_dict = {'type': None, 'target': None}
         translation_map = {}
@@ -409,10 +415,16 @@ def autoplan(autoplan_parameters, **kwargs):
     # Initialize return variable
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
+    exam=None
+    if exam_name:
+        case = GeneralOperations.find_scope(level='Case')
+        for exam in case.Examinations:
+            if exam.Name == exam_name:
+                break
     rso = Pd(error=[],
              patient=GeneralOperations.find_scope(level='Patient'),
              case=GeneralOperations.find_scope(level='Case'),
-             exam=GeneralOperations.find_scope(level='Examination'),
+             exam=exam if exam else GeneralOperations.find_scope(level='Examination'),
              db=GeneralOperations.find_scope(level='PatientDB'),
              plan=None,
              beamset=None)
@@ -994,7 +1006,7 @@ def autoplan(autoplan_parameters, **kwargs):
                      f'{ap_report["time_opt"][1] - ap_report["time_opt"][0]} s')
         logging.info(f'Time in script '
                      f'{ap_report["time_all"][1] - ap_report["time_all"][0]} s')
-        return (pd_out)
+        return pd_out
 
         #
         # TODO: Export the autoplan and objectives, weights and goal values
