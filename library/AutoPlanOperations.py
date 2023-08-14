@@ -41,6 +41,7 @@ import re
 import pandas
 import logging
 from collections import OrderedDict, namedtuple
+from typing import NamedTuple, Union, Optional
 
 import connect
 import StructureOperations
@@ -958,25 +959,30 @@ def load_planning_structures(case, filename, path, workflow_name, translation_ma
 
 
 def load_configuration_optimize_beamset(
-        filename, path, rso, name=None, technique=None, output_data_dir=None,
-        bypass_user_prompts=False, optimize=True):
-    """Optimize the plan
-    Arguments:
-        filename of the protocol we are using
-        path to the protocol
-        rso: NamedTuple Containing:
-        {
-            'patient': Patient ScriptObject} -- RS patient
-            'case': case {Case ScriptObject} -- RS case
-            'exam': exam {Exam ScriptObject} -- RS Exam
-            'plan': plan {Plan ScriptObject} -- RS Plan
-            'beamset': beamset {Beamset ScriptObject} -- RS Beamset
-            'db': patient database
-        param: technique: technique from beamset element
-                        (RS changes VMAT and ConformalArc to DynamicArc)
+        filename: str, path: str, rso: NamedTuple, name: Optional[str] = None,
+        technique: Optional[str] = None, output_data_dir: Optional[str] = None,
+        bypass_user_prompts: bool = False, optimize: bool = True) -> Union[bool, str]:
+    """Optimize the plan according to the specified configuration.
+
+    Args:
+        filename (str): Name of the protocol file being used.
+        path (str): Path to the protocol.
+        rso (NamedTuple): Tuple containing script objects for patient, case, etc.
+        name (Optional[str]): Name from the beamset element.
+        technique (Optional[str]): Technique from the beamset element.
+        output_data_dir (Optional[str]): Directory for output data.
+        bypass_user_prompts (bool): Flag to bypass user prompts. Default is False.
+        optimize (bool): Flag to run optimization. Default is True.
 
     Returns:
-        Boolean or error -- True if plan optimized, error message if not
+        Union[bool, str]: True if plan optimized, error message if not.
+
+    Pseudocode:
+        1. Load the XML containing optimization configuration.
+        2. Find the correct beamset type using name or technique.
+        3. Extract the required optimization parameters.
+        4. If user prompts are required, display the GUI for user inputs.
+        5. Run the optimization if the optimize flag is True.
     """
 
     # XML target is a tag called optimization_config
