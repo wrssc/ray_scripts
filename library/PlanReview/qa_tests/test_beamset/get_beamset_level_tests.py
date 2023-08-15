@@ -1,5 +1,5 @@
+import logging
 from .check_beamset_approved import check_beamset_approved
-from .check_transfer_approved import check_transfer_approved
 from .check_control_point_spacing import check_control_point_spacing
 from .check_couch_type import check_couch_type
 from .check_edw_mu import check_edw_mu
@@ -10,7 +10,11 @@ from .check_common_isocenter import check_common_isocenter
 from .check_bolus_included import check_bolus_included
 from .check_dose_grid import check_dose_grid
 from .compute_vmat_beam_properties import compute_vmat_beam_properties
-from .beamset_review_tests import *
+from .check_tomo_isocenter import check_tomo_isocenter
+from .check_mod_factor import check_mod_factor
+from .check_fraction_size import check_fraction_size
+from .check_no_fly import check_no_fly
+from .check_pacemaker import check_pacemaker
 from PlanReview.review_definitions import REVIEW_LEVELS
 
 
@@ -71,8 +75,7 @@ def get_beamset_level_tests(rso, physics_review=True):
                 check_tomo_isocenter, {})
             beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Modulation Factor Acceptable"] = (
                 check_mod_factor, {})
-            # beamset_checks_dict["Transfer BeamSet Approval Status"] = (
-            #     check_transfer_approved, {})
         except Exception as e:
+            logging.warning(f'Error observed during tomo specific checks {e}')
             pass
     return beamset_checks_dict

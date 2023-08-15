@@ -1,7 +1,8 @@
 import re
 from collections import namedtuple
 import numpy as np
-from PlanReview.review_definitions import PASS, ALERT, FAIL, TOMO_PREFERENCES
+from PlanReview.review_definitions import (
+    PASS, ALERT, FAIL, TOMO_PREFERENCES,)
 
 # Declare the named tuple for storing computed TomoTherapy parameters
 TomoParams = namedtuple('TomoParams', ['gantry_period', 'time', 'couch_speed',
