@@ -147,7 +147,7 @@ from typing import Optional, List
 script_dir = os.path.dirname(os.path.abspath(__file__))
 general_dir = os.path.join(script_dir, '..', 'general')
 sys.path.insert(1, general_dir)
-from AutoPlan import multi_autoplan  # noqa: E402
+from AutoPlan import multi_autoplan, autoplan  # noqa: E402
 
 #
 # PROTOCOL/ORDER/BEAMSET INPUTS
@@ -210,10 +210,11 @@ JUNCTION_PREFIX_HFS = "hfs_junction_"
 SKIN_AVOIDANCE = 'Avoid_Skin_PRV05'
 SKIN_AVOIDANCE_CONTRACT = 0.5  # cm contraction
 LUNG_AVOID_NAME = "Lungs_m07"
-LUNG_EVAL_NAME = "Lungs" + EVAL_SUFFIX
 LUNGS = "Lungs"
+LUNGS_EVAL_MARGIN = 1.0  # cm contraction for margin
+LUNGS_EVAL_NAME = LUNGS + "_m10"
 HFS_CONTOURS = ["Lung_L", "Lung_R", "Kidney_R", "Kidney_L", LUNG_AVOID_NAME,
-                LUNG_EVAL_NAME, AVOID_HFS_NAME, TARGET_HFS]
+                LUNGS_EVAL_NAME, AVOID_HFS_NAME, TARGET_HFS]
 FFS_CONTOURS = ["Kidney_R", "Kidney_L", AVOID_FFS_NAME, TARGET_FFS]
 
 MBS_ROIS = {'Kidney_L': {'CaseType': "Abdomen",
@@ -979,7 +980,6 @@ def make_central_junction_contour(pdata, z_inf_box,
         a_sources=[external_name, box_name],
         a_operation="Intersection",
         color=color,
-        export=False,
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
@@ -1018,7 +1018,8 @@ def make_lung_contours(pdata, color=None):
         a_sources=["Lung_L", "Lung_R"],
         a_operation="Union",
         color=color,
-        export=True
+        export=True,
+        roi_type="Organ"
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lungs_defs)
@@ -1029,19 +1030,20 @@ def make_lung_contours(pdata, color=None):
         a_exp=[0.7] * 6,
         a_margin_type="Contract",
         color=color,
-        export=True,
+        roi_type='Organ',
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lung_avoid_defs)
     #
     # Boolean Definitions for Lung Evaluation
     lung_eval_defs = get_boolean_defs(
-        roi_name=LUNG_EVAL_NAME,
+        roi_name=LUNGS_EVAL_NAME,
         a_sources=["Lungs"],
         a_operation="Union",
-        a_exp=[1.0] * 6,
+        a_exp=[LUNGS_EVAL_MARGIN] * 6,
         a_margin_type="Contract",
         color=color,
+        roi_type='Organ',
     )
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **lung_eval_defs)
@@ -1213,7 +1215,7 @@ def make_ptv(pdata, junction_prefix, avoid_name, color=None):
     temp_defs = get_boolean_defs(
         roi_name=eval_name, a_sources=[external_name],
         a_operation="Intersection", b_sources=roi_exclude, b_operation="Union",
-        result="Subtraction", color=[255, 0, 0], export=False, visualize=True,
+        result="Subtraction", color=[255, 0, 0], visualize=True,
         roi_type="Ptv")
     make_boolean_structure(
         patient=pdata.patient, case=pdata.case, examination=pdata.exam, **temp_defs)
@@ -1271,10 +1273,10 @@ def get_boolean_defs(
     :return: Dictionary with Boolean structure definitions.
     """
 
-    a_exp = check_list(a_exp, 6, int, [0] * 6)
+    a_exp = check_list(a_exp, 6, float, [0] * 6)
     b_sources = b_sources if b_sources is not None else []
-    b_exp = check_list(b_exp, 6, int, [0] * 6)
-    r_exp = check_list(r_exp, 6, int, [0] * 6)
+    b_exp = check_list(b_exp, 6, float, [0] * 6)
+    r_exp = check_list(r_exp, 6, float, [0] * 6)
     color = check_list(color, 3, int, [192, 192, 192])
 
     definitions = {
@@ -2387,15 +2389,34 @@ def find_transform(case, from_name, to_name):
     return None
 
 
-def transform_poi(case, point, from_name, to_name):
+def transform_poi(case: object, point: dict, from_name: object, to_name: object) -> dict:
+    """
+    Transforms a point of interest (POI) between two frames of reference.
+
+    Args:
+        case (RS case object): The case object that includes the transformation details.
+        point (dict): Dictionary containing the x, y, z coordinates of the point.
+        from_name (object): The source frame of reference.
+        to_name (object): The target frame of reference.
+
+    Returns:
+        dict: The transformed coordinates {'x': x, 'y': y, 'z': z}.
+
+    Pseudocode:
+        1. Get the transformation between the source and target frames of reference.
+        2. If no transformation is found, try the reverse transformation.
+        3. If still not found, raise an error.
+        4. Transform the given point using the transformation matrix.
+    """
+    # Get the transformation from the source to the target frame of reference
     reg = case.GetTransform(FromFrameOfReference=from_name.FrameOfReference,
                             ToFrameOfReference=to_name.FrameOfReference)
     if reg is None:
+        # Try the reverse transformation if the direct transformation is not found
         reg = case.GetTransform(FromFrameOfReference=to_name.FrameOfReference,
                                 ToFrameOfReference=from_name.FrameOfReference)
         if reg is None:
-            raise RuntimeError(f'No Registration between {from_name}'
-                               f' to {to_name}')
+            raise RuntimeError(f'No Registration between {from_name} to {to_name}')
         else:
             reg_inv = np.reshape(reg, (4, 4))
             transform_matrix = np.linalg.inv(reg_inv)
@@ -2403,8 +2424,8 @@ def transform_poi(case, point, from_name, to_name):
         transform_matrix = np.reshape(reg, (4, 4))
 
     x = np.array([point['x'], point['y'], point['z'], 1])
-    x_p = np.matmul(transform_matrix, np.transpose(x)).tolist()
-    return {'x': x_p[0], 'y': x_p[1], 'z': x_p[2]}
+    x_transformed, y_transformed, z_transformed, _ = np.matmul(transform_matrix, np.transpose(x)).tolist()
+    return {'x': x_transformed, 'y': y_transformed, 'z': z_transformed}
 
 
 def find_eval_dose(case, beamset_name: str, exam_name: str):
@@ -2726,6 +2747,9 @@ def main():
             hfs_multiplan, ffs_multiplan = make_vmat_planning_structures(pd_hfs, pd_ffs, nfx, rx)
 
     if ffs_autoplan:
+        toggle_ptv_type(pd_ffs,
+                        rois=[TARGET_HFS, TARGET_HFS + EVAL_SUFFIX],
+                        roi_type='Undefined')
         reset_primary_secondary(pd_ffs.exam, pd_hfs.exam)
         #
         # FFS Planning
@@ -2762,6 +2786,9 @@ def main():
                 'user_prompts': True,
             }
             pd_ffs_out = multi_autoplan([tbi_ffs_protocol])
+        toggle_ptv_type(pd_ffs,
+                    rois=[TARGET_HFS, TARGET_HFS + EVAL_SUFFIX],
+                    roi_type='Ptv')
     #
     # Make Dose contours for FFS plan and transfer them to HFS scan
     if make_ffs_isodose_structs and make_tomo_plan:
