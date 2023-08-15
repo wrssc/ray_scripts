@@ -96,7 +96,7 @@ def update_preplan_beamset_rows(main_window, values, num_beamsets, max_beamsets,
     Update the visibility of beamset rows based on the user's selection.
 
     Parameters:
-    main_window (sg.Window): The main PySimpleGUI window.
+    main_window (Sg.Window): The main PySimpleGUI window.
     values (dict): The dictionary containing the current values of the window elements.
     num_beamsets (int): The number of beamsets selected by the user.
     max_beamsets (int): The maximum number of beamsets in plan
@@ -185,7 +185,7 @@ def update_preplan_target_rows(main_window, num_targets, beamset_i, maximum_targ
     Update the visibility of target rows based on the number of targets in the specified beamset.
 
     Parameters:
-    main_window (sg.Window): The main PySimpleGUI window object.
+    main_window (Sg.Window): The main PySimpleGUI window object.
     num_targets (int): The number of targets in the specified beamset.
     beamset_i (int): The index of the current beamset.
     """
@@ -231,7 +231,7 @@ def calculate_preplan_dose_per_fraction(values, main_window, beamset_i, target_i
 
     Parameters:
     values (dict): A dictionary containing the values of the input fields.
-    main_window (sg.Window): The main PySimpleGUI window object.
+    main_window (Sg.Window): The main PySimpleGUI window object.
     beamset_i (int): The index of the current beamset.
     target_i (int, optional): The index of a single target. If None, calculations will be done
     for all targets in the beamset.
@@ -609,7 +609,7 @@ def extract_preplan_values(main_window, num_beamsets=1):
     Extract the values from the PySimpleGUI window and return them in a dictionary.
 
     Parameters:
-    main_window (sg.Window): The main PySimpleGUI window object.
+    main_window (Sg.Window): The main PySimpleGUI window object.
     num_beamsets (int): The number of beamsets selected by the user,
     if nothing selected, then user will have chosen 1.
 
