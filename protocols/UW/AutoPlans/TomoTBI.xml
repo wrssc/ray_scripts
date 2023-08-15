@@ -41,6 +41,7 @@
                 <fraction_dose upper="2" lower="1.5">True</fraction_dose>
             </validation_range>
             <final_dose>False</final_dose>
+            <copy_final_plan>False</copy_final_plan>
         </validation>
         <goals>
             <roi>
@@ -603,6 +604,7 @@
                 <fraction_dose upper="2" lower="1.5">True</fraction_dose>
             </validation_range>
             <final_dose>False</final_dose>
+            <copy_final_plan>False</copy_final_plan>
         </validation>
         <goals>
             <roi>
