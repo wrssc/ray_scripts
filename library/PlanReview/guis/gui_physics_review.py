@@ -1,29 +1,31 @@
 # Import necessary modules and functions
-import PySimpleGUI as sg
+import PySimpleGUI as Sg
 import os
 import logging
-from PlanReview.review_definitions import PASS, \
-    CHECK_BOXES_PHYSICS_REVIEW, \
-    CHECK_BOXES_PHYSICS_REVIEW_3D, \
-    CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS, \
-    CHECK_BOXES_PHYSICS_REVIEW_TOMO3D, CHECK_BOXES_PHYSICS_REVIEW_TOMO, \
-    PROTOCOL_DIR, OUTPUT_DIR
-from PlanReview.utils import get_user_name, get_roi_names_from_type
+import warnings
+from PlanReview.review_definitions import (
+    CHECK_BOXES_PHYSICS_REVIEW, CHECK_BOXES_PHYSICS_REVIEW_3D,
+    CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
+    CHECK_BOXES_PHYSICS_REVIEW_TOMO3D, CHECK_BOXES_PHYSICS_REVIEW_TOMO,
+    PROTOCOL_DIR, OUTPUT_DIR)
+from PlanReview.utils import (get_user_name, get_roi_names_from_type,
+    get_user_display_parameters, perform_automated_checks)
 from PlanReview.utils.protocol_loading import load_protocols, \
     get_sites, get_all_orders, get_unique_instructions
 from PlanReview.utils.constants import *
-from PlanReview.utils.perform_automated_checks import perform_automated_checks
 from PlanReview.guis.gui_report_script_error import report_script_error
-from PlanReview.guis.create_preplan_tab import load_preplan, \
-    extract_preplan_values, \
-    calculate_preplan_dose_per_fraction, update_preplan_frequencies, \
-    update_preplan_instructions, update_preplan_protocols, \
-    update_preplan_orders, create_preplan_information_tab, \
-    update_preplan_beamset_rows, update_preplan_target_rows
-from PlanReview.guis.create_physics_manual_tab import build_manual_check_box_list, \
-    get_manual_failing_tests, create_tab_manual_checks, \
-    on_manual_radio_button_click, extract_manual_values, load_manual, \
-    process_failed_tests, process_check_box_values
+from PlanReview.guis.create_preplan_tab import (
+    load_preplan, extract_preplan_values, validate_preplan_tab,
+    calculate_preplan_dose_per_fraction,
+    update_preplan_frequencies, update_preplan_instructions,
+    update_preplan_protocols, update_preplan_orders,
+    create_preplan_information_tab, update_preplan_beamset_rows,
+    update_preplan_target_rows,)
+from PlanReview.guis.create_physics_manual_tab import (
+    build_manual_check_box_list, get_tests_from_tree,
+    create_tab_manual_checks, on_manual_radio_button_click,
+    extract_manual_values, load_manual, process_auto_tests,
+    process_check_box_values)
 import json
 import connect
 
@@ -33,13 +35,7 @@ import connect
 # TODO: TPO DROPDOWN NEEDS MORE LINES FOR ORDER SELECTION
 # TODO: EXPAND THE SELECTIONS FOR ORDERS!!!
 # TODO: ADD TO CRITICAL the CASE, EXAM, PLAN, BEAMSETUID
-# TODO: SANDBOX TESTS
-# TODO:: Build a sandbox test directory in which to put tests that have not been fully reviewed
-# TODO: ADD COMMENT SECTION
-# TODO:: Get Users resolution before setting above
-# TODO: MAKE GUI WORK BASED ON USER RESOLUTION
 # TODO: Need a required prompt for all entries in the first tab
-# TODO:: Get all window sizing standardized to hsize,vsize
 # TESTS:
 # TODO: ADD PATIENT ORIENTATION TO PREPLAN AND COMPARE TO DICOM
 #
@@ -166,6 +162,17 @@ TODO: Add the target matching that takes place for this step with
 """
 
 
+def log_to_file(dict_of_dicts):
+    if type(dict_of_dicts) is dict:
+        for key, value in dict_of_dicts.items():
+            # Use json.dumps to pretty-print each dictionary
+            formatted_dict = json.dumps(value, indent=4)
+            logging.debug('Key: %s\nDictionary:\n%s', key, formatted_dict)
+    elif isinstance(dict_of_dicts, list):
+        for value in dict_of_dicts:
+            logging.debug(f'Value from list is: {value}')
+
+
 def create_key(element_type, beamset_i=None, target_i=None):
     """
     Create a key for a GUI element using a dictionary.
@@ -213,11 +220,13 @@ def update_window_key_dict(window, keys):
             window.key_dict[key] = None
 
 
-def save_review(rso, values):
+def save_review(rso, values, quiet=False):
+    logging.debug(f'Values in Save {tuple_key_to_str(values)}')
     file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review.json"
     with open(os.path.join(OUTPUT_DIR, file_name), "w") as f:
         json.dump(tuple_key_to_str(values), f)
-    sg.popup("Review saved successfully!")
+        if not quiet:
+            Sg.popup("Review saved successfully!")
     return file_name
 
 
@@ -243,7 +252,7 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
         with open(os.path.join(OUTPUT_DIR, file_name), "r") as f:
             values = json.load(f)
     except FileNotFoundError:
-        sg.popup("No saved review found!")
+        Sg.popup("No saved review found!")
         return
 
     values = str_key_to_tuple(values)
@@ -262,12 +271,13 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
     return num_beamsets
 
 
-def get_review_gui_values(window, failed_tests, check_boxes, comment_box_key):
+def get_review_gui_values(window, passing_tests, failed_tests, check_boxes, comment_box_key):
     """
     Extracts the values entered into the PySimpleGUI dialog and sorts them by keys.
 
     Parameters:
     - window: PySimpleGUI Window object representing the GUI
+    - passing_tests: list of passing tests from the review_definitions module
     - failed_tests: list of failed tests from the review_definitions module
     - check_boxes: dictionary of completed check boxes the user has filled in
 
@@ -276,12 +286,8 @@ def get_review_gui_values(window, failed_tests, check_boxes, comment_box_key):
     """
     #
     # Get any data from the first tab
-    if window[KEY_BEAMSET_COUNT].get():
-        preplan_values = extract_preplan_values(
-            window,
-            num_beamsets=int(window[KEY_BEAMSET_COUNT].get()))
-    else:
-        preplan_values = extract_preplan_values(window, num_beamsets=1)
+    preplan_values = extract_preplan_values(window)
+    #
     # Get the data from the comment box if any.
     if window[comment_box_key].get():
         main_window_values = {
@@ -289,7 +295,7 @@ def get_review_gui_values(window, failed_tests, check_boxes, comment_box_key):
     else:
         main_window_values = {KEY_MAIN_WINDOW: {KEY_USER_COMMENT: ''}}
     # Get the data from the first tab
-    manual_values = extract_manual_values(window, failed_tests, check_boxes)
+    manual_values = extract_manual_values(window, passing_tests, failed_tests, check_boxes)
     manual_values.update(main_window_values)
     sorted_values = merge_dicts(preplan_values, manual_values)
 
@@ -300,7 +306,6 @@ def get_review_gui_values(window, failed_tests, check_boxes, comment_box_key):
 def on_done_button_click(window, values, check_boxes):
     # Check if all the required fields are filled in
     is_valid = True
-    # TODO: Split up based on tab and move to separate files
     for key in check_boxes:
         for item in check_boxes[key]:
             radio_y_key = create_key(f'{item["key"]}{KEY_CHECK}{KEY_RADIO}Yes')
@@ -319,98 +324,37 @@ def on_done_button_click(window, values, check_boxes):
                 is_valid = False
 
     if not is_valid:
-        sg.popup_error('Please fill in all the required fields.')
+        Sg.popup_error('Please fill in all the required fields.')
     return is_valid
-
-
-def display_progress_bar():
-    layout = [[sg.Text('Running tests...')],
-              [sg.ProgressBar(max_value=100, orientation='h', size=(30, 20),
-                              key='progressbar')]]
-
-    window = sg.Window('Progress', layout, no_titlebar=True,
-                       keep_on_top=True, finalize=True)
-
-    progress_bar = window['progressbar']
-    progress_bar.UpdateBar(0)
-
-    return window, progress_bar
-
-
-def run_tests(rso, do_physics_review, progress_bar, values):
-    # Run the automated checks
-    tree_data, tree_children = perform_automated_checks(rso, do_physics_review,
-                                                        progress_bar, values)
-
-    return tree_data, tree_children
-
-
-def run_tests_in_thread(rso, do_physics_review, progress_bar, values):
-    tree_data, tree_children = run_tests(rso, do_physics_review,
-                                         progress_bar, values)
-
-    # Update the progress bar
-    progress_bar.UpdateBar(100)
-
-    # Close the progress bar window
-    return tree_data, tree_children
 
 
 def sanitize_dict(d):
     return {k: repr(v) for k, v in d.items()}
 
 
-def do_automated_tests(rso, do_physics_review, beamsets, values):
-    """
-    Run the automated check script within the GUI on multiple beamsets
-    :param rso:
-    :param do_physics_review:
-    :param beamsets:
-    :return:
-    - tree_data: sg tree data object
-    - tree_children: a list for conversion into tree subsides
-    """
-    tree_data, tree_children = perform_automated_checks(rso, do_physics_review,
-                                                        values, beamsets=beamsets)
-    return tree_data, tree_children
-
-
-def on_submit_build_tree(tree_data, left_width, right_width):
-    tree_layout = [[sg.Frame('ReviewChecks:',
-                             [[sg.Tree(
+def on_submit_build_tree(tree_data, tab_width, tab_height,pix_per_char_width, pix_per_line):
+    right_width = 10
+    left_width = int((tab_width - right_width * pix_per_char_width
+                      - 60 * pix_per_char_width)/pix_per_char_width)
+    num_rows = int(tab_height / pix_per_line)
+    tree_layout = [[Sg.Frame('Automated Review:',
+                             [[Sg.Tree(
                                  data=tree_data,
                                  headings=['Result'],
                                  auto_size_columns=False,
-                                 num_rows=50,
+                                 num_rows=num_rows,
                                  col0_width=left_width,
                                  col_widths=[right_width],
                                  key='-TREE-',
                                  show_expanded=True,
                                  justification="left",
                                  vertical_scroll_only=True,
+                                 expand_x=True,
+                                 expand_y=True,
                                  enable_events=True)]],
-                             pad=(0, 0))]]
+                             pad=(0, 0),
+                             size=(tab_width, tab_height))]]
     return tree_layout
-
-
-def get_failing_tests(tree_children, check_box_copy):
-    for level in check_box_copy:
-        for item in check_box_copy[level]:
-            item['result'] = ""
-            item['comment'] = ""
-            item['icon'] = None
-    passing_tests = []
-    # Find failing tests and determine total number of rows
-    failed_tests = []
-    for comment, _, result, pass_fail, icon in tree_children:
-        if pass_fail != PASS:
-            failed_tests.append([comment, result, icon])
-        else:
-            passing_tests.append(
-                {'test_name': comment, 'result': result, 'icon': icon,
-                 'comment': "Script Pass"}
-            )
-    return passing_tests, failed_tests
 
 
 def merge_dicts(dict1, dict2):
@@ -451,8 +395,23 @@ def build_check_box_list(rso, beamsets):
             dict2 = CHECK_BOXES_PHYSICS_REVIEW_VMAT
         elif technique == 'SMLC':
             dict2 = CHECK_BOXES_PHYSICS_REVIEW_3D
+        else:
+            logging.warning(f'Technique {technique} unknown. No custom checks'
+                            f'programmed')
+            dict2 = {}
         dict1 = merge_dicts(dict1, dict2)
     return dict1
+
+
+def get_text_element_size(text: str):
+    window = Sg.Window('Invisible Window',
+                       [[Sg.Text(text, key='text')],
+                        ],
+                       alpha_channel=0, finalize=True)
+    window.read(timeout=0)
+    size_text = window['text'].get_size()
+    window.close()
+    return size_text
 
 
 def launch_physics_review_gui(rso):
@@ -461,27 +420,30 @@ def launch_physics_review_gui(rso):
 
     Parameters:
     - rso: NamedTuple of ScriptObjects in Raystation [case, exam, plan, beamset, db]
-    - tree_data: sg tree data object
-    - tree_children: a list for conversion into tree subsides
 
     Returns: None
     """
 
-    # GUI setup
-    sg.theme('DefaultNoMoreNagging')
-    # Tab sizing
-    hlines = 64
-    left_width = 120
-    right_width = 10
-    width_fac = 9  # Average should be around 8 pixels per char
-    height_fac = 14  # Average pixel height should be 18 char per line
-    hsize = (left_width + right_width) * width_fac
-    vsize = hlines * height_fac
     # Variable initialization
     failed_tests = []
     passing_tests = []
     check_box_copy = {}
-
+    # GUI setup
+    Sg.theme('DefaultNoMoreNagging')
+    window_width, window_height, save_space, pix_per_char_width, pix_per_char_height = \
+        get_user_display_parameters()
+    # In the tree display, set the size of the right column relative to left
+    tab_width = 200 * pix_per_char_width
+    comment_width_chars = int((window_width - tab_width - 7 * pix_per_char_width)/pix_per_char_width) # Gap is around 6 char
+    # Top and bottom (buttons) frame height
+    top_height = 2 * pix_per_char_height
+    top_width = tab_width + 5 * pix_per_char_width
+    bottom_height = 2 * pix_per_char_height
+    bottom_width = tab_width + 5 * pix_per_char_width
+    # Tab sizing
+    tab_height = window_height - bottom_height - top_height - 4 * pix_per_char_height
+    tab_width_chars = int(tab_width / pix_per_char_width) if save_space else tab_width / pix_per_char_width
+    #
     # First Frame:
     protocols = load_protocols(PROTOCOL_DIR)
     protocol = None
@@ -496,75 +458,98 @@ def launch_physics_review_gui(rso):
     else:
         maximum_target_number = 10
 
+    top_button_size = (20, 1)
+    top_pad = ((0, int(tab_width_chars * 0.6)), (1, 1))
+    bottom_pad = ((0, int(tab_width_chars * 0.6)), (1, 1))
+    bottom_button_size = (20, 1)
+    #
     # Top Menu Frame
-    top = [[
-        sg.Button('Save',
-                  size=(8, 2),
-                  pad=((0, 60), (1, 1)),
-                  border_width=2),
-        sg.Button('Load',
-                  size=(8, 2),
-                  pad=((0, 60), (1, 1)),
-                  border_width=2),
-        sg.Button('Pause Script',
-                  size=(8, 2),
-                  pad=((0, 60), (1, 1)),
-                  border_width=2),
-        sg.Button('Start Tests',
-                  key='submit_button',
-                  #   button_color=('white', 'blue'),
-                  size=(8, 2),
-                  pad=((0, 60), (1, 1)),
-                  border_width=2),
-    ]]
+    top = Sg.Frame('',
+                   [[
+                       Sg.Button('Save',
+                                 size=top_button_size,
+                                 pad=top_pad,
+                                 border_width=2),
+                       Sg.Button('Load',
+                                 size=top_button_size,
+                                 pad=top_pad,
+                                 border_width=2),
+                       Sg.Button('Pause Script',
+                                 size=top_button_size,
+                                 pad=top_pad,
+                                 border_width=2),
+                       Sg.Button('Start Tests',
+                                 key='submit_button',
+                                 #   button_color=('white', 'blue'),
+                                 size=top_button_size,
+                                 pad=top_pad,
+                                 border_width=2), ]],
+                   vertical_alignment='center',
+                   size=(top_width, top_height),
+                   )
+    #
     # Bottom Frame
-    bottom = [[
-        sg.Button('Cancel',
-                  size=(8, 2),
-                  pad=((0, 60), (1, 1)),
-                  border_width=2),
-        sg.Button('Generate Report',
-                  size=(8, 2),
-                  pad=((0, 60), (1, 1)),
-                  border_width=2),
-        sg.Button('Report Error',
-                  size=(8, 2),
-                  pad=((0, 60), (1, 1)),
-                  border_width=2,
-                  key='report_error', ),
-    ]]
+    bottom = Sg.Frame('',
+                      [[
+                          Sg.Button('Cancel',
+                                    size=bottom_button_size,
+                                    pad=bottom_pad,
+                                    border_width=2),
+                          Sg.Button('Generate Report',
+                                    size=bottom_button_size,
+                                    pad=bottom_pad,
+                                    border_width=2),
+                          Sg.Button('Report Error',
+                                    size=bottom_button_size,
+                                    pad=bottom_pad,
+                                    border_width=2,
+                                    key='report_error', ),
+                      ]],
+                      vertical_alignment='center',
+                      size=(bottom_width, bottom_height),
+                      )
+    #
+    # Comment box size
+    comment_line_count = int(window_height / pix_per_char_height)
+    #
     # Comment Frame
-    side = [[sg.Text('Comments', text_color='blue', font=('Arial', 12, 'bold'))],
-            [sg.Multiline(default_text='',
-                          size=(30, int(0.9 * hlines)),
+    side = [[Sg.Text('Comments', text_color='blue', font=('Arial', 12, 'bold'))],
+            [Sg.Multiline(default_text='',
+                          size=(comment_width_chars, comment_line_count),
                           autoscroll=True,
                           auto_size_text=True,
                           key=KEY_USER_COMMENT)
              ]]
-
+    #
+    # Gather the layout
     layout = [
-        [sg.Column([
-            [sg.Frame('', top, vertical_alignment='top')],
-            [sg.TabGroup([[sg.Tab('External Information',
-                                  create_preplan_information_tab(
-                                      protocols, sites, orders, instructions,
-                                      beamsets, targets,hsize,vsize ))
-                           ]],
-                         key='tab_group')],
-            [sg.Frame('', bottom, vertical_alignment='bottom')]
-        ], ),
-            sg.Column([[sg.VSeperator()]]),
+        [
+            Sg.Column([
+                [top],
+                [Sg.TabGroup([[Sg.Tab('External Information',
+                                      create_preplan_information_tab(
+                                          protocols, sites, orders, instructions,
+                                          beamsets, targets, tab_width, tab_height, save_space))
+                               ]],
+                             key='tab_group')],
+                [bottom]
+            ], ),
             # Vertical line to separate the comments from the left side
-            sg.Column(side, vertical_alignment='top')],
+            Sg.Column([[Sg.VSeperator()]]),
+            Sg.Column(side, vertical_alignment='top')
+        ],
     ]
 
-    window = sg.Window(
-        f'Plan Review: {get_user_name()}', layout, resizable=True)
+    window = Sg.Window(
+        f'Plan Review: {get_user_name()}',
+        layout,
+        resizable=True,
+        size=(window_width,window_height))
     review_file_name = None
 
     while True:  # Event Loop
         event, values = window.read()
-        if event in (sg.WIN_CLOSED, 'Cancel'):
+        if event in (Sg.WIN_CLOSED, 'Cancel'):
             check_dict = {}
             header_data = {}
             break
@@ -574,8 +559,6 @@ def launch_physics_review_gui(rso):
                 window, rso, sites, protocols, instructions,
                 maximum_target_number, max_beamset_count,
                 check_box_copy, review_file_name)
-            logging.debug(f'Values are {tuple_key_to_str(values)}')
-            logging.debug(f'Sim data {values[KEY_SIM_DATE]}, {values[KEY_SLICES]}')
 
             if not num_beamsets:
                 num_beamsets = 1
@@ -626,35 +609,33 @@ def launch_physics_review_gui(rso):
             calculate_preplan_dose_per_fraction(values, window, beamset_i, target_i)
 
         if event == 'submit_button':
-            # TODO: NEED A CHECK ON ESSENTIAL KEYS HERE
-            num_beamsets = int(values.get(KEY_BEAMSET_COUNT, 1))
-            # Display the progress bar
-            progress_window, progress_bar = display_progress_bar()
-            tree_data, tree_children = run_tests_in_thread(
-                rso, True, progress_bar, values)
-            progress_window.close()
+            preplan_valid = validate_preplan_tab(window)
+            if preplan_valid:
+                #
+                # Get the beamset info for review
+                tree_data, tree_children = perform_automated_checks(
+                    rso, do_physics_review=True,values=values,
+                    display_progress=True,beamsets=beamsets)
+                tab_group = window['tab_group']
+                tab1 = on_submit_build_tree(
+                    tree_data, tab_width, tab_height, pix_per_char_width, pix_per_char_height)
+                # Add the new tab to the tab group layout
+                tab_group.add_tab(Sg.Tab('Review and Logs', tab1,
+                                         key='Review and Logs'))
+                #
+                # Build next tab
+                check_box_copy = build_manual_check_box_list(rso, beamsets=[
+                    rso.beamset.DicomPlanLabel])
 
-            extracted_values = extract_preplan_values(window, num_beamsets)
-            tab_group = window['tab_group']
-            tab1 = on_submit_build_tree(tree_data,
-                                        left_width=left_width,
-                                        right_width=right_width)
-            # Add the new tab to the tab group layout
-            tab_group.add_tab(sg.Tab('Review and Logs', tab1,
-                                     key='Review and Logs'))
-            #
-            # Build next tab
-            check_box_copy = build_manual_check_box_list(rso, beamsets=[
-                rso.beamset.DicomPlanLabel])
-            passing_tests, failed_tests = get_manual_failing_tests(
-                tree_children, )
-            tabs = create_tab_manual_checks(check_box_copy, passing_tests,
-                                            failed_tests,
-                                            hsize=hsize, vsize=vsize)
-            for tab in tabs:
-                tab_group.add_tab(tab)
+                passing_tests, failed_tests = get_tests_from_tree(tree_children)
+                tabs = create_tab_manual_checks(check_box_copy, passing_tests,
+                                                failed_tests,
+                                                tab_width, tab_height,
+                                                pix_per_char_width,pix_per_char_height,save_space)
+                for tab in tabs:
+                    tab_group.add_tab(tab)
 
-            window['Review and Logs'].select()
+                window['Review and Logs'].select()
 
         #
         # Manual Tab Events
@@ -666,18 +647,25 @@ def launch_physics_review_gui(rso):
             is_valid = on_done_button_click(window, values, check_box_copy)
             # Perform the form submission logic
             if is_valid:
-                passing_tests, failed_tests = get_manual_failing_tests(tree_children)
-                pros_fails = process_failed_tests(window, failed_tests)
+                # Save the review
+                review_file_name = save_review(
+                    rso,
+                    get_review_gui_values(window, passing_tests, failed_tests,
+                                          check_box_copy, KEY_USER_COMMENT),
+                    quiet=True)
+
+                passing_tests, failed_tests = get_tests_from_tree(tree_children)
+                pros_pass = process_auto_tests(window, passing_tests)
+                pros_fails = process_auto_tests(window, failed_tests)
                 check_dict = process_check_box_values(window, check_box_copy)
-                check_dict['Automated Failed Tests'] = pros_fails
-                check_dict['Automated Passing Tests'] = passing_tests
-                header_data = extract_preplan_values(window, num_beamsets)
+                check_dict[KEY_AUTO_FAIL] = pros_fails
+                check_dict[KEY_AUTO_PASS] = pros_pass
+                header_data = extract_preplan_values(window)
                 break
         if event == 'Save':
             review_file_name = save_review(
-                rso, get_review_gui_values(
-                    window, failed_tests, check_box_copy,
-                    KEY_USER_COMMENT))
+                rso, get_review_gui_values(window, passing_tests, failed_tests,
+                                           check_box_copy, KEY_USER_COMMENT))
 
     window.close()
 
