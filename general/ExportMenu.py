@@ -259,7 +259,6 @@ def main():
                 # TODO: PA setting
                 # No autopa
                 pa_threshold = None
-                use_srs_coords=False
             else:
                 if not filters[0] in response['e']:
                     f.append('machine')
