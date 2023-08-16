@@ -130,17 +130,20 @@ def process_rois_for_export(plan, case):
         "z_derived", "Uniform",
         "^UnderDose", "Air",
         "FieldOfView", "^PTV[0-9]_Eval", "_junction_",
-        "_iso\d{2}"
+        r"_iso\d{2}"
     ]
     rois_for_export = []
     for r in rois_for_review:
         if not StructureOperations.any_regex_match(exclude_patterns, r):
             rois_for_export.append(r)
 
-    # Add ROIs containing "block" to the export list
-    # Add any ROIs labeled Fiducials
+    # Include in export:
+    #   * ROIs containing "block" to the export list
+    #   * any ROIs labeled Fiducials
+    #   * External_PRV10 object used in TBI
     include_patterns = [r'(?i)\b\w*block\w*\b', r'(?i)\b\w*fiducial\w*\b',
-                        r'(?i)\b\w*External_FB\w*\b', r'(?i)\b\w*External_DIBH\w*\b']
+                        r'(?i)\b\w*External_FB\w*\b', r'(?i)\b\w*External_DIBH\w*\b',
+                        r'(?i)\b\w*External_PRV10\w*\b']
     for r in case.PatientModel.RegionsOfInterest:
         if StructureOperations.any_regex_match(include_patterns, r.Name):
             rois_for_export.append(r.Name)
