@@ -53,8 +53,8 @@ from collections import namedtuple
 from GeneralOperations import find_scope
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
-from PlanReview.guis import build_tree_element, comment_to_clipboard, \
-    build_review_tree, launch_physics_review_gui
+from PlanReview.guis import (build_tree_element, build_review_tree,
+                             launch_physics_review_gui)
 from PlanReview.utils.get_user_name import get_user_name
 from PlanReview.review_definitions import LEVELS
 from PlanReview.documentation.generate_physics_document import generate_doc
@@ -65,7 +65,8 @@ from PlanReview.qa_tests.test_beamset import parse_beamset_selection
 from PlanReview.qa_tests.test_plan import parse_order_selection
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
-def automated_check_tree(rso, do_physics_review,beamsets=None):
+
+def automated_check_tree(rso, do_physics_review, beamsets=None):
     """
         Builds and returns a review tree for a radiotherapy treatment plan
         using PySimpleGUI.
@@ -264,7 +265,7 @@ def physics_review(do_physics_review=True, rso=None):
     user_name = get_user_name()
     logging.info(f'Physics review script launched by {user_name}')
 
-    # tree_data = sg.TreeData()
+    # tree_data = Sg.TreeData()
 
     if not rso:
         # Initialize return variable
@@ -286,7 +287,7 @@ def physics_review(do_physics_review=True, rso=None):
         header = None
     else:
         # Gui
-        tests,header = launch_physics_review_gui(rso)
+        tests, header = launch_physics_review_gui(rso)
         if not tests and not header:
             sys.exit('Physics review canceled')
 
