@@ -7,9 +7,10 @@ from PlanReview.review_definitions import (
     CHECK_BOXES_PHYSICS_REVIEW, CHECK_BOXES_PHYSICS_REVIEW_3D,
     CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
     CHECK_BOXES_PHYSICS_REVIEW_TOMO3D, CHECK_BOXES_PHYSICS_REVIEW_TOMO,
-    PROTOCOL_DIR, OUTPUT_DIR)
+    PROTOCOL_DIR, OUTPUT_DIR, ICON_PRINT, ICON_LOAD, ICON_ERROR, ICON_SAVE,
+    ICON_PAUSE, ICON_START, ICON_CANCEL)
 from PlanReview.utils import (get_user_name, get_roi_names_from_type,
-    get_user_display_parameters, perform_automated_checks)
+                              get_user_display_parameters, perform_automated_checks)
 from PlanReview.utils.protocol_loading import load_protocols, \
     get_sites, get_all_orders, get_unique_instructions
 from PlanReview.utils.constants import *
@@ -20,7 +21,7 @@ from PlanReview.guis.create_preplan_tab import (
     update_preplan_frequencies, update_preplan_instructions,
     update_preplan_protocols, update_preplan_orders,
     create_preplan_information_tab, update_preplan_beamset_rows,
-    update_preplan_target_rows,)
+    update_preplan_target_rows, )
 from PlanReview.guis.create_physics_manual_tab import (
     build_manual_check_box_list, get_tests_from_tree,
     create_tab_manual_checks, on_manual_radio_button_click,
@@ -332,10 +333,10 @@ def sanitize_dict(d):
     return {k: repr(v) for k, v in d.items()}
 
 
-def on_submit_build_tree(tree_data, tab_width, tab_height,pix_per_char_width, pix_per_line):
+def on_submit_build_tree(tree_data, tab_width, tab_height, pix_per_char_width, pix_per_line):
     right_width = 10
     left_width = int((tab_width - right_width * pix_per_char_width
-                      - 60 * pix_per_char_width)/pix_per_char_width)
+                      - 60 * pix_per_char_width) / pix_per_char_width)
     num_rows = int(tab_height / pix_per_line)
     tree_layout = [[Sg.Frame('Automated Review:',
                              [[Sg.Tree(
@@ -434,7 +435,8 @@ def launch_physics_review_gui(rso):
         get_user_display_parameters()
     # In the tree display, set the size of the right column relative to left
     tab_width = 200 * pix_per_char_width
-    comment_width_chars = int((window_width - tab_width - 7 * pix_per_char_width)/pix_per_char_width) # Gap is around 6 char
+    comment_width_chars = int(
+        (window_width - tab_width - 7 * pix_per_char_width) / pix_per_char_width)  # Gap is around 6 char
     # Top and bottom (buttons) frame height
     top_height = 2 * pix_per_char_height
     top_width = tab_width + 5 * pix_per_char_width
@@ -458,56 +460,58 @@ def launch_physics_review_gui(rso):
     else:
         maximum_target_number = 10
 
-    top_button_size = (20, 1)
-    top_pad = ((0, int(tab_width_chars * 0.6)), (1, 1))
-    bottom_pad = ((0, int(tab_width_chars * 0.6)), (1, 1))
-    bottom_button_size = (20, 1)
+    top_image_size = (156, 56)
+    top_pad = ((0, int(tab_width_chars * 0.08)), (1, 1))
     #
     # Top Menu Frame
     top = Sg.Frame('',
                    [[
-                       Sg.Button('Save',
-                                 size=top_button_size,
+                       Sg.Button('',
+                                 image_filename=ICON_SAVE,
+                                 image_size=top_image_size,
                                  pad=top_pad,
-                                 border_width=2),
-                       Sg.Button('Load',
-                                 size=top_button_size,
+                                 border_width=2,
+                                 key='-SAVE-'),
+                       Sg.Button('',
+                                 image_filename=ICON_LOAD,
+                                 image_size=top_image_size,
                                  pad=top_pad,
-                                 border_width=2),
-                       Sg.Button('Pause Script',
-                                 size=top_button_size,
+                                 border_width=2,
+                                 key='-LOAD-'),
+                       Sg.Button('',
+                                 image_filename=ICON_START,
+                                 image_size=top_image_size,
                                  pad=top_pad,
-                                 border_width=2),
-                       Sg.Button('Start Tests',
-                                 key='submit_button',
-                                 #   button_color=('white', 'blue'),
-                                 size=top_button_size,
+                                 border_width=2,
+                                 key='-START-'),
+                       Sg.Button('',
+                                 image_filename=ICON_PRINT,
+                                 image_size=top_image_size,
                                  pad=top_pad,
-                                 border_width=2), ]],
+                                 border_width=2,
+                                 key='-REPORT-'),
+                       Sg.ReadFormButton('',
+                                 image_filename=ICON_PAUSE,
+                                         image_size=top_image_size,
+                                 pad=top_pad,
+                                 border_width=2,
+                                 key='-PAUSE-'),
+                       Sg.Button('',
+                                 image_filename=ICON_CANCEL,
+                                 image_size=top_image_size,
+                                 pad=top_pad,
+                                 border_width=2,
+                                 key='-CANCEL-'),
+                       Sg.Button('',
+                                 image_filename=ICON_ERROR,
+                                 image_size=top_image_size,
+                                 pad=top_pad,
+                                 border_width=2,
+                                 key='-ERROR-'),
+                   ]],
                    vertical_alignment='center',
                    size=(top_width, top_height),
                    )
-    #
-    # Bottom Frame
-    bottom = Sg.Frame('',
-                      [[
-                          Sg.Button('Cancel',
-                                    size=bottom_button_size,
-                                    pad=bottom_pad,
-                                    border_width=2),
-                          Sg.Button('Generate Report',
-                                    size=bottom_button_size,
-                                    pad=bottom_pad,
-                                    border_width=2),
-                          Sg.Button('Report Error',
-                                    size=bottom_button_size,
-                                    pad=bottom_pad,
-                                    border_width=2,
-                                    key='report_error', ),
-                      ]],
-                      vertical_alignment='center',
-                      size=(bottom_width, bottom_height),
-                      )
     #
     # Comment box size
     comment_line_count = int(window_height / pix_per_char_height)
@@ -532,7 +536,7 @@ def launch_physics_review_gui(rso):
                                           beamsets, targets, tab_width, tab_height, save_space))
                                ]],
                              key='tab_group')],
-                [bottom]
+                # [bottom]
             ], ),
             # Vertical line to separate the comments from the left side
             Sg.Column([[Sg.VSeperator()]]),
@@ -544,17 +548,17 @@ def launch_physics_review_gui(rso):
         f'Plan Review: {get_user_name()}',
         layout,
         resizable=True,
-        size=(window_width,window_height))
+        size=(window_width, window_height))
     review_file_name = None
 
     while True:  # Event Loop
         event, values = window.read()
-        if event in (Sg.WIN_CLOSED, 'Cancel'):
+        if event in (Sg.WIN_CLOSED, '-CANCEL-'):
             check_dict = {}
             header_data = {}
             break
 
-        elif event == 'Load':
+        elif event == '-LOAD-':
             num_beamsets = load_review(
                 window, rso, sites, protocols, instructions,
                 maximum_target_number, max_beamset_count,
@@ -563,9 +567,9 @@ def launch_physics_review_gui(rso):
             if not num_beamsets:
                 num_beamsets = 1
 
-        elif event == 'Pause Script':
+        elif event == '-PAUSE-':
             connect.await_user_input('Review Paused. Resume Script to Continue')
-        elif event == 'report_error':
+        elif event == '-ERROR-':
             report_script_error(rso)
         #
         # First tab Events
@@ -608,14 +612,14 @@ def launch_physics_review_gui(rso):
             target_i = None
             calculate_preplan_dose_per_fraction(values, window, beamset_i, target_i)
 
-        if event == 'submit_button':
+        if event == '-START-':
             preplan_valid = validate_preplan_tab(window)
             if preplan_valid:
                 #
                 # Get the beamset info for review
                 tree_data, tree_children = perform_automated_checks(
-                    rso, do_physics_review=True,values=values,
-                    display_progress=True,beamsets=beamsets)
+                    rso, do_physics_review=True, values=values,
+                    display_progress=True, beamsets=beamsets)
                 tab_group = window['tab_group']
                 tab1 = on_submit_build_tree(
                     tree_data, tab_width, tab_height, pix_per_char_width, pix_per_char_height)
@@ -631,7 +635,7 @@ def launch_physics_review_gui(rso):
                 tabs = create_tab_manual_checks(check_box_copy, passing_tests,
                                                 failed_tests,
                                                 tab_width, tab_height,
-                                                pix_per_char_width,pix_per_char_height,save_space)
+                                                pix_per_char_width, pix_per_char_height, save_space)
                 for tab in tabs:
                     tab_group.add_tab(tab)
 
@@ -643,7 +647,7 @@ def launch_physics_review_gui(rso):
             if KEY_CHECK + KEY_RADIO in event[0]:
                 on_manual_radio_button_click(window, event)
 
-        elif event == 'Generate Report':
+        elif event == '-REPORT-':
             is_valid = on_done_button_click(window, values, check_box_copy)
             # Perform the form submission logic
             if is_valid:
@@ -657,16 +661,16 @@ def launch_physics_review_gui(rso):
                 passing_tests, failed_tests = get_tests_from_tree(tree_children)
                 pros_pass = process_auto_tests(window, passing_tests)
                 pros_fails = process_auto_tests(window, failed_tests)
-                check_dict = process_check_box_values(window, check_box_copy)
-                check_dict[KEY_AUTO_FAIL] = pros_fails
-                check_dict[KEY_AUTO_PASS] = pros_pass
+                check_list = process_check_box_values(window, check_box_copy)
+                check_list.extend(pros_fails)
+                check_list.extend(pros_pass)
                 header_data = extract_preplan_values(window)
                 break
-        if event == 'Save':
+        if event == '-SAVE-':
             review_file_name = save_review(
                 rso, get_review_gui_values(window, passing_tests, failed_tests,
                                            check_box_copy, KEY_USER_COMMENT))
 
     window.close()
 
-    return check_dict, header_data
+    return check_list, header_data

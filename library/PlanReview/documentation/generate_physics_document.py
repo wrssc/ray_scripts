@@ -1,6 +1,7 @@
 import logging
 import os
 import json
+import pandas as pd
 from docx import Document
 from docx.table import Table
 from docx.shared import Inches, Pt
@@ -16,7 +17,7 @@ from PlanReview.utils.constants import *
 top_margin = 0.2  # (in) top page margin
 bottom_margin = 0.2  # (in) bottom page margin
 left_margin = 0.25  # (in) left page margin
-right_margin = 0.2 # (in) right page margin
+right_margin = 0.2  # (in) right page margin
 page_height = 8.5  # (in) overall page height
 row_height = 0.35  # (in) row height
 header_height = 0.1875  # (in) secondary header height
@@ -48,6 +49,7 @@ def generate_doc(rso, tests, header_data, test_mode=False):
     else:
         dump_tests_to_json(tests, file_name='tests.json')
         dump_tests_to_json(header_data, file_name='header.json')
+    tests_df = read_data(tests)
     # Output file
     file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}.doc"
     output_file = os.path.join(OUTPUT_DIR, rso.patient.PatientID, file_name)
@@ -105,32 +107,64 @@ def generate_doc(rso, tests, header_data, test_mode=False):
     add_footer(section, rso, first_page=False)
 
     # Add the user checks and failed
-    automated_passing = tests[KEY_AUTO_PASS]
-    automated_failing = tests[KEY_AUTO_FAIL]
+    ## automated_passing = tests[KEY_AUTO_PASS]
+    ## automated_failing = tests[KEY_AUTO_FAIL]
 
     available_page_height = get_usable_page()
     adjusted_page_height = available_page_height
-    for test_level in tests.keys():
-        # TODO: Eliminate the automated keys?
-        if all((test_level != KEY_AUTO_FAIL,
-                test_level != KEY_AUTO_PASS,
-                test_level != REVIEW_LEVELS['SANDBOX'])):
+
+    unique_test_levels = tests_df[KEY_OUT_TAB].unique()
+    excluded_review_levels = (REVIEW_LEVELS['SANDBOX'])
+
+    for test_level in unique_test_levels:
+        if test_level in excluded_review_levels:
+            continue  # Skip these test levels
+
+        user_tl_df = tests_df[(tests_df[KEY_OUT_TEST_SOURCE] == SOURCE_USER)
+                              & (tests_df[KEY_OUT_TAB] == test_level)]
+        # TODO: Get the domain type and review tab in for the user checks
+        # TODO: Get the result into the autotests
+        fail_tl_df = tests_df[(tests_df[KEY_OUT_TEST_SOURCE] == SOURCE_AUTO)
+                              & (tests_df[KEY_OUT_TAB] == test_level)]
+        pass_tl_df = tests_df[(tests_df[KEY_OUT_TEST_SOURCE] == SOURCE_AUTO)
+                              & (tests_df[KEY_OUT_TAB] == test_level)]
+
+        adjusted_page_height = add_check_table(
+            user_tl_df, document, adjusted_page_height,f'{test_level}')
+
+        # Make the list of automated tests
+        auto_df = pd.concat([fail_tl_df,pass_tl_df])
+
+        # Add the automated tests
+        if not auto_df.empty:
+            title = f'{test_level} - Automated Checks'
             adjusted_page_height = add_check_table(
-                tests[test_level], document, adjusted_page_height,
-                f'{test_level}')
-            # Make the list of automated tests
-            auto_list = []
-            for fails in automated_failing:
-                if fails[KEY_OUT_TAB] == test_level:
-                    auto_list.append(fails)
-            for passes in automated_passing:
-                if passes[KEY_OUT_TAB] == test_level:
-                    auto_list.append(passes)
-            # Add the automated tests
-            if auto_list:
-                title = f'{test_level} - Automated Checks'
-                adjusted_page_height = add_check_table(
-                    auto_list, document, adjusted_page_height, title)
+                auto_df, document, adjusted_page_height,title)
+
+            # fails_df = tests_df[tests_df['Topic'] == KEY_AUTO_FAIL]
+    #
+    # for test_level in tests.keys():
+    #     # TODO: Eliminate the automated keys?
+    #     if all((test_level != KEY_AUTO_FAIL,
+    #             test_level != KEY_AUTO_PASS,
+    #             test_level != REVIEW_LEVELS['SANDBOX'])):
+    #         adjusted_page_height = add_check_table(
+    #             tests[test_level], document, adjusted_page_height,
+    #             f'{test_level}')
+    #         # Make the list of automated tests
+    #         auto_list = []
+    #         for fails in automated_failing:
+    #             if fails[KEY_OUT_TAB] == test_level:
+    #                 auto_list.append(fails)
+    #         for passes in automated_passing:
+    #            if passes[KEY_OUT_TAB] == test_level:
+    #                auto_list.append(passes)
+    #
+    #         # Add the automated tests
+    #         if auto_list:
+    #            title = f'{test_level} - Automated Checks'
+    #            adjusted_page_height = add_check_table(
+    #                auto_list, document, adjusted_page_height, title, df=fails_df)
     document.save(output_file)
     print('Complete')
 
@@ -157,7 +191,28 @@ def estimate_table_length(number_of_rows: int) -> float:
     return table_length
 
 
-def add_check_table(check_list, document, adjusted_page_height, title):
+def add_check_table(check_df, document, adjusted_page_height, title):
+    available_page_height = get_usable_page()
+    logging.debug(f'\n**** {title} ****')
+    test1_df, test2_df = split_list(check_df, adjusted_page_height)
+    if not test1_df.empty and not test2_df.empty:
+        add_check_list_table(test1_df, document, title=f'{title}')
+        table_length = estimate_table_length(len(test2_df))
+        document.add_page_break()
+        adjusted_page_height = available_page_height - table_length
+        add_check_list_table(test2_df, document, title=f'{title} - Cont')
+    elif not test2_df.empty:
+        document.add_page_break()
+        table_length = estimate_table_length(len(test2_df))
+        adjusted_page_height = available_page_height - table_length
+        add_check_list_table(test2_df, document, title=f'{title}')
+    else:
+        add_check_list_table(test1_df, document, title=f'{title}')
+        table_length = estimate_table_length(len(test1_df))
+        adjusted_page_height = adjusted_page_height - table_length
+    return adjusted_page_height
+
+def old_add_check_table(check_list, document, adjusted_page_height, title):
     available_page_height = get_usable_page()
     logging.debug(f'\n**** {title} ****')
     test1, test2 = split_list(check_list, adjusted_page_height)
@@ -250,8 +305,25 @@ def add_footer(section, rso, first_page=False):
             [key + ':' + value for key, value in demographics.items()])
         footer_run.style = "Heading 4 Char"
 
+def split_list(check_df, available_page):
+    table_length = estimate_table_length(len(check_df))
+    usable = get_usable_page()
+    logging.debug(f'Page Available: {available_page:.2f}, '
+                  f'and Table length: {table_length:.2f}')
+    if table_length <= available_page:
+        check_df_1 = check_df
+        check_df_2 = pd.DataFrame()  # Empty DataFrame
+    else:
+        if available_page < min_table_height:
+            check_df_1 = pd.DataFrame()  # Empty DataFrame
+            check_df_2 = check_df
+        else:
+            check_df_1, check_df_2 = find_split(check_df, available_page)
 
-def split_list(check_list, available_page):
+    return check_df_1, check_df_2
+
+
+def old_split_list(check_list, available_page):
     table_length = estimate_table_length(len(check_list))
     usable = get_usable_page()
     logging.debug(f'Page Available: {available_page:.2f}, '
@@ -274,7 +346,17 @@ def split_list(check_list, available_page):
     return check_list_1, check_list_2
 
 
-def find_split(check_list, space):
+def find_split(check_df, space):
+    i = 0
+    table_length = estimate_table_length(len(check_df))
+    while table_length > space:
+        table_length = estimate_table_length(len(check_df) - i)
+        i += 1
+    check_df_1 = check_df.iloc[:len(check_df) - i]
+    check_df_2 = check_df.iloc[len(check_df) - i:]
+    return check_df_1, check_df_2
+
+def old_find_split(check_list, space):
     i = 0
     table_length = estimate_table_length(len(check_list))
     while table_length > space:
@@ -285,7 +367,7 @@ def find_split(check_list, space):
     return check_list_1, check_list_2
 
 
-def add_check_list_table(check_results: list, document: Document,
+def add_check_list_table(df: pd.DataFrame, document: Document,
                          title: str = None) -> Table:
     """
     Adds a table to the document for the given check results. Page breaks are
@@ -298,11 +380,12 @@ def add_check_list_table(check_results: list, document: Document,
 
     Returns:
     Table: The created table.
+    :type df: pd.Dataframe
     """
     # Set row height
     table_row_height = Inches(row_height)
     # Calculate estimated table length
-    table_length = estimate_table_length(len(check_results))
+    table_length = estimate_table_length(len(df))
 
     # Get page, header and footer sizes from the first section of the document
     # section = document.sections[0]
@@ -324,15 +407,28 @@ def add_check_list_table(check_results: list, document: Document,
 
     # Set the column widths (widths are in proportion to the amount of text)
     long_keys = [KEY_OUT_TEST, KEY_OUT_MESSAGE, KEY_OUT_COMMENT]
-    col_text_width = [max([len(check[key])
-                           for check in check_results]) for key in long_keys]
+    # col_text_width = [max([len(check[key])
+    #                        for check in check_results]) for key in long_keys]
+    # total_text_width = sum(col_text_width)
+#
+#     col_widths = [0.5] + [(text_width / total_text_width) * available_width
+#                           for text_width in col_text_width]
+#
+#     table_properties = {'NCOL': 4, 'WIDTH_COL': [
+#         (i, Inches(w)) for i, w in enumerate(col_widths)]}
+    # Determine the maximum length of text for each key
+    col_text_width = [df[col].str.len().max() for col in long_keys]
     total_text_width = sum(col_text_width)
 
-    col_widths = [0.5] + [(text_width / total_text_width) * available_width
-                          for text_width in col_text_width]
+    # Calculate proportional column widths
+    col_widths = [0.5] + [
+        (text_width / total_text_width) * available_width
+        for text_width in col_text_width
+    ]
 
     table_properties = {'NCOL': 4, 'WIDTH_COL': [
-        (i, Inches(w)) for i, w in enumerate(col_widths)]}
+        (i, Inches(w)) for i, w in enumerate(col_widths)
+    ]}
 
     table = document.add_table(
         rows=1, cols=table_properties['NCOL'], style='Light Grid Accent 2')
@@ -346,22 +442,37 @@ def add_check_list_table(check_results: list, document: Document,
     row.cells[2].text = 'Result'
     row.cells[3].text = 'Reviewer Comment'
     i = 1
-    for check in check_results:
+    for _, check in df.iterrows():
         table.add_row()
         row = table.rows[i]
-        # Center the icon horizontally and vertically
         icon_paragraph = row.cells[0].paragraphs[0]
         icon_run = icon_paragraph.add_run()
         icon_run.add_picture(
             check[KEY_OUT_ICON], width=Inches(0.15), height=Inches(0.15))
-        # Center horizontally
         icon_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-        # Center vertically
         row.cells[0].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
         row.cells[1].text = check[KEY_OUT_TEST]
         row.cells[2].text = check[KEY_OUT_MESSAGE]
         row.cells[3].text = check[KEY_OUT_COMMENT]
         i += 1
+
+        # i = 1
+    # for check in check_results:
+    #     table.add_row()
+    #     row = table.rows[i]
+    #     # Center the icon horizontally and vertically
+    #     icon_paragraph = row.cells[0].paragraphs[0]
+    #     icon_run = icon_paragraph.add_run()
+    #     icon_run.add_picture(
+    #         check[KEY_OUT_ICON], width=Inches(0.15), height=Inches(0.15))
+    #     # Center horizontally
+    #     icon_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    #     # Center vertically
+    #     row.cells[0].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+    #     row.cells[1].text = check[KEY_OUT_TEST]
+    #     row.cells[2].text = check[KEY_OUT_MESSAGE]
+    #     row.cells[3].text = check[KEY_OUT_COMMENT]
+    #     i += 1
 
         # Set row height
         row.height = table_row_height
@@ -538,3 +649,15 @@ def str_key_to_tuple(value):
     elif isinstance(value, str) and '||' in value:
         return tuple(int(x) if x.isdigit() else x for x in value.split('||'))
     return value
+
+
+def read_data(data):
+    return pd.DataFrame(data)
+def flatten_data(data):
+    rows = []
+    for topic, tests in data.items():
+        for test in tests:
+            row = {'Topic': topic}
+            row.update(test)
+            rows.append(row)
+    return pd.DataFrame(rows)
