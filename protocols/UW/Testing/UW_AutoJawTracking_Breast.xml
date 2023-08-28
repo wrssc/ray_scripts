@@ -3,7 +3,7 @@
   -->
 
 <protocol version="1">
-    <notes date="06APR2022">Created</notes>
+    <notes date="23AUG2023">Created</notes>
     <AnatomicGroup>Breast</AnatomicGroup>
     <name>UW Testing Breast</name>
     <ct>
@@ -617,6 +617,12 @@
                 <name>Heart</name>
                 <type>Max</type>
                 <dose units="Gy">15</dose>
+                <weight>20</weight>
+            </roi>
+            <roi>
+                <name>Heart_PRV05</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
                 <weight>10</weight>
             </roi>
             <roi>
@@ -630,17 +636,35 @@
             <roi>
                 <name>Lung_L</name>
                 <type dir="lt">DX</type>
-                <volume units="%" roi="Lung_L">20</volume>
-                <dose units="Gy">15</dose>
-                <weight>1.25</weight>
+                <volume units="%" roi="Lung_L">10</volume>
+                <dose units="Gy">5</dose>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Lung_L</name>
                 <type dir="lt">DX</type>
-                <volume units="%" roi="Lung_L">20</volume>
-                <dose units="Gy">15</dose>
+                <volume units="%" roi="Lung_L">5</volume>
+                <dose units="Gy">5</dose>
                 <mco>ALARA</mco>
-                <weight>0.5</weight>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="40">100</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type dist="3" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="5">100</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
+                <weight>10</weight>
             </roi>
         </objectives>
     </order>
@@ -651,7 +675,7 @@
                 <name>OTV1_</name>
                 <type>Min</type>
                 <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
-                <weight>5</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -671,7 +695,7 @@
                 <name>OTV1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
-                <weight>1</weight>
+                <weight>5</weight>
             </roi>
             <roi>
                 <name>OTV1_</name>
@@ -699,21 +723,21 @@
             </roi>
             <roi>
                 <name>ring1_</name>
-                <type dist="0.5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_n1_Chestwall" low="95">100</dose>
+                <type dist="0.4" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="95">100</dose>
                 <weight>100</weight>
             </roi>
             <roi>
                 <name>ring1_</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p_Chestwall" low="90">100</dose>
-                <weight>50</weight>
+                <dose units="%" roi="PTV_p_Chestwall" low="80">100</dose>
+                <weight>100</weight>
             </roi>
             <roi>
                 <name>ring1_</name>
                 <type dist="3" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p_Chestwall" low="50">100</dose>
-                <weight>25</weight>
+                <dose units="%" roi="PTV_p_Chestwall" low="40">100</dose>
+                <weight>50</weight>
             </roi>
             <roi>
                 <name>OTV2_</name>
@@ -722,7 +746,7 @@
                 <weight>5</weight>
             </roi>
             <roi>
-                <name>OTV1_</name>
+                <name>OTV2_</name>
                 <type dir="gt">DX</type>
                 <volume units="%" roi="PTV_n1_SCV">90</volume>
                 <dose units="%" roi="PTV_n1_SCV">92.25</dose>
@@ -931,31 +955,37 @@
                 <name>Ring_LD</name>
                 <type dist="5" adapt="True" constraint="False">DFO</type>
                 <dose units="%" roi="PTV_p_Chestwall" low="25">40</dose>
-                <weight>0.1</weight>
+                <weight>0.05</weight>
             </roi>
             <roi>
                 <name>Normal_2cm</name>
-                <type dist="5" adapt="True" constraint="False">DFO</type>
-                <dose units="%" roi="PTV_p_Chestwall" low="25">40</dose>
-                <weight>0.1</weight>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">60</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Normal_2cm</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">40</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Esophagus_PRV05</name>
+                <type>Max</type>
+                <dose units="Gy">45</dose>
+                <weight>1</weight>
             </roi>
             <roi>
                 <name>Esophagus</name>
                 <type>Max</type>
                 <dose units="Gy">45</dose>
-                <weight>0.1</weight>
+                <weight>10</weight>
             </roi>
             <roi>
                 <name>Esophagus</name>
                 <type a="1">MaxEud</type>
                 <dose units="Gy">25</dose>
-                <weight>0.1</weight>
-            </roi>
-            <roi>
-                <name>Breast_R</name>
-                <type>Max</type>
-                <dose units="Gy">10</dose>
-                <weight>0.05</weight>
+                <weight>10</weight>
             </roi>
         </objectives>
     </objectiveset>
@@ -965,9 +995,8 @@
             <priority>5</priority>
         </goalset>
     </goals>
-
     <beamset>
-        <name>6X Bre/Chw Right 4Arc</name>
+        <name>6X Bre/Chw Right 5Arc</name>
         <technique>VMAT</technique>
         <DicomName>BCRt4A_VMA_R_A_</DicomName>
         <description>4 arc arrangement for treating the right breast or chestwall.
@@ -977,8 +1006,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc_c000</Name>
             <Energy>6</Energy>
-            <GantryAngle>190</GantryAngle>
-            <GantryStopAngle>046</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>020</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -989,8 +1018,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc_c000</Name>
             <Energy>6</Energy>
-            <GantryAngle>043</GantryAngle>
-            <GantryStopAngle>187</GantryStopAngle>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>340</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -1001,17 +1030,40 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>3_SITE_Arc_c000</Name>
             <Energy>6</Energy>
-            <GantryAngle>191</GantryAngle>
-            <GantryStopAngle>047</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>030</CollimatorAngle>
+            <CollimatorAngle>15</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
             <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
     </beamset>
-
     <beamset>
-        <name>6FFF Bre/Chw Right 4Arc</name>
+        <name>6FFF Bre/Chw Right 5Arc</name>
         <technique>VMAT</technique>
         <DicomName>BCRt4A_VMA_R_A_</DicomName>
         <description>4 arc arrangement for treating the right breast or chestwall.
@@ -1021,8 +1073,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc_c000</Name>
             <Energy>6 FFF</Energy>
-            <GantryAngle>190</GantryAngle>
-            <GantryStopAngle>046</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>020</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -1033,8 +1085,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc_c000</Name>
             <Energy>6 FFF</Energy>
-            <GantryAngle>043</GantryAngle>
-            <GantryStopAngle>187</GantryStopAngle>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>340</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -1045,16 +1097,40 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>3_SITE_Arc_c000</Name>
             <Energy>6 FFF</Energy>
-            <GantryAngle>191</GantryAngle>
-            <GantryStopAngle>047</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>030</CollimatorAngle>
+            <CollimatorAngle>15</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
             <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
     </beamset>
     <beamset>
-        <name>10X Bre/Chw Right 4Arc</name>
+        <name>10X Bre/Chw Right 5Arc</name>
         <technique>VMAT</technique>
         <DicomName>BCRt4A_VMA_R_A_</DicomName>
         <description>4 arc arrangement for treating the right breast or chestwall.
@@ -1064,8 +1140,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc_c000</Name>
             <Energy>10</Energy>
-            <GantryAngle>190</GantryAngle>
-            <GantryStopAngle>046</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>020</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -1076,8 +1152,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc_c000</Name>
             <Energy>10</Energy>
-            <GantryAngle>043</GantryAngle>
-            <GantryStopAngle>187</GantryStopAngle>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>340</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -1088,27 +1164,51 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>3_SITE_Arc_c000</Name>
             <Energy>10</Energy>
-            <GantryAngle>191</GantryAngle>
-            <GantryStopAngle>047</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>030</CollimatorAngle>
+            <CollimatorAngle>15</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
             <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>10</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>10</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
     </beamset>
     <beamset>
-        <name>10FFF Bre/Chw Right 4Arc</name>
+        <name>10FFF Bre/Chw Right 5Arc</name>
         <technique>VMAT</technique>
         <DicomName>BCRt4A_VMA_R_A_</DicomName>
         <description>4 arc arrangement for treating the right breast or chestwall.
         </description>
-        <beam>
+       <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc_c000</Name>
             <Energy>10 FFF</Energy>
-            <GantryAngle>190</GantryAngle>
-            <GantryStopAngle>046</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>020</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -1119,8 +1219,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc_c000</Name>
             <Energy>10 FFF</Energy>
-            <GantryAngle>043</GantryAngle>
-            <GantryStopAngle>187</GantryStopAngle>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>340</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -1131,27 +1231,51 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>3_SITE_Arc_c000</Name>
             <Energy>10 FFF</Energy>
-            <GantryAngle>191</GantryAngle>
-            <GantryStopAngle>047</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>030</CollimatorAngle>
+            <CollimatorAngle>15</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
             <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
     </beamset>
     <beamset>
-        <name>15X Bre/Chw Right 4Arc</name>
+        <name>15X Bre/Chw Right 5Arc</name>
         <technique>VMAT</technique>
         <DicomName>BCRt4A_VMA_R_A_</DicomName>
         <description>4 arc arrangement for treating the right breast or chestwall.
         </description>
-        <beam>
+       <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>1_SITE_Arc_c000</Name>
             <Energy>15</Energy>
-            <GantryAngle>190</GantryAngle>
-            <GantryStopAngle>046</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
             <CollimatorAngle>020</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -1162,8 +1286,8 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>2_SITE_Arc_c000</Name>
             <Energy>15</Energy>
-            <GantryAngle>043</GantryAngle>
-            <GantryStopAngle>187</GantryStopAngle>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>340</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
@@ -1174,12 +1298,36 @@
             <DeliveryTechnique>DynamicArc</DeliveryTechnique>
             <Name>3_SITE_Arc_c000</Name>
             <Energy>15</Energy>
-            <GantryAngle>191</GantryAngle>
-            <GantryStopAngle>047</GantryStopAngle>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
             <ArcRotationDirection>Clockwise</ArcRotationDirection>
-            <CollimatorAngle>030</CollimatorAngle>
+            <CollimatorAngle>15</CollimatorAngle>
             <CouchAngle>000</CouchAngle>
             <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>15</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>15</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
     </beamset>
     <planning_structure_set>
@@ -1207,17 +1355,17 @@
         <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
                             margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
         </superficial_target>
-        <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
+        <otv standoff="0.0" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
              margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
         </otv>
     </planning_structure_set>
     <optimization_config>
-        <name>4 warmstarts</name>
-        <description>4 warmstart optimization</description>
+        <name>8 warmstarts</name>
+        <description>8 warmstart optimization</description>
         <technique>VMAT</technique>
-        <initial max_it="30" int_it="10">Iteration 0</initial>
-        <warmstart max_it="20" int_it="4" n="5">Iteration_1to4</warmstart>
-        <vary_grid dose_dim1="0.3" dose_dim2="0.2" dose_dim3="0.15" dose_dim4="0.10">True</vary_grid>
+        <initial max_it="90" int_it="30">Iteration 0</initial>
+        <warmstart max_it="50" int_it="4" n="8">Iteration_1to4</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">True</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
         <reduce_oar>False</reduce_oar>
