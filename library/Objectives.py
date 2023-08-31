@@ -17,10 +17,15 @@ Inputs::
 Dependencies::
 	Note that protocols are assumed to have even priorities describing targets
 
-:versions
+Version History::
+
 1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
+
 1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
+
 2.0.0 Adding the clinical objectives for IMRT
+
+2.0.1 HotFix for an error with a target that is too large for RTOG goals.
 
 
 Add objectives
@@ -36,6 +41,7 @@ import logging
 import xml.etree.ElementTree
 from collections import OrderedDict
 import re
+import math
 import UserInterface
 import StructureOperations
 import Goals
@@ -429,7 +435,17 @@ def add_objective(obj, exam, case, plan, beamset,
             obj.find('dose').text = float(s_dose) * 100
             dose = float(obj.find('dose').text) * 100
     else:
-        dose = float(obj.find('dose').text) * 100
+        if obj.find('dose').attrib["units"] == "BED":
+            ab = float(obj.find('dose').attrib["ab"])
+            bed = float(obj.find('dose').text)
+            num_fx = float(beamset.FractionationPattern.NumberOfFractions)
+            logging.debug(
+                f'Solving Dose for {bed:.0f} Gy_{ab:.0f} in {num_fx:.0f}')
+            dose = bed_calculation(bed, alphabeta=ab, num_fx=num_fx)
+            logging.info(
+                f'{obj.find("name").text} Dose for {bed:.0f} Gy_{ab:.0f} in {num_fx:.0f} fractions is {dose:.0f} Gy')
+        else:
+            dose = float(obj.find('dose').text) * 100
     #
     # Read the weight variable
     if s_weight:
@@ -534,8 +550,9 @@ def add_objective(obj, exam, case, plan, beamset,
     else:
         o.DoseFunctionParameters.DoseLevel = dose
     logging.debug("Added objective for ROI: " +
-                  "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
-                      roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
+                  f"{roi}, type {function_type}, dose {dose}, weight {weight},"
+                  f" for beamset {beamset.DicomPlanLabel}"
+                  f" with restriction: {restrict_beamset}")
     # Add the mco objective
     if mco:
         add_mco(plan, beamset)
@@ -654,7 +671,7 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
     v = prot_vol[0]
     i = 0
     # Find first volume exceeding target volume or find the end of the list
-    while v <= vol and i <= len(prot_vol) - 1:
+    while v <= vol and i <= len(prot_vol) - 2:
         i += 1
         v = prot_vol[i]
     # Exceptions for target volumes exceeding or smaller than the minimum volume
@@ -662,9 +679,11 @@ def rtog_sbrt_dgi(case, examination, target, flag, isodose=None):
         logging.warning('rtog_sbrt_dgi.py: Target volume < RTOG volume limits' +
                         '  returning lowest available index{}'.format(index[i]))
         return index[i]
-    elif i == len(prot_vol):
-        logging.warning('rtog_sbrt_dgi.py: Target volume > RTOG volume limits' +
-                        ' returning highest available index{}'.format(index[i]))
+    elif i == len(prot_vol) - 1:
+        message = f'Target volume {vol:.2f} > RTOG volume limits {prot_vol[i]:.2f}' \
+                  + ' returning goals for highest available volume'
+        connect.await_user_input(message)
+        logging.warning(message)
         return index[i]
     # Interpolate on i and i - 1
     else:
@@ -712,6 +731,48 @@ def residual_volume(structure_name, goal_volume, case, exam):
         return residual_percentage
 
 
+def solve_quadratic(a, b, c):
+    """
+    Solve the quadratic equation of form
+    ax^2 + bx +c = 0
+    :param a: coefficient of squared term
+    :param b: coefficient of linear term
+    :param c: constant term
+    :return:
+    """
+    d = (b * b) - (4 * a * c)
+    if d > 0.:
+        root1 = (-b - math.sqrt(d)) / (2 * a)
+        root2 = (-b + math.sqrt(d)) / (2 * a)
+        if root1 > root2:
+            return root1, root2
+        else:
+            return root2, root1
+    else:
+        return None, None
+
+
+def bed_calculation(bed, alphabeta, num_fx):
+    """
+    Compute the physical dose for the current fractionation given the BED
+    BED = Total dose * (1 + (Fraction dose / αβ))
+    Solve:
+        D^2 + N * αβ * D - N * αβ * BED
+    :param bed: Biologically effective dose in Gy_αβ
+    :param alphabeta: alpha beta ratio
+    :param num_fx: number of fractions in current plan
+    :return: The input BED converted to the fraction dose
+    """
+    dose1, dose2 = solve_quadratic(a=1.,
+                                   b=num_fx * alphabeta,
+                                   c=-1. * num_fx * alphabeta * bed)
+    logging.debug(f'Dose for {bed:.0f} Gy_{alphabeta:.0f} in {num_fx:.0f} fractions is ({dose1:.0f},{dose2:.0f}) Gy')
+    if dose1 and dose2:
+        return dose1
+    else:
+        return None
+
+
 def conditional_overlap(structure_name, goal_volume, case, exam, comp_structure, isodose):
     """Evaluate the overlap between structure_name and comp_structure
     then modify goal volume and dose.
@@ -731,7 +792,9 @@ def conditional_overlap(structure_name, goal_volume, case, exam, comp_structure,
 def knowledge_based_goal(structure_name, goal_type, case, exam,
                          isodose=None,
                          res_vol=None,
-                         comp_structure=None):
+                         comp_structure=None,
+                         num_fx=None,
+                         alphabeta=None):
     """
     knowledge_based_goals will handle the knowledge based goals by goal type
     at this time the
@@ -762,6 +825,10 @@ def knowledge_based_goal(structure_name, goal_type, case, exam,
                                                   case=case,
                                                   exam=exam)
         know_analysis['units'] = '%'
+    elif goal_type in ['BED']:
+        know_analysis['dose'] = bed_calculation(bed=isodose,
+                                                alphabeta=alphabeta,
+                                                num_fx=num_fx)
     elif goal_type in ['overlap']:
         know_analysis = conditional_overlap(structure_name=structure_name,
                                             goal_volume=res_vol,
@@ -819,7 +886,9 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
 
     TODO: Change the main to a callable function taking the protocol path as an input`
     TODO: Add goal loop for secondary - unspecified target goals
-    :versions
+    TODO: Potentially an issue here with objectiveset loading. Some objectives seems to be disappearing
+
+    Version History:
     1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
     1.0.1 supporting SBRT, brain, and knowledge-based goals for RTOG-SBRT Lung
     2.0.0 Adding the clinical objectives for IMRT
@@ -848,6 +917,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     __help__ = 'https://github.com/wrssc/ray_scripts/wiki/CreateGoals'
     __copyright__ = 'Copyright (C) 2018, University of Wisconsin Board of Regents'
 
+    derived_suffixes = ["_Eval","_EZ"]
     # Adding error handling
     error_message = []
     # Potential inputs, patient, case, exam, beamset, protocol path, filename
@@ -934,8 +1004,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             # Launch the dialog
             response = input_dialog.show()
             # Link root to selected protocol ElementTree
-            logcrit("Treatment Planning Order selected: {}".format(
-                input_dialog.values['i']))
+            logcrit(f"Treatment Planning Order selected: {input_dialog.values['i']}")
             # Update the order name
 
             # I believe this loop can be eliminated with we can use a different function
@@ -979,29 +1048,44 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
     required_locations = (order.findall('./required/roi'))
     logging.debug('Required {}'.format(required_locations))
     # Use the following loop to find the targets in protocol matching the names above
+    # Find all protocol targets ignoring any derived targets
+    derived_keywords = ['^.*_Eval.*?$', '^.*_EZ.*?$']
+    derived_targets = []
     for s in goal_locations:
         for g in s:
-            g_name = g.find('name').text
             # Priorities should be even for targets and append unique elements only
             # into the protocol_targets list
-            if int(g.find('priority').text) % 2 == 0 and g_name not in protocol_targets:
-                protocol_targets.append(g_name)
-                k = str(i)
-                # Python doesn't sort lists....
-                k_name = k.zfill(2) + 'Aname_' + g_name
-                k_dose = k.zfill(2) + 'Bdose_' + g_name
-                target_inputs[k_name] = 'Match a plan target to ' + g_name
-                target_options[k_name] = plan_targets
-                target_datatype[k_name] = 'combo'
-                target_required.append(k_name)
-                target_inputs[
-                    k_dose] = 'Provide dose for protocol target: ' + g_name + ' Dose in cGy'
-                target_required.append(k_dose)
-                i += 1
-                # Exact matches get an initial guess in the dropdown
-                for t in plan_targets:
-                    if g_name == t:
-                        target_initial[k_name] = t
+            if int(g.find('priority').text) % 2 == 0:
+                g_name = g.find('name').text
+                for r in derived_keywords:
+                    if re.search(r, g_name) and g_name not in derived_targets:
+                        derived_targets.append(g_name)
+                try:
+                    d_name = g.find('dose').attrib['roi']
+                except KeyError:
+                    d_name = ""
+                if g_name not in protocol_targets and g_name not in derived_targets:
+                    protocol_targets.append(g_name)
+                elif g_name not in protocol_targets and d_name and d_name not in protocol_targets:
+                    protocol_targets.append(d_name)
+        # Use the following loop to find the targets in protocol matching the names above
+    i = 1
+    for p in protocol_targets:
+        k = str(i)
+        # Python doesn't sort lists....
+        k_name = k.zfill(2) + 'Aname_' + p
+        k_dose = k.zfill(2) + 'Bdose_' + p
+        target_inputs[k_name] = 'Match a plan target to ' + p
+        target_options[k_name] = plan_targets
+        target_datatype[k_name] = 'combo'
+        target_required.append(k_name)
+        target_inputs[k_dose] = 'Provide dose for protocol target: ' + p + ' Dose in cGy'
+        target_required.append(k_dose)
+        i += 1
+        # Exact matches get an initial guess in the dropdown
+        for t in plan_targets:
+            if p == t:
+                target_initial[k_name] = t
 
     # Warn the user they are missing organs at risk specified in the order
     rois = []  # List of contours in plan
@@ -1017,17 +1101,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                 protocol_rois.append(r_name)
             if not any(o == r_name for o in rois) and r_name not in missing_contours:
                 missing_contours.append(r_name)
-    for s in goal_locations:
-        for g in s:
-            g_name = g.find('name').text
-            if g_name not in protocol_rois:
-                protocol_rois.append(g_name)
-            # Add a quick check if the contour exists in RS
-            # This step is slow, we may want to gather all rois into a list and look for it
-            if int(g.find('priority').text) % 2:
-                if not any(r == g_name for r in rois) and g_name not in missing_contours:
-                    missing_contours.append(g_name)
-
     # Launch the matching script here. Then check for any missing that remain. Supply function with rois and
     # protocol_rois
     if not filename:
@@ -1123,13 +1196,34 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
             p_n = g.find('name').text
             p_d = g.find('dose').text
             p_t = g.find('type').text
+            try:
+                p_rel = g.find('dose').attrib['roi']
+            except KeyError:
+                p_rel = ""
+            # Handle derived rois that resulted from remapping to protocol
+            suffixes = [ds for ds in derived_suffixes if ds in p_n]
+            if len(suffixes) == 1:
+                suffix = suffixes[0]
+                p_parent = p_n.replace(suffix,"")
+            elif len(suffixes) > 1:
+                suffix = ""
+                p_parent = ""
+                logging.error(f'Too many derived matches for this goal structure name {p_n} unacceptable')
+            else:
+                suffix = ""
+                p_parent = ""
             # Change the name for the roi goal if the user has matched it to a target
             if p_n in translation_map:
                 # Change the roi name the goal uses to the matched value
                 g.find('name').text = translation_map[p_n][0]
-
                 logging.debug('Reassigned protocol target name:{} to {}'.format(
                     p_n, g.find('name').text))
+            elif p_parent in translation_map:
+                g.find('name').text = translation_map[p_parent][0] + suffix
+                logging.debug('Reassigned derived protocol target name:{} to {}'.format(
+                    p_n, g.find('name').text))
+
+
             # TODO: Exception catching in here for an unresolved reference
             # If the goal is relative change the name of the dose attribution
             # Change the dose to the user-specified level
@@ -1173,13 +1267,23 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                     vol = g.find('volume').text
                 else:
                     vol = None
+                # Look for a/b
+                try:
+                    alphabeta = float(g.find('dose').attrib['alphabeta'])
+                    num_fx = float(beamset.FractionationPattern.NumberOfFractions)
+                except KeyError:
+                    alphabeta = None
+                    num_fx = None
+
                 know_goal = knowledge_based_goal(
                     structure_name=p_r,
                     goal_type=g.find('type').attrib['know'],
                     case=case,
                     exam=exam,
-                    isodose=g.find('dose').text,
-                    res_vol=vol)
+                    isodose=float(g.find('dose').text),
+                    res_vol=vol,
+                    num_fx=num_fx,
+                    alphabeta=alphabeta)
                 # use a dictionary for storing the return values
                 try:
                     g.find('index').text = str(know_goal['index'])
@@ -1236,6 +1340,10 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
         objectives = objsets.findall('./objectives/roi')
         for o in objectives:
             o_n = o.find('name').text
+            #
+            # Determine any beamset restrictions
+            value = o.find('type').attrib.get('restrict_to_beamset')
+            restrict_to_beamset = beamset.DicomPlanLabel if value == "True" else None
             # o_t = o.find('type').text
             o_d = o.find('dose').text
             if o_n in translation_map:
@@ -1260,7 +1368,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                                   s_roi=s_roi,
                                   s_dose=s_dose,
                                   s_weight=None,
-                                  restrict_beamset=None,
+                                  restrict_beamset=restrict_to_beamset,
                                   checking=True)
                 else:
                     logging.debug(
@@ -1278,6 +1386,6 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
                               s_roi=s_roi,
                               s_dose=s_dose,
                               s_weight=None,
-                              restrict_beamset=None,
+                              restrict_beamset=restrict_to_beamset,
                               checking=True)
     return error_message

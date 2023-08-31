@@ -16,12 +16,17 @@
     -Sends the QA plan to iDMS
     -Copies pertinent data to the user clipboard.
     TODO: Enable DSP searching when isocenter dose is low
+    TODO: Find a way of getting the current database name
+
 
     Version:
     0.0.0 Testing
     0.0.1 Changed format of output message
     0.0.2 Debugging small changes in the 11 B interface and improving user dialogs
     1.0.0 Release post debug
+    1.0.1 Minor changes:
+            Delete 01 (UH) and 03 (EC) Add 06 (UH)
+            Added a copy to clipboard button for the last dialog
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -38,19 +43,19 @@
 
 __author__ = 'Adam Bayliss and Patrick Hill'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '09-Aug-2022'
-__version__ = '1.0.0'
+__date__ = '30-Nov-2022'
+__version__ = '1.0.1'
 __status__ = 'Production'
 __deprecated__ = False
-__reviewer__ = ''
+__reviewer__ = 'Sean Frigo'
 __reviewed__ = ''
-__raystation__ = '11'
+__raystation__ = '11B'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 __help__ = ''
-__credits__ = []
+__credits__ = ['DQA TEAM']
 
 import sys
 import logging
@@ -66,9 +71,9 @@ import pyperclip
 import PySimpleGUI as sg
 
 clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871',
-                                   'TrueBeam3744', 'HDA0477', 'HDA0488'],
-                  '--QA_DEVICES--': ['Plus_01 (UH)', 'Plus_02 (JC)', 'Plus_03 (EC)',
-                                     'Plus_04 (UH)', 'Plus_05 (EC)'],
+                                   'TrueBeam3744', 'HDA0488'],
+                  '--QA_DEVICES--': ['Plus_02 (JC)', 'Plus_04 (UH)',
+                                     'Plus_05 (EC)', 'Plus_06 (UH)'],
                   '--X_GRID--': [-3.0, -2.0, -1.0, 0., 1.0, 2.0, 3.0, ],
                   '--Y_GRID--': [-16., -14., -12., -10., -8., -6., -4., -2., 0.,
                                  16., 14., 12., 10., 8., 6., 4., 2.],
@@ -85,7 +90,6 @@ clinic_options = {'--MACHINES--': ['TrueBeam1358', 'TrueBeam2588', 'TrueBeam2871
                   '--ALT_TOMO_PHANTOM_ID--': r"20191004PMH-D4QA"}
 #
 # Phantom properties for TOMO
-# TODO Find a way of getting the current database name
 # Options in Validation
 #
 # Phantom properties for VMAT
@@ -261,7 +265,7 @@ def build_string_clip(beamset, responses, verification_plan):
     dialog_dict['By'] = os.getenv('username')
     # Negative sign for shifts relative to isocenter
     dialog_dict['X-shift'] = "{:.1f} mm".format(-10. * iso['x'])
-    dialog_dict['Y-shift'] = "{:.1f} mm".format(-10. * iso['y'])
+    dialog_dict['Y-shift'] = "{:.1f} mm".format(10. * iso['y'])
     dialog_dict['Z-shift'] = "{:.1f} mm".format(-10. * iso['z'])
 
     comment = ""
@@ -301,6 +305,26 @@ def prompt_qa_name(qa_plan_name):
                  .format(qa_plan_name))
     else:
         return response['Name']
+
+
+def clipboard_gui(beamset, user_prompt, verification_plan):
+    """
+    Simple gui to copy message to clipboard
+    :param beamset: current RS beamset
+    :param user_prompt: dialog values from qa_gui below
+    :param verification_plan: qa plan
+    :return: None but copies string message to clipboard
+    """
+    dialog_name = 'DQA Exported'
+    layout = [[sg.Button('Quit'), sg.Button('Copy QA Message')]]
+    window = sg.Window('DQA Complete', layout, default_element_size=(40, 2), grab_anywhere=True)
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == 'Quit':
+            break
+        elif event == 'Copy QA Message':
+            comment_to_clipboard(beamset, user_prompt, verification_plan)
+    window.close()
 
 
 def qa_gui(plan):
@@ -476,10 +500,10 @@ def shift_iso(verification_plan, percent_dose_region=80.):
                                                                                                               a['y'],
                                                                                                               a['z'])
         + "Closest shift coordinates are [x,y,z]: [{},{},{}]".format(shift['x'], shift['y'], shift['z']))
-    iso_name = "".join((verification_plan.BeamSet.DicomPlanLabel,
-                        f"_X:{shift['x']:03.0f}",
-                        f"_Y:{shift['y']:03.0f}",
-                        f"_Z:{shift['z']:03.0f}"))
+    iso_name = verification_plan.BeamSet.DicomPlanLabel \
+            +"_X:{:03.0f}".format(10. * shift['x'])\
+            +"_Y:{:03.0f}".format(-10. * shift['y'])\
+            +"_Z:{:03.0f}".format(10. * shift['z'])
     # Shift the isocenter of the beams
     for b in beams:
         b.Isocenter.EditIsocenter(Name=iso_name, Position=shift, Color="Purple")
@@ -631,6 +655,7 @@ def main():
                                    gantry_period=gantry_period,
                                    couch_speed=couch_speed,
                                    filters=filters)
+        clipboard_gui(beamset, user_prompt, verification_plan)
 
     # Finish up
     if program_success:

@@ -40,7 +40,6 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
 
 from collections import namedtuple
-import copy
 import sys
 import os
 import json
@@ -53,7 +52,6 @@ sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../general'))
 import AutoPlan
 import AutoPlanOperations
 import GeneralOperations
-from GeneralOperations import logcrit as logcrit
 import UserInterface
 
 
@@ -71,7 +69,7 @@ def inputs(index):
                 'translation_map': {'PTV_p': ('PTV_Hip_5500', 5500., r'cGy')},
                 'beamset_name': 'Tomo3D_FW50',
                 'iso_target': 'PTV_Hip_5500',
-                'machine': 'HDA0477',
+                'machine': 'HDA0488',
                 'expected': {'dicom_plan_label': 'Pelv_T3D_R0A0',
                              'dose_at_point': 249.9998779296875,
                              'is_clinical': True,
@@ -91,7 +89,7 @@ def inputs(index):
                                     'PTV_p2': ('PTV_4500', 4500., r'cGy')},
                 'beamset_name': 'Tomo3D_FW50',
                 'iso_target': 'All_PTVs',
-                'machine': 'HDA0477',
+                'machine': 'HDA0488',
                 'expected': {'dicom_plan_label': 'Pelv_T3D_R0A0',
                              'dose_at_point': 201.59988403320312,
                              'is_clinical': True,
@@ -178,7 +176,7 @@ def main():
     logging.info('Autoplanning test started on PatientID: {}, Case: {}, Exam: {}'.format(
         pd_in.patient.PatientID, pd_in.case.CaseName, pd_in.exam.Name))
     # Run autoplan and get result
-    pd = AutoPlan.autoplan(testing_bypass_dialogs=plan1)
+    pd = AutoPlan.autoplan(autoplan_parameters=plan1)
     #
     # Compare with the stored expected value
     result = test_result(pd, plan1['expected'])

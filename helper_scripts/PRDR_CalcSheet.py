@@ -25,6 +25,8 @@
           to the maximum dose to 0.03 cc volume of the target was prohibitively time
           consuming. Now that the script is written, we will switch to the more
           conventional max dose evaluation at 0.03 cc.
+    0.0.2 Force the loading of the dataframe in the same order as the beams
+    1.0.0 Clinical Release
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -41,17 +43,17 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '03-Dec-2021'
-__version__ = '0.0.1'
-__status__ = 'Testing'
+__date__ = '26-Jan-2023'
+__version__ = '1.0.0'
+__status__ = 'Clinical'
 __deprecated__ = False
 __reviewer__ = ''
 __reviewed__ = ''
-__raystation__ = '10.A.SP1'
+__raystation__ = '11B'
 __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__copyright__ = 'Copyright (C) 2021, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
 __help__ = ''
 __credits__ = []
 
@@ -104,11 +106,11 @@ def get_relative_volume(rs_obj, roi_name, vol_evaluation_absolute):
     """
      Get the relative value of an roi (0 vol to 100%) from the
      absolute volume of a structure. Return the relative volume
-     rs_obj: A namedtuple containing the raystation script objects defined in main
+     patient_data: A namedtuple containing the raystation script objects defined in main
              of note:
-                       rs_obj.case is the current case
-                       rs_obj.exam is the current exam
-                       rs_obj.beamset is the current beamset
+                       patient_data.case is the current case
+                       patient_data.exam is the current exam
+                       patient_data.beamset is the current beamset
      roi_name: Name of roi of interest
      vol_evaluation_absolute: absolute volume of interest in cc
      Returns the relative volume of the roi_name structure between 0 and 1.0
@@ -123,11 +125,11 @@ def get_maximum_dose_roi_at_volume(rs_obj, beam_name, roi_name, volume_units):
     """
      Get the fractional dose value of an roi (0 vol to 100%) from the
      absolute volume of a structure. Return the relative volume
-     rs_obj: A namedtuple containing the raystation script objects defined in main
+     patient_data: A namedtuple containing the raystation script objects defined in main
              of note:
-                       rs_obj.case is the current case
-                       rs_obj.exam is the current exam
-                       rs_obj.beamset is the current beamset
+                       patient_data.case is the current case
+                       patient_data.exam is the current exam
+                       patient_data.beamset is the current beamset
      beam_dose: name of beam of interest
      roi_name: Name of roi of interest
      volume_units: DICT: {"UNITS": '%' or 'cc', "VOL": <Volume relative or abs>}
@@ -149,77 +151,66 @@ def get_maximum_dose_roi_at_volume(rs_obj, beam_name, roi_name, volume_units):
     return dose
 
 
-def get_fraction_dose_dataframe(rs_obj, volume_units):
-    """
-     For each fraction: For each beam in the beamset get the MU, Max, Mean, and iso doses
-     rs_obj: A namedtuple containing the raystation script objects defined in main
-             of note:
-                       rs_obj.case is the current case
-                       rs_obj.exam is the current exam
-                       rs_obj.beamset is the current beamset
-     volume_units: DICT: {"UNITS": '%' or 'cc', "VOL": <Volume relative or abs>}
-     Return: a pandas dataframe of these values
-    """
-    Rx_Roi = rs_obj.beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name
-    Fraction_Data = pd.DataFrame(columns=['Beam_Name',
-                                          'MU',
-                                          'Beam Dose to Iso (cGy)',
-                                          'Beam Max Dose to PTV (cGy)',
-                                          'Beam Dmean to PTV (cGy)'])
-    # Loop through the beams and compute the beam doses
-    for bd in rs_obj.beamset.FractionDose.BeamDoses:
-        bn = bd.ForBeam.Name
-        Fx_Dose_To_Isocenter = get_dose_at_isocenter(rs_obj.beamset, bn)
-        Fx_Mean_Dose = bd.GetDoseStatistic(RoiName=Rx_Roi, DoseType="Average")
-        Fx_Max_Dose = get_maximum_dose_roi_at_volume(rs_obj,
-                                                     beam_name=bn, roi_name=Rx_Roi,
-                                                     volume_units=volume_units)
-        Beam_MU = bd.ForBeam.BeamMU
-        Fraction_Data = Fraction_Data.append(
-            {'Beam_Name': bn,
-             'MU': round(Beam_MU, 2),
-             'Beam Dose to Iso (cGy)': round(Fx_Dose_To_Isocenter, 2),
-             'Beam Max Dose to PTV (cGy)': round(Fx_Max_Dose, 2),
-             'Beam Dmean to PTV (cGy)': round(Fx_Mean_Dose, 2)}, ignore_index=True)
-    return Fraction_Data
+def sorted_beamset_dict(rs_obj):
+    beam_dict = {}
+    n_beams = 0
+    for b in rs_obj.beamset.Beams:
+        beam_dict[b.Name] = b.Number
+        n_beams += 1
+    beam_dict = dict(sorted(beam_dict.items(), key=lambda item: item[1]))
+    return beam_dict
 
 
-def get_plan_dose_dataframe(rs_obj, volume_units):
+def get_dose_dataframes(rs_obj, volume_units, beam_dict):
     """
      For the beamset: For each beam in the beamset get the MU, Max, Mean, and iso doses
-     rs_obj: A namedtuple containing the raystation script objects defined in main
+     patient_data: A namedtuple containing the raystation script objects defined in main
              of note:
-                       rs_obj.case is the current case
-                       rs_obj.exam is the current exam
-                       rs_obj.beamset is the current beamset
+                       patient_data.case is the current case
+                       patient_data.exam is the current exam
+                       patient_data.beamset is the current beamset
      volume_units: DICT: {"UNITS": '%' or 'cc', "VOL": <Volume relative or abs>}
+     beam_dict: LIST: [{'BEAM_NAME': Raystation Beam Number}]
+                A list sorted by the desired order of the pandas dataframe, e.g. beam number
+
      Return: a pandas dataframe of these values
     """
     Rx_Roi = rs_obj.beamset.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name
     nfx = rs_obj.beamset.FractionationPattern.NumberOfFractions
-    Plan_Data = pd.DataFrame(columns=['Beam_Name',
-                                      'MU',
-                                      'Plan Dose to Iso (Gy)',
-                                      'Plan Max Dose to PTV (Gy)',
-                                      'Plan Dmean to PTV (Gy)'])
+    fraction_data = []
+    plan_data = []
+    beam_number = []
+    for b_name, b_number in beam_dict.items():
+        for dose in rs_obj.beamset.FractionDose.BeamDoses:
+            beam_dose_so = None
+            if dose.ForBeam.Name == b_name:
+                beam_dose_so = dose
+                break
+        fx_dose_to_isocenter = get_dose_at_isocenter(rs_obj.beamset, b_name)
+        fx_mean_dose = beam_dose_so.GetDoseStatistic(RoiName=Rx_Roi, DoseType="Average")
+        fx_max_dose = get_maximum_dose_roi_at_volume(rs_obj,
+                                                     beam_name=b_name, roi_name=Rx_Roi,
+                                                     volume_units=volume_units)
+        beam_mu = beam_dose_so.ForBeam.BeamMU
+        beam_number.append(b_number)
+        fraction_data.append(
+            {'Beam_Name': b_name,
+             'MU': round(beam_mu, 2),
+             'Beam Dose to Iso (cGy)': round(fx_dose_to_isocenter, 2),
+             'Beam Max Dose to PTV (cGy)': round(fx_max_dose, 2),
+             'Beam Dmean to PTV (cGy)': round(fx_mean_dose, 2)})
+        plan_data.append(
+            {'Beam_Name': b_name,
+             'MU': round(beam_mu, 2),
+             'Plan Dose to Iso (Gy)': round(fx_dose_to_isocenter * nfx / 100., 3),
+             'Plan Max Dose to PTV (Gy)': round(fx_max_dose * nfx / 100., 3),
+             'Plan Dmean to PTV (Gy)': round(fx_mean_dose * nfx / 100., 3)})
+    fraction_df = pd.DataFrame(fraction_data,index=beam_number)
+    fraction_df.index.names = ['Beam Number']
 
-    # Loop through the beams and compute the plan doses
-    for bd in rs_obj.beamset.FractionDose.BeamDoses:
-        bn = bd.ForBeam.Name
-        Plan_Dose_To_Isocenter = get_dose_at_isocenter(rs_obj.beamset, bn) * nfx / 100.
-        Mean_Dose = bd.GetDoseStatistic(RoiName=Rx_Roi, DoseType="Average") * nfx / 100.
-        Max_Dose = get_maximum_dose_roi_at_volume(rs_obj,
-                                                  beam_name=bn, roi_name=Rx_Roi,
-                                                  volume_units=volume_units) \
-                   * nfx / 100.
-        Beam_MU = bd.ForBeam.BeamMU
-        Plan_Data = Plan_Data.append(
-            {'Beam_Name': bn,
-             'MU': round(Beam_MU, 1),
-             'Plan Dose to Iso (Gy)': round(Plan_Dose_To_Isocenter, 4),
-             'Plan Max Dose to PTV (Gy)': round(Max_Dose, 4),
-             'Plan Dmean to PTV (Gy)': round(Mean_Dose, 4)}, ignore_index=True)
-    return Plan_Data
+    plan_df = pd.DataFrame(plan_data,index=beam_number)
+    plan_df.index.names = ['Beam Number']
+    return fraction_df, plan_df
 
 
 def update_table_title(table, old_headings, headings):
@@ -237,7 +228,7 @@ def pd_to_header_table(df):
 
 def display_beam_worksheet(df_plan, df_fraction):
     """
-    Build the sg table for the user
+    Build the Sg table for the user
     df_plan: data frame containing the beamset level PRDR calculation data
     df_fraction: data frame containing the fraction dose PRDR calculation data
     """
@@ -250,7 +241,7 @@ def display_beam_worksheet(df_plan, df_fraction):
     layout = [[sg.Table(values=table_fraction[:][:], headings=headings_fraction, max_col_width=25,
                         # background_color='light blue',
                         auto_size_columns=True,
-                        display_row_numbers=True,
+                        display_row_numbers=False,
                         justification='center',
                         num_rows=20,
                         alternating_row_color='brown',
@@ -301,7 +292,7 @@ def display_beam_worksheet(df_plan, df_fraction):
 
 def main():
     # Initialize return variable
-    PatientData = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
+    PatientData = namedtuple('RS_OBJ', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
     rs_obj = PatientData(error=[],
                          patient=GeneralOperations.find_scope(level='Patient'),
@@ -315,10 +306,11 @@ def main():
         'UNITS': 'cc',
         'VOLUME': 0.03
     }
-    # Get the dose per fraction mean, max and dose to isocenter
-    df_fraction = get_fraction_dose_dataframe(rs_obj, volume_units)
-    # Compute the plan dose (mean, max, and dose to isocenter)
-    df_plan = get_plan_dose_dataframe(rs_obj, volume_units)
+    # Get an ordered dictionary of each beam in the beamset of the form:
+    # {'BEAM_NAME': Raystation Beam Number}
+    beam_order_dictionary = sorted_beamset_dict(rs_obj)
+    # Compute the plan and fraction dose (mean, max, and dose to isocenter)
+    df_fraction, df_plan = get_dose_dataframes(rs_obj, volume_units,beam_order_dictionary)
     # Display the results
     display_beam_worksheet(df_plan, df_fraction)
 

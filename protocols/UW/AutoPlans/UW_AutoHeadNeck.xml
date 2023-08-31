@@ -1,5 +1,10 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
     <name>UW Head and Neck</name>
+    <AnatomicGroup>Neck</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>
@@ -14,35 +19,33 @@
         <frequency>Daily</frequency>
         <imaging>Pre-treatment CBCT</imaging>
         <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
     </prescription>
     <order>
         <name>Left Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
-                <name>PTV_p</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">70</dose>
             </roi>
             <roi>
-                <name>PTV_n1</name>
+                <name>PTV_n1_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
             </roi>
             <roi>
-                <name>PTV_n2</name>
+                <name>PTV_n2_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">56</dose>
             </roi>
             <fractions>33</fractions>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
@@ -172,7 +175,7 @@
         </beamset>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_p">90</dose>
                 <volume units="%">98</volume>
@@ -186,7 +189,7 @@
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_p">100</dose>
                 <volume units="%">95</volume>
@@ -200,7 +203,7 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_n1</name>
+                <name>PTV_n1_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n1">90</dose>
                 <volume units="%">98</volume>
@@ -214,7 +217,7 @@
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_n1</name>
+                <name>PTV_n1_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n1">100</dose>
                 <volume units="%">95</volume>
@@ -228,7 +231,7 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_n2</name>
+                <name>PTV_n2_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n2">90</dose>
                 <volume units="%">98</volume>
@@ -242,7 +245,7 @@
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_n2</name>
+                <name>PTV_n2_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n2">100</dose>
                 <volume units="%">95</volume>
@@ -719,28 +722,27 @@
     <order>
         <name>Right Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
-                <name>PTV_p</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">70</dose>
             </roi>
             <roi>
-                <name>PTV_n1</name>
+                <name>PTV_n1_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
             </roi>
             <roi>
-                <name>PTV_n2</name>
+                <name>PTV_n2_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">56</dose>
             </roi>
             <fractions>33</fractions>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
@@ -750,10 +752,11 @@
             <validation_range>
                 <fraction_dose upper="2.2" lower="1.8">True</fraction_dose>
             </validation_range>
+            <final_dose>False</final_dose>
         </validation>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_p">90</dose>
                 <volume units="%">98</volume>
@@ -767,7 +770,7 @@
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_p">100</dose>
                 <volume units="%">95</volume>
@@ -781,7 +784,7 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_n1</name>
+                <name>PTV_n1_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n1">90</dose>
                 <volume units="%">98</volume>
@@ -795,7 +798,7 @@
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_n1</name>
+                <name>PTV_n1_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n1">100</dose>
                 <volume units="%">95</volume>
@@ -809,7 +812,7 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_n2</name>
+                <name>PTV_n2_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n2">90</dose>
                 <volume units="%">98</volume>
@@ -823,7 +826,7 @@
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_n2</name>
+                <name>PTV_n2_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n2">100</dose>
                 <volume units="%">95</volume>
@@ -1300,28 +1303,27 @@
     <order>
         <name>Bilat Head and Neck [Definitive 7000, 6000, 5400cGy 33Fx]</name>
         <prefix>NecB_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
-                <name>PTV_p</name>
+                <name>PTV_p_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">70</dose>
             </roi>
             <roi>
-                <name>PTV_n1</name>
+                <name>PTV_n1_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">60</dose>
             </roi>
             <roi>
-                <name>PTV_n2</name>
+                <name>PTV_n2_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
                 <dose units="Gy" idl="100">56</dose>
             </roi>
             <fractions>33</fractions>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
@@ -1331,10 +1333,11 @@
             <validation_range>
                 <fraction_dose upper="2.2" lower="1.8">True</fraction_dose>
             </validation_range>
+            <final_dose>False</final_dose>
         </validation>
         <goals>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_p">90</dose>
                 <volume units="%">98</volume>
@@ -1348,7 +1351,7 @@
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_p</name>
+                <name>PTV_p_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_p">100</dose>
                 <volume units="%">95</volume>
@@ -1362,7 +1365,7 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_n1</name>
+                <name>PTV_n1_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n1">90</dose>
                 <volume units="%">98</volume>
@@ -1376,7 +1379,7 @@
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_n1</name>
+                <name>PTV_n1_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n1">100</dose>
                 <volume units="%">95</volume>
@@ -1390,7 +1393,7 @@
                 <priority>4</priority>
             </roi>
             <roi>
-                <name>PTV_n2</name>
+                <name>PTV_n2_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n2">90</dose>
                 <volume units="%">98</volume>
@@ -1404,7 +1407,7 @@
                 <priority>2</priority>
             </roi>
             <roi>
-                <name>PTV_n2</name>
+                <name>PTV_n2_Eval</name>
                 <type dir="ge">VX</type>
                 <dose units="%" roi="PTV_n2">100</dose>
                 <volume units="%">95</volume>
@@ -1781,6 +1784,7 @@
             </goalset>
         </goals>
         <objectives>
+            <!-- Salivary Glands -->
             <roi>
                 <name>Glnd_Submand_L</name>
                 <type dist="1" adapt="True" constraint="False">DFO</type>
@@ -2679,8 +2683,8 @@
         </description>
         <number_of_targets>3</number_of_targets>
         <first_target_number>1</first_target_number>
-        <uniform_dose_structs standoff="0.4">Larynx,Esophagus,Brain</uniform_dose_structs>
-        <underdose_structs standoff="0.3">Bone_Mandible</underdose_structs>
+        <uniform_dose_structs standoff="0.4">Larynx,Esophagus,Brain,Bone_Mandible</uniform_dose_structs>
+        <underdose_structs standoff="0.3"></underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
                         margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
         </skin_structure>

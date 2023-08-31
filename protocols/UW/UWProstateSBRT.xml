@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Prostate SBRT</name>
+    <AnatomicGroup>Pelvis</AnatomicGroup>
     <ct>
         <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
         <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
@@ -16,7 +17,7 @@
     <order>
         <name>Prostate SBRT ArmA [5Fx 4500cGy]</name>
         <prefix>Pros_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <fractions>5</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>
@@ -487,7 +488,7 @@
     <order>
         <name>Prostate SBRT ArmB [5Fx 4500cGy]</name>
         <prefix>Pros_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <fractions>5</fractions>
             <frequency>Daily</frequency>
             <imaging>Daily CBCT</imaging>

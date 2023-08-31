@@ -1,5 +1,10 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
-    <name>UW Abdomen</name>
+    <name>UW Abdomen-AUTO</name>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
     <ct>
         <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
         <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
@@ -19,7 +24,6 @@
         <imaging>Weekly kV</imaging>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
         </technique>
@@ -27,7 +31,7 @@
     <order>
         <name>Abdomen [15Fx]</name>
         <prefix>Abdo_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -56,7 +60,6 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
         <validation>
@@ -307,7 +310,7 @@
     <order>
         <name>Liver Hypofractionated [10Fx]</name>
         <prefix>Livr_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -336,7 +339,6 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
         <validation>

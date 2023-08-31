@@ -75,8 +75,8 @@ __help__ = None
 __copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
-#
 
+#
 import logging
 import sys
 import PySimpleGUI as sg

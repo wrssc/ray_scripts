@@ -1,0 +1,1376 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+  -->
+
+<protocol version="1">
+    <notes date="23AUG2023">Created</notes>
+    <AnatomicGroup>Breast</AnatomicGroup>
+    <name>UW Testing Breast</name>
+    <ct>
+        <protocol institution="UWHC">XRT_CHEST</protocol>
+        <protocol institution="UWHC">XRT_L_BREAST_GATING</protocol>
+        <protocol institution="UWHC">XRT_PRONE_BREAST</protocol>
+        <protocol institution="UWHC">XRT_SUPINE_PRONE_BREAST</protocol>
+        <protocol institution="JC">5.1 Lung without contrast 0.8sec</protocol>
+    </ct>
+    <institutions>
+        <institution>UWHC</institution>
+        <institution>East</institution>
+        <institution>Johnson Creek</institution>
+    </institutions>
+    <prescription>
+        <frequency>Daily</frequency>
+        <imaging>Weekly kV</imaging>
+        <technique modality="Photons" technique="SMLC" code="PRD" machine="TrueBeam">SMLC</technique>
+    </prescription>
+    <order>
+        <name>Left Chestwall Conventional [no Boost]</name>
+        <prefix>ChwL_</prefix>
+        <prescription number="0" sequence="Primary">
+            <technique modality="Photons" technique="SMLC" code="PRD" machine="TrueBeam">SMLC</technique>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1_SCV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
+            <fractions>25</fractions>
+            <motion>Free breathing</motion>
+            <motion default="true">RPM MIBH gating</motion>
+        </prescription>
+        <validation>
+            <validation_status>False</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2.2" lower="1.8">False</fraction_dose>
+            </validation_range>
+        </validation>
+        <goals>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p_Chestwall">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p_Chestwall">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">115</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1_SCV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1_SCV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">80</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <volume units="%">5</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <volume units="%">5</volume>
+                <dose units="Gy">25</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <volume units="%">35</volume>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">4</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <dose units="%" roi="PTV_n3_IMN">50</dose>
+                <volume units="%">10</volume>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <volume units="%">35</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <volume units="%">20</volume>
+                <dose units="Gy">20</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <volume units="%">40</volume>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">8</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Breast_R</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
+        <objectives>
+            <roi>
+                <name>Heart</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">3.8</dose>
+                <mco>ALARA</mco>
+                <weight>0.5</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Heart">15</volume>
+                <dose units="Gy">8</dose>
+                <weight>1e-2</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_R">10</volume>
+                <dose units="Gy">5</dose>
+                <mco>ALARA</mco>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_L">20</volume>
+                <dose units="Gy">15</dose>
+                <mco>ALARA</mco>
+                <weight>1.25</weight>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_L">20</volume>
+                <dose units="Gy">15</dose>
+                <weight>0.5</weight>
+            </roi>
+        </objectives>
+    </order>
+    <order>
+        <name>Right Chestwall Conventional [no Boost]</name>
+        <prefix>ChwR_</prefix>
+        <prescription number="0" sequence="Primary">
+            <technique modality="Photons" technique="SMLC" code="PRD" machine="TrueBeam">SMLC</technique>
+            <roi>
+                <name>PTV_p_Eval</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1_SCV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="105">50</dose>
+            </roi>
+            <fractions>25</fractions>
+        </prescription>
+        <validation>
+            <validation_status>False</validation_status>
+            <author>Adam Bayliss</author>
+            <validation_range>
+                <fraction_dose upper="2.2" lower="1.8">False</fraction_dose>
+            </validation_range>
+        </validation>
+        <goals>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_p_Chestwall">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_p_Chestwall">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">110</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">115</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1_SCV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n1_SCV">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n1_SCV</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n1_SCV">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">80</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n3_IMN">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n3_IMN">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">95</volume>
+                <dose units="%" roi="PTV_n2_Axillary">95</dose>
+                <priority>4</priority>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type dir="ge">VX</type>
+                <volume units="%">90</volume>
+                <dose units="%" roi="PTV_n2_Axillary">90</dose>
+                <priority>2</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>Max</type>
+                <dose units="Gy">20</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">4</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <volume units="%">35</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <volume units="%">50</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <volume units="%">20</volume>
+                <dose units="Gy">20</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <volume units="%">40</volume>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="%" roi="PTV_n1_SCV">40</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <volume units="%">10</volume>
+                <dose units="Gy">5</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">5</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">8</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type>Max</type>
+                <dose units="Gy">10</dose>
+                <priority>1</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">Mean</type>
+                <dose units="Gy">11</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">30</volume>
+                <dose units="Gy">10</dose>
+                <priority>3</priority>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type dir="le">VX</type>
+                <volume units="%">15</volume>
+                <dose units="Gy">20</dose>
+                <priority>3</priority>
+            </roi>
+        </goals>
+        <objectives>
+            <roi>
+                <name>Heart</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">3.8</dose>
+                <mco>ALARA</mco>
+                <weight>0.5</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Heart">15</volume>
+                <dose units="Gy">8</dose>
+                <weight>1e-2</weight>
+            </roi>
+            <roi>
+                <name>Heart</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <weight>20</weight>
+            </roi>
+            <roi>
+                <name>Heart_PRV05</name>
+                <type>Max</type>
+                <dose units="Gy">15</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Lung_R</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_R">10</volume>
+                <dose units="Gy">5</dose>
+                <mco>ALARA</mco>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_L">10</volume>
+                <dose units="Gy">5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Lung_L</name>
+                <type dir="lt">DX</type>
+                <volume units="%" roi="Lung_L">5</volume>
+                <dose units="Gy">5</dose>
+                <mco>ALARA</mco>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="40">100</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>Breast_L</name>
+                <type dist="3" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="5">100</dose>
+                <weight>200</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
+                <weight>10</weight>
+            </roi>
+        </objectives>
+    </order>
+    <objectiveset>
+        <name>Chestwall</name>
+        <objectives>
+            <roi>
+                <name>OTV1_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="PTV_p_Chestwall">90</volume>
+                <dose units="%" roi="PTV_p_Chestwall">92.25</dose>
+                <mco>Constraint</mco>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">105.0</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV1_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">110.0</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>PTV_p_Chestwall</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV1_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>sOTVu1_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_p_Chestwall">102.5</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dist="0.4" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="95">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="80">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ring1_</name>
+                <type dist="3" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="40">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_n1_SCV">102.5</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type dir="gt">DX</type>
+                <volume units="%" roi="PTV_n1_SCV">90</volume>
+                <dose units="%" roi="PTV_n1_SCV">92.25</dose>
+                <mco>Constraint</mco>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n1_SCV">105.0</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>PTV_n1_SCV</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_n1_SCV">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n1_SCV">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>OTV2_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n1_SCV">110.0</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>OTV2_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_n1_SCV">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu2_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n1_SCV">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring2_</name>
+                <type dist="0.5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_n1_SCV" low="95">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ring2_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_n1_SCV" low="90">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring2_</name>
+                <type dist="3" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_n1_SCV" low="50">100</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_n2_Axillary">102.5</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n2_Axillary">105.0</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>PTV_n2_Axillary</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_n2_Axillary">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n2_Axillary">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>OTV3_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n2_Axillary">110.0</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>OTV3_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_n2_Axillary">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu3_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n2_Axillary">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring3_</name>
+                <type dist="0.5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_n2_Axillary" low="95">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ring3_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_n2_Axillary" low="90">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring3_</name>
+                <type dist="3" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_n2_Axillary" low="50">100</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_n3_IMN">102.5</dose>
+                <weight>5</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n3_IMN">105</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>PTV_n3_IMN</name>
+                <type>Min</type>
+                <dose units="%" roi="PTV_n3_IMN">102.5</dose>
+                <weight>0.1</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n3_IMN">102.5</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>OTV4_</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_n3_IMN">110</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>OTV4_EZ</name>
+                <type a="1">MinEud</type>
+                <dose units="%" roi="PTV_n3_IMN">102.5</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>sOTVu4_</name>
+                <type>UD</type>
+                <dose units="%" roi="PTV_n3_IMN">102.5</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring4_</name>
+                <type dist="0.5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_n3_IMN" low="95">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>ring4_</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_n3_IMN" low="90">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>ring4_</name>
+                <type dist="3" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_n3_IMN" low="50">100</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="0.5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="95">100</dose>
+                <weight>100</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="1" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="90">100</dose>
+                <weight>50</weight>
+            </roi>
+            <roi>
+                <name>Ring_HD</name>
+                <type dist="3" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="50">100</dose>
+                <weight>25</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">50</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Ring_LD</name>
+                <type dist="5" adapt="True" constraint="False">DFO</type>
+                <dose units="%" roi="PTV_p_Chestwall" low="25">40</dose>
+                <weight>0.05</weight>
+            </roi>
+            <roi>
+                <name>Normal_2cm</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">60</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Normal_2cm</name>
+                <type>Max</type>
+                <dose units="%" roi="PTV_p_Chestwall">40</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Esophagus_PRV05</name>
+                <type>Max</type>
+                <dose units="Gy">45</dose>
+                <weight>1</weight>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type>Max</type>
+                <dose units="Gy">45</dose>
+                <weight>10</weight>
+            </roi>
+            <roi>
+                <name>Esophagus</name>
+                <type a="1">MaxEud</type>
+                <dose units="Gy">25</dose>
+                <weight>10</weight>
+            </roi>
+        </objectives>
+    </objectiveset>
+    <goals>
+        <goalset>
+            <name>QUANTEC</name>
+            <priority>5</priority>
+        </goalset>
+    </goals>
+    <beamset>
+        <name>6X Bre/Chw Right 5Arc</name>
+        <technique>VMAT</technique>
+        <DicomName>BCRt4A_VMA_R_A_</DicomName>
+        <description>4 arc arrangement for treating the right breast or chestwall.
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>020</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>340</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>6FFF Bre/Chw Right 5Arc</name>
+        <technique>VMAT</technique>
+        <DicomName>BCRt4A_VMA_R_A_</DicomName>
+        <description>4 arc arrangement for treating the right breast or chestwall.
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>020</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>340</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>10X Bre/Chw Right 5Arc</name>
+        <technique>VMAT</technique>
+        <DicomName>BCRt4A_VMA_R_A_</DicomName>
+        <description>4 arc arrangement for treating the right breast or chestwall.
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc_c000</Name>
+            <Energy>10</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>020</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc_c000</Name>
+            <Energy>10</Energy>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>340</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc_c000</Name>
+            <Energy>10</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>10</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>10</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>10FFF Bre/Chw Right 5Arc</name>
+        <technique>VMAT</technique>
+        <DicomName>BCRt4A_VMA_R_A_</DicomName>
+        <description>4 arc arrangement for treating the right breast or chestwall.
+        </description>
+       <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc_c000</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>020</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc_c000</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>340</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc_c000</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>10 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <beamset>
+        <name>15X Bre/Chw Right 5Arc</name>
+        <technique>VMAT</technique>
+        <DicomName>BCRt4A_VMA_R_A_</DicomName>
+        <description>4 arc arrangement for treating the right breast or chestwall.
+        </description>
+       <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc_c000</Name>
+            <Energy>15</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>020</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc_c000</Name>
+            <Energy>15</Energy>
+            <GantryAngle>050</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>340</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc_c000</Name>
+            <Energy>15</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>15</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>15</Energy>
+            <GantryAngle>056</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="2" x2="16" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+         <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>15</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>056</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>270</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+            <JawLimits x1="-16" x2="-2" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+        </beam>
+    </beamset>
+    <planning_structure_set>
+        <name>4 Target Chestwall</name>
+        <description>A typical 4 target config
+        </description>
+        <number_of_targets>4</number_of_targets>
+        <first_target_number>1</first_target_number>
+        <uniform_dose_structs standoff="0.4">Esophagus,Heart</uniform_dose_structs>
+        <underdose_structs standoff="0.4">SpinalCord_PRV05</underdose_structs>
+        <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
+        </skin_structure>
+        <normal>Normal_2cm</normal>
+        <ring_hd standoff="0.2" margin_type="Expand" margin_sup="3" margin_inf="3"
+                 margin_ant="3" margin_pos="3" margin_r="3" margin_l="3">Ring_HD
+        </ring_hd>
+        <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
+        </ring_ld>
+        <ring_targets standoff="0.2" margin_type="Expand" margin_sup="3" margin_inf="3"
+                      margin_ant="3" margin_pos="3" margin_r="3" margin_l="3">ring
+        </ring_targets>
+        <inner_air>InnerAir</inner_air>
+        <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
+        </superficial_target>
+        <otv standoff="0.0" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
+        </otv>
+    </planning_structure_set>
+    <optimization_config>
+        <name>8 warmstarts</name>
+        <description>8 warmstart optimization</description>
+        <technique>VMAT</technique>
+        <initial max_it="90" int_it="30">Iteration 0</initial>
+        <warmstart max_it="50" int_it="4" n="8">Iteration_1to4</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.4" dose_dim3="0.3" dose_dim4="0.2">True</vary_grid>
+        <fluence_only>False</fluence_only>
+        <reset_beams>True</reset_beams>
+        <reduce_oar>False</reduce_oar>
+        <segment_weight>False</segment_weight>
+        <use_treat_settings>False</use_treat_settings>
+        <block_prompt>False</block_prompt>
+    </optimization_config>
+</protocol>

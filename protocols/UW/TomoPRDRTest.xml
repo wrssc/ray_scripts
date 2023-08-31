@@ -1,5 +1,6 @@
 <protocol>
     <name>UW TomoPRD</name>
+    <AnatomicGroup>Head</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>
@@ -20,7 +21,7 @@
     <order>
         <name>Tomo_PRD_WBRT</name>
         <prefix>Tomo_PRD</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -159,7 +160,7 @@
     <order>
         <name>Tomo_PRD_Brain</name>
         <prefix>Tomo_PRD</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p1</name>
                 <type>DX</type>

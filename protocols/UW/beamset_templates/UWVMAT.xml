@@ -1087,6 +1087,79 @@
         </beam>
     </beamset>
     <beamset>
+        <name>Brai WBHA Improved</name>
+        <technique>VMAT</technique>
+        <DicomName>BrHA6A_VMA_R_A_</DicomName>
+        <description>6 Arc arrangement for treatment of the whole brain using hippocampal avoidance.
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc_c285</Name>
+            <Energy>6</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>345</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>0</CollimatorAngle>
+            <CouchAngle>285</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc_c320</Name>
+            <Energy>6</Energy>
+            <GantryAngle>345</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>140</CollimatorAngle>
+            <CouchAngle>320</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc_c040</Name>
+            <Energy>6</Energy>
+            <GantryAngle>015</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>035</CollimatorAngle>
+            <CouchAngle>040</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c075</Name>
+            <Energy>6</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>015</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>090</CollimatorAngle>
+            <CouchAngle>075</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>5</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>5_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>005</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>6</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>6_SITE_Arc_c000</Name>
+            <Energy>6</Energy>
+            <GantryAngle>181</GantryAngle>
+            <GantryStopAngle>179</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>092</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+        </beam>
+    </beamset>
+    <beamset>
         <name>Bre/Chw Left 4Arc</name>
         <technique>VMAT</technique>
         <DicomName>BCLt4A_VMA_R_A_</DicomName>

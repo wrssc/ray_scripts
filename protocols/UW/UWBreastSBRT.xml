@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Breast SBRT</name>
+    <AnatomicGroup>Breast</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
         <protocol institution="UWHC">XRT_L_BREAST_GATING</protocol>
@@ -78,12 +79,12 @@
     <order>
         <name>Left Breast PBI [5Fx]</name>
         <prefix>BreL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100">30</dose>
+                <dose units="Gy" idl="100" reference="PTV_p_Lump">30</dose>
             </roi>
             <roi>
                 <name>PTV_p_Lump</name>
@@ -238,12 +239,12 @@
      <order>
         <name>Right Breast PBI [5Fx]</name>
         <prefix>BreR_</prefix>
-        <prescription>
+         <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100">30</dose>
+                <dose units="Gy" idl="100" reference="PTV_p_Lump">30</dose>
             </roi>
             <roi>
                 <name>PTV_p_Lump</name>
@@ -405,12 +406,12 @@
     <order>
         <name>Left Breast FAST [5Fx]</name>
         <prefix>BreL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100">28.5</dose>
+                <dose units="Gy" idl="100" reference="PTV_p_BrCw">28.5</dose>
             </roi>
             <fractions>5</fractions>
             <motion>Free breathing</motion>
@@ -634,12 +635,12 @@
     <order>
         <name>Right Breast FAST [5Fx]</name>
         <prefix>BreR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100">28.5</dose>
+                <dose units="Gy" idl="100" reference="PTV_p_BrCw">28.5</dose>
             </roi>
             <fractions>5</fractions>
             <motion>Free breathing</motion>
@@ -863,12 +864,12 @@
     <order>
         <name>Left Breast FAST-Forward [5Fx]</name>
         <prefix>BreL_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100">26.0</dose>
+                <dose units="Gy" idl="100" reference="PTV_p_BrCw">26.0</dose>
             </roi>
             <fractions>5</fractions>
             <motion>Free breathing</motion>
@@ -1092,12 +1093,12 @@
     <order>
         <name>Right Breast FAST-Forward [5Fx]</name>
         <prefix>BreR_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
-                <dose units="Gy" idl="100">28.5</dose>
+                <dose units="Gy" idl="100" reference="PTV_p_BrCw">28.5</dose>
             </roi>
             <fractions>5</fractions>
             <motion>Free breathing</motion>

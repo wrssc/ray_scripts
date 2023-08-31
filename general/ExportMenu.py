@@ -35,6 +35,7 @@ import connect
 import UserInterface
 import DicomExport
 import TomoExport
+from StructureOperations import include_in_export
 
 
 def main():
@@ -84,7 +85,23 @@ def main():
         except Exception:
             plan_approved = False
 
-        if not plan_approved:
+        # If approved we can toggle the export status of blocked structures to ensure blocked structures are exported
+        if plan_approved:
+            try:
+                for plan_opt in plan.PlanOptimizations:
+                    for opt_beamset in plan_opt.OptimizedBeamSets:
+                        if opt_beamset.DicomPlanLabel == beamset.DicomPlanLabel:
+                            blocked_rois = [roi.Name for roi in opt_beamset.BeamCreationRules.RoisEnableForPlanning
+                                            if roi.OrganData.OrganType != 'Target']
+                            logging.debug(f'Attempting to include {blocked_rois}')
+                            include_in_export(case, blocked_rois)
+                            patient.Save()
+                            break
+            except AttributeError:
+                logging.debug('Could not toggle export status of any blocked rois because plan is not approved')
+
+
+        else:
             approve = UserInterface.QuestionBox('The selected plan is not currently approved. Would you like to ' +
                                                 'approve it prior to export?', 'Approve Plan')
             if approve.yes:
@@ -149,6 +166,7 @@ def main():
         filters = ['Ignore machine name',
                    'Internal Target RPM Gated Treatment (NOT ALIGN RT) ',
                    'Reference Point has no geometric location',
+                   'Use SRS table calculation',
                    'No Filters']
         # 'Convert machine energy (FFF)',
         # 'Set couch to (0, 100, 0)',
@@ -185,7 +203,7 @@ def main():
         inputs['e'] = 'Export options:'
         types['e'] = 'check'
         options['e'] = filters
-        initial['e'] = [False, False, False, False]
+        initial['e'] = [False, False, False, False, False]
 
     dialog = UserInterface.InputDialog(inputs=inputs,
                                        datatype=types,
@@ -222,7 +240,7 @@ def main():
 
         else:
             # No filters if option 3 selected
-            if filters[3] in response['e']:
+            if filters[4] in response['e']:
                 logging.info('User selected to disable all filters in export')
                 f = None
                 response['e'] = []
@@ -257,6 +275,11 @@ def main():
                 else:
                     ref_point_location = True
                     logging.info('Reference point location preserved in export')
+                if filters[3] in response['e']:
+                    use_srs_coords = True
+                    logging.info('User indicates SRS table coordinates should be used')
+                else:
+                    use_srs_coords = False
                 #
                 # Filters to always be applied
                 # PRDR Dose Rate
@@ -270,7 +293,8 @@ def main():
                 alpha = 7.72  # cm
                 beta = 36.39  # cm
                 gamma = -0.13  # cm
-                if any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
+
+                if use_srs_coords or any(a in beamset.DicomPlanLabel for a in frameless_beamnames) and \
                         'HeadFirstSupine' in beamset.PatientSetup.OfTreatmentSetup.PatientPosition:
                     try:
                         #

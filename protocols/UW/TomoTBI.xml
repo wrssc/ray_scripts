@@ -1,5 +1,10 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
     <name>UW Tomo TBI</name>
+    <AnatomicGroup>Body</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
         <protocol institution="UWHC">XRT_HEAD_NECK_WITH_CONTRAST</protocol>
@@ -15,13 +20,12 @@
         <frequency>Daily</frequency>
         <imaging>Pre-treatment CBCT</imaging>
         <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="T3D" machine="HDA0477">TomoHelical</technique>
     </prescription>
 
     <order>
         <name>TomoTBI_FFS</name>
         <prefix>TBI_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_FFS</name>
                 <type>DX</type>
@@ -30,7 +34,6 @@
             </roi>
             <fractions>4</fractions>
             <technique modality="Photons" technique="TomoHelical" code="FFS" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="FFS" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <commissioned_range>
             <fraction_dose upper="2" lower="1.5"></fraction_dose>
@@ -797,7 +800,7 @@
     <order>
         <name>TomoTBI_HFS</name>
         <prefix>TBI_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_HFS</name>
                 <type>DX</type>
@@ -806,7 +809,6 @@
             </roi>
             <fractions>4</fractions>
             <technique modality="Photons" technique="TomoHelical" code="HFS" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="HFS" machine="HDA0477">TomoHelical</technique>
         </prescription>
         <commissioned_range>
             <fraction_dose upper="2" lower="1.5"></fraction_dose>

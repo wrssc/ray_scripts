@@ -16,9 +16,12 @@
         control point spacing, and sim fiducial point
 
     1.1.0 Added RS10 support and updated to python 3.6
+
     1.2.0 Update to python 3.8 and RS 3.8
+
     2.0.0 Added intregration of the review script in to replace some of the checks performed in
           FinalDose steps
+
 
     Validation Notes:
     Test Patient:
@@ -56,7 +59,7 @@ __maintainer__ = 'Adam Bayliss'
 
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
-__help__ = 'https://github.com/wrrsc/ray_scripts/wiki/Final_Dose'
+__help__ = None
 __copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 
 import logging
@@ -71,8 +74,8 @@ import StructureOperations
 import clr
 import os
 
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../development/ReviewScript'))
-import init_physics_19oct2022
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../helper_scripts'))
+import init_physics_19Jun2023
 
 clr.AddReference("System.Xml")
 import System
@@ -85,20 +88,102 @@ def compute_dose(beamset, dose_algorithm):
         beamset.ComputeDose(ComputeBeamDoses=True,
                             DoseAlgorithm=dose_algorithm,
                             ForceRecompute=False)
-        message = 'Recomputed Dose, finding DSP'
+        _ = 'Recomputed Dose, finding DSP'
     except Exception as e:
-        logging.debug(u'Message is {}'.format(e.Message))
+        logging.debug(f'Message is {e}')
         try:
-            if 'Dose has already been computed with the current parameters' in e.Message:
+            if 'Dose has already been computed with the current parameters' in str(e):
                 message = 'Dose re-computation unnecessary'
-                logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+                logging.info(f'Beamset {beamset.DicomPlanLabel} did not need to be recomputed')
             else:
-                logging.exception(u'{}'.format(e.Message))
-                sys.exit(u'{}'.format(e.Message))
-        except:
-            logging.exception(u'{}'.format(e.Message))
-            sys.exit(u'{}'.format(e.Message))
+                logging.exception(f'{e}')
+                sys.exit(f'{e}')
+        except Exception as m:
+            logging.exception(f'{m}')
+            sys.exit(f'{m}')
         return message
+
+
+def process_rois_for_export(plan, case):
+    """Exports regions of interest (ROIs) based on specified criteria.
+
+    Args:
+        plan (Plan): The RS plan object containing treatment information.
+        case (Case): The RS case object containing patient information.
+    """
+    # Gather ROIs with a clinical goal
+    rois_for_review = [ef.ForRegionOfInterest.Name for ef in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions]
+
+    # Add GTVs, CTVs, and PTVs
+    rois_for_review.extend(StructureOperations.find_types(case, 'Gtv'))
+    rois_for_review.extend(StructureOperations.find_types(case, 'Ctv'))
+    rois_for_review.extend(StructureOperations.find_types(case, 'Ptv'))
+
+    # Define exclusion reg-ex patterns
+    exclude_patterns = [
+        "^OTV", "^sOTV",
+        "^opt", "^sPTV",
+        "_EZ_", "^ring",
+        "_PTV[0-9]", "^Ring",
+        "^Normal", "^OAR_PTV",
+        "^IGRT", "^InnerAir",
+        "z_derived", "Uniform",
+        "^UnderDose", "Air",
+        "FieldOfView", "^PTV[0-9]_Eval", "_junction_",
+        r"_iso\d{2}"
+    ]
+    rois_for_export = []
+    for r in rois_for_review:
+        if not StructureOperations.any_regex_match(exclude_patterns, r):
+            rois_for_export.append(r)
+
+    # Include in export:
+    #   * ROIs containing "block" to the export list
+    #   * any ROIs labeled Fiducials
+    #   * External_PRV10 object used in TBI
+    include_patterns = [r'(?i)\b\w*block\w*\b', r'(?i)\b\w*fiducial\w*\b',
+                        r'(?i)\b\w*External_FB\w*\b', r'(?i)\b\w*External_DIBH\w*\b',
+                        r'(?i)\b\w*External_PRV10\w*\b']
+    for r in case.PatientModel.RegionsOfInterest:
+        if StructureOperations.any_regex_match(include_patterns, r.Name):
+            rois_for_export.append(r.Name)
+
+    # Add in any structures that were used in a prescription due to an RS
+    # bug
+    for tp in case.TreatmentPlans:
+        for bs in tp.BeamSets:
+            try:
+                roi_name = bs.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name
+                if roi_name not in rois_for_export:
+                    rois_for_export.append(roi_name)
+            except Exception as e:
+                logging.debug(f'Reviewing prescription type for {bs.DicomPlanLabel} '
+                              f'prescription type does not have all attributes for '
+                              f'checking structure-dependent prescription '
+                              f'error message: {e}')
+
+    # Add support, external, and bolus structures
+    rois_for_export.extend(StructureOperations.find_types(case, 'Bolus'))
+    rois_for_export.extend(StructureOperations.find_types(case, 'Support'))
+    rois_for_export.extend(StructureOperations.find_types(case, 'External'))
+
+    # Remove duplicates and prepare lists for successful inclusion/exclusion
+    rois_for_export = list(set(rois_for_export))
+    successful_inclusion = []
+    successful_exclusion = []
+
+    # Include or exclude ROIs based on the export list
+    for r in case.PatientModel.RegionsOfInterest:
+        logging.debug(f'addressing roi {r.Name}')
+        if r.Name in rois_for_export:
+            StructureOperations.include_in_export(case, [r.Name])
+            successful_inclusion.append(r.Name)
+        else:
+            StructureOperations.exclude_from_export(case, [r.Name])
+            successful_exclusion.append(r.Name)
+
+    logging.info(f'For Export Structures Included: {successful_inclusion}')
+    logging.debug(f'For Export Structures Excluded: {successful_exclusion}')
 
 
 def final_dose(site=None, technique=None):
@@ -113,8 +198,8 @@ def final_dose(site=None, technique=None):
     # TODO put in more sophisticated InvalidOperationException Catch here.
     try:
         ui.TitleBar.MenuItem['Plan Optimization'].Button_Plan_Optimization.Click()
-    except:
-        logging.debug('Unable to change viewing windows')
+    except Exception as e:
+        logging.debug(f'Unable to change viewing windows: {e}')
 
     # Institution specific plan names and dose grid settings
     fine_grid_names = ['_SBR_']
@@ -130,7 +215,7 @@ def final_dose(site=None, technique=None):
     check_lateral_pa = False
     cps_test = False
     # Set up the workflow steps.
-    steps = []
+    steps = ['Exclude irrelevant rois from export']
     if 'Tomo' not in beamset.DeliveryTechnique and beamset.Modality != 'Electrons':
         if check_lateral_pa:
             steps.append('Check Laterality')
@@ -169,11 +254,14 @@ def final_dose(site=None, technique=None):
                                         help=__help__)
     status.next_step('Checking beam names')
 
+    # Exclude irrelevant rois from export
+    process_rois_for_export(plan, case)
+
     if check_lateral_pa:
         # Check the lateral PA for clearance
         for b in beamset.Beams:
             change_gantry = BeamOperations.check_pa(plan=plan, beam=b)
-            logging.debug('Recommended change for {} is {}'.format(b.Name, change_gantry))
+            logging.debug(f'Recommended change for {b.Name} is {change_gantry}')
         # BeamOperations.check_clearance(beamset=beamset)
         status.next_step('Checked field orientations')
 
@@ -182,7 +270,7 @@ def final_dose(site=None, technique=None):
         BeamOperations.rename_beams(site_name=site, input_technique=technique)
         status.next_step('Renamed Beams, checking external integrity')
 
-    init_physics_19oct2022.main(physics_review=False)
+    init_physics_19Jun2023.main(physics_review=False)
     # EXTERNAL OVERLAP WITH COUCH OR SUPPORTS
     if external_test:
         external_error = True
@@ -226,12 +314,10 @@ def final_dose(site=None, technique=None):
                 plan.SetDefaultDoseGrid(
                     VoxelSize={'x': coarse_grid_size, 'y': coarse_grid_size, 'z': coarse_grid_size})
                 status.next_step('TomoTherapy couch corrected for lateral shift')
-            except:
-                tomo_couch_error = True
-                status.next_step('TomoTherapy couch could not be corrected, likely due to approved structures.')
+            except Exception as e:
+                status.next_step(f'TomoTherapy couch could not be corrected, likely due to approved structures. {e}')
 
         else:
-            tomo_couch_error = False
             status.next_step('TomoTherapy couch checked for correct lateral positioning')
 
     # SIMFIDUCIAL TEST
@@ -241,7 +327,7 @@ def final_dose(site=None, technique=None):
         while fiducial_error:
             error = PlanQualityAssuranceTests.simfiducial_test(case=case, exam=exam, poi=fiducial_point)
             if len(error) != 0:
-                connect.await_user_input('Error in localization point: ' + '{}\n'.format(error))
+                connect.await_user_input('Error in localization point: {error}\n')
             else:
                 fiducial_error = False
         status.next_step('Reviewed SimFiducials')
@@ -255,11 +341,11 @@ def final_dose(site=None, technique=None):
                                                                     plan_string=coarse_grid_names,
                                                                     nominal_grid_size=coarse_grid_size)
         if len(fine_grid_error) != 0:
-            logging.warning('Dose grid check returned an error {}'.format(fine_grid_error))
+            logging.warning(f'Dose grid check returned an error {fine_grid_error}')
             plan.SetDefaultDoseGrid(VoxelSize={'x': fine_grid_size, 'y': fine_grid_size, 'z': fine_grid_size})
             logging.info('Grid size was changed for SBRT-type plan')
         elif len(coarse_grid_error) != 0:
-            logging.warning('Dose grid check returned an error {}'.format(coarse_grid_error))
+            logging.warning(f'Dose grid check returned an error {coarse_grid_error}')
             plan.SetDefaultDoseGrid(VoxelSize={'x': coarse_grid_size, 'y': coarse_grid_size, 'z': coarse_grid_size})
             logging.info('Grid size was changed for Normal-type plan')
         status.next_step('Reviewed Dose Grid')
@@ -277,14 +363,6 @@ def final_dose(site=None, technique=None):
             # TODO: Better exception handling here.
             message = compute_dose(beamset, dose_algorithm=dose_algorithm)
             status.next_step(message)
-            # try:
-            #    beamset.ComputeDose(ComputeBeamDoses=True,
-            #                        DoseAlgorithm=dose_algorithm,
-            #                        ForceRecompute=False)
-            #    status.next_step('Recomputed Dose, finding DSP')
-            # except Exception:
-            #    status.next_step('Dose recomputation unnecessary, finding DSP')
-            #    logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
             # Set the DSP for the plan and recompute dose to force an update of the DSP
             BeamOperations.set_dsp(plan=plan,
                                    beam_set=beamset)
@@ -294,7 +372,7 @@ def final_dose(site=None, technique=None):
             status.next_step('DSP set. Script complete')
         else:
             # Compute dose in case it hasn't been done yet
-            message = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
+            _ = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
 
             # Round MU
             beamset.SetAutoScaleToPrimaryPrescription(AutoScale=False)
@@ -307,7 +385,7 @@ def final_dose(site=None, technique=None):
             status.next_step('Jaws Rounded. Setting DSP')
 
             # Recompute dose if needed
-            message = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
+            _ = compute_dose(beamset=beamset, dose_algorithm=dose_algorithm)
 
             # Set the DSP for the plan
             BeamOperations.set_dsp(plan=plan, beam_set=beamset)
@@ -319,7 +397,7 @@ def final_dose(site=None, technique=None):
             try:
                 beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=True)
             except Exception as e:
-                logging.debug(' error type is {}, with e = {}'.format(type(e), e))
+                logging.debug(f' error type is {type(e)}, with e = {e}')
             status.next_step('Script Complete')
 
     if beamset.Modality == 'Electrons':
@@ -331,9 +409,9 @@ def final_dose(site=None, technique=None):
                 beamset.AccurateDoseAlgorithm.MonteCarloHistoriesPerAreaFluence = 10000
                 status.next_step('Computing dose with small number of histories')
                 beamset.ComputeDose(ComputeBeamDoses=True, DoseAlgorithm=dose_algorithm, ForceRecompute=False)
-        except Exception:
+        except Exception as e:
             status.next_step('Dose was clinical, no need for recompute')
-            logging.info('Beamset {} did not need to be recomputed'.format(beamset.DicomPlanLabel))
+            logging.info(f'Beamset {beamset.DicomPlanLabel} did not need to be recomputed: {e}')
         # Set the DSP and TODO: add rx surface
         BeamOperations.set_dsp(plan=plan, beam_set=beamset, percent_rx=98., method='Centroid')
         status.next_step('DSP set, checking statistics')

@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Brain SRS</name>
+    <AnatomicGroup>Head</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_SRS_HEAD</protocol>
         <protocol institution="UWHC">XRT_SRS_HEAD_WITH_CONTRAST</protocol>
@@ -27,6 +28,108 @@
     <order>
         <name>Brain SRS</name>
         <prefix>Brai_</prefix>
+         <prescription number="0" sequence="Primary">
+             <roi>
+                 <name>PTV1</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV2</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV3</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV4</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV5</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV6</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV7</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV8</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV9</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV10</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV11</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV12</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV13</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV14</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+             <roi>
+                 <name>PTV15</name>
+                 <type>DX</type>
+                 <volume units="%">98</volume>
+                 <dose units="Gy" idl="100">21.0</dose>
+             </roi>
+            <roi>
+                <name>PTV16</name>
+                <type>DX</type>
+                <volume units="%">98</volume>
+                <dose units="Gy" idl="100">21.0</dose>
+            </roi>
+            <fractions>1</fractions>
+            <motion></motion>
+            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+        </prescription>
     </order>
     <goals>
         <roi>

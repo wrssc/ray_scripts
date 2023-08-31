@@ -1,38 +1,38 @@
 """ Perform structure operations on Raystation plans
 
-	exclude_from_export
-	toggles the rois export status
+exclude_from_export
+toggles the rois export status
 
-	check_roi
-	checks if an ROI has contours
+check_roi
+checks if an ROI has contours
 
-	exists_roi
-	checks if ROI is present in the contour list
+exists_roi
+checks if ROI is present in the contour list
 
-	max_roi
-	checks for maximum extent of an roi
+max_roi
+checks for maximum extent of an roi
 
-    visualize_none
-    turns all contour visualization off
+visualize_none
+turns all contour visualization off
 
-	Versions:
-	01.00.00 Original submission
+Versions:
+01.00.00 Original submission
 
-	Known Issues:
+Known Issues:
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by the
-	Free Software Foundation, either version 3 of the License, or (at your
-	option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your
+option) any later version.
 
-	This program is distributed in the hope that it will be useful, but
-	WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-	or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
-	for more details.
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+for more details.
 
-	You should have received a copy of the GNU General Public License along
-	with this program. If not, see <http://www.gnu.org/licenses/>.
-	"""
+You should have received a copy of the GNU General Public License along
+with this program. If not, see <http://www.gnu.org/licenses/>.
+"""
 
 __author__ = "Adam Bayliss"
 __contact__ = "rabayliss@wisc.edu"
@@ -53,20 +53,151 @@ __help__ = ""
 __copyright__ = "Copyright (C) 2018, University of Wisconsin Board of Regents"
 
 import logging
-import os
-import sys
 import connect
 import re
 import numpy as np
 import pandas as pd
-import xml
+import xml.etree.ElementTree as Et
 import clr
 import System.Drawing
+import sys
+from os import path, listdir
+
+rab_git = "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts"
+sys.path.append(
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW")
+sys.path.append(
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW"
+    "\\AutoPlans")
+sys.path.append(
+    "U:\\UWHealth\\RadOnc\\ShareAll\\Users\\Bayliss\\GitSync\\DHO_RayScripts\\protocols\\UW"
+    "\\beamset_templates")
+
+PROTOCOL_FOLDER = path.join(rab_git, 'protocols')
+INSTITUTION_FOLDER = r'UW'
+BEAMSET_FOLDER = r'beamset_templates'
+PATH_BEAMSETS = path.join(PROTOCOL_FOLDER, INSTITUTION_FOLDER, BEAMSET_FOLDER)
 
 clr.AddReference("System.Drawing")
 
 from GeneralOperations import logcrit as logcrit
 import UserInterface
+
+# Commonly underdoses structures
+# Plan structures matched in this list will be selected for checkbox elements below
+UNDERDOSE_STRUCTURES = [
+    "GreatVes",
+    "A_Aorta",
+    "Bag_Bowel",
+    "Bowel_Small",
+    "Bowel_Large",
+    "BrachialPlex_L_PRV05",
+    "BrachialPlex_L",
+    "BrachialPlex_R",
+    "BrachialPlex_R_PRV05",
+    "Brainstem",
+    "Bronchus",
+    "Bronchus_L",
+    "Bronchus_R",
+    "CaudaEquina",
+    "Cochlea_L",
+    "Cochlea_R",
+    "Duodenum",
+    "Esophagus",
+    "Genitalia",
+    "Heart",
+    "Eye_L",
+    "Eye_R",
+    "Hippocampus_L",
+    "Hippocampus_L_PRV05",
+    "Hippocampus_R",
+    "Hippocampus_R_PRV05",
+    "Larynx",
+    "Lens_R",
+    "Lens_L",
+    "Bone_Mandible",
+    "OpticChiasm",
+    "OpticNrv_L",
+    "OpticNrv_R",
+    "Rectum",
+    "Retina_L",
+    "Retina_R",
+    "SpinalCord",
+    "SpinalCord_PRV02",
+    "Trachea",
+    "V_Pulmonary",
+]
+
+# Common uniformly dosed areas
+# Plan structures matched in this list will be selected for checkbox elements below
+UNIFORM_STRUCTURES = [
+    "A_Aorta_PRV05",
+    "Bag_Bowel",
+    "Bladder",
+    "Bowel_Small",
+    "Bowel_Large",
+    "Brainstem",
+    "Brainstem_PRV03",
+    "Bronchus_PRV05",
+    "Bronchus_L_PRV05",
+    "Bronchus_R_PRV05",
+    "CaudaEquina_PRV05",
+    "Cavity_Oral",
+    "Cochlea_L_PRV05",
+    "Cochlea_R_PRV05",
+    "Esophagus",
+    "Esophagus_PRV05",
+    "Duodenum_PRV05",
+    "Heart",
+    "Larynx",
+    "Lens_L_PRV05",
+    "Lens_R_PRV05",
+    "Lips",
+    "Mandible",
+    "Musc_Constrict",
+    "OpticChiasm_PRV03",
+    "OpticNerv_L_PRV03",
+    "OpticNerv_R_PRV03",
+    "Rectum",
+    "SpinalCord",
+    "SpinalCord_PRV05",
+    "Stomach",
+    "Trachea",
+    "V_Pulmonary_PRV05",
+    "Vulva",
+]
+
+# Regex expressions for target
+TARGET_EXPRESSIONS = ["^PTV", "^ITV", "^GTV", "^CTV"]
+# Regex expressions for planning structs
+PLANNING_EXPRESSIONS = [
+    "^OTV",
+    "^sOTV",
+    "^opt",
+    "^sPTV",
+    "_EZ_",
+    "^ring",
+    "_PTV[0-9]",
+    "^Ring",
+    "^Normal",
+    "^OAR_PTV",
+    "^IGRT",
+    "^AllPTV",
+    "^InnerAir",
+    "z_derived",
+    "Uniform",
+    "^UnderDose",
+    "Air",
+    "FieldOfView",
+    "All_PTVs"
+]
+
+
+def any_regex_match(regex_list, text):
+    for pattern in regex_list:
+        if re.search(pattern, text):
+            return True
+    return False
 
 
 def exclude_from_export(case, rois):
@@ -77,12 +208,15 @@ def exclude_from_export(case, rois):
     if type(rois) is not list:
         rois = [rois]
 
-    try:
-        case.PatientModel.ToggleExcludeFromExport(
-            ExcludeFromExport=True, RegionOfInterests=rois, PointsOfInterests=[]
-        )
-    except Exception:
-        logging.warning("Unable to exclude {} from export".format(rois))
+    for r in rois:
+        if not case.PatientModel.RegionsOfInterest[r].ExcludeFromExport:
+            try:
+                case.PatientModel.ToggleExcludeFromExport(
+                    ExcludeFromExport=True, RegionOfInterests=[r],
+                    PointsOfInterests=[]
+                )
+            except Exception as e:
+                logging.warning(f"Unable to exclude {rois} from export: {e}")
 
 
 def include_in_export(case, rois):
@@ -98,22 +232,14 @@ def include_in_export(case, rois):
         defined_rois.append(r.Name)
 
     for r in defined_rois:
-        if r in rois:
+        if r in rois and case.PatientModel.RegionsOfInterest[r].ExcludeFromExport:
             try:
                 case.PatientModel.ToggleExcludeFromExport(
-                    ExcludeFromExport=False, RegionOfInterests=r, PointsOfInterests=[]
+                    ExcludeFromExport=False, RegionOfInterests=[r], PointsOfInterests=[]
                 )
 
-            except Exception:
-                logging.warning("Unable to include {} in export".format(rois))
-        else:
-            try:
-                case.PatientModel.ToggleExcludeFromExport(
-                    ExcludeFromExport=True, RegionOfInterests=r, PointsOfInterests=[]
-                )
-
-            except Exception:
-                logging.warning("Unable to exclude {} from export".format(rois))
+            except Exception as e:
+                logging.warning(f"Unable to include {r} in export: {e}")
 
 
 def exists_roi(case, rois, return_exists=False):
@@ -165,7 +291,7 @@ def exists_poi(case, pois):
             while i < len(defined_pois):
                 if p == defined_pois[i]:
                     logging.debug(
-                        "{} is an exact match to {}".format(p, defined_pois[i])
+                        f"{p} is an exact match to {defined_pois[i]}"
                     )
                     exact_match = True
                 i += 1
@@ -209,11 +335,11 @@ def has_coordinates_poi(case, exam, poi):
         if e_message in str(e):
             return False
         else:
-            logging.debug('Unhandled exception: {}'.format(e))
+            logging.debug(f'Unhandled exception: {e}')
             sys.exit("Script cancelled")
 
 
-def find_localization_poi(case, exam):
+def find_localization_poi(case):
     # Find the localization point if it exists
     # return poi object or none
     pois = case.PatientModel.PointsOfInterest
@@ -273,7 +399,7 @@ def create_poi(case, exam, coords=None, name=None, color='Green', diameter=1, rs
         )
         return None
     except Exception as e:
-        logging.debug('Error creating point {}'.format(e))
+        logging.debug(f'Error creating point {e}')
         error_message = [str(e)]
         return error_message
 
@@ -296,8 +422,7 @@ def check_roi(case, exam, rois):
         for r in rois:
             if (
                     case.PatientModel.StructureSets[exam.Name]
-                            .RoiGeometries[r]
-                            .HasContours()
+                        .RoiGeometries[r].HasContours()
             ):
                 roi_passes.append(True)
             else:
@@ -326,7 +451,8 @@ def check_roi_imported(case, exam, rois=None):
             rois.append(r.OfRoi.Name)
     import_status = {'Imported': [], 'RayStation': []}
     for r in rois:
-        if case.PatientModel.StructureSets[exam.Name].RoiGeometries[r].DicomImportHistory is None:
+        if case.PatientModel.StructureSets[exam.Name] \
+                .RoiGeometries[r].DicomImportHistory is None:
             import_status['RayStation'].append(r)
         else:
             import_status['Imported'].append(r)
@@ -348,19 +474,19 @@ def max_coordinates(case, exam, rois):
 
     if any(exists_roi(case, rois)):
         logging.warning(
-            "Maximum Coordinates of ROI: {}".format(rois)
+            f"Maximum Coordinates of ROI: {rois}"
             + "could NOT be determined. ROI does not exist"
         )
         return None
 
-    logging.debug("Determining maximum coordinates of ROI: {}".format(rois))
+    logging.debug(f"Determining maximum coordinates of ROI: {rois}")
 
     ret = (
         case.PatientModel.StructureSets[exam.Name]
-            .RoiGeometries[rois]
-            .SetRepresentation(Representation="Contours")
+        .RoiGeometries[rois]
+        .SetRepresentation(Representation="Contours")
     )
-    logging.debug("ret of operation is {}".format(ret))
+    logging.debug(f"ret of operation is {ret}")
 
     max_roi = {}
 
@@ -371,8 +497,8 @@ def max_coordinates(case, exam, rois):
 
         contours = (
             case.PatientModel.StructureSets[exam]
-                .RoiGeometries[rois]
-                .PrimaryShape.Contours
+            .RoiGeometries[rois]
+            .PrimaryShape.Contours
         )
 
         for contour in contours:
@@ -409,7 +535,8 @@ def change_to_263_color(case, roi_name, df_rois=None):
     """
     case: rs case
     roi_name: str: Name of ROI
-    df_rois: Pandas dataframe defined with elements from the iter_standard_roi function
+    df_rois: Pandas dataframe defined with elements from the
+    iter_standard_roi function
     """
     if df_rois is None:
         files = [
@@ -426,7 +553,7 @@ def change_to_263_color(case, roi_name, df_rois=None):
                     institution_folder,
                 )
             )
-        tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+        tree = Et.parse(os.path.join(paths[0], files[0][2]))
         rois_dict = iter_standard_rois(tree)
         df_rois = pd.DataFrame(rois_dict["rois"])
 
@@ -436,7 +563,7 @@ def change_to_263_color(case, roi_name, df_rois=None):
         msg = change_roi_color(case=case, roi_name=roi_name, rgb=e_rgb)
         return msg
     else:
-        msg = "Could not find {} in TG-263 list".format(roi_name)
+        msg = f"Could not find {roi_name} in TG-263 list"
 
 
 def change_roi_color(case, roi_name, rgb):
@@ -448,10 +575,11 @@ def change_roi_color(case, roi_name, rgb):
     :return error_message: None for success, or error message for error
     """
     if structure_approved(case=case, roi_name=roi_name):
-        error_message = "Structure {} is approved, cannot change color".format(roi_name)
+        error_message = f"Structure {roi_name} is approved, cannot change color"
         return error_message
     if not all(exists_roi(case=case, rois=roi_name)):
-        error_message = "Structure {} not found on case {}".format(roi_name, case)
+        error_message = f"Structure {roi_name} could not be changed to " \
+                        f"{rgb} because it was not found in {case}"
         return error_message
     # Convert rgb list to system color
     sys_rgb = define_sys_color(rgb)
@@ -461,9 +589,9 @@ def change_roi_color(case, roi_name, rgb):
             rs_roi.Color = sys_rgb
             error_message = None
         else:
-            error_message = "Color for {} was already {}".format(rs_roi.Name, rgb)
+            error_message = f'Color for {rs_roi.Name} was already {rgb}'
     except:
-        error_message = "Unable to change color on roi {}".format(roi_name)
+        error_message = f'Unable to change color on roi {roi_name}'
     return error_message
 
 
@@ -498,37 +626,34 @@ def change_roi_type(case, roi_name, roi_type):
     :return error_message: None for success and error message for error
     """
     error_message = []
-    type_dict = {}
-    type_dict["Other"] = ["Fixation", "Support"]
-    type_dict["OrganAtRisk"] = ["Avoidance", "Organ"]
-    type_dict["Target"] = ["Ctv", "Gtv", "Ptv"]
-    type_dict["Unknown"] = [
-        "BrachyAccessory",
-        "BrachyChannel",
-        "BrachyChannelShield",
-        "BrachySourceApplicator",
-        "Cavity",
-        "ContrastAgent",
-        "Control",
-        "DoseRegion",
-        "FieldOfView",
-        "IrradiatedVolume",
-        "Marker",
-        "Registration",
-        "TreatedVolume",
-        "Undefined",
-    ]
+    type_dict = {"Other": ["Fixation", "Support"], "OrganAtRisk": ["Avoidance", "Organ"],
+                 "Target": ["Ctv", "Gtv", "Ptv"], "Unknown": [
+            "BrachyAccessory",
+            "BrachyChannel",
+            "BrachyChannelShield",
+            "BrachySourceApplicator",
+            "Cavity",
+            "ContrastAgent",
+            "Control",
+            "DoseRegion",
+            "FieldOfView",
+            "IrradiatedVolume",
+            "Marker",
+            "Registration",
+            "TreatedVolume",
+            "Undefined",
+        ]}
     # without a specified type the structure will be set to "Unknown"
     if roi_type == 'None':
-        roi_type = "Undefined"
+        roi_type = 'Undefined'
 
     if structure_approved(case=case, roi_name=roi_name):
         error_message.append(
-            "Structure {} is approved, cannot change type {}".format(roi_name, roi_type)
+            f'Structure {roi_name} is approved, cannot change type {roi_type}'
         )
         return error_message
     if not all(exists_roi(case=case, rois=roi_name)):
-        error_message.append("Structure {} not found on case {}".format(roi_name, case))
+        error_message.append(f'Structure {roi_name} not found on case {case}')
         return error_message
     rs_roi = case.PatientModel.RegionsOfInterest[roi_name]
     current_dicom_type = rs_roi.Type
@@ -536,51 +661,49 @@ def change_roi_type(case, roi_name, roi_type):
     if roi_type == "External":
         if current_dicom_type == "External":
             error_message.append(
-                "Structure {} is already type {}".format(roi_name, roi_type)
+                f'Structure {roi_name} is already type {roi_type}'
             )
         else:
             try:
                 rs_roi.SetAsExternal()
             except:
                 error_message.append(
-                    "External error. Could not change {} to type {}".format(
-                        roi_name, roi_type
-                    )
+                    f'External error. Could not change {roi_name} ' +
+                    f'to type {roi_type}'
                 )
         return error_message
     # Set the dicom type if necessary
     if current_dicom_type == roi_type:
         error_message.append(
-            "Structure {} is already type {}".format(roi_name, roi_type)
+            f'Structure {roi_name} is already type {roi_type}'
         )
     else:
         try:
             rs_roi.Type = roi_type
         except:
             error_message.append(
-                "Unable to change type on roi {} from Dicom type {} to type {}".format(
-                    roi_name, current_dicom_type, roi_type
-                )
+                f'Unable to change type on roi {roi_name} from'
+                f' Dicom type {current_dicom_type} to '
+                f'type {roi_type}'
             )
     # Set the organ type if necessary
     for k, v in type_dict.items():
         if not roi_type:
-            error_message.append('Could not change organ type of {} to {}'.format(roi_name, roi_type))
+            error_message.append(
+                f'Could not change organ type of {roi_name} to {roi_type}')
         elif any(roi_type in types for types in v):
             if current_organ_type == k:
                 error_message.append(
-                    "Structure {} is already organ type {}".format(
-                        roi_name, current_organ_type
-                    )
+                    f"Structure {roi_name} is already "
+                    f"organ type {current_organ_type}"
                 )
             else:
                 try:
                     rs_roi.OrganData.OrganType = k
                 except:
                     error_message.append(
-                        "Type error. Could not change {} to type {}".format(
-                            roi_name, roi_type
-                        )
+                        f"Type error. Could not change {roi_name}"
+                        f" to type {roi_type}"
                     )
     return error_message
 
@@ -616,8 +739,8 @@ def find_targets(case):
     # Add user threat: empty PTV list.
     if not plan_targets:
         connect.await_user_input(
-            "The target list is empty."
-            + " Please apply type PTV to the targets and continue."
+            'The target list is empty.'
+            + ' Please apply type PTV to the targets and continue.'
         )
         for r in case.PatientModel.RegionsOfInterest:
             if r.OrganData.OrganType == "Target":
@@ -688,17 +811,17 @@ def exams_containing_roi(case, structure_name, roi_list=None, exam=None):
     if any(roi.OfRoi.Name == structure_name for roi in roi_list):
         for e in exam_list:
             logging.debug(
-                "Exam is {} with type {} for structure {} with type {}".format(
-                    e, type(e), structure_name, type(structure_name)
-                )
+                f'Exam is {e} with type {type(e)} '
+                f'for structure {structure_name} with '
+                f'type {type(structure_name)}'
             )
             ss = case.PatientModel.StructureSets[e]
             rg = ss.RoiGeometries[structure_name]
-            logging.debug("type ss {} and rg {}".format(ss, rg))
+            logging.debug(f"type ss {ss} and rg {rg}")
             e_has_contours = (
                 case.PatientModel.StructureSets[e]
-                    .RoiGeometries[structure_name]
-                    .HasContours()
+                .RoiGeometries[structure_name]
+                .HasContours()
             )
             if e_has_contours:
                 roi_found.append(e)
@@ -736,8 +859,8 @@ def check_structure_exists(
         if exam is not None:
             structure_has_contours_on_exam = (
                 case.PatientModel.StructureSets[exam.Name]
-                    .RoiGeometries[structure_name]
-                    .HasContours()
+                .RoiGeometries[structure_name]
+                .HasContours()
             )
         else:
             structure_has_contours_on_exam = False
@@ -747,33 +870,31 @@ def check_structure_exists(
                 case.PatientModel.StructureSets[exam.Name].RoiGeometries[
                     structure_name
                 ].DeleteGeometry()
-                logging.warning("{} found - deleting geometry".format(structure_name))
+                logging.warning(f"{structure_name} found - deleting geometry")
                 return False
             else:
                 case.PatientModel.RegionsOfInterest[structure_name].DeleteRoi()
-                logging.warning("{} found - deleting and creating".format(structure_name))
+                logging.warning(f"{structure_name} found - "
+                                f"deleting and creating")
                 return True
         elif option == "Check":
             if exam is not None and structure_has_contours_on_exam:
-                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
                 return True
             elif exam is not None:
-                # logging.info("Structure {} has no contours on exam {}".format(structure_name, exam.Name))
                 return False
             else:
-                # logging.info("Structure {} exists in this Case {}".format(structure_name, case.Name))
                 return True
         elif option == "Wait":
             if structure_has_contours_on_exam:
-                # logging.info("Structure {} has contours on exam {}".format(structure_name, exam.Name))
                 return True
             else:
-                logging.info("Structure {} not found on exam {}, prompted user to create"
-                             .format(structure_name, exam.Name))
-                connect.await_user_input("Create the structure {} and continue script."
-                                         .format(structure_name))
+                logging.info(
+                    f"Structure {structure_name} not found on "
+                    f"exam {exam.Name}, prompted user to create")
+                connect.await_user_input(
+                    f"Create the structure {structure_name} "
+                    f"and continue script.")
     else:
-        logging.debug("{} not found".format(structure_name))
         return False
 
 
@@ -808,9 +929,7 @@ def check_overlap(patient, case, exam, structure, rois):
             rois_verified.append(rois[roi_index])
         roi_index += 1
     logging.debug(
-        "Found the following in evaluation of overlap with {}: ".format(
-            structure, rois_verified
-        )
+        f"Found the following in evaluation of overlap with {structure}: "
     )
 
     overlap_name = "z_overlap"
@@ -842,13 +961,13 @@ def check_overlap(patient, case, exam, structure, rois):
         if t.HasContours():
             vol = t.GetRoiVolume()
         else:
-            logging.info("{} has no contours, index undefined".format(overlap_name))
+            logging.info(f"{overlap_name} has no contours, index undefined")
     except:
         logging.warning(
-            "Error getting volume for {}, volume => 0.0".format(overlap_name)
+            f"Error getting volume for {overlap_name}, volume => 0.0"
         )
 
-    logging.debug("Calculated volume of overlap of {} is {}".format(overlap_name, vol))
+    logging.debug(f"Calculated volume of overlap of {overlap_name} is {vol}")
     case.PatientModel.RegionsOfInterest[overlap_name].DeleteRoi()
     return vol
 
@@ -870,7 +989,8 @@ def compute_comparison_statistics(
          'Precision': float: ROIA intersect ROIB | / | ROIA union ROIB |
          'Sensitivity': float: 1 - | ROIB not ROIA | / | ROIA |
          'Specificity': float: | ROIA intersect ROIB | / | ROIA |
-         'MeanDistanceToAgreement': float: Mean distance to agreement computed from average of minimum voxel distances
+         'MeanDistanceToAgreement': float: Mean distance to agreement computed from average of
+         minimum voxel distances
          'MaxDistanceToAgreement': float: Maximum of minimum distances between voxels (Hausdorff)
          }
     """
@@ -892,9 +1012,8 @@ def compute_comparison_statistics(
             rois_verified_b.append(rois_b[roi_index])
             roi_index += 1
     logging.debug(
-        "Found the following in evaluation of overlap with {} and {} ".format(
-            rois_verified_a, rois_verified_b
-        )
+        f"Found the following in evaluation of overlap with "
+        f"{rois_verified_a} and {rois_verified_b} "
     )
 
     a_union_name = "z_a_union"
@@ -958,27 +1077,6 @@ def compute_comparison_statistics(
     if len(rois_verified_b) > 1:
         case.PatientModel.RegionsOfInterest[b_union_name].DeleteRoi()
 
-    # vol = None
-    # try:
-    #     t = case.PatientModel.StructureSets[exam.Name].RoiGeometries[overlap_name]
-    #     if t.HasContours():
-    #         vol = t.GetRoiVolume()
-    #     else:
-    #         logging.info("{} has no contours, index undefined".format(overlap_name))
-    # except:
-    #     logging.warning("Error getting volume for {}, volume => 0.0".format(overlap_name))
-
-    # logging.debug("Calculated volume of overlap of {} is {}".format(overlap_name, vol))
-    # for a in rois_verified_a:
-    #     for b in rois_verified_b:
-    #         stats = case.PatientModel.StructureSets[exam.Name].ComparisonOfRoiGeometries(RoiA=a,
-    #                                                                                      RoiB=b,
-    #                                                                                      ComputeDistanceToAgreementMeasures=compute_distances
-    #                                                                                  )
-    # t2 = datetime.datetime.now()
-    # delta1 = t1 - t0
-    # delta2 = t2 - t1
-    # logging.debug('Time contour create and delete {}, Time analyze {}'.format(delta1.total_seconds(), delta2.total_seconds()))
     return stats
 
 
@@ -1153,35 +1251,12 @@ def filter_rois(plan_rois, skip_targets=True, skip_planning=True):
     :param skip_planning:
     :return: filtered_rois
     """
-    # Regex expressions for targets
-    target_expressions = ["^PTV", "^ITV", "^GTV", "^CTV"]
-    # Regex expressions for planning structs
-    planning_expressions = [
-        "^OTV",
-        "^sOTV",
-        "^opt",
-        "^sPTV",
-        "_EZ_",
-        "^ring",
-        "_PTV[0-9]",
-        "^Ring",
-        "^Normal",
-        "^OAR_PTV",
-        "^IGRT",
-        "^AllPTV",
-        "^InnerAir",
-        "z_derived",
-        "Uniform",
-        "^UnderDose",
-        "Air",
-        "FieldOfView",
-        "All_PTVs"
-    ]
+
     regex_list = []
     if skip_targets:
-        regex_list.extend(target_expressions)
+        regex_list.extend(TARGET_EXPRESSIONS)
     if skip_planning:
-        regex_list.extend(planning_expressions)
+        regex_list.extend(PLANNING_EXPRESSIONS)
     # Given the above arguments, filter the list using the regex and return the result
     filtered_rois = []
     for r in plan_rois:
@@ -1194,100 +1269,139 @@ def filter_rois(plan_rois, skip_targets=True, skip_planning=True):
     return filtered_rois
 
 
-def match_dialog(matches, elements, df_rois=None):
+def find_gui_match(name, elements, df_rois=None):
     """
-    Dialog for matching taking the matches found in the search and
-    pairing them with protocol elements
-    :param matches: matched elements in the form {PlanROI: <Matched_Protocol ROI>}
-    :param elements: Elementtree list of roi elements
-    :return: dialog_result:
-                            {'CopyOfReplace':<'Copy' or 'Replace'>,
-                            PlanROI: <Matching ROI subelement>, or
-                            a string indicating a user-typed input}
-    """
-    # Make dialog inputs
-    inputs = {}
-    initial = {}
-    datatype = {}
-    options = {}
-    # First element
-    k_copy = "0"
-    inputs[
-        k_copy
-    ] = "Structures that cannot be renamed should have suffix, e.g. (_R or _A):"
-    initial[k_copy] = "_R"
-    datatype[k_copy] = "text"
-    for k, v in matches.items():
-        inputs[k] = k
-        datatype[k] = "combo"
-        options[k] = [x[1] for x in v]
-        initial[k] = v[0][1]
+    Parse the roi dataframe for the name match
+    :param elements: raw values read in from xml
+    :param name: name of roi
+    :param df_rois: dataframe read in from TG-263.xml
+    :return: None if no value was submitted in name [Unmatched]
 
-    matchy_dialog = UserInterface.InputDialog(
-        inputs=inputs,
-        title="Matchy Matchy",
-        datatype=datatype,
-        initial=initial,
-        options=options,
-        required=[k_copy],
+    """
+    if not name:
+        return None
+    found_index = None
+    # First try to match to a dataframe element
+    if df_rois is not None:
+        df_e = df_rois[df_rois.name == name]
+        # If more than one result is returned by the dataframe search report an error
+        if len(df_e) > 1:
+            logging.warning(f"Too many matching {name}. That makes me a sad panda. :(")
+        elif df_e.empty:
+            logging.debug(f"{name} was not found in the protocol list")
+        else:
+            return df_e
+    # Try matching to the xml elements directly
+    if found_index is None:
+        for e_index, standard_rois in enumerate(elements):
+            if standard_rois.find("name").text == name:
+                return elements[found_index]
+    return name
+
+
+def match_gui(matches, elements, df_rois=None):
+    dialog_name = 'Structure Matching and Derived ROI Generation'
+    frames = ['-FRAME SUFFIX-', '-FRAME ALT SCHEME-', '-FRAME MATCHING-']
+    color_schemes = ['CLINICAL', 'SRS MultiTarget']
+    match_row = []
+    for k, v in matches.items():
+        attr = {'values': [x[1] for x in v],
+                'size': (30, 1),
+                'default_value': v[0][1],
+                'key': k}
+        match_row.append([sg.Text(k), sg.Combo(**attr)])
+    sg.ChangeLookAndFeel('DarkBlue1')
+    top = [
+        [sg.Text(
+            dialog_name,
+            size=(60, 1),
+            justification='center',
+            font=("Helvetica", 16),
+            relief=sg.RELIEF_RIDGE
+        )],
+
+        [
+            sg.Text(f'Match structures to TG-263 Formalism')
+        ],
+        [
+            sg.Frame(
+                layout=[
+                    [
+                        sg.Combo(
+                            color_schemes,
+                            default_value=color_schemes[0],
+                            size=(30, 1),
+                            key="-COLOR SCHEME-"
+                        )
+                    ],
+                ],
+                title='Color Selection',
+                relief=sg.RELIEF_SUNKEN,
+                tooltip='Select a color template',
+                key=frames[1]
+            ),
+        ],
+        [sg.Frame(
+            layout=[
+                [sg.Text(
+                    'Suffix to be used for any structure that cannot be renamed, e.g. _A for '
+                    'adaptive')],
+                [sg.InputText('_A', key='-SUFFIX-')]
+            ],
+            title='Existing Structures',
+            relief=sg.RELIEF_SUNKEN,
+            visible=True,
+            key=frames[0]
+        )],
+        [sg.Frame(
+            layout=match_row,
+            title='Unmatched Structures',
+            relief=sg.RELIEF_SUNKEN,
+            tooltip='Match each structure or type in correct name',
+            visible=True,
+            key=frames[2]
+        )],
+    ]
+    bottom = [
+        [
+            sg.Submit(tooltip='Click to submit this window'),
+            sg.Cancel()
+        ]
+    ]
+    layout = [[sg.Column(top)], [sg.Column(bottom)]]
+
+    window = sg.Window(
+        'Matchy Matchy',
+        layout,
+        default_element_size=(40, 1),
+        grab_anywhere=False
     )
-    # Launch the dialog
-    response = matchy_dialog.show()
-    if response == {}:
-        logging.info("create_objective cancelled by user")
-        sys.exit("create_objective cancelled by user")
-    # Parse the responses
+
+    submitted = False  # Flag to track if the Submit button was clicked
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cancel":
+            logging.info("Matching dialog cancelled by user")
+            sys.exit("Matching Dialog Cancelled")
+        elif event == "Submit":
+            submitted = True
+            suffix = values['-SUFFIX-']
+            values.pop('-SUFFIX-')
+            color_scheme = values['-COLOR SCHEME-']
+            values.pop('-COLOR SCHEME-')
+            responses = {k: values[k] for k in matches.keys()}
+            break
+    window.close()
+
+    # Check if the Submit button was clicked and if any changes were made
+    if not submitted and not any(responses.values()):
+        logging.info("Matching dialog cancelled by user")
+        raise RuntimeError("Matching Dialog Cancelled")
     dialog_result = {}
-    # Figure out if we are copying or renaming.
-    dialog_result["Suffix"] = response[k_copy]
-    df_matches = {}
-    for r, m in response.items():
-        # Manage responses
-        if r != k_copy:
-            # Change the name of r to m
-            if not m:
-                dialog_result[r] = None
-            else:
-                if df_rois is not None:
-                    df_e = df_rois[df_rois.name == m]
-                    # If more than one result is returned by the dataframe search report an error
-                    if len(df_e) > 1:
-                        logging.warning(
-                            "Too many matching {}. That makes me a sad panda. :(".format(
-                                m
-                            )
-                        )
-                    elif df_e.empty:
-                        logging.debug("{} was not found in the protocol list".format(m))
-                        found_index = None
-                    else:
-                        df_matches[m] = df_e
-                        e_name = df_e.name.values[0]
-                        found_index = df_e.index
-                else:
-                    for e_index, standard_rois in enumerate(elements):
-                        if standard_rois.find("name").text == m:
-                            found_index = e_index
-                            break
-                        else:
-                            found_index = None
-                if found_index is not None:
-                    if df_rois is None:
-                        logging.debug(
-                            "Found element match {}: returning element {}".format(
-                                r, elements[found_index].find("name").text
-                            )
-                        )
-                        dialog_result[r] = elements[found_index]
-                    else:
-                        dialog_result[r] = df_e
-                # Address user supplied contour
-                else:
-                    logging.debug(
-                        "No element match {}: returning string {}".format(r, m)
-                    )
-                    dialog_result[r] = m
-    return dialog_result
+    for r, m in responses.items():
+        dialog_result[r] = find_gui_match(m, elements, df_rois)
+    return suffix, color_scheme, dialog_result
 
 
 def iter_standard_rois(etree):
@@ -1430,7 +1544,8 @@ def iter_standard_rois(etree):
     return rois
 
 
-def check_derivation(case, examination, **kwargs):
+# noinspection PyPep8Naming
+def check_derivation(case, **kwargs):
     """
     Will need an existing structure where StructureName is
     TODO: Write a check_derivation for "Wall types"
@@ -1447,7 +1562,7 @@ def check_derivation(case, examination, **kwargs):
     MarginTypeR = kwargs.get("MarginTypeR")
     ExpR = kwargs.get("ExpR")
     OperationResult = kwargs.get("OperationResult")
-    logging.debug("Checking {} derived status".format(StructureName))
+    logging.debug(f"Checking {StructureName} derived status")
     # Build a map to the structures used in the RS algebra
     test_structure = case.PatientModel.RegionsOfInterest[StructureName]
     result_operations = test_structure.DerivedRoiExpression
@@ -1478,8 +1593,9 @@ def check_derivation(case, examination, **kwargs):
             logging.debug("Result left distance")
             return False
     except AttributeError:
-        logging.debug('Structure {} does not have a/b/result attributes, no check performed'
-                      .format(StructureName))
+        logging.debug(
+            f'Structure {StructureName} does not have a/b/result '
+            f'attributes, no check performed')
         return False  # remake struct
     # Check A/B operation
     try:
@@ -1501,7 +1617,7 @@ def check_derivation(case, examination, **kwargs):
             return False
     except AttributeError:
         if (
-                MarginTypeA != None
+                MarginTypeA is not None
                 and current_a_expression.ExpandContractType != MarginTypeA
         ):
             logging.debug("A expand/contract type expected to be something")
@@ -1539,7 +1655,7 @@ def check_derivation(case, examination, **kwargs):
     for a in current_a_expression.Children:
         a_rois.append(a.RegionOfInterest.Name)
     if set(a_rois) != set(SourcesA):
-        logging.debug("ASource ROIS {} differ from RS {}".format(SourcesA, a_rois))
+        logging.debug(f"ASource ROIS {SourcesA} differ from RS {a_rois}")
         return False
     # Check the expansion type and distances for B
     try:
@@ -1574,7 +1690,7 @@ def check_derivation(case, examination, **kwargs):
         for b in current_b_expression:
             b_rois.append(b.RegionOfInterest.Name)
         if set(b_rois) != set(SourcesB):
-            logging.debug("BSource ROIS {} differ from RS {}".format(SourcesB, b_rois))
+            logging.debug(f"BSource ROIS {SourcesB} differ from RS {b_rois}")
             return False
     except:
         if SourcesB:
@@ -1656,9 +1772,9 @@ def create_prv(patient, case, examination, source_roi, df_TG263):
                     patient=patient, case=case, examination=examination, **prv_exp_defs
                 )
             else:
-                msg.append("Unable to create {}".format(prv_name))
+                msg.append(f"Unable to create {prv_name}")
     else:
-        msg.append("{} does not need a planning risk volume".format(source_roi))
+        msg.append(f"{source_roi} does not need a planning risk volume")
     return msg
 
 
@@ -1672,7 +1788,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
         roi_list = find_types(case=case, roi_type=None)
     # Filter the dataframe for the dependencies that are not empty
     df_ne = df_rois[df_rois.Dependencies.notnull()]
-    logging.debug("{}".format(df_ne.to_string()))
+    logging.debug(f"{df_ne.to_string()}")
     # Find the dataframe rows for which the dependency element is a subset of the roi_list
     df_needs_derived = df_ne[
         df_ne["Dependencies"].apply(lambda x: set(x).issubset(set(roi_list)))
@@ -1681,9 +1797,7 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
         for index, row in df_needs_derived.iterrows():
             derived_roi_name = row["name"]
             logging.debug(
-                "{} has all dependencies. Checking derived status".format(
-                    derived_roi_name
-                )
+                f"{derived_roi_name} has all dependencies. Checking derived status"
             )
             # If the operation is a subtraction, then check to see if the result will have a volume
             if (
@@ -1754,15 +1868,16 @@ def create_derived(patient, case, examination, roi, df_rois, roi_list=None):
                         **derived_defs
                     )
                     # TODO check if its empty and then delete it if has no contours on any exam
-                    # If subtraction and If A/B are both zero just check the Dice coefficient of each contour in Source A with source B.
-                    msg.append("{} created.".format(derived_roi_name))
+                    # If subtraction and If A/B are both zero just check the Dice coefficient of
+                    # each contour in Source A with source B.
+                    msg.append(f"{derived_roi_name} created.")
                 else:
-                    msg.append("Unable to create {}".format(derived_roi_name))
+                    msg.append(f"Unable to create {derived_roi_name}")
             else:
-                logging.debug("No Derived necessary for {}".format(derived_roi_name))
+                logging.debug(f"No Derived necessary for {derived_roi_name}")
         return msg
     else:
-        msg.append("{} does not need any derived structures".format(roi))
+        msg.append(f"{roi} does not need any derived structures")
         return msg
 
 
@@ -1800,13 +1915,13 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
         standard_names = []
         for f in os.listdir(paths[1]):
             if f.endswith(".xml"):
-                tree = xml.etree.ElementTree.parse(os.path.join(paths[1], f))
+                tree = Et.parse(os.path.join(paths[1], f))
                 prot_rois = tree.findall(".//roi")
                 for r in prot_rois:
                     if not any(i in r.find("name").text for i in standard_names):
                         standard_names.append(r.find("name").text)
 
-        tree = xml.etree.ElementTree.parse(os.path.join(paths[0], files[0][2]))
+        tree = Et.parse(os.path.join(paths[0], files[0][2]))
         roi263 = tree.findall("./" + "roi")
         rois_dict = iter_standard_rois(tree)
         df_rois = pd.DataFrame(rois_dict["rois"])
@@ -1819,15 +1934,16 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
         # If more than one result is returned by the dataframe search report an error
         if len(df_e) > 1:
             logging.warning(
-                "Too many matching {}. That makes me a sad panda. :(".format(e)
-                + "It is likely the protocol file contains multiple references to the same structure"
+                f"Too many matching {e}. That makes me a sad panda. :("
+                + "It is likely the protocol file contains multiple references to the same "
+                  "structure"
             )
         elif df_e.empty:
-            logging.debug("{} was not found in the protocol list".format(e))
+            logging.debug(f"{e} was not found in the protocol list")
         else:
             e_name = df_e.name.values[0]
             return_rois[e] = e_name
-            logging.debug("{} matched to  {} in protocol list".format(e, e_name))
+            logging.debug(f"{e} matched to  {e_name} in protocol list")
             del_indices.append(index)
     # Eliminate the structures with exact matches from the search.
     for indx in sorted(del_indices, reverse=True):
@@ -1853,13 +1969,9 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
             exact_match.append(match[0][1])
 
     # Launch the dialog to get the list of matched elements
-    matched_rois = match_dialog(
-        matches=potential_matches_exacts_removed, elements=roi263, df_rois=df_rois
-    )
-    # Store the suffix and pop it
-    suffix = matched_rois["Suffix"]
-    matched_rois.pop("Suffix")
-    ##return_rois = {}
+    suffix, color_scheme, matched_rois = match_gui(matches=potential_matches_exacts_removed,
+                                                   elements=roi263,
+                                                   df_rois=df_rois)
     # matched_rois now contains:
     # the keys as the planning structures, and the elementtree element found to match (or None)
     for k, v in matched_rois.items():
@@ -1869,7 +1981,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
         # it is an elementree element for roi
         if v is None:
             return_rois[k] = None
-            logging.debug("Structure {k} not matched {v}".format(k=k, v=v))
+            logging.debug(f"Structure {k} not matched {v}")
         else:
             # If the value is a string, then it was manually entered by the user
             if isinstance(v, str):
@@ -1887,13 +1999,11 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                 k_user_defined = False
             # Does the input structure match the protocol name entirely
             logging.debug(
-                "Post match for {k}, the value is {v}".format(k=k, v=return_rois[k])
+                f"Post match for {k}, the value is {return_rois[k]}"
             )
             if k == return_rois[k]:
                 logging.debug(
-                    "{} was matched to {}. No changes necessary".format(
-                        k, return_rois[k]
-                    )
+                    f"{k} was matched to {return_rois[k]}. No changes necessary"
                 )
             else:
                 # Move the contents of k to return_rois[k]
@@ -1910,7 +2020,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                 else:
                     k_case_insensitive_match = True
                     logging.debug(
-                        "Match to {} found as {}".format(k, case_insensitive_match)
+                        f"Match to {k} found as {case_insensitive_match}"
                     )
                 # See if the destination contour exists
                 return_k_exists = check_structure_exists(
@@ -1938,7 +2048,7 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                             k_contours_this_exam = True
                             break
                 logging.debug(
-                    "Renaming required for matching {} to {}".format(k, return_rois[k])
+                    f"Renaming required for matching {k} to {return_rois[k]}"
                 )
                 # Try to just change the name of the existing contour, but if it is locked or if the
                 # desired contour already exists, we'll have to replace the geometry
@@ -1947,16 +2057,15 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                 if not k_contours_this_exam:
                     #  there are no contours on this structure. So don't do anything with it
                     logging.debug(
-                        "{} was matched to {}, but is empty on exam {}".format(
-                            k, return_rois[k], examination.Name
-                        )
+                        f"{k} was matched to {return_rois[k]},"
+                        f" but is empty on exam "
+                        f"{examination.Name}"
                     )
                 # if k_is_approved or k_case_insensitive_match or k_contours_multiple_exams:
                 if k_is_approved or k_case_insensitive_match or return_k_exists:
                     logging.debug(
-                        "Unable to rename {} to {}, attempting a geometry copy".format(
-                            k, return_rois[k]
-                        )
+                        f"Unable to rename {k} to {return_rois[k]},"
+                        f" attempting a geometry copy"
                     )
                     # Try to create the correct return roi or retrieve its existing geometry
                     roi_geom = create_roi(
@@ -1995,12 +2104,9 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                                     str(metric) + ":" + str(value)
                                 )
                             logging.debug(
-                                "Roi Geometry copied from {} to {}. ".format(
-                                    k, roi_geom.OfRoi.Name
-                                )
-                                + "Resulting overlap metrics {}".format(
-                                    validation_message
-                                )
+                                f"Roi Geometry copied from {k} to"
+                                f" {roi_geom.OfRoi.Name}. "
+                                f"Resulting overlap metrics {validation_message}"
                             )
                             # k exists only on this exam, so we've copied its geometry and since its
                             if not k_contours_multiple_exams and k_contours_this_exam:
@@ -2014,17 +2120,15 @@ def match_roi(patient, case, examination, plan_rois, df_rois=None):
                             if k_empty:
                                 case.PatientModel.RegionsOfInterest[k].DeleteRoi()
                             logging.debug(
-                                "Roi Geometry not copied from {} to {}. ".format(
-                                    k, roi_geom.OfRoi.Name
-                                )
-                                + "since {} does not have contours in exam {}".format(
-                                    k, examination.Name
-                                )
+                                f"Roi Geometry not copied from {k} "
+                                f"to {roi_geom.OfRoi.Name}. "
+                                + f"since {k} does not have contours in "
+                                  f"exam {examination.Name}"
                             )
                 else:
-                    logging.debug("Direct rename {} to {}".format(k, return_rois[k]))
+                    logging.debug(f"Direct rename {k} to {return_rois[k]}")
                     case.PatientModel.RegionsOfInterest[k].Name = return_rois[k]
-    return return_rois
+    return return_rois, color_scheme
 
 
 def structure_approved(case, roi_name, examination=None):
@@ -2052,7 +2156,7 @@ def structure_approved(case, roi_name, examination=None):
                                 if r.OfRoi.Name == roi_name:
                                     return True
                     except AttributeError:
-                        logging.debug("A is none {}".format(a))
+                        logging.debug(f"A is none {a}")
                         continue
         return False
 
@@ -2062,11 +2166,11 @@ def renumber_roi(case):
     Sort the ROI list and renumber alphabetically
     """
     rois = find_types(case=case, roi_type=None)
-    logging.debug("Unsorted list is {}".format(rois))
+    logging.debug(f"Unsorted list is {rois}")
     sorted_rois = sorted(rois, reverse=True)
     num_rois = len(rois)
     i = num_rois
-    logging.debug("Sorted array is {}".format(sorted_rois))
+    logging.debug(f"Sorted array is {sorted_rois}")
     for s in sorted_rois:
         case.PatientModel.RegionsOfInterest[s].RoiNumber = i
         i -= 1
@@ -2074,7 +2178,8 @@ def renumber_roi(case):
 
 def dialog_create_roi():
     """
-    Dialog to ascertain the user preference of overwrite or append on a new roi with existing geometry
+    Dialog to ascertain the user preference of overwrite or append on a new roi with existing
+    geometry
 
     :return: overwrite or append
     """
@@ -2105,15 +2210,21 @@ def dialog_create_roi():
 
 def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
     """
-    Thoughtful creation of structures that can determine if the structure exists,
-    determine the geometry exists on this examination
+    The function create_roi performs a series of checks to determine the status of a
+    structure's ROI before creating the structure or making changes. It provides an
+    extensive flow of conditions to handle different scenarios of the ROI status.
+    It handles the cases of when the structure or geometry doesn't exist, if it exists
+    but is not approved, or if it is approved, and takes actions accordingly.
+
+    Workflow:
     -Create it with a suffix if the geometry exists and is locked on the current examination
     Is the structure name already in use?
         *<No>  -> Make it and return the RoiGeometry on this examination
         *<Yes> Are there contours defined for roi_name in this case?
             **<No> -> return the RoiGeometry on this examination
             **<Yes> Is the geometry approved somewhere in the case?
-                ***<No> Either delete it (delete_existing), or prompt the user to decide to delete or supply a suffix
+                ***<No> Either delete it (delete_existing), or prompt the user to decide to
+                delete or supply a suffix
                 ***<Yes> Is the geometry approved on this exam?
                     ****<No> -> Either delete it (delete_existing),
                                 or append a supplied or default suffix
@@ -2142,25 +2253,14 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
         roi_name_ci = roi_name
         struct_exists = False
 
-    logging.debug(
-        "{} is defined somewhere in this case {}".format(roi_name_ci, struct_exists)
-    )
     # geometry_exists_in_case is True if any examination
     # in this case has contours for this roi_name_ci
     geometry_exists_in_case = check_structure_exists(
         case=case, structure_name=roi_name_ci, option="Check"
     )
-    logging.debug(
-        "{} geometry exists in case: {}".format(roi_name_ci, geometry_exists_in_case)
-    )
     # geometry_exists is True if this examination has contours
     geometry_exists = check_structure_exists(
         case=case, structure_name=roi_name_ci, option="Check", exam=examination
-    )
-    logging.debug(
-        "{} geometry exists in exam {}: {}".format(
-            roi_name_ci, examination.Name, geometry_exists
-        )
     )
     # Look through all structure sets in the patient to see if
     # roi name is approved on an exam in this patient
@@ -2168,10 +2268,11 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
         case=case, roi_name=roi_name_ci, examination=examination
     )
     logging.debug(
-        "{} geometry approved in exam {}: {}".format(
-            roi_name_ci, examination.Name, geometry_approved
-        )
-    )
+        f"{roi_name_ci} defined in case: {struct_exists}, geometry exists in case: "
+        f"{geometry_exists_in_case}, "
+        f"geometry exists in current exam {examination.Name}: {geometry_exists}, "
+        f"with approved geometry: {geometry_approved}.")
+
     # If the call has been made without a suffix or deletion instructions, prompt user.
     if delete_existing is None and suffix is None:
         if geometry_exists and not geometry_approved:
@@ -2194,9 +2295,9 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
                         # Delete the existing geometry and return
                         # the empty geometry on the current exam
                         logging.debug(
-                            "Exam {} has an approved geometry for {}, cannot create new roi".format(
-                                examination.Name, roi_name_ci
-                            )
+                            f"Exam {examination.Name} has an "
+                            f"approved geometry for {roi_name_ci}, "
+                            f"cannot create new roi"
                         )
                         return None
                     else:
@@ -2218,7 +2319,7 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
                     if delete_existing:
                         # Delete the existing geometry and return
                         # the empty geometry on the current exam
-                        case.PatientModel.StructureSets[examination.Name].RoiGeometries[
+                        _ = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
                             roi_name_ci
                         ].DeleteGeometry
                         return case.PatientModel.StructureSets[
@@ -2232,9 +2333,8 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
                         updated_roi_name = roi_name + suffix + str(i)
                         while any(exists_roi(case=case, rois=updated_roi_name)):
                             logging.debug(
-                                "Roi {} found in list. Checking next available.".format(
-                                    updated_roi_name
-                                )
+                                f"Roi {updated_roi_name} found in list."
+                                f" Checking next available."
                             )
                             i += 1
                             updated_roi_name = roi_name + suffix + str(i)
@@ -2259,12 +2359,10 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
         # The roi does not exist, so make it and return the empty geometry for this exam
         case.PatientModel.CreateRoi(Name=roi_name_ci)
         logging.debug(
-            "{} is not in the list. Creating {}".format(
-                roi_name_ci,
-                case.PatientModel.StructureSets[examination.Name]
-                    .RoiGeometries[roi_name_ci]
-                    .OfRoi.Name,
-            )
+            f"{roi_name_ci} is not in the list. Creating "
+            + "{}".format(
+                case.PatientModel.StructureSets[examination.Name]. \
+                    RoiGeometries[roi_name_ci].OfRoi.Name)
         )
         return case.PatientModel.StructureSets[examination.Name].RoiGeometries[
             roi_name_ci
@@ -2296,17 +2394,16 @@ def make_boolean_structure(patient, case, examination, **kwargs):
     try:
         case.PatientModel.RegionsOfInterest[StructureName]
         logging.warning(
-            "make_boolean_structure: Structure "
-            + StructureName
-            + " exists.  This will be overwritten in this examination"
+            f"make_boolean_structure: Structure {StructureName}"
+            f" exists.  This will be overwritten in this examination"
         )
     except:
         create_roi(case, examination, StructureName, delete_existing=True, suffix=None)
-    already_derived = check_derivation(case=case, examination=examination, **kwargs)
+    already_derived = check_derivation(case=case, **kwargs)
     if already_derived:
-        logging.debug("{} is already derived.".format(StructureName))
+        logging.debug(f"{StructureName} is already derived.")
     else:
-        logging.debug("Deriving {}".format(StructureName))
+        logging.debug(f"Deriving {StructureName}")
         case.PatientModel.RegionsOfInterest[StructureName].SetAlgebraExpression(
             ExpressionA={
                 "Operation": OperationA,
@@ -2347,7 +2444,7 @@ def make_boolean_structure(patient, case, examination, **kwargs):
         )
 
     if StructureName == "InnerAir":
-        logging.debug("Excluding {} from export".format(StructureName))
+        logging.debug(f"Excluding {StructureName} from export")
     if ExcludeFromExport:
         exclude_from_export(case=case, rois=StructureName)
 
@@ -2612,7 +2709,7 @@ def make_externalclean(
                     ].DeleteRoi()
                 except:
                     logging.warning(
-                        "Structure {} could not be deleted".format(current_external)
+                        f"Structure {current_external} could not be deleted"
                     )
     # Make a temporary external that we can use to get rid of supports
     i = 0
@@ -2690,7 +2787,7 @@ def make_externalclean(
             )
     else:
         logging.warning(
-            "Structure {} exists. ".format(structure_name)
+            f"Structure {structure_name} exists. "
             + "Using predefined structure after removing holes and changing color."
         )
     case.PatientModel.RegionsOfInterest[temp_ext].DeleteRoi()
@@ -2712,6 +2809,33 @@ def make_externalclean(
         ResolveOverlappingContours=False,
     )
     return roi_geom
+
+
+def make_high_z(case, exam, desired_name):
+    threshold = 3025  # Highest HU value on the scanner
+    # Redraw the ExternalClean structure if necessary
+    if check_structure_exists(
+            case=case,
+            structure_name=desired_name,
+            exam=exam,
+            option="Check"):
+        roi_geom = case.PatientModel.StructureSets[exam.Name].RoiGeometries[
+            desired_name]
+    else:
+        roi_geom = create_roi(
+            case=case,
+            examination=exam,
+            roi_name=desired_name,
+            delete_existing=False,
+            suffix="",
+        )
+    if not roi_geom.HasContours():
+        roi_geom.GrayLevelThreshold(Examination=exam,
+                                    LowThreshold=int(0.9 * threshold),
+                                    HighThreshold=threshold,
+                                    PetUnit="",
+                                    CbctUnit=None,
+                                    BoundingBox=None)
 
 
 def make_all_ptvs(patient, case, exam, sources):
@@ -2743,7 +2867,9 @@ def trim_supports(patient, case, exam):
     # External type contour
     # Inputs: RS Objects: patient, case, exam
     # returns: error: None if successful
-    support_name = find_types(case=case, roi_type='Support')
+    supports = find_types(case=case, roi_type='Support')
+    allowed = ['TrueBeamCouch', 'TomoCouch']
+    support_name = [s for s in supports if s in allowed]
     #
     # Find extents of external
     si = case.PatientModel.StructureSets[exam.Name] \
@@ -2767,7 +2893,7 @@ def trim_supports(patient, case, exam):
             roi_name=box_name,
             delete_existing=True,
             suffix='R')
-        logging.debug('Type of box geom is {}'.format(type(box_geom)))
+        logging.debug(f'Type of box geom is {type(box_geom)}')
         box_geom.OfRoi.CreateBoxGeometry(Size={'x': abs(b[0].x - b[1].x) + 1.,
                                                'y': abs(b[0].y - b[1].y) + 1.,
                                                'z': abs(z1 - z0)},
@@ -3114,12 +3240,436 @@ class PlanningStructurePreferences:
         self.uniform_properties = {'structures': [], 'standoff': None}
         self.uniform_dose_oar = {}
         self.generate_otv = None
+        self.generate_ptv = None
+        self.generate_eval = None
         self.use_under_dose = None
         self.under_dose_properties = {'structures': [], 'standoff': None}
         self.under_dose_oar = {}
         self.use_target_shells = None
         self.target_shell_properties = {'standoff': None}
         self.plan_type = None
+
+
+def load_beamsets(beamset_type, beamset_modality):
+    """
+    params: folder: the file folder containing xml files of autoplanning protocols
+    return: protocols: a dictionary containing
+                       <protocol_name>: [protocol_ElementTree,
+                                         path+file_name]
+    """
+    beamsets = {}
+    # Search file list for xml files containing templates
+    for f in listdir(PATH_BEAMSETS):
+        if f.endswith('.xml'):
+            tree = Et.parse(path.join(PATH_BEAMSETS, f))
+            if tree.getroot().tag == 'templates':
+                if beamset_type in [t.text for t in tree.findall('type')] \
+                        and beamset_modality in tree.find('modality').text:
+                    for bs in tree.findall('beamset'):
+                        n = str(bs.find('name').text)
+                        beamsets[n] = [None, None]
+                        beamsets[n][0] = bs
+                        beamsets[n][1] = f
+    return beamsets
+
+
+def find_beamset_element(beamsets, beamset_name):
+    beamset_et = beamsets[beamset_name][0]
+    file_name = beamsets[beamset_name][1]
+    return beamset_et, file_name
+
+
+# TODO: add a check for existing isocenters
+def get_pois(pd):
+    found_poi = [p.Name for p in pd.case.PatientModel.PointsOfInterest]
+    return found_poi
+
+
+def get_qualities(pd):
+    # Get photon beam qualities
+    machine = get_machine(pd.beamset.MachineReference.MachineName)
+    qualities = []
+    try:
+        pbb = machine.PhotonBeamQualities
+    except AttributeError:
+        logging.debug(
+            f'No nominal energy attribute for beamset '
+            f'{pd.beamset.DicomPlanLabel}')
+        return qualities
+    for q in pbb:
+        q_str = f"{q.NominalEnergy:.0f}"
+        if q.FluenceMode:
+            q_str += r' ' + q.FluenceMode
+        qualities.append(q_str)
+    return qualities
+
+
+def get_isos(pd):
+    isos = {}
+    beamsets = [bs for tp in pd.case.TreatmentPlans for bs in tp.BeamSets]
+    for bs in beamsets:
+        for b in bs.Beams:
+            if bs.DicomPlanLabel not in isos.keys():
+                iso_name = bs.DicomPlanLabel + ':' + b.Isocenter.Annotation.Name
+                isos[iso_name] = {'-Beamset Name-': bs.DicomPlanLabel,
+                                  '-Iso Name-': b.Isocenter.Annotation.Name}
+    return isos
+
+
+def load_protocols(folder):
+    """
+    params: folder: the file folder containing xml files of autoplanning protocols
+    return: protocols: a dictionary containing
+                       <protocol_name>: [protocol_ElementTree,
+                                         path+file_name]
+    """
+    protocols = {}
+    # Search protocol list, parsing each XML file for protocols and goalsets
+    for f in os.listdir(folder):
+        if f.endswith('.xml'):
+            tree = Et.parse(os.path.join(folder, f))
+            if tree.getroot().tag == 'protocol':
+                n = tree.find('name').text
+                protocols[n] = [None, None]
+                protocols[n][0] = tree.getroot()
+                protocols[n][1] = f
+    return protocols
+
+
+def site_list(protocols):
+    sites = []
+    for n, p in protocols.items():
+        raw_sites = p[0].find('AnatomicGroup').text.replace(", ", "")
+        sites += raw_sites.split(",")
+    return list(set(sites))
+
+
+def site_protocol_list(protocols, site_name):
+    matching_protocols = {}
+    for n, p in protocols.items():
+        if site_name in p[0].find('AnatomicGroup').text:
+            matching_protocols[n] = p[0]
+    return matching_protocols
+
+
+def order_dict(protocol):
+    # Return a dictionary of {'order name': order_element}
+    orders = {}
+    for o in protocol[0].findall('order'):
+        orders[o.find('name').text] = o
+    return orders
+
+
+def all_orders(protocols):
+    orders = {}
+    for n, p in protocols.items():
+        for o in p[0].findall('order'):
+            orders[o.find('name').text] = o
+    return orders
+
+
+def find_order(protocol, order_name):
+    # Look in a protocol elementtree and return an order name match
+    # If more than one instance of the same order name is found,
+    # or if no match is found, return none
+    orders = order_dict(protocol)
+    matched_orders = []
+    for k, o in orders.items():
+        if k == order_name:
+            matched_orders.append(o)
+    if len(matched_orders) == 1:
+        return matched_orders[0]
+    else:
+        return None
+
+
+import PySimpleGUI as sg
+import os
+
+
+def build_planning_strategy_frame(site_event, sites,
+                                  protocol_event, protocols,
+                                  order_event, orders,
+                                  target_event,
+                                  max_targets, strategy_event,
+                                  planning_strategies):
+    # Initialization
+    target_numbers = list(range(1, max_targets + 1))  # Target number choices
+    #
+    # Site Selection
+    site_combo = [sg.Combo(sites,
+                           default_value='Select Site',
+                           key=site_event,
+                           size=(30, 1),
+                           tooltip='Select Site',
+                           enable_events=True)]
+    #
+    # Protocol Selection
+    protocol_combo = [sg.Combo(protocols,
+                               key=protocol_event,
+                               default_value='',
+                               size=(30, 1),
+                               tooltip='Select Protocol',
+                               enable_events=True)]
+    #
+    # Order Selection
+    order_combo = [sg.Combo(orders,
+                            default_value='',
+                            key=order_event,
+                            size=(30, 1),
+                            tooltip='Select Treatment Planning Order',
+                            enable_events=True)]
+    #
+    # Planning Strategy
+    planning_combo = [sg.Combo(planning_strategies,
+                               default_value='',
+                               key=strategy_event,
+                               size=(30, 1),
+                               tooltip='Select Treatment Planning Order',
+                               enable_events=True)]
+    #
+    # Number of targets prompt
+    target_combo = [sg.Combo(target_numbers,
+                             default_value='',
+                             key=target_event,
+                             size=(30, 1),
+                             enable_events=True)
+                    ]
+    #
+    # Build the return frame
+    general_frame = sg.Frame(layout=[site_combo, protocol_combo, order_combo, target_combo],
+                             visible=True,
+                             title='General Options',
+                             key='General Options')
+    return [general_frame]
+
+
+def build_target_frame(targets, plan_targets):
+    # Takes in
+    # target indices,
+    # targets in the plan,
+    # poi list,
+    # target lists
+    # isocenter lists
+    # beamset lists (TODO Build from planning strategy frame)
+    # and builds a three column set of targets
+    # each selection component should be tied to the key of a target type
+    # Target name, Dose, Beamset assignment
+    target_rows = 5
+    target_col1 = []
+    target_col2 = []
+    target_col3 = []
+    target_indicies = [t.Index for t in targets]
+    for i in target_indicies:
+        target_frame = sg.Frame(layout=[[sg.Combo(plan_targets,
+                                                  size=(20, 1)),
+                                         sg.Text('Dose',
+                                                 justification='right'),
+                                         sg.Input(key='TARGET' + str(i) + 'DOSE', size=(6, 1)),
+                                         sg.Text('cGy')]],
+                                visible=False,
+                                title='Target ' + str(i),
+                                key='Target' + str(i))
+        if i <= target_rows:
+            target_col1.append([target_frame])
+        elif target_rows < i <= 2 * target_rows:
+            target_col2.append([target_frame])
+        else:
+            target_col3.append([target_frame])
+    return [sg.Column(target_col1), sg.Column(target_col2), sg.Column(target_col3)]
+
+
+from dataclasses import dataclass
+from typing import Any
+
+
+@dataclass
+class Isocenter:
+    Poi: str
+    Roi: str
+    Iso_0: str
+
+
+@dataclass
+class Target:
+    Index: int
+    Key: str
+    OrderTarget: str
+    PlanTarget: str
+    Dose: float
+    BeamsetName: str
+    Iso: Isocenter
+
+
+def init_target_assignments(max_targets):
+    target_assignments = []
+    for i in range(max_targets):
+        target_assignments.append(
+            Target(i + 1, 'Target' + str(i + 1), "", "", 0.0, None, Isocenter("", "", "")))
+    return target_assignments
+
+
+def find_index(target_assignments, index):
+    for t in target_assignments:
+        if t.Index == index:
+            return t
+    return None
+
+
+def update_target_assignments(target_assignments,
+                              plan_names={},
+                              order_names={},
+                              dose_levels={},
+                              beamset_assignments={},
+                              isocenter_assignments={}
+                              ):
+    # Consider a class for this dictionary
+    for k, v in plan_names.items():
+        t = find_index(target_assignments, k)
+        t.PlanTarget = v
+    for k, v in order_names.items():
+        t = find_index(target_assignments, k)
+        t.OrderTarget = v
+    for k, v in dose_levels.items():
+        t = find_index(target_assignments, k)
+        t.Dose = v
+    for k, v in beamset_assignments.items():
+        t = find_index(target_assignments, k)
+        t.BeamsetName = v
+    for k, v in isocenter_assignments.items():
+        t = find_index(target_assignments, k)
+        if v['Type'] == 'Poi':
+            t.Iso.Poi = str(v['Name'])
+        elif v['Type'] == 'Roi':
+            t.Iso.Roi = str(v['Name'])
+        elif v['Type'] == 'Iso_0':
+            t.Iso.Iso_0 = str(v['Name'])
+    return target_assignments
+
+
+def dialog_planning_structures(protocol_dir, planning_strategies, plan_targets):
+    # Initialize inputs by loading files
+    beamsets = load_beamsets(beamset_type, modality)
+    protocols = load_protocols(protocol_dir)
+    sites = site_list(protocols)
+    orders = all_orders(protocols)
+    dialog_name = 'Planning Generation'
+    max_targets = 15
+    targets = init_target_assignments(max_targets)
+    # Data for the General Strategy Frame
+    target_event = '-TARGETS SELECTED-'
+    site_event = '-SITE SELECTED-'
+    protocol_event = '-PROTOCOL SELECTED-'
+    order_event = '-ORDER SELECTED-'
+    target_data = {'EVENT': target_event}
+    frames = {'-GENERAL STRATEGY-': {'-EVENT N TARGETS-': target_event,
+                                     '-FRAME-': None,
+                                     },
+              '-TARGET SETTINGS-': {'-EVENT-': None,
+                                    '-FRAME-': build_target_frame(targets, plan_targets), },
+
+              '-UNIF & UNDER-': {},
+              '-OPTIONS-': {}}
+    frames['-GENERAL STRATEGY-']['-FRAME-'] = build_planning_strategy_frame(
+        site_event=site_event,
+        sites=sites,
+        protocol_event=protocol_event,
+        protocols=protocols.keys(),
+        order_event=order_event,
+        orders=orders.keys(),
+        target_event=target_event,
+        max_targets=max_targets,
+        planning_strategies=planning_strategies)
+    combos = {'-STRATEGY-': planning_strategies}
+    check_boxes = ['-INNER AIR-', '-UNIFORM DOSE-', '-UNDER DOSE-', ]
+    uniform_visible = False
+    underdose_visible = False
+    targets_visible = False
+    frame_width = 60
+    frame_n_targets = {'KEY': '-TARGET SETTINGS-',
+                       'TITLE': 'Target selections',
+                       # 'SIZE': (frame_width,100),
+                       'JUST': 'center',
+                       'layout': [frames['-GENERAL STRATEGY-']['-FRAME-'],
+                                  frames['-TARGET SETTINGS-']['-FRAME-']]
+                       }
+    first_column = [
+        [sg.Text(
+            dialog_name,
+            size=(frame_width, 1),
+            justification='center',
+            font=("Helvetica", 16),
+            relief=sg.RELIEF_RIDGE
+        )],
+        [
+            sg.Frame(
+                layout=frame_n_targets['layout'],
+                title=frame_n_targets['TITLE'],
+                relief=sg.RELIEF_SUNKEN,
+                tooltip='FRAME STUFF',
+                key=frame_n_targets['KEY'])
+        ], ]
+    bottom = [
+        [
+            sg.Submit(tooltip='Click to submit this window'),
+            sg.Cancel()
+        ]
+    ]
+    layout = [[sg.Column(first_column)], [sg.Column(bottom)]]
+    window = sg.Window(
+        'Planning Structure Generation',
+        layout,
+        default_element_size=(40, 1),
+        grab_anywhere=False
+    )
+
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == "Cancel":
+            responses = {}
+            break
+        elif event == "Submit":
+            responses = values
+            break
+        elif event == target_event:
+            num_targets = int(values[target_event])
+            update_target_visibility(window, targets, num_targets)
+        elif event == site_event:
+            site_name = values[site_event]
+            update_protocols(window, site_name, protocol_event, protocols)
+            # Update the potential protocol choices based on those for this site
+        elif event == protocol_event:
+            protocol = protocols[values[protocol_event]]
+            update_orders(window, protocol, order_event)
+        elif event == order_event:
+            update_num_targets(window, target_event)
+
+    window.close()
+    #
+    return values
+
+
+def update_target_visibility(window, targets, num_targets):
+    # Update the number of targets in the target frame
+    for t in targets:
+        if t.Index <= num_targets:
+            window[t.Key].update(visible=True)
+        else:
+            window[t.Key].update(visible=False)
+
+
+def update_protocols(window, site_name, protocol_event, protocols):
+    options = list(site_protocol_list(protocols, site_name).keys())
+    window[protocol_event].update(value='Select Protocol', values=options)
+
+
+def update_orders(window, protocol, order_event):
+    options = list(order_dict(protocol).keys())
+    window[order_event].update(value='Select Treatment Planning Order', values=options)
+
+
+def update_num_targets(window, target_event):
+    window[target_event].update(value='Select Number of Targets')
 
 
 def dialog_number_of_targets():
@@ -3140,7 +3690,8 @@ def dialog_number_of_targets():
     dialog1 = UserInterface.InputDialog(
         inputs={
             "1": "Enter Number of Targets",
-            "2": "Enter the beginning target number, e.g. start numbering at 2 for PTV2, PTV3, PTV4 ...",
+            "2": "Enter the beginning target number, e.g. start numbering at 2 for PTV2, PTV3, "
+                 "PTV4 ...",
             "3": "Priority 1 goals present: Use Underdosing",
             "4": "Targets overlap sensitive structures: Use UniformDoses",
             "5": "Use InnerAir to avoid high-fluence due to cavities",
@@ -3325,17 +3876,17 @@ def planning_structures(
     try:
         case.PatientModel.StructureSets[examination.Name].ApprovedStructureSets[0]
         UserInterface.WarningBox(
-            "Examination {} is approved.".format(examination.Name)
+            f"Examination {examination.Name} is approved."
             + " Select an examination without approved structures"
             + " as primary and run this script"
         )
         sys.exit("This script cannot be run on image sets with approved plans.")
-    # Interestingly, RS is throwing a ValueError in the console, but system error when executed in CPython
+    # Interestingly, RS is throwing a ValueError in the console, but system error when executed
+    # in CPython
     except Exception:
         logging.debug(
-            "Exam {} does not have approved structures. Proceeding".format(
-                examination.Name
-            )
+            f"Exam {examination.Name} does not have approved structures. "
+            f"Proceeding"
         )
 
     roi_check = all(check_roi(case=case, exam=examination, rois=StructureName))
@@ -3352,90 +3903,6 @@ def planning_structures(
 
     if run_status:
         status.next_step(text="Please fill out the following input dialogs")
-    # Commonly underdoses structures
-    # Plan structures matched in this list will be selected for checkbox elements below
-    # TODO: move this list to the xml file for a given protocol
-    UnderStructureChoices = [
-        "GreatVes",
-        "A_Aorta",
-        "Bag_Bowel",
-        "Bowel_Small",
-        "Bowel_Large",
-        "BrachialPlex_L_PRV05",
-        "BrachialPlex_L",
-        "BrachialPlex_R",
-        "BrachialPlex_R_PRV05",
-        "Brainstem",
-        "Bronchus",
-        "Bronchus_L",
-        "Bronchus_R",
-        "CaudaEquina",
-        "Cochlea_L",
-        "Cochlea_R",
-        "Duodenum",
-        "Esophagus",
-        "Genitalia",
-        "Heart",
-        "Eye_L",
-        "Eye_R",
-        "Hippocampus_L",
-        "Hippocampus_L_PRV05",
-        "Hippocampus_R",
-        "Hippocampus_R_PRV05",
-        "Larynx",
-        "Lens_R",
-        "Lens_L",
-        "Bone_Mandible",
-        "OpticChiasm",
-        "OpticNrv_L",
-        "OpticNrv_R",
-        "Rectum",
-        "Retina_L",
-        "Retina_R",
-        "SpinalCord",
-        "SpinalCord_PRV02",
-        "Trachea",
-        "V_Pulmonary",
-    ]
-
-    # Common uniformly dosed areas
-    # Plan structures matched in this list will be selected for checkbox elements below
-    UniformStructureChoices = [
-        "A_Aorta_PRV05",
-        "Bag_Bowel",
-        "Bladder",
-        "Bowel_Small",
-        "Bowel_Large",
-        "Brainstem",
-        "Brainstem_PRV03",
-        "Bronchus_PRV05",
-        "Bronchus_L_PRV05",
-        "Bronchus_R_PRV05",
-        "CaudaEquina_PRV05",
-        "Cavity_Oral",
-        "Cochlea_L_PRV05",
-        "Cochlea_R_PRV05",
-        "Esophagus",
-        "Esophagus_PRV05",
-        "Duodenum_PRV05",
-        "Heart",
-        "Larynx",
-        "Lens_L_PRV05",
-        "Lens_R_PRV05",
-        "Lips",
-        "Mandible",
-        "Musc_Constrict",
-        "OpticChiasm_PRV03",
-        "OpticNerv_L_PRV03",
-        "OpticNerv_R_PRV03",
-        "Rectum",
-        "SpinalCord",
-        "SpinalCord_PRV05",
-        "Stomach",
-        "Trachea",
-        "V_Pulmonary_PRV05",
-        "Vulva",
-    ]
 
     # Prompt the user for the number of targets, uniform dose needed, sbrt flag, underdose needed
     if planning_structure_selections is None:
@@ -3446,14 +3913,12 @@ def planning_structures(
     generate_uniformdose = planning_structure_selections.use_uniform_dose
     generate_inner_air = planning_structure_selections.use_inner_air
     logging.debug(
-        "Planning structures will use {} targets, UnderDose (Priority 1 Goals) {}, ".format(
-            planning_structure_selections.number_of_targets,
-            planning_structure_selections.use_under_dose,
-        )
-        + "UniformDose {}, Inner volumes of air {}".format(
-            planning_structure_selections.use_uniform_dose,
-            planning_structure_selections.use_inner_air,
-        )
+        f"Planning structures will use "
+        f"{planning_structure_selections.number_of_targets} targets, "
+        f"UnderDose (Priority 1 Goals) "
+        f"{planning_structure_selections.use_under_dose}, "
+        f"UniformDose {planning_structure_selections.use_uniform_dose},"
+        f" Inner volumes of air {planning_structure_selections.use_inner_air}"
     )
 
     # Determine if targets using the skin are in place
@@ -3468,15 +3933,17 @@ def planning_structures(
     for r in case.PatientModel.RegionsOfInterest:
         if r.Type == "Ptv":
             TargetMatches.append(r.Name)
-        if r.Name in UniformStructureChoices:
+        if r.Name in UNIFORM_STRUCTURES:
             UniformMatches.append(r.Name)
-        if r.Name in UnderStructureChoices:
+        if r.Name in UNDERDOSE_STRUCTURES:
             UnderMatches.append(r.Name)
         if r.OrganData.OrganType == "OrganAtRisk":
             AllOars.append(r.Name)
 
     translation_mapping = {}
     if dialog2_response is not None:
+        logging.debug(f'Number of targets: {number_of_targets}')
+        logging.debug(f'Source list {dialog2_response.items()}')
         input_source_list = [None] * number_of_targets
         source_doses = [None] * number_of_targets
         indx = 0
@@ -3537,11 +4004,19 @@ def planning_structures(
                     source_doses[indx] = v
             else:
                 logging.warning("No dialog elements returned. Script unsuccessful")
+        filtered_list = []
+        for i in input_source_list:
+            derived_sources = [re.search(r, i) for r in PLANNING_EXPRESSIONS]
+            if not any(derived_sources):
+                filtered_list.append(i)
+            else:
+                logging.debug(f'{i} is a derived source')
+        input_source_list = filtered_list
 
     # Generate Scan Lengths
     if generate_combined_ptv:
         logging.debug(
-            "Creating All_PTVs ROI using Sources: {}".format(input_source_list)
+            f"Creating All_PTVs ROI using Sources: {input_source_list}"
         )
         make_all_ptvs(patient=patient, case=case, exam=examination, sources=input_source_list)
         newly_generated_rois.append("All_PTVs")
@@ -3556,7 +4031,7 @@ def planning_structures(
     if dialog3_response is not None:
         underdose_structures = dialog3_response["structures"]
         underdose_standoff = dialog3_response["standoff"]
-        logging.debug("Underdose list selected: {}".format(underdose_structures))
+        logging.debug(f"Underdose list selected: {underdose_structures}")
     else:
         # Underdose dialog call
         if generate_underdose:
@@ -3566,7 +4041,8 @@ def planning_structures(
                     "input1_underdose": "Select UnderDose Structures",
                     "input2_underdose": "Select UnderDose OAR",
                     "input3_underdose": "Select UnderDose OAR",
-                    "input4_under_standoff": "UnderDose Standoff: x cm gap between targets and UnderDose volume",
+                    "input4_under_standoff": "UnderDose Standoff: x cm gap between targets and "
+                                             "UnderDose volume",
                 },
                 datatype={
                     "input1_underdose": "check",
@@ -3604,14 +4080,14 @@ def planning_structures(
             underdose_standoff = float(
                 under_dose_dialog.values["input4_under_standoff"]
             )
-            logging.debug("Underdose list selected: {}".format(underdose_structures))
+            logging.debug(f"Underdose list selected: {underdose_structures}")
 
     # UniformDose dialog call
     if dialog4_response is not None:
 
         uniformdose_structures = dialog4_response["structures"]
         uniformdose_standoff = dialog4_response["standoff"]
-        logging.debug("Uniform Dose list selected: {}".format(uniformdose_structures))
+        logging.debug(f"Uniform Dose list selected: {uniformdose_structures}")
     else:
         if generate_uniformdose:
             uniformdose_dialog = UserInterface.InputDialog(
@@ -3620,7 +4096,8 @@ def planning_structures(
                     "input1_uniform": "Select UniformDose Structures",
                     "input2_uniform": "Select UniformDose OAR",
                     "input3_uniform": "Select UniformDose OAR",
-                    "input4_uniform_standoff": "UniformDose Standoff: x cm gap between targets and UniformDose volume",
+                    "input4_uniform_standoff": "UniformDose Standoff: x cm gap between targets "
+                                               "and UniformDose volume",
                 },
                 datatype={
                     "input1_uniform": "check",
@@ -3659,7 +4136,7 @@ def planning_structures(
                 uniformdose_dialog.values["input4_uniform_standoff"]
             )
             logging.debug(
-                "Uniform Dose list selected: {}".format(uniformdose_structures)
+                f"Uniform Dose list selected: {uniformdose_structures}"
             )
 
     if dialog5_response is not None:
@@ -3719,10 +4196,10 @@ def planning_structures(
             generate_target_rings = False
 
         logging.debug(
-            "User Selected Preserve Skin Dose: {}".format(generate_target_skin)
+            f"User Selected Preserve Skin Dose: {generate_target_skin}"
         )
 
-        logging.debug("User Selected target Rings: {}".format(generate_target_rings))
+        logging.debug(f"User Selected target Rings: {generate_target_rings}")
 
         # DATA PARSING FOR THE OPTIONS MENU
         # Stand - Off Values - Gaps between structures
@@ -3852,7 +4329,7 @@ def planning_structures(
     ]
 
     for k, v in translation_mapping.items():
-        logging.debug("The translation map k is {} and v {}".format(k, v))
+        logging.debug(f"The translation map k is {k} and v {v}")
 
     if generate_skin:
         make_wall(
@@ -3870,7 +4347,7 @@ def planning_structures(
     # Generate the UnderDose structure and the UnderDose_Exp structure
     if generate_underdose:
         logging.debug(
-            "Creating UnderDose ROI using Sources: {}".format(underdose_structures)
+            f"Creating UnderDose ROI using Sources: {underdose_structures}"
         )
         # Generate the UnderDose structure
         underdose_defs = {
@@ -3921,7 +4398,7 @@ def planning_structures(
     # Generate the UniformDose structure
     if generate_uniformdose:
         logging.debug(
-            "Creating UniformDose ROI using Sources: {}".format(uniformdose_structures)
+            f"Creating UniformDose ROI using Sources: {uniformdose_structures}"
         )
         if generate_underdose:
             logging.debug(
@@ -3978,7 +4455,7 @@ def planning_structures(
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
         for i, t in enumerate(input_source_list):
-            logging.debug("Creating target {} using {}".format(PTVList[i], t))
+            logging.debug(f"Creating target {PTVList[i]} using {t}")
             ptv_sources.append(t)
             if i == 0:
                 ptv_definitions = {
@@ -3987,8 +4464,8 @@ def planning_structures(
                     "VisualizeStructure": False,
                     "VisualizationType": "Filled",
                     "StructColor": TargetColors[i],
-                    "OperationA": "Union",
-                    "SourcesA": [t],
+                    "OperationA": "Intersection",
+                    "SourcesA": [t, "ExternalClean"],
                     "MarginTypeA": "Expand",
                     "ExpA": [0] * 6,
                     "OperationB": "Union",
@@ -4007,8 +4484,8 @@ def planning_structures(
                     "VisualizeStructure": False,
                     "VisualizationType": "Filled",
                     "StructColor": TargetColors[i],
-                    "OperationA": "Union",
-                    "SourcesA": [t],
+                    "OperationA": "Intersection",
+                    "SourcesA": [t, "ExternalClean"],
                     "MarginTypeA": "Expand",
                     "ExpA": [0] * 6,
                     "OperationB": "Union",
@@ -4020,7 +4497,7 @@ def planning_structures(
                     "ExpR": [0] * 6,
                     "StructType": "Ptv",
                 }
-            logging.debug("Creating main target {}: {}".format(i, PTVList[i]))
+            logging.debug(f"Creating main target {i}: {PTVList[i]}")
             make_boolean_structure(
                 patient=patient, case=case, examination=examination, **ptv_definitions
             )
@@ -4075,9 +4552,8 @@ def planning_structures(
         for index, target in enumerate(PTVList):
             ptv_ez_name = "PTV" + str(index + 1) + "_EZ"
             logging.debug(
-                "Creating exclusion zone target {}: {}".format(
-                    str(index + 1), ptv_ez_name
-                )
+                f"Creating exclusion zone target {str(index + 1)}:"
+                f" {ptv_ez_name}"
             )
             # Generate the PTV_EZ
             PTVEZ_defs = {
@@ -4108,42 +4584,69 @@ def planning_structures(
         if generate_underdose:
             eval_subtract = ["Skin_PRV03", "InnerAir", "UnderDose"]
             logging.debug(
-                "Removing the following from eval structures".format(eval_subtract)
+                f"Removing the following from eval structures"
             )
             if not any(exists_roi(case=case, rois=eval_subtract)):
                 logging.error(
-                    "Missing structure needed for UnderDose: {} needed".format(
-                        eval_subtract
-                    )
+                    f"Missing structure needed for UnderDose: {eval_subtract}"
+                    f" needed"
                 )
                 sys.exit(
-                    "Missing structure needed for UnderDose: {} needed".format(
-                        eval_subtract
-                    )
+                    f"Missing structure needed for UnderDose: "
+                    f"{eval_subtract} needed"
                 )
 
         else:
             eval_subtract = ["Skin_PRV03", "InnerAir"]
             logging.debug(
-                "Removing the following from eval structures".format(eval_subtract)
+                f"Removing the following from eval structures"
             )
             if not any(exists_roi(case=case, rois=eval_subtract)):
                 logging.error(
-                    "Missing structure needed for UnderDose: {} needed".format(
-                        eval_subtract
-                    )
+                    f"Missing structure needed for UnderDose:"
+                    f" {eval_subtract} needed"
                 )
                 sys.exit(
-                    "Missing structure needed for UnderDose: {} needed".format(
-                        eval_subtract
-                    )
+                    f"Missing structure needed for UnderDose: "
+                    f"{eval_subtract} needed"
                 )
+        """
+        Make Evals for MD targets on the principle that we don't want planning structures
+        mixing with actual MD targets. Only underdose, skin, and targets outside the external
+        are subtracted.
+        """
+        md_eval_subtract = [e for e in eval_subtract]
+        for i, t in enumerate(input_source_list):
+            logging.debug(f"Creating Eval from {t}")
+            # Set the Sources Structure for Evals
+            PTVEval_defs = {
+                "StructureName": t + '_Eval',
+                "ExcludeFromExport": False,
+                "VisualizeStructure": False,
+                "StructColor": TargetColors[i],
+                "OperationA": "Intersection",
+                "SourcesA": [t, "ExternalClean"],
+                "MarginTypeA": "Expand",
+                "ExpA": [0] * 6,
+                "OperationB": "Union",
+                "SourcesB": md_eval_subtract,
+                "MarginTypeB": "Expand",
+                "ExpB": [0] * 6,
+                "OperationResult": "Subtraction",
+                "MarginTypeR": "Expand",
+                "ExpR": [0] * 6,
+                "StructType": "Ptv",
+            }
+            make_boolean_structure(
+                patient=patient, case=case, examination=examination, **PTVEval_defs
+            )
+            md_eval_subtract.append(t)
+            newly_generated_rois.append(PTVEval_defs.get("StructureName"))
 
         for index, target in enumerate(PTVList):
             logging.debug(
-                "Creating evaluation target {}: {}".format(
-                    str(index + 1), PTVEvalList[index]
-                )
+                f"Creating evaluation target {str(index + 1)}: "
+                f"{PTVEvalList[index]}"
             )
             # Set the Sources Structure for Evals
             PTVEval_defs = {
@@ -4180,7 +4683,7 @@ def planning_structures(
             otv_subtract = ["Skin_PRV03", "InnerAir", "UnderDose_Exp"]
         else:
             otv_subtract = ["Skin_PRV03", "InnerAir"]
-        logging.debug("otvs will not include {}".format(otv_subtract))
+        logging.debug(f"otvs will not include {otv_subtract}")
 
         not_otv_definitions = {
             "StructureName": "z_derived_not_otv",
@@ -4244,9 +4747,8 @@ def planning_structures(
             # Loop over the sOTVu's
             for index, target in enumerate(PTVList):
                 logging.debug(
-                    "Creating uniform zone target {}: {}".format(
-                        str(index + 1), sotvu_name
-                    )
+                    f"Creating uniform zone target {str(index + 1)}: "
+                    f"{sotvu_name}"
                 )
                 # Generate the sOTVu
                 sotvu_defs = {

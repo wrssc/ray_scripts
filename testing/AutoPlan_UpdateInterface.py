@@ -172,7 +172,7 @@ def automated_plan_gui(examination):
     # *Dropdown with protocols
     # ORDER SELECTION
     # *Dropdown of order names once protocols are selected
-    # INPUT TARGET DOSE LEVELS
+    # INPUT TARGET DOSE DOMAIN_TYPE
     # *Text entry: Number of fracs
     # *Text entry: Site abbreviation
     # *Drop-downs of all targets+doses

@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Esophagus</name>
+    <AnatomicGroup>Thorax</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
         <protocol institution="UWHC">XRT_CHEST_WITH_CONTRAST</protocol>
@@ -22,7 +23,7 @@
     <order>
         <name>Esophagus [28 Fx]</name>
         <prefix>Esop_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -49,7 +50,7 @@
     <order>
         <name>Esophagus [23Fx]</name>
         <prefix>Esop_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

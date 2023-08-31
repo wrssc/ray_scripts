@@ -69,6 +69,7 @@ def main():
     else:
         local = selector.local
 
+
     # Clear directory
     if os.path.exists(local):
         if os.path.isfile(local):

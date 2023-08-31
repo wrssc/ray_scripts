@@ -1,5 +1,6 @@
 <protocol version="1">
     <name>UW PRDR Brain</name>
+    <AnatomicGroup>Head</AnatomicGroup>
     <notes date="06APR2022">Created</notes>
     <ct>
         <protocol institution="UWHC">XRT_HEAD</protocol>
@@ -21,7 +22,7 @@
     <order>
         <name>VMAT_PRD_Brain</name>
         <prefix>Brai_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

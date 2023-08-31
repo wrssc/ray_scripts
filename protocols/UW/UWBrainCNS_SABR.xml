@@ -1,5 +1,6 @@
 <protocol>
     <name>UW Brain SABR</name>
+    <AnatomicGroup>Head</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_FSRT_HEAD</protocol>
     </ct>
@@ -19,7 +20,7 @@
     <order>
         <name>Brain SBRT [5Fx or fewer]</name>
         <prefix>Brai_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>

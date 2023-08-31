@@ -1,5 +1,15 @@
+<!--
+  ~ __copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
+  -->
+
 <protocol>
     <name>UW Abdomen</name>
+    <version>1.0</version>
+    <description>Abdomen treatment planning orders for non-SBRT treatments</description>
+    <institution>University of Wisconsin Hospitals and Clinics</institution>
+    <author>R. Adam Bayliss, Ph.D.</author>
+    <date>2023-04-22</date>
+    <AnatomicGroup>Abdomen</AnatomicGroup>
     <ct>
         <protocol institution="Johnson Creek">8.1 XRT PELVIS</protocol>
         <protocol institution="East">8.2 Pelvis without contrast 0.8sec</protocol>
@@ -15,11 +25,10 @@
     <prescription>
         <frequency default="true">Daily</frequency>
         <frequency>Twice daily</frequency>
-        <imaging>Daily CBCT</imaging>
+        <imaging default="true">Daily CBCT</imaging>
         <imaging>Weekly kV</imaging>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-        <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
         </technique>
@@ -27,7 +36,7 @@
     <order>
         <name>Abdomen [15Fx]</name>
         <prefix>Abdo_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -53,11 +62,29 @@
                 <dose units="Gy" idl="100">45</dose>
             </roi>
             <fractions>15</fractions>
-            <imaging>Daily CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <technique modality="Photons" technique="DynamicArc" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="DynamicArc" code="VMA" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
+            </Instruction>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
+                treatment
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <validation>
             <validation_status>False</validation_status>
@@ -307,7 +334,7 @@
     <order>
         <name>Liver Hypofractionated [10Fx]</name>
         <prefix>Livr_</prefix>
-        <prescription>
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p</name>
                 <type>DX</type>
@@ -336,7 +363,6 @@
             <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0477">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
         <validation>
