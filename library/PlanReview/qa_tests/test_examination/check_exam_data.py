@@ -1,5 +1,6 @@
 import re
 from dateutil import parser
+from typing import NamedTuple, Tuple, Optional
 
 from PlanReview.review_definitions import PASS,FAIL
 
@@ -63,17 +64,27 @@ def match_exactly(value1, value2):
         return False, value1, value2
 
 
-def check_exam_data(rso):
-    """
-    Checks the RayStation plan information versus the native CT DICOM header.
-    Patient Name match is a case-insensitive comparison excluding middle name
-    Gender match on M/F/O vs M/F/O/Unknown/None
-    Date of birth match by using parser to pull a Y/M/D date ignoring time
-    PatientID is an exact match (string equality)
-    Args:
-        kwargs:'rso': (object): Named tuple of ScriptObjects
-    Returns:
-        (Pass/Fail/Alert, Message to Display)
+def check_exam_data(rso: NamedTuple) -> Tuple[str, str]:
+    """ Verify Examination DICOM Data
+        Checks the RayStation plan information against the native CT DICOM header.
+
+        Args:
+            rso (ScriptObjects): Named tuple of ScriptObjects in Raystation containing [case,exam,plan,beamset,db].
+
+        Returns:
+            Tuple[str, str]: First element is the status (PASS/FAIL/ALERT),
+                             Second element is the message string.
+
+        Pseudocode:
+            1. Extract 'do_physics_review' from kwargs
+            2. Retrieve approval status from 'get_approval_info' function (to be implemented)
+            3. Build the appropriate message string based on DICOM and RS data
+            4. Determine the result (PASS/FAIL/ALERT)
+            5. Return the result and message
+
+        Test Patients:
+            Pass: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: THI: Plan: Anal_THI
+            Fail: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: Pros_VMA
     """
 
     modality_tag = (0x0008, 0x0060)

@@ -1,7 +1,37 @@
+from typing import NamedTuple, Tuple, Dict, Optional
 from PlanReview.review_definitions import PASS, FAIL
 
 
-def check_axial_orientation(rso):
+def check_axial_orientation(rso: NamedTuple, **kwargs: Optional[bool]) -> Tuple[str, str]:
+    """Check Axial Orientation
+       Validates the orientation of the patient images by comparing it against a pre-defined set of rules
+       based on the patient's position.
+
+    Args:
+        rso (NamedTuple): ScriptObjects in RayStation containing
+                          [case ('RayStation Case Object'),
+                           exam ('RayStation Exam Object'),
+                           plan ('RayStation Plan Object'),
+                           beamset ('RayStation BeamSet Object'),
+                           db ('RayStation Database Object')]
+        **kwargs: Additional keyword arguments (not used).
+
+    Returns:
+        pass_result, message_str (Tuple[str, str]): First element is the status (PASS/FAIL/ALERT),
+                          Second element is the message string.
+
+    Pseudocode:
+    1. Get patient position from the exam.
+    2. Define the expected direction vectors for each patient position.
+    3. Compare the actual direction vectors of the image stack with the expected ones.
+    4. Generate a message string based on the comparison.
+    5. Return the pass/fail result and the message string.
+
+    Test Patients:
+        Pass:
+        Fail:
+
+    """
     # Match the directions that a correctly oriented image should have
     patient_position = str(rso.exam.PatientPosition)
 

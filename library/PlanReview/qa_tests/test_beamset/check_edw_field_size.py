@@ -1,22 +1,40 @@
+from typing import NamedTuple, List, Tuple
 from PlanReview.review_definitions import TRUEBEAM_DATA, PASS, FAIL
 
 
-def check_edw_field_size(rso):
-    """
-    Checks to see if all Y jaws  are greater than the EDW limit
-    Y1=IN : -10 cm ≤ Y2 ≤ 10 cm & 4 ≤ Y2 - Y1 ≤ 30
-    Y2=OUT: -10 cm ≤ Y1 ≤ 10 cm & 4 ≤ Y2 - Y1 ≤ 30
+def check_edw_field_size(rso: NamedTuple) -> Tuple[str, str]:
+    """ Check EDW Field Size
+        Checks if all Y jaws are within the EDW limit.
 
-    Args:
-     rso: NamedTuple: Named tuple of rs objects
+        Args:
+            rso (NamedTuple): Named tuple of RayStation objects including
+                              [case ('RayStation Case Object'),
+                               exam ('RayStation Exam Object'),
+                               plan ('RayStation Plan Object'),
+                               beamset ('RayStation BeamSet Object'),
+                               db ('RayStation Database Object')]
 
-    Returns:
-        messages: List of ['Test Name Key', 'Pass/Fail', 'Detailed Message']
+        Returns:
+            Tuple[str, str]: First element is the status (PASS/FAIL),
+                             Second element is the message string.
 
-    Test Patient:
-        ScriptTesting, #ZZUWQA_SCTest_13May2022, C1
-        PASS: ChwR_3DC_R0A0
-        FAIL: EDW_Fail - Note that as of RS 11B the jaws can't be made to violate max limits.
+        Pseudocode:
+        1. Initialize an empty dictionary for storing EDW information ('edws').
+        2. Iterate through the beams in the beamset to collect EDW information.
+            - Check if each beam has a wedge attribute and if 'EDW' is in the WedgeID.
+            - If so, store jaw positions in 'edws'.
+        3. If any EDWs are found, perform the following checks for each EDW:
+            a. Check if X2 - X1 is within the range [4, 40] cm.
+            b. If orientation is 'In', check if Y2 is within [-10, 10] cm and Y2 - Y1 is within [4, 30] cm.
+            c. If orientation is 'Out', check if Y1 is within [-10, 10] cm and Y2 - Y1 is within [4, 30] cm.
+        4. Prepare a message string based on the compliance results.
+        5. Determine and return the final result and message string based on the above checks.
+
+
+        Test Patients:
+
+            PASS: ScriptTesting, #ZZUWQA_SCTest_13May2022, C1, ChwR_3DC_R0A0
+            FAIL: ScriptTesting, #ZZUWQA_SCTest_13May2022, C1, EDW_Fail - Note that as of RS 11B the jaws can't be made to violate max limits.
     """
     edws = {}
     for b in rso.beamset.Beams:

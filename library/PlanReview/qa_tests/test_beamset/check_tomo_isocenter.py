@@ -13,18 +13,18 @@ def check_tomo_isocenter(rso):
             message: List of ['Test Name Key', 'Pass/Fail', 'Detailed Message']
 
     """
-    # child_key = "Isocenter Lateral Acceptable"
-    iso_pos_x = rso.beamset.Beams[0].Isocenter.Position.x
+    isocenter = rso.beamset.Beams[0].Isocenter
+    iso_pos_x = isocenter.Position.x
     if np.less_equal(abs(iso_pos_x), TOMO_DATA['LATERAL_ISO_MARGIN']):
         pass_result = PASS
         message_str = \
-            f"Isocenter [{rso.beamset.Beams[-1].Isocenter.Annotation.Name}] " \
+            f"Isocenter [{rso.beamset.Beams[0].Isocenter.Annotation.Name}] " \
             f"lateral shift is acceptable: {iso_pos_x} < " \
             f"{TOMO_DATA['LATERAL_ISO_MARGIN']} cm"
     else:
         pass_result = FAIL
         message_str = \
-            f"Isocenter [{rso.beamset.Beams[0].Isocenter.Annotation.Name}]"\
+            f"Isocenter [{isocenter.Annotation.Name}]"\
             f" lateral shift is inconsistent with indexing: {iso_pos_x}"\
             f" > {TOMO_DATA['LATERAL_ISO_MARGIN']} cm!"
     return pass_result, message_str

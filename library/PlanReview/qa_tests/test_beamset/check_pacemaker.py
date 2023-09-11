@@ -137,10 +137,10 @@ def check_pacemaker(rso):
     """
         Check pacemaker dose is less than 2. Alert if PRV exceeds dose
         Args:
-            rso:
+            rso (namedtuple): RayStation Beamset Object
 
         Returns:
-        message (list str): [Pass_Status, Message String]
+            message (list str): [Pass_Status, Message String]
 
         Test Patient:
             PASS but warn about distance: Script_Testing, ZZUWQA_ScTest_24Aug2022, LunR_3DC_R2A0

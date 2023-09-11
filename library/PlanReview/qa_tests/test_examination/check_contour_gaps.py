@@ -1,3 +1,4 @@
+from typing import NamedTuple, Tuple, Optional, List
 import numpy as np
 import math
 from PlanReview.review_definitions import PASS, FAIL
@@ -73,19 +74,40 @@ def consecutive(data, stepsize=1):
     return np.split(data, np.where(np.diff(data) >= stepsize)[0] + 1)
 
 
-def check_contour_gaps(rso):
-    """
-    Look for S/I discontinuties in all rois that have contours and are not
-    derived by resampling the roi onto a small grid and looking for empty
-    slices
+def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
+    """ Check Contour Gaps
+        Look for Superior/Inferior discontinuities in all ROIs that have contours and are not
+        derived. The function resamples the ROI onto a small grid and looks for empty slices.
 
-    :param rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+        Args:
+            rso (NamedTuple): ScriptObjects in RayStation containing
+                             [case ('RayStation Case Object'),
+                              exam ('RayStation Exam Object'),
+                              plan ('RayStation Plan Object'),
+                              beamset ('RayStation BeamSet Object'),
+                              db ('RayStation Database Object')]
 
-    :return: message (list str): [Pass_Status, Message String]
+        Returns:
+            result, message_string (Tuple[str, str]): First element is the status (PASS/FAIL),
+                                                       Second element is the message string.
 
-    Test Patient:
-        Tomo3D_Skin: ZZUWQA_Tomo3D_SkinInvolved: Contours not labeled "Gaps" don't have gaps
-        Tomo Leg: ZZUWQA_14Mar2023_01: GTV_Combo has the kinds of gaps I can think of
+        Pseudocode:
+        1. Look through all available ROIs that have contours for gaps.
+        2. Get slice positions from 'get_slice_positions' function.
+        3. Determine voxel size based on CT slice thickness.
+        4. For each ROI:
+            a. Use 'find_gaps' function to detect gaps in ROI.
+               i. Determine a bounding box for the ROI contour.
+              ii. Resample the ROI onto a grid defined by the bounding box.
+             iii. Look for any slices without contour data (empty slices).
+              iv. If found, store these slice positions as gaps.
+        5. Accumulate gaps and related information into a message string.
+        6. Determine the result (PASS/FAIL) based on gap detection.
+        7. Return the result and message string.
+
+    Test Patients:
+        Pass: Tomo3D_Skin: ZZUWQA_Tomo3D_SkinInvolved: Contours not labeled "Gaps" don't have gaps
+        Fail: Tomo Leg: ZZUWQA_14Mar2023_01: GTV_Combo has the kinds of gaps I can think of
 
     """
     # Look through all available rois that have contours for gaps

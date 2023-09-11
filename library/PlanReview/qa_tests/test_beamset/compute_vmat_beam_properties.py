@@ -212,34 +212,34 @@ def compute_vmat_beam_properties(rso):
         if lsv < MCS_TOLERANCES['LSV']['MEAN'] - 2. * MCS_TOLERANCES['LSV']['SIGMA']:
             ## pass_result = FAIL
             pass_result = None
-            message_str += '{:.3f} OVERMOD,'.format(lsv)
+            message_str += '{:.2f} OVERMOD,'.format(lsv)
         elif lsv > MCS_TOLERANCES['LSV']['MEAN'] + 2. * MCS_TOLERANCES['LSV']['SIGMA']:
             ## pass_result = FAIL
             pass_result = None
-            message_str += '{:.3f} UNDERMOD,'.format(lsv)
+            message_str += '{:.2f} UNDERMOD,'.format(lsv)
         else:
-            message_str += '{:.3f},'.format(lsv)
+            message_str += '{:.2f},'.format(lsv)
         # AAV
         if aav < MCS_TOLERANCES['AAV']['MEAN'] - 2. * MCS_TOLERANCES['AAV']['SIGMA']:
             ## pass_result = FAIL
             pass_result = None
-            message_str += '{:.3f} OVERMOD,'.format(aav)
+            message_str += '{:.2f} OVERMOD,'.format(aav)
         elif aav > MCS_TOLERANCES['AAV']['MEAN'] + 2. * MCS_TOLERANCES['AAV']['SIGMA']:
             ## pass_result = FAIL
             pass_result = None
-            message_str += '{:.3f} UNDERMOD,'.format(aav)
+            message_str += '{:.2f} UNDERMOD,'.format(aav)
         else:
-            message_str += '{:.3f},'.format(aav)
+            message_str += '{:.2f},'.format(aav)
         # MCS
         if mcs < MCS_TOLERANCES['MCS']['MEAN'] - 2. * MCS_TOLERANCES['MCS']['SIGMA']:
             ## pass_result = FAIL
             pass_result = None
-            message_str += '{:.3f} OVERMOD,'.format(mcs)
+            message_str += '{:.2f} OVERMOD,'.format(mcs)
         elif mcs > MCS_TOLERANCES['MCS']['MEAN'] + 2. * MCS_TOLERANCES['MCS']['SIGMA']:
             ## pass_result = FAIL
             pass_result = None
-            message_str += '{:.3f} UNDERMOD,'.format(mcs)
+            message_str += '{:.2f} UNDERMOD,'.format(mcs)
         else:
-            message_str += '{:.3f}'.format(mcs)
+            message_str += '{:.2f}'.format(mcs)
         message_str += '],'
     return pass_result, message_str

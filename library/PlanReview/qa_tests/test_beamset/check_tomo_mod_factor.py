@@ -133,8 +133,8 @@ def check_tomo_mod_factor(rso):
         site_exp = site_exp[:len(site_exp) - 1]  # Drop the last pipe
         reg_site = re.compile(site_exp)
         if re.search(reg_site, rso.beamset.DicomPlanLabel):
-            mod_high = prefs['MF_HIGH']
-            mod_low = prefs['MF_LOW']
+            mod_high = float(prefs['MF_HIGH'])
+            mod_low = float(prefs['MF_LOW'])
             site_found = site
             break
 
@@ -161,6 +161,6 @@ def check_tomo_mod_factor(rso):
                                f"for site {site_found}"
         else:
             pass_result = PASS
-            message_str += f"Beam {b.Name} MF ({mod_factor:.2f}) ideal" \
-                           f"{mod_low:.2f} ≤ MF ≤ {mod_high:.2f}"
+            message_str += f"Beam {b.Name} MF ({mod_factor:.2f}) ideal " \
+                           + "{:.2f} ≤ MF ≤ {:.2f}".format(mod_low, mod_high)
     return pass_result, message_str

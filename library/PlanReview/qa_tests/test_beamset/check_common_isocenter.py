@@ -1,17 +1,31 @@
 from math import isclose
+from typing import Tuple, Optional
 from PlanReview.review_definitions import FAIL, PASS
 
 
-def check_common_isocenter(rso, **kwargs):
-    """
-    Checks all beams in beamset for shared isocenter
+def check_common_isocenter(rso, **kwargs) -> Tuple[str, str]:
+    """ Check common isocenter
+    Checks all beams in a given beamset for shared isocenter.
 
     Args:
-        beamset (object):
-        tolerance (flt): largest acceptable difference in isocenter location
-    Returns:
-            message: List of ['Test Name Key', 'Pass/Fail', 'Detailed Message']
+        rso (NamedTuple): ScriptObjects in Raystation containing [case,exam,plan,beamset,db].
+        tolerance (Optional[float]): Largest acceptable difference in isocenter location in mm.
 
+    Returns:
+        Tuple[str, str]: First element is the status (PASS/FAIL),
+                         Second element is the message string.
+
+    Pseudocode:
+        1. Extract 'tolerance' from kwargs
+        2. Retrieve isocenter positions for the first beam
+        3. Loop through all beams to compare isocenter positions
+        4. Build the appropriate message string based on isocenter match or difference
+        5. Determine the result (PASS/FAIL)
+        6. Return the result and message
+
+    Test Patients:
+        Pass: (Provide relevant test cases where this check will pass)
+        Fail: (Provide relevant test cases where this check will fail)
     """
     tolerance = kwargs.get('tolerance')
     initial_beam_name = rso.beamset.Beams[0].Name

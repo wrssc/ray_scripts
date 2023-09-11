@@ -1,4 +1,5 @@
 from .check_isocenter_clearance import check_isocenter_clearance
+from PlanReview.review_definitions import REVIEW_LEVELS
 
 
 def get_sandbox_level_tests(rso, physics_review=True):
@@ -7,7 +8,7 @@ def get_sandbox_level_tests(rso, physics_review=True):
         return {}
 
     sandbox_checks_dict = {
-        "Couch Zero Full Rotation Clearance Check":
+        f"{REVIEW_LEVELS['SANDBOX']}::Couch Zero Full Rotation Clearance Check":
             (check_isocenter_clearance, {}),
     }
     return sandbox_checks_dict

@@ -1,7 +1,7 @@
 import re
 import numpy as np
-from PlanReview.review_definitions import (FIELD_OF_VIEW_PREFERENCES,
-PASS, FAIL, )
+from PlanReview.review_definitions import (
+    FIELD_OF_VIEW_PREFERENCES, PASS, FAIL, )
 from .get_targets_si_extent import get_targets_si_extent
 from .get_roi_list import get_roi_list
 

@@ -55,8 +55,9 @@ def match_date(date1, date2):
         return False, parsed_date1, parsed_date2
 
 
-def check_exam_date_and_slices(rso, **kwargs):
+def compare_exam_data_to_preplan(rso, **kwargs):
     """
+    Compare Exam Data and Slice count to user entry
     Check if the exam date and slice count from the user match the DICOM data.
 
     Args:
@@ -65,6 +66,22 @@ def check_exam_date_and_slices(rso, **kwargs):
 
     Returns:
         tuple: A tuple containing the pass_result (PASS, FAIL, or ALERT) and a message_str describing the result.
+
+    Pseudocode:
+        1. Extract user-entered exam date and slice count from kwargs.
+        2. Call `get_dicom_date_and_slices` to get exam date and slice count from DICOM data.
+        3. Compare the user-entered exam date with the DICOM exam date.
+            3.1. If they match, set pass_result_date to PASS and update message.
+            3.2. If they don't match or user did not enter date, set appropriate fail or alert status and update message.
+        4. Compare the user-entered slice count with the DICOM slice count.
+            4.1. If they match, set pass_result_slices to PASS and update message.
+            4.2. If they don't match or user did not enter slice count, set appropriate fail or alert status and update message.
+        5. Determine the overall pass or fail result based on pass_result_date and pass_result_slices.
+        6. Return the overall pass_result and the message string.
+
+    Test Patients:
+        Pass: Not Applicable
+        Fail: Not Applicable
     """
     values = kwargs.get('VALUES')
     exam_date_user = values[KEY_SIM_DATE]
