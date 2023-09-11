@@ -1,12 +1,13 @@
 import PySimpleGUI as Sg
 import sys
 import logging
-from PlanReview.review_definitions import PASS, FAIL, ALERT, NA, \
-    RED_CIRCLE, GREEN_CIRCLE, YELLOW_CIRCLE, BLUE_CIRCLE, \
-    CHECK_BOXES_PHYSICS_REVIEW, \
-    CHECK_BOXES_PHYSICS_REVIEW_3D, \
-    CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS, \
-    CHECK_BOXES_PHYSICS_REVIEW_TOMO3D, CHECK_BOXES_PHYSICS_REVIEW_TOMO
+from typing import NamedTuple
+from PlanReview.review_definitions import (
+    PASS, FAIL, ALERT, NA,
+    DOMAIN_TYPE, RED_CIRCLE, GREEN_CIRCLE, YELLOW_CIRCLE, BLUE_CIRCLE,
+    CHECK_BOXES_PHYSICS_REVIEW, CHECK_BOXES_PHYSICS_REVIEW_3D,
+    CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
+    CHECK_BOXES_PHYSICS_REVIEW_TOMO3D, CHECK_BOXES_PHYSICS_REVIEW_TOMO)
 from PlanReview.utils.constants import *
 
 
@@ -65,9 +66,9 @@ def generate_event_key(*args):
 
 
 def create_manual_check_row(item, max_check, user_text_length=80):
-    phrases = item['options'].split(',')
-    test_name = item[KEY_OUT_TEST]
-    row_key = item['key']
+    phrases = item[KEY_OUT_OPTIONS].split(',')
+    test_name = item[KEY_OUT_DESC]
+    row_key = item[KEY_OUT_TEST]
     radios = [Sg.Column(
         [[Sg.Radio(
             phrase,
@@ -107,28 +108,30 @@ def extract_manual_values(window, passing, failed, check_boxes):
     for key in check_boxes:
         sorted_values[key] = {}
         for item in check_boxes[key]:
-            phrases = item['options'].split(',')
+            phrases = item[KEY_OUT_OPTIONS].split(',')
             for p in phrases:
                 radio_key = create_key(
-                    f"{item['key']}{KEY_CHECK}{KEY_RADIO}{p}")
+                    f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}{p}")
                 sorted_values[key][radio_key] = window[radio_key].get() \
                     if window[radio_key].get() else None
-            input_key = create_key(f"{item['key']}{KEY_CHECK}{KEY_INPUT_TEXT}")
+            input_key = create_key(f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}")
             sorted_values[key][input_key] = window[input_key].get() \
                 if window[input_key].get() else None
     # Parse the automated tests after user input
     key = 'Failed Tests'
     sorted_values[key] = {}
     for test in failed:
-        test_name = test[KEY_OUT_TEST]
-        sorted_values[key][create_key(test_name)] = \
-            window[create_key(test_name)].get()
+        input_key = create_key(
+            test[KEY_OUT_DOMAIN_NAME],test[KEY_OUT_DESC],KEY_INPUT_TEXT)
+        sorted_values[key][input_key] = window[input_key].get()
     key = 'Passing Tests'
     sorted_values[key] = {}
     for test in passing:
-        test_name = test[KEY_OUT_TEST]
-        sorted_values[key][create_key(test_name)] = \
-            window[create_key(test_name)].get()
+        input_key = create_key(
+            test[KEY_OUT_DOMAIN_NAME], test[KEY_OUT_DESC],KEY_INPUT_TEXT)
+        sorted_values[key][input_key] = window[input_key].get()
+        # sorted_values[key][create_key(test_domain_name,test_name)] = \
+        #     window[input_key].get()
     return sorted_values
 
 
@@ -137,9 +140,16 @@ def load_manual(window, values, check_boxes):
         if any((check_level in check_boxes,
                 check_level == 'Failed Tests',
                 check_level == 'Passing Tests')):
+
             for key, value in value_dict.items():
-                if create_key(key) in window.key_dict:
-                    window[create_key(key)].update(value=value)
+                if check_level in check_boxes:
+                    saved_key = create_key(key)
+                else:
+                    saved_key = key
+                if saved_key in window.key_dict:
+                    window[saved_key].update(value=value)
+                else:
+                    logging.debug(f'No match found for {saved_key} during load.')
 
 
 def search_string(input_string):
@@ -151,13 +161,13 @@ def search_string(input_string):
         return None, input_string
 
 
-def create_auto_check_row(comment, result, icon, key_name, max_check, user_text_x):
+def create_auto_check_row(comment, result, icon, key, max_check, user_text_x):
     row = [Sg.Column(
         [[Sg.Image(icon),
           Sg.Text(result, size=(max_check, 1), justification='left')]],
     ),
-        Sg.Column([[Sg.InputText(default_text=f"{comment}: Comment",
-                                 key=create_key(key_name),
+        Sg.Column([[Sg.InputText(default_text=f"{comment}",
+                                 key=key,
                                  size=(user_text_x, 1),
                                  expand_x=True,
                                  enable_events=True,  # pad=((40, 0), (0, 0)),
@@ -249,7 +259,7 @@ def make_subframe(input_text, content_list):
     return Sg.Frame(f"   {input_text}", [content_list],
                     pad=(1, 1),
                     expand_x=True,
-                    #expand_y=True,
+                    # expand_y=True,
                     background_color='#C3C3C3',
                     border_width=0)
 
@@ -258,7 +268,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                              failed_tests, tab_width, tab_height,
                              pix_per_char_width, pix_per_char_height, save_space
                              ):
-    max_check = max([len(item[KEY_OUT_TEST]) for key in check_boxes
+    max_check = max([len(item[KEY_OUT_DESC]) for key in check_boxes
                      for item in check_boxes[key]])
     tabs = []
     pixels_per_char = 8.3 if save_space else pix_per_char_width
@@ -274,7 +284,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
         frame_layout = []
         total_items = 0
 
-        # max_tab_length = 70 #  max_test_length(check_boxes[key], KEY_OUT_TEST)
+        # max_tab_length = 70 #  max_test_length(check_boxes[key], KEY_OUT_DESC)
         frame_data = determine_frame_properties(
             tab_width, tab_height, key, check_boxes, failed_tests, passing_tests,
             pix_per_char_height, save_space)
@@ -305,7 +315,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                 comment = v[KEY_OUT_COMMENT]
                 icon = v[KEY_OUT_ICON]
                 result = v[KEY_OUT_MESSAGE]
-                key_name = v[KEY_OUT_TEST]
+                key_name = create_key(domain_name, v[KEY_OUT_DESC], KEY_INPUT_TEXT)
                 rows[domain_name].append(
                     create_auto_check_row(
                         comment, result, icon, key_name, max_check,
@@ -320,7 +330,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                                              vertical_scroll_only=True)])])
             frame_failed_tests = Sg.Frame('Failed Tests', subframes,
                                           # TODO: Redo the size calcs to include subframes
-                                          #size=frame_data['fail_size']
+                                          # size=frame_data['fail_size']
                                           )
             layout.append([frame_failed_tests])
         # Passing
@@ -335,7 +345,8 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                 comment = v[KEY_OUT_COMMENT]
                 icon = v[KEY_OUT_ICON]
                 result = v[KEY_OUT_MESSAGE]
-                key_name = v[KEY_OUT_TEST]
+                # key_name = v[KEY_OUT_DESC]
+                key_name = create_key(domain_name, v[KEY_OUT_DESC], KEY_INPUT_TEXT)
                 rows[domain_name].append(
                     create_auto_check_row(
                         comment, result, icon, key_name, max_check,
@@ -349,7 +360,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                                              scrollable=frame_data['pass_scroll'],
                                              vertical_scroll_only=True)])])
             frame_passing_tests = Sg.Frame('Passing Tests', subframes,
-                                           #size=frame_data['pass_size']
+                                           # size=frame_data['pass_size']
                                            )
             layout.append([frame_passing_tests])
         tab = Sg.Tab(key, [[Sg.Column(layout)]])
@@ -377,16 +388,24 @@ def on_manual_radio_button_click(window, event):
                                  background_color='#848884')
 
 
-def merge_dicts(dict1, dict2):
-    merged = dict1.copy()  # Start with a copy of dict1
+def copy_and_filter_checkbox_dict(dict1, dict2):
+    # Create filtered copies of dict1 and dict2 without the KEY_REVIEW_TYPE key
+    f_dict1 = {k: v for k, v in dict1.items() if k != KEY_REVIEW_TYPE}
+    f_dict2 = {k: v for k, v in dict2.items() if k != KEY_REVIEW_TYPE}
+    return f_dict1, f_dict2
 
-    for key, value in dict2.items():
+def merge_dicts(dict1, dict2):
+    # Get filtered versions of the dictionaries
+    f_dict1, f_dict2 = copy_and_filter_checkbox_dict(dict1, dict2)
+    # Create a copy of f_dict1 to start merging
+    merged = f_dict1.copy()
+
+    for key, value in f_dict2.items():
         if key in merged:
-            #
             # Merge unique items from dict2[key] into merged[key]
-            merged[key] = [x for x in merged[key] if x not in value] + value
+            # Filter out duplicate keys
+            merged[key] = [d for d in merged[key] if d not in value] + value
         else:
-            #
             # Add key and value from dict2 if not in dict1
             merged[key] = value
 
@@ -396,12 +415,43 @@ def merge_dicts(dict1, dict2):
     return merged
 
 
+def find_domain_name(rso: NamedTuple, domain_level: str) -> str:
+    """
+    Finds the domain name based on the given Radiotherapy Service Object (RSO)
+    and domain level key.
+
+    Args:
+        rso (script object): RayStation Script Object containing data for the
+            patient, exam, plan, etc.
+        domain_level (str): Key for the desired domain level, e.g., "PLAN_KEY".
+
+    Returns:
+        str: The domain name corresponding to the given RSO and domain level.
+
+    """
+    # Note: It's assumed that DOMAIN_TYPE is defined elsewhere in the code.
+    if domain_level == DOMAIN_TYPE['PATIENT_KEY']:
+        return rso.patient.PatientID
+    if domain_level == DOMAIN_TYPE['EXAM_KEY']:
+        return rso.exam.Name
+    if domain_level == DOMAIN_TYPE['PLAN_KEY']:
+        return rso.plan.Name
+    if domain_level == DOMAIN_TYPE['BEAMSET_KEY']:
+        return rso.beamset.DicomPlanLabel
+    if domain_level == DOMAIN_TYPE['SANDBOX_KEY']:
+        return domain_level
+    if domain_level == DOMAIN_TYPE['RX_KEY']:
+        return rso.beamset.PrimaryDosePrescription
+    if domain_level == DOMAIN_TYPE['LOG_KEY']:
+        return domain_level
+
+
 def build_manual_check_box_list(rso, beamsets):
     """
     Depending on the type of beamset we are checking, find the appropriate
     checklist from review_definitions
     :param rso:
-    :param beamsets (list): list of all beamsets
+    :param beamsets: (list): list of all beamsets
     :return: checks dictionary
     """
     dict1 = CHECK_BOXES_PHYSICS_REVIEW
@@ -425,12 +475,15 @@ def build_manual_check_box_list(rso, beamsets):
                 item[KEY_OUT_MESSAGE] = ""
                 item[KEY_OUT_COMMENT] = ""
                 item[KEY_OUT_ICON] = None
+                item[KEY_OUT_DOMAIN_NAME] = find_domain_name(
+                    rso,item[KEY_OUT_DOMAIN_TYPE])
     return dict1
 
 
 from collections import defaultdict
 
 
+# TODO: Evaluate this object to determine if it is worthwhile to create objects for tests
 class Domain:
     def __init__(self, domain_type, domain_name):
         self.domain_type = domain_type
@@ -468,7 +521,7 @@ def get_tests_from_tree(tree_children):
         child = {
             KEY_OUT_DOMAIN_TYPE: domain_type,
             KEY_OUT_DOMAIN_NAME: domain_name,
-            KEY_OUT_TEST: str(comment),
+            KEY_OUT_DESC: str(comment),
             KEY_OUT_MESSAGE: str(result),
             KEY_OUT_ICON: str(icon),
             KEY_OUT_RESULT: pass_fail,
@@ -477,7 +530,7 @@ def get_tests_from_tree(tree_children):
             child[KEY_OUT_COMMENT] = "Script Fail: Comment Needed"
             failed_tests.append(child)
         else:
-            child[KEY_OUT_COMMENT] = "Script Pass"
+            child[KEY_OUT_COMMENT] = ""
             passing_tests.append(child)
     return passing_tests, failed_tests
 
@@ -498,9 +551,9 @@ def process_check_box_values(window, checks):
     for test_level in checks:
         ## sorted_results[test_level] = []
         for item in checks[test_level]:
-            parsed_item = {KEY_OUT_TEST: item[KEY_OUT_TEST]}
-            radio_pre = f"{item['key']}{KEY_CHECK}{KEY_RADIO}"
-            input_key = create_key(f"{item['key']}{KEY_CHECK}{KEY_INPUT_TEXT}")
+            parsed_item = {KEY_OUT_DESC: item[KEY_OUT_DESC]}
+            radio_pre = f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}"
+            input_key = create_key(f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}")
             if window[create_key(radio_pre + 'Yes')].get():
                 parsed_item[KEY_OUT_RESULT] = PASS
                 parsed_item[KEY_OUT_ICON] = GREEN_CIRCLE
@@ -532,7 +585,7 @@ def process_auto_tests(window, tests):
         window (PySimpleGUI.Window): The PySimpleGUI window object.
         tests (list): A list of tests, where each item is a dict containing:
 
-            KEY_OUT_TEST: the name of the test
+            KEY_OUT_DESC: the name of the test
             KEY_OUT_MESSAGE: PASS/FAIL/ALERT
             KEY_OUT_ICON: string containing icon
             KEY_OUT_COMMENT: a placeholder for the default comment
@@ -550,13 +603,16 @@ def process_auto_tests(window, tests):
     """
     test_list = []
     for test in tests:
+        domain_name = test[KEY_OUT_DOMAIN_NAME]
+        description = test[KEY_OUT_DESC]
         parsed_item = {
-            KEY_OUT_TEST: test[KEY_OUT_TEST],
+            KEY_OUT_DESC: description,
             KEY_OUT_MESSAGE: test[KEY_OUT_MESSAGE],
-            KEY_OUT_COMMENT: window[create_key(test[KEY_OUT_TEST])].get(),
+            KEY_OUT_COMMENT: window[
+                create_key(domain_name, description, KEY_INPUT_TEXT)].get(),
             KEY_OUT_RESULT: test[KEY_OUT_RESULT],
             KEY_OUT_DOMAIN_TYPE: test[KEY_OUT_DOMAIN_TYPE],
-            KEY_OUT_DOMAIN_NAME: test[KEY_OUT_DOMAIN_NAME],
+            KEY_OUT_DOMAIN_NAME: domain_name,
             KEY_OUT_TAB: test[KEY_OUT_TAB],
             KEY_OUT_TEST_SOURCE: SOURCE_AUTO,
 
