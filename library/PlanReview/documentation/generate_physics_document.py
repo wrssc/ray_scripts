@@ -1,15 +1,19 @@
 import logging
+import math
 import os
 import json
 import pandas as pd
+from typing import Union, Optional
 from docx import Document
 from docx.table import Table
 from docx.shared import Inches, Pt
 from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.enum.section import WD_SECTION, WD_ORIENTATION
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 from PlanReview.review_definitions import (
-    OUTPUT_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS)
+    OUTPUT_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS, FAIL, PASS, ALERT)
 from PlanReview.utils import get_approval_info
 from PlanReview.utils.constants import *
 
@@ -19,13 +23,14 @@ bottom_margin = 0.2  # (in) bottom page margin
 left_margin = 0.25  # (in) left page margin
 right_margin = 0.2  # (in) right page margin
 page_height = 8.5  # (in) overall page height
-row_height = 0.35  # (in) row height
+row_height = 0.375  # (in) row height
+domain_row_height = 0.2  # (in) domain - header row height
 header_height = 0.1875  # (in) secondary header height
 footer_height = 0.25  # (in) secondary footer height
 table_header_height = 0.375  # (in) Table header row height
 table_title_height = 0.25  # (in) Table title
 table_spacing = 0.375  # (in) Table spacing
-safety_margin = 0.0
+safety_margin = 0.2
 # Less than this, use a page break instead of split
 min_table_height = table_title_height + table_header_height + 1 * row_height
 
@@ -88,7 +93,7 @@ def generate_doc(rso, tests, header_data, test_mode=False):
         row_value = table.rows[1]
         row_key.cells[index].text = k
         row_value.cells[index].text = demographics[k]
-    # Add the front page data
+    # Add more front page data
     # add_simulation_data_table(document, header_data['-SIMULATION_DATA-'])
     #
     # add_treatment_instructions_table(document, header_data['-TREATMENT_INSTRUCTIONS-'])
@@ -106,65 +111,50 @@ def generate_doc(rso, tests, header_data, test_mode=False):
     # Add footer with patient demographics
     add_footer(section, rso, first_page=False)
 
-    # Add the user checks and failed
-    ## automated_passing = tests[KEY_AUTO_PASS]
-    ## automated_failing = tests[KEY_AUTO_FAIL]
-
     available_page_height = get_usable_page()
     adjusted_page_height = available_page_height
+    logging.debug(f'** Adjusted page height {adjusted_page_height}')
 
     unique_test_levels = tests_df[KEY_OUT_TAB].unique()
     excluded_review_levels = (REVIEW_LEVELS['SANDBOX'])
+    # Define custom ordering for 'RESULT'
+    result_order = {FAIL: 0, ALERT: 1, PASS: 2}
 
     for test_level in unique_test_levels:
         if test_level in excluded_review_levels:
-            continue  # Skip these test levels
+            continue  # Don't include these test levels in the report
 
+        # Put in the user-entered data
         user_tl_df = tests_df[(tests_df[KEY_OUT_TEST_SOURCE] == SOURCE_USER)
-                              & (tests_df[KEY_OUT_TAB] == test_level)]
-        # TODO: Get the domain type and review tab in for the user checks
-        # TODO: Get the result into the autotests
-        fail_tl_df = tests_df[(tests_df[KEY_OUT_TEST_SOURCE] == SOURCE_AUTO)
-                              & (tests_df[KEY_OUT_TAB] == test_level)]
-        pass_tl_df = tests_df[(tests_df[KEY_OUT_TEST_SOURCE] == SOURCE_AUTO)
-                              & (tests_df[KEY_OUT_TAB] == test_level)]
+                              & (tests_df[KEY_OUT_TAB] == test_level)].copy()
+        # Sort DataFrame based on custom ordering
+        user_tl_df['sort_key'] = user_tl_df[KEY_OUT_RESULT].map(result_order)
+        user_tl_df.sort_values(by='sort_key', inplace=True)
 
-        adjusted_page_height = add_check_table(
-            user_tl_df, document, adjusted_page_height,f'{test_level}')
+        # Add the manual check table
+        add_check_list_table(user_tl_df,document,title=f'{test_level}')
+        # adjusted_page_height = add_check_table_splitting(
+        #    user_tl_df, document, adjusted_page_height,f'{test_level}')
+        # Auto Checks
+        # Find all automated checks from source
+        auto_tl_df = tests_df[(tests_df[KEY_OUT_TEST_SOURCE] == SOURCE_AUTO)
+                              & (tests_df[KEY_OUT_TAB] == test_level)].copy()
+        # Map the 'RESULT' values to the custom order and create a new column for sorting
+        auto_tl_df['sort_key_result'] = auto_tl_df[KEY_OUT_RESULT].map(result_order)
 
-        # Make the list of automated tests
-        auto_df = pd.concat([fail_tl_df,pass_tl_df])
+        # Sort the DataFrame by 'KEY_OUT_DOMAIN_NAME' and the custom order
+        auto_tl_df.sort_values(by=[KEY_OUT_DOMAIN_NAME, 'sort_key_result'], inplace=True)
+
+        # Drop the temporary sorting column
+        auto_tl_df.drop('sort_key_result', axis=1, inplace=True)
 
         # Add the automated tests
-        if not auto_df.empty:
+        if not auto_tl_df.empty:
             title = f'{test_level} - Automated Checks'
-            adjusted_page_height = add_check_table(
-                auto_df, document, adjusted_page_height,title)
+            add_check_list_table(auto_tl_df, document, title=f'{title}')
+            # adjusted_page_height = add_check_table_splitting(
+            #     auto_tl_df, document, adjusted_page_height,title)
 
-            # fails_df = tests_df[tests_df['Topic'] == KEY_AUTO_FAIL]
-    #
-    # for test_level in tests.keys():
-    #     # TODO: Eliminate the automated keys?
-    #     if all((test_level != KEY_AUTO_FAIL,
-    #             test_level != KEY_AUTO_PASS,
-    #             test_level != REVIEW_LEVELS['SANDBOX'])):
-    #         adjusted_page_height = add_check_table(
-    #             tests[test_level], document, adjusted_page_height,
-    #             f'{test_level}')
-    #         # Make the list of automated tests
-    #         auto_list = []
-    #         for fails in automated_failing:
-    #             if fails[KEY_OUT_TAB] == test_level:
-    #                 auto_list.append(fails)
-    #         for passes in automated_passing:
-    #            if passes[KEY_OUT_TAB] == test_level:
-    #                auto_list.append(passes)
-    #
-    #         # Add the automated tests
-    #         if auto_list:
-    #            title = f'{test_level} - Automated Checks'
-    #            adjusted_page_height = add_check_table(
-    #                auto_list, document, adjusted_page_height, title, df=fails_df)
     document.save(output_file)
     print('Complete')
 
@@ -175,7 +165,7 @@ def get_usable_page():
     return available_space
 
 
-def estimate_table_length(number_of_rows: int) -> float:
+def estimate_table_length(df: pd.DataFrame, i: Optional[int]=0, top: Optional[bool]=False) -> float:
     """
     Estimate the length of the table based on the number of rows and the
     height of each row.
@@ -186,55 +176,65 @@ def estimate_table_length(number_of_rows: int) -> float:
     Returns:
     float: The estimated length of the table in inches.
     """
-    table_length = table_spacing + table_title_height \
-                   + table_header_height + number_of_rows * row_height
+    filtered_na_test_df = df[pd.notna(df[KEY_OUT_DOMAIN_NAME])].copy()
+    unique_domain_levels = filtered_na_test_df[KEY_OUT_DOMAIN_NAME].unique().tolist()
+    num_domain_rows = len(unique_domain_levels)
+    number_of_rows = len(df)
+    max_len_desc = df[KEY_OUT_DESC].apply(len).max()
+    max_len_message = df[KEY_OUT_MESSAGE].apply(len).max()
+    max_len_comment = df[KEY_OUT_COMMENT].apply(len).max()
+    sum_max = max_len_comment + max_len_desc + max_len_message
+    logging.debug(f'Max chars: {max_len_desc}, {max_len_message}, {max_len_comment}')
+    calculated_row_height = row_height if sum_max < 240 else row_height*math.ceil(sum_max/120)
+    if top:
+        space = 0
+    else:
+        space = table_spacing
+    table_length = space + table_title_height \
+                   + table_header_height \
+                   + (number_of_rows - i) * calculated_row_height\
+                   + num_domain_rows * domain_row_height
     return table_length
 
 
-def add_check_table(check_df, document, adjusted_page_height, title):
+def add_check_table_splitting(check_df, document, adjusted_page_height, title):
     available_page_height = get_usable_page()
-    logging.debug(f'\n**** {title} ****')
+
     test1_df, test2_df = split_list(check_df, adjusted_page_height)
     if not test1_df.empty and not test2_df.empty:
+        # A split table
+        logging.debug(f'{title}: BEFORE: available {adjusted_page_height:.2f}')
+        logging.debug(f'{title} length is {estimate_table_length(test1_df):.2f}')
         add_check_list_table(test1_df, document, title=f'{title}')
-        table_length = estimate_table_length(len(test2_df))
+        table_length = estimate_table_length(test2_df,top=True)
         document.add_page_break()
+        logging.debug('**SPLITTING TABLE - PAGE BREAK**')
+        logging.debug(f'{title} - Cont: BEFORE: available {available_page_height:.2f}')
+        logging.debug(f'{title} length is {estimate_table_length(test2_df,top=True):.2f}')
         adjusted_page_height = available_page_height - table_length
         add_check_list_table(test2_df, document, title=f'{title} - Cont')
+        logging.debug(f'{title} - Cont: AFTER: adjusted {adjusted_page_height:.2f}')
     elif not test2_df.empty:
+        # Available page is less than a minimum table height, move to next page
+        logging.debug(f'{title}: BEFORE: available {adjusted_page_height:.2f}')
+        logging.debug(f'{title} length is {estimate_table_length(test2_df):.2f}')
         document.add_page_break()
-        table_length = estimate_table_length(len(test2_df))
+        logging.debug('**TABLE TOO LONG FOR SPACE - PAGE BREAK**')
+        logging.debug(f'{title}: BEFORE: available {available_page_height:.2f}')
+        logging.debug(f'{title} length is {estimate_table_length(test2_df,top=True):.2f}')
+        table_length = estimate_table_length(test2_df, top=True)
         adjusted_page_height = available_page_height - table_length
         add_check_list_table(test2_df, document, title=f'{title}')
+        logging.debug(f'{title}: AFTER: adjusted {adjusted_page_height:.2f}')
     else:
+        # Table will fit on this page
+        top = math.isclose(adjusted_page_height, available_page_height,rel_tol=1e-3)
+        logging.debug(f'{title}: BEFORE: available {adjusted_page_height:.2f}')
+        logging.debug(f'{title} length is {estimate_table_length(test1_df,top=top):.2f}')
         add_check_list_table(test1_df, document, title=f'{title}')
-        table_length = estimate_table_length(len(test1_df))
+        table_length = estimate_table_length(test1_df,top=top)
         adjusted_page_height = adjusted_page_height - table_length
-    return adjusted_page_height
-
-def old_add_check_table(check_list, document, adjusted_page_height, title):
-    available_page_height = get_usable_page()
-    logging.debug(f'\n**** {title} ****')
-    test1, test2 = split_list(check_list, adjusted_page_height)
-    if test1 and test2:
-        # This table will be split
-        add_check_list_table(test1, document, title=f'{title}')
-        # We will have a page break. So adjust space taken on next page.
-        table_length = estimate_table_length(len(test2))
-        document.add_page_break()
-        adjusted_page_height = available_page_height - table_length
-        add_check_list_table(test2, document, title=f'{title} - Cont')
-    elif test2:
-        # This table should be moved to the next page
-        document.add_page_break()
-        table_length = estimate_table_length(len(test2))
-        adjusted_page_height = available_page_height - table_length
-        add_check_list_table(test2, document, title=f'{title}')
-    else:
-        # This table will fit on the current page
-        add_check_list_table(test1, document, title=f'{title}')
-        table_length = estimate_table_length(len(test1))
-        adjusted_page_height = adjusted_page_height - table_length
+        logging.debug(f'{title}: AFTER: adjusted {adjusted_page_height:.2f}')
     return adjusted_page_height
 
 
@@ -305,11 +305,10 @@ def add_footer(section, rso, first_page=False):
             [key + ':' + value for key, value in demographics.items()])
         footer_run.style = "Heading 4 Char"
 
+
 def split_list(check_df, available_page):
-    table_length = estimate_table_length(len(check_df))
+    table_length = estimate_table_length(check_df)
     usable = get_usable_page()
-    logging.debug(f'Page Available: {available_page:.2f}, '
-                  f'and Table length: {table_length:.2f}')
     if table_length <= available_page:
         check_df_1 = check_df
         check_df_2 = pd.DataFrame()  # Empty DataFrame
@@ -323,48 +322,20 @@ def split_list(check_df, available_page):
     return check_df_1, check_df_2
 
 
-def old_split_list(check_list, available_page):
-    table_length = estimate_table_length(len(check_list))
-    usable = get_usable_page()
-    logging.debug(f'Page Available: {available_page:.2f}, '
-                  f'and Table length: {table_length:.2f}')
-    if table_length <= available_page:
-        check_list_1 = check_list
-        check_list_2 = []
-        logging.debug(f'Only need table1 Len: {len(check_list_1)}')
-    else:
-        if available_page < min_table_height:
-            check_list_1 = []
-            check_list_2 = check_list
-            logging.debug(f'Start table2 on next page Len: {len(check_list_2)}')
-        else:
-            check_list_1, check_list_2 = find_split(check_list, available_page)
-            logging.debug(f'Split table Len: {len(check_list)} '
-                          f'into table1 Len: {len(check_list_1)} and '
-                          f'table2 Len: {len(check_list_2)}')
-
-    return check_list_1, check_list_2
-
-
 def find_split(check_df, space):
     i = 0
-    table_length = estimate_table_length(len(check_df))
+    table_length = estimate_table_length(check_df)
+    if table_length > space:
+        logging.debug(f'SPLIT NEEDED: table length {table_length:.2f} with available page {space:.2f}')
     while table_length > space:
-        table_length = estimate_table_length(len(check_df) - i)
+        table_length = estimate_table_length(check_df, i)
         i += 1
+    # logging.debug(f'During Split: Page Available: {space:.2f}, '
+    #               f'and Table length: {table_length:.2f}')
     check_df_1 = check_df.iloc[:len(check_df) - i]
     check_df_2 = check_df.iloc[len(check_df) - i:]
+    logging.debug(f'POST SPLIT: TABLE 1 {estimate_table_length(check_df_1):.2f}, TABLE {estimate_table_length(check_df_2):.2f}')
     return check_df_1, check_df_2
-
-def old_find_split(check_list, space):
-    i = 0
-    table_length = estimate_table_length(len(check_list))
-    while table_length > space:
-        table_length = estimate_table_length(len(check_list) - i)
-        i += 1
-    check_list_1 = check_list[:len(check_list) - i]
-    check_list_2 = check_list[len(check_list) - i:]
-    return check_list_1, check_list_2
 
 
 def add_check_list_table(df: pd.DataFrame, document: Document,
@@ -385,13 +356,7 @@ def add_check_list_table(df: pd.DataFrame, document: Document,
     # Set row height
     table_row_height = Inches(row_height)
     # Calculate estimated table length
-    table_length = estimate_table_length(len(df))
-
-    # Get page, header and footer sizes from the first section of the document
-    # section = document.sections[0]
-    # page_height = section.page_height.inches
-    # top_margin = section.top_margin.inches
-    # bottom_margin = section.bottom_margin.inches
+    table_length = estimate_table_length(df)
 
     if title:
         table_title = document.add_paragraph()
@@ -400,22 +365,10 @@ def add_check_list_table(df: pd.DataFrame, document: Document,
 
     # Calculate the available width for the table
     page_width = document.sections[-1].page_width.inches
-    # left_margin = document.sections[-1].left_margin.inches
-    # right_margin = document.sections[-1].right_margin.inches
-
     available_width = page_width - left_margin - right_margin - 0.5  # Subtract 0.5 inches for
 
     # Set the column widths (widths are in proportion to the amount of text)
-    long_keys = [KEY_OUT_TEST, KEY_OUT_MESSAGE, KEY_OUT_COMMENT]
-    # col_text_width = [max([len(check[key])
-    #                        for check in check_results]) for key in long_keys]
-    # total_text_width = sum(col_text_width)
-#
-#     col_widths = [0.5] + [(text_width / total_text_width) * available_width
-#                           for text_width in col_text_width]
-#
-#     table_properties = {'NCOL': 4, 'WIDTH_COL': [
-#         (i, Inches(w)) for i, w in enumerate(col_widths)]}
+    long_keys = [KEY_OUT_DESC, KEY_OUT_MESSAGE, KEY_OUT_COMMENT]
     # Determine the maximum length of text for each key
     col_text_width = [df[col].str.len().max() for col in long_keys]
     total_text_width = sum(col_text_width)
@@ -442,7 +395,16 @@ def add_check_list_table(df: pd.DataFrame, document: Document,
     row.cells[2].text = 'Result'
     row.cells[3].text = 'Reviewer Comment'
     i = 1
+
+    last_domain = None
     for _, check in df.iterrows():
+        current_domain = check[KEY_OUT_DOMAIN_NAME]
+        # Skip NaN domains and check for new domain names
+        if pd.notna(current_domain) and current_domain != last_domain:
+            add_domain_row(table, current_domain, i)
+            last_domain = current_domain
+            i += 1
+
         table.add_row()
         row = table.rows[i]
         icon_paragraph = row.cells[0].paragraphs[0]
@@ -451,28 +413,10 @@ def add_check_list_table(df: pd.DataFrame, document: Document,
             check[KEY_OUT_ICON], width=Inches(0.15), height=Inches(0.15))
         icon_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         row.cells[0].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-        row.cells[1].text = check[KEY_OUT_TEST]
+        row.cells[1].text = check[KEY_OUT_DESC]
         row.cells[2].text = check[KEY_OUT_MESSAGE]
         row.cells[3].text = check[KEY_OUT_COMMENT]
         i += 1
-
-        # i = 1
-    # for check in check_results:
-    #     table.add_row()
-    #     row = table.rows[i]
-    #     # Center the icon horizontally and vertically
-    #     icon_paragraph = row.cells[0].paragraphs[0]
-    #     icon_run = icon_paragraph.add_run()
-    #     icon_run.add_picture(
-    #         check[KEY_OUT_ICON], width=Inches(0.15), height=Inches(0.15))
-    #     # Center horizontally
-    #     icon_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
-    #     # Center vertically
-    #     row.cells[0].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    #     row.cells[1].text = check[KEY_OUT_TEST]
-    #     row.cells[2].text = check[KEY_OUT_MESSAGE]
-    #     row.cells[3].text = check[KEY_OUT_COMMENT]
-    #     i += 1
 
         # Set row height
         row.height = table_row_height
@@ -491,12 +435,35 @@ def add_check_list_table(df: pd.DataFrame, document: Document,
     return table
 
 
-# Function to add a table row with given data
-def add_table_row(table, data):
+def add_table_row(table: Table, data: Union[list, tuple]) -> None:
+    """
+    Adds a row to the table with specified data.
+
+    Args:
+        table (Table): The table to which the row will be added.
+        data (Union[list, tuple]): The data to populate the row.
+    """
     row = table.add_row()
     for i, value in enumerate(data):
         row.cells[i].text = str(value)
         row.cells[i].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+
+def add_domain_row(table, domain, index):
+    """
+    Adds a domain row to the table with a specific background color.
+
+    Args:
+        table (Table): The table to which the domain row will be added.
+        domain (str): The domain name to display in the row.
+    """
+    table.add_row()
+    row = table.rows[index]
+    row.cells[0].merge(row.cells[-1])
+    row.cells[0].text = domain
+    row.cells[0].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    # Set background color (shade) to light gray; 'auto' could be replaced with a specific color
+    add_shading_to_cell(row.cells[0],'D3D3D3')
 
 
 def add_simulation_data_table(doc, data):
@@ -515,7 +482,7 @@ def add_simulation_data_table(doc, data):
 def add_user_comment(doc, data):
     comment_table = doc.add_table(rows=2, cols=1)
     comment_table.style = 'Light List Accent 2'
-    comment_table.cell(0,0).text = 'User Comments'
+    comment_table.cell(0,0).text = 'Physicist Comments'
     comment_table.cell(1,0).text = str(data[KEY_USER_COMMENT])
 
 
@@ -653,11 +620,14 @@ def str_key_to_tuple(value):
 
 def read_data(data):
     return pd.DataFrame(data)
-def flatten_data(data):
-    rows = []
-    for topic, tests in data.items():
-        for test in tests:
-            row = {'Topic': topic}
-            row.update(test)
-            rows.append(row)
-    return pd.DataFrame(rows)
+
+
+def add_shading_to_cell(cell, color):
+    # Create new shading element
+    shd = OxmlElement('w:shd')
+    shd.set(qn('w:val'), 'clear')
+    shd.set(qn('w:color'), 'auto')
+    shd.set(qn('w:fill'), color)
+
+    # Add shading to cell properties
+    cell._tc.get_or_add_tcPr().append(shd)
