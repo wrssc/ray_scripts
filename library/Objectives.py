@@ -550,8 +550,9 @@ def add_objective(obj, exam, case, plan, beamset,
     else:
         o.DoseFunctionParameters.DoseLevel = dose
     logging.debug("Added objective for ROI: " +
-                  "{}, type {}, dose {}, weight {}, for beamset {} with restriction: {}".format(
-                      roi, function_type, dose, weight, beamset.DicomPlanLabel, restrict_beamset))
+                  f"{roi}, type {function_type}, dose {dose}, weight {weight},"
+                  f" for beamset {beamset.DicomPlanLabel}"
+                  f" with restriction: {restrict_beamset}")
     # Add the mco objective
     if mco:
         add_mco(plan, beamset)
@@ -885,6 +886,7 @@ def add_goals_and_objectives_from_protocol(case, plan, beamset, exam,
 
     TODO: Change the main to a callable function taking the protocol path as an input`
     TODO: Add goal loop for secondary - unspecified target goals
+    TODO: Potentially an issue here with objectiveset loading. Some objectives seems to be disappearing
 
     Version History:
     1.0.0 initial release supporting HN, Prostate, and lung (non-SBRT)
