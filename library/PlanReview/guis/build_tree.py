@@ -1,6 +1,8 @@
 import PySimpleGUI as sg
+from collections import namedtuple
+import logging
 from PlanReview.review_definitions import FAIL, RED_CIRCLE, PASS, GREEN_CIRCLE
-from PlanReview.review_definitions import YELLOW_CIRCLE, ALERT, BLUE_CIRCLE, LEVELS
+from PlanReview.review_definitions import YELLOW_CIRCLE, ALERT, BLUE_CIRCLE, DOMAIN_TYPE
 
 
 def build_tree_element(parent_key: str, child_key: str, pass_result: str,
@@ -79,6 +81,8 @@ def insert_tests_return_fails(test_data, treedata, fails):
     if test_data:
         for test in test_data:
             test_name, test_key, test_description, test_result, test_icon = test
+            logging.debug(f'test_name: {test_name}, test_key: {test_key},'
+                          f'test_description: {test_description}')
             treedata.Insert(test_name, test_key, test_description,
                             [test_result, ""], icon=test_icon)
             if (test_key == FAIL or test_key == ALERT) and test_result:
@@ -89,25 +93,53 @@ def insert_tests_return_fails(test_data, treedata, fails):
         return False
 
 
+def load_rsos(rso, beamsets):
+    # Make a list of raystation objects for each beamset return list
+    # Initialize return variable
+    Pd = namedtuple('Pd', [
+        'error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
+    rsos = []
+    for bs in rso.plan.BeamSets:
+        if bs.DicomPlanLabel in beamsets:
+            rsos.append(Pd(
+                error=[], patient=rso.patient, case=rso.case, exam=rso.exam,
+                db=rso.db, plan=rso.plan, beamset=bs))
+    return rsos
+
+
 def build_review_tree(rso, exam_level_tests, plan_level_tests,
-                      beamset_level_tests, sandbox_level_tests, message_logs):
+                      beamset_levels, sandbox_level_tests, message_logs,
+                      beamsets=[]):
+    # beamset_levels is now a dict {dicomplanlabel: [beamset tests]}
     test_results = []  # Something is probably going to be broken on final dose
     # Tree Levels
-    patient_key = (LEVELS['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
-    exam_key = (LEVELS['EXAM_KEY'], "Exam: " + rso.exam.Name)
-    plan_key = (LEVELS['PLAN_KEY'], "Plan: " + rso.plan.Name)
-    beamset_key = (
-        LEVELS['BEAMSET_KEY'], "Beam Set: " + rso.beamset.DicomPlanLabel)
-    sandbox_key = (LEVELS['SANDBOX_KEY'], "Sandbox: ")
-    rx_key = (LEVELS['RX_KEY'], "Prescription")
-    log_key = (LEVELS['LOG_KEY'], "Logging")
+    patient_key = (DOMAIN_TYPE['PATIENT_KEY'], f"Patient: {rso.patient.PatientID}")
+    exam_key = (DOMAIN_TYPE['EXAM_KEY'], f"Exam: {rso.exam.Name}")
+    plan_key = (DOMAIN_TYPE['PLAN_KEY'], f"Plan: {rso.plan.Name}")
+    beamsets_key = {}
+    all_bs_tests = []
+    logging.debug(f'Beamset levels {beamset_levels.keys()}')
+    if beamsets:
+        rsos = load_rsos(rso, beamsets)
+    else:
+        rsos = [rso]
+    for r in rsos:
+        beamsets_key[r.beamset.DicomPlanLabel] = (
+            DOMAIN_TYPE['BEAMSET_KEY'], f"Beam Set: {r.beamset.DicomPlanLabel}")
+        all_bs_tests.append(beamset_levels[r.beamset.DicomPlanLabel])
+
+    # beamset_key = (
+    #     DOMAIN_TYPE['BEAMSET_KEY'], "Beam Set: " + rso.beamset.DicomPlanLabel)
+    sandbox_key = (DOMAIN_TYPE['SANDBOX_KEY'], "Sandbox: ")
+    rx_key = (DOMAIN_TYPE['RX_KEY'], "Prescription")
+    log_key = (DOMAIN_TYPE['LOG_KEY'], "Logging")
     #
     tree_data = sg.TreeData()
     # TREE BUILDING
     #
     # Insert main (patient) node
     patient_level_pass, patient_icon = parse_level_tests(
-        exam_level_tests + plan_level_tests + beamset_level_tests)
+        exam_level_tests + plan_level_tests + all_bs_tests)
     tree_data.Insert("", patient_key[0], patient_key[1], patient_level_pass,
                      icon=patient_icon)
     # Insert Exam Level Nodes
@@ -122,10 +154,12 @@ def build_review_tree(rso, exam_level_tests, plan_level_tests,
     insert_tests_return_fails(plan_level_tests, tree_data, test_results)
     #
     # Insert Beamset Level Nodes
-    beamset_level_pass, beamset_icon = parse_level_tests(beamset_level_tests)
-    tree_data.Insert(patient_key[0], beamset_key[0], beamset_key[1],
-                     beamset_level_pass, icon=beamset_icon)
-    insert_tests_return_fails(beamset_level_tests, tree_data, test_results)
+    for beamset_name, beamset_tests in beamset_levels.items():
+        parent, child = beamsets_key[beamset_name]
+        beamset_level_pass, beamset_icon = parse_level_tests(beamset_tests)
+        tree_data.Insert(patient_key[0], parent, child,
+                         beamset_level_pass, icon=beamset_icon)
+        insert_tests_return_fails(beamset_tests, tree_data, test_results)
     #
     # Insert Sandbox Level Nodes
     sandbox_level_pass, sandbox_icon = parse_level_tests(sandbox_level_tests)
