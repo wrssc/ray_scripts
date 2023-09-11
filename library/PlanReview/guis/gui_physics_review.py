@@ -30,135 +30,7 @@ from PlanReview.guis.create_physics_manual_tab import (
 import json
 import connect
 
-# PRERELEASE:
-#
-# TODO: ADD CT ORIENTATION TO PREPLAN DIALOG AND CHECK VS RS
-# TODO: TPO DROPDOWN NEEDS MORE LINES FOR ORDER SELECTION
-# TODO: EXPAND THE SELECTIONS FOR ORDERS!!!
-# TODO: ADD TO CRITICAL the CASE, EXAM, PLAN, BEAMSETUID
-# TODO: Need a required prompt for all entries in the first tab
-# TESTS:
-# TODO: ADD PATIENT ORIENTATION TO PREPLAN AND COMPARE TO DICOM
-#
-# POST RELEASE
-# TODO: WHEN ONLY ONE BEAMSET IN PLAN DEFAULT TO IT.
-# TODO: ADD TYPE CHECK TO THE GTV LIST RATHER THAN JUST A REGEX.
-# TODO: ADD BRAIN 1mm language
-# TODO: ADD MULTI_BEAMSET CHECKS
-# TODO: HIGHLIGHT FRAMES THAT SHOULD BE FILLED IN AS RED
-# TODO: ADD Patient Name ID to the GUI title
-# TODO: Siemens IMAR tags: IMAR: (0029,1041), KERNEL: (0029,1042)
-#
-# TESTS
-# TODO: USE THE PTVs identified DURING PREPLAN
-#  AND ENSURE PTVs with GOALS OR OBJECTIVES ARE NOT LARGER
-# TODO: FOR EACH CONTOUR WITH A GOAL, CHECK THE LENGTH ON TARGET SLICES
-#
-# Unfiled
-# TODO:: Set up a mapping table for checks we are pulling out of
-#        checkboxes and into automated checks
-# TODO:: Experiment with very long tool tips for a help prompt under automated checks
-
 """
-
-TODO:: DOSIMETRY REVIEW
--Previous Treatment check boxes along with 
-    0 Yes: Please refer to D-Evaluation for Prior Radiotherapy document
--CIED Pacemaker check box:
-    0 Yes: Please refer to D-Implantable Cardiac Device Note
--In the plan, the target is in a Choose One  
-    location in the patient.  This Choose One   the TPO.
-
--'test_name': 'Beam added with no collision via machine geometry'
-'test_name': 'Modulation factor appropriate for plan'}
-'test_name': 'Field width < Target length'
-'test_name': 'Dynamic Jaws used on 2.5 and 5 cm plans'
-'test_name': 'Isocenter lateral offset < 3 cm and In/Out offset < 18 cm'
-3D: RayStation 3D Photon Safety Review
-
-Electron: RayStation Electron Safety Review
-
-TODO: Check Beamsets for same machine
-
-TODO: Check for same iso, and same number of fractions in
-   different beamsets, and flag for merge
-
-TODO:
-   Check bad regions of Frame
-
-TODO: For a given couch angle, check the arc direction for a kick toward
-       gantry rotation
-
-TODO:
-   def check_plan_name(bs):
-     Check plan name for appropriate
-     Measure target length of prostate for pros
-
-TODO: Look for big gaps between targets
-   def check_target_spacing(bs):
-     Find all targets
-     Put a box around them
-     look at the gaps and if they exceed some threshold throw an alert
-
-TODO: If beamsets are approved
-    Check the Entrance/Exit is blocked on some things
-    Check that treat settings are used/appropriate
-
-TODO: Tomo Time Check
-   def check_tomo_time(bs):
-     Look at the plan type. Use the normal tomo mod factors
-     Abdomen; 1.6 - 2.4
-     Brain; 1.6 - 2.4
-     Breast; 2.4 - 2.8
-     Cranio - Spinal; 1.8 - 2.2
-     Extremity; 2.0 - 2.4
-     Gyn; 1.8 - 2.4
-     H & N; 2.2 - 2.6
-     Lung(non - SBRT); 2.4 - 2.8
-     Lung(SBRT); 1.2 - 1.4
-     Pelvis; 1.8 - 2.4
-     Prostate(low; risk)    1.6 - 2.2
-     Prostate(high; risk)    2.0 - 2.4
-
-
-TODO: Check collisions
-   put a circle down at isocenter equal in dimension to ganty (collimator 
-   pin)/bore clearance
-   union patient/supports
-   determine gantry positions
-
-TODO:
-   def - check the front edges of the couch and suspended headboard
-
-TODO:
-   Flag all ROIs not made in MIM with goals
-
-TODO: Stray voxel check/
-
-TODO: Check clinical goal
-   if a clinical goal is not met, look at the objective list to see if it is 
-   constrained
-
-TODO: Add test on currently commissioned beams for timestamp
-
-TODO: Check if an arc has the same couch and start/stop. if so, collimator 
- angles should differ
-
-TODO: FRONT PAGE CHECKS
- * TPO versus doses used in plan
- * CT Orientation
- * Number of slices and scan date
- * Special instructions
- * Energy
-
-TODO: Objective type is correct: for anything with min goals, should be 
- PTV/GTV/CTV
-
-In parse_order_selection:
-TODO: Take a reg-exp as a list for input for matching a dialog and for
-    each desired phrase loop over the phrases for a match
-TODO: Add the target matching that takes place for this step with
-    consideration of the pre-logcrit syntax and post-logcrit syntax
 
 """
 
@@ -232,16 +104,20 @@ def save_review(rso, values, quiet=False):
 
 
 def load_main_window(window, values):
-    for key, value in values.items():
-        try:
-            logging.debug(f"Checking window {key} with {value}")
-        except:
-            pass
+    # All Keys
     main_window_data = values.get(KEY_MAIN_WINDOW, {})
-    logging.debug(f"Loading main window data: {main_window_data}")
     for key, value in main_window_data.items():
-        logging.debug(f"Updating window {key} with {value}")
-        window[key].update(value)
+        if key == KEY_PROCEED_REVISE:
+            if value == "Proceed":
+                window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"].update(value=True)
+                window["-REVISION_TEXT-"].update(visible=False)
+                window[KEY_REVISION_INFO].update(visible=False)
+            elif value == "Revise":
+                window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"].update(value=True)
+                window["-REVISION_TEXT-"].update(visible=True)
+                window[KEY_REVISION_INFO].update(visible=True)
+        else:
+            window[key].update(value)
 
 
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
@@ -292,9 +168,21 @@ def get_review_gui_values(window, passing_tests, failed_tests, check_boxes, comm
     # Get the data from the comment box if any.
     if window[comment_box_key].get():
         main_window_values = {
-            KEY_MAIN_WINDOW: {comment_box_key: window[KEY_USER_COMMENT].get()}}
+            KEY_MAIN_WINDOW: {comment_box_key: window[KEY_USER_COMMENT].get(),
+                              }}
     else:
         main_window_values = {KEY_MAIN_WINDOW: {KEY_USER_COMMENT: ''}}
+    if window[KEY_REVISION_INFO].get():
+        main_window_values[KEY_MAIN_WINDOW][KEY_REVISION_INFO] = window[KEY_REVISION_INFO].get()
+    else:
+        main_window_values[KEY_MAIN_WINDOW][KEY_REVISION_INFO] = ""
+    if window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"].get():
+        main_window_values[KEY_MAIN_WINDOW][KEY_PROCEED_REVISE] = "Proceed"
+    elif window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"].get():
+        main_window_values[KEY_MAIN_WINDOW][KEY_PROCEED_REVISE] = "Revise"
+    else:
+        main_window_values[KEY_MAIN_WINDOW][KEY_PROCEED_REVISE] = ""
+
     # Get the data from the first tab
     manual_values = extract_manual_values(window, passing_tests, failed_tests, check_boxes)
     manual_values.update(main_window_values)
@@ -309,10 +197,10 @@ def on_done_button_click(window, values, check_boxes):
     is_valid = True
     for key in check_boxes:
         for item in check_boxes[key]:
-            radio_y_key = create_key(f'{item["key"]}{KEY_CHECK}{KEY_RADIO}Yes')
-            radio_no_key = create_key(f'{item["key"]}{KEY_CHECK}{KEY_RADIO}No')
-            radio_na_key = create_key(f'{item["key"]}{KEY_CHECK}{KEY_RADIO}NA')
-            input_key = create_key(f'{item["key"]}{KEY_CHECK}{KEY_INPUT_TEXT}')
+            radio_y_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}Yes')
+            radio_no_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}No')
+            radio_na_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}NA')
+            input_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}')
             value_defined = any(values[k] for k in [radio_na_key, radio_y_key, radio_no_key])
             if not value_defined:
                 window[radio_y_key].update(text_color='#8B0000')
@@ -523,7 +411,24 @@ def launch_physics_review_gui(rso):
                           autoscroll=True,
                           auto_size_text=True,
                           key=KEY_USER_COMMENT)
-             ]]
+             ],
+            [Sg.Radio("Proceed", "RADIO1",
+                      default=True,
+                      key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed",
+                      enable_events=True),
+            Sg.Radio("Revise", "RADIO1",
+                     key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise",
+                     enable_events=True)],
+            [Sg.Text("Reason for Revision:", enable_events=True,
+                     visible=False, key="-REVISION_TEXT-"),
+             Sg.Multiline(default_text='',
+                          size=(comment_width_chars, 2),
+                          autoscroll=True,
+                          auto_size_text=True,
+                          enable_events=True,
+                          key=KEY_REVISION_INFO,
+                          visible=False),]
+            ]
     #
     # Gather the layout
     layout = [
@@ -554,7 +459,7 @@ def launch_physics_review_gui(rso):
     while True:  # Event Loop
         event, values = window.read()
         if event in (Sg.WIN_CLOSED, '-CANCEL-'):
-            check_dict = {}
+            check_list = []
             header_data = {}
             break
 
@@ -628,6 +533,7 @@ def launch_physics_review_gui(rso):
                                          key='Review and Logs'))
                 #
                 # Build next tab
+                # TODO: USERS MAY WANT SEPARATE TESTS FOR EACH BEAMSET
                 check_box_copy = build_manual_check_box_list(rso, beamsets=[
                     rso.beamset.DicomPlanLabel])
 
@@ -640,7 +546,13 @@ def launch_physics_review_gui(rso):
                     tab_group.add_tab(tab)
 
                 window['Review and Logs'].select()
-
+        # Plan revision events
+        if values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"]:
+            window["-REVISION_TEXT-"].update(visible=False)
+            window[KEY_REVISION_INFO].update(visible=False)
+        elif values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"]:
+            window["-REVISION_TEXT-"].update(visible=True)
+            window[KEY_REVISION_INFO].update(visible=True)
         #
         # Manual Tab Events
         if type(event) is tuple:
