@@ -104,12 +104,52 @@ def compute_dose(beamset, dose_algorithm):
         return message
 
 
+def find_prescription_rois(case, rois=None):
+    """
+    Finds the rois which are being used for a prescription.
+    :param case: (object): The RS case
+    :param rois: (list): List of strings containing ROIS already set for inclusion
+    :return rois_for_rx: (list): rois + any belonging to an RS prescription
+    """
+    if rois:
+        rois_for_rx = rois
+    else:
+        rois_for_rx = []
+    for tp in case.TreatmentPlans:
+        for bs in tp.BeamSets:
+            # Search primary prescription
+            try:
+                roi_name = bs.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name
+                if roi_name not in rois_for_rx:
+                    rois_for_rx.append(roi_name)
+            except Exception as e:
+                logging.debug(f'Reviewing primary prescription type for {bs.DicomPlanLabel} '
+                              f'prescription type does not have all attributes for '
+                              f'checking structure-dependent prescription '
+                              f'error message: {e}')
+            try:
+                for pdr in bs.Prescription.PrescriptionDoseReferences:
+                    roi_name = pdr.OnStructure.Name
+                    if roi_name not in rois_for_rx:
+                        rois_for_rx.append(roi_name)
+            except Exception as e:
+                logging.debug(f'Reviewing secondary prescription type for {bs.DicomPlanLabel} '
+                              f'prescription type does not have all attributes for '
+                              f'checking structure-dependent prescription '
+                              f'error message: {e}')
+
+    return rois_for_rx
+
+
 def process_rois_for_export(plan, case):
     """Exports regions of interest (ROIs) based on specified criteria.
 
     Args:
         plan (Plan): The RS plan object containing treatment information.
         case (Case): The RS case object containing patient information.
+
+    Testing:
+    Validation/Test_Scripting^Rois_For_Export: MR
     """
     # Gather ROIs with a clinical goal
     rois_for_review = [ef.ForRegionOfInterest.Name for ef in plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions]
@@ -119,7 +159,7 @@ def process_rois_for_export(plan, case):
     rois_for_review.extend(StructureOperations.find_types(case, 'Ctv'))
     rois_for_review.extend(StructureOperations.find_types(case, 'Ptv'))
 
-    # Define exclusion reg-ex patterns
+    # Define exclusion reg-ex patterns and exclude them from export
     exclude_patterns = [
         "^OTV", "^sOTV",
         "^opt", "^sPTV",
@@ -141,6 +181,7 @@ def process_rois_for_export(plan, case):
     #   * ROIs containing "block" to the export list
     #   * any ROIs labeled Fiducials
     #   * External_PRV10 object used in TBI
+
     include_patterns = [r'(?i)\b\w*block\w*\b', r'(?i)\b\w*fiducial\w*\b',
                         r'(?i)\b\w*External_FB\w*\b', r'(?i)\b\w*External_DIBH\w*\b',
                         r'(?i)\b\w*External_PRV10\w*\b']
@@ -148,19 +189,8 @@ def process_rois_for_export(plan, case):
         if StructureOperations.any_regex_match(include_patterns, r.Name):
             rois_for_export.append(r.Name)
 
-    # Add in any structures that were used in a prescription due to an RS
-    # bug
-    for tp in case.TreatmentPlans:
-        for bs in tp.BeamSets:
-            try:
-                roi_name = bs.Prescription.PrimaryPrescriptionDoseReference.OnStructure.Name
-                if roi_name not in rois_for_export:
-                    rois_for_export.append(roi_name)
-            except Exception as e:
-                logging.debug(f'Reviewing prescription type for {bs.DicomPlanLabel} '
-                              f'prescription type does not have all attributes for '
-                              f'checking structure-dependent prescription '
-                              f'error message: {e}')
+    # Get any rois included in a prescription
+    rois_for_export = find_prescription_rois(case,rois_for_export)
 
     # Add support, external, and bolus structures
     rois_for_export.extend(StructureOperations.find_types(case, 'Bolus'))
