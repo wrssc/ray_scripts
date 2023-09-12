@@ -228,7 +228,7 @@ def pd_to_header_table(df):
 
 def display_beam_worksheet(df_plan, df_fraction):
     """
-    Build the sg table for the user
+    Build the Sg table for the user
     df_plan: data frame containing the beamset level PRDR calculation data
     df_fraction: data frame containing the fraction dose PRDR calculation data
     """

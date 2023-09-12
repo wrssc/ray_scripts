@@ -889,7 +889,7 @@
                 <name>Kidneys</name>
                 <type a="1">MaxEud</type>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <weight>40</weight>
+                <weight>0</weight>
             </roi>
             <!-- Lungs -->
             <roi>
@@ -1972,6 +1972,12 @@
                 <weight>0.01</weight>
             </roi>
             <roi>
+                <name>PTV_p_FFS</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_FFS">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
                 <name>OTV_iso</name>
                 <type robust="False">Min</type>
                 <dose units="%" roi="PTV_p_FFS">95</dose>
@@ -2001,6 +2007,12 @@
                 <type robust="False" restrict_to_beamset="True">Max</type>
                 <dose units="%" roi="PTV_p_FFS">110</dose>
                 <weight>5000</weight>
+            </roi>
+            <roi>
+                <name>OTV_iso</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_FFS">110</dose>
+                <weight>500</weight>
             </roi>
             <!-- Central Junction -->
             <!-- Central Junction 10% -->
@@ -2773,6 +2785,12 @@
                 <weight>0.01</weight>
             </roi>
             <roi>
+                <name>PTV_p_FFS</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_FFS">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
                 <name>OTV_iso</name>
                 <type robust="False" restrict_to_beamset="True">Min</type>
                 <dose units="%" roi="PTV_p_FFS">95</dose>
@@ -2802,6 +2820,12 @@
                 <type robust="False" restrict_to_beamset="True">Max</type>
                 <dose units="%" roi="PTV_p_FFS">110</dose>
                 <weight>5000</weight>
+            </roi>
+            <roi>
+                <name>OTV_iso</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_FFS">110</dose>
+                <weight>500</weight>
             </roi>
             <!-- Inferior Junction -->
             <!-- Inf 1 Beamset Only Objectives -->
@@ -3617,6 +3641,12 @@
                 <weight>0.01</weight>
             </roi>
             <roi>
+                <name>PTV_p_FFS</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_FFS">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
                 <name>OTV_iso</name>
                 <type robust="False" restrict_to_beamset="True">Min</type>
                 <dose units="%" roi="PTV_p_FFS">95</dose>
@@ -3646,6 +3676,12 @@
                 <type robust="False" restrict_to_beamset="True">Max</type>
                 <dose units="%" roi="PTV_p_FFS">110</dose>
                 <weight>5000</weight>
+            </roi>
+            <roi>
+                <name>OTV_iso</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_FFS">110</dose>
+                <weight>500</weight>
             </roi>
             <!-- Superior Junction -->
             <!-- Sup 1 Combined Objectives -->
@@ -4354,6 +4390,12 @@
                 <weight>0.01</weight>
             </roi>
             <roi>
+                <name>PTV_p_HFS</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_HFS">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
                 <name>OTV_iso</name>
                 <type robust="False">Min</type>
                 <dose units="%" roi="PTV_p_HFS">95</dose>
@@ -4381,15 +4423,21 @@
             <roi>
                 <name>OTV_iso</name>
                 <type robust="False" restrict_to_beamset="True">Max</type>
-                <dose units="%" roi="PTV_p_FFS">110</dose>
+                <dose units="%" roi="PTV_p_HFS">110</dose>
                 <weight>5000</weight>
+            </roi>
+            <roi>
+                <name>OTV_iso</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_HFS">110</dose>
+                <weight>500</weight>
             </roi>
             <!-- Kidneys -->
             <roi>
                 <name>Kidneys</name>
                 <type a="1">MaxEud</type>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <weight>40</weight>
+                <weight>0</weight>
             </roi>
             <!-- Lungs -->
             <roi>
@@ -5643,6 +5691,12 @@
                 <weight>0.01</weight>
             </roi>
             <roi>
+                <name>PTV_p_HFS</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_HFS">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
                 <name>OTV_iso</name>
                 <type robust="False" restrict_to_beamset="True">Min</type>
                 <dose units="%" roi="PTV_p_HFS">95</dose>
@@ -5670,15 +5724,21 @@
             <roi>
                 <name>OTV_iso</name>
                 <type robust="False" restrict_to_beamset="True">Max</type>
-                <dose units="%" roi="PTV_p_FFS">110</dose>
+                <dose units="%" roi="PTV_p_HFS">110</dose>
                 <weight>5000</weight>
+            </roi>
+            <roi>
+                <name>OTV_iso</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_HFS">110</dose>
+                <weight>500</weight>
             </roi>
             <!-- Kidneys -->
             <roi>
                 <name>Kidneys</name>
                 <type a="1" restrict_to_beamset="False">MaxEud</type>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <weight>40</weight>
+                <weight>0</weight>
             </roi>
             <!-- Lungs -->
             <roi>
@@ -6690,6 +6750,12 @@
                 <weight>0.01</weight>
             </roi>
             <roi>
+                <name>PTV_p_HFS</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_HFS">105</dose>
+                <weight>500</weight>
+            </roi>
+            <roi>
                 <name>OTV_iso</name>
                 <type robust="False" restrict_to_beamset="True">Min</type>
                 <dose units="%" roi="PTV_p_HFS">95</dose>
@@ -6717,15 +6783,21 @@
             <roi>
                 <name>OTV_iso</name>
                 <type robust="False" restrict_to_beamset="True">Max</type>
-                <dose units="%" roi="PTV_p_FFS">110</dose>
+                <dose units="%" roi="PTV_p_HFS">110</dose>
                 <weight>5000</weight>
+            </roi>
+            <roi>
+                <name>OTV_iso</name>
+                <type robust="False" restrict_to_beamset="False">Max</type>
+                <dose units="%" roi="PTV_p_HFS">110</dose>
+                <weight>500</weight>
             </roi>
             <!-- Kidneys -->
             <roi>
                 <name>Kidneys</name>
                 <type a="1" restrict_to_beamset="False">MaxEud</type>
                 <dose units="%" roi="PTV_p_HFS">70</dose>
-                <weight>40</weight>
+                <weight>0</weight>
             </roi>
             <!-- Lungs -->
             <roi>
@@ -7353,7 +7425,7 @@
             <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
             <CollimatorAngle>91</CollimatorAngle>
             <CouchAngle>0</CouchAngle>
-            <JawLimits x1="-15" x2="15" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
+            <JawLimits x1="-12" x2="12" y1="-19.5" y2="19.5" lock="False">True</JawLimits>
         </beam>
     </beamset>
     <beamset>
@@ -7400,12 +7472,12 @@
         </beam>
     </beamset>
     <optimization_config>
-        <name>8 warmstarts VMAT</name>
-        <description>8 warmstart optimization</description>
+        <name>3 warmstarts VMAT</name>
+        <description>3 warmstart optimization</description>
         <technique>VMAT</technique>
         <initial max_it="80" int_it="40">Iteration 0</initial>
-        <warmstart max_it="30" int_it="10" n="8">Iteration_1to8</warmstart>
-        <vary_grid dose_dim1="0.5" dose_dim2="0.5" dose_dim3="0.5" dose_dim4="0.4">True</vary_grid>
+        <warmstart max_it="30" int_it="10" n="2">Iteration_1to2</warmstart>
+        <vary_grid dose_dim1="0.5" dose_dim2="0.5" dose_dim3="0.5" dose_dim4="0.4">False</vary_grid>
         <fluence_only>False</fluence_only>
         <reset_beams>True</reset_beams>
         <reduce_oar>False</reduce_oar>

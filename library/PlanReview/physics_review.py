@@ -9,7 +9,116 @@
     Script Created by RAB May 1st 2022
     Prerequisites:
 
+
+    PRERELEASE:
+    TODO: ADD CT ORIENTATION TO PREPLAN DIALOG AND CHECK VS RS
+    TODO: ADD TO CRITICAL the CASE, EXAM, PLAN, BEAMSETUID
+    TODO: Need a required prompt for all entries in the first tab
+    TODO: Basic code for loading multiple reviews at once.
+          -Header and tests should be moved under patient plan
+          -json files should be moved under patient plan
+          -should load the list of user tests and connect them to checkboxes
+    TODO: Sizing of the automated test subframes needs to be computed based on items
+          present.
+    TESTS:
+    TODO: ADD PATIENT ORIENTATION TO PREPLAN AND COMPARE TO DICOM
+    TODO: Clearance check: LOOK AT WHERE THE BEAM WILL GO!
+    POST RELEASE
+    TODO: WHEN ONLY ONE BEAMSET IN PLAN DEFAULT TO IT.
+    TODO: ADD TYPE CHECK TO THE GTV LIST RATHER THAN JUST A REGEX.
+    TODO: ADD BRAIN 1mm language
+    TODO: HIGHLIGHT FRAMES THAT SHOULD BE FILLED IN AS RED
+    TODO: ADD Patient Name ID to the GUI title
+    TODO: Siemens IMAR tags: IMAR: (0029,1041), KERNEL: (0029,1042)
+    TESTS
+    TODO: USE THE PTVs identified DURING PREPLAN
+     AND ENSURE PTVs with GOALS OR OBJECTIVES ARE NOT LARGER
+    TODO: FOR EACH CONTOUR WITH A GOAL, CHECK THE LENGTH ON TARGET SLICES
+    Unfiled
+    TODO:: Set up a mapping table for checks we are pulling out of
+           checkboxes and into automated checks
+    TODO:: Experiment with very long tool tips for a help prompt under automated checks
+    TODO:: DOSIMETRY REVIEW
+        -Previous Treatment check boxes along with
+        0 Yes: Please refer to D-Evaluation for Prior Radiotherapy document
+        -CIED Pacemaker check box:
+        0 Yes: Please refer to D-Implantable Cardiac Device Note
+        -In the plan, the target is in a Choose One
+        location in the patient.  This Choose One   the TPO.
+        -'test_name': 'Beam added with no collision via machine geometry'
+        'test_name': 'Modulation factor appropriate for plan'}
+        'test_name': 'Field width < Target length'
+        'test_name': 'Dynamic Jaws used on 2.5 and 5 cm plans'
+        'test_name': 'Isocenter lateral offset < 3 cm and In/Out offset < 18 cm'
+        3D: RayStation 3D Photon Safety Review
+        Electron: RayStation Electron Safety Review
+    TODO: Check for same iso, and same number of fractions in
+       different beamsets, and flag for merge
+    TODO:
+       Check bad regions of Frame
+    TODO: For a given couch angle, check the arc direction for a kick toward
+           gantry rotation
+    TODO:
+       def check_plan_name(bs):
+         Check plan name for appropriate
+         Measure target length of prostate for pros
+    TODO: Look for big gaps between targets
+       def check_target_spacing(bs):
+         Find all targets
+         Put a box around them
+         look at the gaps and if they exceed some threshold throw an alert
+    TODO: If beamsets are approved
+        Check the Entrance/Exit is blocked on some things
+        Check that treat settings are used/appropriate
+    TODO: Tomo Time Check
+       def check_tomo_time(bs):
+         Look at the plan type. Use the normal tomo mod factors
+         Abdomen; 1.6 - 2.4
+         Brain; 1.6 - 2.4
+         Breast; 2.4 - 2.8
+         Cranio - Spinal; 1.8 - 2.2
+         Extremity; 2.0 - 2.4
+         Gyn; 1.8 - 2.4
+         H & N; 2.2 - 2.6
+         Lung(non - SBRT); 2.4 - 2.8
+         Lung(SBRT); 1.2 - 1.4
+         Pelvis; 1.8 - 2.4
+         Prostate(low; risk)    1.6 - 2.2
+         Prostate(high; risk)    2.0 - 2.4
+    TODO: Check collisions
+       put a circle down at isocenter equal in dimension to ganty (collimator
+       pin)/bore clearance
+       union patient/supports
+       determine gantry positions
+    TODO:
+       def - check the front edges of the couch and suspended headboard
+    TODO:
+       Flag all ROIs not made in MIM with goals
+    TODO: Stray voxel check/
+    TODO: Check clinical goal
+       if a clinical goal is not met, look at the objective list to see if it is
+       constrained
+    TODO: Add test on currently commissioned beams for timestamp
+    TODO: Check if an arc has the same couch and start/stop. if so, collimator
+     angles should differ
+    TODO: FRONT PAGE CHECKS
+     * TPO versus doses used in plan
+     * CT Orientation
+     * Number of slices and scan date
+     * Special instructions
+     * Energy
+    TODO: Objective type is correct: for anything with min goals, should be
+     PTV/GTV/CTV
+    In parse_order_selection:
+    TODO: Take a reg-exp as a list for input for matching a dialog and for
+        each desired phrase loop over the phrases for a match
+    TODO: Add the target matching that takes place for this step with
+        consideration of the pre-logcrit syntax and post-logcrit syntax
+    Individual Test improvements:
+    TODO: Contour gap check need only include human-drawn contours
+
     Version history:
+
 
 
     This program is free software: you can redistribute it and/or modify it
@@ -53,10 +162,10 @@ from collections import namedtuple
 from GeneralOperations import find_scope
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
-from PlanReview.guis import build_tree_element, comment_to_clipboard, \
-    build_review_tree, launch_physics_review_gui
+from PlanReview.guis import (build_tree_element, build_review_tree,
+                                            launch_physics_review_gui)
 from PlanReview.utils.get_user_name import get_user_name
-from PlanReview.review_definitions import LEVELS
+from PlanReview.review_definitions import DOMAIN_TYPE
 from PlanReview.documentation.generate_physics_document import generate_doc
 from PlanReview.qa_tests.test_examination import get_exam_level_tests
 from PlanReview.qa_tests.test_plan import get_plan_level_tests
@@ -65,7 +174,8 @@ from PlanReview.qa_tests.test_beamset import parse_beamset_selection
 from PlanReview.qa_tests.test_plan import parse_order_selection
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
-def automated_check_tree(rso, do_physics_review,beamsets=None):
+
+def automated_check_tree(rso, do_physics_review, beamsets=None):
     """
         Builds and returns a review tree for a radiotherapy treatment plan
         using PySimpleGUI.
@@ -80,13 +190,13 @@ def automated_check_tree(rso, do_physics_review,beamsets=None):
     """
 
     # Tree Levels (move these to tree building)
-    patient_key = (LEVELS['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
-    exam_key = (LEVELS['EXAM_KEY'], "Exam: " + rso.exam.Name)
-    plan_key = (LEVELS['PLAN_KEY'], "Plan: " + rso.plan.Name)
+    patient_key = (DOMAIN_TYPE['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
+    exam_key = (DOMAIN_TYPE['EXAM_KEY'], "Exam: " + rso.exam.Name)
+    plan_key = (DOMAIN_TYPE['PLAN_KEY'], "Plan: " + rso.plan.Name)
     beamset_key = (
-        LEVELS['BEAMSET_KEY'], "Beam Set: " + rso.beamset.DicomPlanLabel)
-    rx_key = (LEVELS['RX_KEY'], "Prescription")
-    log_key = (LEVELS['LOG_KEY'], "Logging")
+        DOMAIN_TYPE['BEAMSET_KEY'], "Beam Set: " + rso.beamset.DicomPlanLabel)
+    rx_key = (DOMAIN_TYPE['RX_KEY'], "Prescription")
+    log_key = (DOMAIN_TYPE['LOG_KEY'], "Logging")
     #
 
     tree_children = []
@@ -264,7 +374,7 @@ def physics_review(do_physics_review=True, rso=None):
     user_name = get_user_name()
     logging.info(f'Physics review script launched by {user_name}')
 
-    # tree_data = sg.TreeData()
+    # tree_data = Sg.TreeData()
 
     if not rso:
         # Initialize return variable
@@ -282,11 +392,11 @@ def physics_review(do_physics_review=True, rso=None):
     #
     doc_only = False
     if doc_only:
-        tests=None
-        header=None
+        tests = None
+        header = None
     else:
         # Gui
-        tests,header = launch_physics_review_gui(rso)
+        tests, header = launch_physics_review_gui(rso)
         if not tests and not header:
             sys.exit('Physics review canceled')
 

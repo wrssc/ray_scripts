@@ -11340,6 +11340,40 @@
         <Alias></Alias>
     </roi>
     <roi>
+        <name>LN_Iliac_Com_L</name>
+        <TG263PrimaryName>LN_Iliac_Com_L</TG263PrimaryName>
+        <Description>Common Iliac Lymph Nodes Left</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>Lymph Node</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Pelvis</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>L_Com_Iliac_LN</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="255" blue="255">#</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
+        <name>LN_Iliac_Com_R</name>
+        <TG263PrimaryName>LN_Iliac_Com_R</TG263PrimaryName>
+        <Description>Common Iliac Lymph Nodes Right</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>Lymph Node</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Pelvis</AnatomicGroup>
+        <NCharacters>14</NCharacters>
+        <TG263ReverseOrderName>R_Com_Iliac_LN</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID></FMAID>
+        <Color red="255" green="255" blue="255">#</Color>
+        <Alias></Alias>
+    </roi>
+    <roi>
         <name>LN_lliac_Int_R</name>
         <TG263PrimaryName>LN_lliac_Int_R</TG263PrimaryName>
         <Description>Lymph nodes of pelvis - internal iliac Right</Description>

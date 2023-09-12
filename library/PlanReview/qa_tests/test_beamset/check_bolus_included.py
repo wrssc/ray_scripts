@@ -3,16 +3,27 @@ from PlanReview.utils import get_roi_list, match_roi_name
 
 
 def check_bolus_included(rso):
-    """
+    """ Check Bolus Included
+    Checks if the given bolus is applied to any beam in the beamset.
 
     Args:
+        rso (Union[NamedTuple, dict]): ScriptObjects in Raystation containing [case,exam,plan,beamset,db]
 
     Returns:
-        message: list of lists of format: [parent key, key, value, result]
-    Test Patient:
-        Script_Testing^Plan_Review, #ZZUWQA_ScTest_01May2022, ChwL
-        Pass: Bolus_Roi_Check_Pass: ChwL_VMA_R1A0
-        Fail: Bolus_Roi_Check_Fail: ChwL_VMA_R0A0
+        Tuple[str, str]: First element is the status (PASS/FAIL),
+                         Second element is the message string
+
+    Pseudocode:
+    1. Retrieve exam_name and roi_list from rso
+    2. Match ROI names to predefined BOLUS_NAMES
+    3. Check if any matched bolus names are applied to beams
+    4. Construct the message string
+    5. Determine the result (PASS/FAIL)
+    6. Return the result and message
+
+    Test Patients:
+        Pass: Name: Script_Testing^Plan_Review,MRN: #ZZUWQA_ScTest_01May2022,Case: ChwL, Bolus_Roi_Check_Pass: ChwL_VMA_R1A0
+        Fail: Name: Script_Testing^Plan_Review,MRN: #ZZUWQA_ScTest_01May2022,Case: ChwL, Bolus_Roi_Check_Fail: ChwL_VMA_R0A0
     """
     child_key = "Bolus Application"
     exam_name = rso.exam.Name

@@ -1,7 +1,22 @@
+from typing import NamedTuple, List, Dict, Tuple, Any, Optional
 from PlanReview.review_definitions import PASS, FAIL
 
 
-def message_format_control_point_spacing(beam_spacing_failures, spacing):
+def message_format_control_point_spacing(
+    beam_spacing_failures: Dict[str, List[int]],
+    spacing: int
+) -> Tuple[str, str]:
+    """
+    Formats the control point spacing message and result.
+
+    Args:
+        beam_spacing_failures (Dict[str, List[int]]): Dictionary containing beam names and the corresponding failing control points.
+        spacing (int): The maximum allowed gantry angle between control points.
+
+    Returns:
+        Tuple[str, str]: First element is the message string,
+                         Second element is the status (PASS/FAIL).
+    """
     # Takes in a message dictionary that is labeled per beam, then parses
     if beam_spacing_failures:
         for b, v in beam_spacing_failures.items():
@@ -14,7 +29,18 @@ def message_format_control_point_spacing(beam_spacing_failures, spacing):
     return message_str, message_result
 
 
-def pass_control_point_spacing(s, s0, spacing):
+def pass_control_point_spacing(s: Any, s0: Optional[Any], spacing: int) -> bool:
+    """
+        Checks whether the gantry angle between control points is within a specified limit.
+
+        Args:
+            s (Any): The current control point.
+            s0 (Optional[Any]): The previous control point.
+            spacing (int): The maximum allowed gantry angle between control points.
+
+        Returns:
+            bool: True if the spacing is acceptable, False otherwise.
+    """
     if not s0:
         if s.DeltaGantryAngle <= spacing:
             return True
@@ -27,12 +53,28 @@ def pass_control_point_spacing(s, s0, spacing):
             return False
 
 
-def check_control_point_spacing(rso, **kwargs):
-    """
-    bs: RayStation beamset
-    expected: Integer delineating the gantry angle between control points in a beam
+def check_control_point_spacing(rso: NamedTuple,**kwargs) -> Tuple[str, str]:
+    """ Check Control Point Spacing
+    Checks the gantry angle between control points in a beamset.
+
+    Args:
+        rso (NamedTuple): ScriptObjects in Raystation containing [case, exam, plan, beamset, db].
+        expected (Optional[int]): Expected gantry angle between control points, provided through kwargs.
+
     Returns:
-            message: List of ['Test Name Key', 'Pass/Fail', 'Detailed Message']
+        Tuple[str, str]: First element is the result (PASS/FAIL),
+                            Second element is the message string.
+
+    Pseudocode:
+        1. Extract 'expected' from kwargs.
+        2. Loop through beams in the beamset.
+        3. For each beam, loop through control points and apply 'pass_control_point_spacing' function.
+        4. Store failed control points and prepare the message string using 'message_format_control_point_spacing' function.
+        5. Return the result and message string.
+
+    Test Patients:
+        Pass: None provided
+        Fail: None Provided
     """
     expected = kwargs.get('expected')
     beam_result = {}

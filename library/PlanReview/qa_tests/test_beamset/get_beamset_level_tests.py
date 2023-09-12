@@ -1,5 +1,5 @@
+import logging
 from .check_beamset_approved import check_beamset_approved
-from .check_transfer_approved import check_transfer_approved
 from .check_control_point_spacing import check_control_point_spacing
 from .check_couch_type import check_couch_type
 from .check_edw_mu import check_edw_mu
@@ -10,7 +10,12 @@ from .check_common_isocenter import check_common_isocenter
 from .check_bolus_included import check_bolus_included
 from .check_dose_grid import check_dose_grid
 from .compute_vmat_beam_properties import compute_vmat_beam_properties
-from .beamset_review_tests import *
+from .check_tomo_isocenter import check_tomo_isocenter
+from .check_mod_factor import check_mod_factor
+from .check_fraction_size import check_fraction_size
+from .check_no_fly import check_no_fly
+from .check_pacemaker import check_pacemaker
+from PlanReview.review_definitions import REVIEW_LEVELS
 
 
 def get_beamset_level_tests(rso, physics_review=True):
@@ -19,25 +24,25 @@ def get_beamset_level_tests(rso, physics_review=True):
         return {}
 
     beamset_checks_dict = {
-        "Beamset approval status":
+        f"{REVIEW_LEVELS['PLAN_DATA']}::Beamset approval status":
             (check_beamset_approved, {"do_physics_review": physics_review}),
-        "Isocenter Position Identical":
+        f"{REVIEW_LEVELS['PLAN_DESIGN']}::Isocenter Position Identical":
             (check_common_isocenter, {"tolerance": 1e-15}),
-        "Check Fractionation":
+        f"{REVIEW_LEVELS['PLAN_DESIGN']}::Check Fractionation":
             (check_fraction_size, {}),
-        "Couch Type Correct":
+        f"{REVIEW_LEVELS['PATIENT_MODEL']}::Couch Type Correct":
             (check_couch_type, {}),
-        "Slice Thickness Comparison":
+        f"{REVIEW_LEVELS['PLAN_DESIGN']}::Slice Thickness Comparison":
             (check_slice_thickness, {}),
-        "Bolus Application":
+        f"{REVIEW_LEVELS['PATIENT_MODEL']}::Bolus Application":
             (check_bolus_included, {}),
-        "No Fly Zone Dose Check":
+        f"{REVIEW_LEVELS['PLAN_DESIGN']}::No Fly Zone Dose Check":
             (check_no_fly, {}),
-        "Check for pacemaker compliance":
+        f"{REVIEW_LEVELS['PLAN_DESIGN']}::Check for pacemaker compliance":
             (check_pacemaker, {}),
-        "Dose Grid Size Check":
+        f"{REVIEW_LEVELS['PLAN_DESIGN']}::Dose Grid Size Check":
             (check_dose_grid, {}),
-        "Planning Risk Volume Assessment":
+        f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment":
             (check_prv_status, {}),
     }
 
@@ -46,32 +51,31 @@ def get_beamset_level_tests(rso, physics_review=True):
     technique = rso.beamset.DeliveryTechnique if rso.beamset else None
     if technique == 'DynamicArc':
         if rso.beamset.Beams[0].HasValidSegments:
-            beamset_checks_dict["Control Point Spacing"] = (
+            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Control Point Spacing"] = (
                 check_control_point_spacing,
                 {'expected': 2.})
-            beamset_checks_dict["Beamset Complexity"] = (
+            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
                 compute_vmat_beam_properties, {})
     elif technique == 'SMLC':
         try:
             _ = rso.beamset.Beams[0].Segments[
                 0]  # Determine if beams have segments
-            beamset_checks_dict["Beamset Complexity"] = (
+            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
                 compute_vmat_beam_properties, {})
-            beamset_checks_dict["EDW MU Check"] = (
+            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW MU Check"] = (
                 check_edw_mu, {})
-            beamset_checks_dict["EDW FieldSize Check"] = (
+            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW FieldSize Check"] = (
                 check_edw_field_size, {})
         except Exception as e:
             pass
     elif 'Tomo' in technique:
         try:
             _ = rso.beamset.Beams[0].Segments[0]  # If beams have segments
-            beamset_checks_dict["Isocenter Lateral Acceptable"] = (
+            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Isocenter Lateral Acceptable"] = (
                 check_tomo_isocenter, {})
-            beamset_checks_dict["Modulation Factor Acceptable"] = (
+            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Modulation Factor Acceptable"] = (
                 check_mod_factor, {})
-            beamset_checks_dict["Transfer BeamSet Approval Status"] = (
-                check_transfer_approved, {})
         except Exception as e:
+            logging.warning(f'Error observed during tomo specific checks {e}')
             pass
     return beamset_checks_dict

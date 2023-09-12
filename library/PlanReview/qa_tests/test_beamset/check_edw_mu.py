@@ -1,51 +1,60 @@
+from typing import List, Tuple, NamedTuple
 from PlanReview.review_definitions import TRUEBEAM_DATA, PASS, FAIL
 
 
-def check_edw_mu(rso):
+def get_edw_beams(beams: List[object]) -> dict:
     """
-    Checks to see if all MU are greater than the EDW limit
+    Helper function to get beams with EDWs.
+    """
+    return {b.Name: b.BeamMU for b in beams if hasattr(b, 'Wedge') and 'EDW' in b.Wedge.WedgeID}
+
+
+def check_edw_mu(rso: NamedTuple) -> Tuple[str, str]:
+    """
+    Check if all Monitor Units (MU) are greater than the EDW limit.
+
     Args:
-        beamset:
+        rso: NamedTuple containing RayStation script objects.
+            E.g., rso.beamset refers to the RayStation beamset script object.
 
     Returns:
-        messages: List of ['Test Name Key', 'Pass/Fail', 'Detailed Message']
+        Tuple of (pass_result: str, message_str: str)
+
+    Pseudocode:
+        1. Extract beams with EDWs from the provided RayStation object
+        2. Check if MU values for these beams are within specified limits
+        3. Generate a message based on the check results
+        4. Return the message and pass/fail status
 
     Test Patient:
         ScriptTesting, #ZZUWQA_SCTest_13May2022, C1
         PASS: ChwR_3DC_R0A0
         FAIL: ChwR_3DC_R2A0
     """
-    edws = {}
-    for b in rso.beamset.Beams:
-        try:
-            if b.Wedge:
-                if 'EDW' in b.Wedge.WedgeID:
-                    edws[b.Name] = b.BeamMU
-        except AttributeError:
-            break
+    edws = get_edw_beams(rso.beamset.Beams)
+
     if edws:
-        passing = True
-        edw_passes = []
-        edw_message = "Beam(s) have EDWs: "
-        for bn, mu in edws.items():
-            if mu < TRUEBEAM_DATA['EDW_LIMITS']['MU_LIMIT']:
-                passing = False
-                edw_message += "{}(MU)={:.2f},".format(bn, mu)
-            else:
-                edw_passes.append(bn)
-        if passing:
-            edw_message += "{} all with MU > {}".format(edw_passes,
-                                                        TRUEBEAM_DATA['EDW_LIMITS']['MU_LIMIT'])
-        else:
-            edw_message += "< {}".format(TRUEBEAM_DATA['EDW_LIMITS']['MU_LIMIT'])
+        passing, message_str = validate_edw_limits(edws)
     else:
         passing = True
-        edw_message = "No beams with EDWs found"
+        message_str = "No beams with EDWs found"
+
+    pass_result = PASS if passing else FAIL
+    return pass_result, message_str
+
+
+def validate_edw_limits(edws: dict) -> Tuple[bool, str]:
+    """
+    Helper function to validate if the MU values for EDW beams meet the limits.
+    """
+    passing = all(mu >= TRUEBEAM_DATA['EDW_LIMITS']['MU_LIMIT'] for mu in edws.values())
 
     if passing:
-        pass_result = PASS
-        message_str = edw_message
+        edw_names = ', '.join(edws.keys())
+        message_str = f"Beam(s) have EDWs: {edw_names} all with MU > {TRUEBEAM_DATA['EDW_LIMITS']['MU_LIMIT']}"
     else:
-        pass_result = FAIL
-        message_str = edw_message
-    return pass_result, message_str
+        failing_beams = [(bn, mu) for bn, mu in edws.items() if mu < TRUEBEAM_DATA['EDW_LIMITS']['MU_LIMIT']]
+        message_str = f"Beam(s) have EDWs: {', '.join(f'{bn}(MU)={mu:.2f}' for bn, mu in failing_beams)} < {TRUEBEAM_DATA['EDW_LIMITS']['MU_LIMIT']}"
+
+    return passing, message_str
+

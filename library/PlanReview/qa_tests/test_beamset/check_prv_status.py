@@ -1,15 +1,37 @@
+from typing import NamedTuple, Tuple
 import re
 from PlanReview.review_definitions import PASS, FAIL
 
 
-def check_prv_status(rso):
-    """
-    If priority 0 constraints (or undefined priority) constraints are used on a non-target,
-    and the non-target
-    has maximum dose constrained a PRV should be defined, have contours, and be used in the
-    optimization
-    :param rso:
-    :return:
+def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
+    """Check PRV Status
+        Verifies if priority 0 constraints are used on non-targets and
+        assesses if the corresponding PRV should be defined, have contours,
+        and be used in optimization.
+
+        Args:
+            rso (NamedTuple): ScriptObjects in RayStation containing
+                             [case ('RayStation Case Object'),
+                              exam ('RayStation Exam Object'),
+                              plan ('RayStation Plan Object'),
+                              beamset ('RayStation BeamSet Object'),
+                              db ('RayStation Database Object')]
+
+        Returns:
+            result, message_string (Tuple[str, str]): First element is the status (PASS/FAIL/ALERT),
+                                                     Second element is the message string
+
+        Pseudocode:
+            1. Extract ROIs that are not targets
+            2. Identify serial OAR constraints
+            3. Check if PRVs are defined and used in optimization for serial OARs
+            4. Build the appropriate message string based on PRV checks
+            5. Determine the result (PASS/FAIL)
+            6. Return the result and message
+
+        Test Patients:
+            Pass: Needed
+            Fail: Needed
     """
 
     rois = [r.Name for r in rso.case.PatientModel.RegionsOfInterest if

@@ -1,5 +1,5 @@
 import re
-from review_definitions import ALERT
+from PlanReview.review_definitions import ALERT
 
 
 def parse_order_selection(beamset_name, messages, dialog_key):
