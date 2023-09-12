@@ -1,1 +1,0 @@
-from PlanReview_V0_BetaTesting.documentation.generate_physics_document import generate_doc
