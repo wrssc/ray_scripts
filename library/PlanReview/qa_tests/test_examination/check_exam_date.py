@@ -1,4 +1,4 @@
-from typing import NamedTuple, Tuple, Optional
+from typing import NamedTuple, Tuple
 from dateutil import parser
 import datetime
 from PlanReview.review_definitions import DAYS_SINCE_SIM, PASS, FAIL, ALERT

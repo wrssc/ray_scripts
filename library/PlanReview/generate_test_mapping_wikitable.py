@@ -140,9 +140,9 @@ def generate_test_mapping_wikitable():
         if isinstance(attribute, dict) and KEY_REVIEW_TYPE in attribute:
             dict_names.append(attribute)
 
-    plan_review_dir = Path(PlanReview.__path__[0])
+    plan_review_dir = Path(PlanReview_V0_BetaTesting.__path__[0])
 
-    # Define the folder where automated test Python files are kept, relative to PlanReview
+    # Define the folder where automated test Python files are kept, relative to PlanReview_V0_BetaTesting
     AUTOMATED_TESTS_FOLDER = plan_review_dir
     # Define the output file path
     OUTPUT_FILE_PATH = os.path.join(review_definitions.OUTPUT_DIR, 'output_wikitable.txt')

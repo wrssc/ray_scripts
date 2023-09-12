@@ -2,7 +2,6 @@
 import PySimpleGUI as Sg
 import os
 import logging
-import warnings
 from PlanReview.review_definitions import (
     CHECK_BOXES_PHYSICS_REVIEW, CHECK_BOXES_PHYSICS_REVIEW_3D,
     CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,

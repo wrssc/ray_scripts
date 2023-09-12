@@ -1,4 +1,4 @@
-from typing import NamedTuple, Tuple, Optional
+from typing import NamedTuple, Tuple
 from PlanReview.review_definitions import PASS, FAIL, ALERT, GRID_PREFERENCES
 import numpy as np
 

@@ -1,6 +1,6 @@
 import re
 from dateutil import parser
-from typing import NamedTuple, Tuple, Optional
+from typing import NamedTuple, Tuple
 
 from PlanReview.review_definitions import PASS,FAIL
 

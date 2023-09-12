@@ -232,7 +232,7 @@ def get_order_instructions(protocol, order_name):
 
     return instructions
 
-import logging
+
 from typing import List, Dict
 
 

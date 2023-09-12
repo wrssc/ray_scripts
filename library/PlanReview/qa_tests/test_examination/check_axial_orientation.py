@@ -1,4 +1,4 @@
-from typing import NamedTuple, Tuple, Dict, Optional
+from typing import NamedTuple, Tuple, Optional
 from PlanReview.review_definitions import PASS, FAIL
 
 

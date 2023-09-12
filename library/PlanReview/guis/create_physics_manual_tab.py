@@ -8,7 +8,7 @@ from PlanReview.review_definitions import (
     CHECK_BOXES_PHYSICS_REVIEW, CHECK_BOXES_PHYSICS_REVIEW_3D,
     CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
     CHECK_BOXES_PHYSICS_REVIEW_TOMO3D, CHECK_BOXES_PHYSICS_REVIEW_TOMO)
-from PlanReview.utils.constants import *
+from PlanReview_V0_BetaTesting.utils.constants import *
 
 
 def create_key(element_type, beamset_index=None, target_index=None):

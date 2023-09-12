@@ -1,6 +1,6 @@
-from PlanReview.review_definitions import TOMO_DATA, TRUEBEAM_DATA, FAIL, \
+from PlanReview_V0_BetaTesting.review_definitions import TOMO_DATA, TRUEBEAM_DATA, FAIL, \
     PASS, ALERT
-from PlanReview.utils.get_machine import get_machine
+from PlanReview.utils import get_machine
 from typing import NamedTuple, Tuple
 
 

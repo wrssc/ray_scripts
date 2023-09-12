@@ -1,4 +1,4 @@
-from typing import NamedTuple, List, Tuple
+from typing import NamedTuple, Tuple
 from PlanReview.review_definitions import TRUEBEAM_DATA, PASS, FAIL
 
 
