@@ -50,6 +50,7 @@ import PySimpleGUI as Sg
 import connect
 from GeneralOperations import find_scope
 from collections import namedtuple
+# noinspection PyUnresolvedReferences
 from System import Environment
 from PlanReview.utils import comment_to_clipboard, perform_automated_checks
 

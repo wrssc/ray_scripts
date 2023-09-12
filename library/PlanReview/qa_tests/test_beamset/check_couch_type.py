@@ -1,4 +1,4 @@
-from PlanReview_V0_BetaTesting.review_definitions import TOMO_DATA, TRUEBEAM_DATA, FAIL, \
+from PlanReview.review_definitions import TOMO_DATA, TRUEBEAM_DATA, FAIL, \
     PASS, ALERT
 from PlanReview.utils import get_machine
 from typing import NamedTuple, Tuple
@@ -6,7 +6,8 @@ from typing import NamedTuple, Tuple
 
 def check_couch_type(rso: NamedTuple) -> Tuple[str, str]:
     """Check Couch Type
-       Checks if the correct couch support structures are present in the patient plan based on the machine type.
+       Checks if the correct couch support structures are present in the
+       patient plan based on the machine type.
 
         Args:
             rso (NamedTuple): ScriptObjects in RayStation containing
@@ -24,7 +25,8 @@ def check_couch_type(rso: NamedTuple) -> Tuple[str, str]:
         1. Retrieve the list of ROI names from the case
         2. Determine the machine name from the first beam of the beamset
         3. Identify the wrong and correct supports based on the machine type
-        4. Build an appropriate message string based on the support structures found
+        4. Build an appropriate message string based on the support structures
+           found
         5. Determine the result (PASS/FAIL/ALERT)
         6. Return the result and message string
 

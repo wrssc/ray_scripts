@@ -4,6 +4,9 @@
 import re
 import math
 import numpy as np
+import connect
+from PlanReview.review_definitions import (
+    FIELD_OF_VIEW_PREFERENCES, PASS, FAIL, MATERIALS)
 
 
 #

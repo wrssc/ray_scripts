@@ -15,7 +15,7 @@ from .check_mod_factor import check_mod_factor
 from .check_fraction_size import check_fraction_size
 from .check_no_fly import check_no_fly
 from .check_pacemaker import check_pacemaker
-from PlanReview_V0_BetaTesting.review_definitions import REVIEW_LEVELS
+from PlanReview.review_definitions import REVIEW_LEVELS
 
 
 def get_beamset_level_tests(rso, physics_review=True):
