@@ -2389,15 +2389,34 @@ def find_transform(case, from_name, to_name):
     return None
 
 
-def transform_poi(case, point, from_name, to_name):
+def transform_poi(case: object, point: dict, from_name: object, to_name: object) -> dict:
+    """
+    Transforms a point of interest (POI) between two frames of reference.
+
+    Args:
+        case (RS case object): The case object that includes the transformation details.
+        point (dict): Dictionary containing the x, y, z coordinates of the point.
+        from_name (object): The source frame of reference.
+        to_name (object): The target frame of reference.
+
+    Returns:
+        dict: The transformed coordinates {'x': x, 'y': y, 'z': z}.
+
+    Pseudocode:
+        1. Get the transformation between the source and target frames of reference.
+        2. If no transformation is found, try the reverse transformation.
+        3. If still not found, raise an error.
+        4. Transform the given point using the transformation matrix.
+    """
+    # Get the transformation from the source to the target frame of reference
     reg = case.GetTransform(FromFrameOfReference=from_name.FrameOfReference,
                             ToFrameOfReference=to_name.FrameOfReference)
     if reg is None:
+        # Try the reverse transformation if the direct transformation is not found
         reg = case.GetTransform(FromFrameOfReference=to_name.FrameOfReference,
                                 ToFrameOfReference=from_name.FrameOfReference)
         if reg is None:
-            raise RuntimeError(f'No Registration between {from_name}'
-                               f' to {to_name}')
+            raise RuntimeError(f'No Registration between {from_name} to {to_name}')
         else:
             reg_inv = np.reshape(reg, (4, 4))
             transform_matrix = np.linalg.inv(reg_inv)
@@ -2405,8 +2424,8 @@ def transform_poi(case, point, from_name, to_name):
         transform_matrix = np.reshape(reg, (4, 4))
 
     x = np.array([point['x'], point['y'], point['z'], 1])
-    x_p = np.matmul(transform_matrix, np.transpose(x)).tolist()
-    return {'x': x_p[0], 'y': x_p[1], 'z': x_p[2]}
+    x_transformed, y_transformed, z_transformed, _ = np.matmul(transform_matrix, np.transpose(x)).tolist()
+    return {'x': x_transformed, 'y': y_transformed, 'z': z_transformed}
 
 
 def find_eval_dose(case, beamset_name: str, exam_name: str):
