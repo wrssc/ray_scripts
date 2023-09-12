@@ -15,7 +15,7 @@
     this program. If not, see <http://www.gnu.org/licenses/>.
     """
 
-__author__ = 'Adam Bayliss"
+__author__ = "Adam Bayliss"
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '12-May-2022'
 __version__ = '0.0.0'
