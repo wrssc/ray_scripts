@@ -4,6 +4,7 @@ import os
 import json
 import pandas as pd
 from typing import Union, Optional
+from datetime import datetime
 from docx import Document
 from docx.table import Table
 from docx.shared import Inches, Pt
@@ -48,16 +49,31 @@ def set_section_dimensions_and_orientation(section):
 
 
 def generate_doc(rso, tests, header_data, test_mode=False):
+    patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
+    patient_output_prefix = f"{rso.patient.PatientID}_" \
+                            f"{rso.beamset.DicomPlanLabel}_" \
+                            f"{generate_filename()}_"
+
     if test_mode:
-        tests = read_tests_from_json('tests.json')
-        header_data = read_tests_from_json('header.json')
+        tests = read_tests_from_json(
+            generate_file_path(
+                patient_output_dir, patient_output_prefix, "tests.json"))
+        header_data = read_tests_from_json(
+            generate_file_path(
+                patient_output_dir, patient_output_prefix, "header.json"))
     else:
-        dump_tests_to_json(tests, file_name='tests.json')
-        dump_tests_to_json(header_data, file_name='header.json')
+        dump_tests_to_json(
+            tests, file_name=generate_file_path(
+                patient_output_dir, patient_output_prefix, "tests.json"))
+        dump_tests_to_json(
+            header_data, file_name=generate_file_path(
+                patient_output_dir, patient_output_prefix, "header.json"))
+
     tests_df = read_data(tests)
+
     # Output file
-    file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}.doc"
-    output_file = os.path.join(OUTPUT_DIR, rso.patient.PatientID, file_name)
+    output_file = generate_file_path(
+        patient_output_dir, patient_output_prefix, ".doc")
 
     # Get approval info:
     approval_status = get_approval_info(rso.plan, rso.beamset)
@@ -79,7 +95,7 @@ def generate_doc(rso, tests, header_data, test_mode=False):
     # Add header
     add_page_header(section, rso, first_page=True)
     # Add empty footer to first page
-    add_footer(section,rso,first_page=True)
+    add_footer(section, rso, first_page=True)
 
     #
     # Begin body of document
@@ -132,7 +148,7 @@ def generate_doc(rso, tests, header_data, test_mode=False):
         user_tl_df.sort_values(by='sort_key', inplace=True)
 
         # Add the manual check table
-        add_check_list_table(user_tl_df,document,title=f'{test_level}')
+        add_check_list_table(user_tl_df, document, title=f'{test_level}')
         # adjusted_page_height = add_check_table_splitting(
         #    user_tl_df, document, adjusted_page_height,f'{test_level}')
         # Auto Checks
@@ -165,7 +181,7 @@ def get_usable_page():
     return available_space
 
 
-def estimate_table_length(df: pd.DataFrame, i: Optional[int]=0, top: Optional[bool]=False) -> float:
+def estimate_table_length(df: pd.DataFrame, i: Optional[int] = 0, top: Optional[bool] = False) -> float:
     """
     Estimate the length of the table based on the number of rows and the
     height of each row.
@@ -185,14 +201,14 @@ def estimate_table_length(df: pd.DataFrame, i: Optional[int]=0, top: Optional[bo
     max_len_comment = df[KEY_OUT_COMMENT].apply(len).max()
     sum_max = max_len_comment + max_len_desc + max_len_message
     logging.debug(f'Max chars: {max_len_desc}, {max_len_message}, {max_len_comment}')
-    calculated_row_height = row_height if sum_max < 240 else row_height*math.ceil(sum_max/120)
+    calculated_row_height = row_height if sum_max < 240 else row_height * math.ceil(sum_max / 120)
     if top:
         space = 0
     else:
         space = table_spacing
     table_length = space + table_title_height \
                    + table_header_height \
-                   + (number_of_rows - i) * calculated_row_height\
+                   + (number_of_rows - i) * calculated_row_height \
                    + num_domain_rows * domain_row_height
     return table_length
 
@@ -206,11 +222,11 @@ def add_check_table_splitting(check_df, document, adjusted_page_height, title):
         logging.debug(f'{title}: BEFORE: available {adjusted_page_height:.2f}')
         logging.debug(f'{title} length is {estimate_table_length(test1_df):.2f}')
         add_check_list_table(test1_df, document, title=f'{title}')
-        table_length = estimate_table_length(test2_df,top=True)
+        table_length = estimate_table_length(test2_df, top=True)
         document.add_page_break()
         logging.debug('**SPLITTING TABLE - PAGE BREAK**')
         logging.debug(f'{title} - Cont: BEFORE: available {available_page_height:.2f}')
-        logging.debug(f'{title} length is {estimate_table_length(test2_df,top=True):.2f}')
+        logging.debug(f'{title} length is {estimate_table_length(test2_df, top=True):.2f}')
         adjusted_page_height = available_page_height - table_length
         add_check_list_table(test2_df, document, title=f'{title} - Cont')
         logging.debug(f'{title} - Cont: AFTER: adjusted {adjusted_page_height:.2f}')
@@ -221,18 +237,18 @@ def add_check_table_splitting(check_df, document, adjusted_page_height, title):
         document.add_page_break()
         logging.debug('**TABLE TOO LONG FOR SPACE - PAGE BREAK**')
         logging.debug(f'{title}: BEFORE: available {available_page_height:.2f}')
-        logging.debug(f'{title} length is {estimate_table_length(test2_df,top=True):.2f}')
+        logging.debug(f'{title} length is {estimate_table_length(test2_df, top=True):.2f}')
         table_length = estimate_table_length(test2_df, top=True)
         adjusted_page_height = available_page_height - table_length
         add_check_list_table(test2_df, document, title=f'{title}')
         logging.debug(f'{title}: AFTER: adjusted {adjusted_page_height:.2f}')
     else:
         # Table will fit on this page
-        top = math.isclose(adjusted_page_height, available_page_height,rel_tol=1e-3)
+        top = math.isclose(adjusted_page_height, available_page_height, rel_tol=1e-3)
         logging.debug(f'{title}: BEFORE: available {adjusted_page_height:.2f}')
-        logging.debug(f'{title} length is {estimate_table_length(test1_df,top=top):.2f}')
+        logging.debug(f'{title} length is {estimate_table_length(test1_df, top=top):.2f}')
         add_check_list_table(test1_df, document, title=f'{title}')
-        table_length = estimate_table_length(test1_df,top=top)
+        table_length = estimate_table_length(test1_df, top=top)
         adjusted_page_height = adjusted_page_height - table_length
         logging.debug(f'{title}: AFTER: adjusted {adjusted_page_height:.2f}')
     return adjusted_page_height
@@ -334,7 +350,8 @@ def find_split(check_df, space):
     #               f'and Table length: {table_length:.2f}')
     check_df_1 = check_df.iloc[:len(check_df) - i]
     check_df_2 = check_df.iloc[len(check_df) - i:]
-    logging.debug(f'POST SPLIT: TABLE 1 {estimate_table_length(check_df_1):.2f}, TABLE {estimate_table_length(check_df_2):.2f}')
+    logging.debug(
+        f'POST SPLIT: TABLE 1 {estimate_table_length(check_df_1):.2f}, TABLE {estimate_table_length(check_df_2):.2f}')
     return check_df_1, check_df_2
 
 
@@ -463,7 +480,7 @@ def add_domain_row(table, domain, index):
     row.cells[0].text = domain
     row.cells[0].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     # Set background color (shade) to light gray; 'auto' could be replaced with a specific color
-    add_shading_to_cell(row.cells[0],'D3D3D3')
+    add_shading_to_cell(row.cells[0], 'D3D3D3')
 
 
 def add_simulation_data_table(doc, data):
@@ -482,8 +499,8 @@ def add_simulation_data_table(doc, data):
 def add_user_comment(doc, data):
     comment_table = doc.add_table(rows=2, cols=1)
     comment_table.style = 'Light List Accent 2'
-    comment_table.cell(0,0).text = 'Physicist Comments'
-    comment_table.cell(1,0).text = str(data[KEY_USER_COMMENT])
+    comment_table.cell(0, 0).text = 'Physicist Comments'
+    comment_table.cell(1, 0).text = str(data[KEY_USER_COMMENT])
 
 
 def add_treatment_instructions_table(doc, data):
@@ -631,3 +648,13 @@ def add_shading_to_cell(cell, color):
 
     # Add shading to cell properties
     cell._tc.get_or_add_tcPr().append(shd)
+
+
+def generate_filename():
+    now = datetime.now()
+    filename = now.strftime("%Y%m%d_%H%M%S")
+    return filename
+
+
+def generate_file_path(patient_output_dir, patient_output_prefix, file_suffix):
+    return os.path.join(patient_output_dir, f"{patient_output_prefix}{file_suffix}")
