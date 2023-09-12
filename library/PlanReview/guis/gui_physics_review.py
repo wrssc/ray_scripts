@@ -93,7 +93,7 @@ def update_window_key_dict(window, keys):
 
 
 def save_review(rso, values, quiet=False):
-    logging.debug(f'Values in Save {tuple_key_to_str(values)}')
+    # logging.debug(f'Values in Save {tuple_key_to_str(values)}')
     file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review.json"
     with open(os.path.join(OUTPUT_DIR, file_name), "w") as f:
         json.dump(tuple_key_to_str(values), f)
