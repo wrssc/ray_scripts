@@ -72,7 +72,7 @@ def check_slice_thickness(rso: NamedTuple) -> Tuple[str, str]:
             slice_thickness = calculate_slice_thickness(exam_series)
         if slice_thickness.size > 0:
             message_str = f'Plan type unknown, check slice spacing ' \
-                          f'{np.axax(slice_thickness):.3f} cm carefully'
+                          f'{np.amax(slice_thickness):.3f} cm carefully'
             pass_result = ALERT
         else:
             message_str = 'Slice thickness data is missing for unknown plan type.'
