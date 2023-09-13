@@ -10,8 +10,8 @@ from PlanReview.utils.constants import (
     KEY_AUTO_REVIEW_DATE)
 
 # OUTPUT DIR
-OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\dev_logs"
-ERROR_DIR = r"Q:\\RadOnc\RayStation\RayScripts\dev_logs\Errors\ReviewScript"
+OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
+ERROR_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs\Errors\ReviewScript"
 
 protocol_folder = r'../../protocols'
 institution_folder = r'UW'
