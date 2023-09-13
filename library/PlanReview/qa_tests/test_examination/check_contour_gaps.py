@@ -74,6 +74,22 @@ def consecutive(data, stepsize=1):
     return np.split(data, np.where(np.diff(data) >= stepsize)[0] + 1)
 
 
+def get_contour_list(rso):
+    contour_list = []
+    # All Rois with contours
+    rois_with_contours = [rg for rg in
+                          rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries if
+                          rg.HasContours()]
+    organ_types = ['Target', 'OrganAtRisk']
+    roi_types = ['Ptv', 'Ctv', 'Gtv', 'Organ']
+    # ROI names if they have a type match in review_types
+    for rg in rois_with_contours:
+        if rg.OfRoi.OrganData.OrganType in organ_types and \
+                rg.OfRoi.Type in roi_types:
+            contour_list.append(rg.OfRoi.Name)
+    return contour_list
+
+
 def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
     """ Check Contour Gaps
         Look for Superior/Inferior discontinuities in all ROIs that have contours and are not
@@ -112,10 +128,7 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
     """
     # Look through all available rois that have contours for gaps
     message_str = ""
-    # All Rois with contours
-    rois_with_contours = [rg.OfRoi.Name for rg in
-                          rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries if
-                          rg.HasContours()]
+    rois_to_check = get_contour_list(rso)
     # Get slice positions
     slices = get_slice_positions(rso)
     # Get the slice thickness of the CT
@@ -124,7 +137,7 @@ def check_contour_gaps(rso: NamedTuple) -> Tuple[str, str]:
     # Build a dictionary with key = roi name, and values
     # of the gap strings
     gaps = {}
-    for roi in rois_with_contours:
+    for roi in rois_to_check:
         # Get the roi geometry
         roi_geometry = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries[roi]
         # Find any gaps
