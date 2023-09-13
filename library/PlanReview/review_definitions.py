@@ -10,6 +10,12 @@ from PlanReview.utils.constants import (
     KEY_AUTO_REVIEW_DATE)
 
 # OUTPUT DIR
+# In the future replace this with the log file directory from an environment
+# variable in ScriptSelector:
+# os.environ['LOG_DIR'] = '/path/to/log/files'
+# OUTPUT_DIR = os.getenv('LOG_DIR')
+# ERROR_DIR = os.path.join(os.getenv('LOG_DIR'),'Errors','ReviewScript')
+log_dir = os.getenv('LOG_DIR')
 OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
 ERROR_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs\Errors\ReviewScript"
 
@@ -217,6 +223,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_AUTOMATION: {},
         },
         {
+            # TODO: Combine the next two items
             KEY_OUT_TEST: 'density_overrides_contoured',
             KEY_OUT_DESC: 'Density overrides are contoured',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
@@ -225,12 +232,13 @@ CHECK_BOXES_PHYSICS_REVIEW = {
         },
         {
             KEY_OUT_TEST: 'density_overrides',
-            KEY_OUT_DESC: 'Density overrides Material assignment is appropriate',
+            KEY_OUT_DESC: 'Material assignment is appropriate',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
         },
         {
+            # TODO: Consider deleting this. RS does not allow this.
             KEY_OUT_TEST: 'density_override_rois',
             KEY_OUT_DESC: 'Density override ROIs do not overlap',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
@@ -265,7 +273,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_bolus_included'],
                 KEY_STATUS: 'Needs Review',
                 KEY_AUTO_REVIEW_DATE: 'NA'
-                            },
+            },
         },
     ],
     REVIEW_LEVELS['PLAN_DESIGN']: [
@@ -1326,7 +1334,6 @@ CHECK_BOXES_DOSE_TOMO = {
     REVIEW_LEVELS['ADAPTIVE']: [
         {
 
-
             KEY_OUT_TEST: 'idms_adaptive',
             KEY_OUT_DESC: 'iDMS Adaptive: treated fractions discontinued in new plan',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
@@ -1606,7 +1613,7 @@ PLAN_NAMES = {'LUNG_SBRT':
               'THI':
                   ['THI', 'T3D'],
               '3D':
-                  ['3CA','BST','Bst']
+                  ['3CA', 'BST', 'Bst']
               }
 
 GRID_PREFERENCES = {
@@ -1700,21 +1707,58 @@ MATERIALS = {'TrueBeamCouch': 'Lung',
              'Baseplate_Override_PMMA': 'PMMA',
              'ProneBreastBoard': 'Cartilage'}
 # PLANNING PREFERENCES - CLINICAL
+VMAT_PREFERENCES = {
+    'SBRT': {
+        'PLAN_NAMES': PLAN_NAMES['LUNG_SBRT'] + PLAN_NAMES['BREAST_SBRT']
+                      + PLAN_NAMES['ABDOMEN_SBRT'] + PLAN_NAMES['PELVIS_SBRT'],
+        'MOD_FACTOR_HIGH': 4,  # Sum of Beam MU / Rx in cGy
+    },
+    'SBRT_FINE': {
+        'PLAN_NAMES': PLAN_NAMES['SPINE_SBRT'] + PLAN_NAMES['HEAD_NECK_SBRT'],
+        'MOD_FACTOR_HIGH': 5,  # Sum of Beam MU / Rx in cGy
+    },
+    'SRS': {
+        'PLAN_NAMES': PLAN_NAMES['BRAIN_FSRT'] + PLAN_NAMES['SRS'],
+        'MOD_FACTOR_HIGH': 3,  # Sum of Beam MU / Rx in cGy
+    },
+    'TBI': {
+        'PLAN_NAMES': PLAN_NAMES['TBI'],
+        'MOD_FACTOR_HIGH': 6,  # Sum of Beam MU / Rx in cGy
+    },
+    'VMAT': {
+        'PLAN_NAMES': PLAN_NAMES['VMAT'],
+        'MOD_FACTOR_HIGH': 4,  # Sum of Beam MU / Rx in cGy
+    },
+    '3D': {
+        'PLAN_NAMES': PLAN_NAMES['3D'],
+        'MOD_FACTOR_HIGH': 3,  # Sum of Beam MU / Rx in cGy
+    },
+}
 TOMO_PREFERENCES = {
-    'ABDOMEN': {'ALIAS': ['Abdo_THI', 'Livr_THI', 'Panc_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.6},
-    'BRAIN': {'ALIAS': ['Brai_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.6},
-    'BREAST': {'ALIAS': ['BreL_THI', 'BreR_THI', 'ChwL_THI', 'ChwR_THI'], 'MF_HIGH': 2.8,
-               'MF_LOW': 2.4},
-    'CSI': {'ALIAS': ['CSI_THI'], 'MF_HIGH': 2.2, 'MF_LOW': 1.8},
-    'EXTREMITY': {'ALIAS': ['ArmL_THI', 'ArmR_THI', 'LegL_THI', 'LegR_THI'], 'MF_HIGH': 2.4,
-                  'MF_LOW': 2.0},
-    'GYN': {'ALIAS': ['Vulv_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.8},
-    'HN': {'ALIAS': ['NecB_THI', 'NecR_THI', 'NecL_THI'], 'MF_HIGH': 2.6, 'MF_LOW': 2.2},
-    'LUNG-NO-SBRT': {'ALIAS': ['LunL_THI', 'LunR_THI', 'LunB_THI', 'Medi_THI'], 'MF_HIGH': 2.8,
-                     'MF_LOW': 2.4},
-    'LUNG-SBRT': {'ALIAS': PLAN_NAMES['LUNG_SBRT'], 'MF_HIGH': 1.4, 'MF_LOW': 1.2},
-    'PELVIS': {'ALIAS': ['Pelv_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 1.8},
+    'ABDOMEN': {'ALIAS': ['Abdo_THI', 'Livr_THI', 'Panc_THI'],
+                'MF_HIGH': 2.4, 'MF_LOW': 1.6},
+    'BRAIN': {'ALIAS': ['Brai_THI'],
+              'MF_HIGH': 2.4, 'MF_LOW': 1.6},
+    'BREAST': {'ALIAS': ['BreL_THI', 'BreR_THI', 'ChwL_THI', 'ChwR_THI'],
+               'MF_HIGH': 2.8, 'MF_LOW': 2.4},
+    'CSI': {'ALIAS': ['CSI_THI'],
+            'MF_HIGH': 2.2, 'MF_LOW': 1.8},
+    'EXTREMITY': {'ALIAS': ['ArmL_THI', 'ArmR_THI', 'LegL_THI', 'LegR_THI'],
+                  'MF_HIGH': 2.4, 'MF_LOW': 2.0},
+    'GYN': {'ALIAS': ['Vulv_THI'],
+            'MF_HIGH': 2.4, 'MF_LOW': 1.8},
+    'HN': {'ALIAS': ['NecB_THI', 'NecR_THI', 'NecL_THI'],
+           'MF_HIGH': 2.6, 'MF_LOW': 2.2},
+    'LUNG-NO-SBRT': {'ALIAS': ['LunL_THI', 'LunR_THI', 'LunB_THI', 'Medi_THI'],
+                     'MF_HIGH': 2.8, 'MF_LOW': 2.4},
+    'LUNG-SBRT': {'ALIAS': PLAN_NAMES['LUNG_SBRT'],
+                  'MF_HIGH': 1.4, 'MF_LOW': 1.2},
+    'PELVIS': {'ALIAS': ['Pelv_THI'],
+
+               'MF_HIGH': 2.4, 'MF_LOW': 1.8},
     'PROSTATE-LOW-RISK': {'ALIAS': ['Pros_THI'], 'MF_HIGH': 2.2, 'MF_LOW': 1.6},
-    'PROSTATE-HIGH-RISK': {'ALIAS': ['ProN_THI', 'ProF_THI'], 'MF_HIGH': 2.4, 'MF_LOW': 2.0},
-    'TOMO_3D': {'ALIAS': ['T3D'], 'MF_HIGH': 2.2, 'MF_LOW': 1.1},
+    'PROSTATE-HIGH-RISK': {'ALIAS': ['ProN_THI', 'ProF_THI'],
+                           'MF_HIGH': 2.4, 'MF_LOW': 2.0},
+    'TOMO_3D': {'ALIAS': ['T3D'],
+                'MF_HIGH': 2.2, 'MF_LOW': 1.1},
 }
