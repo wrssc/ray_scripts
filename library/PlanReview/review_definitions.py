@@ -1613,7 +1613,7 @@ PLAN_NAMES = {'LUNG_SBRT':
               'THI':
                   ['THI', 'T3D'],
               '3D':
-                  ['3CA', 'BST', 'Bst']
+                  ['3DC', '3CA', 'BST', 'Bst']
               }
 
 GRID_PREFERENCES = {
