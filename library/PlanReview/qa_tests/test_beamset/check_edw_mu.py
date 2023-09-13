@@ -8,9 +8,11 @@ def get_edw_beams(beams: List[object]) -> dict:
     """
     edw_dict = {}
     for b in beams:
-        if hasattr(b,'Wedge'):
+        try:
             if 'EDW' in b.Wedge.WedgeID:
                 edw_dict[b.Name] = b.BeamMU
+        except AttributeError:
+            continue
 
     return edw_dict
 
