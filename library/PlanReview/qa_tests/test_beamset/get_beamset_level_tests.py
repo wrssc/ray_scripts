@@ -42,8 +42,6 @@ def get_beamset_level_tests(rso, physics_review=True):
             (check_pacemaker, {}),
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Dose Grid Size Check":
             (check_dose_grid, {}),
-        f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment":
-            (check_prv_status, {}),
     }
 
     # Plan check for VMAT
@@ -58,8 +56,7 @@ def get_beamset_level_tests(rso, physics_review=True):
                 compute_vmat_beam_properties, {})
     elif technique == 'SMLC':
         try:
-            _ = rso.beamset.Beams[0].Segments[
-                0]  # Determine if beams have segments
+            _ = rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
             beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
                 compute_vmat_beam_properties, {})
             beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::EDW MU Check"] = (
@@ -75,6 +72,9 @@ def get_beamset_level_tests(rso, physics_review=True):
                 check_tomo_isocenter, {})
             beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Modulation Factor Acceptable"] = (
                 check_mod_factor, {})
+            beamset_checks_dict[
+                f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment"] = \
+                (check_prv_status, {}),
         except Exception as e:
             logging.warning(f'Error observed during tomo specific checks {e}')
             pass
