@@ -11,6 +11,8 @@
 
 
     PRERELEASE:
+    TODO: NEED THE IMAGING FREQUENCY AND TREATMENT FREQUENCY POPULATED ON ALL
+          TPOS
     TODO: ADD CT ORIENTATION TO PREPLAN DIALOG AND CHECK VS RS
     TODO: ADD TO CRITICAL the CASE, EXAM, PLAN, BEAMSETUID
     TODO: Need a required prompt for all entries in the first tab
@@ -20,6 +22,30 @@
           -should load the list of user tests and connect them to checkboxes
     TODO: Sizing of the automated test subframes needs to be computed based on items
           present.
+    TODO: New checkboxes
+          Implanted Devices
+           Review treatment modality, dose to the device and distance from the device to the nearest collimated field edge
+           Verify information entered in IMD Physics Consult document is accurate
+           Complete and sign the IMD Physics Consult document, set the “Supervised By” field to attending MD.
+           Determine if in vivo dosimetry measurement is required
+          Prior Radiotherapy
+           Review fusions done for prior RT (if not already done by a POD)
+           Review the dose accumulation, including TPO goals for prior RT
+           Verify:
+            * Prior RT document is completed
+            * Attending MD in “Supervised by”
+           MD review of prior RT is documented (or Message to MD exists)
+           Remove
+           Plan Design
+            Removed check "Overlap with prior RT Reviewed"
+           Mobius
+            Removed check "Confirm couch removal height"
+            Removed check "Target identification correct"
+            Removed check "Classification of each structure correct"
+          Review
+            Removed check "Reviewed Check with Dosimetry"
+
+
     TESTS:
     TODO: ADD PATIENT ORIENTATION TO PREPLAN AND COMPARE TO DICOM
     TODO: Clearance check: LOOK AT WHERE THE BEAM WILL GO!
@@ -142,7 +168,7 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2022-Aug-03'
+__date__ = '2023-Aug-03'
 __version__ = '0.0.0'
 __status__ = 'Testing'
 __deprecated__ = False
@@ -153,7 +179,7 @@ __maintainer__ = 'One maintainer'
 __email__ = 'rabayliss@wisc.edu'
 __license__ = 'GPLv3'
 __help__ = ''
-__copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
+__copyright__ = 'Copyright (C) 2023, University of Wisconsin Board of Regents'
 __credits__ = ['']
 
 import sys
@@ -162,7 +188,6 @@ import PySimpleGUI as sg
 import logging
 from collections import namedtuple
 from GeneralOperations import find_scope
-
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
 from PlanReview.guis import (build_tree_element, build_review_tree,
                                             launch_physics_review_gui)
