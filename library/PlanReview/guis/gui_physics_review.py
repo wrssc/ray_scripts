@@ -14,20 +14,24 @@ from PlanReview.utils.protocol_loading import load_protocols, \
     get_sites, get_all_orders, get_unique_instructions
 from PlanReview.utils.constants import *
 from PlanReview.guis.gui_report_script_error import report_script_error
+from PlanReview.guis.create_sideframe import (
+    create_side_panel, load_side_panel, extract_values_side_panel,
+    on_side_panel_radio_button_click, is_valid_side_panel)
 from PlanReview.guis.create_preplan_tab import (
-    load_preplan, extract_preplan_values, validate_preplan_tab,
+    load_preplan, extract_values_preplan_tab, validate_preplan_tab,
     calculate_preplan_dose_per_fraction,
     update_preplan_frequencies, update_preplan_instructions,
     update_preplan_protocols, update_preplan_orders,
-    create_preplan_information_tab, update_preplan_beamset_rows,
-    update_preplan_target_rows, )
+    create_tab_preplan_information, update_preplan_beamset_rows,
+    update_preplan_target_rows)
 from PlanReview.guis.create_physics_manual_tab import (
     build_manual_check_box_list, get_tests_from_tree,
     create_tab_manual_checks, on_manual_radio_button_click,
-    extract_manual_values, load_manual, process_auto_tests,
-    process_check_box_values)
+    extract_values_manual_tab, load_manual, process_auto_tests,
+    process_check_box_values, is_valid_manual_tab)
 import json
 import connect
+from typing import Dict
 
 """
 
@@ -102,23 +106,6 @@ def save_review(rso, values, quiet=False):
     return file_name
 
 
-def load_main_window(window, values):
-    # All Keys
-    main_window_data = values.get(KEY_MAIN_WINDOW, {})
-    for key, value in main_window_data.items():
-        if key == KEY_PROCEED_REVISE:
-            if value == "Proceed":
-                window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"].update(value=True)
-                window["-REVISION_TEXT-"].update(visible=False)
-                window[KEY_REVISION_INFO].update(visible=False)
-            elif value == "Revise":
-                window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"].update(value=True)
-                window["-REVISION_TEXT-"].update(visible=True)
-                window[KEY_REVISION_INFO].update(visible=True)
-        else:
-            window[key].update(value)
-
-
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
                 maximum_beamset_count, check_box_copy, file_name=None):
     if not file_name:
@@ -134,8 +121,6 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
     values = str_key_to_tuple(values)
     # Add missing keys to the window.key_dict
     update_window_key_dict(window, values.keys())
-    # Load the main window data. Right now it is KEY_USER_COMMENT
-    load_main_window(window, values)
     # Load preplan frame contents
     load_preplan(window, values, sites, protocols, instructions,
                  maximum_beamset_count, maximum_target_number)
@@ -144,12 +129,15 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
     # Determine the number of beamsets
     num_beamsets = int(window[KEY_BEAMSET_COUNT].get()) \
         if window[KEY_BEAMSET_COUNT].get() else 1
+    # Load the main window data.
+    load_side_panel(window, values)
     return num_beamsets
 
 
-def get_review_gui_values(window, passing_tests, failed_tests, check_boxes, comment_box_key):
+def get_review_gui_values(window, passing_tests, failed_tests, check_boxes):
     """
     Extracts the values entered into the PySimpleGUI dialog and sorts them by keys.
+    This is used for saving the review to file and for the report
 
     Parameters:
     - window: PySimpleGUI Window object representing the GUI
@@ -160,59 +148,44 @@ def get_review_gui_values(window, passing_tests, failed_tests, check_boxes, comm
     Returns:
     - sorted_values: dictionary of values sorted by keys
     """
-    #
+
     # Get any data from the first tab
-    preplan_values = extract_preplan_values(window)
-    #
-    # Get the data from the comment box if any.
-    if window[comment_box_key].get():
-        main_window_values = {
-            KEY_MAIN_WINDOW: {comment_box_key: window[KEY_USER_COMMENT].get(),
-                              }}
-    else:
-        main_window_values = {KEY_MAIN_WINDOW: {KEY_USER_COMMENT: ''}}
-    if window[KEY_REVISION_INFO].get():
-        main_window_values[KEY_MAIN_WINDOW][KEY_REVISION_INFO] = window[KEY_REVISION_INFO].get()
-    else:
-        main_window_values[KEY_MAIN_WINDOW][KEY_REVISION_INFO] = ""
-    if window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"].get():
-        main_window_values[KEY_MAIN_WINDOW][KEY_PROCEED_REVISE] = "Proceed"
-    elif window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"].get():
-        main_window_values[KEY_MAIN_WINDOW][KEY_PROCEED_REVISE] = "Revise"
-    else:
-        main_window_values[KEY_MAIN_WINDOW][KEY_PROCEED_REVISE] = ""
+    preplan_values = extract_values_preplan_tab(window)
+
+    # Get values from the side tab
+    side_frame_values = extract_values_side_panel(window)
 
     # Get the data from the first tab
-    manual_values = extract_manual_values(window, passing_tests, failed_tests, check_boxes)
-    manual_values.update(main_window_values)
-    sorted_values = merge_dicts(preplan_values, manual_values)
+    manual_values = extract_values_manual_tab(window, passing_tests, failed_tests, check_boxes)
+
+    # Merge them into a single dictionary
+    sorted_values = merge_dicts(side_frame_values, preplan_values)
+    sorted_values = merge_dicts(sorted_values, manual_values)
 
     return sorted_values
+
+
+def update_window_error(window, key, bg=False):
+    error_text_color = '#8B0000'
+    error_bg_color = '#8B0000'
+    error_bg_text = '#8B0000'
+    if bg:
+        window[key].update(text_color=error_bg_text,
+                           background_color=error_bg_color)
+    else:
+        window[key].update(text_color=error_text_color)
+
+
+def check_radio_on(values, keys):
+    return any(values[k] for k in keys)
 
 
 # Event handler for "Done" button
 def on_done_button_click(window, values, check_boxes):
     # Check if all the required fields are filled in
-    is_valid = True
-    for key in check_boxes:
-        for item in check_boxes[key]:
-            radio_y_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}Yes')
-            radio_no_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}No')
-            radio_na_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}NA')
-            input_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}')
-            value_defined = any(values[k] for k in [radio_na_key, radio_y_key, radio_no_key])
-            if not value_defined:
-                window[radio_y_key].update(text_color='#8B0000')
-                window[radio_no_key].update(text_color='#8B0000')
-                window[radio_na_key].update(text_color='#8B0000')
-                is_valid = False
-            if values[radio_no_key] and not values[input_key]:
-                window[input_key].update(text_color='#ffffff',
-                                         background_color='#8B0000')
-                is_valid = False
-
-    if not is_valid:
-        Sg.popup_error('Please fill in all the required fields.')
+    manual_valid = is_valid_manual_tab(window, values, check_boxes)
+    side_valid = is_valid_side_panel(window, values)
+    is_valid = all([manual_valid, side_valid])
     return is_valid
 
 
@@ -378,11 +351,11 @@ def launch_physics_review_gui(rso):
                                  border_width=2,
                                  key='-REPORT-'),
                        Sg.ReadFormButton('',
-                                 image_filename=ICON_PAUSE,
+                                         image_filename=ICON_PAUSE,
                                          image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-PAUSE-'),
+                                         pad=top_pad,
+                                         border_width=2,
+                                         key='-PAUSE-'),
                        Sg.Button('',
                                  image_filename=ICON_CANCEL,
                                  image_size=top_image_size,
@@ -400,42 +373,13 @@ def launch_physics_review_gui(rso):
                    size=(top_width, top_height),
                    )
     #
-    # Comment box size
-    comment_line_count = int(window_height / pix_per_char_height)
-    #
-    # Comment Frame
-    side = [[Sg.Text('Comments', text_color='blue', font=('Arial', 12, 'bold'))],
-            [Sg.Multiline(default_text='',
-                          size=(comment_width_chars, comment_line_count),
-                          autoscroll=True,
-                          auto_size_text=True,
-                          key=KEY_USER_COMMENT)
-             ],
-            [Sg.Radio("Proceed", "RADIO1",
-                      default=True,
-                      key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed",
-                      enable_events=True),
-            Sg.Radio("Revise", "RADIO1",
-                     key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise",
-                     enable_events=True)],
-            [Sg.Text("Reason for Revision:", enable_events=True,
-                     visible=False, key="-REVISION_TEXT-"),
-             Sg.Multiline(default_text='',
-                          size=(comment_width_chars, 2),
-                          autoscroll=True,
-                          auto_size_text=True,
-                          enable_events=True,
-                          key=KEY_REVISION_INFO,
-                          visible=False),]
-            ]
-    #
     # Gather the layout
     layout = [
         [
             Sg.Column([
                 [top],
                 [Sg.TabGroup([[Sg.Tab('External Information',
-                                      create_preplan_information_tab(
+                                      create_tab_preplan_information(
                                           protocols, sites, orders, instructions,
                                           beamsets, targets, tab_width, tab_height, save_space))
                                ]],
@@ -444,7 +388,11 @@ def launch_physics_review_gui(rso):
             ], ),
             # Vertical line to separate the comments from the left side
             Sg.Column([[Sg.VSeperator()]]),
-            Sg.Column(side, vertical_alignment='top')
+            # Side Panel declaration
+            Sg.Column(create_side_panel(comment_width_chars,
+                                        window_height,
+                                        pix_per_char_height),
+                      vertical_alignment='top')
         ],
     ]
 
@@ -545,13 +493,12 @@ def launch_physics_review_gui(rso):
                     tab_group.add_tab(tab)
 
                 window['Review and Logs'].select()
-        # Plan revision events
-        if values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"]:
-            window["-REVISION_TEXT-"].update(visible=False)
-            window[KEY_REVISION_INFO].update(visible=False)
-        elif values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"]:
-            window["-REVISION_TEXT-"].update(visible=True)
-            window[KEY_REVISION_INFO].update(visible=True)
+
+        #
+        # Plan Revision Events
+        side_panel_event = f"{KEY_PROCEED_REVISE}{KEY_RADIO}"
+        if side_panel_event in event:
+            on_side_panel_radio_button_click(window, event)
         #
         # Manual Tab Events
         if type(event) is tuple:
@@ -565,22 +512,25 @@ def launch_physics_review_gui(rso):
                 # Save the review
                 review_file_name = save_review(
                     rso,
-                    get_review_gui_values(window, passing_tests, failed_tests,
-                                          check_box_copy, KEY_USER_COMMENT),
+                    get_review_gui_values(window, passing_tests, failed_tests, check_box_copy),
                     quiet=True)
 
+                #
+                # Retrieve data from the check-boxes and automated tests
                 passing_tests, failed_tests = get_tests_from_tree(tree_children)
-                pros_pass = process_auto_tests(window, passing_tests)
-                pros_fails = process_auto_tests(window, failed_tests)
                 check_list = process_check_box_values(window, check_box_copy)
-                check_list.extend(pros_fails)
-                check_list.extend(pros_pass)
-                header_data = extract_preplan_values(window)
+                check_list.extend(process_auto_tests(window, failed_tests))
+                check_list.extend(process_auto_tests(window, passing_tests))
+                #
+                # Retrieve data from the first tab and side panel
+                preplan_data = extract_values_preplan_tab(window)
+                sidepanel_data = extract_values_side_panel(window)
+                header_data = merge_dicts(preplan_data, sidepanel_data)
                 break
         if event == '-SAVE-':
             review_file_name = save_review(
                 rso, get_review_gui_values(window, passing_tests, failed_tests,
-                                           check_box_copy, KEY_USER_COMMENT))
+                                           check_box_copy))
 
     window.close()
 
