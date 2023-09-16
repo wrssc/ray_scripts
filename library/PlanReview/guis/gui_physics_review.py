@@ -397,7 +397,7 @@ def launch_physics_review_gui(rso):
     ]
 
     window = Sg.Window(
-        f'Plan Review: {get_user_name()}',
+        f'{get_user_name()}> Plan Review:{" "*5}{rso.patient.Name}{" "*5}{rso.patient.PatientID}',
         layout,
         resizable=True,
         size=(window_width, window_height))
