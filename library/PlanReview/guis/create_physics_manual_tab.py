@@ -1,6 +1,5 @@
 import PySimpleGUI as Sg
 import sys
-import logging
 from typing import NamedTuple
 from PlanReview.review_definitions import (
     PASS, FAIL, ALERT, NA,
@@ -103,7 +102,7 @@ def create_manual_check_row(item, max_check, user_text_length=80):
     return row
 
 
-def extract_manual_values(window, passing, failed, check_boxes):
+def extract_values_manual_tab(window, passing, failed, check_boxes):
     sorted_values = {}
     for key in check_boxes:
         sorted_values[key] = {}
@@ -148,8 +147,6 @@ def load_manual(window, values, check_boxes):
                     saved_key = key
                 if saved_key in window.key_dict:
                     window[saved_key].update(value=value)
-                else:
-                    logging.debug(f'No match found for {saved_key} during load.')
 
 
 def search_string(input_string):
@@ -198,13 +195,11 @@ def calculate_frame_heights(vsize, hsize, check_lines, fail_lines, pass_lines, p
     scroll_fail = False
     scroll_pass = False
     if total_size > vsize:
-        logging.debug(f'Total size of lines is {total_size} for {vsize}')
         n_check = check_lines
         n_fail = fail_lines
         n_pass = pass_lines
         excess = total_size - vsize
         excess_lines = int(excess / pix_per_line)
-        logging.debug(f'Excess lines starts at {excess_lines}')
         iteration = 0
         condense_check = 0
         while excess_lines > 0:
@@ -222,7 +217,6 @@ def calculate_frame_heights(vsize, hsize, check_lines, fail_lines, pass_lines, p
             excess = total_size - vsize
             excess_lines = int(excess / pix_per_line)
             iteration += 1
-            logging.debug(f'At {iteration} excess lines is {excess_lines}')
         frame_check = int(n_check * pix_per_line)
         frame_fail = int(n_fail * pix_per_line)
         frame_pass = int(n_pass * pix_per_line)
@@ -247,7 +241,6 @@ def determine_frame_properties(tab_width, tab_height, key,
     # total_fail_lines = sum(1 for comment, result, icon, test_key in failed_tests if test_key == key)
     total_fail_lines = sum(1 for v in failed_tests if v.get(KEY_OUT_TAB) == key)
     total_pass_lines = sum(1 for v in passing_tests if v.get(KEY_OUT_TAB) == key)
-    logging.debug(f'Key {key}: {total_pass_lines}, {total_fail_lines}, {total_check_lines}')
 
     frame_dict = calculate_frame_heights(vsize, hsize, total_check_lines, total_fail_lines,
                                          total_pass_lines, pix_per_line)
@@ -388,11 +381,49 @@ def on_manual_radio_button_click(window, event):
                                  background_color='#848884')
 
 
+def update_window_error(window, key, bg=False):
+    error_text_color = '#8B0000'
+    error_bg_color = '#8B0000'
+    error_bg_text = '#8B0000'
+    if bg:
+        window[key].update(text_color=error_bg_text,
+                           background_color=error_bg_color)
+    else:
+        window[key].update(text_color=error_text_color)
+
+
+def check_radio_on(values, keys):
+    return any(values[k] for k in keys)
+
+
+def is_valid_manual_tab(window,values, check_boxes):
+    is_valid = True
+    for key in check_boxes:
+        for item in check_boxes[key]:
+            options = ['Yes', 'No', 'NA']
+            check_box_radio_keys = [
+                create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}{o}')
+                for o in options]
+            if not check_radio_on(values, check_box_radio_keys):
+                for r in check_box_radio_keys:
+                    update_window_error(window, r)
+                is_valid = False
+            else:
+                input_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}')
+                if values[check_box_radio_keys[1]] and not values[input_key]:
+                    update_window_error(window, input_key, bg=True)
+                    is_valid = False
+    if not is_valid:
+        Sg.popup_error('Please fill in all the required fields.')
+    return is_valid
+
+
 def copy_and_filter_checkbox_dict(dict1, dict2):
     # Create filtered copies of dict1 and dict2 without the KEY_REVIEW_TYPE key
     f_dict1 = {k: v for k, v in dict1.items() if k != KEY_REVIEW_TYPE}
     f_dict2 = {k: v for k, v in dict2.items() if k != KEY_REVIEW_TYPE}
     return f_dict1, f_dict2
+
 
 def merge_dicts(dict1, dict2):
     # Get filtered versions of the dictionaries
@@ -547,9 +578,7 @@ def process_check_box_values(window, checks):
         list: A sorted list containing the checkbox values.
     """
     sorted_results = []
-    ## sorted_results = {}
     for test_level in checks:
-        ## sorted_results[test_level] = []
         for item in checks[test_level]:
             parsed_item = {KEY_OUT_DESC: item[KEY_OUT_DESC]}
             radio_pre = f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}"
@@ -572,7 +601,6 @@ def process_check_box_values(window, checks):
             # There is no message for user driven tests but the message
             # field is populated for all the auto tests
             parsed_item[KEY_OUT_MESSAGE] = parsed_item[KEY_OUT_RESULT]
-            ## sorted_results[test_level].append(parsed_item)
             sorted_results.append(parsed_item)
     return sorted_results
 
