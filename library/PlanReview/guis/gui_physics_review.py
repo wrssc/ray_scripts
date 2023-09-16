@@ -14,7 +14,7 @@ from PlanReview.utils.protocol_loading import load_protocols, \
     get_sites, get_all_orders, get_unique_instructions
 from PlanReview.utils.constants import *
 from PlanReview.guis.gui_report_script_error import report_script_error
-from PlanReview.guis.create_sideframe import (
+from PlanReview.guis.create_side_panel import (
     create_side_panel, load_side_panel, extract_values_side_panel,
     on_side_panel_radio_button_click, is_valid_side_panel)
 from PlanReview.guis.create_preplan_tab import (
