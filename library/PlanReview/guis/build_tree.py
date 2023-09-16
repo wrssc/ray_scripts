@@ -1,6 +1,5 @@
 import PySimpleGUI as sg
 from collections import namedtuple
-import logging
 from PlanReview.review_definitions import FAIL, RED_CIRCLE, PASS, GREEN_CIRCLE
 from PlanReview.review_definitions import YELLOW_CIRCLE, ALERT, BLUE_CIRCLE, DOMAIN_TYPE
 
@@ -81,8 +80,6 @@ def insert_tests_return_fails(test_data, treedata, fails):
     if test_data:
         for test in test_data:
             test_name, test_key, test_description, test_result, test_icon = test
-            logging.debug(f'test_name: {test_name}, test_key: {test_key},'
-                          f'test_description: {test_description}')
             treedata.Insert(test_name, test_key, test_description,
                             [test_result, ""], icon=test_icon)
             if (test_key == FAIL or test_key == ALERT) and test_result:
@@ -118,7 +115,6 @@ def build_review_tree(rso, exam_level_tests, plan_level_tests,
     plan_key = (DOMAIN_TYPE['PLAN_KEY'], f"Plan: {rso.plan.Name}")
     beamsets_key = {}
     all_bs_tests = []
-    logging.debug(f'Beamset levels {beamset_levels.keys()}')
     if beamsets:
         rsos = load_rsos(rso, beamsets)
     else:
