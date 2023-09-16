@@ -567,7 +567,7 @@ def update_plan_names(window, plan_name_event, plan_name_dict, current_plan_name
     window[plan_name_event].update(value=current_plan_name, values=plan_names)
 
 
-def create_preplan_information_tab(protocols, sites, orders,
+def create_tab_preplan_information(protocols, sites, orders,
                                    instructions, beamsets, targets,
                                    tab_width, tab_height, save_space=False):
     """
@@ -577,8 +577,10 @@ def create_preplan_information_tab(protocols, sites, orders,
     beamsets (list): A list of available beamsets.
     targets (list): A list of available targets.
     """
+
     def create_space():
         return [Sg.Text('', size=(5, 1))] if not save_space else []
+
     maximum_beamset_count = len(beamsets)
     # Create the layout for the beamset information section
     beamset_layout = create_beamset_layout(beamsets, targets)
@@ -655,7 +657,7 @@ def create_preplan_information_tab(protocols, sites, orders,
 
 
 def validate_preplan_tab(window):
-    preplan_dict = extract_preplan_values(window)
+    preplan_dict = extract_values_preplan_tab(window)
     num_beamsets = int(preplan_dict[KEY_BEAMSET][KEY_BEAMSET_COUNT])
     if not num_beamsets:
         Sg.popup('Number of beamsets needed to proceed')
@@ -676,7 +678,7 @@ def validate_preplan_tab(window):
     return True
 
 
-def extract_preplan_values(main_window):
+def extract_values_preplan_tab(main_window):
     """
     Extract the values from the PySimpleGUI window and return them in a dictionary.
 
@@ -727,10 +729,10 @@ def extract_preplan_values(main_window):
                     treatment_instructions[key] = value.get()
 
     # Get the Beamset Information values
-    num_beamsets = main_window[KEY_BEAMSET_COUNT].get()\
-                    if main_window[KEY_BEAMSET_COUNT].get() else 1
+    num_beamsets = main_window[KEY_BEAMSET_COUNT].get() \
+        if main_window[KEY_BEAMSET_COUNT].get() else 1
     beamset_dict = {KEY_BEAMSET_COUNT: main_window[KEY_BEAMSET_COUNT].get()
-                    if main_window[KEY_BEAMSET_COUNT].get() else ''}
+    if main_window[KEY_BEAMSET_COUNT].get() else ''}
     for i in range(num_beamsets):
         beamset_dict[create_key(KEY_BEAMSET_SELECT, i)] = \
             main_window[create_key(KEY_BEAMSET_SELECT, i)].get() \
@@ -752,12 +754,10 @@ def extract_preplan_values(main_window):
                 window_key = create_key(key, i, j)
                 if main_window[window_key].get():
                     beamset_dict[window_key] = main_window[window_key].get()
-    user_comment_dict = {KEY_USER_COMMENT: main_window[KEY_USER_COMMENT].get()}
     values_dict = {
         KEY_SIMULATION_DATA: simulation_dict,
         KEY_TX_INST_SET: treatment_instructions,
         KEY_BEAMSET: beamset_dict,
-        KEY_USER_COMMENT: user_comment_dict
     }
 
     return values_dict
