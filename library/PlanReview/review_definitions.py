@@ -389,27 +389,6 @@ CHECK_BOXES_PHYSICS_REVIEW = {
     ],
     REVIEW_LEVELS['MOBIUS']: [
         {
-            KEY_OUT_TEST: 'couch_removal_height',
-            KEY_OUT_DESC: 'Confirm couch removal height',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'target_identification',
-            KEY_OUT_DESC: 'Target identification is correct',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'structure_classification',
-            KEY_OUT_DESC: 'Classification of each structure is correct',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
             KEY_OUT_TEST: 'gamma_review',
             KEY_OUT_DESC: 'Review gamma: 5%/3mm > 90%',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
@@ -437,6 +416,29 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
         },
+        #
+        # Removed September 2023 per Physics group
+        # {
+        #     KEY_OUT_TEST: 'couch_removal_height',
+        #     KEY_OUT_DESC: 'Confirm couch removal height',
+        #     KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+        #     KEY_OUT_OPTIONS: 'Yes,NA,No',
+        #     KEY_AUTOMATION: {},
+        # },
+        # {
+        #     KEY_OUT_TEST: 'target_identification',
+        #     KEY_OUT_DESC: 'Target identification is correct',
+        #     KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+        #     KEY_OUT_OPTIONS: 'Yes,NA,No',
+        #     KEY_AUTOMATION: {},
+        # },
+        # {
+        #     KEY_OUT_TEST: 'structure_classification',
+        #     KEY_OUT_DESC: 'Classification of each structure is correct',
+        #     KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+        #     KEY_OUT_OPTIONS: 'Yes,NA,No',
+        #     KEY_AUTOMATION: {},
+        # },
     ],
     REVIEW_LEVELS['SANDBOX']: [
         {
@@ -1681,12 +1683,13 @@ MCS_TOLERANCES = {'MCS': {'MEAN': 0.369,
 TOMO_DATA = {'MACHINES': ['HDA0488'],
              'PLAN_TR_SUFFIX': r'_Tr',
              'LATERAL_ISO_MARGIN': 2.,  # cm
-             'SUPPORTS': ['TomoCouch']
+             'SUPPORTS': ['TomoCouch','S-frame']
              }
 
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
                  'SUPPORTS': ['TrueBeamCouch', 'CivcoBaseShell_Cork', 'CivcoInclineShell_Wax',
-                              'Sframe_F1_TBCouch_HN'],
+                              'Sframe_F1_TBCouch_HN', 'Sframe_H2_TBCouch_Brain',
+                              'ProneBreastBoard'],
                  'EDW_LIMITS': {'MU_LIMIT': 20.,
                                 'Y2-OUT': 10.,  # Y2=OUT: -10 cm ≤ Y1 ≤ 10 cm
                                 'Y1-IN': 10.,  # Y1=IN : -10 cm ≤ Y2 ≤ 10 cm
@@ -1705,7 +1708,11 @@ MATERIALS = {'TrueBeamCouch': 'Lung',
              'Sframe': 'Lung',
              'TomoCouch': 'Lung',
              'Baseplate_Override_PMMA': 'PMMA',
-             'ProneBreastBoard': 'Cartilage'}
+             'ProneBreastBoard': 'Cartilage',
+             'MT-T-45-S-CE221': 'PLA',
+             'MT-T-45-M-CE221': 'PLA',
+             'MT-T-45-L-CE221': 'PLA',
+             }
 # PLANNING PREFERENCES - CLINICAL
 VMAT_PREFERENCES = {
     'SBRT': {
