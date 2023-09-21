@@ -42,9 +42,9 @@ def get_user_display_parameters() -> Tuple[int, int, bool, int, int]:
     pixels_per_char = width_pixels // len(sample_sentence)
     screen_width, screen_height = Sg.Window.get_screen_size()
 
-    # deciding the fraction of screen to be used for window
-    height_fraction = 0.80 if screen_height <= 1080 else 0.75
-    width_fraction = 0.82 if screen_height <= 1080 else 0.7
+    # deciding the fraction of screen to be used for comment
+    height_fraction = 0.65 if screen_height <= 1080 else 0.6
+    width_fraction = 0.59 if screen_height <= 1080 else 0.63
 
     # calculating window dimensions
     window_width = int(width_fraction * screen_width)
