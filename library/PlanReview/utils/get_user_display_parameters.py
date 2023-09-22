@@ -44,7 +44,7 @@ def get_user_display_parameters() -> Tuple[int, int, bool, int, int]:
 
     # deciding the fraction of screen to be used for comment
     height_fraction = 0.65 if screen_height <= 1080 else 0.6
-    width_fraction = 0.59 if screen_height <= 1080 else 0.63
+    width_fraction = 0.59 if screen_height <= 1080 else 0.59
 
     # calculating window dimensions
     window_width = int(width_fraction * screen_width)
