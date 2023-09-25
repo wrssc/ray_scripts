@@ -405,6 +405,23 @@
         <Alias>Sigmoid,SigmoidColon</Alias>
     </roi>
     <roi>
+        <name>Colon_Sigmoid_PRV05</name>
+        <TG263PrimaryName>Colon_Sigmoid_PRV05</TG263PrimaryName>
+        <Description>Sigmoid Colon expanded 05 mm as a planning risk volume</Description>
+        <NCIt></NCIt>
+        <TargetType>PRV</TargetType>
+        <RTROIInterpretedType>Avoidance</RTROIInterpretedType>
+        <MajorCategory>Bowel</MajorCategory>
+        <MinorCategory>Colon</MinorCategory>
+        <AnatomicGroup>Pelvis</AnatomicGroup>
+        <NCharacters>19</NCharacters>
+        <TG263ReverseOrderName>Sigmoid_Colon_PRV05</TG263ReverseOrderName>
+        <Export>False</Export>
+        <FMAID></FMAID>
+        <Color red="253" green="218" blue="169" Hex="#fddaa9">PeachCider</Color>
+        <Alias>sigmoid_prv05</Alias>
+    </roi>
+    <roi>
         <name>Colon_Transverse</name>
         <TG263PrimaryName>Colon_Transverse</TG263PrimaryName>
         <Description>Large bowel -Transverse colon</Description>

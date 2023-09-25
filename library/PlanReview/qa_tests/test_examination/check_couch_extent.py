@@ -60,7 +60,7 @@ def check_couch_extent(rso: NamedTuple, **kwargs: Optional[List[float]]) -> Tupl
         message_str = 'No support structures found. No couch check possible'
         pass_result = FAIL
     elif couch_extent[1] >= (target_extent[1] + buffer) and couch_extent[0] <= (target_extent[0] - buffer):
-        message_str = f'Supports ({", ".join(support_rois)}) span {z_str} and is at least {buffer:.1f} cm larger than S/I target extent {t_str}'
+        message_str = f'Supports ({", ".join(support_rois)}) span {z_str} and is at least {buffer:.0f} cm larger than S/I target extent {t_str}'
         pass_result = PASS
     else:
         message_str = f'Support extent ({", ".join(support_rois)}): {z_str} is not fully under the target. (SMALLER THAN S/I target extent: {t_str} ± {buffer:.1f} cm)'

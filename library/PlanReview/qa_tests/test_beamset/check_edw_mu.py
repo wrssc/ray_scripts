@@ -6,7 +6,15 @@ def get_edw_beams(beams: List[object]) -> dict:
     """
     Helper function to get beams with EDWs.
     """
-    return {b.Name: b.BeamMU for b in beams if hasattr(b, 'Wedge') and 'EDW' in b.Wedge.WedgeID}
+    edw_dict = {}
+    for b in beams:
+        try:
+            if 'EDW' in b.Wedge.WedgeID:
+                edw_dict[b.Name] = b.BeamMU
+        except AttributeError:
+            continue
+
+    return edw_dict
 
 
 def check_edw_mu(rso: NamedTuple) -> Tuple[str, str]:

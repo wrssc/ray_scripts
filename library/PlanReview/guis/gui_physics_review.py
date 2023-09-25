@@ -7,27 +7,33 @@ from PlanReview.review_definitions import (
     CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
     CHECK_BOXES_PHYSICS_REVIEW_TOMO3D, CHECK_BOXES_PHYSICS_REVIEW_TOMO,
     PROTOCOL_DIR, OUTPUT_DIR, ICON_PRINT, ICON_LOAD, ICON_ERROR, ICON_SAVE,
-    ICON_PAUSE, ICON_START, ICON_CANCEL)
+    ICON_PAUSE, ICON_START, ICON_CANCEL, ICON_SMALL_PRINT, ICON_SMALL_LOAD,
+    ICON_SMALL_ERROR, ICON_SMALL_SAVE, ICON_SMALL_PAUSE, ICON_SMALL_START,
+    ICON_SMALL_CANCEL)
 from PlanReview.utils import (get_user_name, get_roi_names_from_type,
                               get_user_display_parameters, perform_automated_checks)
 from PlanReview.utils.protocol_loading import load_protocols, \
     get_sites, get_all_orders, get_unique_instructions
 from PlanReview.utils.constants import *
 from PlanReview.guis.gui_report_script_error import report_script_error
+from PlanReview.guis.create_side_panel import (
+    create_side_panel, load_side_panel, extract_values_side_panel,
+    on_side_panel_radio_button_click, is_valid_side_panel)
 from PlanReview.guis.create_preplan_tab import (
-    load_preplan, extract_preplan_values, validate_preplan_tab,
+    load_preplan, extract_values_preplan_tab, validate_preplan_tab,
     calculate_preplan_dose_per_fraction,
     update_preplan_frequencies, update_preplan_instructions,
     update_preplan_protocols, update_preplan_orders,
-    create_preplan_information_tab, update_preplan_beamset_rows,
-    update_preplan_target_rows, )
+    create_tab_preplan_information, update_preplan_beamset_rows,
+    update_preplan_target_rows)
 from PlanReview.guis.create_physics_manual_tab import (
     build_manual_check_box_list, get_tests_from_tree,
     create_tab_manual_checks, on_manual_radio_button_click,
-    extract_manual_values, load_manual, process_auto_tests,
-    process_check_box_values)
+    extract_values_manual_tab, load_manual, process_auto_tests,
+    process_check_box_values, is_valid_manual_tab)
 import json
 import connect
+from typing import Dict
 
 """
 
@@ -102,23 +108,6 @@ def save_review(rso, values, quiet=False):
     return file_name
 
 
-def load_main_window(window, values):
-    # All Keys
-    main_window_data = values.get(KEY_MAIN_WINDOW, {})
-    for key, value in main_window_data.items():
-        if key == KEY_PROCEED_REVISE:
-            if value == "Proceed":
-                window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"].update(value=True)
-                window["-REVISION_TEXT-"].update(visible=False)
-                window[KEY_REVISION_INFO].update(visible=False)
-            elif value == "Revise":
-                window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"].update(value=True)
-                window["-REVISION_TEXT-"].update(visible=True)
-                window[KEY_REVISION_INFO].update(visible=True)
-        else:
-            window[key].update(value)
-
-
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
                 maximum_beamset_count, check_box_copy, file_name=None):
     if not file_name:
@@ -134,8 +123,6 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
     values = str_key_to_tuple(values)
     # Add missing keys to the window.key_dict
     update_window_key_dict(window, values.keys())
-    # Load the main window data. Right now it is KEY_USER_COMMENT
-    load_main_window(window, values)
     # Load preplan frame contents
     load_preplan(window, values, sites, protocols, instructions,
                  maximum_beamset_count, maximum_target_number)
@@ -144,12 +131,15 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
     # Determine the number of beamsets
     num_beamsets = int(window[KEY_BEAMSET_COUNT].get()) \
         if window[KEY_BEAMSET_COUNT].get() else 1
+    # Load the main window data.
+    load_side_panel(window, values)
     return num_beamsets
 
 
-def get_review_gui_values(window, passing_tests, failed_tests, check_boxes, comment_box_key):
+def get_review_gui_values(window, passing_tests, failed_tests, check_boxes):
     """
     Extracts the values entered into the PySimpleGUI dialog and sorts them by keys.
+    This is used for saving the review to file and for the report
 
     Parameters:
     - window: PySimpleGUI Window object representing the GUI
@@ -160,59 +150,44 @@ def get_review_gui_values(window, passing_tests, failed_tests, check_boxes, comm
     Returns:
     - sorted_values: dictionary of values sorted by keys
     """
-    #
+
     # Get any data from the first tab
-    preplan_values = extract_preplan_values(window)
-    #
-    # Get the data from the comment box if any.
-    if window[comment_box_key].get():
-        main_window_values = {
-            KEY_MAIN_WINDOW: {comment_box_key: window[KEY_USER_COMMENT].get(),
-                              }}
-    else:
-        main_window_values = {KEY_MAIN_WINDOW: {KEY_USER_COMMENT: ''}}
-    if window[KEY_REVISION_INFO].get():
-        main_window_values[KEY_MAIN_WINDOW][KEY_REVISION_INFO] = window[KEY_REVISION_INFO].get()
-    else:
-        main_window_values[KEY_MAIN_WINDOW][KEY_REVISION_INFO] = ""
-    if window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"].get():
-        main_window_values[KEY_MAIN_WINDOW][KEY_PROCEED_REVISE] = "Proceed"
-    elif window[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"].get():
-        main_window_values[KEY_MAIN_WINDOW][KEY_PROCEED_REVISE] = "Revise"
-    else:
-        main_window_values[KEY_MAIN_WINDOW][KEY_PROCEED_REVISE] = ""
+    preplan_values = extract_values_preplan_tab(window)
+
+    # Get values from the side tab
+    side_frame_values = extract_values_side_panel(window)
 
     # Get the data from the first tab
-    manual_values = extract_manual_values(window, passing_tests, failed_tests, check_boxes)
-    manual_values.update(main_window_values)
-    sorted_values = merge_dicts(preplan_values, manual_values)
+    manual_values = extract_values_manual_tab(window, passing_tests, failed_tests, check_boxes)
+
+    # Merge them into a single dictionary
+    sorted_values = merge_dicts(side_frame_values, preplan_values)
+    sorted_values = merge_dicts(sorted_values, manual_values)
 
     return sorted_values
+
+
+def update_window_error(window, key, bg=False):
+    error_text_color = '#8B0000'
+    error_bg_color = '#8B0000'
+    error_bg_text = '#8B0000'
+    if bg:
+        window[key].update(text_color=error_bg_text,
+                           background_color=error_bg_color)
+    else:
+        window[key].update(text_color=error_text_color)
+
+
+def check_radio_on(values, keys):
+    return any(values[k] for k in keys)
 
 
 # Event handler for "Done" button
 def on_done_button_click(window, values, check_boxes):
     # Check if all the required fields are filled in
-    is_valid = True
-    for key in check_boxes:
-        for item in check_boxes[key]:
-            radio_y_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}Yes')
-            radio_no_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}No')
-            radio_na_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}NA')
-            input_key = create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}')
-            value_defined = any(values[k] for k in [radio_na_key, radio_y_key, radio_no_key])
-            if not value_defined:
-                window[radio_y_key].update(text_color='#8B0000')
-                window[radio_no_key].update(text_color='#8B0000')
-                window[radio_na_key].update(text_color='#8B0000')
-                is_valid = False
-            if values[radio_no_key] and not values[input_key]:
-                window[input_key].update(text_color='#ffffff',
-                                         background_color='#8B0000')
-                is_valid = False
-
-    if not is_valid:
-        Sg.popup_error('Please fill in all the required fields.')
+    manual_valid = is_valid_manual_tab(window, values, check_boxes)
+    side_valid = is_valid_side_panel(window, values)
+    is_valid = all([manual_valid, side_valid])
     return is_valid
 
 
@@ -313,6 +288,7 @@ def launch_physics_review_gui(rso):
     """
 
     # Variable initialization
+    ui = connect.get_current('ui')
     failed_tests = []
     passing_tests = []
     check_box_copy = {}
@@ -320,17 +296,24 @@ def launch_physics_review_gui(rso):
     Sg.theme('DefaultNoMoreNagging')
     window_width, window_height, save_space, pix_per_char_width, pix_per_char_height = \
         get_user_display_parameters()
+
     # In the tree display, set the size of the right column relative to left
-    tab_width = 200 * pix_per_char_width
-    comment_width_chars = int(
-        (window_width - tab_width - 7 * pix_per_char_width) / pix_per_char_width)  # Gap is around 6 char
+    if save_space:
+        tab_width = 120 * pix_per_char_width
+    else:
+        tab_width = 182 * pix_per_char_width
+    comment_width = int(window_width - tab_width - 0 * pix_per_char_width)
+    comment_width_chars = int(0.9*comment_width) // pix_per_char_width # Gap is around 6 char
     # Top and bottom (buttons) frame height
     top_height = 2 * pix_per_char_height
-    top_width = tab_width + 5 * pix_per_char_width
-    bottom_height = 2 * pix_per_char_height
-    bottom_width = tab_width + 5 * pix_per_char_width
+    top_width = tab_width + int(5.1 * pix_per_char_width)
     # Tab sizing
-    tab_height = window_height - bottom_height - top_height - 4 * pix_per_char_height
+    tab_height = window_height - top_height - 4 * pix_per_char_height
+    logging.info(f'physics review gui launched with '
+                 f'screen width x height: {window_width} x {window_height}. '
+                 f'Pixel character width x height: {pix_per_char_width} x'
+                 f'{pix_per_char_height}. Space Save {save_space}')
+    logging.debug(f'Available tab dimensions (w x h): {tab_width} x {tab_height} pixels')
     tab_width_chars = int(tab_width / pix_per_char_width) if save_space else tab_width / pix_per_char_width
     #
     # First Frame:
@@ -347,109 +330,71 @@ def launch_physics_review_gui(rso):
     else:
         maximum_target_number = 10
 
-    top_image_size = (156, 56)
-    top_pad = ((0, int(tab_width_chars * 0.08)), (1, 1))
+    top_image_size = (104, 22) if save_space else (156, 56)
+    top_subsample = 1 if save_space else 1
+    top_border = 0 if save_space else 2
+    top_pad =  ((0, 1), (1, 1))
+    tab_font = ('Helvetica','8','bold') if save_space else None
     #
-    # Top Menu Frame
+    small_icons = {
+        "-SAVE-": ICON_SMALL_SAVE,
+        "-LOAD-": ICON_SMALL_LOAD,
+        "-START-": ICON_SMALL_START,
+        "-REPORT-": ICON_SMALL_PRINT,
+        "-PAUSE-": ICON_SMALL_PAUSE,
+        "-CANCEL-": ICON_SMALL_CANCEL,
+        "-ERROR-": ICON_SMALL_ERROR,
+    }
+
+    large_icons = {
+        "-SAVE-": ICON_SAVE,
+        "-LOAD-": ICON_LOAD,
+        "-START-": ICON_START,
+        "-REPORT-": ICON_PRINT,
+        "-PAUSE-": ICON_PAUSE,
+        "-CANCEL-": ICON_CANCEL,
+        "-ERROR-": ICON_ERROR,
+    }
+
+    icons = small_icons if save_space else large_icons
+
+    top_buttons = [Sg.Button('', image_filename=icons[key],
+                             image_size=top_image_size,
+                             image_subsample=top_subsample,
+                             pad=top_pad,
+                             border_width=top_border,
+                             key=key)
+                   for key in icons.keys()]
+
     top = Sg.Frame('',
-                   [[
-                       Sg.Button('',
-                                 image_filename=ICON_SAVE,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-SAVE-'),
-                       Sg.Button('',
-                                 image_filename=ICON_LOAD,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-LOAD-'),
-                       Sg.Button('',
-                                 image_filename=ICON_START,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-START-'),
-                       Sg.Button('',
-                                 image_filename=ICON_PRINT,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-REPORT-'),
-                       Sg.ReadFormButton('',
-                                 image_filename=ICON_PAUSE,
-                                         image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-PAUSE-'),
-                       Sg.Button('',
-                                 image_filename=ICON_CANCEL,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-CANCEL-'),
-                       Sg.Button('',
-                                 image_filename=ICON_ERROR,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-ERROR-'),
-                   ]],
+                   [top_buttons],
                    vertical_alignment='center',
                    size=(top_width, top_height),
                    )
-    #
-    # Comment box size
-    comment_line_count = int(window_height / pix_per_char_height)
-    #
-    # Comment Frame
-    side = [[Sg.Text('Comments', text_color='blue', font=('Arial', 12, 'bold'))],
-            [Sg.Multiline(default_text='',
-                          size=(comment_width_chars, comment_line_count),
-                          autoscroll=True,
-                          auto_size_text=True,
-                          key=KEY_USER_COMMENT)
-             ],
-            [Sg.Radio("Proceed", "RADIO1",
-                      default=True,
-                      key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed",
-                      enable_events=True),
-            Sg.Radio("Revise", "RADIO1",
-                     key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise",
-                     enable_events=True)],
-            [Sg.Text("Reason for Revision:", enable_events=True,
-                     visible=False, key="-REVISION_TEXT-"),
-             Sg.Multiline(default_text='',
-                          size=(comment_width_chars, 2),
-                          autoscroll=True,
-                          auto_size_text=True,
-                          enable_events=True,
-                          key=KEY_REVISION_INFO,
-                          visible=False),]
-            ]
-    #
     # Gather the layout
     layout = [
         [
             Sg.Column([
                 [top],
                 [Sg.TabGroup([[Sg.Tab('External Information',
-                                      create_preplan_information_tab(
+                                      create_tab_preplan_information(
                                           protocols, sites, orders, instructions,
-                                          beamsets, targets, tab_width, tab_height, save_space))
+                                          beamsets, targets, tab_width, tab_height, save_space),
+                                      font=tab_font)
                                ]],
                              key='tab_group')],
-                # [bottom]
             ], ),
-            # Vertical line to separate the comments from the left side
-            Sg.Column([[Sg.VSeperator()]]),
-            Sg.Column(side, vertical_alignment='top')
+            # Side Panel declaration
+            Sg.Column(create_side_panel(comment_width_chars,
+                                        window_height,
+                                        pix_per_char_height),
+                      vertical_alignment='top',
+                      size=(comment_width, window_height))
         ],
     ]
 
     window = Sg.Window(
-        f'Plan Review: {get_user_name()}',
+        f'{get_user_name()}> Plan Review:{" "*5}{rso.patient.Name}{" "*5}{rso.patient.PatientID}',
         layout,
         resizable=True,
         size=(window_width, window_height))
@@ -472,7 +417,7 @@ def launch_physics_review_gui(rso):
                 num_beamsets = 1
 
         elif event == '-PAUSE-':
-            connect.await_user_input('Review Paused. Resume Script to Continue')
+            connect.await_user_input('Review Paused. Resume Script Execution to Continue')
         elif event == '-ERROR-':
             report_script_error(rso)
         #
@@ -529,7 +474,8 @@ def launch_physics_review_gui(rso):
                     tree_data, tab_width, tab_height, pix_per_char_width, pix_per_char_height)
                 # Add the new tab to the tab group layout
                 tab_group.add_tab(Sg.Tab('Review and Logs', tab1,
-                                         key='Review and Logs'))
+                                         key='Review and Logs',
+                                         font=tab_font))
                 #
                 # Build next tab
                 # TODO: USERS MAY WANT SEPARATE TESTS FOR EACH BEAMSET
@@ -545,13 +491,12 @@ def launch_physics_review_gui(rso):
                     tab_group.add_tab(tab)
 
                 window['Review and Logs'].select()
-        # Plan revision events
-        if values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed"]:
-            window["-REVISION_TEXT-"].update(visible=False)
-            window[KEY_REVISION_INFO].update(visible=False)
-        elif values[f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise"]:
-            window["-REVISION_TEXT-"].update(visible=True)
-            window[KEY_REVISION_INFO].update(visible=True)
+
+        #
+        # Plan Revision Events
+        side_panel_event = f"{KEY_PROCEED_REVISE}{KEY_RADIO}"
+        if side_panel_event in event:
+            on_side_panel_radio_button_click(window, event)
         #
         # Manual Tab Events
         if type(event) is tuple:
@@ -565,22 +510,25 @@ def launch_physics_review_gui(rso):
                 # Save the review
                 review_file_name = save_review(
                     rso,
-                    get_review_gui_values(window, passing_tests, failed_tests,
-                                          check_box_copy, KEY_USER_COMMENT),
+                    get_review_gui_values(window, passing_tests, failed_tests, check_box_copy),
                     quiet=True)
 
+                #
+                # Retrieve data from the check-boxes and automated tests
                 passing_tests, failed_tests = get_tests_from_tree(tree_children)
-                pros_pass = process_auto_tests(window, passing_tests)
-                pros_fails = process_auto_tests(window, failed_tests)
                 check_list = process_check_box_values(window, check_box_copy)
-                check_list.extend(pros_fails)
-                check_list.extend(pros_pass)
-                header_data = extract_preplan_values(window)
+                check_list.extend(process_auto_tests(window, failed_tests))
+                check_list.extend(process_auto_tests(window, passing_tests))
+                #
+                # Retrieve data from the first tab and side panel
+                preplan_data = extract_values_preplan_tab(window)
+                sidepanel_data = extract_values_side_panel(window)
+                header_data = merge_dicts(preplan_data, sidepanel_data)
                 break
         if event == '-SAVE-':
             review_file_name = save_review(
                 rso, get_review_gui_values(window, passing_tests, failed_tests,
-                                           check_box_copy, KEY_USER_COMMENT))
+                                           check_box_copy))
 
     window.close()
 

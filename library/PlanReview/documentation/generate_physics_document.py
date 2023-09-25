@@ -3,6 +3,8 @@ import math
 import os
 import json
 import pandas as pd
+import glob
+import re
 from typing import Union, Optional
 from datetime import datetime
 from docx import Document
@@ -14,9 +16,14 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from PlanReview.review_definitions import (
-    OUTPUT_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS, FAIL, PASS, ALERT)
+    OUTPUT_DIR, LOG_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS, FAIL, PASS, ALERT, RED_CIRCLE,
+    GREEN_CIRCLE)
 from PlanReview.utils import get_approval_info
-from PlanReview.utils.constants import *
+from PlanReview.utils.constants import (
+    KEY_BEAMSET, KEY_SIDE_PANEL, KEY_OUT_DOMAIN_NAME, KEY_OUT_TEST_SOURCE, SOURCE_USER, KEY_USER_COMMENT,
+    KEY_OUT_TAB, KEY_OUT_RESULT, SOURCE_AUTO, KEY_OUT_DESC, KEY_OUT_MESSAGE, KEY_OUT_COMMENT, KEY_OUT_ICON,
+    KEY_PROCEED_REVISE, KEY_REVISION_INFO
+)
 
 # Document set up
 top_margin = 0.2  # (in) top page margin
@@ -49,31 +56,43 @@ def set_section_dimensions_and_orientation(section):
 
 
 def generate_doc(rso, tests, header_data, test_mode=False):
+    physics_review_dir = os.path.join(LOG_DIR, "PhysicsReviews")
     patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
+    alt_patient_output_dir = r"Q:\\RadOnc\RayStation\Reports\PhysicsReviewBetaOnly"
     patient_output_prefix = f"{rso.patient.PatientID}_" \
                             f"{rso.beamset.DicomPlanLabel}_" \
-                            f"{generate_filename()}_"
+                            f"{generate_filename()}"
 
     if test_mode:
-        tests = read_tests_from_json(
-            generate_file_path(
-                patient_output_dir, patient_output_prefix, "tests.json"))
-        header_data = read_tests_from_json(
-            generate_file_path(
-                patient_output_dir, patient_output_prefix, "header.json"))
+        latest_test_file, latest_header_file = find_latest_files(
+            patient_output_dir, f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_",
+            ["tests.json", "header.json"])
+        tests = read_tests_from_json(latest_test_file) if latest_test_file else None
+        header_data = read_tests_from_json(latest_header_file) if latest_header_file else None
     else:
-        dump_tests_to_json(
-            tests, file_name=generate_file_path(
-                patient_output_dir, patient_output_prefix, "tests.json"))
-        dump_tests_to_json(
-            header_data, file_name=generate_file_path(
-                patient_output_dir, patient_output_prefix, "header.json"))
+        test_files = [
+            generate_file_path(
+                patient_output_dir, patient_output_prefix, "_tests.json"),
+            generate_file_path(
+                physics_review_dir, patient_output_prefix, "_tests.json")
+        ]
+        header_files = [
+            generate_file_path(
+                patient_output_dir, patient_output_prefix, "_header.json"),
+            generate_file_path(
+                physics_review_dir, patient_output_prefix, "_header.json")
+        ]
+        dump_tests_to_json(tests, file_names=test_files)
+        dump_tests_to_json(header_data, file_names=header_files)
 
     tests_df = read_data(tests)
 
     # Output file
     output_file = generate_file_path(
         patient_output_dir, patient_output_prefix, ".doc")
+    beta_output_file = generate_file_path(
+        alt_patient_output_dir, patient_output_prefix, ".doc"
+    )
 
     # Get approval info:
     approval_status = get_approval_info(rso.plan, rso.beamset)
@@ -115,8 +134,9 @@ def generate_doc(rso, tests, header_data, test_mode=False):
     # add_treatment_instructions_table(document, header_data['-TREATMENT_INSTRUCTIONS-'])
     #
     document.add_paragraph('')  # Add spacing between sections
-    add_beamset_data_table(document, header_data['-BEAMSET-'], rso)
-    add_user_comment(document, header_data[KEY_USER_COMMENT])
+    add_beamset_data_table(document, header_data[KEY_BEAMSET], rso)
+    add_user_comment(document, header_data[KEY_SIDE_PANEL])
+    add_proceed_revise(document, header_data[KEY_SIDE_PANEL])
 
     #
     # USER AND AUTOMATED CHECK PAGES
@@ -129,7 +149,6 @@ def generate_doc(rso, tests, header_data, test_mode=False):
 
     available_page_height = get_usable_page()
     adjusted_page_height = available_page_height
-    logging.debug(f'** Adjusted page height {adjusted_page_height}')
 
     unique_test_levels = tests_df[KEY_OUT_TAB].unique()
     excluded_review_levels = (REVIEW_LEVELS['SANDBOX'])
@@ -172,6 +191,7 @@ def generate_doc(rso, tests, header_data, test_mode=False):
             #     auto_tl_df, document, adjusted_page_height,title)
 
     document.save(output_file)
+    document.save(beta_output_file)
     print('Complete')
 
 
@@ -501,6 +521,68 @@ def add_user_comment(doc, data):
     comment_table.style = 'Light List Accent 2'
     comment_table.cell(0, 0).text = 'Physicist Comments'
     comment_table.cell(1, 0).text = str(data[KEY_USER_COMMENT])
+    doc.add_paragraph('')  # Add spacing between sections
+
+
+def row_proceed_revise(data):
+    status_mapping = {
+        "Revise": ("Revise", str(data.get(KEY_REVISION_INFO, "")), RED_CIRCLE),
+        "Proceed": ("Proceed","", GREEN_CIRCLE),
+        "QIProceed": ("Proceed","", GREEN_CIRCLE),
+    }
+
+    recommendation, comment, icon = status_mapping.get(data[KEY_PROCEED_REVISE], ("", "", ""))
+
+    if not comment and not icon:
+        logging.warning(f'Unknown plan revision outcome {data[KEY_PROCEED_REVISE]}')
+
+    return recommendation, comment, icon
+
+
+def add_proceed_revise(doc, data):
+    # Build the revision status table
+    table = doc.add_table(rows=2, cols=3)
+    table.style = 'Light List Accent 2'
+    table.rows[1].height = Inches(row_height)
+    # Set individual column widths
+    page_width = doc.sections[-1].page_width.inches
+    w_col1 = Inches(0.5)
+    w_col2 = Inches(1.5)
+    w_col3 = Inches(page_width) - w_col2 - w_col1
+    col_widths = [w_col1, w_col2, w_col3]
+    for i, col in enumerate(table.columns):
+        for cell in col.cells:
+            cell.width = col_widths[i]
+
+    # Fill in table headers
+    table.cell(0, 0).text = 'Status'
+    table.cell(0, 1).text = 'Recommendation'
+    table.cell(0, 2).text = 'Status Comment'
+
+    # Check status
+    recommendation, comment, icon = row_proceed_revise(data)
+
+    # Add icon
+    icon_cell = table.cell(1,0)
+    icon_paragraph = icon_cell.paragraphs[0]
+    icon_run = icon_paragraph.add_run()
+    icon_run.add_picture(icon, width=Inches(0.20), height=Inches(0.20))
+    icon_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    icon_cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    # Add Recommendation and make it bold
+    rec_cell = table.cell(1, 1)
+    rec_paragraph = rec_cell.paragraphs[0]
+    rec_run = rec_paragraph.add_run(recommendation)
+    rec_run.bold = True
+    rec_cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    # Add Comments
+    table.cell(1, 2).text = comment
+    table.cell(1, 2).vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+
+    # Add spacing between sections
+    doc.add_paragraph('')
 
 
 def add_treatment_instructions_table(doc, data):
@@ -593,10 +675,12 @@ def add_beamset_data_table(doc, data, rso):
     doc.add_paragraph('')
 
 
-def dump_tests_to_json(tests, file_name="tests.json"):
-    full_path_file_name = os.path.join(OUTPUT_DIR, file_name)
-    with open(full_path_file_name, 'w') as outfile:
-        json.dump(tuple_key_to_str(tests), outfile)
+def dump_tests_to_json(tests, file_names=None):
+    if file_names is None:
+        file_names = []
+    for f in file_names:
+        with open(f, 'w') as outfile:
+            json.dump(tuple_key_to_str(tests), outfile)
 
 
 def read_tests_from_json(file_name="tests.json"):
@@ -658,3 +742,25 @@ def generate_filename():
 
 def generate_file_path(patient_output_dir, patient_output_prefix, file_suffix):
     return os.path.join(patient_output_dir, f"{patient_output_prefix}{file_suffix}")
+
+
+def find_latest_files(patient_output_dir, file_prefix, file_suffixes):
+    latest_files = {}
+    datetime_pattern = re.compile(r'(\d{8})_(\d{6})')
+
+    for suffix in file_suffixes:
+        search_pattern = os.path.join(patient_output_dir, f"{file_prefix}*{suffix}")
+        files = glob.glob(search_pattern)
+
+        # Extract datetime from filenames and sort them
+        sorted_files = sorted(
+            files, key=lambda x: datetime.strptime(
+                ''.join(datetime_pattern.findall(x)[0]), "%Y%m%d%H%M%S")
+            if datetime_pattern.findall(x) else None,
+            reverse=True
+        )
+
+        # Take the most recent file
+        latest_files[suffix] = sorted_files[0] if sorted_files else None
+
+    return latest_files.get("tests.json"), latest_files.get("header.json")
