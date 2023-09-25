@@ -1,5 +1,6 @@
 from typing import List, Dict, Union, Any
 import PySimpleGUI as Sg
+from PlanReview.review_definitions import ICON_CHECKER
 from PlanReview.utils.constants import (
     KEY_USER_COMMENT, KEY_PROCEED_REVISE, KEY_RADIO, KEY_QI_INFO, KEY_REVISION_INFO,
     KEY_SIDE_PANEL
@@ -7,7 +8,7 @@ from PlanReview.utils.constants import (
 
 
 def create_side_panel(comment_width_chars: int, window_height: int,
-                      pix_per_char_height: int) -> List[List[Any]]:
+                      pix_per_char_height: int, save_space: bool=False) -> List[List[Any]]:
     """
     Create a side panel with comment boxes and radio buttons for user interface.
 
@@ -15,6 +16,7 @@ def create_side_panel(comment_width_chars: int, window_height: int,
         comment_width_chars (int): Width of the comment box in characters.
         window_height (int): Height of the window in pixels.
         pix_per_char_height (int): Pixel height for each character line.
+        save_space (bool): Optional argument to save space.
 
     Returns:
         List[List[Any]]: Side panel layout for PySimpleGUI.
@@ -26,7 +28,10 @@ def create_side_panel(comment_width_chars: int, window_height: int,
     """
 
     # Calculate the number of lines for the comment box
-    comment_line_count = window_height // pix_per_char_height
+
+    comment_line_count = (0.68 * window_height) // pix_per_char_height
+    comments_width = int(0.4*comment_width_chars) if save_space \
+        else int(0.70 * comment_width_chars)
 
     # Create layout for radio buttons
     radio_layout = [
@@ -39,15 +44,17 @@ def create_side_panel(comment_width_chars: int, window_height: int,
     # Create side panel layout
     side_panel = [
         [Sg.Text('Comments', text_color='blue', font=('Arial', 12, 'bold'))],
-        [Sg.Multiline(default_text='', size=(comment_width_chars, comment_line_count),
+        [Sg.Multiline(default_text='', size=(comments_width, comment_line_count),
                       autoscroll=True, auto_size_text=True, key=KEY_USER_COMMENT)],
         radio_layout,
         [Sg.Text("QI Issue:", enable_events=True, visible=False, key="-QI_TEXT-"),
-         Sg.Multiline(default_text='', size=(comment_width_chars, 2), autoscroll=True,
+         Sg.Multiline(default_text='', size=(comments_width, 2), autoscroll=True,
                       auto_size_text=True, enable_events=True, key=KEY_QI_INFO, visible=False)],
         [Sg.Text("Reason for Revision:", enable_events=True, visible=False, key="-REVISION_TEXT-"),
-         Sg.Multiline(default_text='', size=(comment_width_chars, 2), autoscroll=True,
-                      auto_size_text=True, enable_events=True, key=KEY_REVISION_INFO, visible=False)]
+         Sg.Multiline(default_text='', size=(comments_width, 2), autoscroll=True,
+                      auto_size_text=True, enable_events=True, key=KEY_REVISION_INFO, visible=False)],
+        [Sg.Image(filename=ICON_CHECKER, key='-CHECKER-IMAGE-',pad=((100,0),(0,0)),
+                  size=(300, 300), tooltip="This chart checking script cannot check charts",)]
     ]
 
     return side_panel
@@ -165,6 +172,7 @@ def on_side_panel_radio_button_click(window: Sg.Window, event: str) -> None:
         window[KEY_REVISION_INFO].update(visible=revision_visibility)
         window["-QI_TEXT-"].update(visible=qi_visibility)
         window[KEY_QI_INFO].update(visible=qi_visibility)
+        window.refresh()
 
 
 def update_window_error(window: Sg.Window, key: str, bg: bool = False) -> None:
