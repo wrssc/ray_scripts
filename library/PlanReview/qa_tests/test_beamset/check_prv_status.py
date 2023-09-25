@@ -36,7 +36,7 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
 
     rois = [r.Name for r in rso.case.PatientModel.RegionsOfInterest if
             r.OrganData.OrganType != 'Target']
-    exclusions = ['Normal', 'Ring', 'PRV', 'Chestwall']
+    exclusions = ['Normal', 'Ring', 'PRV', 'Chestwall', 'Brain-PTV' ]
     message_str = ''
     pass_result = PASS
     try:
@@ -83,10 +83,7 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
                         p[2] = True
     # Serial organ does not have a PRV defined!
     if no_prvs:
-        message_str = 'Serial Organs without PRV: '
-        for n in no_prvs:
-            message_str += n + ' '
-        message_str += '. '
+        message_str = f'Serial Organs lacking PRV: {[n for n in no_prvs]}.'
         pass_result = FAIL
     # Serial organ used in optimization, but the prv was not!
     not_used_str = ''

@@ -7,7 +7,9 @@ from PlanReview.review_definitions import (
     CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
     CHECK_BOXES_PHYSICS_REVIEW_TOMO3D, CHECK_BOXES_PHYSICS_REVIEW_TOMO,
     PROTOCOL_DIR, OUTPUT_DIR, ICON_PRINT, ICON_LOAD, ICON_ERROR, ICON_SAVE,
-    ICON_PAUSE, ICON_START, ICON_CANCEL)
+    ICON_PAUSE, ICON_START, ICON_CANCEL, ICON_SMALL_PRINT, ICON_SMALL_LOAD,
+    ICON_SMALL_ERROR, ICON_SMALL_SAVE, ICON_SMALL_PAUSE, ICON_SMALL_START,
+    ICON_SMALL_CANCEL)
 from PlanReview.utils import (get_user_name, get_roi_names_from_type,
                               get_user_display_parameters, perform_automated_checks)
 from PlanReview.utils.protocol_loading import load_protocols, \
@@ -286,6 +288,7 @@ def launch_physics_review_gui(rso):
     """
 
     # Variable initialization
+    ui = connect.get_current('ui')
     failed_tests = []
     passing_tests = []
     check_box_copy = {}
@@ -293,17 +296,24 @@ def launch_physics_review_gui(rso):
     Sg.theme('DefaultNoMoreNagging')
     window_width, window_height, save_space, pix_per_char_width, pix_per_char_height = \
         get_user_display_parameters()
+
     # In the tree display, set the size of the right column relative to left
-    tab_width = 200 * pix_per_char_width
-    comment_width_chars = int(
-        (window_width - tab_width - 7 * pix_per_char_width) / pix_per_char_width)  # Gap is around 6 char
+    if save_space:
+        tab_width = 120 * pix_per_char_width
+    else:
+        tab_width = 182 * pix_per_char_width
+    comment_width = int(window_width - tab_width - 0 * pix_per_char_width)
+    comment_width_chars = int(0.9*comment_width) // pix_per_char_width # Gap is around 6 char
     # Top and bottom (buttons) frame height
     top_height = 2 * pix_per_char_height
-    top_width = tab_width + 5 * pix_per_char_width
-    bottom_height = 2 * pix_per_char_height
-    bottom_width = tab_width + 5 * pix_per_char_width
+    top_width = tab_width + int(5.1 * pix_per_char_width)
     # Tab sizing
-    tab_height = window_height - bottom_height - top_height - 4 * pix_per_char_height
+    tab_height = window_height - top_height - 4 * pix_per_char_height
+    logging.info(f'physics review gui launched with '
+                 f'screen width x height: {window_width} x {window_height}. '
+                 f'Pixel character width x height: {pix_per_char_width} x'
+                 f'{pix_per_char_height}. Space Save {save_space}')
+    logging.debug(f'Available tab dimensions (w x h): {tab_width} x {tab_height} pixels')
     tab_width_chars = int(tab_width / pix_per_char_width) if save_space else tab_width / pix_per_char_width
     #
     # First Frame:
@@ -320,59 +330,47 @@ def launch_physics_review_gui(rso):
     else:
         maximum_target_number = 10
 
-    top_image_size = (156, 56)
-    top_pad = ((0, int(tab_width_chars * 0.08)), (1, 1))
+    top_image_size = (104, 22) if save_space else (156, 56)
+    top_subsample = 1 if save_space else 1
+    top_border = 0 if save_space else 2
+    top_pad =  ((0, 1), (1, 1))
+    tab_font = ('Helvetica','8','bold') if save_space else None
     #
-    # Top Menu Frame
+    small_icons = {
+        "-SAVE-": ICON_SMALL_SAVE,
+        "-LOAD-": ICON_SMALL_LOAD,
+        "-START-": ICON_SMALL_START,
+        "-REPORT-": ICON_SMALL_PRINT,
+        "-PAUSE-": ICON_SMALL_PAUSE,
+        "-CANCEL-": ICON_SMALL_CANCEL,
+        "-ERROR-": ICON_SMALL_ERROR,
+    }
+
+    large_icons = {
+        "-SAVE-": ICON_SAVE,
+        "-LOAD-": ICON_LOAD,
+        "-START-": ICON_START,
+        "-REPORT-": ICON_PRINT,
+        "-PAUSE-": ICON_PAUSE,
+        "-CANCEL-": ICON_CANCEL,
+        "-ERROR-": ICON_ERROR,
+    }
+
+    icons = small_icons if save_space else large_icons
+
+    top_buttons = [Sg.Button('', image_filename=icons[key],
+                             image_size=top_image_size,
+                             image_subsample=top_subsample,
+                             pad=top_pad,
+                             border_width=top_border,
+                             key=key)
+                   for key in icons.keys()]
+
     top = Sg.Frame('',
-                   [[
-                       Sg.Button('',
-                                 image_filename=ICON_SAVE,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-SAVE-'),
-                       Sg.Button('',
-                                 image_filename=ICON_LOAD,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-LOAD-'),
-                       Sg.Button('',
-                                 image_filename=ICON_START,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-START-'),
-                       Sg.Button('',
-                                 image_filename=ICON_PRINT,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-REPORT-'),
-                       Sg.ReadFormButton('',
-                                         image_filename=ICON_PAUSE,
-                                         image_size=top_image_size,
-                                         pad=top_pad,
-                                         border_width=2,
-                                         key='-PAUSE-'),
-                       Sg.Button('',
-                                 image_filename=ICON_CANCEL,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-CANCEL-'),
-                       Sg.Button('',
-                                 image_filename=ICON_ERROR,
-                                 image_size=top_image_size,
-                                 pad=top_pad,
-                                 border_width=2,
-                                 key='-ERROR-'),
-                   ]],
+                   [top_buttons],
                    vertical_alignment='center',
                    size=(top_width, top_height),
                    )
-    #
     # Gather the layout
     layout = [
         [
@@ -381,18 +379,17 @@ def launch_physics_review_gui(rso):
                 [Sg.TabGroup([[Sg.Tab('External Information',
                                       create_tab_preplan_information(
                                           protocols, sites, orders, instructions,
-                                          beamsets, targets, tab_width, tab_height, save_space))
+                                          beamsets, targets, tab_width, tab_height, save_space),
+                                      font=tab_font)
                                ]],
                              key='tab_group')],
-                # [bottom]
             ], ),
-            # Vertical line to separate the comments from the left side
-            Sg.Column([[Sg.VSeperator()]]),
             # Side Panel declaration
             Sg.Column(create_side_panel(comment_width_chars,
                                         window_height,
                                         pix_per_char_height),
-                      vertical_alignment='top')
+                      vertical_alignment='top',
+                      size=(comment_width, window_height))
         ],
     ]
 
@@ -420,7 +417,7 @@ def launch_physics_review_gui(rso):
                 num_beamsets = 1
 
         elif event == '-PAUSE-':
-            connect.await_user_input('Review Paused. Resume Script to Continue')
+            connect.await_user_input('Review Paused. Resume Script Execution to Continue')
         elif event == '-ERROR-':
             report_script_error(rso)
         #
@@ -477,7 +474,8 @@ def launch_physics_review_gui(rso):
                     tree_data, tab_width, tab_height, pix_per_char_width, pix_per_char_height)
                 # Add the new tab to the tab group layout
                 tab_group.add_tab(Sg.Tab('Review and Logs', tab1,
-                                         key='Review and Logs'))
+                                         key='Review and Logs',
+                                         font=tab_font))
                 #
                 # Build next tab
                 # TODO: USERS MAY WANT SEPARATE TESTS FOR EACH BEAMSET
