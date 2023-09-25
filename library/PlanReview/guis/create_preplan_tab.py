@@ -85,14 +85,14 @@ def create_beamset_layout(beamsets, targets):
     max_targets = len(targets)
 
     # Define header texts and sizes for columns in the beamset layout
-    header_sizes = [20, 20, 20]
+    header_sizes = [16, 4, 4]
 
     beamset_layout = []
-
+    row_pair = []
     # Create layout for each beamset
     for i in range(num_beamsets):
         single_beamset_layout = [
-            [Sg.Text(f'Beamset {i + 1}',
+            [Sg.Text(f'Beamset {i + 1} Name',
                      visible=bs_visible,
                      key=create_key(KEY_BEAMSET_COUNT + KEY_T, i)),
              Sg.Combo(values=beamsets, key=create_key(KEY_BEAMSET_SELECT, i),
@@ -105,7 +105,7 @@ def create_beamset_layout(beamsets, targets):
                       visible=bs_visible,
                       size=(header_sizes[1], 1),
                       enable_events=True)],
-            [Sg.Text(f'Number of Fractions',
+            [Sg.Text(f'Number of fractions in Beamset {i + 1}',
                      visible=bs_visible,
                      key=create_key(KEY_BEAMSET + KEY_FRACTIONS + KEY_T, i)),
              Sg.Input(key=create_key(KEY_BEAMSET + KEY_FRACTIONS, i),
@@ -114,13 +114,18 @@ def create_beamset_layout(beamsets, targets):
         ]
         # Add target layout to the beamset layout
         single_beamset_layout.extend(create_target_layout(i, targets))
-        beamset_layout.append(Sg.Frame(f'Beamset {i + 1}',
-                                       single_beamset_layout,
-                                       key=create_key(KEY_BEAMSET + KEY_F, i),
-                                       font=('Helvetica', 10, 'bold'),
-                                       title_color='blue',
-                                       visible=bs_visible))
-
+        row_pair.append(Sg.Frame(f'Beamset {i + 1}',
+                                 single_beamset_layout,
+                                 key=create_key(KEY_BEAMSET + KEY_F, i),
+                                 font=('Helvetica', 10, 'bold'),
+                                 title_color='blue',
+                                 vertical_alignment='top',
+                                 visible=bs_visible))
+        if len(row_pair) == 2:
+            beamset_layout.append(row_pair)
+            row_pair = []
+    if row_pair:
+        beamset_layout.append(row_pair)
     return beamset_layout
 
 
@@ -155,6 +160,8 @@ def update_preplan_beamset_rows(main_window, values, num_beamsets, max_beamsets,
         main_window[create_key(KEY_BEAMSET_TARGET_COUNT, i)].update(visible=is_visible)
         main_window[create_key(KEY_BEAMSET + KEY_FRACTIONS + KEY_T, i)].update(visible=is_visible)
         main_window[create_key(KEY_BEAMSET + KEY_FRACTIONS, i)].update(visible=is_visible)
+    main_window.refresh()
+    main_window['-COLUMN_BEAMSETS-'].contents_changed()
 
 
 def create_target_layout(beamset_i, targets):
@@ -173,12 +180,13 @@ def create_target_layout(beamset_i, targets):
     max_targets = len(targets)
     max_combo_value_length = max(len(value) for value in target_combo_values)
 
-    header_texts = ['Target Name', 'Total Dose [Gy]', 'Dose per Fraction [Gy]']
-    header_sizes = [max(max_combo_value_length, len(text)) for text in header_texts]
+    header_texts = ['Target Name', 'Plan Dose [Gy]', 'Fract Dose [Gy]']
+    header_sizes = [max(max_combo_value_length, len(header_texts[0])),
+                    len(header_texts[1]), len(header_texts[2])]
 
     target_layout = [
         [
-            Sg.Text('', size=(10, 1)),  # Empty space
+            Sg.Text('', size=(8, 1)),  # Empty space
             Sg.Text(header_texts[0], size=(header_sizes[0], 1),
                     key=create_key('beamset_header', beamset_i, 0), visible=False),
             Sg.Text(header_texts[1], size=(header_sizes[1], 1),
@@ -198,6 +206,7 @@ def create_target_layout(beamset_i, targets):
                      size=(header_sizes[0], 1)),
             Sg.Input(key=create_key(KEY_BEAMSET_DOSE, beamset_i, i), visible=False,
                      size=(header_sizes[1], 1),
+                     justification='c',
                      enable_events=True),
             Sg.Text('', key=create_key(KEY_BEAMSET_FRACTION_DOSE, beamset_i, i),
                     visible=False,
@@ -230,6 +239,8 @@ def update_preplan_target_rows(main_window, num_targets, beamset_i, maximum_targ
     for i in range(3):
         main_window[create_key('beamset_header', beamset_i, i)].update(
             visible=True if num_targets > 0 else False)
+    main_window.refresh()
+    main_window['-COLUMN_BEAMSETS-'].contents_changed()
 
 
 def calculate_single_dose_per_fraction(total_dose, num_fractions):
@@ -588,22 +599,28 @@ def create_tab_preplan_information(protocols, sites, orders,
     order_selection_layout = create_order_selection_layout(protocols, sites,
                                                            orders, instructions)
     frame_x = int(0.985 * tab_width) if save_space else tab_width
-    frame_ct_y = int(tab_height * 0.12) if save_space else int(tab_height * 0.15)
+    frame_ct_y = int(tab_height * 0.14) if save_space else int(tab_height * 0.15)
     frame_tpo_y = int(0.46 * tab_height) if save_space else int(tab_height * 0.46)
     frame_bs_y = int(tab_height - frame_ct_y - frame_tpo_y)
+    column_x = int(frame_x * 0.95)
+    vertical_scroll = False if save_space else True
+    scroll_for_small = True if save_space else False
     # Create the overall layout for the CT Scan tab
     ct_scan_layout = [
         # CT Information frame
-        [Sg.Frame('CT Information',
+        [Sg.Frame('Data from CT Simulation Form ',
                   [
                       create_space(),  # Empty space
-                      [Sg.Text('CT Scan Date:', pad=(20, 0)),
-                       Sg.Input('', key=KEY_SIM_DATE,
-                                size=(10, 1)),
-                       Sg.CalendarButton('Select date', target=KEY_SIM_DATE,
-                                         format='%Y-%m-%d')],
-                      [Sg.Text('Number of CT Slices: ', pad=(20, 0)),
-                       Sg.Input(key=KEY_SLICES, size=(10, 1))],
+                      [Sg.Column([[Sg.Text('CT Scan Date:', pad=(20, 0)),
+                                   Sg.Input('', key=KEY_SIM_DATE,
+                                            size=(10, 1)),
+                                   Sg.CalendarButton('Select date', target=KEY_SIM_DATE,
+                                                     format='%Y-%m-%d')],
+                                  [Sg.Text('Number of CT Slices: ', pad=(20, 0)),
+                                   Sg.Input(key=KEY_SLICES, size=(10, 1))]],
+                                 scrollable=scroll_for_small,
+                                 vertical_scroll_only=True,
+                                 size=(frame_x, frame_ct_y))],
                       create_space(),  # Empty space
                   ],
                   element_justification='l',
@@ -628,19 +645,19 @@ def create_tab_preplan_information(protocols, sites, orders,
 
         # Beamset Information frame
         [Sg.Frame('Beamset Information',
-                  [
-                      create_space(),  # Empty space
-                      [Sg.Text('Number of BeamSets: '),
-                       Sg.Combo(list(range(1, maximum_beamset_count + 1)),
-                                key=KEY_BEAMSET_COUNT,
-                                default_value=1,
-                                size=(10, 1),
-                                enable_events=True)
-                       ],
-                      create_space(),  # Empty space
-                      beamset_layout,
-                      create_space(),  # Empty space
-                  ],
+                  [[Sg.Column([[Sg.Text('Number of BeamSets: '),
+                                Sg.Combo(list(range(1, maximum_beamset_count + 1)),
+                                         key=KEY_BEAMSET_COUNT,
+                                         default_value=1,
+                                         size=(8, 1),
+                                         enable_events=True)
+                                ],
+                               *beamset_layout,
+                               ],
+                              size=(column_x, int(0.95 * frame_bs_y)),
+                              key='-COLUMN_BEAMSETS-',
+                              scrollable=True,
+                              vertical_scroll_only=vertical_scroll)]],
                   size=(frame_x, frame_bs_y),
                   font=('Helvetica', 11, 'bold'),
                   element_justification='l')],
