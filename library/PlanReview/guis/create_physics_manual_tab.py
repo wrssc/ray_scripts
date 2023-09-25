@@ -223,16 +223,31 @@ class FrameSettings:
         return height
 
     def calculate_initial_settings(self):
+        logging.debug(f'---Initial frame settings calculated:')
+        logging.debug(f'    User Frame:')
         self.height_user = self.calculate_pixel_height()
+        logging.debug(f'  User Frame Height: {self.height_user}')
+        logging.debug(f'    Pass Frame:')
         self.height_pass = self.calculate_auto_frame_pixel_height(tests=self.passing)
+        logging.debug(f'  Pass Frame Height: {self.height_pass}')
+        logging.debug(f'    Fail Frame:')
         self.height_fail = self.calculate_auto_frame_pixel_height(tests=self.failing)
+        logging.debug(f'  Fail Frame Height: {self.height_fail}')
         self.height = self.calculate_frame_height()
+        logging.debug(f'  Total Frame Height: {self.height}')
 
 
 def adjust_each_frame_height(frame_settings):
     max_pass = int(frame_settings.tab_height * 0.25)
     max_fail = int(frame_settings.tab_height * 0.25)
     max_user = int(frame_settings.tab_height * 0.5)
+
+    if frame_settings.height < frame_settings.tab_height:
+        logging.debug(f'---Frame Settings not adjusted:')
+        logging.debug(f'  User Frame Height: {frame_settings.height_user}')
+        logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
+        logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
+        logging.debug(f'  Total Frame Height: {frame_settings.height}')
 
     while frame_settings.height > frame_settings.tab_height:
         excess = frame_settings.height - frame_settings.tab_height
@@ -248,9 +263,18 @@ def adjust_each_frame_height(frame_settings):
             if frame_settings.height > frame_settings.tab_height:
                 logging.warning(
                     f'****Dialog adjustment failed: dialog height {frame_settings.height} > available space in tab {frame_settings.tab_height}')
+                logging.warning(f'  User Frame Height: {frame_settings.height_user}')
+                logging.warning(f'  Pass Frame Height: {frame_settings.height_pass}')
+                logging.warning(f'  Fail Frame Height: {frame_settings.height_fail}')
+                logging.warning(f'  Total Frame Height: {frame_settings.height}')
                 break
 
         frame_settings.height = frame_settings.calculate_frame_height()
+        logging.debug(f'----Frame Settings adjusted:')
+        logging.debug(f'  User Frame Height: {frame_settings.height_user}')
+        logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
+        logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
+        logging.debug(f'  Total Frame Height: {frame_settings.height}')
 
 
 def make_subframe(input_text, content_list):
@@ -280,6 +304,15 @@ def create_subframes_for_domain(tests_by_domain, max_check, user_text_x):
         tests_by_domain (dict): Tests grouped by domain.
         max_check (int): Maximum number of checks.
         user_text_x (int): Positioning for the user text.
+        scroll_flag (bool): Indicates if scrolling is needed.
+        frame_data (dict): Subframe tags:
+        '-TAB_PASS-': {domain: {'-DOMAIN_HEIGHT-': Height of domain label in pixels
+                                '-LINE_HEIGHT-': Height of line in pixels,
+                                '-LINE_COUNT-': number of lines in a subframe,
+                                '-ITEM_COUNT-': number of items in subframe,
+                                '-WIDTH-': width of frame
+                                '-HEIGHT-': height of subframe,
+                                '-SCROLL-': include a scrollbar}
 
     Returns:
         list: List of subframes.
@@ -303,6 +336,8 @@ def create_subframes_for_domain(tests_by_domain, max_check, user_text_x):
             subframes.append([make_subframe(domain_name, [
                 Sg.Column([*rows[domain_name]],
                           scrollable=False,
+                          # size=(frame_data[domain_name]['-WIDTH-'],
+                          #       frame_data[domain_name]['-HEIGHT-']),
                           vertical_scroll_only=True)])])
 
     return subframes
@@ -459,7 +494,8 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                                                 vertical_scroll_only=vertical_scroll)]],
                                     )])
         # Final tab layout
-        tab = Sg.Tab(tab_key, [[Sg.Column(layout)]],
+        tab_title = tab_key[:9] if save_space else tab_key
+        tab = Sg.Tab(tab_title, [[Sg.Column(layout)]],
                      font=tab_font)
         tabs.append(tab)  # Add the tab to the list of tabs
 
