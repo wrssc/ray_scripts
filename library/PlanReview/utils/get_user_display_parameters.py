@@ -1,6 +1,12 @@
 import PySimpleGUI as Sg
 from typing import Tuple
+from PIL import ImageFont
 
+
+def pil_get_element_size(text, font_size, font_name):
+    font = ImageFont.truetype(font_name, font_size)
+    size = font.getsize(text)
+    return size
 
 def get_text_element_size(text: str) -> Tuple[int, int]:
     """
@@ -35,23 +41,20 @@ def get_user_display_parameters() -> Tuple[int, int, bool, int, int]:
         pixels_per_char_width (int): The width of a character in pixels.
         pixels_per_char_height (int): The height of a character in pixels.
     """
+    minimum_vertical_resolution = 1300
     sample_sentence = "A quick brown fox jumps over a lazy dog."
+    # width_pixels, height_pixels = pil_get_element_size(sample_sentence, 11, 'times.ttf')
     width_pixels, height_pixels = get_text_element_size(sample_sentence)
 
     # calculating the number of pixels per character
     pixels_per_char = width_pixels // len(sample_sentence)
     screen_width, screen_height = Sg.Window.get_screen_size()
 
-    # deciding the fraction of screen to be used for comment
-    height_fraction = 0.85 if screen_height <= 1080 else 0.6
-    width_fraction = 0.75 if screen_height <= 1080 else 0.59
-
-    # calculating window dimensions
-    window_width = int(width_fraction * screen_width)
-    window_height = int(height_fraction * screen_height)
+    window_height = 800 if screen_height<minimum_vertical_resolution else 1000
+    window_width = 1100 if screen_height<minimum_vertical_resolution else 1500
 
     # check if we need to save space
-    save_space = screen_height <= 1080
+    save_space = screen_height <= minimum_vertical_resolution
     pixels_per_char_width = pixels_per_char
     pixels_per_char_height = height_pixels
 
