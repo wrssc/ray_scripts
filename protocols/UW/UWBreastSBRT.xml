@@ -443,15 +443,15 @@
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type dir="le">VX</type>
-                <volume units="%">105</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">5</dose>
+                <volume units="%">5</volume>
+                <dose units="%" roi="PTV_p_BrCw_Eval">105</dose>
                 <priority>2</priority>
             </roi>
             <roi>
                 <name>PTV_p_BrCw_Eval</name>
                 <type dir="le">VX</type>
-                <volume units="%">107</volume>
-                <dose units="%" roi="PTV_p_BrCw_Eval">2</dose>
+                <volume units="%">2</volume>
+                <dose units="%" roi="PTV_p_BrCw_Eval">107</dose>
                 <priority>2</priority>
             </roi>
             <roi>
