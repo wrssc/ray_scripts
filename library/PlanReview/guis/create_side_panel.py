@@ -8,7 +8,7 @@ from PlanReview.utils.constants import (
 
 
 def create_side_panel(comment_width_chars: int, window_height: int,
-                      pix_per_char_height: int, save_space: bool=False) -> List[List[Any]]:
+                      pix_per_char_height: int, save_space: bool = False) -> List[List[Any]]:
     """
     Create a side panel with comment boxes and radio buttons for user interface.
 
@@ -29,32 +29,48 @@ def create_side_panel(comment_width_chars: int, window_height: int,
 
     # Calculate the number of lines for the comment box
 
-    comment_line_count = (0.68 * window_height) // pix_per_char_height
-    comments_width = int(0.4*comment_width_chars) if save_space \
-        else int(0.70 * comment_width_chars)
+    comment_line_count = (0.55 * window_height) // pix_per_char_height
+    comments_width = comment_width_chars
+    # int(0.2*comment_width_chars) if save_space \
+    # else int(0.70 * comment_width_chars)
+    revision_width = int(0.6 * comments_width)
 
     # Create layout for radio buttons
-    radio_layout = [
-        Sg.Radio(f"{label}", group_id="RADIO_SIDE_PANEL", default=False,
-                 key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}{key_label}", enable_events=True)
-        for label, key_label in [
-            ("Proceed", "Proceed"), ("Proceed (QI Issue)", "QIProceed"), ("Revise", "Revise")]
-    ]
-
-    # Create side panel layout
     side_panel = [
-        [Sg.Text('Comments', text_color='blue', font=('Arial', 12, 'bold'))],
+        # User comments
+        [Sg.Text('Comments', text_color='blue', font=('Helvetica', 12, 'bold'))],
         [Sg.Multiline(default_text='', size=(comments_width, comment_line_count),
-                      autoscroll=True, auto_size_text=True, key=KEY_USER_COMMENT)],
-        radio_layout,
-        [Sg.Text("QI Issue:", enable_events=True, visible=False, key="-QI_TEXT-"),
-         Sg.Multiline(default_text='', size=(comments_width, 2), autoscroll=True,
-                      auto_size_text=True, enable_events=True, key=KEY_QI_INFO, visible=False)],
-        [Sg.Text("Reason for Revision:", enable_events=True, visible=False, key="-REVISION_TEXT-"),
-         Sg.Multiline(default_text='', size=(comments_width, 2), autoscroll=True,
-                      auto_size_text=True, enable_events=True, key=KEY_REVISION_INFO, visible=False)],
-        [Sg.Image(filename=ICON_CHECKER, key='-CHECKER-IMAGE-',pad=((100,0),(0,0)),
-                  size=(300, 300), tooltip="This chart checking script cannot check charts",)]
+                      autoscroll=True, auto_size_text=True, key=KEY_USER_COMMENT, expand_x=True, expand_y=True)],
+        # Create a row for "Proceed" radio button
+        [Sg.Radio(
+            "Proceed", group_id="RADIO_SIDE_PANEL",
+            default=False, key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Proceed", enable_events=True),
+        ],
+        # Create a row for "Proceed (QI Issue)" radio button
+        [Sg.Radio("Proceed (QI Issue)", group_id="RADIO_SIDE_PANEL", default=False,
+                  key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}QIProceed", enable_events=True)],
+        [Sg.Text("QI Issue:", enable_events=True, visible=False, key="-QI_TEXT-", expand_x=False, expand_y=False),
+         Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
+                      auto_size_text=True, enable_events=True, key=KEY_QI_INFO, visible=False, expand_x=True,
+                      expand_y=True)
+         ],
+        # Create a row for "Revise" radio button
+        [Sg.Radio("Revise", group_id="RADIO_SIDE_PANEL", default=False,
+                  key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", enable_events=True)],
+        [Sg.Text("Reason for\nRevision:", enable_events=True, justification='left',
+                 visible=False, key="-REVISION_TEXT-", expand_x=False, expand_y=False),
+         Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
+                      auto_size_text=True, enable_events=True, key=KEY_REVISION_INFO, visible=False, expand_x=True,
+                      expand_y=True)],
+        # [Sg.Text("QI Issue:", enable_events=True, visible=False, key="-QI_TEXT-"),
+        # Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
+        #              auto_size_text=True, enable_events=True, key=KEY_QI_INFO, visible=False)],
+        # [Sg.Text("Reason for\nRevision:", enable_events=True, justification='left',
+        #         visible=False, key="-REVISION_TEXT-"),
+        # Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
+        #              auto_size_text=True, enable_events=True, key=KEY_REVISION_INFO, visible=False)],
+        [Sg.Image(filename=ICON_CHECKER, key='-CHECKER-IMAGE-', pad=((0, 0), (0, 0)),
+                  size=(300, 300), tooltip="This chart checking script cannot check charts", )]
     ]
 
     return side_panel
@@ -62,7 +78,6 @@ def create_side_panel(comment_width_chars: int, window_height: int,
 
 def load_side_panel(window: Sg.Window, values: Dict[str, Any]) -> None:
     """
-    Google Python Format Header Comment
     Update the side panel in the main window with saved values.
 
     Args:
