@@ -299,11 +299,13 @@ def launch_physics_review_gui(rso):
 
     # In the tree display, set the size of the right column relative to left
     if save_space:
-        tab_width = 120 * pix_per_char_width
+        tab_width = 118 * pix_per_char_width  # Based on top window width
+        sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
+        comment_width_chars = int(sidebar_width - 114) // pix_per_char_width  # Gap is around 6 char
     else:
-        tab_width = 182 * pix_per_char_width
-    comment_width = int(window_width - tab_width - 0 * pix_per_char_width)
-    comment_width_chars = int(0.9*comment_width) // pix_per_char_width # Gap is around 6 char
+        tab_width = 184 * pix_per_char_width  # Based on top window width
+        sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
+        comment_width_chars = int(sidebar_width - 200) // pix_per_char_width  # Gap is around 6 char
     # Top and bottom (buttons) frame height
     top_height = 2 * pix_per_char_height
     top_width = tab_width + int(5.1 * pix_per_char_width)
@@ -313,8 +315,6 @@ def launch_physics_review_gui(rso):
                  f'screen width x height: {window_width} x {window_height}. '
                  f'Pixel character width x height: {pix_per_char_width} x'
                  f'{pix_per_char_height}. Space Save {save_space}')
-    logging.debug(f'Available tab dimensions (w x h): {tab_width} x {tab_height} pixels')
-    tab_width_chars = int(tab_width / pix_per_char_width) if save_space else tab_width / pix_per_char_width
     #
     # First Frame:
     protocols = load_protocols(PROTOCOL_DIR)
@@ -333,8 +333,8 @@ def launch_physics_review_gui(rso):
     top_image_size = (104, 22) if save_space else (156, 56)
     top_subsample = 1 if save_space else 1
     top_border = 0 if save_space else 2
-    top_pad =  ((0, 1), (1, 1))
-    tab_font = ('Helvetica','8','bold') if save_space else None
+    top_pad = ((0, 1), (1, 1))
+    tab_font = ('Helvetica', '8', 'bold') if save_space else None
     #
     small_icons = {
         "-SAVE-": ICON_SMALL_SAVE,
@@ -389,12 +389,12 @@ def launch_physics_review_gui(rso):
                                         window_height,
                                         pix_per_char_height),
                       vertical_alignment='top',
-                      size=(comment_width, window_height))
+                      size=(sidebar_width, window_height))
         ],
     ]
 
     window = Sg.Window(
-        f'{get_user_name()}> Plan Review:{" "*5}{rso.patient.Name}{" "*5}{rso.patient.PatientID}',
+        f'{get_user_name()}> Plan Review:{" " * 5}{rso.patient.Name}{" " * 5}{rso.patient.PatientID}',
         layout,
         resizable=True,
         size=(window_width, window_height))
