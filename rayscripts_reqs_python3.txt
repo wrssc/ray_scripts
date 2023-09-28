@@ -16,6 +16,8 @@
 ## 1/18/2021
 # * Added "requests" explicitly to list
 #
+# 09/28/2023
+# * Based on vulnerabilities, updated our scipy and requests libraries.
 ### Use ###
 # path/to/python -m pip install -r rayscripts_reqs_python3.txt
 #
@@ -33,6 +35,6 @@ PySimpleGUI
 PySimpleGUIQt
 pythonnet>=2.5
 reportlab
-requests
-scipy
+requests>=2.31
+scipy>=1.10
 XlsxWriter
