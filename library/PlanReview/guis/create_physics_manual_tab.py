@@ -410,7 +410,6 @@ def create_tab_manual_checks(check_boxes, passing_tests,
     vertical_size = tab_height - 6 * pix_per_char_height if save_space \
         else tab_height - 7 * pix_per_char_height
 
-
     # Loop through all keys in check_boxes
     for tab_key in check_boxes:
         layout = []  # Initialize empty layout for the tab
@@ -451,7 +450,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
             # Turn on horiztonal scrolling for small screens
             vertical_scroll = False
             sb_width = 1
-            tab_font = ('Helvetica','8','bold')
+            tab_font = ('Helvetica', '8', 'bold')
         else:
             vertical_scroll = True
             sb_width = 1
@@ -459,13 +458,13 @@ def create_tab_manual_checks(check_boxes, passing_tests,
 
         # Create a frame with the above layout
         frame = Sg.Frame(f"{tab_key}: Select an option for each item",
-                          [[Sg.Column(frame_layout,
-                                      size=(frame_settings.width,
-                                            frame_settings.height_user),
-                                      sbar_width=sb_width,
-                                      scrollable=frame_settings.scroll_user,
-                                      vertical_scroll_only=vertical_scroll)]],
-                          border_width=1)
+                         [[Sg.Column(frame_layout,
+                                     size=(frame_settings.width,
+                                           frame_settings.height_user),
+                                     sbar_width=sb_width,
+                                     scrollable=frame_settings.scroll_user,
+                                     vertical_scroll_only=vertical_scroll)]],
+                         border_width=1)
         layout.append([frame])
 
         # Create subframes for Failed Tests

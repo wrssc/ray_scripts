@@ -1,12 +1,7 @@
 import logging
 import math
-import os
-import json
 import pandas as pd
-import glob
-import re
 from typing import Union, Optional
-from datetime import datetime
 from docx import Document
 from docx.table import Table
 from docx.shared import Inches, Pt
@@ -16,7 +11,7 @@ from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from PlanReview.review_definitions import (
-    OUTPUT_DIR, LOG_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS, FAIL, PASS, ALERT, RED_CIRCLE,
+    LOG_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS, FAIL, PASS, ALERT, RED_CIRCLE,
     GREEN_CIRCLE)
 from PlanReview.utils import get_approval_info
 from PlanReview.utils.constants import (
@@ -24,6 +19,7 @@ from PlanReview.utils.constants import (
     KEY_OUT_TAB, KEY_OUT_RESULT, SOURCE_AUTO, KEY_OUT_DESC, KEY_OUT_MESSAGE, KEY_OUT_COMMENT, KEY_OUT_ICON,
     KEY_PROCEED_REVISE, KEY_REVISION_INFO
 )
+from PlanReview.utils.io_file_utils import *
 
 # Document set up
 top_margin = 0.2  # (in) top page margin
@@ -37,7 +33,7 @@ header_height = 0.1875  # (in) secondary header height
 footer_height = 0.25  # (in) secondary footer height
 table_header_height = 0.375  # (in) Table header row height
 table_title_height = 0.25  # (in) Table title
-table_spacing = 0.375  # (in) Table spacing
+table_spacing = 1.375  # (in) Table spacing
 safety_margin = 0.2
 # Less than this, use a page break instead of split
 min_table_height = table_title_height + table_header_height + 1 * row_height
@@ -233,47 +229,6 @@ def estimate_table_length(df: pd.DataFrame, i: Optional[int] = 0, top: Optional[
     return table_length
 
 
-def add_check_table_splitting(check_df, document, adjusted_page_height, title):
-    available_page_height = get_usable_page()
-
-    test1_df, test2_df = split_list(check_df, adjusted_page_height)
-    if not test1_df.empty and not test2_df.empty:
-        # A split table
-        logging.debug(f'{title}: BEFORE: available {adjusted_page_height:.2f}')
-        logging.debug(f'{title} length is {estimate_table_length(test1_df):.2f}')
-        add_check_list_table(test1_df, document, title=f'{title}')
-        table_length = estimate_table_length(test2_df, top=True)
-        document.add_page_break()
-        logging.debug('**SPLITTING TABLE - PAGE BREAK**')
-        logging.debug(f'{title} - Cont: BEFORE: available {available_page_height:.2f}')
-        logging.debug(f'{title} length is {estimate_table_length(test2_df, top=True):.2f}')
-        adjusted_page_height = available_page_height - table_length
-        add_check_list_table(test2_df, document, title=f'{title} - Cont')
-        logging.debug(f'{title} - Cont: AFTER: adjusted {adjusted_page_height:.2f}')
-    elif not test2_df.empty:
-        # Available page is less than a minimum table height, move to next page
-        logging.debug(f'{title}: BEFORE: available {adjusted_page_height:.2f}')
-        logging.debug(f'{title} length is {estimate_table_length(test2_df):.2f}')
-        document.add_page_break()
-        logging.debug('**TABLE TOO LONG FOR SPACE - PAGE BREAK**')
-        logging.debug(f'{title}: BEFORE: available {available_page_height:.2f}')
-        logging.debug(f'{title} length is {estimate_table_length(test2_df, top=True):.2f}')
-        table_length = estimate_table_length(test2_df, top=True)
-        adjusted_page_height = available_page_height - table_length
-        add_check_list_table(test2_df, document, title=f'{title}')
-        logging.debug(f'{title}: AFTER: adjusted {adjusted_page_height:.2f}')
-    else:
-        # Table will fit on this page
-        top = math.isclose(adjusted_page_height, available_page_height, rel_tol=1e-3)
-        logging.debug(f'{title}: BEFORE: available {adjusted_page_height:.2f}')
-        logging.debug(f'{title} length is {estimate_table_length(test1_df, top=top):.2f}')
-        add_check_list_table(test1_df, document, title=f'{title}')
-        table_length = estimate_table_length(test1_df, top=top)
-        adjusted_page_height = adjusted_page_height - table_length
-        logging.debug(f'{title}: AFTER: adjusted {adjusted_page_height:.2f}')
-    return adjusted_page_height
-
-
 def determine_doc_type(rso):
     planning_technique = rso.beamset.PlanGenerationTechnique
     delivery_technique = rso.beamset.DeliveryTechnique
@@ -340,39 +295,6 @@ def add_footer(section, rso, first_page=False):
         footer_run.text = "\t".join(
             [key + ':' + value for key, value in demographics.items()])
         footer_run.style = "Heading 4 Char"
-
-
-def split_list(check_df, available_page):
-    table_length = estimate_table_length(check_df)
-    usable = get_usable_page()
-    if table_length <= available_page:
-        check_df_1 = check_df
-        check_df_2 = pd.DataFrame()  # Empty DataFrame
-    else:
-        if available_page < min_table_height:
-            check_df_1 = pd.DataFrame()  # Empty DataFrame
-            check_df_2 = check_df
-        else:
-            check_df_1, check_df_2 = find_split(check_df, available_page)
-
-    return check_df_1, check_df_2
-
-
-def find_split(check_df, space):
-    i = 0
-    table_length = estimate_table_length(check_df)
-    if table_length > space:
-        logging.debug(f'SPLIT NEEDED: table length {table_length:.2f} with available page {space:.2f}')
-    while table_length > space:
-        table_length = estimate_table_length(check_df, i)
-        i += 1
-    # logging.debug(f'During Split: Page Available: {space:.2f}, '
-    #               f'and Table length: {table_length:.2f}')
-    check_df_1 = check_df.iloc[:len(check_df) - i]
-    check_df_2 = check_df.iloc[len(check_df) - i:]
-    logging.debug(
-        f'POST SPLIT: TABLE 1 {estimate_table_length(check_df_1):.2f}, TABLE {estimate_table_length(check_df_2):.2f}')
-    return check_df_1, check_df_2
 
 
 def add_check_list_table(df: pd.DataFrame, document: Document,
@@ -675,20 +597,7 @@ def add_beamset_data_table(doc, data, rso):
     doc.add_paragraph('')
 
 
-def dump_tests_to_json(tests, file_names=None):
-    if file_names is None:
-        file_names = []
-    for f in file_names:
-        with open(f, 'w') as outfile:
-            json.dump(tuple_key_to_str(tests), outfile)
 
-
-def read_tests_from_json(file_name="tests.json"):
-    full_path_file_name = os.path.join(OUTPUT_DIR, file_name)
-    with open(full_path_file_name, 'r') as infile:
-        tests = json.load(infile)
-    tests = str_key_to_tuple(tests)
-    return tests
 
 
 #
@@ -703,20 +612,7 @@ def read_tests_from_json(file_name="tests.json"):
 # os.remove(output_file)  # Remove the DOCX file after conversion, if needed
 
 
-def tuple_key_to_str(value):
-    if isinstance(value, dict):
-        return {tuple_key_to_str(k): tuple_key_to_str(v) for k, v in value.items()}
-    elif isinstance(value, tuple):
-        return '||'.join(map(str, value))
-    return value
 
-
-def str_key_to_tuple(value):
-    if isinstance(value, dict):
-        return {str_key_to_tuple(k): str_key_to_tuple(v) for k, v in value.items()}
-    elif isinstance(value, str) and '||' in value:
-        return tuple(int(x) if x.isdigit() else x for x in value.split('||'))
-    return value
 
 
 def read_data(data):
@@ -734,33 +630,3 @@ def add_shading_to_cell(cell, color):
     cell._tc.get_or_add_tcPr().append(shd)
 
 
-def generate_filename():
-    now = datetime.now()
-    filename = now.strftime("%Y%m%d_%H%M%S")
-    return filename
-
-
-def generate_file_path(patient_output_dir, patient_output_prefix, file_suffix):
-    return os.path.join(patient_output_dir, f"{patient_output_prefix}{file_suffix}")
-
-
-def find_latest_files(patient_output_dir, file_prefix, file_suffixes):
-    latest_files = {}
-    datetime_pattern = re.compile(r'(\d{8})_(\d{6})')
-
-    for suffix in file_suffixes:
-        search_pattern = os.path.join(patient_output_dir, f"{file_prefix}*{suffix}")
-        files = glob.glob(search_pattern)
-
-        # Extract datetime from filenames and sort them
-        sorted_files = sorted(
-            files, key=lambda x: datetime.strptime(
-                ''.join(datetime_pattern.findall(x)[0]), "%Y%m%d%H%M%S")
-            if datetime_pattern.findall(x) else None,
-            reverse=True
-        )
-
-        # Take the most recent file
-        latest_files[suffix] = sorted_files[0] if sorted_files else None
-
-    return latest_files.get("tests.json"), latest_files.get("header.json")

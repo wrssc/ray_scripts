@@ -599,8 +599,8 @@ def create_tab_preplan_information(protocols, sites, orders,
     order_selection_layout = create_order_selection_layout(protocols, sites,
                                                            orders, instructions)
     frame_x = int(0.985 * tab_width) if save_space else tab_width
-    frame_ct_y = int(tab_height * 0.14) if save_space else int(tab_height * 0.15)
-    frame_tpo_y = int(0.46 * tab_height) if save_space else int(tab_height * 0.46)
+    frame_ct_y = int(tab_height * 0.14) if save_space else int(tab_height * 0.18)
+    frame_tpo_y = int(0.46 * tab_height) if save_space else int(tab_height * 0.44)
     frame_bs_y = int(tab_height - frame_ct_y - frame_tpo_y)
     column_x = int(frame_x * 0.95)
     vertical_scroll = False if save_space else True
@@ -610,7 +610,6 @@ def create_tab_preplan_information(protocols, sites, orders,
         # CT Information frame
         [Sg.Frame('Data from CT Simulation Form ',
                   [
-                      create_space(),  # Empty space
                       [Sg.Column([[Sg.Text('CT Scan Date:', pad=(20, 0)),
                                    Sg.Input('', key=KEY_SIM_DATE,
                                             size=(10, 1)),
@@ -621,7 +620,6 @@ def create_tab_preplan_information(protocols, sites, orders,
                                  scrollable=scroll_for_small,
                                  vertical_scroll_only=True,
                                  size=(frame_x, frame_ct_y))],
-                      create_space(),  # Empty space
                   ],
                   element_justification='l',
                   size=(frame_x, frame_ct_y),
@@ -631,7 +629,6 @@ def create_tab_preplan_information(protocols, sites, orders,
         # Treatment Instructions frame
         [Sg.Frame('Treatment Planning Order Information',
                   [
-                      create_space(),  # Empty space
                       [Sg.Column(order_selection_layout,
                                  scrollable=True,
                                  vertical_scroll_only=True,

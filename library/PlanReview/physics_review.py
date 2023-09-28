@@ -189,8 +189,7 @@ import logging
 from collections import namedtuple
 from GeneralOperations import find_scope
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
-from PlanReview.guis import (build_tree_element, build_review_tree,
-                                            launch_physics_review_gui)
+from PlanReview.guis import (build_tree_element, build_review_tree, launch_physics_review_gui)
 from PlanReview.utils.get_user_name import get_user_name
 from PlanReview.review_definitions import DOMAIN_TYPE
 from PlanReview.documentation.generate_physics_document import generate_doc
