@@ -193,6 +193,7 @@ from PlanReview.guis import (build_tree_element, build_review_tree, launch_physi
 from PlanReview.utils.get_user_name import get_user_name
 from PlanReview.review_definitions import DOMAIN_TYPE
 from PlanReview.documentation.generate_physics_document import generate_doc
+from PlanReview.documentation.generate_physics_pdf import generate_pdf
 from PlanReview.qa_tests.test_examination import get_exam_level_tests
 from PlanReview.qa_tests.test_plan import get_plan_level_tests
 from PlanReview.qa_tests.test_beamset import get_beamset_level_tests
@@ -400,6 +401,7 @@ def physics_review(do_physics_review=True, rso=None):
     user_name = get_user_name()
     logging.info(f'Physics review script launched by {user_name}')
 
+    # Uncomment to simply run the tree
     # tree_data = Sg.TreeData()
 
     if not rso:
@@ -414,8 +416,6 @@ def physics_review(do_physics_review=True, rso=None):
                  db=find_scope(level='PatientDB'),
                  plan=find_scope(level='Plan'),
                  beamset=find_scope(level='BeamSet'))
-    # r = comment_to_clipboard(rso)
-    #
     doc_only = False
     if doc_only:
         tests = None
@@ -426,7 +426,7 @@ def physics_review(do_physics_review=True, rso=None):
         if not tests and not header:
             sys.exit('Physics review canceled')
 
-    # r.destroy()
     if do_physics_review:
         generate_doc(rso, tests=tests, header_data=header, test_mode=doc_only)
+        generate_pdf(rso, tests=tests, header_data=header, test_mode=doc_only)
         sg.popup('Form submitted successfully.')

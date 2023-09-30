@@ -16,15 +16,15 @@ from PlanReview.utils.constants import (
 from PlanReview.utils.io_file_utils import *
 from reportlab.lib.pagesizes import landscape, letter
 from reportlab.platypus import Table, TableStyle, Image
-from reportlab.platypus import (SimpleDocTemplate,PageTemplate, Frame, PageBreak, Paragraph)
+from reportlab.platypus import (SimpleDocTemplate, PageTemplate, Frame, PageBreak, Paragraph)
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 
 
-def hex_to_reportlab_color(hex_color):
+def hex_to_reportlab_color(str_color):
     # Remove any '#' at the beginning if present
-    hex_color = hex_color.lstrip('#')
+    hex_color = str_color.lstrip('#')
 
     # Convert the hexadecimal color code to RGB values
     r = int(hex_color[0:2], 16) / 255.0
@@ -39,54 +39,21 @@ def hex_to_reportlab_color(hex_color):
 
 @dataclass
 class ReportConfig:
+
     TOP_MARGIN = 0.25 * inch
     BOTTOM_MARGIN = 0.25 * inch
     LEFT_MARGIN = 0.6 * inch
     RIGHT_MARGIN = 0.2 * inch
     PAGE_WIDTH, PAGE_HEIGHT = landscape(letter)
-    ROW_HEIGHT = 0.375 * inch
-    TABLE_HEADER_HEIGHT = 0.375 * inch
-    TABLE_TITLE_HEIGHT = 0.25 * inch
-    TABLE_WIDTH = PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN #- 0.2 * inch
+    TABLE_WIDTH = PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN  # - 0.2 * inch
     UW_RED = hex_to_reportlab_color("#c5050c")
+    UW_ROSE = hex_to_reportlab_color("#ffc2c2")
     UW_DARK_RED = hex_to_reportlab_color("#9b0000")
     UW_WHITE = hex_to_reportlab_color("#f7f7f7")
     UW_GRAY = hex_to_reportlab_color("#dadfe1")
     UW_DARK_GRAY = hex_to_reportlab_color("#282728")
+    UW_BLUE = hex_to_reportlab_color("#0479a8")
     UW_TEXT = hex_to_reportlab_color("#333333")
-
-
-def myFirstPage(canvas, doc,rso):
-    canvas.saveState()
-    logo_width = 2.5 * inch
-    logo_height = logo_width * 240 / 920
-    logo_image = Image(UW_HEALTH_LOGO, width=logo_width, height=logo_height)
-    logo_image.drawOn(canvas, doc.leftMargin, doc.height - logo_height)
-
-    # Get document header title
-    header_text = determine_doc_type(rso)
-    # Move the text to the right (adjust the X-coordinate)
-    header_text_x = doc.leftMargin + logo_width + 30  # Horizontal Adjust
-    header_text_y = doc.height - logo_height // 1.5
-
-    canvas.setFont("Helvetica-Bold", 16)
-    canvas.drawString(header_text_x, header_text_y, header_text)
-    canvas.restoreState()
-
-def myLaterPages(canvas, doc,rso):
-    canvas.saveState()
-    canvas.setFont("Helvetica-Bold", 8)
-    demographics = {
-        'Name': rso.patient.Name,
-        'MRN': rso.patient.PatientID,
-        'Beamset Name': rso.beamset.DicomPlanLabel,
-    }
-    footer_text = "  ".join([f"{key}: {value}" for key, value in demographics.items()])
-    footer_text_x = doc.leftMargin
-    footer_text_y = doc.bottomMargin-2
-    canvas.drawString(footer_text_x, footer_text_y, footer_text)
-    # canvas.drawString(inch, 0.75 * inch, f"Page {doc.page}")
-    canvas.restoreState()
 
 
 def generate_pdf(rso, tests, header_data, test_mode=False):
@@ -142,33 +109,36 @@ def generate_pdf(rso, tests, header_data, test_mode=False):
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
                   doc.height - 0.75 * inch, id='header')
     footer_frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
-                  doc.height, id='footer')
+                         doc.height, id='footer')
 
     # Use functools.partial to create a partially applied function with custom data (rso)
     first_page_template = PageTemplate(id='first', frames=[frame],
-                                       onPage=partial(myFirstPage,rso=rso))
+                                       onPage=partial(myFirstPage, rso=rso))
     later_page_template = PageTemplate(frames=[footer_frame], id="laterPages",
-                                       onPage=partial(myLaterPages,rso=rso))
+                                       onPage=partial(myLaterPages, rso, header_data[KEY_BEAMSET]))
     # Add the template to the document
-    doc.addPageTemplates([first_page_template,later_page_template])
+    doc.addPageTemplates([first_page_template, later_page_template])
 
     # Create a list to store flowables (elements that go into the PDF)
     story = []
-
+    # Create demographics table
+    demo_table = create_demographics_table(header_data[KEY_BEAMSET], rso, config)
+    story.append(demo_table)
     # Create a table and apply the custom style
     main_table = create_beamset_data_table(header_data[KEY_BEAMSET], rso, config)
     story.append(main_table)
+    # Add reviewer comments
+    review_table = add_reviewer_approval(header_data[KEY_SIDE_PANEL], config)
+    story.append(review_table)
     # story.append(Spacer(1, 12))  # Add space between sections
     story.append(PageBreak())
 
     # Add table using add_check_list_table function
-    checklist_tables = generate_tables_from_dataframe(tests_df, story, config)  # Pass centered_frame
-    for table in checklist_tables:
-        story.append(table)
+    generate_tables_from_dataframe(tests_df, story, config)  # Pass centered_frame
 
     # Build the PDF document
-    doc.build(story,onFirstPage=partial(myFirstPage,rso=rso),
-              onLaterPages=partial(myLaterPages,rso=rso))
+    doc.build(story, onFirstPage=partial(myFirstPage, rso=rso),
+              onLaterPages=partial(myLaterPages, rso=rso, data=header_data[KEY_BEAMSET]))
 
 
 def read_data(data):
@@ -184,7 +154,6 @@ def str_key_to_tuple(value):
 
 
 def generate_tables_from_dataframe(df, story, config):
-    tables = []
     #
     excluded_review_levels = (REVIEW_LEVELS['SANDBOX'])
     # Define custom ordering for 'RESULT'
@@ -203,8 +172,7 @@ def generate_tables_from_dataframe(df, story, config):
         user_tl_df.sort_values(by='sort_key', inplace=True)
 
         # Add the manual check table
-        tables.append(
-            add_check_list_table(user_tl_df, story, config, title=f'{test_level}'))
+        add_check_list_table(user_tl_df, story, config, title=f'{test_level}')
 
         # Auto Checks
         # Find all automated checks from source
@@ -222,10 +190,8 @@ def generate_tables_from_dataframe(df, story, config):
         # Add the automated tests
         if not auto_tl_df.empty:
             title = f'{test_level} - Automated Checks'
-            tables.append(
-            add_check_list_table(auto_tl_df, story, config, title=f'{title}'))
-            # story.append(PageBreak())  # Add a page break between sections
-    return tables
+            add_check_list_table(auto_tl_df, story, config, title=f'{title}')
+
 
 def calculate_column_widths(df, headers):
     """
@@ -268,26 +234,26 @@ def make_paragraph(text, style=None):
 def add_check_list_table(df, story, config, title=None):
     # Define table styles
     style = getSampleStyleSheet()
-    label_style = getSampleStyleSheet()['Heading6']
+    label_style = style['Heading6']
     label_style.textColor = config.UW_WHITE
     table_style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), config.UW_DARK_GRAY),
         ('BACKGROUND', (0, 1), (-1, 1), config.UW_DARK_RED),
         ('TEXTCOLOR', (0, 0), (-1, 1), config.UW_WHITE),
         ('FONTNAME', (0, 0), (-1, 1), 'Helvetica-Bold'),
-        ('SPAN', (0,0),(-1,0)),
+        ('SPAN', (0, 0), (-1, 0)),
         ('ALIGN', (0, 0), (0, -1), 'CENTER'),
         ('ALIGN', (1, 0), (-1, -1), 'LEFT'),
         ('LEFTPADDING', (0, 1), (0, -1), 10),
         ('GRID', (0, 0), (-1, -1), 0.25, config.UW_DARK_GRAY),
         ('ROWBACKGROUNDS', (0, 2), (-1, -1), [config.UW_GRAY, config.UW_WHITE]),
-        ('ROUNDEDCORNERS',[2, 2, 2, 2]),
-        ('VALIGN', (0,0), (-1,-1),'MIDDLE'),
-        #('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('ROUNDEDCORNERS', [2, 2, 2, 2]),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        # ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
     ])
 
     # Create a table data list
-    data = [[title,"", "", ""],
+    data = [[title, "", "", ""],
             [make_paragraph('Status', style=label_style),
              make_paragraph('Test Performed', style=label_style),
              make_paragraph('Result', style=label_style),
@@ -309,33 +275,122 @@ def add_check_list_table(df, story, config, title=None):
     col_width.extend([c * width for c in cols])
     table = Table(data, colWidths=col_width,
                   splitByRow=1,
-                  repeatRows=(0,1),
+                  repeatRows=(0, 1),
                   spaceAfter=30,
                   )
     # table = Table(data, splitByRow=1, hAlign='CENTER')
 
     # Apply the table style
     table.setStyle(table_style)
-    return table
+    story.append(table)
+
+
+def create_demographics_table(data,rso, config):
+    table_data = [["Patient Name", "MRN", "Beamset Name", "Approval Date"]]
+    beamset_count = data[KEY_BEAMSET_COUNT]
+    for i in range(beamset_count):
+        beamset_number = (KEY_BEAMSET_SELECT, i)
+        beamset_name = data[beamset_number]
+        approval_status = get_approval_info(rso.plan, rso.plan.BeamSets[beamset_name])
+        approval_date = str(
+            rso.plan.BeamSets[beamset_name].Review.ReviewTime) if approval_status.beamset_approved else 'NA'
+        if i == 0:
+            patient_name = rearrange_name(str(rso.patient.Name))
+            patient_id = rso.patient.PatientID
+        else:
+            patient_name = ""
+            patient_id = ""
+        table_data.append([str(patient_name), str(patient_id),
+                           str(beamset_name), str(approval_date)])
+    demo_table = build_demographics_table(table_data, config)
+    return demo_table
+
+
+def build_demographics_table(data, config):
+    col_fractions = [0.252, 0.2, 0.2, 0.251]
+    column_widths = [c * config.TABLE_WIDTH for c in col_fractions]
+    demo_table = Table(data, colWidths=column_widths,spaceAfter=30)
+    demo_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), config.UW_DARK_GRAY),  # First row
+        ('TEXTCOLOR', (0, 0), (-1, 0), config.UW_WHITE),  # First row
+        ('ALIGN', (0, 0), (-1, 0), 'LEFT'),  # First row
+        ('BACKGROUND', (0, 1), (1, -1), config.UW_DARK_RED),  # First row
+        ('TEXTCOLOR', (0, 1), (1, -1), config.UW_WHITE),  # First row
+        ('VALIGN', (0, 1), (1, -1), 'MIDDLE'),
+        ('SPAN', (0,1), (0, -1)),
+        ('SPAN', (1,1), (1, -1)),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), config.UW_DARK_RED),
+        ('GRID', (0, 0), (-1, -1), 1, config.UW_DARK_GRAY),
+        ('ROUNDEDCORNERS', [2, 2, 2, 2]),
+        ('ROWBACKGROUNDS', (2, 1), (-1, -1), [config.UW_WHITE, config.UW_GRAY])
+    ]))
+    return demo_table
+
+
+def add_reviewer_approval(data, config):
+    hstyle=getSampleStyleSheet()['Normal']
+    hstyle.textColor = config.UW_WHITE
+    hstyle.fontName = 'Helvetica-Bold'
+    table_data = [[make_paragraph("Status",hstyle),
+                   make_paragraph("Proceed or\nRevise",hstyle),
+                   make_paragraph("Reason for Revision",hstyle),
+                   make_paragraph("Physicist Comments",hstyle)]]
+    # Get status
+    recommendation, status_comment, icon = row_proceed_revise(data)
+    istyle = getSampleStyleSheet()['Normal']
+    if status_comment:
+        istyle.fontName = 'Helvetica-BoldOblique'
+        istyle.backColor = config.UW_BLUE
+        istyle.textColor = config.UW_WHITE
+        status_comment = make_paragraph(status_comment,istyle)
+        col_fractions = [0.06, 0.1, 0.35, 0.50]
+    else:
+        istyle.fontName = 'Helvetica-Oblique'
+        recommendation = make_paragraph(recommendation, istyle)
+        status_comment = make_paragraph("NA",istyle)
+        col_fractions = [0.06, 0.1, 0.15, 0.69]
+    physics_comment = make_paragraph(str(data[KEY_USER_COMMENT]))
+    icon_image = Image(icon, hAlign="CENTER", lazy=1)
+    table_data.append([icon_image, recommendation, status_comment, physics_comment])
+    reviewer_table = build_reviewer_table(table_data,config,col_fractions)
+    return reviewer_table
+
+
+def build_reviewer_table(data,config,col_fractions):
+    column_widths = [c * config.TABLE_WIDTH for c in col_fractions]
+    reviewer_table = Table(data,
+                           splitByRow=0,
+                           colWidths=column_widths,
+                           spaceAfter=30)
+    reviewer_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), config.UW_DARK_RED),  # First row
+        ('TEXTCOLOR', (0, 0), (-1, 0), config.UW_WHITE),  # First row
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('ROUNDEDCORNERS', [2, 2, 2, 2]),
+        ('BACKGROUND', (0, 1), (-1, 1), config.UW_WHITE),  # First row
+        ('GRID', (0, 0), (-1, -1), 0.1, config.UW_DARK_GRAY),
+    ]))
+    return reviewer_table
 
 
 def create_beamset_data_table(data, rso, config):
-    table_data = [["Beamset", "Beamset Details"]]
+    table_data = [["Beamset Summary", ""]]
     bold_rows = []
     beamset_count = data[KEY_BEAMSET_COUNT]
     for i in range(beamset_count):
         beamset_number = (KEY_BEAMSET_SELECT, i)
         beamset_name = data[beamset_number]
 
-        table_data.append([beamset_name, ""])
+        table_data.append([beamset_name, "Beamset Details"])
         bold_rows.append(len(table_data) - 1)  # Keep track of the row to be made bold
 
-        add_row(table_data, "Number of Fractions", str(data[(KEY_BEAMSET_FRACTION_COUNT, i)]))
+        dicom_uid = rso.plan.BeamSets[beamset_name].ModificationInfo.DicomUID
+        add_row(table_data, "Beamset DICOM UID", dicom_uid)
 
-        approval_status = get_approval_info(rso.plan, rso.plan.BeamSets[beamset_name])
-        approval_date = str(
-            rso.plan.BeamSets[beamset_name].Review.ReviewTime) if approval_status.beamset_approved else 'NA'
-        add_row(table_data, "Beamset Approval Date", approval_date)
+        add_row(table_data, "Number of Fractions", str(data[(KEY_BEAMSET_FRACTION_COUNT, i)]))
 
         targets_table_data = [["Target Name", "Dose per Fraction (Gy)", "Total Dose (Gy)"]]
         target_count = data[(KEY_BEAMSET_TARGET_COUNT, i)]
@@ -358,14 +413,15 @@ def create_targets_nested_table(data, config):
     column_widths = [c * config.TABLE_WIDTH for c in col_fractions]
     nested_table = Table(data, colWidths=column_widths)
     nested_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), config.UW_DARK_RED),
+        ('BACKGROUND', (0, 0), (-1, 0), config.UW_RED),
         ('TEXTCOLOR', (0, 0), (-1, 0), config.UW_WHITE),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('GRID', (0, 0), (-1, -1), 1, config.UW_DARK_GRAY),
         ('GRID', (0, 1), (-1, -1), 1, config.UW_DARK_GRAY),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [config.UW_RED, config.UW_GRAY])
+        ('ROUNDEDCORNERS', [3, 3, 3, 3]),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [config.UW_WHITE, config.UW_ROSE])
     ]))
     return nested_table
 
@@ -375,25 +431,25 @@ def add_row(table_data, cell1, cell2):
 
 
 def create_beamsets_table(data, bold_rows, config):
-    main_table = Table(data,spaceAfter=30)
+    main_table = Table(data, spaceAfter=30)
     main_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), config.UW_DARK_GRAY),  # First row
         ('TEXTCOLOR', (0, 0), (-1, 0), config.UW_WHITE),  # First row
-        ('ALIGN', (0, 0), (-1, 0), 'LEFT'),  # First row
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # First row
+        ('SPAN', (0,0), (-1,0)),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), config.UW_DARK_RED),
         ('GRID', (0, 0), (-1, -1), 1, config.UW_DARK_GRAY),
-        ('ROUNDEDCORNERS',[2, 2, 2, 2]),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [config.UW_RED, config.UW_GRAY])
+        ('ROUNDEDCORNERS', [2, 2, 2, 2]),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [config.UW_WHITE, config.UW_GRAY])
     ]))
 
     for row in bold_rows:
         main_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, row), (-1, row), config.UW_DARK_GRAY),
+            ('BACKGROUND', (0, row), (-1, row), config.UW_DARK_RED),
             ('TEXTCOLOR', (0, row), (-1, row), config.UW_WHITE),
             ('FONTNAME', (0, row), (-1, row), 'Helvetica-Bold'),
-            ('SPAN', (0, row), (-1, row)),
         ]))
 
     return main_table
@@ -422,3 +478,91 @@ def determine_doc_type(rso):
         header_text = 'Unsupported Technique'
     header_text = header_text + ' Physics Review'
     return header_text
+
+
+def myFirstPage(canvas, doc, rso):
+    canvas.saveState()
+    logo_width = 2.5 * inch
+    logo_height = logo_width * 240 / 920
+    logo_image = Image(UW_HEALTH_LOGO, width=logo_width, height=logo_height)
+    logo_image.drawOn(canvas, doc.leftMargin, doc.height - logo_height)
+
+    # Get document header title
+    header_text = determine_doc_type(rso)
+    # Move the text to the right (adjust the X-coordinate)
+    header_x = doc.leftMargin + logo_width + 30  # Horizontal Adjust
+    header_y = doc.height - logo_height // 1.5
+
+    canvas.setFont("Helvetica-Bold", 14)
+    canvas.drawString(header_x, header_y, header_text)
+    canvas.restoreState()
+
+
+def myLaterPages(canvas, doc, rso,data):
+    canvas.saveState()
+    canvas.setFont("Helvetica-Bold", 8)
+    beamsets = []
+    beamset_count = data[KEY_BEAMSET_COUNT]
+    for i in range(beamset_count):
+        beamset_number = (KEY_BEAMSET_SELECT, i)
+        beamset_name = data[beamset_number]
+        beamsets.append(beamset_name)
+    demographics = {
+        'Name': rearrange_name(str(rso.patient.Name)),
+        'MRN': str(rso.patient.PatientID),
+        'Beamset Name(s)': ", ".join(beamsets)
+    }
+    footer_text = ";  ".join([f"{key}: {value}" for key, value in demographics.items()])
+    footer_x = doc.leftMargin
+    footer_y = doc.bottomMargin - 2
+    canvas.drawString(footer_x, footer_y, footer_text)
+    canvas.drawString(doc.leftMargin + doc.width, footer_y, f"{doc.page}")
+    canvas.restoreState()
+def old_myLaterPages(canvas, doc, rso, data):
+
+    canvas.saveState()
+    canvas.setFont("Helvetica-Bold", 8)
+    beamsets = []
+    beamset_count = data[KEY_BEAMSET_COUNT]
+    for i in range(beamset_count):
+        beamset_number = (KEY_BEAMSET_SELECT, i)
+        beamset_name = data[beamset_number]
+        beamsets.append(beamset_name)
+    demographics = {
+        'Name': rearrange_name(str(rso.patient.Name)),
+        'MRN': rso.patient.PatientID,
+        'Beamset Name': ", ".join(beamsets)
+    }
+    footer_text = ";  ".join([f"{key}: {value}" for key, value in demographics.items()])
+    footer_x = doc.leftMargin
+    footer_y = doc.bottomMargin - 2
+    canvas.drawString(footer_x, footer_y, footer_text)
+    canvas.drawString(doc.width - doc.rightMargin - footer_x, footer_y, f"{doc.page}")
+    canvas.restoreState()
+
+
+def rearrange_name(input_str):
+    # Split the input string using "^" as the delimiter
+    name = input_str.split("^")
+
+    # Check if there is more than one name
+    if len(name) > 1:
+        # Rearrange the list of parts and join them with a space between
+        rearranged_str = " ".join(name[1:] + [name[0]])
+    else:
+        # If there's only one part, return the original input
+        rearranged_str = input_str
+
+    return rearranged_str
+
+
+def row_proceed_revise(data):
+    status_mapping = {
+        "Revise": ("Revise", str(data.get(KEY_REVISION_INFO, "")), RED_CIRCLE),
+        "Proceed": ("Proceed","", GREEN_CIRCLE),
+        "QIProceed": ("Proceed","", GREEN_CIRCLE),
+    }
+
+    recommendation, comment, icon = status_mapping.get(data[KEY_PROCEED_REVISE], ("", "", ""))
+
+    return recommendation, comment, icon
