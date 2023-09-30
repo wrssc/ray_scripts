@@ -18,6 +18,10 @@ from PlanReview.utils.constants import (
 log_dir = os.getenv('LOG_DIR')
 OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
 ERROR_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs\Errors\ReviewScript"
+PROTECTED_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Protect"
+# From ARIA User Admin in the ARIA Web Portal Export all users to a
+# non-GitSync directory
+STAFF_XML_PATH = os.path.join(PROTECTED_DIR,"VAUsersandGroupsExport_30Sep2023.xml")
 
 protocol_folder = r'../../protocols'
 institution_folder = r'UW'

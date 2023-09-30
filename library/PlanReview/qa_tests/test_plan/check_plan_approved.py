@@ -1,6 +1,10 @@
-# Plan Checks
+# Check if the plan is approved by an MD
 from PlanReview.utils import get_approval_info
+from PlanReview.utils import find_groupname_by_userid, is_valid_approver
 from PlanReview.review_definitions import PASS, FAIL, ALERT
+
+
+VALID_APPROVAL_GROUPS = ["Oncologist"]
 
 
 def check_plan_approved(rso, **kwargs):
@@ -16,12 +20,18 @@ def check_plan_approved(rso, **kwargs):
     physics_review = kwargs.get('do_physics_review')
     approval_status = get_approval_info(rso.plan, rso.beamset)
     if approval_status.plan_approved:
-        message_str = "Plan: {} was approved by {} on {}".format(
-            rso.plan.Name,
-            approval_status.plan_reviewer,
-            approval_status.plan_approval_time
-        )
-        pass_result = PASS
+        group_name = find_groupname_by_userid(approval_status.plan_reviewer)
+        if is_valid_approver(group_name, VALID_APPROVAL_GROUPS):
+            message_str = f"Plan: {rso.plan.Name} was approved by " \
+                          f"{approval_status.plan_reviewer}, (Staff {group_name}) " \
+                          f"on {approval_status.plan_approval_time}"
+            pass_result = PASS
+        else:
+            message_str = f"Plan: {rso.plan.Name} approval INVALID. Approved by " \
+                          f"{approval_status.plan_reviewer}, ({group_name}) " \
+                          f"on {approval_status.plan_approval_time}"
+            pass_result = FAIL
+
     else:
         message_str = "Plan: {} is not approved".format(
             rso.plan.Name)

@@ -1,6 +1,9 @@
 from typing import Tuple, NamedTuple, Optional
-from PlanReview.review_definitions import PASS, FAIL, ALERT
-from PlanReview.utils import get_approval_info
+from PlanReview.review_definitions import PASS, FAIL, ALERT, STAFF_XML_PATH
+from PlanReview.utils import (
+    get_approval_info, find_groupname_by_userid, is_valid_approver)
+
+VALID_APPROVAL_GROUPS = ["Oncologist"]
 
 
 def build_message(
@@ -11,7 +14,13 @@ def build_message(
     ) -> str:
     """Helper function to build message string."""
     if is_approved:
-        return f"Beamset: {beamset_label} was approved by {reviewer} on {approval_time}"
+        group_name = find_groupname_by_userid(reviewer)
+        if is_valid_approver(group_name, VALID_APPROVAL_GROUPS):
+            message_str = f"Plan: {rso.plan.Name} was approved by " \
+                          f"{approval_status.plan_reviewer}, (Staff {group_name}) " \
+                          f"on {approval_status.plan_approval_time}"
+
+            return f"Beamset: {beamset_label} was approved by {reviewer} on {approval_time}"
     else:
         return f"Beamset: {beamset_label} is not approved"
 
@@ -43,23 +52,30 @@ def check_beamset_approved(rso: NamedTuple, **kwargs: Optional[bool]) -> Tuple[s
 
     Test Patients:
         Pass: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: THI: Plan: Anal_THI
-        Fail: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: Pros_VMA
+        Fail: Script_Testing^FinalDose: ZZUWQA_ScTest_06Jan2021: Case: VMAT: Plan: Pros_VMA also Validation/ZZUWQA_20Jan2021: MultiBeamset Script_Testing
     """
 
     do_physics_review = kwargs.get('do_physics_review', False)
 
     approval_status = get_approval_info(rso.plan, rso.beamset)
-    message_str = build_message(
-        rso.beamset.DicomPlanLabel,
-        approval_status.beamset_reviewer,
-        approval_status.beamset_approval_time,
-        approval_status.beamset_approved
-    )
-
     if approval_status.beamset_approved:
-        result = PASS
+        group_name = find_groupname_by_userid(approval_status.beamset_reviewer)
+        if is_valid_approver(group_name, VALID_APPROVAL_GROUPS):
+            message_str = f"Beamset: {rso.beamset.DicomPlanLabel} was approved by " \
+                          f"{approval_status.beamset_reviewer}, (Staff {group_name}) " \
+                          f"on {approval_status.beamset_approval_time}"
+            pass_result = PASS
+        else:
+            message_str = f"Beamset: {rso.beamset.DicomPlanLabel} approval INVALID. Approved by " \
+                          f"{approval_status.beamset_reviewer}, ({group_name}) " \
+                          f"on {approval_status.beamset_approval_time}"
+            pass_result = FAIL
+
     else:
-        result = FAIL if do_physics_review else ALERT
-
-    return result, message_str
-
+        message_str = "Beamset: {} is not approved".format(
+            rso.plan.Name)
+        if do_physics_review:
+            pass_result = FAIL
+        else:
+            pass_result = ALERT
+    return pass_result, message_str

@@ -1,5 +1,48 @@
+import xml.etree.ElementTree as ET
+import pandas as pd
 from dateutil import parser
 from collections import namedtuple
+from PlanReview.review_definitions import STAFF_XML_PATH
+
+
+# Function to read XML into a DataFrame
+def read_xml_to_dataframe():
+    xml_path = STAFF_XML_PATH
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
+
+    user_data = []
+    for user in root.find('users'):
+        user_dict = {}
+        for elem in user:
+            user_dict[elem.tag] = elem.text
+        user_data.append(user_dict)
+
+    group_data = []
+    for group in root.find('groups'):
+        group_dict = {}
+        for elem in group:
+            group_dict[elem.tag] = elem.text
+        group_data.append(group_dict)
+
+    user_df = pd.DataFrame(user_data)
+    group_df = pd.DataFrame(group_data)
+
+    return user_df, group_df
+
+
+# Helper function to find group name using userid
+def find_groupname_by_userid(userid):
+    # read in data
+    user_df, group_df = read_xml_to_dataframe()
+    # Convert both the DataFrame column and the input userid to lower-case
+    groupcuid = user_df[user_df['userid'].str.lower() == userid.lower()]['groupcuid'].values[0]
+    groupname = group_df[group_df['groupcuid'] == groupcuid]['groupname'].values[0]
+    return groupname
+
+
+def is_valid_approver(group_name, valid_approval_groups):
+    return group_name.lower() in map(str.lower, valid_approval_groups)
 
 
 def get_approval_info(plan, beamset):
