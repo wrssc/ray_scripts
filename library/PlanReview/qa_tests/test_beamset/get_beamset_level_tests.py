@@ -48,14 +48,17 @@ def get_beamset_level_tests(rso, physics_review=True):
     #
     technique = rso.beamset.DeliveryTechnique if rso.beamset else None
     if technique == 'DynamicArc':
-        if rso.beamset.Beams[0].HasValidSegments:
-            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Control Point Spacing"] = (
-                check_control_point_spacing,
-                {'expected': 2.})
-            beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
-                compute_vmat_beam_properties, {})
-            beamset_checks_dict[f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment"] = \
-                check_prv_status, {}
+        try:
+            if rso.beamset.Beams[0].HasValidSegments:
+                beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Control Point Spacing"] = (
+                    check_control_point_spacing, {'expected': 2.})
+                beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
+                    compute_vmat_beam_properties, {})
+                beamset_checks_dict[f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment"] = \
+                    (check_prv_status, {})
+        except Exception as e:
+            if 'Index was out of range. Must be non-negative ' in str(e):
+                pass
     elif technique == 'SMLC':
         try:
             _ = rso.beamset.Beams[0].Segments[0]  # Determine if beams have segments
