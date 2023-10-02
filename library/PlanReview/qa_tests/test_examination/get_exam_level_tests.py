@@ -2,6 +2,7 @@ from PlanReview.review_definitions import REVIEW_LEVELS
 from .compare_exam_data_to_preplan import compare_exam_data_to_preplan
 from .check_exam_date import check_exam_date
 from .check_exam_data import check_exam_data
+from .compare_patient_orientation_to_preplan import compare_patient_orientation_to_preplan
 from .check_localization import check_localization
 from .check_axial_orientation import check_axial_orientation
 from .check_image_extent import check_image_extent
@@ -10,9 +11,6 @@ from .check_fov_overlap_external import check_fov_overlap_external
 from .check_contour_gaps import check_contour_gaps
 from .check_support_material import check_support_material
 from .get_si_extent import get_si_extent
-
-
-# from .exam_review_tests import *
 
 
 def get_exam_level_tests(rso, values=None):
@@ -50,5 +48,9 @@ def get_exam_level_tests(rso, values=None):
         patient_checks_dict.update({
             f"{REVIEW_LEVELS['PREPLAN_DATA']}::Data Matches CT Document":
                 (compare_exam_data_to_preplan, {'VALUES': values}),
+        })
+        patient_checks_dict.update({
+            f"{REVIEW_LEVELS['PATIENT_MODEL']}::Patient Orientation Matches CT Document":
+                (compare_patient_orientation_to_preplan, {'VALUES': values}),
         })
     return patient_checks_dict
