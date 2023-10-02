@@ -21,7 +21,7 @@ ERROR_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs\Errors\ReviewScript"
 PROTECTED_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Protect"
 # From ARIA User Admin in the ARIA Web Portal Export all users to a
 # non-GitSync directory
-STAFF_XML_PATH = os.path.join(PROTECTED_DIR,"VAUsersandGroupsExport_30Sep2023.xml")
+STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_30Sep2023.xml")
 
 protocol_folder = r'../../protocols'
 institution_folder = r'UW'
@@ -49,7 +49,7 @@ ICON_PAUSE = os.path.join(icon_dir, "pause_icon.png")
 ICON_SAVE = os.path.join(icon_dir, "save_icon.png")
 ICON_LOAD = os.path.join(icon_dir, "load_icon.png")
 ICON_ERROR = os.path.join(icon_dir, "error_icon.png")
-ICON_CHECKER = os.path.join(icon_dir,"checker_icon.png")
+ICON_CHECKER = os.path.join(icon_dir, "checker_icon.png")
 # RESULT STRINGS
 PASS = "Pass"
 FAIL = "Fail"
@@ -82,7 +82,9 @@ REVIEW_LEVELS = {
     'OPTIMIZATION': 'Optimization',
     'ADAPTIVE': 'Adaptive',
     'MOBIUS': 'Mobius',
-    'SANDBOX': 'Sandbox'
+    'SANDBOX': 'Sandbox',
+    'PRIOR_RT': 'Prior Radiotherapy',
+    'IMPLANTED_DEVICE': 'Implanted Devices',
 }
 # CHECKBOXES are qa_tests that must be manually performed for physics review
 CHECK_BOXES_PHYSICS_REVIEW = {
@@ -101,9 +103,10 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
-                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_beamset_approved'],
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_beamset_approved',
+                                      'qa_tests.text_plan.check_plan_approved'],
                 KEY_STATUS: REPLACED,
-                KEY_AUTO_REVIEW_DATE: '01Sept2023'}
+                KEY_AUTO_REVIEW_DATE: '02Oct2023'}
         },
     ],
     REVIEW_LEVELS['PREPLAN_DATA']: [
@@ -134,9 +137,9 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.compare_exam_data_to_preplan',
-                                      'qa_tests.text_examination.compare_exam_date'],
-                KEY_STATUS: 'Review Pending',
-                KEY_AUTO_REVIEW_DATE: '01Sept2023'}
+                                      'qa_tests.text_examination.compare_exam_date',],
+                KEY_STATUS: REPLACED,
+                KEY_AUTO_REVIEW_DATE: '03Oct2023'}
         },
         {
             KEY_OUT_TEST: 'ct_orientation',
@@ -144,9 +147,10 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
-                KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_axial_orientation'],
-                KEY_STATUS: 'Enhanced with axial orientation check',
-                KEY_AUTO_REVIEW_DATE: '01Sept2023'}},
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_axial_orientation',
+                                      'qa_tests.test_examination.compare_patient_orientation_to_preplan'],
+                KEY_STATUS: REPLACED,
+                KEY_AUTO_REVIEW_DATE: '02Oct2023'}},
         {
             KEY_OUT_TEST: 'immobilization_protocol',
             KEY_OUT_DESC: 'Immobilization matches protocol and is reproducible',
@@ -247,7 +251,11 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DESC: 'Material assignment is appropriate',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_support_material'],
+                KEY_STATUS: 'Enhanced - check takes place on common supports, but not all override scenarios',
+                KEY_AUTO_REVIEW_DATE: 'Needs Review',
+            },
         },
         {
             # TODO: Consider deleting this. RS does not allow this.
@@ -320,8 +328,10 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
-                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_no_fly'],
-                KEY_STATUS: 'Enhanced-No Fly Volume Checked',
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_no_fly',
+                                      'qa_tests.test_examination.check_image_extent'],
+                KEY_STATUS: 'Enhanced-No Fly Volume Checked, '
+                            '-Image extent versus target extent checked',
                 KEY_AUTO_REVIEW_DATE: '01Sep2023'}
         },
         {
@@ -461,6 +471,64 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_AUTOMATION: {},
         },
     ],
+    REVIEW_LEVELS['PRIOR_RT']: [
+        {
+            KEY_OUT_TEST: 'prior_rt_fusions',
+            KEY_OUT_DESC: 'Review fusions done for prior RT (if not already done by a POD)',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'prior_rt_dose',
+            KEY_OUT_DESC: 'Review the dose accumulation, including TPO goals for prior RT',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'prior_rt_doc',
+            KEY_OUT_DESC: 'Verify prior RT document is completed and attending MD in “Supervised by”',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+    ],
+    REVIEW_LEVELS['IMPLANTED_DEVICE']: [
+        {
+            KEY_OUT_TEST: 'imd_plan_review',
+            KEY_OUT_DESC: 'Review treatment modality, dose to the device and '
+                          'distance from the device to the '
+                          'nearest collimated field edge',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'imd_consult',
+            KEY_OUT_DESC: 'Verify information entered in IMD Physics '
+                          'Consult document is accurate',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'imd_supervised',
+            KEY_OUT_DESC: 'Complete and sign the IMD Physics Consult document, '
+                          'set the “Supervised By” field to attending MD.',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'imd_in_vivo',
+            KEY_OUT_DESC: 'Determine if in vivo dosimetry measurement is required',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['PLAN_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+
+    ],
 
 }
 CHECK_BOXES_PHYSICS_REVIEW_3D = {
@@ -476,7 +544,11 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
                           ' or AlignRT is noted in CT Sim',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
+                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_AUTO_REVIEW_DATE: '02Oct2023'
+            },
         },
     ],
     REVIEW_LEVELS['PLAN_DESIGN']: [
@@ -507,8 +579,8 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
-                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_dose_grid'],
-                KEY_STATUS: 'Enhanced - EDW compliance checked',
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_edw_field_size'],
+                KEY_STATUS: 'Enhanced - EDW field size compliance checked',
                 KEY_AUTO_REVIEW_DATE: '01Sep2023',
             },
         },
@@ -525,7 +597,11 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_DESC: 'Beam MU is reasonable',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_edw_mu'],
+                KEY_STATUS: 'Enhanced - EDW MU compliance checked',
+                KEY_AUTO_REVIEW_DATE: '02Oct2023',
+            },
         },
         {
             KEY_OUT_TEST: 'beam_divergence',
@@ -551,7 +627,11 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
                           ' or AlignRT is noted in CT Sim',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
+                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_AUTO_REVIEW_DATE: '02Oct2023'
+            },
         },
         {
             KEY_OUT_TEST: 'ptv_retracted',
@@ -730,7 +810,11 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
                           'in CT Sim',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
+                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_AUTO_REVIEW_DATE: '02Oct2023'
+            },
         },
     ],
     REVIEW_LEVELS['OPTIMIZATION']: [],
@@ -1078,14 +1162,23 @@ CHECK_BOXES_DOSE = {
             KEY_OUT_DESC: 'Sim Fiducial point set to match BB location',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
+                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_AUTO_REVIEW_DATE: '02Oct2023'
+            },
         },
         {
             KEY_OUT_TEST: 'ct_cutoff',
             KEY_OUT_DESC: 'CT cutoff addressed',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_fov_overlap_external',
+                                      'qa_tests.test_examination.check_image_extent'],
+                KEY_STATUS: REPLACED,
+                KEY_AUTO_REVIEW_DATE: '03Oct2023',
+            },
         },
     ],
     REVIEW_LEVELS['PLAN_DESIGN']: [
@@ -1439,7 +1532,11 @@ CHECK_BOXES_DOSE_TOMO_3D = {
             KEY_OUT_DESC: 'Sim Fiducial point set to match BB location or Shifts Document',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
+                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_AUTO_REVIEW_DATE: '02Oct2023'
+            },
         },
     ],
     REVIEW_LEVELS['PLAN_DESIGN']: [
@@ -1602,6 +1699,16 @@ PACEMAKER_DOSE = 200.  # cGy
 # DOSE GRID PREFERENCES
 DOSE_GRID_DEFAULT = 0.2  # 2 mm
 
+#Supported patient orientations
+PATIENT_ORIENTATIONS = {'HFS': 'Head First Supine',
+                        'FFS': 'Feet First Supine',
+                        'HFP': 'Head First Prone',
+                        'FFP': 'Feet First Prone',
+                        'HFDR': 'Head First Decubitus Right',
+                        'FFDR': 'Feet First Decubitus Right',
+                        'HFDL': 'Head First Decubitus Left',
+                        'FFDL': 'Feet First Decubitus Left'}
+
 PLAN_NAMES = {'LUNG_SBRT':
                   ['LUL', 'LLL', 'RUL', 'RML', 'RLL', 'LunR_SBR', 'LunL_SBR',
                    'LuLU_SBR', 'LuLL_SBR', 'LuRU_SBR', 'LuRM_SBR', 'LuRL_SBR'],
@@ -1695,7 +1802,7 @@ MCS_TOLERANCES = {'MCS': {'MEAN': 0.369,
 TOMO_DATA = {'MACHINES': ['HDA0488'],
              'PLAN_TR_SUFFIX': r'_Tr',
              'LATERAL_ISO_MARGIN': 2.,  # cm
-             'SUPPORTS': ['TomoCouch','S-frame']
+             'SUPPORTS': ['TomoCouch', 'S-frame']
              }
 
 TRUEBEAM_DATA = {'MACHINES': ['TrueBeam', 'TrueBeamSTx'],
