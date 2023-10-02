@@ -133,7 +133,7 @@ def write_wikitable(df, output_file_path, table_title: Optional[str] = ""):
 
 
 def generate_test_mapping_wikitable():
-    # Your manual tests from review_definitions.py
+    # manual tests from review_definitions.py
     dict_names = []
     for attribute_name in dir(review_definitions):
         attribute = getattr(review_definitions, attribute_name)
