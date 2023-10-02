@@ -7,7 +7,7 @@ import sys
 from PlanReview.utils.protocol_loading import get_order_instructions, \
     site_protocol_list, order_dict, load_plan_names, get_frequencies
 from PlanReview.utils.constants import *
-from PlanReview.review_definitions import PROTOCOL_DIR
+from PlanReview.review_definitions import PROTOCOL_DIR, PATIENT_ORIENTATIONS
 
 
 def create_key(element_type, beamset_index=None, target_index=None):
@@ -599,8 +599,8 @@ def create_tab_preplan_information(protocols, sites, orders,
     order_selection_layout = create_order_selection_layout(protocols, sites,
                                                            orders, instructions)
     frame_x = int(0.985 * tab_width) if save_space else tab_width
-    frame_ct_y = int(tab_height * 0.14) if save_space else int(tab_height * 0.18)
-    frame_tpo_y = int(0.46 * tab_height) if save_space else int(tab_height * 0.44)
+    frame_ct_y = int(tab_height * 0.14) if save_space else int(tab_height * 0.20)
+    frame_tpo_y = int(0.46 * tab_height) if save_space else int(tab_height * 0.42)
     frame_bs_y = int(tab_height - frame_ct_y - frame_tpo_y)
     column_x = int(frame_x * 0.95)
     vertical_scroll = False if save_space else True
@@ -608,7 +608,7 @@ def create_tab_preplan_information(protocols, sites, orders,
     # Create the overall layout for the CT Scan tab
     ct_scan_layout = [
         # CT Information frame
-        [Sg.Frame('Data from CT Simulation Form ',
+        [Sg.Frame('ARIA CT Simulation Form ',
                   [
                       [Sg.Column([[Sg.Text('CT Scan Date:', pad=(20, 0)),
                                    Sg.Input('', key=KEY_SIM_DATE,
@@ -616,7 +616,15 @@ def create_tab_preplan_information(protocols, sites, orders,
                                    Sg.CalendarButton('Select date', target=KEY_SIM_DATE,
                                                      format='%Y-%m-%d')],
                                   [Sg.Text('Number of CT Slices: ', pad=(20, 0)),
-                                   Sg.Input(key=KEY_SLICES, size=(10, 1))]],
+                                   Sg.Input(key=KEY_SLICES, size=(10, 1))],
+                                  [Sg.Text('Patient Orientation: ', pad=(20, 0)),
+                                   Sg.Combo(list(PATIENT_ORIENTATIONS.keys()),
+                                            default_value=None, key=KEY_PATIENT_ORIENTATION),],
+                                  [Sg.Text('Implanted Medical Device Present: ',pad=(20, 0)),
+                                   Sg.Checkbox('Yes', key=KEY_CHECKBOX+KEY_IMD)],
+                                  [Sg.Text('History of Prior Radiotherapy: ',pad=(20, 0)),
+                                   Sg.Checkbox('Yes', key=KEY_CHECKBOX+KEY_PRIOR_RT)],
+                                  ],
                                  scrollable=scroll_for_small,
                                  vertical_scroll_only=True,
                                  size=(frame_x, frame_ct_y))],
@@ -627,12 +635,12 @@ def create_tab_preplan_information(protocols, sites, orders,
          ],
 
         # Treatment Instructions frame
-        [Sg.Frame('Treatment Planning Order Information',
+        [Sg.Frame('ARIA Treatment Planning Order Information',
                   [
                       [Sg.Column(order_selection_layout,
                                  scrollable=True,
                                  vertical_scroll_only=True,
-                                 key='-ORDER_SELECTION_',
+                                 key=KEY_ORDER_SELECT,
                                  size=(frame_x, frame_tpo_y))]],
                   font=('Helvetica', 11, 'bold'),
                   element_justification='l',

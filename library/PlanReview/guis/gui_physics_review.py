@@ -30,7 +30,7 @@ from PlanReview.guis.create_physics_manual_tab import (
     build_manual_check_box_list, get_tests_from_tree,
     create_tab_manual_checks, on_manual_radio_button_click,
     extract_values_manual_tab, load_manual, process_auto_tests,
-    process_check_box_values, is_valid_manual_tab)
+    process_check_box_values, is_valid_manual_tab, is_visible_tab)
 import json
 import connect
 from typing import Dict
@@ -488,7 +488,8 @@ def launch_physics_review_gui(rso):
                                                 tab_width, tab_height,
                                                 pix_per_char_width, pix_per_char_height, save_space)
                 for tab in tabs:
-                    tab_group.add_tab(tab)
+                    if is_visible_tab(tab, window):
+                        tab_group.add_tab(tab)
 
                 window['Review and Logs'].select()
 
