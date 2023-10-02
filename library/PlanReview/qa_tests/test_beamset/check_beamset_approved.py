@@ -6,25 +6,6 @@ from PlanReview.utils import (
 VALID_APPROVAL_GROUPS = ["Oncologist"]
 
 
-def build_message(
-        beamset_label: str,
-        reviewer: str,
-        approval_time: str,
-        is_approved: bool
-    ) -> str:
-    """Helper function to build message string."""
-    if is_approved:
-        group_name = find_groupname_by_userid(reviewer)
-        if is_valid_approver(group_name, VALID_APPROVAL_GROUPS):
-            message_str = f"Plan: {rso.plan.Name} was approved by " \
-                          f"{approval_status.plan_reviewer}, (Staff {group_name}) " \
-                          f"on {approval_status.plan_approval_time}"
-
-            return f"Beamset: {beamset_label} was approved by {reviewer} on {approval_time}"
-    else:
-        return f"Beamset: {beamset_label} is not approved"
-
-
 def check_beamset_approved(rso: NamedTuple, **kwargs: Optional[bool]) -> Tuple[str, str]:
     """ Check Beamset Approved
         Checks whether a given beamset is approved or not.
