@@ -3,7 +3,7 @@ from PlanReview.review_definitions import FIELD_OF_VIEW_PREFERENCES,PASS,FAIL
 
 def check_image_extent(rso, **kwargs):
     """
-    Check if the image extent is long enough to cover the image set and a buffer
+    Check if the image extent is long enough to cover the target extent and a buffer
 
     Args:
         rso: (namedtuple): Named tuple of ScriptObjects
