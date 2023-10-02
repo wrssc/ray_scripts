@@ -109,6 +109,6 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
     else:
         if serial_not_used:
             message_str += f"For {', '.join(map(str,serial_not_used))}: goals with high" \
-                           f" (or undefined) priority were identified with no objectives or constraints."
+                           f" (or undefined) priority were excluded from optimization."
             pass_result = ALERT
     return pass_result, message_str

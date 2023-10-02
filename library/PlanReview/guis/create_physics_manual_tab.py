@@ -6,7 +6,7 @@ from typing import NamedTuple
 from collections import defaultdict
 from dataclasses import dataclass, field
 from PlanReview.review_definitions import (
-    PASS, FAIL, ALERT, NA,
+    PASS, FAIL, ALERT, NA, REVIEW_LEVELS,
     DOMAIN_TYPE, RED_CIRCLE, GREEN_CIRCLE, YELLOW_CIRCLE, BLUE_CIRCLE,
     CHECK_BOXES_PHYSICS_REVIEW, CHECK_BOXES_PHYSICS_REVIEW_3D,
     CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
@@ -447,7 +447,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
             frame_settings.scroll_user = True
             frame_settings.scroll_fail = True
             frame_settings.scroll_pass = True
-            # Turn on horiztonal scrolling for small screens
+            # Turn on horizontal scrolling for small screens
             vertical_scroll = False
             sb_width = 1
             tab_font = ('Helvetica', '8', 'bold')
@@ -495,10 +495,22 @@ def create_tab_manual_checks(check_boxes, passing_tests,
         # Final tab layout
         tab_title = tab_key[:9] if save_space else tab_key
         tab = Sg.Tab(tab_title, [[Sg.Column(layout)]],
-                     font=tab_font)
+                     font=tab_font,key=tab_key)
         tabs.append(tab)  # Add the tab to the list of tabs
 
     return tabs  # Return the list of tabs
+
+
+def is_visible_tab(tab, window):
+    visible = True
+    # Logic for determining if a tab should be visible or not
+    if tab.__dict__.get('Key',None) == REVIEW_LEVELS['IMPLANTED_DEVICE']:
+        if not window[KEY_CHECKBOX+KEY_IMD].get():
+            visible = False
+    elif tab.__dict__.get('Key',None) == REVIEW_LEVELS['PRIOR_RT']:
+        if not window[KEY_CHECKBOX+KEY_PRIOR_RT].get():
+            visible = False
+    return visible
 
 
 # Define a function to handle events related to radio buttons
