@@ -200,14 +200,14 @@ class FrameSettings:
 
     def calculate_pixel_height(self):
         user_line_count = len(self.checks)
-        logging.debug(f'       user has {user_line_count} items * {self.checks_pix_per_line} c_ppl '
-                      f'= {int(user_line_count * self.checks_pix_per_line)}')
+        # logging.debug(f'       user has {user_line_count} items * {self.checks_pix_per_line} c_ppl '
+        #               f'= {int(user_line_count * self.checks_pix_per_line)}')
         return int(user_line_count * self.checks_pix_per_line)
 
     def calculate_subframe_pixel_height(self, n_items):
-        logging.debug(f'            n*a_ppl + d_ppl = {n_items} * {self.auto_pix_per_line} + '
-                      f'{self.domain_pix_per_line} = '
-                      f'{int(n_items * self.auto_pix_per_line + self.domain_pix_per_line)}')
+        # logging.debug(f'            n*a_ppl + d_ppl = {n_items} * {self.auto_pix_per_line} + '
+        #               f'{self.domain_pix_per_line} = '
+        #               f'{int(n_items * self.auto_pix_per_line + self.domain_pix_per_line)}')
         return int(n_items * self.auto_pix_per_line + self.domain_pix_per_line)
 
     def calculate_frame_height(self):
@@ -217,24 +217,24 @@ class FrameSettings:
         height = self.domain_pix_per_line
         for domain, test_list in tests.items():
             item_count = len(test_list)
-            logging.debug(f'       domain {domain} has {item_count} items')
+            # logging.debug(f'       domain {domain} has {item_count} items')
             if item_count > 0:
                 height += self.calculate_subframe_pixel_height(item_count)
         return height
 
     def calculate_initial_settings(self):
-        logging.debug(f'---Initial frame settings calculated:')
-        logging.debug(f'    User Frame:')
+        # logging.debug(f'---Initial frame settings calculated:')
+        # logging.debug(f'    User Frame:')
         self.height_user = self.calculate_pixel_height()
-        logging.debug(f'  User Frame Height: {self.height_user}')
-        logging.debug(f'    Pass Frame:')
+        # logging.debug(f'  User Frame Height: {self.height_user}')
+        # logging.debug(f'    Pass Frame:')
         self.height_pass = self.calculate_auto_frame_pixel_height(tests=self.passing)
-        logging.debug(f'  Pass Frame Height: {self.height_pass}')
-        logging.debug(f'    Fail Frame:')
+        # logging.debug(f'  Pass Frame Height: {self.height_pass}')
+        # logging.debug(f'    Fail Frame:')
         self.height_fail = self.calculate_auto_frame_pixel_height(tests=self.failing)
-        logging.debug(f'  Fail Frame Height: {self.height_fail}')
+        # logging.debug(f'  Fail Frame Height: {self.height_fail}')
         self.height = self.calculate_frame_height()
-        logging.debug(f'  Total Frame Height: {self.height}')
+        # logging.debug(f'  Total Frame Height: {self.height}')
 
 
 def adjust_each_frame_height(frame_settings):
@@ -242,12 +242,12 @@ def adjust_each_frame_height(frame_settings):
     max_fail = int(frame_settings.tab_height * 0.25)
     max_user = int(frame_settings.tab_height * 0.5)
 
-    if frame_settings.height < frame_settings.tab_height:
-        logging.debug(f'---Frame Settings not adjusted:')
-        logging.debug(f'  User Frame Height: {frame_settings.height_user}')
-        logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
-        logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
-        logging.debug(f'  Total Frame Height: {frame_settings.height}')
+    # if frame_settings.height < frame_settings.tab_height:
+    #     logging.debug(f'---Frame Settings not adjusted:')
+    #     logging.debug(f'  User Frame Height: {frame_settings.height_user}')
+    #     logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
+    #     logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
+    #     logging.debug(f'  Total Frame Height: {frame_settings.height}')
 
     while frame_settings.height > frame_settings.tab_height:
         excess = frame_settings.height - frame_settings.tab_height
@@ -270,11 +270,11 @@ def adjust_each_frame_height(frame_settings):
                 break
 
         frame_settings.height = frame_settings.calculate_frame_height()
-        logging.debug(f'----Frame Settings adjusted:')
-        logging.debug(f'  User Frame Height: {frame_settings.height_user}')
-        logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
-        logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
-        logging.debug(f'  Total Frame Height: {frame_settings.height}')
+        # logging.debug(f'----Frame Settings adjusted:')
+        # logging.debug(f'  User Frame Height: {frame_settings.height_user}')
+        # logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
+        # logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
+        # logging.debug(f'  Total Frame Height: {frame_settings.height}')
 
 
 def make_subframe(input_text, content_list):
@@ -394,7 +394,8 @@ def create_tab_manual_checks(check_boxes, passing_tests,
     """
 
     # Calculate the maximum length of the descriptions in check_boxes
-    max_checkbox_length = max([len(item[KEY_OUT_DESC]) for key in check_boxes for item in check_boxes[key]])
+    max_checkbox_length = max([0,
+                               *[len(item[KEY_OUT_DESC]) for key in check_boxes for item in check_boxes[key]]])
 
     # Initialize an empty list to hold individual tab layouts
     tabs = []
@@ -423,6 +424,7 @@ def create_tab_manual_checks(check_boxes, passing_tests,
         passing_tests_by_domain = sort_by_domain(matching_passing_tests)
 
         matching_manual_checks = check_boxes[tab_key]
+        # Determine the maximum length of the descriptions in check_boxes
         max_checkbox_tab_length = max([len(item[KEY_OUT_DESC]) for item in check_boxes[tab_key]])
 
         # Initialize frame data
@@ -505,10 +507,10 @@ def is_visible_tab(tab, window):
     visible = True
     # Logic for determining if a tab should be visible or not
     if tab.__dict__.get('Key',None) == REVIEW_LEVELS['IMPLANTED_DEVICE']:
-        if not window[KEY_CHECKBOX+KEY_IMD].get():
+        if not window[KEY_IMD].get():
             visible = False
     elif tab.__dict__.get('Key',None) == REVIEW_LEVELS['PRIOR_RT']:
-        if not window[KEY_CHECKBOX+KEY_PRIOR_RT].get():
+        if not window[KEY_PRIOR_RT].get():
             visible = False
     return visible
 
@@ -659,7 +661,22 @@ def build_manual_check_box_list(rso, beamsets):
                 item[KEY_OUT_ICON] = None
                 item[KEY_OUT_DOMAIN_NAME] = find_domain_name(
                     rso, item[KEY_OUT_DOMAIN_TYPE])
-    return dict1
+    filtered_checklist = {}
+    for level in dict1:
+        filtered_checklist[level] = []
+        for item in dict1[level]:
+            # Determine if this test has been replaced with automation.
+            if is_replaced(item):
+                logging.info(f'This item {item[KEY_OUT_DESC]}: has been replaced.')
+                continue
+            else:
+                filtered_checklist[level].append(item)
+    return filtered_checklist
+
+
+def is_replaced(item):
+    replaced_status = item.get(KEY_AUTOMATION, {}).get(KEY_STATUS, False)
+    return replaced_status == REPLACED
 
 
 # TODO: Evaluate this object to determine if it is worthwhile to create objects for tests
