@@ -1187,7 +1187,7 @@ def optimize_plan(patient, case, exam, plan, beamset, **optimization_inputs):
     small_field_names = ['_SRS_', '_SBR_', '_FSR_', '_LLL_', '_LUL_', '_RLL_', '_RML_', '_RUL_']
     large_field_names = ['TBI__FFS', 'TBI__HFS', 'HFS__TBI', 'FFS__TBI',
                          'TBI_FFS', 'TBI_HFS', 'HFS_TBI', 'FFS_TBI',
-                         'TBI__VMA']
+                         'TBI__VMA', 'TBI']
 
     # Choose the minimum field size in cm
     min_dim = 2
