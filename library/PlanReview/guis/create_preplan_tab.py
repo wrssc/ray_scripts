@@ -619,11 +619,11 @@ def create_tab_preplan_information(protocols, sites, orders,
                                    Sg.Input(key=KEY_SLICES, size=(10, 1))],
                                   [Sg.Text('Patient Orientation: ', pad=(20, 0)),
                                    Sg.Combo(list(PATIENT_ORIENTATIONS.keys()),
-                                            default_value=None, key=KEY_PATIENT_ORIENTATION),],
-                                  [Sg.Text('Implanted Medical Device Present: ',pad=(20, 0)),
-                                   Sg.Checkbox('Yes', key=KEY_CHECKBOX+KEY_IMD)],
-                                  [Sg.Text('History of Prior Radiotherapy: ',pad=(20, 0)),
-                                   Sg.Checkbox('Yes', key=KEY_CHECKBOX+KEY_PRIOR_RT)],
+                                            default_value=None, key=KEY_PATIENT_ORIENTATION), ],
+                                  [Sg.Text('Implanted Medical Device Present: ', pad=(20, 0)),
+                                   Sg.Checkbox('Yes', key=KEY_IMD)],
+                                  [Sg.Text('History of Prior Radiotherapy: ', pad=(20, 0)),
+                                   Sg.Checkbox('Yes', key=KEY_PRIOR_RT)],
                                   ],
                                  scrollable=scroll_for_small,
                                  vertical_scroll_only=True,
@@ -718,6 +718,15 @@ def extract_values_preplan_tab(main_window):
         KEY_SLICES:
             main_window[KEY_SLICES].get()
             if main_window[KEY_SLICES].get() else '',
+        KEY_PATIENT_ORIENTATION:
+            main_window[KEY_PATIENT_ORIENTATION].get()
+            if main_window[KEY_PATIENT_ORIENTATION].get() else '',
+        KEY_IMD:
+            main_window[KEY_IMD].get()
+            if main_window[KEY_IMD].get else '',
+        KEY_PRIOR_RT:
+            main_window[KEY_PRIOR_RT].get()
+            if main_window[KEY_PRIOR_RT].get else '',
         # Get the Treatment Instructions values
         KEY_SITE_SELECT:
             main_window[KEY_SITE_SELECT].get()
@@ -754,21 +763,21 @@ def extract_values_preplan_tab(main_window):
     num_beamsets = main_window[KEY_BEAMSET_COUNT].get() \
         if main_window[KEY_BEAMSET_COUNT].get() else 1
     beamset_dict = {KEY_BEAMSET_COUNT: main_window[KEY_BEAMSET_COUNT].get()
-    if main_window[KEY_BEAMSET_COUNT].get() else ''}
+                    if main_window[KEY_BEAMSET_COUNT].get() else ''}
     for i in range(num_beamsets):
         beamset_dict[create_key(KEY_BEAMSET_SELECT, i)] = \
             main_window[create_key(KEY_BEAMSET_SELECT, i)].get() \
-                if main_window[create_key(KEY_BEAMSET_SELECT, i)].get() \
-                else ''
+            if main_window[create_key(KEY_BEAMSET_SELECT, i)].get() \
+            else ''
         beamset_dict[create_key(KEY_BEAMSET + KEY_FRACTIONS, i)] = \
             int(main_window[create_key(KEY_BEAMSET + KEY_FRACTIONS, i)].get()) \
-                if main_window[create_key(KEY_BEAMSET + KEY_FRACTIONS, i)].get() \
-                else 0
+            if main_window[create_key(KEY_BEAMSET + KEY_FRACTIONS, i)].get() \
+            else 0
         num_targets = \
             int(main_window[create_key(KEY_BEAMSET_TARGET_COUNT, i)].get()
                 ) \
-                if main_window[create_key(KEY_BEAMSET_TARGET_COUNT, i)].get() \
-                else 0
+            if main_window[create_key(KEY_BEAMSET_TARGET_COUNT, i)].get() \
+            else 0
         beamset_dict[create_key(KEY_BEAMSET_TARGET_COUNT, i)] = \
             num_targets
         for j in range(num_targets):  # assuming num_targets is defined somewhere
