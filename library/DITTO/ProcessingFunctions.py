@@ -214,7 +214,7 @@ def assess_block_points(element_pair, comment=""):
 def process_treatment_machine_name(element_pair, comment=""):
     ray_machine, aria_machine = element_pair.value_pair
 
-    TRUEBEAM_M120 = ["TrueBeam2588", "TrueBeam2871", "TrueBeam3744"]
+    TRUEBEAM_M120 = ["TrueBeam2588", "TrueBeam2871", "TrueBeam3744", "TrueBeam6198"]
     TRUEBEAM_STX = ["TrueBeam1358"]
 
     if (ray_machine == "TrueBeam") and (aria_machine in TRUEBEAM_M120):
