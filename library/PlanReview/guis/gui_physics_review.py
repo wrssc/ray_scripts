@@ -40,41 +40,6 @@ from typing import Dict
 """
 
 
-def log_to_file(dict_of_dicts):
-    if type(dict_of_dicts) is dict:
-        for key, value in dict_of_dicts.items():
-            # Use json.dumps to pretty-print each dictionary
-            formatted_dict = json.dumps(value, indent=4)
-            logging.debug('Key: %s\nDictionary:\n%s', key, formatted_dict)
-    elif isinstance(dict_of_dicts, list):
-        for value in dict_of_dicts:
-            logging.debug(f'Value from list is: {value}')
-
-
-def create_key(element_type, beamset_i=None, target_i=None):
-    """
-    Create a key for a GUI element using a dictionary.
-
-    Parameters:
-    element_type (str): The type of the GUI element (e.g., 'beamset_num_text', 'target_name', etc.).
-    beamset_i (int, optional): The index of the beamset, if applicable.
-    target_i (int, optional): The index of the target, if applicable.
-
-    Returns:
-    tuple: A tuple containing the element type and optional beamset/target indices.
-    """
-    key = (element_type,)
-    if beamset_i is not None:
-        key += (beamset_i,)
-    if target_i is not None:
-        key += (target_i,)
-    return key
-
-
-def generate_event_key(*args):
-    return "_".join(str(arg) for arg in args)
-
-
 def tuple_key_to_str(value):
     if isinstance(value, dict):
         return {tuple_key_to_str(k): tuple_key_to_str(v) for k, v in value.items()}
@@ -100,12 +65,19 @@ def update_window_key_dict(window, keys):
 
 def save_review(rso, values, quiet=False):
     # logging.debug(f'Values in Save {tuple_key_to_str(values)}')
-    file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review.json"
-    with open(os.path.join(OUTPUT_DIR, file_name), "w") as f:
-        json.dump(tuple_key_to_str(values), f)
-        if not quiet:
-            Sg.popup("Review saved successfully!")
-    return file_name
+    patient_output_dir = os.path.join(OUTPUT_DIR,rso.patient.PatientID)
+    if not os.path.exists(patient_output_dir):
+        os.makedirs(patient_output_dir)
+    if os.path.exists(OUTPUT_DIR):
+        file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review.json"
+        with open(os.path.join(patient_output_dir, file_name), "w") as f:
+            json.dump(tuple_key_to_str(values), f)
+            if not quiet:
+                Sg.popup("Review saved successfully!")
+        return file_name
+    else:
+        logging.error("Output directory does not exist.")
+        return None
 
 
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
@@ -114,7 +86,7 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
         file_name = f"{rso.patient.PatientID}_" \
                     f"{rso.beamset.DicomPlanLabel}_review.json"
     try:
-        with open(os.path.join(OUTPUT_DIR, file_name), "r") as f:
+        with open(os.path.join(OUTPUT_DIR,rso.patient.PatientID,file_name), "r") as f:
             values = json.load(f)
     except FileNotFoundError:
         Sg.popup("No saved review found!")
@@ -167,21 +139,6 @@ def get_review_gui_values(window, passing_tests, failed_tests, check_boxes):
     return sorted_values
 
 
-def update_window_error(window, key, bg=False):
-    error_text_color = '#8B0000'
-    error_bg_color = '#8B0000'
-    error_bg_text = '#8B0000'
-    if bg:
-        window[key].update(text_color=error_bg_text,
-                           background_color=error_bg_color)
-    else:
-        window[key].update(text_color=error_text_color)
-
-
-def check_radio_on(values, keys):
-    return any(values[k] for k in keys)
-
-
 # Event handler for "Done" button
 def on_done_button_click(window, values, check_boxes):
     # Check if all the required fields are filled in
@@ -189,10 +146,6 @@ def on_done_button_click(window, values, check_boxes):
     side_valid = is_valid_side_panel(window, values)
     is_valid = all([manual_valid, side_valid])
     return is_valid
-
-
-def sanitize_dict(d):
-    return {k: repr(v) for k, v in d.items()}
 
 
 def on_submit_build_tree(tree_data, tab_width, tab_height, pix_per_char_width, pix_per_line):
@@ -235,46 +188,6 @@ def merge_dicts(dict1, dict2):
     merged = {k: v for k, v in merged.items() if v}
 
     return merged
-
-
-def build_check_box_list(rso, beamsets):
-    """
-    Depending on the type of beamset we are checking, find the appropriate
-    checklist from review_definitions
-    :param rso:
-    :param beamsets (list): list of all beamsets
-    :return: checks dictionary
-    """
-    dict1 = CHECK_BOXES_PHYSICS_REVIEW
-    for beamset_name in beamsets:
-        technique = rso.plan.BeamSets[beamset_name].DeliveryTechnique
-        if technique == 'TomoHelical' and 'T3D' in beamset_name:
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_TOMO3D
-        elif technique == 'TomoHelical':
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_TOMO
-        elif technique == 'ApplicatorAndCutout':
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS
-        elif technique == 'VMAT':
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_VMAT
-        elif technique == 'SMLC':
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_3D
-        else:
-            logging.warning(f'Technique {technique} unknown. No custom checks'
-                            f'programmed')
-            dict2 = {}
-        dict1 = merge_dicts(dict1, dict2)
-    return dict1
-
-
-def get_text_element_size(text: str):
-    window = Sg.Window('Invisible Window',
-                       [[Sg.Text(text, key='text')],
-                        ],
-                       alpha_channel=0, finalize=True)
-    window.read(timeout=0)
-    size_text = window['text'].get_size()
-    window.close()
-    return size_text
 
 
 def launch_physics_review_gui(rso):
@@ -376,11 +289,13 @@ def launch_physics_review_gui(rso):
         [
             Sg.Column([
                 [top],
-                [Sg.TabGroup([[Sg.Tab('External Information',
+                [Sg.TabGroup([[Sg.Tab('ARIA Info',
                                       create_tab_preplan_information(
                                           protocols, sites, orders, instructions,
                                           beamsets, targets, tab_width, tab_height, save_space),
-                                      font=tab_font)
+                                      font=tab_font,
+                                      tooltip='Enter information from ARIA documents, '
+                                              'which will be used in subsequent automated tests.')
                                ]],
                              key='tab_group')],
             ], ),
@@ -406,7 +321,7 @@ def launch_physics_review_gui(rso):
             check_list = []
             header_data = {}
             break
-
+        # Load Event
         elif event == '-LOAD-':
             num_beamsets = load_review(
                 window, rso, sites, protocols, instructions,
@@ -415,7 +330,6 @@ def launch_physics_review_gui(rso):
 
             if not num_beamsets:
                 num_beamsets = 1
-
         elif event == '-PAUSE-':
             connect.await_user_input('Review Paused. Resume Script Execution to Continue')
         elif event == '-ERROR-':
@@ -473,12 +387,12 @@ def launch_physics_review_gui(rso):
                 tab1 = on_submit_build_tree(
                     tree_data, tab_width, tab_height, pix_per_char_width, pix_per_char_height)
                 # Add the new tab to the tab group layout
-                tab_group.add_tab(Sg.Tab('Review and Logs', tab1,
+                tab_group.add_tab(Sg.Tab('Logs', tab1,
                                          key='Review and Logs',
+                                         tooltip='Tree view of automated tests and log files generated by scripts',
                                          font=tab_font))
                 #
                 # Build next tab
-                # TODO: USERS MAY WANT SEPARATE TESTS FOR EACH BEAMSET
                 check_box_copy = build_manual_check_box_list(rso, beamsets=[
                     rso.beamset.DicomPlanLabel])
 
