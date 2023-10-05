@@ -78,37 +78,17 @@ REVIEW_LEVELS = {
     'PATIENT_MODEL': 'Patient Modeling',
     'PLAN_DATA': 'Plan Data',
     'PLAN_DESIGN': 'Plan Design',
-    'PLAN_EVAL': 'Plan Evaluation',
     'OPTIMIZATION': 'Optimization',
+    'PLAN_EVAL': 'Plan Evaluation',
     'ADAPTIVE': 'Adaptive',
-    'MOBIUS': 'Mobius',
-    'SANDBOX': 'Sandbox',
     'PRIOR_RT': 'Prior Radiotherapy',
     'IMPLANTED_DEVICE': 'Implanted Devices',
+    'MOBIUS': 'Mobius',
+    'SANDBOX': 'Sandbox',
 }
 # CHECKBOXES are qa_tests that must be manually performed for physics review
 CHECK_BOXES_PHYSICS_REVIEW = {
     KEY_REVIEW_TYPE: 'General Physics Review',
-    REVIEW_LEVELS['PLAN_DATA']: [
-        {
-            KEY_OUT_TEST: 'plan_name_tpo',
-            KEY_OUT_DESC: 'Plan Name is consistent with TPO',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'plan_approved_md',
-            KEY_OUT_DESC: 'Plan is approved by MD',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {
-                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_beamset_approved',
-                                      'qa_tests.text_plan.check_plan_approved'],
-                KEY_STATUS: REPLACED,
-                KEY_AUTO_REVIEW_DATE: '02Oct2023'}
-        },
-    ],
     REVIEW_LEVELS['PREPLAN_DATA']: [
         {
             KEY_OUT_TEST: 'ct_images_match',
@@ -132,12 +112,12 @@ CHECK_BOXES_PHYSICS_REVIEW = {
         },
         {
             KEY_OUT_TEST: 'ct_images_scan_datetime',
-            KEY_OUT_DESC: 'CT images Scan Date/Time matches CT simulation document',
+            KEY_OUT_DESC: 'CT images Scan Date/Time matches CT simulation report',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.compare_exam_data_to_preplan',
-                                      'qa_tests.text_examination.compare_exam_date',],
+                                      'qa_tests.text_examination.compare_exam_date', ],
                 KEY_STATUS: REPLACED,
                 KEY_AUTO_REVIEW_DATE: '03Oct2023'}
         },
@@ -167,6 +147,13 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_AUTOMATION: {},
         },
         {
+            KEY_OUT_TEST: 'special_instructions',
+            KEY_OUT_DESC: 'Special instructions (FB, MIBH) are noted in treatment planning order',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
             KEY_OUT_TEST: 'slice_thickness',
             KEY_OUT_DESC: 'Slice thickness appropriate for plan type',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
@@ -176,13 +163,6 @@ CHECK_BOXES_PHYSICS_REVIEW = {
                 KEY_STATUS: REPLACED,
                 KEY_AUTO_REVIEW_DATE: '01Sep2023',
             },
-        },
-        {
-            KEY_OUT_TEST: 'special_instructions',
-            KEY_OUT_DESC: 'Special instructions (FB, MIBH) are noted in treatment planning order',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
         },
     ],
     REVIEW_LEVELS['PATIENT_MODEL']: [
@@ -214,8 +194,8 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_contour_gaps'],
-                KEY_STATUS: 'Review',
-                KEY_AUTO_REVIEW_DATE: '01Sept2023'},
+                KEY_STATUS: 'Extended - check in place to look for contours with gaps',
+                KEY_AUTO_REVIEW_DATE: '03Oct2023'},
         },
         {
             KEY_OUT_TEST: 'mim_no_stray_voxels',
@@ -225,7 +205,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_AUTOMATION: {},
         },
         {
-            KEY_OUT_TEST: 'mim_contour_extents',
+            KEY_OUT_TEST: 'contour_extents',
             KEY_OUT_DESC: 'Regions at risk near targets are contoured and sufficient for the plan',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
@@ -239,7 +219,6 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_AUTOMATION: {},
         },
         {
-            # TODO: Combine the next two items
             KEY_OUT_TEST: 'density_overrides_contoured',
             KEY_OUT_DESC: 'Density overrides are contoured',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
@@ -296,6 +275,26 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             },
         },
     ],
+    REVIEW_LEVELS['PLAN_DATA']: [
+        {
+            KEY_OUT_TEST: 'plan_name_tpo',
+            KEY_OUT_DESC: 'Plan Name is consistent with TPO',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'plan_approved_md',
+            KEY_OUT_DESC: 'Plan is approved by MD',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_beamset_approved',
+                                      'qa_tests.text_plan.check_plan_approved'],
+                KEY_STATUS: REPLACED,
+                KEY_AUTO_REVIEW_DATE: '02Oct2023'}
+        },
+    ],
     REVIEW_LEVELS['PLAN_DESIGN']: [
         {
             KEY_OUT_TEST: 'beam_names_correct',
@@ -349,13 +348,6 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_AUTOMATION: {},
         },
         {
-            KEY_OUT_TEST: 'overlap_prior_rt',
-            KEY_OUT_DESC: 'Overlap with prior RT is reviewed',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
             KEY_OUT_TEST: 'dose_grid_resolution',
             KEY_OUT_DESC: 'Dose grid Resolution is 2mm or less',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
@@ -392,6 +384,7 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_AUTOMATION: {},
         },
     ],
+    REVIEW_LEVELS['OPTIMIZATION']: [],
     REVIEW_LEVELS['PLAN_EVAL']: [
         {
             KEY_OUT_TEST: 'dose_distribution',
@@ -405,6 +398,65 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_OUT_DESC: 'TPO goals and constraints are entered in clinical '
                           'goals and reasonably addressed',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+    ],
+    REVIEW_LEVELS['ADAPTIVE']: [],
+    REVIEW_LEVELS['IMPLANTED_DEVICE']: [
+        {
+            KEY_OUT_TEST: 'imd_plan_review',
+            KEY_OUT_DESC: 'Review treatment modality, dose to the device and '
+                          'distance from the device to the '
+                          'nearest collimated field edge',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'imd_consult',
+            KEY_OUT_DESC: 'Verify information entered in IMD Physics '
+                          'Consult document is accurate',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'imd_supervised',
+            KEY_OUT_DESC: 'Complete and sign the IMD Physics Consult document, '
+                          'set the “Supervised By” field to attending MD.',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'imd_in_vivo',
+            KEY_OUT_DESC: 'Determine if in vivo dosimetry measurement is required',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['PLAN_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+
+    ],
+    REVIEW_LEVELS['PRIOR_RT']: [
+        {
+            KEY_OUT_TEST: 'prior_rt_fusions',
+            KEY_OUT_DESC: 'Review fusions done for prior RT (if not already done by a POD)',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'prior_rt_dose',
+            KEY_OUT_DESC: 'Review the dose accumulation, including TPO goals for prior RT',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'prior_rt_doc',
+            KEY_OUT_DESC: 'Verify prior RT document is completed and attending MD in “Supervised by”',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
         },
@@ -471,65 +523,6 @@ CHECK_BOXES_PHYSICS_REVIEW = {
             KEY_AUTOMATION: {},
         },
     ],
-    REVIEW_LEVELS['PRIOR_RT']: [
-        {
-            KEY_OUT_TEST: 'prior_rt_fusions',
-            KEY_OUT_DESC: 'Review fusions done for prior RT (if not already done by a POD)',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'prior_rt_dose',
-            KEY_OUT_DESC: 'Review the dose accumulation, including TPO goals for prior RT',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'prior_rt_doc',
-            KEY_OUT_DESC: 'Verify prior RT document is completed and attending MD in “Supervised by”',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-    ],
-    REVIEW_LEVELS['IMPLANTED_DEVICE']: [
-        {
-            KEY_OUT_TEST: 'imd_plan_review',
-            KEY_OUT_DESC: 'Review treatment modality, dose to the device and '
-                          'distance from the device to the '
-                          'nearest collimated field edge',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'imd_consult',
-            KEY_OUT_DESC: 'Verify information entered in IMD Physics '
-                          'Consult document is accurate',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'imd_supervised',
-            KEY_OUT_DESC: 'Complete and sign the IMD Physics Consult document, '
-                          'set the “Supervised By” field to attending MD.',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'imd_in_vivo',
-            KEY_OUT_DESC: 'Determine if in vivo dosimetry measurement is required',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['PLAN_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-
-    ],
-
 }
 CHECK_BOXES_PHYSICS_REVIEW_3D = {
     KEY_REVIEW_TYPE: '3D Conformal Physics Review',
@@ -546,7 +539,7 @@ CHECK_BOXES_PHYSICS_REVIEW_3D = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
-                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
                 KEY_AUTO_REVIEW_DATE: '02Oct2023'
             },
         },
@@ -629,7 +622,7 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
-                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
                 KEY_AUTO_REVIEW_DATE: '02Oct2023'
             },
         },
@@ -784,6 +777,13 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_AUTOMATION: {},
         },
         {
+            KEY_OUT_TEST: 'cutout_representation',
+            KEY_OUT_DESC: 'Physical cutout dimensions correct for 95 cm source-to-cutout distance',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
             KEY_OUT_TEST: 'beam_mu_reasonable',
             KEY_OUT_DESC: 'Beam MU reasonable',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
@@ -804,6 +804,13 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
     REVIEW_LEVELS['PREPLAN_DATA']: [],
     REVIEW_LEVELS['PATIENT_MODEL']: [
         {
+            KEY_OUT_TEST: 'electron_wires',
+            KEY_OUT_DESC: "Wire ROIs don't overlap external",
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
             KEY_OUT_TEST: 'sim_fiducials_alignment',
             KEY_OUT_DESC: 'SimFiducials localization point alignment matches'
                           ' BBs, or AlignRT is noted '
@@ -812,7 +819,7 @@ CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
-                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
                 KEY_AUTO_REVIEW_DATE: '02Oct2023'
             },
         },
@@ -894,7 +901,10 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_DESC: 'Treatment Isocenter lateral < 2 cm',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_tomo_isocenter'],
+                KEY_STATUS: REPLACED,
+                KEY_AUTO_REVIEW_DATE: '03Oct2023'}
         },
     ],
     REVIEW_LEVELS['OPTIMIZATION']: [
@@ -918,7 +928,10 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_DESC: 'FOV artifacts are addressed or blocked',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_fov_overlap_external'],
+                KEY_STATUS: 'Extended - automated test for FOV overlap with external or couch',
+                KEY_AUTO_REVIEW_DATE: '03Oct2023'}
         },
         {
             KEY_OUT_TEST: 'low_reproducibility_anatomy_blocked',
@@ -1013,7 +1026,10 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
                           'or a patient alert to break indexing is created',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_tomo_isocenter'],
+                KEY_STATUS: REPLACED,
+                KEY_AUTO_REVIEW_DATE: '03Oct2023'}
         },
         {
             KEY_OUT_TEST: 'patient_shifts_no_collision',
@@ -1059,7 +1075,10 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
             KEY_OUT_DESC: 'FOV artifacts are addressed or blocked',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_fov_overlap_external'],
+                KEY_STATUS: REPLACED,
+                KEY_AUTO_REVIEW_DATE: '03Oct2023'}
         },
         {
             KEY_OUT_TEST: 'low_reproducibility_anatomy_blocked',
@@ -1071,7 +1090,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
         },
         {
             KEY_OUT_TEST: 'review_beams_eye_view',
-            KEY_OUT_DESC: 'Review Beam\'s eye view',
+            KEY_OUT_DESC: "Review Beam's eye view",
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1164,7 +1183,7 @@ CHECK_BOXES_DOSE = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
-                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
                 KEY_AUTO_REVIEW_DATE: '02Oct2023'
             },
         },
@@ -1379,7 +1398,10 @@ CHECK_BOXES_DOSE_TOMO = {
             KEY_OUT_DESC: 'Isocenter lateral offset < 3 cm and In/Out offset < 18 cm',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_tomo_isocenter'],
+                KEY_STATUS: REPLACED,
+                KEY_AUTO_REVIEW_DATE: '03Oct2023'}
         }],
     REVIEW_LEVELS['OPTIMIZATION']: [
         {KEY_OUT_TEST: 'clinical_goals_script',
@@ -1534,7 +1556,7 @@ CHECK_BOXES_DOSE_TOMO_3D = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_examination.check_localization'],
-                KEY_STATUS:'Enhanced - Localization checked for existence but not correctness',
+                KEY_STATUS: 'Enhanced - Localization checked for existence but not correctness',
                 KEY_AUTO_REVIEW_DATE: '02Oct2023'
             },
         },
@@ -1699,7 +1721,7 @@ PACEMAKER_DOSE = 200.  # cGy
 # DOSE GRID PREFERENCES
 DOSE_GRID_DEFAULT = 0.2  # 2 mm
 
-#Supported patient orientations
+# Supported patient orientations
 PATIENT_ORIENTATIONS = {'HFS': 'Head First Supine',
                         'FFS': 'Feet First Supine',
                         'HFP': 'Head First Prone',
