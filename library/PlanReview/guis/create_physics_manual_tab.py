@@ -106,11 +106,26 @@ def create_manual_check_row(item, max_check, user_text_length=80):
     return row
 
 
+def excluded_check_boxes(check_dict,key,window):
+    # Check if conditions are met to include the key in the extracted values
+    exclude_check = False
+    # Check if prior rt was selected
+    prior_rt = window[KEY_PRIOR_RT].get()
+    imd = window[KEY_IMD].get()
+    if key == REVIEW_LEVELS['PRIOR_RT'] and not prior_rt:
+        exclude_check = True
+    if key == REVIEW_LEVELS['IMPLANTED_DEVICE'] and not imd:
+        exclude_check = True
+    return exclude_check
+
+
 def extract_values_manual_tab(window, passing, failed, check_boxes):
     sorted_values = {}
     for key in check_boxes:
         sorted_values[key] = {}
         for item in check_boxes[key]:
+            if excluded_check_boxes(item,key,window):
+                continue
             phrases = item[KEY_OUT_OPTIONS].split(',')
             for p in phrases:
                 radio_key = create_key(
@@ -553,6 +568,9 @@ def is_valid_manual_tab(window, values, check_boxes):
     is_valid = True
     for key in check_boxes:
         for item in check_boxes[key]:
+            # Check if this is a valid check box
+            if excluded_check_boxes(item, key, window):
+                continue
             options = ['Yes', 'No', 'NA']
             check_box_radio_keys = [
                 create_key(f'{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}{o}')
@@ -702,6 +720,10 @@ class Test:
         self.icon = icon
         self.pass_fail = pass_fail
         self.review_tab = review_tab
+        self.required = False
+        self.excluded = False
+    # Parse item from window.
+
 
 
 def get_tests_from_tree(tree_children):
@@ -748,6 +770,8 @@ def process_check_box_values(window, checks):
             parsed_item = {KEY_OUT_DESC: item[KEY_OUT_DESC]}
             radio_pre = f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_RADIO}"
             input_key = create_key(f"{item[KEY_OUT_TEST]}{KEY_CHECK}{KEY_INPUT_TEXT}")
+            if excluded_check_boxes(item, test_level, window):
+                continue
             if window[create_key(radio_pre + 'Yes')].get():
                 parsed_item[KEY_OUT_RESULT] = PASS
                 parsed_item[KEY_OUT_ICON] = GREEN_CIRCLE
