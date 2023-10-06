@@ -219,7 +219,7 @@ def calculate_column_widths(df, headers):
         # Find the maximum length in each column (excluding header)
         max_length = df[header].astype(str).apply(len).max()
         # Compare the maximum content length with the header length
-        width = max(max_length, len(header), 0.1 * max_overall)
+        width = max(max_length, len(header), 0.12 * max_overall)
         column_widths.append(width)
 
     # Normalize the column widths to sum up to 1.0
@@ -230,6 +230,13 @@ def calculate_column_widths(df, headers):
 
 
 def make_paragraph(text, style=None):
+    character_map = {"\u00a0": "&nbsp;",
+                     "\n": "<br/>",
+                     "\r": "<br/>",
+                     "\t": "&nbsp;&nbsp;&nbsp;&nbsp;"
+                     }
+    for unicode, html in character_map.items():
+        text = text.replace(unicode, html)
     if not style:
         style = getSampleStyleSheet()['Normal']
     return Paragraph(text, style)
