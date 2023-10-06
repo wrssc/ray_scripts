@@ -188,6 +188,7 @@ def process_rois_for_export(plan, case):
     for r in case.PatientModel.RegionsOfInterest:
         if StructureOperations.any_regex_match(include_patterns, r.Name):
             rois_for_export.append(r.Name)
+            logging.debug(f'Including {r.Name} in the export list')
 
     # Get any rois included in a prescription
     rois_for_export = find_prescription_rois(case,rois_for_export)
