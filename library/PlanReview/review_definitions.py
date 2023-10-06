@@ -696,13 +696,14 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
         },
-        {
-            KEY_OUT_TEST: 'overlap_prior_rt',
-            KEY_OUT_DESC: 'Overlap with prior RT is reviewed',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
+        # Replaced on 03Oct2023 per Physics group by PRIOR_RT page
+        # {
+        #     KEY_OUT_TEST: 'overlap_prior_rt',
+        #     KEY_OUT_DESC: 'Overlap with prior RT is reviewed',
+        #     KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+        #     KEY_OUT_OPTIONS: 'Yes,NA,No',
+        #     KEY_AUTOMATION: {},
+        # },
         {
             KEY_OUT_TEST: 'plan_setup',
             KEY_OUT_DESC: 'Dependency settings of beam set appropriate'
@@ -727,8 +728,8 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
                 KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_control_point_spacing'],
-                KEY_STATUS: 'Needs Review',
-                KEY_AUTO_REVIEW_DATE: '01Sep2023',
+                KEY_STATUS: REPLACED,
+                KEY_AUTO_REVIEW_DATE: '03Oct2023',
             },
         },
     ],
