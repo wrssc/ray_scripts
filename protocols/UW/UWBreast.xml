@@ -96,6 +96,33 @@
                 <dose units="Gy" idl="105" reference="PTV_p_Lump">40.05</dose>
             </roi>
             <fractions>15</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -109,6 +136,19 @@
                 <dose units="Gy" idl="105" reference="PTV_p_Lump">10</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
@@ -458,6 +498,19 @@
                 <dose units="Gy" idl="105" reference="PTV_p_BrCw">40.05</dose>
             </roi>
             <fractions>15</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -469,6 +522,19 @@
                 <dose units="Gy" idl="105" reference="PTV_p_Lump">10</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
             </technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -663,6 +729,19 @@
                 <dose units="Gy" idl="105" reference="PTV_p_BrCw">40.05</dose>
             </roi>
             <fractions>15</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -817,6 +896,19 @@
                 <dose units="Gy" idl="105" reference="PTV_p_Lump">50</dose>
             </roi>
             <fractions>25</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -830,6 +922,19 @@
                 <dose units="Gy" idl="105">10</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
@@ -1169,6 +1274,19 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
         </prescription>
@@ -1441,6 +1559,19 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -1454,6 +1585,19 @@
                 <dose units="Gy" idl="105" reference="PTV_p_Scar">10</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
@@ -1793,6 +1937,19 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
         </prescription>
@@ -2065,6 +2222,19 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -2076,6 +2246,19 @@
                 <dose units="Gy" idl="105" reference="PTV_p_Lump">10</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
             </technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -2397,6 +2580,19 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2652,6 +2848,19 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -2663,6 +2872,19 @@
                 <dose units="Gy" idl="105" reference="PTV_p_Scar">10</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
             </technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -2984,6 +3206,19 @@
                 <dose units="Gy" idl="105">50</dose>
             </roi>
             <fractions>25</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>

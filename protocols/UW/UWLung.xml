@@ -28,30 +28,11 @@
         <name>Left Lung Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>LunL_</prefix>
         <prescription number="0" sequence="Primary">
-            <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
-            </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
                 <name>PTV</name>
                 <type>DX</type>
@@ -65,6 +46,21 @@
                 <dose units="Gy" idl="100">66</dose>
             </roi>
             <fractions>15</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions"
+                         radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                         combo=""
+                         comment="">Concurrent Chemotherapy</Instruction>
+            <Instruction type="Treatment Instructions"
+                         radio=""
+                         combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -346,31 +342,12 @@
         <prefix>LunR_</prefix>
         <name>Right Lung</name>
         <prescription number="0" sequence="Primary">
-            <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
-            </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-            <roi>
+                        <roi>
                 <name>PTV</name>
                 <type>DX</type>
                 <volume units="%">95</volume>
@@ -383,6 +360,25 @@
                 <dose units="Gy" idl="100">66</dose>
             </roi>
             <fractions>15</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -727,30 +723,11 @@
         <name>Bilateral Lung Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>LunB_</prefix>
         <prescription number="0" sequence="Primary">
-            <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
-            </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
                 <name>PTV</name>
                 <type>DX</type>
@@ -764,6 +741,25 @@
                 <dose units="Gy" idl="100">66</dose>
             </roi>
             <fractions>15</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1044,30 +1040,11 @@
         <name>Mediastinum Hypofractionated [15Fx] [6000cGy]</name>
         <prefix>Medi_</prefix>
         <prescription number="0" sequence="Primary">
-            <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
-            </treatment_frequency>
-            <imaging_frequency>
-                <option default="true">Daily CBCT</option>
-                <option>Weekly kV</option>
-            </imaging_frequency>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
             <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
-            </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <roi>
                 <name>PTV</name>
                 <type>DX</type>
@@ -1081,6 +1058,25 @@
                 <dose units="Gy" idl="100">66</dose>
             </roi>
             <fractions>15</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1361,6 +1357,18 @@
         <name>Left Lung Standard [30Fx] [6000cGy]</name>
         <prefix>LunL_</prefix>
         <prescription number="0" sequence="Primary">
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <fractions>30</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1369,29 +1377,17 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
             </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
             </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-            <roi>
-                <name>PTV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">60</dose>
-            </roi>
-            <fractions>30</fractions>
         </prescription>
         <goals>
             <roi>
@@ -1632,6 +1628,18 @@
         <name>Right Lung Standard [30Fx] [6000cGy]</name>
         <prefix>LunR_</prefix>
         <prescription number="0" sequence="Primary">
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <fractions>30</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1640,30 +1648,17 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
             </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
             </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-
-            <roi>
-                <name>PTV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">60</dose>
-            </roi>
-            <fractions>30</fractions>
         </prescription>
         <goals>
             <roi>
@@ -1904,6 +1899,18 @@
         <name>Bilateral Lung Standard [30Fx] [6000cGy]</name>
         <prefix>LunB_</prefix>
         <prescription number="0" sequence="Primary">
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <fractions>30</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1912,30 +1919,17 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
             </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
             </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-
-            <roi>
-                <name>PTV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">60</dose>
-            </roi>
-            <fractions>30</fractions>
         </prescription>
         <goals>
             <roi>
@@ -2176,6 +2170,18 @@
         <name>Mediastinum Standard [30Fx] [6000cGy]</name>
         <prefix>Medi_</prefix>
         <prescription number="0" sequence="Primary">
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">60</dose>
+            </roi>
+            <fractions>30</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -2184,29 +2190,17 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
             </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
             </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-            <roi>
-                <name>PTV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">60</dose>
-            </roi>
-            <fractions>30</fractions>
         </prescription>
         <goals>
             <roi>
@@ -2461,6 +2455,18 @@
         <name>Left Lung BID [30Fx]</name>
         <prefix>LunL_</prefix>
         <prescription number="0" sequence="Primary">
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">45</dose>
+            </roi>
+            <fractions>25</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -2469,29 +2475,17 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
             </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
             </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-            <roi>
-                <name>PTV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">45</dose>
-            </roi>
-            <fractions>25</fractions>
         </prescription>
         <goals>
             <roi>
@@ -2890,6 +2884,18 @@
         <name>Right Lung BID [30Fx]</name>
         <prefix>LunR_</prefix>
         <prescription number="0" sequence="Primary">
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">45</dose>
+            </roi>
+            <fractions>25</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -2898,29 +2904,17 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
             </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
             </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-            <roi>
-                <name>PTV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">45</dose>
-            </roi>
-            <fractions>25</fractions>
         </prescription>
         <goals>
             <roi>
@@ -3319,6 +3313,18 @@
         <name>Medi Lung BID [30Fx]</name>
         <prefix>Medi_</prefix>
         <prescription number="0" sequence="Primary">
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
+            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <roi>
+                <name>PTV</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">45</dose>
+            </roi>
+            <fractions>25</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -3327,29 +3333,17 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="3CA" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
-            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">CIED/Pacemaker</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Prior Irradiation</Instruction>
-            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
             </Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
             </Instruction>
-            <Instruction type="Treatment Instructions" radio="Yes,No" combo="" comment="">NPO for 4 hours prior to
-                treatment
-            </Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-            <roi>
-                <name>PTV</name>
-                <type>DX</type>
-                <volume units="%">95</volume>
-                <dose units="Gy" idl="100">45</dose>
-            </roi>
-            <fractions>25</fractions>
         </prescription>
         <goals>
             <roi>

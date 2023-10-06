@@ -21,6 +21,12 @@
             <dose units="Gy" idl="100"></dose>
         </roi>
         <fractions>1</fractions>
+         <treatment_frequency>
+                <option default="true">Daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+            </imaging_frequency>
         <frequency>Once</frequency>
         <imaging>Pre-treatment CBCT</imaging>
         <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
@@ -126,6 +132,12 @@
                 <dose units="Gy" idl="100">21.0</dose>
             </roi>
             <fractions>1</fractions>
+              <treatment_frequency>
+                <option default="true">Daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+            </imaging_frequency>
             <motion></motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeamSTx">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>

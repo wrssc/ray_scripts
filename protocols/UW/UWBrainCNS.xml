@@ -31,6 +31,14 @@
                 <dose units="Gy" idl="100">60</dose>
             </roi>
             <fractions>30</fractions>
+             <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
         </prescription>
         <goals>
             <roi>
@@ -806,6 +814,14 @@
                 <dose units="Gy" idl="100">40.05</dose>
             </roi>
             <fractions>15</fractions>
+             <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
         </prescription>
         <goals>
             <roi>
@@ -1338,6 +1354,14 @@
                 <dose units="Gy" idl="100">30</dose>
             </roi>
             <fractions>10</fractions>
+             <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
             <imaging>Weekly kV</imaging>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
         </prescription>

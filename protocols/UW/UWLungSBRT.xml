@@ -30,6 +30,25 @@
                 <dose units="Gy" idl="100">50</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -410,6 +429,25 @@
                 <dose units="Gy" idl="100">50</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -790,6 +828,25 @@
                 <dose units="Gy" idl="100">50</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1126,6 +1183,25 @@
                 <dose units="Gy" idl="100">60</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1478,6 +1554,25 @@
                 <dose units="Gy" idl="100">48</dose>
             </roi>
             <fractions>4</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1857,6 +1952,25 @@
                 <dose units="Gy" idl="100">48</dose>
             </roi>
             <fractions>4</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2236,6 +2350,25 @@
                 <dose units="Gy" idl="100">36</dose>
             </roi>
             <fractions>3</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2615,6 +2748,25 @@
                 <dose units="Gy" idl="100">36</dose>
             </roi>
             <fractions>3</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2998,6 +3150,25 @@
                 <dose units="Gy" idl="100">60</dose>
             </roi>
             <fractions>8</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -3451,6 +3622,25 @@
                 <dose units="Gy" idl="100">60</dose>
             </roi>
             <fractions>8</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold
+            </Instruction>
         </prescription>
         <goals>
             <roi>

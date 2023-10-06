@@ -93,6 +93,32 @@
                 <dose units="Gy" idl="100">30</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -236,10 +262,10 @@
             </roi>
         </objectives>
     </order>
-     <order>
+    <order>
         <name>Right Breast PBI [5Fx]</name>
         <prefix>BreR_</prefix>
-         <prescription number="0" sequence="Primary">
+        <prescription number="0" sequence="Primary">
             <roi>
                 <name>PTV_p_Lump_Eval</name>
                 <type>DX</type>
@@ -253,6 +279,19 @@
                 <dose units="Gy" idl="100">30</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -402,7 +441,7 @@
                 <weight>5e-1</weight>
             </roi>
         </objectives>
-     </order>
+    </order>
     <order>
         <name>Left Breast FAST [5Fx]</name>
         <prefix>BreL_</prefix>
@@ -414,6 +453,19 @@
                 <dose units="Gy" idl="100" reference="PTV_p_BrCw">28.5</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -643,6 +695,19 @@
                 <dose units="Gy" idl="100" reference="PTV_p_BrCw">28.5</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -872,6 +937,19 @@
                 <dose units="Gy" idl="100" reference="PTV_p_BrCw">26.0</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -1101,6 +1179,19 @@
                 <dose units="Gy" idl="100" reference="PTV_p_BrCw">28.5</dose>
             </roi>
             <fractions>5</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -1417,7 +1508,7 @@
                 <dose units="%" roi="PTV_p_Lump">102.5</dose>
                 <weight>0.1</weight>
             </roi>
-             <roi>
+            <roi>
                 <name>sOTVu1_</name>
                 <type>UD</type>
                 <dose units="%" roi="PTV_p_Lump">102.5</dose>
@@ -1474,106 +1565,106 @@
         </objectives>
     </objectiveset>
     <beamset>
-       <name>Bre SBRT Left 4Arc</name>
-       <technique>VMAT</technique>
-       <DicomName>BCLt4A_VMA_R_A_</DicomName>
-       <description>4 Arc arrangement for treating the left breast or chestwall.
-       </description>
-       <beam>
-           <BeamNumber>1</BeamNumber>
-           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-           <Name>1_SITE_Arc_c020</Name>
-           <Energy>6 FFF</Energy>
-           <GantryAngle>330</GantryAngle>
-           <GantryStopAngle>050</GantryStopAngle>
-           <ArcRotationDirection>Clockwise</ArcRotationDirection>
-           <CollimatorAngle>020</CollimatorAngle>
-           <CouchAngle>020</CouchAngle>
-       </beam>
-       <beam>
-           <BeamNumber>2</BeamNumber>
-           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-           <Name>2_SITE_Arc_c340</Name>
-           <Energy>6 FFF</Energy>
-           <GantryAngle>060</GantryAngle>
-           <GantryStopAngle>330</GantryStopAngle>
-           <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-           <CollimatorAngle>350</CollimatorAngle>
-           <CouchAngle>340</CouchAngle>
-       </beam>
-       <beam>
-           <BeamNumber>3</BeamNumber>
-           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-           <Name>3_SITE_Arc_c000</Name>
-           <Energy>6 FFF</Energy>
-           <GantryAngle>320</GantryAngle>
-           <GantryStopAngle>178</GantryStopAngle>
-           <ArcRotationDirection>Clockwise</ArcRotationDirection>
-           <CollimatorAngle>020</CollimatorAngle>
-           <CouchAngle>000</CouchAngle>
-       </beam>
-       <beam>
-           <BeamNumber>4</BeamNumber>
-           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-           <Name>4_SITE_Arc_c000</Name>
-           <Energy>6 FFF</Energy>
-           <GantryAngle>178</GantryAngle>
-           <GantryStopAngle>320</GantryStopAngle>
-           <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-           <CollimatorAngle>330</CollimatorAngle>
-           <CouchAngle>000</CouchAngle>
-       </beam>
+        <name>Bre SBRT Left 4Arc</name>
+        <technique>VMAT</technique>
+        <DicomName>BCLt4A_VMA_R_A_</DicomName>
+        <description>4 Arc arrangement for treating the left breast or chestwall.
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc_c020</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>330</GantryAngle>
+            <GantryStopAngle>050</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>020</CollimatorAngle>
+            <CouchAngle>020</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc_c340</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>060</GantryAngle>
+            <GantryStopAngle>330</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>350</CollimatorAngle>
+            <CouchAngle>340</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>320</GantryAngle>
+            <GantryStopAngle>178</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>020</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>178</GantryAngle>
+            <GantryStopAngle>320</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>330</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+        </beam>
     </beamset>
     <beamset>
-       <name>Bre SBRT Right 4Arc</name>
-       <technique>VMAT</technique>
-       <DicomName>BCRt4A_VMA_R_A_</DicomName>
-       <description>4 Arc arrangement for treating the right breast
-       </description>
-       <beam>
-           <BeamNumber>1</BeamNumber>
-           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-           <Name>1_SITE_Arc_c340</Name>
-           <Energy>6 FFF</Energy>
-           <GantryAngle>300</GantryAngle>
-           <GantryStopAngle>030</GantryStopAngle>
-           <ArcRotationDirection>Clockwise</ArcRotationDirection>
-           <CollimatorAngle>340</CollimatorAngle>
-           <CouchAngle>340</CouchAngle>
-       </beam>
-       <beam>
-           <BeamNumber>2</BeamNumber>
-           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-           <Name>2_SITE_Arc_c020</Name>
-           <Energy>6 FFF</Energy>
-           <GantryAngle>030</GantryAngle>
-           <GantryStopAngle>310</GantryStopAngle>
-           <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-           <CollimatorAngle>010</CollimatorAngle>
-           <CouchAngle>020</CouchAngle>
-       </beam>
-       <beam>
-           <BeamNumber>3</BeamNumber>
-           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-           <Name>3_SITE_Arc_c000</Name>
-           <Energy>6 FFF</Energy>
-           <GantryAngle>182</GantryAngle>
-           <GantryStopAngle>040</GantryStopAngle>
-           <ArcRotationDirection>Clockwise</ArcRotationDirection>
-           <CollimatorAngle>200</CollimatorAngle>
-           <CouchAngle>000</CouchAngle>
-       </beam>
-       <beam>
-           <BeamNumber>4</BeamNumber>
-           <DeliveryTechnique>DynamicArc</DeliveryTechnique>
-           <Name>4_SITE_Arc_c000</Name>
-           <Energy>6 FFF</Energy>
-           <GantryAngle>040</GantryAngle>
-           <GantryStopAngle>182</GantryStopAngle>
-           <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
-           <CollimatorAngle>235</CollimatorAngle>
-           <CouchAngle>000</CouchAngle>
-       </beam>
+        <name>Bre SBRT Right 4Arc</name>
+        <technique>VMAT</technique>
+        <DicomName>BCRt4A_VMA_R_A_</DicomName>
+        <description>4 Arc arrangement for treating the right breast
+        </description>
+        <beam>
+            <BeamNumber>1</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>1_SITE_Arc_c340</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>300</GantryAngle>
+            <GantryStopAngle>030</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>340</CollimatorAngle>
+            <CouchAngle>340</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>2</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>2_SITE_Arc_c020</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>030</GantryAngle>
+            <GantryStopAngle>310</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>010</CollimatorAngle>
+            <CouchAngle>020</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>3</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>3_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>182</GantryAngle>
+            <GantryStopAngle>040</GantryStopAngle>
+            <ArcRotationDirection>Clockwise</ArcRotationDirection>
+            <CollimatorAngle>200</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+        </beam>
+        <beam>
+            <BeamNumber>4</BeamNumber>
+            <DeliveryTechnique>DynamicArc</DeliveryTechnique>
+            <Name>4_SITE_Arc_c000</Name>
+            <Energy>6 FFF</Energy>
+            <GantryAngle>040</GantryAngle>
+            <GantryStopAngle>182</GantryStopAngle>
+            <ArcRotationDirection>CounterClockwise</ArcRotationDirection>
+            <CollimatorAngle>235</CollimatorAngle>
+            <CouchAngle>000</CouchAngle>
+        </beam>
     </beamset>
     <beamset>
         <name>Tomo-SBRT-FW2.5</name>

@@ -30,10 +30,40 @@
                 <dose units="Gy" idl="100">64.80</dose>
             </roi>
             <fractions>25</fractions>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique
+                    modality="Photons"
+                    technique="Conformal"
+                    code="3DC"
+                    machine="TrueBeam">3DCRT
+            </technique>
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="VMA"
+                    machine="TrueBeam">VMAT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
-         <prescription number="1" sequence="Boost1">
+        <prescription number="1" sequence="Boost1">
             <roi>
                 <name>PTV_bst</name>
                 <type>DX</type>
@@ -41,8 +71,18 @@
                 <dose units="Gy" idl="100">64.80</dose>
             </roi>
             <fractions>11</fractions>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique
+                    modality="Photons"
+                    technique="Conformal"
+                    code="3DC"
+                    machine="TrueBeam">3DCRT
+            </technique>
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="VMA"
+                    machine="TrueBeam">VMAT
+            </technique>
         </prescription>
         <goals>
             <roi>
@@ -312,8 +352,38 @@
                 <dose units="Gy" idl="100">45</dose>
             </roi>
             <fractions>25</fractions>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique
+                    modality="Photons"
+                    technique="Conformal"
+                    code="3DC"
+                    machine="TrueBeam">3DCRT
+            </technique>
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="VMA"
+                    machine="TrueBeam">VMAT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
         <validation>
             <validation_status>False</validation_status>
@@ -615,8 +685,38 @@
                 <dose units="Gy" idl="50">50.4</dose>
             </roi>
             <fractions>28</fractions>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique
+                    modality="Photons"
+                    technique="Conformal"
+                    code="3DC"
+                    machine="TrueBeam">3DCRT
+            </technique>
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="VMA"
+                    machine="TrueBeam">VMAT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -878,8 +978,38 @@
                 <dose units="Gy" idl="95">59.4</dose>
             </roi>
             <fractions>28</fractions>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique
+                    modality="Photons"
+                    technique="Conformal"
+                    code="3DC"
+                    machine="TrueBeam">3DCRT
+            </technique>
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="VMA"
+                    machine="TrueBeam">VMAT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1171,13 +1301,39 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging>Weekly kV</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="VMA"
+                    machine="TrueBeam">VMAT
             </technique>
+            <technique
+                    modality="Photons"
+                    technique="Conformal"
+                    code="3DC"
+                    machine="TrueBeam"
+                    default="true">3DCRT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1406,13 +1562,39 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging>Weekly kV</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="VMA"
+                    machine="TrueBeam">VMAT
             </technique>
+            <technique
+                    modality="Photons"
+                    technique="Conformal"
+                    code="3DC"
+                    machine="TrueBeam"
+                    default="true">3DCRT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1641,13 +1823,39 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging>Weekly kV</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="VMA"
+                    machine="TrueBeam">VMAT
             </technique>
+            <technique
+                    modality="Photons"
+                    technique="Conformal"
+                    code="3DC"
+                    machine="TrueBeam"
+                    default="true">3DCRT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1876,13 +2084,39 @@
                 <dose units="Gy" idl="100"></dose>
             </roi>
             <fractions></fractions>
-            <frequency default="true">Daily</frequency>
-            <frequency>Twice daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <imaging>Weekly kV</imaging>
-            <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-            <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="VMA"
+                    machine="TrueBeam">VMAT
             </technique>
+            <technique
+                    modality="Photons"
+                    technique="Conformal"
+                    code="3DC"
+                    machine="TrueBeam"
+                    default="true">3DCRT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy
+            </Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2100,7 +2334,7 @@
             </goalset>
         </goals>
     </order>
-  <objectiveset>
+    <objectiveset>
         <name>Standard Fractionation Gyn</name>
         <objectives>
             <roi>
@@ -2262,7 +2496,7 @@
                 <weight>5</weight>
             </roi>
         </objectives>
-  </objectiveset>
+    </objectiveset>
     <beamset>
         <name>AbdPelv Central 2Arc</name>
         <technique>VMAT</technique>

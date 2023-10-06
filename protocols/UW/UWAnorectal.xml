@@ -21,6 +21,14 @@
             <dose units="Gy" idl="100"></dose>
         </roi>
         <fractions></fractions>
+         <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
         <frequency default="true">Daily</frequency>
         <frequency>Twice daily</frequency>
         <imaging>Daily CBCT</imaging>
@@ -32,6 +40,50 @@
     <order>
         <name>Anorectal RTOG 0529</name>
         <prefix>Rect_</prefix>
+        <prescription number="0" sequence="Primary">
+            <roi>
+                <name>PTV_p</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">67.5</dose>
+            </roi>
+            <roi>
+                <name>PTV_n1</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">54</dose>
+            </roi>
+            <roi>
+                <name>PTV_n2</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">50</dose>
+            </roi>
+            <roi>
+                <name>PTV_n3</name>
+                <type>DX</type>
+                <volume units="%">95</volume>
+                <dose units="Gy" idl="100">45</dose>
+            </roi>
+            <fractions>28</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <technique modality="Photons" technique="DynamicArc" code="VMA" machine="TrueBeam">VMAT</technique>
+            <technique modality="Photons" technique="DynamicArc" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">Adaptive Replanning
+            </Instruction>
+            <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
+                         comment="">Concurrent Chemotherapy
+            </Instruction>
+        </prescription>
     </order>
     <goals>
         <roi>

@@ -18,10 +18,6 @@
         <name>Prostate SBRT ArmA [5Fx 4500cGy]</name>
         <prefix>Pros_</prefix>
         <prescription number="0" sequence="Primary">
-            <fractions>5</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
             <roi>
                 <name>PTV_sib</name>
                 <type>DX</type>
@@ -46,6 +42,27 @@
                 <dose units="Gy" idl="100">36.25</dose>
                 <volume units="%">98</volume>
             </roi>
+            <fractions>5</fractions>
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="SBR"
+                    machine="TrueBeam">VMAT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -489,10 +506,6 @@
         <name>Prostate SBRT ArmB [5Fx 4500cGy]</name>
         <prefix>Pros_</prefix>
         <prescription number="0" sequence="Primary">
-            <fractions>5</fractions>
-            <frequency>Daily</frequency>
-            <imaging>Daily CBCT</imaging>
-            <technique modality="Photons" technique="VMAT" code="SBR" machine="TrueBeam">VMAT</technique>
             <roi>
                 <name>PTV_p_mOLV</name>
                 <type>DX</type>
@@ -505,6 +518,27 @@
                 <dose units="Gy" idl="100">36.25</dose>
                 <volume units="%">98</volume>
             </roi>
+            <fractions>5</fractions>
+            <technique
+                    modality="Photons"
+                    technique="VMAT"
+                    code="SBR"
+                    machine="TrueBeam">VMAT
+            </technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Full Bladder
+            </Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -673,7 +707,7 @@
                 <dose units="%" roi="PTV_p_OLV">93.79</dose>
                 <priority>4</priority>
             </roi>
-             <roi>
+            <roi>
                 <name>PTV_p_OLV</name>
                 <type dir="gt" know="resid_vol">VX</type>
                 <volume units="cc">1</volume>
@@ -829,7 +863,7 @@
              margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
         </otv>
     </planning_structure_set>
-     <optimization_config>
+    <optimization_config>
         <name>1 warmstarts</name>
         <description>1 warmstart optimization</description>
         <initial max_it="30" int_it="10">Iteration 0</initial>

@@ -42,6 +42,14 @@
                 <dose units="Gy" idl="100">54</dose>
             </roi>
             <fractions>300</fractions>
+             <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
             <technique modality="Photons" technique="VMAT" code="PRD" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="PRD" machine="TrueBeamSTx">VMAT</technique>
         </prescription>
