@@ -4,6 +4,11 @@
 
 <protocol>
     <name>UW Tomo3D</name>
+    <version>1.0</version>
+    <description>Body site agnostic protocol for 3D TomoTherapy plans</description>
+    <institution>University of Wisconsin Hospitals and Clinics</institution>
+    <author>R. Adam Bayliss, Ph.D.</author>
+    <date>2023-10-05</date>
     <AnatomicGroup>Head,Neck,Thorax,Abdomen,Pelvis,Limb,Body</AnatomicGroup>
     <ct>
         <protocol institution="UWHC">XRT_HEAD_NECK</protocol>
@@ -21,7 +26,6 @@
         <imaging>Pre-treatment CBCT</imaging>
         <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0488">TomoHelical</technique>
     </prescription>
-
     <order>
         <name>Multiple Target Tomo3D</name>
         <prefix>Site</prefix>
@@ -45,6 +49,14 @@
                 <dose units="Gy" idl="100">30</dose>
             </roi>
             <fractions>10</fractions>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
             <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0488">TomoHelical</technique>
         </prescription>
         <commissioned_range>
