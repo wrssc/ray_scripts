@@ -434,32 +434,33 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
     instruction_size = max_row_size([inst['text'] for inst in instructions])
     for inst in instructions:
         row = None
+        inst_text = inst['text']
         if inst['radio']:
             row = [
                 Sg.T(
-                    inst['text'],
+                    inst_text,
                     justification=text_just,
                     size=instruction_size,
                     enable_events=True,
-                    key=create_key(KEY_TX_INST + KEY_T, inst['indx']),
+                    key=create_key(KEY_TX_INST + KEY_T +inst_text, inst['indx']),
                     visible=False, ),
                 *create_radio_buttons(inst['radio'],
-                                      KEY_TX_INST, inst['indx'])
+                                      KEY_TX_INST +inst_text, inst['indx'])
             ]
         elif inst['comment']:
             row = [
                 Sg.T(
-                    inst['text'],
+                    inst_text,
                     justification=text_just,
                     size=instruction_size,
                     enable_events=True,
-                    key=create_key(KEY_TX_INST + KEY_T, inst['indx']),
+                    key=create_key(KEY_TX_INST + KEY_T + inst_text, inst['indx']),
                     visible=False, ),
                 Sg.InputText(
                     "Notes",
                     size=(20, 1),
                     enable_events=True,
-                    key=create_key(KEY_TX_INST + KEY_INPUT_TEXT, inst['indx']),
+                    key=create_key(KEY_TX_INST + KEY_INPUT_TEXT + inst_text, inst['indx']),
                     visible=False,
                 )
             ]
@@ -467,11 +468,11 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
             phrases = inst['combo'].split(',')
             row = [
                 Sg.T(
-                    inst['text'],
+                    inst_text,
                     justification=text_just,
                     size=instruction_size,
                     enable_events=True,
-                    key=create_key(KEY_TX_INST + KEY_T, inst['indx']),
+                    key=create_key(KEY_TX_INST + KEY_T + inst_text, inst['indx']),
                     visible=False, ),
                 Sg.Combo(
                     phrases,
@@ -479,7 +480,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
                     size=max_row_size(phrases),
                     tooltip='Select Appropriate Instruction',
                     enable_events=True,
-                    key=create_key(KEY_TX_INST + KEY_COMBO, inst['indx']),
+                    key=create_key(KEY_TX_INST + KEY_COMBO + inst_text, inst['indx']),
                     visible=False
                 )
             ]
