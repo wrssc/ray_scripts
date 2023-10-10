@@ -34,7 +34,7 @@ PySide2
 PySimpleGUI
 PySimpleGUIQt
 pythonnet>=2.5
-reportlab
+reportlab>3.6.13
 requests>=2.31
 scipy>=1.10
 XlsxWriter
