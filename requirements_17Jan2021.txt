@@ -7,4 +7,4 @@ requests==2.31.0
 clr==1.0.3
 connect==0.2
 pynetdicom==1.5.5
-reportlab==3.5.59
+reportlab==3.6.13
