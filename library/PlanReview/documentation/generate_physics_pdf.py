@@ -233,7 +233,8 @@ def make_paragraph(text, style=None):
     character_map = {"\u00a0": "&nbsp;",
                      "\n": "<br/>",
                      "\r": "<br/>",
-                     "\t": "&nbsp;&nbsp;&nbsp;&nbsp;"
+                     "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
+                     "* ": "&bull;&nbsp;"
                      }
     for unicode, html in character_map.items():
         text = text.replace(unicode, html)
