@@ -1,6 +1,7 @@
 import xml.etree.ElementTree
 import logging  # noqa: F401
 from collections import OrderedDict
+from typing import List, Dict
 
 import os
 import xml.etree.ElementTree
@@ -232,8 +233,6 @@ def get_order_instructions(protocol, order_name):
 
     return instructions
 
-
-from typing import List, Dict
 
 
 def inst_unique(all_dict: List[Dict[str, str]], new_dict: Dict[str, str]) -> int:
