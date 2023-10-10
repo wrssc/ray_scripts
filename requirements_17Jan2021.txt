@@ -1,7 +1,7 @@
 pandas==1.0.3
 XlsxWriter==1.2.7
 pydicom==2.0.0
-scipy==1.4.1
+scipy==1.10.0
 numpy==1.22.0
 requests==2.22.0
 clr==1.0.3
