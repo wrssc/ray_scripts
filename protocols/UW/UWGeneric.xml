@@ -43,8 +43,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <objectives>
@@ -601,24 +600,18 @@
         <uniform_dose_structs standoff="0.4"></uniform_dose_structs>
         <underdose_structs standoff="0.5"></underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
-        </skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
         <ring_hd standoff="0.5" margin_type="Expand" margin_sup="1" margin_inf="1"
-                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD
-        </ring_hd>
+                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD</ring_hd>
         <ring_ld standoff="0.5" margin_type="Expand" margin_sup="5" margin_inf="5"
-                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
-        </ring_ld>
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
         <ring_targets standoff="0.5" margin_type="Expand" margin_sup="1" margin_inf="1"
-                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring
-        </ring_targets>
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring</ring_targets>
         <inner_air>InnerAir</inner_air>
         <superficial_target standoff="0.0" margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin
-        </superficial_target>
+                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin</superficial_target>
         <otv standoff="0.2" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
-        </otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
     </planning_structure_set>
     <optimization_config>
         <name>4 warmstarts</name>
@@ -646,8 +639,7 @@
         <name>Tomo-RapidIMRT</name>
         <technique>TomoHelical</technique>
         <DicomName>Tomo_3DC_R_A_</DicomName>
-        <description>Protocol for Tomo Rapid Plan
-        </description>
+        <description>Protocol for Tomo Rapid Plan</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -667,8 +659,7 @@
         <name>Tomo-Brain-FW1.0</name>
         <technique>TomoHelical</technique>
         <DicomName>Brai_WHA_R_A_</DicomName>
-        <description>Protocol for TomoBrain, e.g. Hippocampal avoidance
-        </description>
+        <description>Protocol for TomoBrain, e.g. Hippocampal avoidance</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -694,8 +685,7 @@
         <name>Tomo3D-FW5</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -715,8 +705,7 @@
         <name>Tomo-FW5-P433</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -736,8 +725,7 @@
         <name>Tomo-FW5-P297</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -757,8 +745,7 @@
         <name>Tomo-FW5-P225</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -778,8 +765,7 @@
         <name>Tomo-FW5-P182</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -799,8 +785,7 @@
         <name>Tomo-FW5-P167</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -820,8 +805,7 @@
         <name>Tomo-FW5-P134</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -841,8 +825,7 @@
         <name>Tomo-FW5-P119</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -862,8 +845,7 @@
         <name>Tomo3D-FW2.5</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -883,8 +865,7 @@
         <name>Tomo-FW2.5-P211</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -904,8 +885,7 @@
         <name>Tomo-FW2.5-P168</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -925,8 +905,7 @@
         <name>Tomo-FW2.5-P140</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -946,8 +925,7 @@
         <name>Tomo-FW2.5-P120</name>
         <technique>TomoHelical</technique>
         <DicomName>XXXX_THI_R_A_</DicomName>
-        <description>XXXX
-        </description>
+        <description>XXXX</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>

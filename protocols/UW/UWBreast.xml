@@ -1,8 +1,7 @@
 <protocol version="1">
     <AnatomicGroup>Breast</AnatomicGroup>
     <notes date="12Jan2022">Updated TPO for improved coverage of IMN in higher than 2 Gy per fraction cases\n
-        More stringent esophageal constraints added to conventional, hypofrac, and alliance.
-    </notes>
+        More stringent esophageal constraints added to conventional, hypofrac, and alliance.</notes>
     <name>UW Breast</name>
     <ct>
         <protocol institution="UWHC">XRT_CHEST</protocol>
@@ -75,8 +74,7 @@
     <prescription>
         <frequency>Daily</frequency>
         <imaging>Weekly kV</imaging>
-        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
-        </technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
     </prescription>
     <order>
@@ -106,8 +104,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <treatment_frequency>
                 <option default="true">Daily</option>
@@ -119,10 +116,8 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
@@ -146,14 +141,12 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
-            </technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -508,8 +501,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
@@ -532,11 +524,9 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
-            </technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -739,8 +729,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
@@ -906,8 +895,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
@@ -932,14 +920,12 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
-            </technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -1283,9 +1269,7 @@
                 <option>Weekly kV</option>
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo="" comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
@@ -1568,9 +1552,7 @@
                 <option>Weekly kV</option>
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
-            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo="" comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
@@ -1595,14 +1577,12 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion>MIBH (no gating, electrons)</motion>
             <motion>RPM MIBH gating</motion>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
-            </technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -1947,8 +1927,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
@@ -2232,8 +2211,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
@@ -2256,11 +2234,9 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
-            </technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -2590,8 +2566,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
@@ -2858,8 +2833,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
@@ -2882,11 +2856,9 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
-            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons
-            </technique>
+            <technique modality="Electrons" technique="ApplicatorAndCutout" code="ELE" machine="TrueBeam_E">Electrons</technique>
             <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam">3DCRT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         </prescription>
@@ -3216,8 +3188,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>

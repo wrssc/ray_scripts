@@ -53,8 +53,7 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <fractions>28</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
@@ -68,8 +67,7 @@
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -951,8 +949,7 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -965,8 +962,7 @@
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -1397,8 +1393,7 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1411,8 +1406,7 @@
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -1698,8 +1692,7 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1712,8 +1705,7 @@
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -1985,8 +1977,7 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1999,8 +1990,7 @@
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -2375,8 +2365,7 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -2389,8 +2378,7 @@
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -2656,8 +2644,7 @@
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <prescription number="1" sequence="Boost1">
             <roi>

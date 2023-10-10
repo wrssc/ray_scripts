@@ -10,7 +10,6 @@
         <protocol institution="JC">5.1 Lung without contrast 0.8sec</protocol>
     </ct>
     <institutions>
-
         <institution>UWHC</institution>
         <institution>East</institution>
         <institution>Johnson Creek</institution>
@@ -60,8 +59,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
            <treatment_frequency>
                 <option default="true">Daily</option>
@@ -73,8 +71,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <treatment_frequency>
                 <option default="true">Daily</option>
@@ -86,8 +83,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <treatment_frequency>
                 <option default="true">Daily</option>
@@ -99,8 +95,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <motion>Free breathing</motion>
             <motion default="true">RPM MIBH gating</motion>
@@ -422,8 +417,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <treatment_frequency>
                 <option default="true">Daily</option>
@@ -435,8 +429,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
             <treatment_frequency>
                 <option default="true">Daily</option>
@@ -448,8 +441,7 @@
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes,No" combo="" comment="">TLDs</Instruction>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo=""
-                         comment="">Concurrent Chemotherapy
-            </Instruction>
+                         comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
@@ -1078,31 +1070,24 @@
     </beamset>
     <planning_structure_set>
         <name>4 Target Chestwall</name>
-        <description>A typical 4 target config
-        </description>
+        <description>A typical 4 target config</description>
         <number_of_targets>4</number_of_targets>
         <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.4">Esophagus,Heart</uniform_dose_structs>
         <underdose_structs standoff="0.4">SpinalCord_PRV05</underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
-        </skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
         <normal>Normal_2cm</normal>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="3" margin_inf="3"
-                 margin_ant="3" margin_pos="3" margin_r="3" margin_l="3">Ring_HD
-        </ring_hd>
+                 margin_ant="3" margin_pos="3" margin_r="3" margin_l="3">Ring_HD</ring_hd>
         <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
-                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
-        </ring_ld>
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
         <ring_targets standoff="0.2" margin_type="Expand" margin_sup="3" margin_inf="3"
-                      margin_ant="3" margin_pos="3" margin_r="3" margin_l="3">ring
-        </ring_targets>
+                      margin_ant="3" margin_pos="3" margin_r="3" margin_l="3">ring</ring_targets>
         <inner_air>InnerAir</inner_air>
         <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
-                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
-        </superficial_target>
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin</superficial_target>
         <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
-        </otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
     </planning_structure_set>
 </protocol>

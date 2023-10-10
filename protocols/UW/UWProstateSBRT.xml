@@ -47,8 +47,7 @@
                     modality="Photons"
                     technique="VMAT"
                     code="SBR"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -61,8 +60,7 @@
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -523,8 +521,7 @@
                     modality="Photons"
                     technique="VMAT"
                     code="SBR"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -537,8 +534,7 @@
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <objectives>
             <roi>
@@ -837,31 +833,24 @@
     </order>
     <planning_structure_set>
         <name>4 Target Prostate SBRT</name>
-        <description>Placeholder 4 target protocol for SBRT
-        </description>
+        <description>Placeholder 4 target protocol for SBRT</description>
         <number_of_targets>1</number_of_targets>
         <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.2">Rectum,Bladder,Urethra</uniform_dose_structs>
         <underdose_structs standoff="0.0"></underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
-        </skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
-                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
-        </ring_hd>
+                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD</ring_hd>
         <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
-                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
-        </ring_ld>
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
         <ring_targets standoff="0.2" margin_type="Expand" margin_sup="2" margin_inf="2"
-                      margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring
-        </ring_targets>
+                      margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring</ring_targets>
         <inner_air>InnerAir</inner_air>
         <superficial_target standoff="0.0" margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin
-        </superficial_target>
+                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin</superficial_target>
         <otv standoff="0.3" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
-        </otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
     </planning_structure_set>
     <optimization_config>
         <name>1 warmstarts</name>

@@ -21,8 +21,7 @@
         <imaging>Daily CBCT</imaging>
         <imaging default="true">Weekly kV</imaging>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
-        </technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
     </prescription>
     <order>
         <name>Brain-WBRT-Hippocampal Avoidance [30Gy CC001]</name>
@@ -43,7 +42,6 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
@@ -472,7 +470,6 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
@@ -859,7 +856,6 @@
                 <weight>2500</weight>
             </roi>
         </objectives>
-
     </order>
     <goals>
         <goalset>
@@ -869,34 +865,25 @@
     </goals>
     <planning_structure_set>
         <name>Tomo_WBHA</name>
-        <description>Planning Structure template for automated WBHA on TomoTherapy, requires PTV_Brain, which does not
-            have hippocampi subtracted
-        </description>
+        <description>Planning Structure template for automated WBHA on TomoTherapy, requires PTV_Brain, which does not have hippocampi subtracted</description>
         <number_of_targets>1</number_of_targets>
         <first_target_number>1</first_target_number>
-        <uniform_dose_structs standoff="0.4">OpticNerv_L_PRV03,OpticNerv_R_PRV03,OpticChiasm_PRV03
-        </uniform_dose_structs>
+        <uniform_dose_structs standoff="0.4">OpticNerv_L_PRV03,OpticNerv_R_PRV03,OpticChiasm_PRV03</uniform_dose_structs>
         <underdose_structs standoff="0.5">Hippocampus_L,Hippocampus_R</underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
-        </skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
         <normal>Normal_2cm</normal>
         <ring_hd standoff="0.5" margin_type="Expand" margin_sup="1" margin_inf="1"
-                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD
-        </ring_hd>
+                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD</ring_hd>
         <ring_ld standoff="0.5" margin_type="Expand" margin_sup="5" margin_inf="5"
-                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
-        </ring_ld>
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
         <ring_targets standoff="0.2" margin_type="Expand" margin_sup="1" margin_inf="1"
-                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring
-        </ring_targets>
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring</ring_targets>
         <inner_air>InnerAir</inner_air>
         <superficial_target standoff="0.0" margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin
-        </superficial_target>
+                            margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">OTV_Skin</superficial_target>
         <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
-        </otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
     </planning_structure_set>
     <optimization_config>
         <name>8 warmstarts</name>

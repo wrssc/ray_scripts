@@ -57,7 +57,11 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <technique modality="Photons" technique="TomoHelical" code="3DC" machine="HDA0488">TomoHelical</technique>
+            <technique
+                    modality="Photons"
+                    technique="TomoHelical"
+                    code="3DC"
+                    machine="HDA0488">TomoHelical</technique>
         </prescription>
         <commissioned_range>
             <fraction_dose upper="5" lower="1.8"></fraction_dose>
@@ -243,8 +247,7 @@
         <number_of_targets>3</number_of_targets>
         <first_target_number>1</first_target_number>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
-        </skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
         <normal></normal>
         <uniform_dose_structs></uniform_dose_structs>
         <underdose_structs></underdose_structs>

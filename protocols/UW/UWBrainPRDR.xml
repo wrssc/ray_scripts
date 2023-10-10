@@ -294,7 +294,6 @@
                 <priority>1</priority>
             </roi>
             <roi>
-                pp
                 <name>Glnd_Lacrimal_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <volume units="%">1</volume>
@@ -1380,7 +1379,6 @@
                 <priority>1</priority>
             </roi>
             <roi>
-                pp
                 <name>Glnd_Lacrimal_L_PRV05</name>
                 <type dir="lt">VX</type>
                 <volume units="%">1</volume>
@@ -2166,8 +2164,6 @@
                 <volume units="%" roi="SpinalCord_PRV05">1</volume>
                 <dose units="%" roi="PTV_p">83.3</dose>
                 <weight>1</weight>
-            </roi>
-
         </objectives>
     </order>
     <beamset>
@@ -2201,36 +2197,28 @@
     </beamset>
     <planning_structure_set>
         <name>3 Target Brain</name>
-        <description>A typical 3 Target planning structure
-        </description>
+        <description>A typical 3 Target planning structure</description>
         <number_of_targets>3</number_of_targets>
         <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.4">SpinalCord_PRV05,OpticNrv_R_PRV03,
             Cochlea_L_PRV03,Cochlea_R_PRV03, Brainstem_PRV03,
-            OpticNrv_L_PRV03,OpticChiasm_PRV03
-        </uniform_dose_structs>
+            OpticNrv_L_PRV03,OpticChiasm_PRV03</uniform_dose_structs>
         <underdose_structs standoff="0.3">Brainstem, SpinalCord,OpticNrv_R,OpticNrv_L,
-            OpticChiasm,Hippocampus_R,Hippocampus_L
-        </underdose_structs>
+            OpticChiasm,Hippocampus_R,Hippocampus_L</underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
-        </skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
         <normal>Normal_2cm</normal>
         <ring_hd standoff="0.0" margin_type="Expand" margin_sup="1" margin_inf="1"
-                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD
-        </ring_hd>
+                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD</ring_hd>
         <ring_ld standoff="0.0" margin_type="Expand" margin_sup="3" margin_inf="3"
-                 margin_ant="3" margin_pos="3" margin_r="3" margin_l="3">Ring_LD
-        </ring_ld>
+                 margin_ant="3" margin_pos="3" margin_r="3" margin_l="3">Ring_LD</ring_ld>
         <ring_targets standoff="0.0" margin_type="Expand" margin_sup="1" margin_inf="1"
                       margin_ant="1" margin_pos="1" margin_r="1" margin_l="1"></ring_targets>
         <inner_air>InnerAir</inner_air>
         <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
-                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
-        </superficial_target>
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin</superficial_target>
         <otv standoff="0.3" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
-        </otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
     </planning_structure_set>
     <optimization_config>
         <name>12 warmstarts</name>

@@ -17,8 +17,7 @@
         <imaging>Daily CBCT</imaging>
         <imaging default="true">Weekly kV</imaging>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
-        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
-        </technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
     </prescription>
     <order>
         <name>Brain Fractionated [60 Gy]</name>
@@ -1756,7 +1755,6 @@
             </roi>
         </objectives>
     </order>
-
     <goals>
         <goalset>
             <name>QUANTEC</name>
@@ -1765,36 +1763,27 @@
     </goals>
     <planning_structure_set>
         <name>1 Target Brain GBM</name>
-        <description>A GBM planning structure setting list
-        </description>
+        <description>A GBM planning structure setting list</description>
         <number_of_targets>1</number_of_targets>
         <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.4">Brainstem_PRV03,OpticNrv_L_PRV03,OpticNrv_R_PRV03,
-            SpinalCord_PRV05,OpticChiasm_PRV03,Cochlea_R_PRV05,Cochlea_L_PRV05
-        </uniform_dose_structs>
+            SpinalCord_PRV05,OpticChiasm_PRV03,Cochlea_R_PRV05,Cochlea_L_PRV05</uniform_dose_structs>
         <underdose_structs standoff="0.3">Brainstem,OpticNrv_L,OpticNrv_R,
-            SpinalCord,OpticChiasm,Cochlea_R,Cochlea_L
-        </underdose_structs>
+            SpinalCord,OpticChiasm,Cochlea_R,Cochlea_L</underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
-        </skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
         <normal>Normal_2cm</normal>
         <ring_hd standoff="0.0" margin_type="Expand" margin_sup="1" margin_inf="1"
-                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD
-        </ring_hd>
+                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD</ring_hd>
         <ring_ld standoff="0.0" margin_type="Expand" margin_sup="2" margin_inf="2"
-                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_LD
-        </ring_ld>
+                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_LD</ring_ld>
         <ring_targets standoff="0.0" margin_type="Expand" margin_sup="1" margin_inf="1"
-                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring
-        </ring_targets>
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring</ring_targets>
         <inner_air>InnerAir</inner_air>
         <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
-                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
-        </superficial_target>
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin</superficial_target>
         <otv standoff="0.4" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
-        </otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
     </planning_structure_set>
     <optimization_config>
         <name>6 warmstarts</name>
@@ -1833,8 +1822,7 @@
         <name>Tomo-Brain-FW2.5</name>
         <technique>TomoHelical</technique>
         <DicomName>Brai_THI_R_A_</DicomName>
-        <description>Protocol for TomoBrain, e.g. Hippocampal avoidance
-        </description>
+        <description>Protocol for TomoBrain, e.g. Hippocampal avoidance</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>
@@ -1854,8 +1842,7 @@
         <name>Tomo-Brain-FW1.0</name>
         <technique>TomoHelical</technique>
         <DicomName>Brai_WHA_R_A_</DicomName>
-        <description>Protocol for TomoBrain, e.g. Hippocampal avoidance
-        </description>
+        <description>Protocol for TomoBrain, e.g. Hippocampal avoidance</description>
         <beam>
             <BeamNumber>1</BeamNumber>
             <DeliveryTechnique>TomoHelical</DeliveryTechnique>

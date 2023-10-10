@@ -30,8 +30,7 @@
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
         <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
         <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
-        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT
-        </technique>
+        <technique modality="Photons" technique="Conformal" code="3DC" machine="TrueBeam" default="true">3DCRT</technique>
     </prescription>
     <order>
         <name>Abdomen [15Fx]</name>
@@ -65,20 +64,17 @@
                     modality="Photons"
                     technique="DynamicArc"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <technique
                     modality="Photons"
                     technique="DynamicArc"
                     code="VMA"
-                    machine="TrueBeamSTx">VMAT
-            </technique>
+                    machine="TrueBeamSTx">VMAT</technique>
             <technique
                     modality="Photons"
                     technique="TomoHelical"
                     code="THI"
-                    machine="HDA0488">TomoHelical
-            </technique>
+                    machine="HDA0488">TomoHelical</technique>
             <fractions>15</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
@@ -387,10 +383,41 @@
                 <dose units="Gy" idl="100">67.5</dose>
             </roi>
             <fractions>15</fractions>
-            <imaging>Daily CBCT</imaging>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeam">VMAT</technique>
             <technique modality="Photons" technique="TomoHelical" code="THI" machine="HDA0488">TomoHelical</technique>
             <technique modality="Photons" technique="VMAT" code="VMA" machine="TrueBeamSTx">VMAT</technique>
+            <treatment_frequency>
+                <option default="true">Daily</option>
+                <option>Twice daily</option>
+            </treatment_frequency>
+            <imaging_frequency>
+                <option default="true">Daily CBCT</option>
+                <option>Weekly kV</option>
+            </imaging_frequency>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">Adaptive Replanning</Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">TLDs</Instruction>
+            <Instruction
+                    type="Special Instructions"
+                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
+                    combo=""
+                    comment="">Concurrent Chemotherapy</Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio="Yes,No"
+                    combo=""
+                    comment="">NPO for 4 hours prior to treatment</Instruction>
+            <Instruction
+                    type="Treatment Instructions"
+                    radio=""
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <validation>
             <validation_status>False</validation_status>
@@ -1218,9 +1245,7 @@
         <name>AbdPelv Central 3Arc</name>
         <technique>VMAT</technique>
         <DicomName>AbPv3A_VMA_R_A_</DicomName>
-        <description>Arc set for 24 degree posterior avoidance with 270 degree collimator
-            rotation
-        </description>
+        <description>Arc set for 24 degree posterior avoidance with 270 degree collimator rotation</description>
         <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
@@ -1260,8 +1285,7 @@
         <name>Abd Left 2Arc</name>
         <technique>VMAT</technique>
         <DicomName>LALt2A_VMA_R_A_</DicomName>
-        <description>2 arc arrangment for treatment of the left lung or abdomen.
-        </description>
+        <description>2 arc arrangment for treatment of the left lung or abdomen.</description>
         <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
@@ -1291,8 +1315,7 @@
         <technique>VMAT</technique>
         <DicomName>LALt4A_VMA_R_A_</DicomName>
         <description>4 Arc arrangement for treatment of the left lung or abdomen. Couch kicks are
-            used which will make RPM difficult.
-        </description>
+            used which will make RPM difficult.</description>
         <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
@@ -1343,8 +1366,7 @@
         <name>Abd Right 2Arc</name>
         <technique>VMAT</technique>
         <DicomName>LARt2A_VMA_R_A_</DicomName>
-        <description>2 Arc arrangement for treating the right lung or abdomen.
-        </description>
+        <description>2 Arc arrangement for treating the right lung or abdomen.</description>
         <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
@@ -1374,8 +1396,7 @@
         <technique>VMAT</technique>
         <DicomName>LARt4A_VMA_R_A_</DicomName>
         <description>4 Arc arrangement for treatment of the right lung or abdomen. Not appropriate
-            for treatment which uses RPM due to couch kicks.
-        </description>
+            for treatment which uses RPM due to couch kicks.</description>
         <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
@@ -1460,31 +1481,23 @@
         <number_of_targets>4</number_of_targets>
         <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.5">Esophagus,Stomach_PRV05,Duodenum_PRV07,
-            Bowel_Small_PRV05,Bowel_Critical_HighRisk_PRV05
-        </uniform_dose_structs>
+            Bowel_Small_PRV05,Bowel_Critical_HighRisk_PRV05</uniform_dose_structs>
         <underdose_structs standoff="0.7">Stomach,Duodenum,Bowel_Large,Bowel_Small,
-            Bowel_Critical_HighRisk
-        </underdose_structs>
+            Bowel_Critical_HighRisk</underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
-        </skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
         <normal>Normal_2cm</normal>
         <ring_hd standoff="0.0" margin_type="Expand" margin_sup="1" margin_inf="1"
-                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD
-        </ring_hd>
+                 margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring_HD</ring_hd>
         <ring_ld standoff="0.0" margin_type="Expand" margin_sup="5" margin_inf="5"
-                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD
-        </ring_ld>
+                 margin_ant="5" margin_pos="5" margin_r="5" margin_l="5">Ring_LD</ring_ld>
         <ring_targets standoff="0.0" margin_type="Expand" margin_sup="1" margin_inf="1"
-                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring
-        </ring_targets>
+                      margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">Ring</ring_targets>
         <inner_air></inner_air>
         <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
-                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
-        </superficial_target>
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin</superficial_target>
         <otv standoff="0.3" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
-        </otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
     </planning_structure_set>
     <optimization_config>
         <name>12 warmstarts</name>

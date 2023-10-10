@@ -29,8 +29,8 @@
             </roi>
             <fractions>5</fractions>
              <treatment_frequency>
-                <option default="true">Daily</option>
-                <option>Twice daily</option>
+                <option default="false">Daily</option>
+                <option default="true">2 to 3 times per week</option>
             </treatment_frequency>
             <imaging_frequency>
                 <option default="true">Daily CBCT</option>
@@ -443,7 +443,6 @@
     </order>
     <objectiveset>
         <name>FSRT Objectives 5 Fraction</name>
-
         <objectives>
             <roi>
                 <name>OTV1_</name>
@@ -1173,8 +1172,6 @@
                 <dose units="Gy">20</dose>
                 <weight>1</weight>
             </roi>
-
         </objectives>
-
     </objectiveset>
 </protocol>

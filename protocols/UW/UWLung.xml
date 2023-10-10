@@ -48,6 +48,7 @@
             <fractions>15</fractions>
             <treatment_frequency>
                 <option default="true">Daily</option>
+                <option default="true">2 to 3 times per week</option>
                 <option>Twice daily</option>
             </treatment_frequency>
             <imaging_frequency>
@@ -372,13 +373,11 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -753,13 +752,11 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1070,13 +1067,11 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1377,17 +1372,8 @@
                 <option default="true">Daily CBCT</option>
                 <option>Weekly kV</option>
             </imaging_frequency>
-            <Instruction
-                    type="Special Instructions"
-                    radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
-                    combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
-            <Instruction
-                    type="Treatment Instructions"
-                    radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+            <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo="" comment="">Concurrent Chemotherapy</Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1641,7 +1627,7 @@
             </roi>
             <fractions>30</fractions>
             <treatment_frequency>
-                <option default="true">Daily</option>
+                <option default="false">Daily</option>
                 <option>Twice daily</option>
             </treatment_frequency>
             <imaging_frequency>
@@ -1652,13 +1638,11 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1923,13 +1907,11 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2194,13 +2176,11 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2479,13 +2459,11 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2908,13 +2886,11 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -3337,13 +3313,11 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold
-            </Instruction>
+                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>

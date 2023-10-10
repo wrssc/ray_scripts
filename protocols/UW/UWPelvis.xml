@@ -34,14 +34,12 @@
                     modality="Photons"
                     technique="Conformal"
                     code="3DC"
-                    machine="TrueBeam">3DCRT
-            </technique>
+                    machine="TrueBeam">3DCRT</technique>
             <technique
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -54,14 +52,12 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <prescription number="1" sequence="Boost1">
             <roi>
@@ -75,14 +71,12 @@
                     modality="Photons"
                     technique="Conformal"
                     code="3DC"
-                    machine="TrueBeam">3DCRT
-            </technique>
+                    machine="TrueBeam">3DCRT</technique>
             <technique
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
         </prescription>
         <goals>
             <roi>
@@ -356,14 +350,12 @@
                     modality="Photons"
                     technique="Conformal"
                     code="3DC"
-                    machine="TrueBeam">3DCRT
-            </technique>
+                    machine="TrueBeam">3DCRT</technique>
             <technique
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -376,14 +368,12 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <validation>
             <validation_status>False</validation_status>
@@ -689,14 +679,12 @@
                     modality="Photons"
                     technique="Conformal"
                     code="3DC"
-                    machine="TrueBeam">3DCRT
-            </technique>
+                    machine="TrueBeam">3DCRT</technique>
             <technique
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -709,14 +697,12 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -982,14 +968,12 @@
                     modality="Photons"
                     technique="Conformal"
                     code="3DC"
-                    machine="TrueBeam">3DCRT
-            </technique>
+                    machine="TrueBeam">3DCRT</technique>
             <technique
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1002,14 +986,12 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1305,15 +1287,13 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <technique
                     modality="Photons"
                     technique="Conformal"
                     code="3DC"
                     machine="TrueBeam"
-                    default="true">3DCRT
-            </technique>
+                    default="true">3DCRT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1326,14 +1306,12 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1566,15 +1544,13 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <technique
                     modality="Photons"
                     technique="Conformal"
                     code="3DC"
                     machine="TrueBeam"
-                    default="true">3DCRT
-            </technique>
+                    default="true">3DCRT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1587,14 +1563,12 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1827,15 +1801,13 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <technique
                     modality="Photons"
                     technique="Conformal"
                     code="3DC"
                     machine="TrueBeam"
-                    default="true">3DCRT
-            </technique>
+                    default="true">3DCRT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -1848,14 +1820,12 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2088,15 +2058,13 @@
                     modality="Photons"
                     technique="VMAT"
                     code="VMA"
-                    machine="TrueBeam">VMAT
-            </technique>
+                    machine="TrueBeam">VMAT</technique>
             <technique
                     modality="Photons"
                     technique="Conformal"
                     code="3DC"
                     machine="TrueBeam"
-                    default="true">3DCRT
-            </technique>
+                    default="true">3DCRT</technique>
             <treatment_frequency>
                 <option default="true">Daily</option>
                 <option>Twice daily</option>
@@ -2109,14 +2077,12 @@
                     type="Special Instructions"
                     radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly"
                     combo=""
-                    comment="">Concurrent Chemotherapy
-            </Instruction>
+                    comment="">Concurrent Chemotherapy</Instruction>
             <Instruction
                     type="Special Instructions"
                     radio="Yes,No"
                     combo=""
-                    comment="">Full Bladder
-            </Instruction>
+                    comment="">Full Bladder</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2531,8 +2497,7 @@
         <technique>VMAT</technique>
         <DicomName>AbPv3A_VMA_R_A_</DicomName>
         <description>Arc set for 24 degree posterior avoidance with 270 degree collimator
-            rotation
-        </description>
+            rotation</description>
         <roi_support>TrueBeamCouch</roi_support>
         <beam>
             <BeamNumber>1</BeamNumber>
@@ -2574,30 +2539,23 @@
         <number_of_targets>3</number_of_targets>
         <first_target_number>1</first_target_number>
         <uniform_dose_structs standoff="0.3">Bladder, Rectum, SpinalCord_PRV05,
-            CaudaEquina_PRV05
-        </uniform_dose_structs>
-        <underdose_structs standoff="0.2">Bowel_Large,Bowel_Small,Bag_Bowel
-        </underdose_structs>
+            CaudaEquina_PRV05</uniform_dose_structs>
+        <underdose_structs standoff="0.2">Bowel_Large,Bowel_Small,Bag_Bowel</underdose_structs>
         <skin_structure margin_type="Contract" margin_sup="0.3" margin_inf="0.3"
-                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03
-        </skin_structure>
+                        margin_ant="0.3" margin_pos="0.3" margin_r="0.3" margin_l="0.3">Skin_PRV03</skin_structure>
         <normal>Normal_2cm</normal>
         <ring_hd standoff="0.2" margin_type="Expand" margin_sup="1.5" margin_inf="1.5"
-                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD
-        </ring_hd>
+                 margin_ant="2" margin_pos="2" margin_r="2" margin_l="2">Ring_HD</ring_hd>
         <ring_ld standoff="0.0" margin_type="Expand" margin_sup="7" margin_inf="7"
-                 margin_ant="7" margin_pos="7" margin_r="7" margin_l="7">Ring_LD
-        </ring_ld>
+                 margin_ant="7" margin_pos="7" margin_r="7" margin_l="7">Ring_LD</ring_ld>
         <ring_targets standoff="0.0" margin_type="Expand" margin_sup="1" margin_inf="1"
                       margin_ant="1" margin_pos="1" margin_r="1" margin_l="1">
         </ring_targets>
         <inner_air></inner_air>
         <superficial_target standoff="0.15" margin_type="Contract" margin_sup="0.5" margin_inf="0.5"
-                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin
-        </superficial_target>
+                            margin_ant="0.5" margin_pos="0.5" margin_r="0.5" margin_l="0.5">OTV_Skin</superficial_target>
         <otv standoff="0.3" margin_type="Expand" margin_sup="0.0" margin_inf="0.0"
-             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV
-        </otv>
+             margin_ant="0.0" margin_pos="0.0" margin_r="0.0" margin_l="0.0">OTV</otv>
     </planning_structure_set>
     <optimization_config>
         <name>12 warmstarts</name>
