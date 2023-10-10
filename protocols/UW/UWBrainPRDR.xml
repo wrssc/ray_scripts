@@ -2164,6 +2164,7 @@
                 <volume units="%" roi="SpinalCord_PRV05">1</volume>
                 <dose units="%" roi="PTV_p">83.3</dose>
                 <weight>1</weight>
+            </roi>
         </objectives>
     </order>
     <beamset>
