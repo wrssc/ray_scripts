@@ -40,4 +40,4 @@ def compare_patient_orientation_to_preplan(rso: NamedTuple, **kwargs) -> Tuple[s
                      f"DOES NOT MATCH RS: {PATIENT_ORIENTATIONS[examination_patient_orientation]}"
     return PASS, f"For exam: {rso.exam.Name}: patient orientation from CT SIM: "\
                  f"{simulation_patient_orientation} " \
-                 f"matches RS: {PATIENT_ORIENTATIONS[examination_patient_orientation]}"\
+                 f"matches RS: {PATIENT_ORIENTATIONS[examination_patient_orientation]}"
