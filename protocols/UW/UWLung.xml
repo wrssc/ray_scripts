@@ -61,7 +61,7 @@
                          comment="">Concurrent Chemotherapy</Instruction>
             <Instruction type="Treatment Instructions"
                          radio=""
-                         combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                         combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -377,7 +377,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -756,7 +756,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1071,7 +1071,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1373,7 +1373,7 @@
                 <option>Weekly kV</option>
             </imaging_frequency>
             <Instruction type="Special Instructions" radio="Yes: Needs Mon/Tues Start,Yes,No,Possibly" combo="" comment="">Concurrent Chemotherapy</Instruction>
-            <Instruction type="Treatment Instructions" radio="" combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+            <Instruction type="Treatment Instructions" radio="" combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1642,7 +1642,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -1911,7 +1911,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2180,7 +2180,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2463,7 +2463,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -2890,7 +2890,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
@@ -3317,7 +3317,7 @@
             <Instruction
                     type="Treatment Instructions"
                     radio=""
-                    combo="RPM Gating,AlignRT">Breath Hold</Instruction>
+                    combo="Free Breathing,RPM Gating,AlignRT">Breath Hold</Instruction>
         </prescription>
         <goals>
             <roi>
