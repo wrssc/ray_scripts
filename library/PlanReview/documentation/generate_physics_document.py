@@ -51,7 +51,7 @@ def set_section_dimensions_and_orientation(section):
     section.page_width, section.page_height = section.page_height, section.page_width
 
 
-def generate_doc(rso, tests, header_data, test_mode=False):
+def generate_doc(rso, review_data, test_mode=False):
     physics_review_dir = os.path.join(LOG_DIR, "PhysicsReviews")
     patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
     alt_patient_output_dir = r"Q:\\RadOnc\RayStation\Reports\PhysicsReviewBetaOnly"
@@ -60,26 +60,22 @@ def generate_doc(rso, tests, header_data, test_mode=False):
                             f"{generate_filename()}"
 
     if test_mode:
-        latest_test_file, latest_header_file = find_latest_files(
-            patient_output_dir, f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_",
-            ["tests.json", "header.json"])
-        tests = read_tests_from_json(latest_test_file) if latest_test_file else None
-        header_data = read_tests_from_json(latest_header_file) if latest_header_file else None
+        latest_test_file = find_latest_files(
+            patient_output_dir,
+            f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review_data.json")
+        patient_data = read_tests_from_json(latest_test_file)
+        tests = patient_data['check_list'] if patient_data else None
+        header_data = patient_data['header_data'] if patient_data else None
     else:
-        test_files = [
+        review_files = [
             generate_file_path(
-                patient_output_dir, patient_output_prefix, "_tests.json"),
+                patient_output_dir, patient_output_prefix, "_review_data.json"),
             generate_file_path(
-                physics_review_dir, patient_output_prefix, "_tests.json")
+                physics_review_dir, patient_output_prefix, "_review_data.json")
         ]
-        header_files = [
-            generate_file_path(
-                patient_output_dir, patient_output_prefix, "_header.json"),
-            generate_file_path(
-                physics_review_dir, patient_output_prefix, "_header.json")
-        ]
-        dump_tests_to_json(tests, file_names=test_files)
-        dump_tests_to_json(header_data, file_names=header_files)
+        dump_tests_to_json(review_data, file_names=review_files)
+        tests = read_tests_from_json(review_files[0])['check_list']
+        header_data = read_tests_from_json(review_files[0])['header_data']
 
     tests_df = read_data(tests)
 
@@ -216,7 +212,7 @@ def estimate_table_length(df: pd.DataFrame, i: Optional[int] = 0, top: Optional[
     max_len_message = df[KEY_OUT_MESSAGE].apply(len).max()
     max_len_comment = df[KEY_OUT_COMMENT].apply(len).max()
     sum_max = max_len_comment + max_len_desc + max_len_message
-    logging.debug(f'Max chars: {max_len_desc}, {max_len_message}, {max_len_comment}')
+    # logging.debug(f'Max chars: {max_len_desc}, {max_len_message}, {max_len_comment}')
     calculated_row_height = row_height if sum_max < 240 else row_height * math.ceil(sum_max / 120)
     if top:
         space = 0
@@ -534,7 +530,7 @@ def add_treatment_instructions_table(doc, data):
 
 
 def add_beamset_data_table(doc, data, rso):
-    logging.debug(f'Beamset keys {data.keys()}')
+    # logging.debug(f'Beamset keys {data.keys()}')
     beamset_count = data["-BEAMSET--COUNT-"]
     beamset_table = doc.add_table(rows=1, cols=2)
     beamset_table.style = 'Medium Grid 1 Accent 2'

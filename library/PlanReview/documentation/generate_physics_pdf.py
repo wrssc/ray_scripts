@@ -57,7 +57,7 @@ class ReportConfig:
     UW_TEXT = hex_to_reportlab_color("#333333")
 
 
-def generate_pdf(rso, tests, header_data, test_mode=False):
+def generate_pdf(rso, review_data, test_mode=False):
     config = ReportConfig()
     physics_review_dir = os.path.join(LOG_DIR, "PhysicsReviews")
     patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
@@ -67,26 +67,23 @@ def generate_pdf(rso, tests, header_data, test_mode=False):
                             f"{generate_filename()}"
 
     if test_mode:
-        latest_test_file, latest_header_file = find_latest_files(
-            patient_output_dir, f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_",
-            ["tests.json", "header.json"])
-        tests = read_tests_from_json(latest_test_file) if latest_test_file else None
-        header_data = read_tests_from_json(latest_header_file) if latest_header_file else None
+        latest_test_file = find_latest_files(
+            patient_output_dir,
+            f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review_data.json")
+        patient_data = read_tests_from_json(latest_test_file)
+        tests = patient_data['check_list'] if patient_data else None
+        header_data = patient_data['header_data'] if patient_data else None
     else:
-        test_files = [
+        review_files = [
             generate_file_path(
-                patient_output_dir, patient_output_prefix, "_tests.json"),
+                patient_output_dir, patient_output_prefix, "_review_data.json"),
             generate_file_path(
-                physics_review_dir, patient_output_prefix, "_tests.json")
+                physics_review_dir, patient_output_prefix, "_review_data.json")
         ]
-        header_files = [
-            generate_file_path(
-                patient_output_dir, patient_output_prefix, "_header.json"),
-            generate_file_path(
-                physics_review_dir, patient_output_prefix, "_header.json")
-        ]
-        dump_tests_to_json(tests, file_names=test_files)
-        dump_tests_to_json(header_data, file_names=header_files)
+        dump_tests_to_json(review_data, file_names=review_files)
+        tests = read_tests_from_json(review_files[0])['check_list']
+        header_data = read_tests_from_json(review_files[0])['header_data']
+        # dump_tests_to_json(header_data, file_names=header_files)
 
     tests_df = read_data(tests)
 

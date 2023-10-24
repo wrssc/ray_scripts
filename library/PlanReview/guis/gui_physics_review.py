@@ -28,8 +28,8 @@ from PlanReview.guis.create_physics_manual_tab import (
     create_tab_manual_checks, on_manual_radio_button_click,
     extract_values_manual_tab, load_manual, process_auto_tests,
     process_check_box_values, is_valid_manual_tab, is_visible_tab)
+from PlanReview.guis.gui_top_buttons import build_top_buttons
 import json
-import connect
 from typing import Dict
 
 """
@@ -62,7 +62,7 @@ def update_window_key_dict(window, keys):
 
 def save_review(rso, values, quiet=False):
     # logging.debug(f'Values in Save {tuple_key_to_str(values)}')
-    patient_output_dir = os.path.join(OUTPUT_DIR,rso.patient.PatientID)
+    patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
     if not os.path.exists(patient_output_dir):
         os.makedirs(patient_output_dir)
     if os.path.exists(OUTPUT_DIR):
@@ -83,7 +83,7 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
         file_name = f"{rso.patient.PatientID}_" \
                     f"{rso.beamset.DicomPlanLabel}_review.json"
     try:
-        with open(os.path.join(OUTPUT_DIR,rso.patient.PatientID,file_name), "r") as f:
+        with open(os.path.join(OUTPUT_DIR, rso.patient.PatientID, file_name), "r") as f:
             values = json.load(f)
     except FileNotFoundError:
         Sg.popup("No saved review found!")
@@ -105,7 +105,7 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
     return num_beamsets
 
 
-def get_review_gui_values(window, passing_tests, failed_tests, check_boxes):
+def get_review_gui_values(window,values, passing_tests, failed_tests, check_boxes):
     """
     Extracts the values entered into the PySimpleGUI dialog and sorts them by keys.
     This is used for saving the review to file and for the report
@@ -127,7 +127,7 @@ def get_review_gui_values(window, passing_tests, failed_tests, check_boxes):
     side_frame_values = extract_values_side_panel(window)
 
     # Get the data from the first tab
-    manual_values = extract_values_manual_tab(window, passing_tests, failed_tests, check_boxes)
+    manual_values = extract_values_manual_tab(values, passing_tests, failed_tests, check_boxes)
 
     # Merge them into a single dictionary
     sorted_values = merge_dicts(side_frame_values, preplan_values)
@@ -137,9 +137,9 @@ def get_review_gui_values(window, passing_tests, failed_tests, check_boxes):
 
 
 # Event handler for "Done" button
-def on_done_button_click(window, values, check_boxes):
+def on_done_button_click(window, values, check_boxes, failed_tests):
     # Check if all the required fields are filled in
-    manual_valid = is_valid_manual_tab(window, values, check_boxes)
+    manual_valid = is_valid_manual_tab(window, values, check_boxes, failed_tests)
     side_valid = is_valid_side_panel(window, values)
     is_valid = all([manual_valid, side_valid])
     return is_valid
@@ -196,7 +196,7 @@ def launch_physics_review_gui(rso):
 
     Returns: None
     """
-
+    import connect
     # Variable initialization
     ui = connect.get_current('ui')
     failed_tests = []
@@ -213,12 +213,13 @@ def launch_physics_review_gui(rso):
         sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
         comment_width_chars = int(sidebar_width - 114) // pix_per_char_width  # Gap is around 6 char
     else:
-        tab_width = 184 * pix_per_char_width  # Based on top window width
+        tab_width = 154 * pix_per_char_width  # Based on top window width
         sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
         comment_width_chars = int(sidebar_width - 200) // pix_per_char_width  # Gap is around 6 char
     # Top and bottom (buttons) frame height
     top_height = 2 * pix_per_char_height
     top_width = tab_width + int(5.1 * pix_per_char_width)
+    tab_font = ('Helvetica', '8', 'bold') if save_space else None
     # Tab sizing
     tab_height = window_height - top_height - 4 * pix_per_char_height
     logging.info(f'physics review gui launched with '
@@ -239,48 +240,49 @@ def launch_physics_review_gui(rso):
         maximum_target_number = len(targets)
     else:
         maximum_target_number = 10
-
-    top_image_size = (104, 22) if save_space else (156, 56)
-    top_subsample = 1 if save_space else 1
-    top_border = 0 if save_space else 2
-    top_pad = ((0, 1), (1, 1))
-    tab_font = ('Helvetica', '8', 'bold') if save_space else None
+    # Top frame
+    top = build_top_buttons(top_width, top_height,save_space)
+    #top_image_size = (72, 30) if save_space else (110, 30)
+    #top_subsample = 1 if save_space else 1
+    #top_border = 0 if save_space else 0  # 2
+    #top_pad = ((12, 12), (3, 0))
     #
-    small_icons = {
-        "-SAVE-": ICON_SMALL_SAVE,
-        "-LOAD-": ICON_SMALL_LOAD,
-        "-START-": ICON_SMALL_START,
-        "-REPORT-": ICON_SMALL_PRINT,
-        "-PAUSE-": ICON_SMALL_PAUSE,
-        "-CANCEL-": ICON_SMALL_CANCEL,
-        "-ERROR-": ICON_SMALL_ERROR,
-    }
+    #small_icons = {
+    #    "-SAVE-": (ICON_SMALL_SAVE, "Save the current view"),
+    #    "-LOAD-": (ICON_SMALL_LOAD, "Load a previously saved view"),
+    #    "-START-": (ICON_SMALL_START, "Start the automated tests"),
+    #    "-REPORT-": (ICON_SMALL_PRINT, "Save the current view and create a report"),
+    #    "-PAUSE-": (ICON_SMALL_PAUSE, "Pause the script to interact in RayStation"),
+    #    "-CANCEL-": (ICON_SMALL_CANCEL, "Cancel the script execution"),
+    #    "-ERROR-": (ICON_SMALL_ERROR, "Generate an error report"),
+    #}
 
-    large_icons = {
-        "-SAVE-": ICON_SAVE,
-        "-LOAD-": ICON_LOAD,
-        "-START-": ICON_START,
-        "-REPORT-": ICON_PRINT,
-        "-PAUSE-": ICON_PAUSE,
-        "-CANCEL-": ICON_CANCEL,
-        "-ERROR-": ICON_ERROR,
-    }
+    # large_icons = {
+    #     "-SAVE-": (ICON_SAVE, "Save the current view"),
+    #     "-LOAD-": (ICON_LOAD, "Load a previously saved view"),
+    #     "-START-": (ICON_START, "Start the automated tests"),
+    #     "-REPORT-": (ICON_PRINT, "Save the current view and create a report"),
+    #     "-PAUSE-": (ICON_PAUSE, "Pause the script to interact in RayStation"),
+    #     "-CANCEL-": (ICON_CANCEL, "Cancel the script execution"),
+    #     "-ERROR-": (ICON_ERROR, "Generate an error report"),
+    #  }
 
-    icons = small_icons if save_space else large_icons
+    # icons = small_icons if save_space else large_icons
 
-    top_buttons = [Sg.Button('', image_filename=icons[key],
-                             image_size=top_image_size,
-                             image_subsample=top_subsample,
-                             pad=top_pad,
-                             border_width=top_border,
-                             key=key)
-                   for key in icons.keys()]
+    # top_buttons = [Sg.Button('', image_filename=icons[key][0],
+    #                          image_size=top_image_size,
+    #                          image_subsample=top_subsample,
+    #                          pad=top_pad,
+    #                          border_width=top_border,
+    #                          tooltip=icons[key][1],
+    #                          key=key)
+    #                for key in icons.keys()]
 
-    top = Sg.Frame('',
-                   [top_buttons],
-                   vertical_alignment='center',
-                   size=(top_width, top_height),
-                   )
+    # top = Sg.Frame('',
+    #                [top_buttons],
+    #                vertical_alignment='center',
+    #                size=(top_width, top_height),
+    #                )
     # Gather the layout
     layout = [
         [
@@ -416,13 +418,16 @@ def launch_physics_review_gui(rso):
                 on_manual_radio_button_click(window, event)
 
         elif event == '-REPORT-':
-            is_valid = on_done_button_click(window, values, check_box_copy)
+            # Retrieve the passing and failing tests
+            passing_tests, failed_tests = get_tests_from_tree(tree_children)
+            is_valid = on_done_button_click(window, values, check_box_copy,
+                                            failed_tests)
             # Perform the form submission logic
             if is_valid:
                 # Save the review
                 review_file_name = save_review(
                     rso,
-                    get_review_gui_values(window, passing_tests, failed_tests, check_box_copy),
+                    get_review_gui_values(window, values, passing_tests, failed_tests, check_box_copy),
                     quiet=True)
 
                 #
@@ -439,9 +444,9 @@ def launch_physics_review_gui(rso):
                 break
         if event == '-SAVE-':
             review_file_name = save_review(
-                rso, get_review_gui_values(window, passing_tests, failed_tests,
+                rso, get_review_gui_values(window, values, passing_tests, failed_tests,
                                            check_box_copy))
 
     window.close()
 
-    return check_list, header_data
+    return {'check_list': check_list, 'header_data': header_data}
