@@ -774,7 +774,7 @@ def run_dicom_integrity_tool(
             "Check Wedge Beam Parameters",
             "Check Number of Control Points",
             "Check Number of Boli",
-            "Check Bolus Name and Referenced ROI Number",
+            "Check Bolus Referenced ROI Number",
             "Check Electron Applicator",
             "Check Electron Block",
         ],
@@ -813,7 +813,7 @@ def run_dicom_integrity_tool(
             "Check Jaws and MLCs",
             "Check Wedge Control Point Parameters",
             "Check Dose Rate",
-            "Check Relative Meterset Weight for each Control Point",
+            "Check Relative Meterset Weight for Each Control Point",
         ],
     )
 
@@ -997,18 +997,18 @@ if __name__ == "__main__":
     file_path = Path(
         r"U:\UWHealth\RadOnc\ShareAll\Users\ZEL\DICOM_Compare_Files\3164588"
     )
-    # raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
-    # aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
+    raystation_filename = r"RP1.2.752.243.1.1.20220110105336812.2000.10016.dcm"
+    aria_filename = r"Bol_ARIA1.2.246.352.71.5.137378053967.332155.20220111111326.dcm"
     # aria_filename = r"NoB_ARIA1.2.246.352.71.5.137378053967.332249.20220111111326.dcm"
+
+    run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)
 
     # EDW Plan
     file_path = Path(
         r"U:\UWHealth\RadOnc\ShareAll\Users\DJacqmin\RayStation\DICOMs\Plan_EDW"
     )
-    """
     raystation_filename = r"RP1.2.752.243.1.1.20220628154229160.2400.53002.dcm"
     aria_filename = r"RP.3596693.ArmL_2DC_R0A0.dcm"
-    """
 
     # Prostate Plan
     file_path = Path(
@@ -1033,5 +1033,3 @@ if __name__ == "__main__":
 
     raystation_filename = r"RP_RayStation_SRS.dcm"
     aria_filename = r"RP_Aria_SRS.dcm"
-
-    run_dicom_integrity_tool(file_path / raystation_filename, file_path / aria_filename)

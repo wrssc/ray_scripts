@@ -4,7 +4,7 @@ from DicomPairClasses import Result
 
 
 def excuse_element_with_parent(element_pair, excused_parent, comment=""):
-    """ Passes an expected mismatch/unique result when element has a specified parent 
+    """Passes an expected mismatch/unique result when element has a specified parent
 
     ----------
     PARAMETERS
@@ -239,7 +239,7 @@ def assess_block_points(element_pair, comment=""):
 def process_treatment_machine_name(element_pair, comment=""):
     ray_machine, aria_machine = element_pair.value_pair
 
-    TRUEBEAM_M120 = ["TrueBeam2588", "TrueBeam2871", "TrueBeam3744"]
+    TRUEBEAM_M120 = ["TrueBeam2588", "TrueBeam2871", "TrueBeam3744", "TrueBeam6198"]
     TRUEBEAM_STX = ["TrueBeam1358"]
 
     if (ray_machine == "TrueBeam") and (aria_machine in TRUEBEAM_M120):
@@ -398,4 +398,3 @@ PROCESS_FUNCTION_DICT = {
     **UNIQUE_TO_RAYSTATION,
     **UNIQUE_TO_ARIA,
 }
-
