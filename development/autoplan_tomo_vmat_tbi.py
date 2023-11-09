@@ -532,6 +532,10 @@ def get_center(rs_obj, roi_name):
     return c
 
 
+def round_iso(iso):
+    return math.ceil(iso * 10) / 10
+
+
 def place_ffs_vmat_pois(pd_ffs, junction, offset):
     # create a set of points that ensures coverage from junction point
     # to the limit of the ffs scan
@@ -539,10 +543,11 @@ def place_ffs_vmat_pois(pd_ffs, junction, offset):
                                  roi_type='External')
 
     ffs_ext_z = get_most_inferior(pd_ffs, roi_name=external_name)
-    last_iso_position = ffs_ext_z - FFS_OVERSHOOT - FFS_SHIFT_BUFFER + FW / 2
-    first_iso_position = junction.Point.z - FW / 2
+    last_iso_position = round_iso(ffs_ext_z - FFS_OVERSHOOT - FFS_SHIFT_BUFFER + FW / 2)
+    first_iso_position = round_iso(junction.Point.z - FW / 2)
     isocenter_distance = ((first_iso_position - last_iso_position)
                           / (FFS_ISO_NUMBER - 1))
+    isocenter_distance = round_iso(isocenter_distance)
     ffs_junction_width = FW - isocenter_distance
     logging.info(f'Distance from inferior most point at {ffs_ext_z:.2f} '
                  f'to junction {junction.Point.z:.2f} '
@@ -617,9 +622,9 @@ def place_hfs_vmat_pois(pd_hfs, junction):
     hfs_ext_z = get_most_superior(pd_hfs, roi_name=external_name)
     hfs_treatment_length = hfs_ext_z + HFS_OVERSHOOT + HFS_SHIFT_BUFFER - j_z
     iso_number = math.ceil(hfs_treatment_length / (FW - HFS_OVERLAP))
-    last_iso_position = j_z - CENTRAL_JUNCTION_WIDTH + FW / 2
-    first_iso_position = hfs_ext_z + HFS_OVERSHOOT + HFS_SHIFT_BUFFER - FW / 2
-    isocenter_distance = (first_iso_position - last_iso_position) / (iso_number - 1)
+    last_iso_position = round_iso(j_z - CENTRAL_JUNCTION_WIDTH + FW / 2)
+    first_iso_position = round_iso(hfs_ext_z + HFS_OVERSHOOT + HFS_SHIFT_BUFFER - FW / 2)
+    isocenter_distance = round_iso((first_iso_position - last_iso_position) / (iso_number - 1))
     hfs_junction_width = FW - isocenter_distance
 
     logging.info(f'Distance from superior most point at {hfs_ext_z} '
@@ -633,7 +638,7 @@ def place_hfs_vmat_pois(pd_hfs, junction):
     elif isocenter_distance >= FW - HFS_OVERLAP:
         # Increase the isocenter number by 1
         iso_number += 1
-        isocenter_distance = (first_iso_position - last_iso_position) / (iso_number - 1)
+        isocenter_distance = round_iso((first_iso_position - last_iso_position) / (iso_number - 1))
         hfs_junction_width = FW - isocenter_distance
         logging.info(f'Distancing incorrect: FW: {FW} with Overlap {HFS_OVERLAP} '
                      f'with greater computed isocenter distance {isocenter_distance},'
