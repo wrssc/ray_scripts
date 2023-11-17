@@ -212,7 +212,7 @@ def verify_localization_point(case, exam):
         assert len(loc_poi) == 1
         loc_poi = loc_poi[0]
 
-        loc_poi.Type = "SimFiducials"
+        loc_poi.Name = "SimFiducials"
 
         message = (
             "A localization point exists, but it is not called 'SimFiducials'. "
