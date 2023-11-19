@@ -1,5 +1,5 @@
 import tkinter as tk
-from ..utils.get_approval_info import get_approval_info
+from PlanReview.utils.get_approval_info import get_approval_info
 
 
 def comment_to_clipboard(rso):
