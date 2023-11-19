@@ -3,50 +3,98 @@ import library.DITTO.AriaRTPlanQR as AriaRTPlanQR
 import library.DITTO.DicomIntegrityTool as DicomIntegrityTool
 
 
-def run_dicom_integrity_tool_physics_review(tab_width, tab_height, beamset_name=None, progress_bar=False):
-    from PlanReview.guis import display_progress_bar
-    if progress_bar:
+def run_dicom_integrity_tool_physics_review(tab_width: int, tab_height: int,
+                                            beamset_name: str = None, use_progress_bar: bool = False):
+    """
+    Runs the DICOM Integrity Tool for Physics Review.
+
+    This function orchestrates the process of comparing DICOM RT plans
+    between Aria and RayStation systems. It optionally displays a progress bar
+    and generates a GUI layout for the comparison results.
+
+    Args:
+        tab_width (int): The width of the tab for GUI layout.
+        tab_height (int): The height of the tab for GUI layout.
+        beamset_name (str, optional): Name of the beamset to be queried and compared.
+        use_progress_bar (bool, optional): Flag to display progress bar during the operation.
+
+    Returns:
+        tuple: A tuple containing the GUI layout for the results and the DicomMatchTree object.
+    """
+
+    if use_progress_bar:
+        from PlanReview.guis import display_progress_bar
         progress_window, progress_bar, progress_text = display_progress_bar(
             title_text='Dicom Integrity Tool', progress_bar_text='Running DITTO...')
-        steps_performed = 1
-        progress_bar.update(current_count=int(steps_performed/100))
-        progress_text.update('Checking for DICOM data')
+        update_progress_bar(progress_bar, progress_window, progress_text, 1, 'Checking for DICOM data')
     else:
-        progress_window = None
-        progress_bar = None
-        progress_text = None
+        progress_window, progress_bar, progress_text = None, None, None
 
-    aria_file_location, rs_file_location, selected_rs = AriaRTPlanQR.aria_qr(
-        beamset_name=beamset_name)
-    if progress_bar:
-        steps_performed = 50
-        progress_bar.update(current_count=int(steps_performed/100))
-        progress_text.update('Aria/RayStation Match found. Comparing...')
+    # Query Aria and RayStation for DICOM RT plans
+    aria_file_location, rs_file_location, selected_rs = AriaRTPlanQR.aria_qr(beamset_name=beamset_name)
 
+    # Update progress bar after querying
+    if use_progress_bar:
+        update_progress_bar(progress_bar, progress_window, progress_text, 50,
+                            'Aria/RayStation Match found. Comparing...')
+
+    # Check if DICOM data is available
     if aria_file_location is None and rs_file_location is None and selected_rs is None:
-        if progress_bar:
-            steps_performed = 99
-            progress_bar.update(current_count=int(steps_performed/100))
-            progress_text.update('Dicom Data Unavailable')
+        if use_progress_bar:
+            update_progress_bar(progress_bar, progress_window, progress_text, 99, 'Dicom Data Unavailable')
             progress_window.close()
         return None, None
 
-    filename1 = rs_file_location
-    filename2 = aria_file_location
+    # Compare DICOM RT plans
+    dicom_match_tree = DicomIntegrityTool.compare_dicomrt_plans(rs_file_location, aria_file_location)
+
+    # Update progress bar after comparison
+    if use_progress_bar:
+        update_progress_bar(progress_bar, progress_window, progress_text, 99, 'Dicom Data Comparison Complete')
+
+    # Prepare tree data for display
+    treedata = dicom_match_tree.get_treedata()
+    layout = create_gui_layout(treedata, beamset_name, tab_width, tab_height)
+
+    # Finalize the progress bar if present
+    if use_progress_bar:
+        update_progress_bar(progress_bar, progress_window, progress_text, 100, '')
+        progress_window.close()
+
+    return layout, dicom_match_tree
+
+def update_progress_bar(progress_bar, progress_window, progress_text, steps_performed, message):
+    """
+    Updates the progress bar with a new value and message.
+
+    Args:
+        progress_bar: The progress bar object.
+        progress_window: The window containing the progress bar.
+        progress_text: The text object displaying progress information.
+        steps_performed (int): The current progress in percentage (0-100).
+        message (str): The message to display on the progress bar.
+    """
+    progress_bar.update(current_count=int(steps_performed / 100))
+    progress_text.update(message)
+
+
+def create_gui_layout(treedata, beamset_name, tab_width, tab_height):
+    """
+    Creates the GUI layout for displaying DICOM RT Plan comparison results.
+
+    Args:
+        treedata: The tree data generated from the DICOM comparison.
+        beamset_name (str): The name of the beamset.
+        tab_width (int): The width of the tab for the GUI layout.
+        tab_height (int): The height of the tab for the GUI layout.
+
+    Returns:
+        The generated GUI layout.
+    """
+    c0_width, c1_width, c2_width = 30, 25, 35
+    n_rows = 32 if tab_width < 800 else 44
     file_label1 = "RayStation"
     file_label2 = "Aria"
-    dicom_match_tree = DicomIntegrityTool.compare_dicomrt_plans(filename1, filename2)
-    if progress_bar:
-        steps_performed = 99
-        progress_bar.update(current_count=int(steps_performed/100))
-        progress_text.update('Dicom Data Comparison Complete')
-
-    treedata = dicom_match_tree.get_treedata()
-    c0_width = 30
-    c1_width = 25
-    c2_width = 35
-    n_rows = 32 if tab_width < 800 else 44
-
     layout = [
         [
             Sg.Frame(
@@ -83,9 +131,9 @@ def run_dicom_integrity_tool_physics_review(tab_width, tab_height, beamset_name=
             )
         ]
     ]
+    return layout
 
-    if progress_bar:
-        steps_performed = 100
-        progress_bar.update(current_count=int(steps_performed/100))
-        progress_window.close()
-    return layout,dicom_match_tree
+
+
+
+
