@@ -185,7 +185,75 @@ def select_order(protocol, order_name=None):
         return order
 
 
+def extract_num_fx(rx_elem):
+    """
+    Extracts the number of fractions from the prescription element.
+
+    Args:
+        rx_elem (Element): The prescription XML element.
+
+    Returns:
+        int: The number of fractions, or None if not found.
+    """
+    fx_text = rx_elem.find('fractions').text
+    return int(fx_text) if fx_text else None
+
+
+def extract_rois_and_nominal_dose(order_targets):
+    """
+    Extracts ROI names and doses, identifies the target with the highest dose,
+    and marks targets with '_Eval' in their name.
+
+    Args:
+        order_targets (list): A list of ROI XML elements.
+
+    Returns:
+        tuple: A tuple containing the target name, volume, nominal plan dose, a dictionary of ROIs with their doses, and a list of '_Eval' targets.
+    """
+    rois = {}
+    highest_dose = 0
+    rx_target, rx_volume = None, None
+    eval_target = ""
+
+    for t in order_targets:
+        name = t.find('name').text
+
+        dose = float(t.find('dose').text) * 100.0  # Gy to cGy
+        rois[name] = dose
+        if '_Eval' in name:
+            # Target is an '_Eval' target
+            eval_target = name
+            name = str(name.replace('_Eval', ''))
+
+        if dose > highest_dose:
+            highest_dose = dose
+            rx_target = name
+            rx_volume = float(t.find('volume').text)
+
+    return rx_target, rx_volume, highest_dose, rois, eval_target
+
+
 def find_rx(order):
+    """
+    Processes a treatment order to find the prescription details, including special handling for '_Eval' targets.
+
+    Args:
+        order (Element): The treatment order XML element.
+
+    Returns:
+        namedtuple: A namedtuple containing the target, isodose line percentage, number of fractions, nominal plan dose, ROIs, and '_Eval' targets.
+    """
+    Rx = namedtuple('Rx', ['target', 'idl', 'fx', 'dose', 'rois', 'eval_targets'])
+    rx_elem = order.find('prescription')
+    num_fx = extract_num_fx(rx_elem)
+
+    order_targets = rx_elem.findall('roi')
+    rx_target, rx_volume, nominal_plan_dose, rois, eval_targets = extract_rois_and_nominal_dose(order_targets)
+
+    return Rx(target=rx_target, idl=rx_volume, fx=num_fx, dose=nominal_plan_dose, rois=rois, eval_targets=eval_targets)
+
+
+def old_find_rx(order):
     # Take in the order ElementTree and return
     # rx: a named tuple with:
     # ( target: string: name of protocol target for beamset prescription,
