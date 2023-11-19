@@ -6,8 +6,6 @@ from PlanReview.qa_tests.test_sandbox import get_sandbox_level_tests
 from PlanReview.qa_tests.test_beamset import parse_beamset_selection
 from PlanReview.qa_tests.test_plan import parse_order_selection
 from PlanReview.qa_tests.analyze_logs import retrieve_logs
-from PlanReview.guis import build_tree_element, build_review_tree, \
-    display_progress_bar, load_rsos
 
 
 def perform_automated_checks(rso, do_physics_review,
@@ -18,18 +16,23 @@ def perform_automated_checks(rso, do_physics_review,
 
         Args:
             rso: The radiotherapy structure object.
-            do_physics_review: A boolean value indicating whether to
-            perform physics review.
+            do_physics_review: A boolean value indicating whether to perform physics review.
+            display_progress: A boolean value indicating whether to display a progress bar.
+            values: A dictionary containing the values of the GUI.
+            beamsets: A list of beamsets to be checked
 
         Returns:
             A tuple containing the tree data and tree children.
     """
+    from PlanReview.guis import (
+        build_tree_element, build_review_tree, display_progress_bar,load_rsos)
     # Show progress bar
     if display_progress:
-        progress_window, progress_bar = display_progress_bar()
+        progress_window, progress_bar, progress_text = display_progress_bar()
     else:
-        progress_bar = None
         progress_window = None
+        progress_bar = None
+        progress_text = None
 
     # Tree Levels (move these to tree building)
     patient_key = (DOMAIN_TYPE['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
@@ -43,11 +46,14 @@ def perform_automated_checks(rso, do_physics_review,
         rsos = [rso]
     sandbox_key = (DOMAIN_TYPE['SANDBOX_KEY'], "Sandbox: ")
     rx_key = (DOMAIN_TYPE['RX_KEY'], "Prescription")
-    log_key = (DOMAIN_TYPE['LOG_KEY'], "Logging")
     #
 
     tree_children = []
 
+    """
+    Parse logs
+    """
+    message_logs = retrieve_logs(rso)
     """
     Gather Patient Level Checks
     """
@@ -60,7 +66,7 @@ def perform_automated_checks(rso, do_physics_review,
     Gather BeamSet Level Checks
     """
     beamset_checks = {
-        r.beamset.DicomPlanLabel: get_beamset_level_tests(r, do_physics_review)
+        r.beamset.DicomPlanLabel: get_beamset_level_tests(r, do_physics_review, message_logs)
         for r in rsos}
     """
     Gather SandBox Level Checks
@@ -70,14 +76,11 @@ def perform_automated_checks(rso, do_physics_review,
     progress_total = len(patient_checks_dict.keys()) \
                      + len(plan_checks_dict.keys()) \
                      + sum([len(v) for v in beamset_checks.values()]) + 1
-    """
-    Parse logs
-    """
-    message_logs = retrieve_logs(rso, log_key)
     tests_performed = 1
     if progress_bar is not None:
         progress_bar.update(
             current_count=int(100 * tests_performed / progress_total))
+        progress_text.update('Running Exam Tests...')
 
     # Execute qa_tests
     exam_level_tests = []
@@ -95,6 +98,7 @@ def perform_automated_checks(rso, do_physics_review,
         if progress_bar is not None:
             progress_bar.update(
                 current_count=int(100 * tests_performed / progress_total))
+            progress_text.update('Running Plan Tests...')
 
     """
     Execute Plan Level Checks
@@ -136,36 +140,16 @@ def perform_automated_checks(rso, do_physics_review,
         if progress_bar is not None:
             progress_bar.update(
                 current_count=int(100 * tests_performed / progress_total))
+            progress_text.update('Running BeamSet Tests...')
 
     #
     # BEAMSET LEVEL CHECKS
     beamset_levels = {}
     for r in rsos:
-
         beamset_level_tests = []
-        #
-        # Run dialog parse
         bs_name = r.beamset.DicomPlanLabel
-        dialog_key = 'Beamset Template Selection'
-        beamset_dialog = parse_beamset_selection(
-            beamset_name=bs_name, messages=message_logs)
-        node, child = build_tree_element(
-            parent_key=DOMAIN_TYPE['BEAMSET_KEY'],
-            child_key=dialog_key, pass_result=beamset_dialog[dialog_key][0],
-            message_str=beamset_dialog[dialog_key][1])
-        beamset_level_tests.extend([node, child])
-        for k, v in beamset_dialog.items():
-            if k != dialog_key and all(v):
-                node, child = build_tree_element(parent_key=dialog_key,
-                                                 child_key=k,
-                                                 pass_result=v[0],
-                                                 message_str=v[1])
-                beamset_level_tests.extend([node, child])
-                beamset_children = [DOMAIN_TYPE['BEAMSET_KEY'], bs_name]
-                beamset_children.extend(child)
-                tree_children.append(beamset_children)
-
-        # Run others
+        if progress_bar is not None:
+            progress_text.update(f'Running BeamSet: {bs_name} Tests...')
         for key, b_func in beamset_checks[bs_name].items():
             pass_result, message = b_func[0](rso=r, **b_func[1])
             node, child = build_tree_element(
@@ -175,11 +159,16 @@ def perform_automated_checks(rso, do_physics_review,
             beamset_children = [DOMAIN_TYPE['BEAMSET_KEY'], bs_name]
             beamset_children.extend(child)
             tree_children.append(beamset_children)
+            tests_performed += 1
             if progress_bar is not None:
                 progress_bar.update(
                     current_count=int(100 * tests_performed / progress_total))
         beamset_levels[bs_name] = beamset_level_tests
-
+    #
+    if progress_bar is not None:
+        progress_bar.update(
+            current_count=int(100 * tests_performed / progress_total))
+        progress_text.update('Running Sandbox Tests...')
     #
     # SANDBOX LEVEL CHECKS
     sandbox_level_tests = []
