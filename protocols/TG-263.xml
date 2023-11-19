@@ -4505,7 +4505,7 @@
         <Export></Export>
         <FMAID>50801</FMAID>
         <Color red="160" green="85" blue="252" Hex="#A055FC">IrrigoPurple</Color>
-        <Alias>brain</Alias>
+        <Alias>brain,whole_brain,GE_whole_brain</Alias>
     </roi>
     <roi>
         <name>Brain_PRVxx</name>
@@ -5310,7 +5310,7 @@
         <Export></Export>
         <FMAID>60203</FMAID>
         <Color red="253" green="121" blue="73" Hex="#FD7949">MythicalOrange</Color>
-        <Alias></Alias>
+        <Alias>GE_inner_ear_left</Alias>
     </roi>
     <roi>
         <name>Cochlea_L_PRVxx</name>
@@ -5362,7 +5362,7 @@
         <Export></Export>
         <FMAID>60202</FMAID>
         <Color red="91" green="229" blue="249" Hex="#5BE5F9">Ionized-airGlow1</Color>
-        <Alias></Alias>
+        <Alias>GE_inner_ear_right</Alias>
     </roi>
     <roi>
         <name>Cochlea_R_PRVxx</name>
@@ -5805,8 +5805,7 @@
         <Export></Export>
         <FMAID>59103</FMAID>
         <Color red="183" green="153" blue="87" Hex="#B79957">OrleansTune</Color>
-        <Alias>Lacrimal_Gland_L,GlandLacrimal_L,LacrimalGland_L,LacrimalGlnd_L
-        </Alias>
+        <Alias>Lacrimal_Gland_L,GlandLacrimal_L,LacrimalGland_L,LacrimalGlnd_L,GE_lacrimal_left</Alias>
     </roi>
     <roi>
         <name>Glnd_Lacrimal_L_PRVxx</name>
@@ -5857,8 +5856,7 @@
         <Export></Export>
         <FMAID>59102</FMAID>
         <Color red="170" green="184" blue="244" Hex="#AAB8F4">Perano</Color>
-        <Alias>Lacrimal_Gland_R,GlndLacrimal_R,GlandLacrimal_R,LacrimalGland_R,LacrimalGlnd_R
-        </Alias>
+        <Alias>Lacrimal_Gland_R,GlndLacrimal_R,GlandLacrimal_R,LacrimalGland_R,LacrimalGlnd_R,GE_lacrimal_right</Alias>
     </roi>
     <roi>
         <name>Glnd_Lacrimal_R_PRVxx</name>
@@ -6889,6 +6887,23 @@
         <Alias>larynx,larnyx</Alias>
     </roi>
     <roi>
+        <name>Larynx_G</name>
+        <TG263PrimaryName>Larynx_G</TG263PrimaryName>
+        <Description>glottic Larynx</Description>
+        <NCIt></NCIt>
+        <TargetType>Anatomic</TargetType>
+        <RTROIInterpretedType>Organ</RTROIInterpretedType>
+        <MajorCategory>Larynx</MajorCategory>
+        <MinorCategory></MinorCategory>
+        <AnatomicGroup>Head and Neck</AnatomicGroup>
+        <NCharacters>8</NCharacters>
+        <TG263ReverseOrderName>G_Larynx</TG263ReverseOrderName>
+        <Export></Export>
+        <FMAID>55476</FMAID>
+        <Color red="253" green="183" blue="85" Hex="#FDB755">SummerOrange</Color>
+        <Alias>glottic larynx,GE_Larynx_G</Alias>
+    </roi>
+    <roi>
         <name>Larynx_SG</name>
         <TG263PrimaryName>Larynx_SG</TG263PrimaryName>
         <Description>Supraglottic Larynx</Description>
@@ -6903,7 +6918,7 @@
         <Export></Export>
         <FMAID>55476</FMAID>
         <Color red="253" green="183" blue="85" Hex="#FDB755">SummerOrange</Color>
-        <Alias>SGL,subglottic larynx</Alias>
+        <Alias>SGL,subglottic larynx,GE_Larynx_SG</Alias>
     </roi>
     <roi>
         <name>Lens</name>
@@ -6937,7 +6952,7 @@
         <Export></Export>
         <FMAID>58243</FMAID>
         <Color red="255" green="15" blue="171" Hex="#FF0FAB">SpicyPink</Color>
-        <Alias>LensL,left_lens,Lens L,Lens Left</Alias>
+        <Alias>LensL,left_lens,Lens L,Lens Left,GE_lens_left</Alias>
     </roi>
     <roi>
         <name>Lens_L_PRVxx</name>
@@ -6988,7 +7003,7 @@
         <Export></Export>
         <FMAID>58242</FMAID>
         <Color red="145" green="246" blue="36" Hex="#91F624">SpringFrost</Color>
-        <Alias>LensR,right_lens,Lens Right</Alias>
+        <Alias>LensR,right_lens,Lens Right,GE_lens_right</Alias>
     </roi>
     <roi>
         <name>Lens_R_PRVxx</name>
@@ -7485,7 +7500,7 @@
         <Export></Export>
         <FMAID>46623</FMAID>
         <Color red="194" green="76" blue="197">#C24CC5</Color>
-        <Alias></Alias>
+        <Alias>PCM_inf,GE_PCM_inf</Alias>
     </roi>
     <roi>
         <name>Musc_Constrict_M</name>
@@ -7502,7 +7517,7 @@
         <Export></Export>
         <FMAID>46622</FMAID>
         <Color red="194" green="76" blue="197">#C24CC5</Color>
-        <Alias></Alias>
+        <Alias>PCM_mid,GE_PCM_mid</Alias>
     </roi>
     <roi>
         <name>Musc_Constrict_S</name>
@@ -7519,7 +7534,7 @@
         <Export></Export>
         <FMAID>46621</FMAID>
         <Color red="194" green="76" blue="197">#C24CC5</Color>
-        <Alias></Alias>
+        <Alias>PCM_sup,GE_PCM_sup</Alias>
     </roi>
     <roi>
         <name>Musc_Masseter</name>
@@ -7808,7 +7823,7 @@
         <Export></Export>
         <FMAID>62045</FMAID>
         <Color red="253" green="35" blue="153" Hex="#FD2399">PersianRose</Color>
-        <Alias>chiasm,Chiasm,Optic Chiasm</Alias>
+        <Alias>chiasm,Chiasm,Optic Chiasm,GE_chiasma</Alias>
     </roi>
     <roi>
         <name>OpticChiasm_PRVxx</name>
@@ -8151,7 +8166,7 @@
         <Export></Export>
         <FMAID>59798</FMAID>
         <Color red="252" green="201" blue="87" Hex="#FCC957">AngryPasta</Color>
-        <Alias>left_parotid,parotid_l,L_parotid,ParotidGland_Left</Alias>
+        <Alias>left_parotid,parotid_l,L_parotid,ParotidGland_Left,GE_parotid_left</Alias>
     </roi>
     <roi>
         <name>Parotid_R</name>
@@ -8168,7 +8183,7 @@
         <Export></Export>
         <FMAID>59797</FMAID>
         <Color red="62" green="170" blue="254" Hex="#3EAAFE">SkyDancer</Color>
-        <Alias>ParotidGland_R,right_parotid,parotid_r,R_Parotid,Parotid Gland Right</Alias>
+        <Alias>ParotidGland_R,right_parotid,parotid_r,R_Parotid,Parotid Gland Right,GE_parotid_right</Alias>
     </roi>
     <roi>
         <name>Parotids</name>
@@ -8245,7 +8260,7 @@
         <Export></Export>
         <FMAID>13889</FMAID>
         <Color red="235" green="255" blue="36" Hex="#EBFF24">SpoiledEgg</Color>
-        <Alias></Alias>
+        <Alias>pituitary,GE_pituitary</Alias>
     </roi>
     <roi>
         <name>Pituitary_PRVxx</name>
@@ -8890,7 +8905,7 @@
         <Export></Export>
         <FMAID>71166</FMAID>
         <Color red="255" green="255" blue="255">#</Color>
-        <Alias></Alias>
+        <Alias>spinal_cord_sup,GE_spinal_cord_sup</Alias>
     </roi>
     <roi>
         <name>Stapes</name>
