@@ -422,7 +422,7 @@ def check_roi(case, exam, rois):
         for r in rois:
             if (
                     case.PatientModel.StructureSets[exam.Name]
-                        .RoiGeometries[r].HasContours()
+                            .RoiGeometries[r].HasContours()
             ):
                 roi_passes.append(True)
             else:
@@ -2538,9 +2538,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
         retval_air = case.PatientModel.RegionsOfInterest[air_name]
         change_roi_color(case=case, roi_name=air_name, rgb=air_color)
         new_structs.append(air_name)
-    air_examination = case.PatientModel.StructureSets[examination.Name].RoiGeometries[
-        air_name
-    ]
+    air_examination = case.PatientModel.StructureSets[examination.Name].RoiGeometries[air_name]
     patient.SetRoiVisibility(RoiName=air_name, IsVisible=False)
     exclude_from_export(case=case, rois=air_name)
 
@@ -2604,7 +2602,7 @@ def make_inner_air(PTVlist, external, patient, case, examination, inner_air_HU=-
     # Build the temporary air volume
     temp_air_roi.GrayLevelThreshold(
         Examination=examination,
-        LowThreshold=-1024,
+        LowThreshold=-1000,
         HighThreshold=inner_air_HU,
         PetUnit="",
         CbctUnit=None,
@@ -3171,8 +3169,7 @@ def iter_planning_structure_etree(etree):
                     "superficial_target"
                 ).attrib["margin_type"]
                 ps_preference["superficial_target_standoff"] = float(
-                    p.find("superficial_target").attrib["standoff"]
-                )
+                    p.find("superficial_target").attrib["standoff"])
                 ps_preference["superficial_target_ExpA"] = [
                     float(p.find("superficial_target").attrib["margin_sup"]),
                     float(p.find("superficial_target").attrib["margin_inf"]),
@@ -3751,6 +3748,84 @@ def dialog_number_of_targets():
     return planning_structures
 
 
+def generate_target_names(prefix, suffix, index, initial_target_offset, source_doses, naming_scheme):
+    """
+    Generates target names based on the specified naming scheme and target type.
+
+    Args:
+        prefix (str): The prefix for the target names (e.g., 'PTV', 'EZ').
+        index (int): The current index in the loop.
+        initial_target_offset (int): The initial offset for target numbering.
+        source_doses (list): The list of source doses.
+        naming_scheme (str): The naming scheme to use ('high_med_low' or 'numbered').
+
+    Returns:
+        str: The generated target name.
+    """
+    risk_level = ""
+    if naming_scheme == 'high_med_low':
+        if index == 0:
+            risk_level = "High"
+        elif index == len(source_doses) - 1:
+            risk_level = "Low"
+        else:
+            risk_level = "Mid" + str(index - 1)
+    elif naming_scheme == 'numbered':
+        risk_level = str(index + initial_target_offset + 1)
+
+    if suffix:
+        return prefix + risk_level + suffix + "_" + source_doses[index]
+    else:
+        return prefix + risk_level + "_" + source_doses[index]
+
+
+def create_target_names(input_source_list, source_doses, initial_target_offset,
+                        PTVPrefix="PTV", OTVPrefix="OTV", sOTVuPrefix="sOTV", naming_scheme="numbered"):
+    """
+    Main function to orchestrate the name generation process for targets.
+
+    Args:
+        input_source_list (list): The list of input sources.
+        source_doses (list): The list of source doses.
+        initial_target_offset (int): The initial offset for target numbering.
+        PTVPrefix, OTVPrefix, sOTVuPrefix (str): Prefixes for different target types.
+        naming_scheme (str): The naming scheme to use ('high_med_low' or 'numbered').
+
+    Returns:
+        dict: A dictionary containing lists of names and a translation mapping.
+    """
+    PTVList, PTVEvalList, OTVList, PTVEZList, sOTVuList, sOTVshellList, translation_mapping = [], [], [], [], [], [], {}
+
+    for index, input_source in enumerate(input_source_list):
+        PTVName = generate_target_names(PTVPrefix, "", index, initial_target_offset, source_doses, naming_scheme)
+        PTVEvalName = generate_target_names(PTVPrefix, "_Eval", index, initial_target_offset, source_doses,
+                                            naming_scheme)
+        PTVEZName = generate_target_names(PTVPrefix, "_EZ", index, initial_target_offset, source_doses, naming_scheme)
+        OTVName = generate_target_names(OTVPrefix, "", index, initial_target_offset, source_doses, naming_scheme)
+        sOTVuName = generate_target_names(sOTVuPrefix, "u", index, initial_target_offset, source_doses, naming_scheme)
+        sOTVshell = generate_target_names("sOTV", "shell", index, initial_target_offset, source_doses, naming_scheme)
+
+        PTVList.append(PTVName)
+        PTVEvalList.append(PTVEvalName)
+        PTVEZList.append(PTVEZName)
+        OTVList.append(OTVName)
+        sOTVuList.append(sOTVuName)
+        sOTVshellList.append(sOTVshell)
+
+        translation_mapping[PTVName] = [input_source, source_doses[index]]
+        translation_mapping[OTVName] = [input_source, source_doses[index]]
+
+    return {
+        "PTVList": PTVList,
+        "PTVEvalList": PTVEvalList,
+        "OTVList": OTVList,
+        "PTVEZList": PTVEZList,
+        "sOTVuList": sOTVuList,
+        "sOTVshellList": sOTVshellList,
+        "translation_mapping": translation_mapping
+    }
+
+
 def planning_structures(
         generate_ptvs=True,
         generate_ptv_evals=True,
@@ -4219,84 +4294,7 @@ def planning_structures(
         )
 
     if generate_ptvs:
-        # Build the name list for the targets
-        PTVPrefix = "PTV"
-        OTVPrefix = "OTV"
-        sotvu_prefix = "sOTVu"
-        # Generate a list of names for the PTV's, Evals, OTV's and EZ (exclusion zones)
-        PTVList = []
-        PTVEvalList = []
-        OTVList = []
-        PTVEZList = []
-        sotvu_list = []
-        high_med_low_targets = False
-        numbered_targets = True
-        for index, target in enumerate(input_source_list):
-            if high_med_low_targets:
-                NumMids = len(input_source_list) - 2
-                if index == 0:
-                    PTVName = PTVPrefix + "_High"
-                    PTVEvalName = PTVPrefix + "_Eval_High"
-                    PTVEZName = PTVPrefix + "_EZ_High"
-                    OTVName = OTVPrefix + "_High"
-                    sotvu_name = sotvu_prefix + "_High"
-                elif index == len(input_source_list) - 1:
-                    PTVName = PTVPrefix + "_Low"
-                    PTVEvalName = PTVPrefix + "_Eval_Low"
-                    PTVEZName = PTVPrefix + "_EZ_Low"
-                    OTVName = OTVPrefix + "_Low"
-                    sotvu_name = sotvu_prefix + "_Low"
-                else:
-                    MidTargetNumber = index - 1
-                    PTVName = PTVPrefix + "_Mid" + str(MidTargetNumber)
-                    PTVEvalName = PTVPrefix + "_Eval_Mid" + str(MidTargetNumber)
-                    PTVEZName = PTVPrefix + "_EZ_Mid" + str(MidTargetNumber)
-                    OTVName = OTVPrefix + "_Mid" + str(MidTargetNumber)
-                    sotvu_name = sotvu_prefix + "_Mid" + str(MidTargetNumber)
-            elif numbered_targets:
-                PTVName = (
-                        PTVPrefix
-                        + str(index + initial_target_offset + 1)
-                        + "_"
-                        + source_doses[index]
-                )
-                PTVEvalName = (
-                        PTVPrefix
-                        + str(index + initial_target_offset + 1)
-                        + "_Eval_"
-                        + source_doses[index]
-                )
-                PTVEZName = (
-                        PTVPrefix
-                        + str(index + initial_target_offset + 1)
-                        + "_EZ_"
-                        + source_doses[index]
-                )
-                OTVName = (
-                        OTVPrefix
-                        + str(index + initial_target_offset + 1)
-                        + "_"
-                        + source_doses[index]
-                )
-                sotvu_name = (
-                        sotvu_prefix
-                        + str(index + initial_target_offset + 1)
-                        + "_"
-                        + source_doses[index]
-                )
-            PTVList.append(PTVName)
-            translation_mapping[PTVName] = [
-                input_source_list[index],
-                str(source_doses[index]),
-            ]
-            PTVEvalList.append(PTVEvalName)
-            PTVEZList.append(PTVEZName)
-            translation_mapping[OTVName] = [
-                input_source_list[index],
-                str(source_doses[index]),
-            ]
-            OTVList.append(OTVName)
-            sotvu_list.append(sotvu_name)
+        target_dict = create_target_names(input_source_list, source_doses, initial_target_offset)
     else:
         logging.warning("Generate PTV's off - a nonsupported operation")
 
@@ -4328,7 +4326,7 @@ def planning_structures(
         [179, 179, 128],  # BrewerUnsatYellow
     ]
 
-    for k, v in translation_mapping.items():
+    for k, v in target_dict['translation_mapping'].items():
         logging.debug(f"The translation map k is {k} and v {v}")
 
     if generate_skin:
@@ -4455,11 +4453,11 @@ def planning_structures(
         # Initially, there are no targets to use in the subtraction
         subtract_targets = []
         for i, t in enumerate(input_source_list):
-            logging.debug(f"Creating target {PTVList[i]} using {t}")
+            logging.debug(f"Creating target {target_dict['PTVList'][i]} using {t}")
             ptv_sources.append(t)
             if i == 0:
                 ptv_definitions = {
-                    "StructureName": PTVList[i],
+                    "StructureName": target_dict['PTVList'][i],
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
                     "VisualizationType": "Filled",
@@ -4479,7 +4477,7 @@ def planning_structures(
                 }
             else:
                 ptv_definitions = {
-                    "StructureName": PTVList[i],
+                    "StructureName": target_dict['PTVList'][i],
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
                     "VisualizationType": "Filled",
@@ -4497,17 +4495,17 @@ def planning_structures(
                     "ExpR": [0] * 6,
                     "StructType": "Ptv",
                 }
-            logging.debug(f"Creating main target {i}: {PTVList[i]}")
+            logging.debug(f"Creating main target {i}: {target_dict['PTVList'][i]}")
             make_boolean_structure(
                 patient=patient, case=case, examination=examination, **ptv_definitions
             )
             newly_generated_rois.append(ptv_definitions.get("StructureName"))
-            subtract_targets.append(PTVList[i])
+            subtract_targets.append(target_dict['PTVList'][i])
 
     # Make the InnerAir structure
     if generate_inner_air:
         air_list = make_inner_air(
-            PTVlist=PTVList,
+            PTVlist=target_dict['PTVList'],
             external="ExternalClean",
             patient=patient,
             case=case,
@@ -4549,7 +4547,7 @@ def planning_structures(
     # Make the PTVEZ objects now
     if generate_underdose:
         # Loop over the PTV_EZs
-        for index, target in enumerate(PTVList):
+        for index, target in enumerate(target_dict['PTVList']):
             ptv_ez_name = "PTV" + str(index + 1) + "_EZ"
             logging.debug(
                 f"Creating exclusion zone target {str(index + 1)}:"
@@ -4557,7 +4555,7 @@ def planning_structures(
             )
             # Generate the PTV_EZ
             PTVEZ_defs = {
-                "StructureName": PTVEZList[index],
+                "StructureName": target_dict['PTVEZList'][index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": derived_target_colors[index],
@@ -4583,9 +4581,7 @@ def planning_structures(
     if generate_ptv_evals:
         if generate_underdose:
             eval_subtract = ["Skin_PRV03", "InnerAir", "UnderDose"]
-            logging.debug(
-                f"Removing the following from eval structures"
-            )
+            logging.debug(f"Removing the following from eval structures")
             if not any(exists_roi(case=case, rois=eval_subtract)):
                 logging.error(
                     f"Missing structure needed for UnderDose: {eval_subtract}"
@@ -4643,14 +4639,14 @@ def planning_structures(
             md_eval_subtract.append(t)
             newly_generated_rois.append(PTVEval_defs.get("StructureName"))
 
-        for index, target in enumerate(PTVList):
+        for index, target in enumerate(target_dict['PTVList']):
             logging.debug(
                 f"Creating evaluation target {str(index + 1)}: "
-                f"{PTVEvalList[index]}"
+                f"{target_dict['PTVEvalList'][index]}"
             )
             # Set the Sources Structure for Evals
             PTVEval_defs = {
-                "StructureName": PTVEvalList[index],
+                "StructureName": target_dict['PTVEvalList'][index],
                 "ExcludeFromExport": False,
                 "VisualizeStructure": False,
                 "StructColor": TargetColors[index],
@@ -4711,9 +4707,9 @@ def planning_structures(
 
         # otv_subtract will store the expanded higher dose targets
         otv_subtract = []
-        for index, target in enumerate(PTVList):
+        for index, target in enumerate(target_dict['PTVList']):
             OTV_defs = {
-                "StructureName": OTVList[index],
+                "StructureName": target_dict['OTVList'][index],
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": derived_target_colors[index],
@@ -4739,20 +4735,20 @@ def planning_structures(
             make_boolean_structure(
                 patient=patient, case=case, examination=examination, **OTV_defs
             )
-            otv_subtract.append(PTVList[index])
+            otv_subtract.append(target_dict['PTVList'][index])
             newly_generated_rois.append(OTV_defs.get("StructureName"))
 
         # make the sOTVu structures now
         if generate_uniformdose:
             # Loop over the sOTVu's
-            for index, target in enumerate(PTVList):
+            for index, target in enumerate(target_dict['PTVList']):
                 logging.debug(
                     f"Creating uniform zone target {str(index + 1)}: "
-                    f"{sotvu_name}"
+                    f"{target_dict['sOTVuList'][index]}"
                 )
                 # Generate the sOTVu
                 sotvu_defs = {
-                    "StructureName": sotvu_list[index],
+                    "StructureName": target_dict['sOTVuList'][index],
                     "ExcludeFromExport": True,
                     "VisualizeStructure": False,
                     "StructColor": derived_target_colors[index],
@@ -4840,7 +4836,7 @@ def planning_structures(
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": [192, 192, 192],
-            "SourcesA": PTVList,
+            "SourcesA": target_dict['PTVList'],
             "MarginTypeA": "Expand",
             "ExpA": [ring_standoff] * 6,
             "OperationA": "Union",
@@ -4874,7 +4870,7 @@ def planning_structures(
 
     if generate_target_rings:
         logging.debug("Target specific rings being constructed")
-        for index, target in enumerate(PTVList):
+        for index, target in enumerate(target_dict['PTVList']):
             ring_name = (
                     "ring"
                     + str(index + initial_target_offset + 1)
@@ -4914,7 +4910,7 @@ def planning_structures(
                 "ExcludeFromExport": True,
                 "VisualizeStructure": False,
                 "StructColor": [252, 179, 231],
-                "SourcesA": PTVList,
+                "SourcesA": target_dict['PTVList'],
                 "MarginTypeA": "Expand",
                 "ExpA": [ring_standoff + thickness_hd_ring] * 6,
                 "OperationA": "Union",
@@ -4940,7 +4936,7 @@ def planning_structures(
             "ExcludeFromExport": True,
             "VisualizeStructure": False,
             "StructColor": [232, 201, 223],
-            "SourcesA": PTVList,
+            "SourcesA": target_dict['PTVList'],
             "MarginTypeA": "Expand",
             "ExpA": [ring_standoff + thickness_hd_ring + thickness_ld_ring] * 6,
             "OperationA": "Union",
@@ -4969,7 +4965,7 @@ def planning_structures(
             "MarginTypeA": "Expand",
             "ExpA": [0] * 6,
             "OperationA": "Union",
-            "SourcesB": PTVList,
+            "SourcesB": target_dict['PTVList'],
             "MarginTypeB": "Expand",
             "ExpB": [2] * 6,
             "OperationB": "Union",
@@ -4996,7 +4992,7 @@ def planning_structures(
             "MarginTypeA": "Expand",
             "ExpA": [0] * 6,
             "OperationA": "Union",
-            "SourcesB": PTVList,
+            "SourcesB": target_dict['PTVList'],
             "MarginTypeB": "Expand",
             "ExpB": [1] * 6,
             "OperationB": "Union",
