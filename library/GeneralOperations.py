@@ -119,15 +119,19 @@ def logcrit(message):
     # Determine deepest scope
     current_scope = find_scope()
     level = ""
-    # if current_scope['Patient'] is not None:
-    #    level += 'PatientID: ' + current_scope['Patient'].PatientID + ':'
+
+    # Construct the log message with '|' separator
     if current_scope["Case"] is not None:
-        level += "Case: " + current_scope["Case"].CaseName + "\t"
+        level += "Case: " + current_scope["Case"].CaseName + " | "
     if current_scope["Examination"] is not None:
-        level += "Exam: " + current_scope["Examination"].Name + "\t"
+        level += "Exam: " + current_scope["Examination"].Name + " | "
     if current_scope["Plan"] is not None:
-        level += "Plan: " + current_scope["Plan"].Name + "\t"
+        level += f"Plan: {current_scope['Plan'].Name} | PlanId: {current_scope['Plan'].UniqueId} | "
     if current_scope["BeamSet"] is not None:
-        level += "Beamset: " + current_scope["BeamSet"].DicomPlanLabel + "\t"
+        level += f"Beamset: {current_scope['BeamSet'].DicomPlanLabel} | BeamsetId: {current_scope['BeamSet'].UniqueId} | "
+
+    # Append the actual message to the log level information
     message = level + message
+
+    # Log the message at critical level
     logging.critical(message)
