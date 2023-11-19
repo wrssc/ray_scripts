@@ -19,6 +19,9 @@ KEY_CHECK = '-CHECK-'
 KEY_USER_COMMENT = '-USER_COMMENT-'
 KEY_IMD = '-IMPLANTED_MEDICAL_DEVICE-'
 KEY_PRIOR_RT = '-PRIOR_RADIOTHERAPY-'
+KEY_TESTS = '-TESTS-'
+KEY_HEADER = '-HEADER-'
+KEY_QA = '-QA_FORM-'
 #
 # All Text keys will just add 'TEXT-' to the input key. e.g. '-INSTRUCTION-TEXT'
 KEY_RADIO = '-RADIO-'
@@ -27,8 +30,8 @@ KEY_INPUT_TEXT = '-INPUT_TEXT-'
 KEY_CHECKBOX = '-CHECKBOX-'
 KEY_BEAMSET_COUNT = KEY_BEAMSET + '-COUNT-'
 KEY_BEAMSET_DOSE = KEY_BEAMSET + '-DOSE-'
-KEY_BEAMSET_FRACTION_DOSE = KEY_BEAMSET + '-FRACTION-DOSE-'
-KEY_BEAMSET_TARGET_NAME = KEY_BEAMSET + '-TARGET-NAME'
+KEY_BEAMSET_FRACTION_DOSE = KEY_BEAMSET + '-FRACTION_DOSE-'
+KEY_BEAMSET_TARGET_NAME = KEY_BEAMSET + '-TARGET_NAME'
 KEY_BEAMSET_TARGET_COUNT = KEY_BEAMSET + '-TARGET_COUNT-'
 KEY_BEAMSET_FRACTION_COUNT = KEY_BEAMSET + KEY_FRACTIONS
 KEY_SIDE_PANEL = '-SIDE_PANEL-'
@@ -65,4 +68,47 @@ SOURCE_USER = 'Human Test'
 SOURCE_AUTO = 'Automated Test'
 KEY_OUT_DOMAIN_TYPE = '-DOMAIN_TYPE-'
 KEY_OUT_DOMAIN_NAME = '-DOMAIN_NAME-'
+KEY_OUT_CHECK_GROUP = '-CHECK_GROUP-'
 KEY_PATIENT_ORIENTATION = '-PATIENT_ORIENTATION-'
+#
+# QA FORM KEYS
+KEY_QA_FORM = '-QA_FORM-'
+QA_FORM_AUTO = [
+    {'KEY': 'report_date', 'TEXT': 'Date of Report'},
+    {'KEY': 'patient_name', 'TEXT': 'Patient Name'},
+    {'KEY': 'mr_num', 'TEXT': 'MR Number'},
+    {'KEY': 'attending_physician', 'TEXT': 'Attending Physician'},
+    {'KEY': 'where_in_proc_discovered',
+     'TEXT': 'Where in the process was the event discovered?'},
+    {'KEY': 'anatomical_site', 'TEXT': 'What anatomical site is being treated?',
+     'OPTIONS': ['H&N', 'Brain', 'Thorax', 'Breast', 'Abdomen',
+                 'GYN', 'GU', 'Skin', 'Extremities', 'GI', 'Pelvis',
+                 'Other (Please specify)']
+     },
+    {'KEY': 'other_anatom_type_text', 'TEXT': 'Specify other site'},
+    {'KEY': 'pertinent_treatment_technique',
+     'TEXT': 'Treatment Technique Pertinent to Event',
+     'OPTIONS': ['2D', '3D', 'IMRT/VMAT']},
+    {'KEY': 'occurrence_time', 'TEXT': 'Time (nearest hour)'},
+    {'KEY': 'am', 'TEXT': 'AM'},
+    {'KEY': 'pm', 'TEXT': 'PM'},
+    {'KEY': 'synopsis', 'TEXT': 'Brief Label/Synopsis'},
+]
+QA_FORM_MANUAL = [
+    {'KEY': 'occurrence_choice', 'TEXT': 'Date of Occurrence',
+     'OPTIONS': ['Simulation Date', 'Plan Date']},
+    {'KEY': 'treatment_location', 'TEXT': 'Location',
+     'OPTIONS': ['N/A', 'Room A', 'Room B', 'Room C', 'Room D', 'View Ray',
+                 'East Clinic', 'HDR', 'CT', 'Johnson Creek']},
+    {'KEY': 'where_in_proc_occured', 'TEXT': 'Where in the process did the event occur?',
+     'OPTIONS': ['Pre-planning Imaging and Simulation', 'Treatment planning']},
+    {'KEY': 'extent_of_issue', 'TEXT': 'Extent of issue',
+     'OPTIONS': ['Near-miss', 'Reached the patient (Attending MD notified)',
+                 'Reached the patient/Possible dosimetric implications (Attending MD notified)',
+                 'Unsafe condition', 'Operational/Process Improvement']},
+    {'KEY': 'description', 'TEXT': 'Describe the discrepancy below.'},
+]
+
+#
+# Error messages
+FAILED_AUTOMATED_TEST = "Fail: Comment Needed"
