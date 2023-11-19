@@ -1,5 +1,6 @@
 import re
 from PlanReview.review_definitions import ALERT
+import logging
 
 
 def parse_order_selection(beamset_name, messages, dialog_key):
@@ -23,8 +24,9 @@ def parse_order_selection(beamset_name, messages, dialog_key):
                                   f'Treatment Planning for Beamset '
                                   f'{beamset_name} goals manually defined')}
     for m in messages:
-        template_search = re.search(beamset_template_searches['Dialog'], m[3])
-        if template_search and beamset_name in m[1]:
+        # logging.debug(m)
+        template_search = re.search(beamset_template_searches['Dialog'], m['Message'])
+        if template_search and beamset_name in m['Message']:
             # Found the TPO Dialog. Lets display it
             # Note that it is a little sloppy, since this will always grab
             # the last match in the log file
