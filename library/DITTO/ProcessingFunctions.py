@@ -1,6 +1,6 @@
 import numpy as np
 import re
-from DicomPairClasses import Result
+from library.DITTO.DicomPairClasses import Result
 
 
 def excuse_element_with_parent(element_pair, excused_parent, comment=""):

@@ -1,8 +1,6 @@
 from pathlib import Path
 import pydicom
 import PySimpleGUI as sg
-from DicomPairClasses import ElementPair, SequencePair, DicomTreePair
-from ProcessingFunctions import PROCESS_FUNCTION_DICT
 
 ATTRIBUTE_MATCH_DICT = {
     "BeamSequence": "BeamNumber",
@@ -37,6 +35,8 @@ def create_dicom_tree_pair(
         parent_key="",
         tree_label=""
 ):
+    from library.DITTO.DicomPairClasses import ElementPair, SequencePair, DicomTreePair
+    from library.DITTO.ProcessingFunctions import PROCESS_FUNCTION_DICT
     dicom_tree_pair = DicomTreePair(
         parent=parent,
         tree_list=[],

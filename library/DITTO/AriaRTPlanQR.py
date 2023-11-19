@@ -356,8 +356,7 @@ def gui_choose_plans(list_aria, list_raystation):
     rs_plan_name = str(guiValues.pop(keyRS))
     return (aria_plan_name, rs_plan_name)
 
-
-def aria_qr(root_dir=None):
+def aria_qr(root_dir=None, beamset_name=None):
     """
     General outline:
     1. Echo Aria to make sure it works
@@ -384,19 +383,25 @@ def aria_qr(root_dir=None):
 
     # Check for echo and fail if broken
     if not aria_echo():
-        return (None, None, None)
+        return None, None, None
 
     # Get the lists of valid objects and fail if there are no valid RTPlans or beamsets
     dict_aria_plans = aria_rtplan_list()
     list_rs_bs = rs_beamset_list()
     if not dict_aria_plans or not list_rs_bs:
-        return (None, None, None)
+        return None, None, None
 
-    # Ask the user to select the plan and beamset of choice, and fail if not selected
-    list_aria_plans = list(dict_aria_plans.keys())
-    (selected_aria, selected_rs) = gui_choose_plans(list_aria_plans, list_rs_bs)
-    if not selected_aria or not selected_rs:
-        return (None, None, None)
+    if beamset_name:
+        if beamset_name in dict_aria_plans:
+            selected_aria = selected_rs = beamset_name
+        else:
+            return (None, None, None)
+    else:
+        # Ask the user to select the plan and beamset of choice, and fail if not selected
+        list_aria_plans = list(dict_aria_plans.keys())
+        (selected_aria, selected_rs) = gui_choose_plans(list_aria_plans, list_rs_bs)
+        if not selected_aria or not selected_rs:
+            return None, None, None
 
     # Export the Aria RTPlan file
     aria_file_location = aria_get_rtplan(dict_aria_plans[selected_aria], root_dir)
@@ -413,7 +418,7 @@ def aria_qr(root_dir=None):
     )
     print("RS beamset " + selected_rs + " saved to " + str(rs_file_location))
 
-    return (aria_file_location, rs_file_location, selected_rs)
+    return aria_file_location, rs_file_location, selected_rs
 
 
 if __name__ == "__main__":
