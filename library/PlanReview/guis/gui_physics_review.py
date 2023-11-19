@@ -2,11 +2,7 @@
 import PySimpleGUI as Sg
 import os
 import logging
-from PlanReview.review_definitions import (
-    PROTOCOL_DIR, OUTPUT_DIR, ICON_PRINT, ICON_LOAD, ICON_ERROR, ICON_SAVE,
-    ICON_PAUSE, ICON_START, ICON_CANCEL, ICON_SMALL_PRINT, ICON_SMALL_LOAD,
-    ICON_SMALL_ERROR, ICON_SMALL_SAVE, ICON_SMALL_PAUSE, ICON_SMALL_START,
-    ICON_SMALL_CANCEL)
+from PlanReview.review_definitions import (PROTOCOL_DIR, OUTPUT_DIR)
 from PlanReview.utils import (get_user_name, get_roi_names_from_type,
                               get_user_display_parameters, perform_automated_checks)
 from PlanReview.utils.protocol_loading import load_protocols, \
@@ -16,6 +12,8 @@ from PlanReview.guis.gui_report_script_error import report_script_error
 from PlanReview.guis.create_side_panel import (
     create_side_panel, load_side_panel, extract_values_side_panel,
     on_side_panel_radio_button_click, is_valid_side_panel)
+from PlanReview.guis.gui_qa_form import (
+    build_qa_form, extract_values_qa_form, load_qa_form, on_checker_image_click)
 from PlanReview.guis.create_preplan_tab import (
     load_preplan, extract_values_preplan_tab, validate_preplan_tab,
     calculate_preplan_dose_per_fraction,
@@ -29,8 +27,8 @@ from PlanReview.guis.create_physics_manual_tab import (
     extract_values_manual_tab, load_manual, process_auto_tests,
     process_check_box_values, is_valid_manual_tab, is_visible_tab)
 from PlanReview.guis.gui_top_buttons import build_top_buttons
+from PlanReview.guis.gui_ditto_wrapper import run_dicom_integrity_tool_physics_review
 import json
-from typing import Dict
 
 """
 
@@ -78,7 +76,7 @@ def save_review(rso, values, quiet=False):
 
 
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
-                maximum_beamset_count, check_box_copy, file_name=None):
+                maximum_beamset_count, check_box_copy, file_name=None, qa_form_accessible=False):
     if not file_name:
         file_name = f"{rso.patient.PatientID}_" \
                     f"{rso.beamset.DicomPlanLabel}_review.json"
@@ -102,10 +100,13 @@ def load_review(window, rso, sites, protocols, instructions, maximum_target_numb
         if window[KEY_BEAMSET_COUNT].get() else 1
     # Load the main window data.
     load_side_panel(window, values)
+    # Load the QA form
+    if qa_form_accessible:
+        load_qa_form(window, values)
     return num_beamsets
 
 
-def get_review_gui_values(window,values, passing_tests, failed_tests, check_boxes):
+def get_review_gui_values(window, values, passing_tests, failed_tests, check_boxes, qa_form_accessible=False):
     """
     Extracts the values entered into the PySimpleGUI dialog and sorts them by keys.
     This is used for saving the review to file and for the report
@@ -132,6 +133,10 @@ def get_review_gui_values(window,values, passing_tests, failed_tests, check_boxe
     # Merge them into a single dictionary
     sorted_values = merge_dicts(side_frame_values, preplan_values)
     sorted_values = merge_dicts(sorted_values, manual_values)
+    # Get values from the qa form
+    if qa_form_accessible:
+        qa_form_values = extract_values_qa_form(window)
+        sorted_values = merge_dicts(sorted_values, qa_form_values)
 
     return sorted_values
 
@@ -170,6 +175,25 @@ def on_submit_build_tree(tree_data, tab_width, tab_height, pix_per_char_width, p
     return tree_layout
 
 
+def get_ditto_tab(tab_width, tab_height, beamsets):
+    tab_list = []
+    match_trees = {}
+    count = 1
+    for beamset in beamsets:
+        ditto_layout, match_tree = run_dicom_integrity_tool_physics_review(
+            tab_width=tab_width, tab_height=tab_height, beamset_name=beamset,
+            progress_bar=True)
+        if ditto_layout is None and match_tree is None:
+            continue
+        tab_ditto = Sg.Tab(f'DI: {count}', ditto_layout,
+                           key='DITTO',
+                           tooltip=f'Review and log DITTO results for {beamset}')
+        tab_list.append(tab_ditto)
+        match_trees[beamset] = match_tree
+        count += 1
+    return tab_list, match_trees
+
+
 def merge_dicts(dict1, dict2):
     merged = dict1.copy()  # Start with a copy of dict1
 
@@ -197,6 +221,7 @@ def launch_physics_review_gui(rso):
     Returns: None
     """
     import connect
+    qa_form_accessible = True
     # Variable initialization
     ui = connect.get_current('ui')
     failed_tests = []
@@ -209,9 +234,9 @@ def launch_physics_review_gui(rso):
 
     # In the tree display, set the size of the right column relative to left
     if save_space:
-        tab_width = 118 * pix_per_char_width  # Based on top window width
+        tab_width = 120 * pix_per_char_width  # Based on top window width
         sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
-        comment_width_chars = int(sidebar_width - 114) // pix_per_char_width  # Gap is around 6 char
+        comment_width_chars = int(sidebar_width - 120) // pix_per_char_width  # Gap is around 6 char
     else:
         tab_width = 154 * pix_per_char_width  # Based on top window width
         sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
@@ -241,48 +266,7 @@ def launch_physics_review_gui(rso):
     else:
         maximum_target_number = 10
     # Top frame
-    top = build_top_buttons(top_width, top_height,save_space)
-    #top_image_size = (72, 30) if save_space else (110, 30)
-    #top_subsample = 1 if save_space else 1
-    #top_border = 0 if save_space else 0  # 2
-    #top_pad = ((12, 12), (3, 0))
-    #
-    #small_icons = {
-    #    "-SAVE-": (ICON_SMALL_SAVE, "Save the current view"),
-    #    "-LOAD-": (ICON_SMALL_LOAD, "Load a previously saved view"),
-    #    "-START-": (ICON_SMALL_START, "Start the automated tests"),
-    #    "-REPORT-": (ICON_SMALL_PRINT, "Save the current view and create a report"),
-    #    "-PAUSE-": (ICON_SMALL_PAUSE, "Pause the script to interact in RayStation"),
-    #    "-CANCEL-": (ICON_SMALL_CANCEL, "Cancel the script execution"),
-    #    "-ERROR-": (ICON_SMALL_ERROR, "Generate an error report"),
-    #}
-
-    # large_icons = {
-    #     "-SAVE-": (ICON_SAVE, "Save the current view"),
-    #     "-LOAD-": (ICON_LOAD, "Load a previously saved view"),
-    #     "-START-": (ICON_START, "Start the automated tests"),
-    #     "-REPORT-": (ICON_PRINT, "Save the current view and create a report"),
-    #     "-PAUSE-": (ICON_PAUSE, "Pause the script to interact in RayStation"),
-    #     "-CANCEL-": (ICON_CANCEL, "Cancel the script execution"),
-    #     "-ERROR-": (ICON_ERROR, "Generate an error report"),
-    #  }
-
-    # icons = small_icons if save_space else large_icons
-
-    # top_buttons = [Sg.Button('', image_filename=icons[key][0],
-    #                          image_size=top_image_size,
-    #                          image_subsample=top_subsample,
-    #                          pad=top_pad,
-    #                          border_width=top_border,
-    #                          tooltip=icons[key][1],
-    #                          key=key)
-    #                for key in icons.keys()]
-
-    # top = Sg.Frame('',
-    #                [top_buttons],
-    #                vertical_alignment='center',
-    #                size=(top_width, top_height),
-    #                )
+    top = build_top_buttons(top_width, top_height, save_space)
     # Gather the layout
     layout = [
         [
@@ -317,9 +301,7 @@ def launch_physics_review_gui(rso):
     while True:  # Event Loop
         event, values = window.read()
         if event in (Sg.WIN_CLOSED, '-CANCEL-'):
-            check_list = []
-            header_data = {}
-            break
+            return {}
         # Load Event
         elif event == '-LOAD-':
             num_beamsets = load_review(
@@ -377,11 +359,13 @@ def launch_physics_review_gui(rso):
         if event == '-START-':
             preplan_valid = validate_preplan_tab(window)
             if preplan_valid:
-                #
                 # Get the beamset info for review
                 tree_data, tree_children = perform_automated_checks(
                     rso, do_physics_review=True, values=values,
                     display_progress=True, beamsets=beamsets)
+                # Call Ditto
+                rso.patient.Save()
+                ditto_tab_list, match_trees = get_ditto_tab(tab_width, tab_height, beamsets)
                 tab_group = window['tab_group']
                 tab1 = on_submit_build_tree(
                     tree_data, tab_width, tab_height, pix_per_char_width, pix_per_char_height)
@@ -392,8 +376,7 @@ def launch_physics_review_gui(rso):
                                          font=tab_font))
                 #
                 # Build next tab
-                check_box_copy = build_manual_check_box_list(rso, beamsets=[
-                    rso.beamset.DicomPlanLabel])
+                check_box_copy = build_manual_check_box_list(rso, beamsets=[rso.beamset.DicomPlanLabel])
 
                 passing_tests, failed_tests = get_tests_from_tree(tree_children)
                 tabs = create_tab_manual_checks(check_box_copy, passing_tests,
@@ -403,15 +386,38 @@ def launch_physics_review_gui(rso):
                 for tab in tabs:
                     if is_visible_tab(tab, window):
                         tab_group.add_tab(tab)
+                for tab in ditto_tab_list:
+                    if tab:
+                        tab_group.add_tab(tab)
 
                 window['Review and Logs'].select()
+
+        # Update to Ditto
+        # Check if the event starts with '-DITTO_TREE_' and if there are beamsets to process
+        logging.debug(f'Event {event}')
+        if beamsets and 'DITTO_TREE_' in event:
+            # Extract the beamset name from the event key
+            beamset_parts = event.split('_')
+            beamset_name = '_'.join(beamset_parts[-3:])  # Join the last three parts to form the beamset name
+            logging.debug(f'Beamset name: {beamset_name}')
+            if beamset_name in beamsets:  # Check if the extracted name is in the list of beamsets
+                tree_key = values[event][0]
+                logging.debug(f'Tree key: {tree_key}')
+                dicom_match_tree = match_trees[beamset_name]
+                value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
+                element = dicom_match_tree.get_element_from_key(tree_key[1:])
+
+                # Update the values in the window
+                window[f"-DITTO_TREE_VALUE1_{beamset_name}"].update(value1 if value1 is not None else "")
+                window[f"-DITTO_TREE_VALUE2_{beamset_name}"].update(value2 if value2 is not None else "")
+                window[f"-DITTO_TREE_DEBUG_{beamset_name}"].update(element.parent.get_name() if element.parent else "")
 
         #
         # Plan Revision Events
         side_panel_event = f"{KEY_PROCEED_REVISE}{KEY_RADIO}"
         if side_panel_event in event:
             on_side_panel_radio_button_click(window, event)
-        #
+        # #
         # Manual Tab Events
         if type(event) is tuple:
             if KEY_CHECK + KEY_RADIO in event[0]:
@@ -425,10 +431,10 @@ def launch_physics_review_gui(rso):
             # Perform the form submission logic
             if is_valid:
                 # Save the review
-                review_file_name = save_review(
-                    rso,
-                    get_review_gui_values(window, values, passing_tests, failed_tests, check_box_copy),
-                    quiet=True)
+                review_file_name = save_review(rso,
+                                               get_review_gui_values(window, values, passing_tests, failed_tests,
+                                                                     check_box_copy),
+                                               quiet=True)
 
                 #
                 # Retrieve data from the check-boxes and automated tests
@@ -439,6 +445,10 @@ def launch_physics_review_gui(rso):
                 #
                 # Retrieve data from the first tab and side panel
                 preplan_data = extract_values_preplan_tab(window)
+                if qa_form_accessible:
+                    qa_form_data = build_qa_form(rso, window)
+                else:
+                    qa_form_data = None
                 sidepanel_data = extract_values_side_panel(window)
                 header_data = merge_dicts(preplan_data, sidepanel_data)
                 break
@@ -446,7 +456,15 @@ def launch_physics_review_gui(rso):
             review_file_name = save_review(
                 rso, get_review_gui_values(window, values, passing_tests, failed_tests,
                                            check_box_copy))
+        if qa_form_accessible:
+            if event == '-CHECKER-IMAGE-':
+                on_checker_image_click(window, event)
+                on_side_panel_radio_button_click(window, event)
 
     window.close()
+    if qa_form_accessible:
+        return_dict = {KEY_TESTS: check_list, KEY_HEADER: header_data, KEY_QA_FORM: qa_form_data}
+    else:
+        return_dict = {KEY_TESTS: check_list, KEY_HEADER: header_data, KEY_QA_FORM: {}}
 
-    return {'check_list': check_list, 'header_data': header_data}
+    return return_dict
