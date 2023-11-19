@@ -137,6 +137,8 @@
      * Energy
     TODO: Objective type is correct: for anything with min goals, should be
      PTV/GTV/CTV
+    TODO: If head and neck plan check for inner air structure
+
     In parse_order_selection:
     TODO: Take a reg-exp as a list for input for matching a dialog and for
         each desired phrase loop over the phrases for a match
@@ -299,7 +301,8 @@ def automated_check_tree(rso, do_physics_review, beamsets=None):
     dialog_key = 'Beamset Template Selection'
     beamset_dialog = parse_beamset_selection(
         beamset_name=rso.beamset.DicomPlanLabel,
-        messages=message_logs)
+        messages=message_logs,
+        beamset_id=rso.beamset.UniqueId)
     node, child = build_tree_element(parent_key=beamset_key[0],
                                      child_key=dialog_key,
                                      pass_result=beamset_dialog[dialog_key][0],
@@ -420,13 +423,14 @@ def physics_review(do_physics_review=True, rso=None):
     if doc_only:
         tests = None
         header = None
+        review_data = None
     else:
         # Gui
-        tests, header = launch_physics_review_gui(rso)
-        if not tests and not header:
+        review_data = launch_physics_review_gui(rso)
+        if not review_data:
             sys.exit('Physics review canceled')
 
     if do_physics_review:
-        generate_doc(rso, tests=tests, header_data=header, test_mode=doc_only)
-        generate_pdf(rso, tests=tests, header_data=header, test_mode=doc_only)
+        # generate_doc(rso, ata=header, test_mode=doc_only)
+        generate_pdf(rso, review_data=review_data, test_mode=doc_only)
         sg.popup('Form submitted successfully.')
