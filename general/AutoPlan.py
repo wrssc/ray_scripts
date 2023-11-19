@@ -85,105 +85,133 @@ from PlanOperations import find_optimization_index, compute_dose
 import autoplan_whole_brain
 import FinalDose
 
+
 # from Objectives import add_goals_and_objectives_from_protocol
-derived_keywords = ['^.*_Eval.*?$', '^.*_EZ.*?$']
+
+
+def find_protocol_targets(goal_locations, derived_keywords):
+    """
+    Extracts protocol targets from the XML data, excluding derived targets.
+
+    Args:
+        goal_locations (tuple): XML nodes containing goal information.
+        derived_keywords (list): List of regex patterns for derived targets.
+
+    Returns:
+        list: Lists of protocol targets and derived targets.
+    """
+    protocol_targets, derived_targets = [], []
+    for s in goal_locations:
+        for g in s:
+            if int(g.find('priority').text) % 2 == 0:
+                g_name = g.find('name').text
+                if any(re.search(r, g_name) for r in derived_keywords):
+                    derived_targets.append(g_name)
+                else:
+                    d_name = g.find('dose').attrib.get('roi', "")
+                    if g_name not in protocol_targets:
+                        protocol_targets.append(g_name)
+                    elif d_name and d_name not in protocol_targets:
+                        protocol_targets.append(d_name)
+    return protocol_targets, derived_targets
+
+
+def build_target_inputs(protocol_targets, plan_targets):
+    """
+    Constructs the input dictionaries for the target dialog.
+
+    Args:
+        protocol_targets (list): List of protocol targets.
+        plan_targets (list): List of plan targets.
+
+    Returns:
+        dict: Dictionaries for target inputs, initial values, data types, options, and required fields.
+    """
+    target_inputs, target_initial, target_datatype, target_options, target_required = {}, {}, {}, {}, []
+    i = 1
+    for p in protocol_targets:
+        k = str(i).zfill(2)
+        k_name = f'{k}Aname_{p}'
+        k_dose = f'{k}Bdose_{p}'
+        target_inputs[k_name] = f'Match a plan target to {p}'
+        target_inputs[k_dose] = f'Provide dose for protocol target: {p} Dose in cGy'
+        target_options[k_name] = plan_targets
+        target_datatype[k_name] = 'combo'
+        target_required.extend([k_name, k_dose])
+        if p in plan_targets:
+            target_initial[k_name] = p
+        i += 1
+    return target_inputs, target_initial, target_datatype, target_options, target_required
+
+
+def process_target_dialog_response(response, target_required):
+    """
+    Processes the user's response from the target dialog.
+
+    Args:
+        response (dict): User response from the dialog.
+        target_required (list): List of required fields in the dialog.
+
+    Returns:
+        tuple: Processed site, number of fractions, and translation map.
+    """
+    if response == {}:
+        logging.info('Target dialog cancelled by user')
+        sys.exit('Target dialog cancelled')
+
+    translation_map = {}
+    site, num_fx = None, None
+    for k, v in response.items():
+        if k == '00_nfx':
+            num_fx = int(v)
+        elif k == '00_site':
+            site = str(v)
+        elif k in target_required and v:
+            i, p = k.split("_", 1)
+            if p not in translation_map:
+                translation_map[p] = [None] * 3
+            if 'name' in i:
+                translation_map[p][0] = v
+            if 'dose' in i:
+                translation_map[p][1] = float(v) / 100.0
+                translation_map[p][2] = 'Gy'
+    return site, num_fx, translation_map
 
 
 def target_dialog(case, protocol, order, use_orders=True):
-    # TODO autoload with order data, search prescription, and warn user unassigned are ignored
-    # Find RS targets
-    plan_targets = StructureOperations.find_targets(case=case)
-    protocol_targets = []
-    # Handle the derived targets that use doses from user-specified target levels
-    derived_targets = []
-    # Build second dialog
-    target_inputs = {'00_nfx': 'Number of fractions'}
-    target_initial = {}
-    target_datatype = {'00_nfx': 'text'}
-    target_options = {}
-    target_required = list('00_nfx')
-    if use_orders:
-        goal_locations = (protocol.findall('./goals/roi'), order.findall('./goals/roi'))
-        if order.find('prefix') and "Site" not in order.find('prefix').text:
-            site = order.find('prefix').text
-        else:
-            target_inputs['00_site'] = 'Enter site abbreviation, e.g. BreL for left breast'
-            target_datatype['00_site'] = 'text'
-            target_required.append('00_site')
+    derived_keywords = ['^.*_Eval.*?$', '^.*_EZ.*?$']
+    plan_targets = StructureOperations.find_targets(case=case)  # Find RS targets
+    goal_locations = (protocol.findall('./goals/roi'), order.findall('./goals/roi')) if use_orders else (
+        protocol.findall('./goals/roi'),)
+    protocol_targets, derived_targets = find_protocol_targets(goal_locations, derived_keywords)
+
+    # Build target input dialog
+    target_inputs, target_initial, target_datatype, target_options, target_required = build_target_inputs(
+        protocol_targets, plan_targets)
+
+    # Additional fields based on 'use_orders'
+    if use_orders and order.find('prefix') and "Site" not in order.find('prefix').text:
+        site = order.find('prefix').text
     else:
-        goal_locations = (protocol.findall('./goals/roi'))
-    # Find all protocol targets ignoring any derived targets
-    for s in goal_locations:
-        for g in s:
-            # Priorities should be even for targets and append unique elements only
-            # into the protocol_targets list
-            if int(g.find('priority').text) % 2 == 0:
-                g_name = g.find('name').text
-                for r in derived_keywords:
-                    if re.search(r, g_name) and g_name not in derived_targets:
-                        derived_targets.append(g_name)
-                try:
-                    d_name = g.find('dose').attrib['roi']
-                except KeyError:
-                    d_name = ""
-                if g_name not in protocol_targets and g_name not in derived_targets:
-                    protocol_targets.append(g_name)
-                elif g_name not in protocol_targets and d_name and d_name not in protocol_targets:
-                    protocol_targets.append(d_name)
+        target_inputs['00_site'] = 'Enter site abbreviation, e.g. BreL for left breast'
+        target_datatype['00_site'] = 'text'
+        target_required.append('00_site')
+    target_inputs['00_nfx'] = 'Number of fractions'
+    target_datatype['00_nfx'] = 'text'
+    target_required.append('00_nfx')
 
-    # Use the following loop to find the targets in protocol matching the names above
-    i = 1
-    for p in protocol_targets:
-        k = str(i)
-        # Python doesn't sort lists....
-        k_name = k.zfill(2) + 'Aname_' + p
-        k_dose = k.zfill(2) + 'Bdose_' + p
-        target_inputs[k_name] = 'Match a plan target to ' + p
-        target_options[k_name] = plan_targets
-        target_datatype[k_name] = 'combo'
-        target_required.append(k_name)
-        target_inputs[
-            k_dose] = 'Provide dose for protocol target: ' + p + ' Dose in cGy'
-        target_required.append(k_dose)
-        i += 1
-        # Exact matches get an initial guess in the dropdown
-        for t in plan_targets:
-            if p == t:
-                target_initial[k_name] = t
-
+    # Display dialog
     target_dose_level_dialog = UserInterface.InputDialog(
         inputs=target_inputs,
         title='Input Target Dose Levels',
         datatype=target_datatype,
         initial=target_initial,
         options=target_options,
-        required=[])
-    # print
-    response = target_dose_level_dialog.show()
-    if response == {}:
-        logging.info('Target dialog cancelled by user')
-        sys.exit('Target dialog cancelled')
+        required=target_required)
 
-    # Process inputs
-    translation_map = {}
-    for k, v in target_dose_level_dialog.values.items():
-        if k == '00_nfx':
-            num_fx = int(v)
-        elif k == '00_site':
-            site = str(v)
-        elif len(v) > 0:
-            i, p = k.split("_", 1)
-            if p not in translation_map:
-                translation_map[p] = [None] * 3
-            if 'name' in i:
-                # Key name will be the protocol target name
-                translation_map[p][0] = v
-            if 'dose' in i:
-                # Append _dose to the key name
-                pd = p + '_dose'
-                translation_map[p][1] = (float(v) / 100.)
-                translation_map[p][2] = 'Gy'
-    return (site, num_fx, translation_map)
+    # Process dialog response
+    response = target_dose_level_dialog.show()
+    return process_target_dialog_response(response, target_required)
 
 
 def find_beamset_element(protocol, beamset_name):
@@ -272,7 +300,7 @@ def multi_autoplan(multi_plan_parameters):
             'iso_poi': m.get('iso_poi', None),
             'iso': m.get('iso', None),
             'user_prompts': m.get('user_prompts', True),
-            'beamset_exists_skip': m.get('beamset_exists_skip',False),
+            'beamset_exists_skip': m.get('beamset_exists_skip', False),
             'optimize': m.get('optimize', True),
             'optimization_instructions': m.get('optimization_instructions', None),
             'ignore_status': True,
@@ -310,6 +338,7 @@ def copy_plan_set_copy_current(rso, new_plan_name):
 def autoplan(autoplan_parameters, **kwargs):
     ap_report = {}
     background = ""
+    derived_keywords = ['^.*_Eval.*?$', '^.*_EZ.*?$']
     #
     # In testing mode, skip the dialog prompts
     if autoplan_parameters:
@@ -317,7 +346,7 @@ def autoplan(autoplan_parameters, **kwargs):
         input_order_name = autoplan_parameters['order_name']
         num_fx = autoplan_parameters['num_fx']
         site = autoplan_parameters['site']
-        exam_name = autoplan_parameters.get('exam',None)
+        exam_name = autoplan_parameters.get('exam', None)
         translation_map = autoplan_parameters.get('translation_map', None)
         beamset_template = autoplan_parameters.get('beamset_template', None)
         beamset_name = autoplan_parameters.get('beamset_name', None)
@@ -327,7 +356,7 @@ def autoplan(autoplan_parameters, **kwargs):
         machine = autoplan_parameters['machine']
         user_prompts = autoplan_parameters.get('user_prompts', None)
         optimize = autoplan_parameters.get('optimize', True)
-        ignore_status = autoplan_parameters.get('ignore_status',False)
+        ignore_status = autoplan_parameters.get('ignore_status', False)
         multi_plan_parameters = kwargs.get('beamset_list', [])
         optimization_instructions = autoplan_parameters.get('optimization_instructions', {})
         if optimization_instructions:
@@ -342,7 +371,7 @@ def autoplan(autoplan_parameters, **kwargs):
         beamset_name = None
         iso_target = None
         iso_poi = None
-        exam_name=None
+        exam_name = None
         machine = None
         iso_dict = {'type': None, 'target': None}
         translation_map = {}
@@ -415,7 +444,7 @@ def autoplan(autoplan_parameters, **kwargs):
     # Initialize return variable
     Pd = namedtuple('Pd', ['error', 'db', 'case', 'patient', 'exam', 'plan', 'beamset'])
     # Get current patient, case, exam
-    exam=None
+    exam = None
     if exam_name:
         case = GeneralOperations.find_scope(level='Case')
         for exam in case.Examinations:
@@ -548,6 +577,8 @@ def autoplan(autoplan_parameters, **kwargs):
     ap_report['time_plan'][0] = timer()
     # Populate the beamset definitions
     beamset_defs.description = beamset_etree.find('description').text
+    #
+    # We will have some rx structures that will not be created yet.
     beamset_defs.rx_target = translation_map[rx.target][0]  # rx.target
     beamset_defs.rx_volume = rx.idl
     beamset_defs.number_of_fractions = num_fx
@@ -890,14 +921,25 @@ def autoplan(autoplan_parameters, **kwargs):
             translation_map=translation_map
         )
     ap_report['time_roi'][1] = timer()
+    # If there are eval_targets in the rx object, try to add them now
+    if rx.eval_targets:
+        try:
+            rso.beamset.AddRoiPrescriptionDoseReference(
+                RoiName=rx.eval_target,
+                DoseVolume=rx.rx_volume,
+                PrescriptionType='DoseAtVolume',
+                DoseValue=rx.total_dose,
+                RelativePrescriptionLevel=1
+            )
+        except:
+            pass
     #
     # Add goals and objectives
     if not ignore_status:
         auto_status.next_step(text=script_steps[status_index][1])
         status_index += 1
     ap_report['time_goals'][0] = timer()
-    translation_map = AutoPlanOperations.convert_translation_map(
-        translation_map, unit=r'Gy')
+    translation_map = AutoPlanOperations.convert_translation_map(translation_map, unit=r'Gy')
     _ = Objectives.add_goals_and_objectives_from_protocol(
         case=rso.case,
         plan=rso.plan,
@@ -928,8 +970,8 @@ def autoplan(autoplan_parameters, **kwargs):
         if not validation['status'] and user_prompts:
             connect.await_user_input(
                 f'This template was authored by {validation["author"]}'
-                f'and is being tested. ' 
-                f'Continue optimization or stop the script execution.\n' 
+                f'and is being tested. '
+                f'Continue optimization or stop the script execution.\n'
                 f'If you continue, please let the author know how it went and '
                 f'check goals!'
             )
@@ -985,7 +1027,7 @@ def autoplan(autoplan_parameters, **kwargs):
         # Save the patient
         rso.patient.Save()
         if validation['copy_final_plan']:
-            pd_out = copy_plan_set_copy_current(rso,new_plan_name)
+            pd_out = copy_plan_set_copy_current(rso, new_plan_name)
         else:
             pd_out = rso
         # Update doses
