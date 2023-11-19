@@ -68,7 +68,7 @@ def create_side_panel(comment_width_chars: int, window_height: int,
     # Add the QA form components
     # Add the QA form components to an invisible frame
     qa_frame = [
-        Sg.Frame('QA Form', qa_form_components, key='-QA-FRAME-', visible=False)
+        Sg.Frame('QA Form (not yet forwarded to wiki-form)', qa_form_components, key='-QA-FRAME-', visible=False)
     ]
 
     # Append the QA frame to the side_panel
