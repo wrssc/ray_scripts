@@ -1,3 +1,4 @@
+import uuid
 import PySimpleGUI as sg
 from collections import namedtuple
 from PlanReview.review_definitions import FAIL, RED_CIRCLE, PASS, GREEN_CIRCLE
@@ -104,6 +105,9 @@ def load_rsos(rso, beamsets):
     return rsos
 
 
+def generate_unique_id():
+    return str(uuid.uuid4())
+
 def build_review_tree(rso, exam_level_tests, plan_level_tests,
                       beamset_levels, sandbox_level_tests, message_logs,
                       beamsets=[]):
@@ -164,9 +168,14 @@ def build_review_tree(rso, exam_level_tests, plan_level_tests,
     insert_tests_return_fails(sandbox_level_tests, tree_data, test_results)
     #
     # Log Level
+    parent_nodes = set()
     tree_data.Insert(patient_key[0], log_key[0], log_key[1], "")
     if message_logs:
         for m in message_logs:
-            tree_data.Insert(m[0], m[1], m[2], [
-                m[3]])  # Note the list of the last entry. Can this be of use?
+            # Check if this parent node already exists
+            if m['Log_Level'] not in parent_nodes:
+                tree_data.Insert(log_key[0], m['Log_Level'], m['Log_Level'], "")
+                parent_nodes.add(m['Log_Level'])
+            tree_data.insert(m['Log_Level'], f"{m['Date']} {m['Time']}",
+                             f"{m['Date']} {m['Time']} {m['Source']}", [m['Message']])
     return tree_data
