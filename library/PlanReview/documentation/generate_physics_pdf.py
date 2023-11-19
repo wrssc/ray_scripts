@@ -63,7 +63,7 @@ def generate_pdf(rso, review_data, test_mode=False):
     config = ReportConfig()
     physics_review_dir = os.path.join(LOG_DIR, "PhysicsReviews")
     patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
-    alt_patient_output_dir = r"Q:\\RadOnc\RayStation\Reports\PhysicsReviewBetaOnly"
+    report_output_dir = r"Q:\\RadOnc\RayStation\Reports\PhysicsReview"
     patient_output_prefix = f"{rso.patient.PatientID}_" \
                             f"{rso.beamset.DicomPlanLabel}_" \
                             f"{generate_filename()}"
@@ -92,14 +92,14 @@ def generate_pdf(rso, review_data, test_mode=False):
     tests_df = read_data(tests)
 
     # Output file
+    # output_file = generate_file_path(
+    #     patient_output_dir, patient_output_prefix, ".pdf")
     output_file = generate_file_path(
-        patient_output_dir, patient_output_prefix, ".pdf")
-    beta_output_file = generate_file_path(
-        alt_patient_output_dir, patient_output_prefix, ".pdf"
-    )
+        report_output_dir, patient_output_prefix, ".pdf"
+      )
 
     # Create a PDF document
-    pdf_filename = beta_output_file
+    pdf_filename = output_file
     doc = SimpleDocTemplate(pdf_filename,
                             pagesize=(config.PAGE_WIDTH, config.PAGE_HEIGHT),
                             topMargin=config.TOP_MARGIN,
