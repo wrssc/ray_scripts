@@ -17,7 +17,7 @@ from PlanReview.utils import get_approval_info
 from PlanReview.utils.constants import (
     KEY_BEAMSET, KEY_SIDE_PANEL, KEY_OUT_DOMAIN_NAME, KEY_OUT_TEST_SOURCE, SOURCE_USER, KEY_USER_COMMENT,
     KEY_OUT_TAB, KEY_OUT_RESULT, SOURCE_AUTO, KEY_OUT_DESC, KEY_OUT_MESSAGE, KEY_OUT_COMMENT, KEY_OUT_ICON,
-    KEY_PROCEED_REVISE, KEY_REVISION_INFO
+    KEY_PROCEED_REVISE, KEY_REVISION_INFO, KEY_TESTS, KEY_HEADER
 )
 from PlanReview.utils.io_file_utils import *
 
@@ -60,12 +60,12 @@ def generate_doc(rso, review_data, test_mode=False):
                             f"{generate_filename()}"
 
     if test_mode:
-        latest_test_file = find_latest_files(
+        latest_test_file = find_latest_file(
             patient_output_dir,
-            f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review_data.json")
+            f"{rso.patient.PatientID}",f"{rso.beamset.DicomPlanLabel}",f"review_data.json")
         patient_data = read_tests_from_json(latest_test_file)
-        tests = patient_data['check_list'] if patient_data else None
-        header_data = patient_data['header_data'] if patient_data else None
+        tests = patient_data[KEY_TESTS] if patient_data else None
+        header_data = patient_data[KEY_HEADER] if patient_data else None
     else:
         review_files = [
             generate_file_path(
