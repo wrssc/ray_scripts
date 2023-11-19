@@ -41,6 +41,18 @@ def find_groupname_by_userid(userid):
     return groupname
 
 
+def find_username_by_userid(userid):
+    # read in data
+    user_df,_ = read_xml_to_dataframe()
+    # Convert both the DataFrame column and the input userid to lower-case
+    user_df['userid'] = user_df['userid'].str.lower()
+    match = user_df[user_df['userid'] == userid.lower()]
+
+    if not match.empty:
+        return match['username'].values[0]
+    else:
+        return None
+
 def is_valid_approver(group_name, valid_approval_groups):
     return group_name.lower() in map(str.lower, valid_approval_groups)
 
