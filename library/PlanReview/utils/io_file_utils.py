@@ -16,26 +16,23 @@ def generate_file_path(patient_output_dir, patient_output_prefix, file_suffix):
     return os.path.join(patient_output_dir, f"{patient_output_prefix}{file_suffix}")
 
 
-def find_latest_files(patient_output_dir, file_prefix, file_suffixes):
-    latest_files = {}
+def find_latest_file(patient_output_dir, patient_id, beamset_name, file_suffix):
     datetime_pattern = re.compile(r'(\d{8})_(\d{6})')
 
-    for suffix in file_suffixes:
-        search_pattern = os.path.join(patient_output_dir, f"{file_prefix}*{suffix}")
-        files = glob.glob(search_pattern)
+    search_pattern = os.path.join(patient_output_dir, f"{patient_id}_{beamset_name}_*_{file_suffix}")
+    files = glob.glob(search_pattern)
 
-        # Extract datetime from filenames and sort them
-        sorted_files = sorted(
-            files, key=lambda x: datetime.strptime(
-                ''.join(datetime_pattern.findall(x)[0]), "%Y%m%d%H%M%S")
-            if datetime_pattern.findall(x) else None,
-            reverse=True
-        )
+    # Extract datetime from filenames and sort them
+    sorted_files = sorted(
+        files,
+        key=lambda x: datetime.strptime(
+            ''.join(datetime_pattern.findall(x)[0]), "%Y%m%d%H%M%S"
+        ) if datetime_pattern.findall(x) else None,
+        reverse=True
+    )
 
-        # Take the most recent file
-        latest_files[suffix] = sorted_files[0] if sorted_files else None
-
-    return latest_files.get("tests.json"), latest_files.get("header.json")
+    # Take the most recent file
+    return sorted_files[0] if sorted_files else None
 
 
 def dump_tests_to_json(tests, file_names=None):
