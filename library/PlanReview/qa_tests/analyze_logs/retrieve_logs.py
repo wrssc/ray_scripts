@@ -1,8 +1,12 @@
 import re
 import os
-import connect
+import uuid
 from collections import OrderedDict
-from ...review_definitions import LOG_DIR, DEV_LOG_DIR, KEEP_PHRASES
+from ...review_definitions import LOG_DIR, DEV_LOG_DIR, KEEP_PHRASES, DOMAIN_TYPE
+
+
+def generate_unique_id():
+    return str(uuid.uuid4())
 
 
 def read_log_file(patient_id):
@@ -15,6 +19,7 @@ def read_log_file(patient_id):
     Returns:
         file_contents: lines of file
     """
+    import connect
     log_file = f"{patient_id}.txt"
     log_input_file = os.path.join(LOG_DIR, patient_id, log_file)
     dev_log_file = f"{patient_id}.txt"
@@ -44,77 +49,126 @@ def read_log_file(patient_id):
     return file_contents
 
 
-def parse_log_file(lines, parent_key, phrases=KEEP_PHRASES):
+def extract_timestamp(line):
     """
-    Parse the log file lines for the phrase specified
+    Extracts the date and time separately from a log line.
+
     Args:
-        parent_key: The top key for these log entries (typically patient level)
-        lines: list of strings from a log file
-        phrases: list of tuples
-            (level,phrase):
-                           level: is a string indicating pass level
-                           phrase: is a string to identify lines for return
+        line (str): A line from the log file.
 
     Returns:
-        message: list of lists of format: [parent key, key, value, result]
-
-    Test Patient:
-        Script_Testing^Plan_Review, #ZZUWQA_ScTest_01May2022, Log_Parse_Check
+        tuple: A tuple containing the extracted date, time, and the remainder of the line.
     """
+    timestamp_exp = r'(^\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2})'
+    match = re.search(timestamp_exp, line)
+    if match:
+        return match.group(1), match.group(2), line[match.end():].strip()
+    else:
+        return None, None, line
+
+
+def extract_context(line, context_patterns):
+    """
+    Extracts the context based on provided patterns.
+
+    Args:
+        line (str): A line from the log file.
+        context_patterns (OrderedDict): Patterns for context extraction.
+
+    Returns:
+        tuple: A tuple containing context, a dictionary of levels, and the match object.
+    """
+    for context, pattern in context_patterns.items():
+        match = re.search(pattern, line)
+        if match:
+            context_data = match.groups()
+            # Replace None with empty string
+            context_data = [data if data is not None else '' for data in context_data]
+            keys = ['Case', 'Exam', 'Plan', 'PlanID', 'Beamset', 'BeamsetID'] if context == 'Beamset' else ['Case', 'Exam', 'Plan']
+            levels = dict(zip(keys, context_data))
+            return context, levels, match
+    return None, {}, None
+
+
+def parse_log_file(lines, parent_key, phrases):
+    """
+    Parses the log file lines for specified phrases and extracts relevant information.
+
+    Args:
+        parent_key (str): The top key for these log entries, typically at the patient level.
+        lines (list of str): List of strings from a log file.
+        phrases (list of tuples): List of tuples (level, phrase) where:
+                                  - level is a string indicating pass level,
+                                  - phrase is a string to identify lines for return.
+
+    Returns:
+        list of lists: A list of lists, each in the format [parent key, key, value, result].
+    """
+
     message = []
-    time_stamp_exp = r'(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(.*)'  # The
-    # front timestamp
-    re_c = r'^\t(Case: .*)\t'
-    re_e = r'(Exam: .*)\t'
-    re_p = r'(Plan: .*)\t'
-    re_b = r'(Beamset: [^\t|\s]+)'  # Terminate after this level
+    context_patterns = OrderedDict({
+        'Beamset': r'Case: (.*?)\s*(?:\t|\|)\s*Exam: (.*?)\s*(?:\t|\|)\s*Plan: (.*?)(?:\s*(?:\t|\|)\s*PlanId: (.*?))?(?:\s*(?:\t|\|)\s*)?Beamset: (.*?)(?:\s*(?:\t|\|)\s*BeamsetId: (.*?))?(?:\s*(?:\t|\|))',
+        'Plan': r'Case: (.*?)\s*(?:\t|\|)\s*Exam: (.*?)\s*(?:\t|\|)\s*Plan: (.*?)',
+        'Exam': r'Case: (.*?)\s*(?:\t|\|)\s*Exam: (.*?)',
+        'Case': r'Case: (.*?)'
+    })
 
-    # Declare reg-ex for levels in the log file
-    context_exps = OrderedDict()
-    context_exps['Beamset'] = re_c + re_e + re_p + re_b
-    context_exps['Plan'] = re_c + re_e + re_p
-    context_exps['Exam'] = re_c + re_e
-    context_exps['Case'] = re_c
+    source_pattern = re.compile(r'([a-zA-Z0-9_]+\.py):')
 
-    for p in phrases:
-        key = 'Log' + p[1]
-        message.append([parent_key, key, key, p[0]])
-        re_phrase = p[1] + r'.*\.py: '
+    for level, phrase in phrases:
+        phrase_pattern = re.compile(re.escape(phrase) + r'.*\.py: ')
 
         for line in lines:
-            if p[1] in line:
-                # Remove the source python program from the line
-                line = re.sub(re_phrase, '', line)
+            if phrase in line:
+                message_dict = {
+                    'Date': '',
+                    'Time': '',
+                    'Log_Level': 'Log'+phrase,
+                    'Message': '',
+                    'Deepest_Context': '',
+                    'Case': '',
+                    'Exam': '',
+                    'Plan': '',
+                    'Beamset': '',
+                    'PlanID': '',
+                    'BeamsetID': '',
+                    'Source': '',
+                }
+                source_match = source_pattern.search(line)
+                line = phrase_pattern.sub('', line)
+                date, timestamp, remainder = extract_timestamp(line)
+                if source_match:
+                    message_dict['Source'] = source_match.group(1)
+                if date:
+                    message_dict['Date'] = date
+                if timestamp:
+                    message_dict['Time'] = timestamp
 
-                # Sort the line into a part for the timestamp and one for
-                # remainder
-                parsed_l = [part for t in re.findall(time_stamp_exp, line) for
-                            part in t]
-                parsed_l[1] = parsed_l[
-                    1].lstrip().rstrip()  # Remove front and back white space
-
-                deepest_level = None
-                for c, exp in context_exps.items():
-                    if bool(re.search(exp, parsed_l[1])):
-                        levels = OrderedDict()
-                        deepest_level = c
-                        for g in re.findall(exp, parsed_l[1])[0]:
-                            lev_key, lev_val = re.split(': ', g, maxsplit=1)
-                            levels[lev_key] = lev_val
-                        parsed_l[1] = re.sub(exp, '', parsed_l[1])
-                        parsed_l[0] += ' ' + deepest_level + ': ' + levels[
-                            deepest_level]
-                        break
-
-                if not deepest_level:
-                    parsed_l[1] = re.sub(r'\t', '', parsed_l[1])
-
-                message.append([key, parsed_l[0], parsed_l[0], parsed_l[1]])
+                context, levels, match = extract_context(remainder, context_patterns)
+                if context:
+                    message_dict['Deepest_Context'] = context
+                    for key in message_dict.keys():
+                        if key in levels.keys():
+                            message_dict[key] = levels[key]
+                    line_content = f"{remainder[len(match.group(0)):].strip()}" if match else remainder
+                    message_dict['Message'] = line_content
+                else:
+                    line_content = re.sub(r'\t', '', remainder)
+                    message_dict['Message'] = line_content
+                # Key is the parent key, next entry is the child key,
+                # third entry is displayed value in first column. Fourth
+                message.append(message_dict)
 
     return message
 
 
-def retrieve_logs(rso, log_key):
+def retrieve_logs(rso):
+    """
+    Retrieves the logs from the log file for the specified patient.
+    :param rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
+    :return: list of lists: A list of lists, each in the format [parent key, key, value, result].
+    """
+    log_key = (DOMAIN_TYPE['LOG_KEY'], "Logging")
     if not rso.patient:
         return None
     lines = read_log_file(patient_id=rso.patient.PatientID)
