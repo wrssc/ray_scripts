@@ -51,7 +51,7 @@ def get_user_display_parameters() -> Tuple[int, int, bool, int, int]:
     screen_width, screen_height = Sg.Window.get_screen_size()
 
     window_height = 800 if screen_height<minimum_vertical_resolution else 1000
-    window_width = 1100 if screen_height<minimum_vertical_resolution else 1500
+    window_width = 1100 if screen_height<minimum_vertical_resolution else 1310
 
     # check if we need to save space
     save_space = screen_height <= minimum_vertical_resolution
