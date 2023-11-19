@@ -1,3 +1,4 @@
+import logging
 import os
 from dataclasses import dataclass
 from functools import partial
@@ -12,7 +13,8 @@ from PlanReview.utils.constants import (
     KEY_OUT_TAB, KEY_OUT_RESULT, SOURCE_AUTO, KEY_OUT_DESC, KEY_OUT_MESSAGE, KEY_OUT_COMMENT, KEY_OUT_ICON,
     KEY_PROCEED_REVISE, KEY_REVISION_INFO, KEY_BEAMSET_COUNT, KEY_BEAMSET_SELECT, KEY_BEAMSET_FRACTION_COUNT,
     KEY_BEAMSET_TARGET_NAME, KEY_BEAMSET_DOSE, KEY_BEAMSET_FRACTION_DOSE, KEY_BEAMSET_TARGET_COUNT,
-    KEY_IMD, KEY_PRIOR_RT, KEY_IMAGING_FREQ, KEY_TREAT_FREQ, KEY_PATIENT_ORIENTATION, KEY_SIM_DATE, KEY_SIMULATION_DATA
+    KEY_IMD, KEY_PRIOR_RT, KEY_IMAGING_FREQ, KEY_TREAT_FREQ, KEY_PATIENT_ORIENTATION, KEY_SIM_DATE,
+    KEY_SIMULATION_DATA, KEY_HEADER, KEY_TESTS
 )
 from PlanReview.utils.io_file_utils import *
 from reportlab.lib.pagesizes import landscape, letter
@@ -67,13 +69,15 @@ def generate_pdf(rso, review_data, test_mode=False):
                             f"{generate_filename()}"
 
     if test_mode:
-        latest_test_file = find_latest_files(
+        latest_test_file = find_latest_file(
             patient_output_dir,
-            f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review_data.json")
+            f"{rso.patient.PatientID}",f"{rso.beamset.DicomPlanLabel}","review_data.json")
         patient_data = read_tests_from_json(latest_test_file)
-        tests = patient_data['check_list'] if patient_data else None
-        header_data = patient_data['header_data'] if patient_data else None
+        tests = patient_data[KEY_TESTS] if patient_data else None
+        header_data = patient_data[KEY_HEADER] if patient_data else None
     else:
+        if not review_data:
+            return
         review_files = [
             generate_file_path(
                 patient_output_dir, patient_output_prefix, "_review_data.json"),
@@ -81,8 +85,8 @@ def generate_pdf(rso, review_data, test_mode=False):
                 physics_review_dir, patient_output_prefix, "_review_data.json")
         ]
         dump_tests_to_json(review_data, file_names=review_files)
-        tests = read_tests_from_json(review_files[0])['check_list']
-        header_data = read_tests_from_json(review_files[0])['header_data']
+        tests = read_tests_from_json(review_files[0])[KEY_TESTS]
+        header_data = read_tests_from_json(review_files[0])[KEY_HEADER]
         # dump_tests_to_json(header_data, file_names=header_files)
 
     tests_df = read_data(tests)
@@ -160,6 +164,7 @@ def generate_tables_from_dataframe(df, story, config):
     # Define custom ordering for 'RESULT'
     result_order = {FAIL: 0, ALERT: 1, PASS: 2}
     unique_test_levels = df[KEY_OUT_TAB].unique()
+    logging.debug(unique_test_levels)
 
     for test_level in unique_test_levels:
         if test_level in excluded_review_levels:
@@ -191,7 +196,8 @@ def generate_tables_from_dataframe(df, story, config):
         # Add the automated tests
         if not auto_tl_df.empty:
             title = f'{test_level} - Automated Checks'
-            add_check_list_table(auto_tl_df, story, config, title=f'{title}')
+            add_check_list_table(auto_tl_df, story, config, title=f'{title}',
+                                 display_domain_name=True)
 
 
 def calculate_column_widths(df, headers):
@@ -227,20 +233,28 @@ def calculate_column_widths(df, headers):
 
 
 def make_paragraph(text, style=None):
-    character_map = {"\u00a0": "&nbsp;",
-                     "\n": "<br/>",
-                     "\r": "<br/>",
-                     "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
-                     "* ": "&bull;&nbsp;"
-                     }
+    character_map = {
+        "\u00a0": "&nbsp;",
+        "\n": "<br/>",
+        "\r": "<br/>",
+        "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
+        "* ": "&bull;&nbsp;"
+    }
+
+    # Convert **text** to <b>text</b>
+    text = text.replace("**", "<b>", 1).replace("**", "</b>", 1)
+
     for unicode, html in character_map.items():
         text = text.replace(unicode, html)
+
     if not style:
         style = getSampleStyleSheet()['Normal']
+
     return Paragraph(text, style)
 
 
-def add_check_list_table(df, story, config, title=None):
+
+def add_check_list_table(df, story, config, title=None,display_domain_name=False):
     # Define table styles
     style = getSampleStyleSheet()
     label_style = style['Heading6']
@@ -262,20 +276,45 @@ def add_check_list_table(df, story, config, title=None):
     ])
 
     # Create a table data list
-    data = [[title, "", "", ""],
-            [make_paragraph('Status', style=label_style),
-             make_paragraph('Test Performed', style=label_style),
-             make_paragraph('Result', style=label_style),
-             make_paragraph('Reviewer Comment', style=label_style)]]
+    if not display_domain_name:
+        data = [[title, "", "", ""],
+                [make_paragraph('Status', style=label_style),
+                 make_paragraph('Test Performed', style=label_style),
+                make_paragraph('Result', style=label_style),
+                make_paragraph('Reviewer Comment', style=label_style)]]
+    else:
+        data = [[title, "", "", ""],]
+
+    last_domain_name = None  # to keep track of domain name changes
+    domain_header_rows = []  # to keep track of rows with domain headers
 
     for _, check in df.iterrows():
-        icon_image = Image(check[KEY_OUT_ICON],  ## width=0.18 * inch, height=0.18 * inch,
+        # Check if domain name has changed and insert header row if required
+        if display_domain_name and check[KEY_OUT_DOMAIN_NAME] != last_domain_name:
+            domain_header = make_paragraph(check[KEY_OUT_DOMAIN_NAME], style=label_style)
+            data.append([domain_header, "", "", ""])
+            domain_header_rows.append(len(data) - 1)  # Keep track of the row index
+            last_domain_name = check[KEY_OUT_DOMAIN_NAME]
+            data.append([make_paragraph('Status', style=label_style),
+                 make_paragraph('Test Performed', style=label_style),
+                make_paragraph('Result', style=label_style),
+                make_paragraph('Reviewer Comment', style=label_style)])
+        # Add regular rows
+        icon_image = Image(check[KEY_OUT_ICON],
                            hAlign="CENTER", lazy=1)
         desc_paragraph = make_paragraph(check[KEY_OUT_DESC])
         message_paragraph = make_paragraph(check[KEY_OUT_MESSAGE])
         comment_paragraph = make_paragraph(check[KEY_OUT_COMMENT])
 
         data.append([icon_image, desc_paragraph, message_paragraph, comment_paragraph])
+    # Update the table style for the domain header rows
+    for row_idx in domain_header_rows:
+        table_style.add('BACKGROUND', (0, row_idx), (-1, row_idx), config.UW_DARK_GRAY)
+        table_style.add('BACKGROUND', (0, row_idx + 1), (-1, row_idx + 1), config.UW_DARK_RED)
+        # table_style.add('TEXTCOLOR', (0, row_idx), (-1, row_idx), config.UW_WHITE)
+        # table_style.add('TEXTCOLOR', (0, row_idx + 1), (-1, row_idx + 1), config.UW_WHITE)
+        table_style.add('SPAN', (0, row_idx), (-1, row_idx))  # Span the columns for domain name
+        table_style.add('ALIGN', (0, row_idx), (-1, row_idx), 'CENTER')
 
     cols = calculate_column_widths(df, [KEY_OUT_DESC, KEY_OUT_MESSAGE, KEY_OUT_COMMENT])
     # Create the table
