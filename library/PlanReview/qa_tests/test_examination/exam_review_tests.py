@@ -4,108 +4,9 @@
 import re
 import math
 import numpy as np
-import connect
+import sys
 from PlanReview.review_definitions import (
     FIELD_OF_VIEW_PREFERENCES, PASS, FAIL, MATERIALS)
-
-
-#
-#
-#
-# # def check_exam_data(rso):
-# #     """
-# #     Checks the RayStation plan information versus the native CT DICOM header.
-# #     Patient Name match is a case insensitive comparison excluding middle name
-# #     Gender match on M/F/O vs M/F/O/Unknown/None
-# #     Date of birth match by using parser to pull a Y/M/D date ignoring time
-# #     PatientID is an exact match (string equality)
-# #     Args:
-# #         kwargs:'rso': (object): Named tuple of ScriptObjects
-# #     Returns:
-# #         (Pass/Fail/Alert, Message to Display)
-# #     """
-# #
-# #     modality_tag = (0x0008, 0x0060)
-# #     tags = {str(rso.patient.Name or ''): (0x0010, 0x0010, match_patient_name),
-# #             str(rso.patient.PatientID or ''): (0x0010, 0x0020, match_exactly),
-# #             str(rso.patient.Gender or ''): (0x0010, 0x0040, match_gender),
-# #             str(rso.patient.DateOfBirth or ''): (0x0010, 0x0030, match_date)
-# #             }
-# #     get_rs_value = rso.exam.GetStoredDicomTagValueForVerification
-# #     modality = list(get_rs_value(Group=modality_tag[0],
-# #                                  Element=modality_tag[1]).values())[0]  # Get Modality
-# #     message_str = "[DICOM vs RS]: "
-# #     all_passing = True
-# #     for k, v in tags.items():
-# #         rs_tag = get_rs_value(Group=v[0], Element=v[1])
-# #         for dicom_attr, dicom_val in rs_tag.items():
-# #             match, rs, dcm = v[2](dicom_val, k)
-# #             if match:
-# #                 message_str += "{}:[\u2713], ".format(dicom_attr)
-# #             else:
-# #                 all_passing = False
-# #                 match_str = ' \u2260 '
-# #                 message_str += "{0}: [{1}:{2} {3} RS:{4}], " \
-# #                     .format(dicom_attr, modality, dcm, match_str, rs)
-# #     if all_passing:
-# #         pass_result = PASS
-# #     else:
-# #         pass_result = FAIL
-# #     return pass_result, message_str
-#
-#
-# def compare_exam_date(rso):
-#     """
-#     Check if examination date occurred within tolerance set by DAYS_SINCE_SIM
-#     First it checks for a RayStation approval date, then we'll use the last saved by,
-#     if not we'll use right now!
-#
-#     Args:
-#         kwargs:'rso': (object): Named tuple of ScriptObjects
-#     Returns:
-#         (Pass/Fail/Alert, Message to Display)
-#     Test Patient:
-#         Pass (all but Gender): ZZ_RayStation^CT_Artifact, 20210408SPF
-#               Case 1: TB_HFS_ArtFilt: Lsha_3DC_R0A0
-#         Fail: Script_Testing^Plan_Review, #ZZUWQA_ScTest_01May2022:
-#               ChwL: Bolus_Roi_Check_Fail: ChwL_VMA_R0A0
-#     """
-#     tolerance = DAYS_SINCE_SIM  # Days since simulation
-#     dcm_data = list(
-#         rso.exam.GetStoredDicomTagValueForVerification(Group=0x0008, Element=0x0020).values())
-#     approval_status = get_approval_info(rso.plan, rso.beamset)
-#     if dcm_data:
-#         try:
-#             dcm_date = parser.parse(dcm_data[0])
-#         except TypeError:
-#             DEFAULT_DATE = datetime.datetime(datetime.MINYEAR, 1, 1)
-#             dcm_date = parser.parse(str(DEFAULT_DATE))
-#         #
-#         if approval_status.beamset_approved:
-#             current_time = parser.parse(str(rso.beamset.Review.ReviewTime))
-#         else:
-#             try:
-#                 # Use last saved date if plan not approved
-#                 current_time = parser.parse(str(rso.beamset.ModificationInfo.ModificationTime))
-#             except AttributeError:
-#                 current_time = datetime.datetime.now()
-#
-#         elapsed_days = (current_time - dcm_date).days
-#
-#         if elapsed_days <= tolerance:
-#             message_str = "Exam {} acquired {} within {} days ({} days) of Plan Date {}" \
-#                 .format(rso.exam.Name, dcm_date.date(), tolerance, elapsed_days,
-#                         current_time.date())
-#             pass_result = PASS
-#         else:
-#             message_str = "Exam {} acquired {} GREATER THAN {} days ({} days) of Plan Date {}" \
-#                 .format(rso.exam.Name, dcm_date.date(), tolerance, elapsed_days,
-#                         current_time.date())
-#             pass_result = FAIL
-#     else:
-#         message_str = "Exam {} has no apparent study date!".format(rso.exam.Name)
-#         pass_result = ALERT
-#     return pass_result, message_str
 
 
 def get_targets_si_extent(rso):
@@ -150,116 +51,6 @@ def get_si_extent(rso, types=None, roi_list=None):
         return None
     else:
         return extent
-
-
-# def image_extent_sufficient(rso, **kwargs):
-#     """
-#     Check if the image extent is long enough to cover the image set and a buffer
-#
-#     Args:
-#         kwargs:'rso': (object): Named tuple of ScriptObjects
-#     Returns:
-#         (Pass/Fail/Alert, Message to Display)
-#     Test Patient:
-#
-#         Pass TODO
-#         Fail: TODO
-#     """
-#     #
-#     # Target length
-#     target_extent = kwargs.get('TARGET_EXTENT')
-#     #
-#     # Tolerance for SI extent
-#     buffer = FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']
-#     #
-#     # Get image slices
-#     bb = rso.exam.Series[0].ImageStack.GetBoundingBox()
-#     bb_z = [bb[0]['z'], bb[1]['z']]
-#     z_extent = [min(bb_z), max(bb_z)]
-#     buffered_target_extent = [target_extent[0] - buffer, target_extent[1] + buffer]
-#     #
-#     # Nice strings for output
-#     z_str = '[' + ('%.2f ' * len(z_extent)) % tuple(z_extent) + ']'
-#     t_str = '[' + ('%.2f ' * len(buffered_target_extent)) % tuple(buffered_target_extent) + ']'
-#     if not target_extent:
-#         message_str = 'No targets found of type Ptv, image extent could not be evaluated'
-#         pass_result = FAIL
-#     elif z_extent[1] >= buffered_target_extent[1] and z_extent[0] <= buffered_target_extent[0]:
-#         message_str = 'Planning image extent {} and is at least {:.1f} larger than S/I target ' \
-#                       'extent {}'.format(
-#             z_str, buffer, t_str)
-#         pass_result = PASS
-#     elif z_extent[1] < buffered_target_extent[1] or z_extent[0] > buffered_target_extent[0]:
-#         message_str = 'Planning Image extent:{} is insufficient for accurate calculation.'.format(
-#             z_str) \
-#                       + '(SMALLER THAN :w' \
-#                         'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
-#         pass_result = FAIL
-#     else:
-#         message_str = 'Target length could not be compared to image set'
-#         pass_result = FAIL
-#     return pass_result, message_str
-
-
-# def couch_extent_sufficient(rso, **kwargs):
-#     """
-#        Check PTV volume extent have supports under them
-#        Args:
-#            parent_key:
-#            rso: NamedTuple of ScriptObjects in Raystation [case,exam,plan,beamset,db]
-#            target_extent: [min, max extent of target]
-#        Returns:
-#             (Pass/Fail/Alert, Message to Display)
-#        Test Patient:
-#
-#            Pass: Plan_Review_Script_Testing, ZZUWQA_SCTest_01May2022
-#                  Case THI: Anal_THI: Anal_THI
-#            Fail (bad couch): Plan_Review_Script_Testing, ZZUWQA_SCTest_01May2022
-#                  Case THI: ChwL_3DC: SCV PAB
-#            Fail (no couch): Plan_Review_Script_Testing, ZZUWQA_SCTest_01May2022
-#                  Case THI: Pros_VMA: Pros_VMA
-#        """
-#     target_extent = kwargs.get('TARGET_EXTENT')
-#     buffer = FIELD_OF_VIEW_PREFERENCES['SI_PTV_BUFFER']
-#     #
-#     # Get support structure extent
-#     rg = rso.case.PatientModel.StructureSets[rso.exam.Name].RoiGeometries
-#     supports = TOMO_DATA['SUPPORTS'] + TRUEBEAM_DATA['SUPPORTS']
-#     support_rois = [r.OfRoi.Name for r in rg if r.OfRoi.Name in supports]
-#     couch_extent = get_si_extent(rso=rso, roi_list=supports)
-#
-#     if couch_extent:
-#         # Nice strings for output
-#         z_str = '[' + ('%.2f ' * len(couch_extent)) % tuple(couch_extent) + ']'
-#     #
-#     # Tolerance for SI extent
-#     buffered_target_extent = [target_extent[0] - buffer, target_extent[1] + buffer]
-#     if target_extent:
-#         # Output string
-#         t_str = '[' + ('%.2f ' * len(buffered_target_extent)) % tuple(buffered_target_extent) + ']'
-#     if not couch_extent:
-#         message_str = 'No support structures found. No couch check possible'
-#         pass_result = FAIL
-#     elif couch_extent[1] >= buffered_target_extent[1] and couch_extent[0] <= buffered_target_extent[
-#         0]:
-#         message_str = 'Supports (' \
-#                       + ', '.join(support_rois) \
-#                       + ') span {} and is at least {:.1f} cm larger than S/I target extent {' \
-#                         '}'.format(
-#             z_str, buffer, t_str)
-#         pass_result = PASS
-#     elif couch_extent[1] < buffered_target_extent[1] or couch_extent[0] > buffered_target_extent[0]:
-#         message_str = 'Support extent (' \
-#                       + ', '.join(support_rois) \
-#                       + ') :{} is not fully under the target.'.format(z_str) \
-#                       + '(SMALLER THAN ' \
-#                         'than S/I target extent: {} \xB1 {:.1f} cm)'.format(t_str, buffer)
-#         pass_result = FAIL
-#     else:
-#         message_str = 'Target length could not be compared to support extent'
-#         pass_result = FAIL
-#     # Prepare output
-#     return pass_result, message_str
 
 
 def get_external(rso):
@@ -896,7 +687,6 @@ def check_structure_exists(
     :param option: desired behavior
         Delete - deletes structure if found
         Check - simply returns true or false if found
-        Wait - prompt user to create structure if not found
     :param exam: Current RS exam, if supplied the script deletes geometry only,
                  otherwise contour is deleted
     :return: Logical - True if structure is present in ROI List,
@@ -943,14 +733,6 @@ def check_structure_exists(
                 # logging.info("Structure {} exists in this Case {}".format(structure_name,
                 # case.Name))
                 return True
-        elif option == "Wait":
-            if structure_has_contours_on_exam:
-                # logging.info("Structure {} has contours on exam {}".format(structure_name,
-                # exam.Name))
-                return True
-            else:
-                connect.await_user_input("Create the structure {} and continue script."
-                                         .format(structure_name))
     else:
         return False
 
@@ -1042,11 +824,7 @@ def create_roi(case, examination, roi_name, delete_existing=None, suffix=None):
     if delete_existing is None and suffix is None:
         if geometry_exists and not geometry_approved:
             # Prompt the user to make a decision between deleting existing geometry and a suffix
-            suffix = dialog_create_roi()
-            if suffix is None:
-                delete_existing = True
-            else:
-                delete_existing = False
+            sys.exit('Error entering create_roi. ')
 
     if struct_exists:
         # Does the existing structure have any contours defined
