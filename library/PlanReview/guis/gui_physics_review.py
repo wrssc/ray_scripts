@@ -182,7 +182,7 @@ def get_ditto_tab(tab_width, tab_height, beamsets):
     for beamset in beamsets:
         ditto_layout, match_tree = run_dicom_integrity_tool_physics_review(
             tab_width=tab_width, tab_height=tab_height, beamset_name=beamset,
-            progress_bar=True)
+            use_progress_bar=True)
         if ditto_layout is None and match_tree is None:
             continue
         tab_ditto = Sg.Tab(f'DI: {count}', ditto_layout,
