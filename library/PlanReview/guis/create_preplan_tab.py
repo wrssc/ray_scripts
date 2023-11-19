@@ -85,7 +85,7 @@ def create_beamset_layout(beamsets, targets):
     max_targets = len(targets)
 
     # Define header texts and sizes for columns in the beamset layout
-    header_sizes = [16, 4, 4]
+    header_sizes = [16, 3, 3]
 
     beamset_layout = []
     row_pair = []
@@ -180,13 +180,13 @@ def create_target_layout(beamset_i, targets):
     max_targets = len(targets)
     max_combo_value_length = max(len(value) for value in target_combo_values)
 
-    header_texts = ['Target Name', 'Plan Dose [Gy]', 'Fract Dose [Gy]']
+    header_texts = ['Target Name', 'Plan Dose (Gy)', 'Fract Dose (Gy)']
     header_sizes = [max(max_combo_value_length, len(header_texts[0])),
-                    len(header_texts[1]), len(header_texts[2])]
+                    len(header_texts[1])-2, len(header_texts[2])-2]
 
     target_layout = [
         [
-            Sg.Text('', size=(8, 1)),  # Empty space
+            Sg.Text('', size=(6, 1)),  # Empty space
             Sg.Text(header_texts[0], size=(header_sizes[0], 1),
                     key=create_key('beamset_header', beamset_i, 0), visible=False),
             Sg.Text(header_texts[1], size=(header_sizes[1], 1),
@@ -442,10 +442,10 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
                     justification=text_just,
                     size=instruction_size,
                     enable_events=True,
-                    key=create_key(KEY_TX_INST + KEY_T +inst_text, inst['indx']),
+                    key=create_key(KEY_TX_INST + KEY_T + inst_text, inst['indx']),
                     visible=False, ),
                 *create_radio_buttons(inst['radio'],
-                                      KEY_TX_INST +inst_text, inst['indx'])
+                                      KEY_TX_INST + inst_text, inst['indx'])
             ]
         elif inst['comment']:
             row = [
@@ -600,8 +600,8 @@ def create_tab_preplan_information(protocols, sites, orders,
     order_selection_layout = create_order_selection_layout(protocols, sites,
                                                            orders, instructions)
     frame_x = int(0.985 * tab_width) if save_space else tab_width
-    frame_ct_y = int(tab_height * 0.14) if save_space else int(tab_height * 0.20)
-    frame_tpo_y = int(0.46 * tab_height) if save_space else int(tab_height * 0.42)
+    frame_ct_y = int(tab_height * 0.18) if save_space else int(tab_height * 0.20)
+    frame_tpo_y = int(0.42 * tab_height) if save_space else int(tab_height * 0.42)
     frame_bs_y = int(tab_height - frame_ct_y - frame_tpo_y)
     column_x = int(frame_x * 0.95)
     vertical_scroll = False if save_space else True
@@ -764,21 +764,21 @@ def extract_values_preplan_tab(main_window):
     num_beamsets = main_window[KEY_BEAMSET_COUNT].get() \
         if main_window[KEY_BEAMSET_COUNT].get() else 1
     beamset_dict = {KEY_BEAMSET_COUNT: main_window[KEY_BEAMSET_COUNT].get()
-                    if main_window[KEY_BEAMSET_COUNT].get() else ''}
+    if main_window[KEY_BEAMSET_COUNT].get() else ''}
     for i in range(num_beamsets):
         beamset_dict[create_key(KEY_BEAMSET_SELECT, i)] = \
             main_window[create_key(KEY_BEAMSET_SELECT, i)].get() \
-            if main_window[create_key(KEY_BEAMSET_SELECT, i)].get() \
-            else ''
+                if main_window[create_key(KEY_BEAMSET_SELECT, i)].get() \
+                else ''
         beamset_dict[create_key(KEY_BEAMSET + KEY_FRACTIONS, i)] = \
             int(main_window[create_key(KEY_BEAMSET + KEY_FRACTIONS, i)].get()) \
-            if main_window[create_key(KEY_BEAMSET + KEY_FRACTIONS, i)].get() \
-            else 0
+                if main_window[create_key(KEY_BEAMSET + KEY_FRACTIONS, i)].get() \
+                else 0
         num_targets = \
             int(main_window[create_key(KEY_BEAMSET_TARGET_COUNT, i)].get()
                 ) \
-            if main_window[create_key(KEY_BEAMSET_TARGET_COUNT, i)].get() \
-            else 0
+                if main_window[create_key(KEY_BEAMSET_TARGET_COUNT, i)].get() \
+                else 0
         beamset_dict[create_key(KEY_BEAMSET_TARGET_COUNT, i)] = \
             num_targets
         for j in range(num_targets):  # assuming num_targets is defined somewhere
