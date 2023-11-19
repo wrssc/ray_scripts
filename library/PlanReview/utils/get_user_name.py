@@ -1,4 +1,6 @@
 # noinspection PyUnresolvedReferences
+from clr import AddReference
+AddReference('System')
 from System import Environment
 
 
