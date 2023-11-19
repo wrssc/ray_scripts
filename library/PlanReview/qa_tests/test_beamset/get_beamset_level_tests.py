@@ -15,10 +15,14 @@ from .check_mod_factor import check_mod_factor
 from .check_fraction_size import check_fraction_size
 from .check_no_fly import check_no_fly
 from .check_pacemaker import check_pacemaker
+from .parse_beamset_selection import parse_beamset_selection
 from PlanReview.review_definitions import REVIEW_LEVELS
+from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
 
-def get_beamset_level_tests(rso, physics_review=True):
+def get_beamset_level_tests(rso, physics_review=True, log_messages=None):
+    if log_messages is None:
+        log_messages = retrieve_logs(rso)
     # Don't proceed if no beamset is defined
     if not rso.beamset:
         return {}
@@ -26,6 +30,8 @@ def get_beamset_level_tests(rso, physics_review=True):
     beamset_checks_dict = {
         f"{REVIEW_LEVELS['PLAN_DATA']}::Beamset approval status":
             (check_beamset_approved, {"do_physics_review": physics_review}),
+        f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Template Selection":
+            (parse_beamset_selection, {"LOG_MESSAGES": log_messages}),
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Isocenter Position Identical":
             (check_common_isocenter, {"tolerance": 1e-15}),
         f"{REVIEW_LEVELS['PLAN_DESIGN']}::Check Fractionation":
