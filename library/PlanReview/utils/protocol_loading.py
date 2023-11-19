@@ -214,6 +214,7 @@ def get_order_instructions(protocol, order_name):
     """
     order = find_order(protocol, order_name)
     instructions = []
+    exclusions = ['TLDs', 'Concurrent Chemotherapy']
 
     if order is not None:
         prescription = order.find('prescription')
@@ -222,14 +223,15 @@ def get_order_instructions(protocol, order_name):
             order_instructions = prescription.findall('Instruction')
 
             for inst in order_instructions:
-                instruction = {
-                    'type': inst.attrib.get('type', ''),
-                    'radio': inst.attrib.get('radio', ''),
-                    'combo': inst.attrib.get('combo', ''),
-                    'comment': inst.attrib.get('comment', ''),
-                    'text': inst.text if inst.text is not None else '',
-                }
-                instructions.append(instruction)
+                if inst.text is not None and inst.text not in exclusions:
+                    instruction = {
+                        'type': inst.attrib.get('type', ''),
+                        'radio': inst.attrib.get('radio', ''),
+                        'combo': inst.attrib.get('combo', ''),
+                        'comment': inst.attrib.get('comment', ''),
+                        'text': inst.text if inst.text is not None else '',
+                    }
+                    instructions.append(instruction)
 
     return instructions
 
