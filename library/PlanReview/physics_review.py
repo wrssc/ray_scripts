@@ -11,43 +11,8 @@
 
 
     PRERELEASE:
-    TODO: NEED THE IMAGING FREQUENCY AND TREATMENT FREQUENCY POPULATED ON ALL
-          TPOS
-    TODO: ADD CT ORIENTATION TO PREPLAN DIALOG AND CHECK VS RS
-    TODO: ADD TO CRITICAL the CASE, EXAM, PLAN, BEAMSETUID
     TODO: Need a required prompt for all entries in the first tab
-    TODO: Basic code for loading multiple reviews at once.
-          -Header and tests should be moved under patient plan
-          -json files should be moved under patient plan
-          -should load the list of user tests and connect them to checkboxes
-    TODO: Sizing of the automated test subframes needs to be computed based on items
-          present.
-    TODO: New checkboxes
-          Implanted Devices
-           Review treatment modality, dose to the device and distance from the device to the nearest collimated field edge
-           Verify information entered in IMD Physics Consult document is accurate
-           Complete and sign the IMD Physics Consult document, set the “Supervised By” field to attending MD.
-           Determine if in vivo dosimetry measurement is required
-          Prior Radiotherapy
-           Review fusions done for prior RT (if not already done by a POD)
-           Review the dose accumulation, including TPO goals for prior RT
-           Verify:
-            * Prior RT document is completed
-            * Attending MD in “Supervised by”
-           MD review of prior RT is documented (or Message to MD exists)
-           Remove
-           Plan Design
-            Removed check "Overlap with prior RT Reviewed"
-           Mobius
-            Removed check "Confirm couch removal height"
-            Removed check "Target identification correct"
-            Removed check "Classification of each structure correct"
-          Review
-            Removed check "Reviewed Check with Dosimetry"
-
-
     TESTS:
-    TODO: ADD PATIENT ORIENTATION TO PREPLAN AND COMPARE TO DICOM
     TODO: Clearance check: LOOK AT WHERE THE BEAM WILL GO!
     TODO: Add a check on MU/rx in cGy and flag over the 5
     TODO: For GTV, and CTV types. Are these all within a PTV?
@@ -56,7 +21,6 @@
     TODO: ADD TYPE CHECK TO THE GTV LIST RATHER THAN JUST A REGEX.
     TODO: ADD BRAIN 1mm language
     TODO: HIGHLIGHT FRAMES THAT SHOULD BE FILLED IN AS RED
-    TODO: ADD Patient Name ID to the GUI title
     TODO: Siemens IMAR tags: IMAR: (0029,1041), KERNEL: (0029,1042)
     TESTS
     TODO: USE THE PTVs identified DURING PREPLAN
@@ -132,7 +96,6 @@
     TODO: FRONT PAGE CHECKS
      * TPO versus doses used in plan
      * CT Orientation
-     * Number of slices and scan date
      * Special instructions
      * Energy
     TODO: Objective type is correct: for anything with min goals, should be
@@ -148,7 +111,8 @@
     TODO: Contour gap check need only include human-drawn contours
 
     Version history:
-
+    0.0.0: Testing version
+    0.1.0: Initial version executed on over 150 beamsets. Clinically released.
 
 
     This program is free software: you can redistribute it and/or modify it
@@ -170,9 +134,9 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2023-Aug-03'
-__version__ = '0.0.0'
-__status__ = 'Testing'
+__date__ = '2023-Nov-18'
+__version__ = '0.1.0'
+__status__ = 'Clinical'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
