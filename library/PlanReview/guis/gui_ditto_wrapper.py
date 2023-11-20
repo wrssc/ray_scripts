@@ -134,6 +134,43 @@ def create_gui_layout(treedata, beamset_name, tab_width, tab_height):
     return layout
 
 
+def get_ditto_tab(tab_width, tab_height, beamsets):
+    tab_list = []
+    match_trees = {}
+    count = 1
+    for beamset in beamsets:
+        ditto_layout, match_tree = run_dicom_integrity_tool_physics_review(
+            tab_width=tab_width, tab_height=tab_height, beamset_name=beamset,
+            use_progress_bar=True)
+        if ditto_layout is None and match_tree is None:
+            continue
+        tab_ditto = Sg.Tab(f'DI: {count}', ditto_layout,
+                           key='DITTO',
+                           tooltip=f'Review and log DITTO results for {beamset}')
+        tab_list.append(tab_ditto)
+        match_trees[beamset] = match_tree
+        count += 1
+    return tab_list, match_trees
+
+
+def on_ditto_element_click(window,values,event, beamsets, match_trees):
+    # Extract the beamset name from the event key
+    beamset_parts = event.split('_')
+    beamset_name = '_'.join(beamset_parts[-3:])  # Join the last three parts to form the beamset name
+    if beamset_name in beamsets:  # Check if the extracted name is in the list of beamsets
+        tree_key = values[event][0]
+        dicom_match_tree = match_trees[beamset_name]
+        value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
+        element = dicom_match_tree.get_element_from_key(tree_key[1:])
+
+        # Update the values in the window
+        window[f"-DITTO_TREE_VALUE1_{beamset_name}"].update(value1 if value1 is not None else "")
+        window[f"-DITTO_TREE_VALUE2_{beamset_name}"].update(value2 if value2 is not None else "")
+        window[f"-DITTO_TREE_DEBUG_{beamset_name}"].update(element.parent.get_name() if element.parent else "")
+
+
+
+
 
 
 
