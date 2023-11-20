@@ -40,7 +40,6 @@ __license__ = 'GPLv3'
 __help__ = ''
 __copyright__ = 'Copyright (C) 2022, University of Wisconsin Board of Regents'
 __credits__ = ['']
-
 """
 
  TODO: Check contour interpolation
@@ -106,22 +105,15 @@ __credits__ = ['']
 
 
 """
-import sys
-import os
-import logging
 import PySimpleGUI as sg
-import re
 import tkinter as Tk
 from collections import namedtuple, OrderedDict
 from System import Environment
-import datetime
 
-#sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library'))
-#sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/OldPlanReview'))
-from OldPlanReview.ExamTests import *
-from OldPlanReview.BeamSetReviewTests import *
-from OldPlanReview.PlanReviewTests import *
-from OldPlanReview.ReviewDefinitions import *
+from ExamTests import *
+from BeamSetReviewTests import *
+from PlanReviewTests import *
+from ReviewDefinitions import *
 import GeneralOperations
 
 
