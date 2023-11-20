@@ -63,6 +63,7 @@ def run_dicom_integrity_tool_physics_review(tab_width: int, tab_height: int,
 
     return layout, dicom_match_tree
 
+
 def update_progress_bar(progress_bar, progress_window, progress_text, steps_performed, message):
     """
     Updates the progress bar with a new value and message.
@@ -153,7 +154,7 @@ def get_ditto_tab(tab_width, tab_height, beamsets):
     return tab_list, match_trees
 
 
-def on_ditto_element_click(window,values,event, beamsets, match_trees):
+def on_ditto_element_click(window, values, event, beamsets, match_trees):
     # Extract the beamset name from the event key
     beamset_parts = event.split('_')
     beamset_name = '_'.join(beamset_parts[-3:])  # Join the last three parts to form the beamset name
@@ -167,10 +168,3 @@ def on_ditto_element_click(window,values,event, beamsets, match_trees):
         window[f"-DITTO_TREE_VALUE1_{beamset_name}"].update(value1 if value1 is not None else "")
         window[f"-DITTO_TREE_VALUE2_{beamset_name}"].update(value2 if value2 is not None else "")
         window[f"-DITTO_TREE_DEBUG_{beamset_name}"].update(element.parent.get_name() if element.parent else "")
-
-
-
-
-
-
-

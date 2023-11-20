@@ -339,9 +339,8 @@ def launch_physics_review_gui(rso):
 
         # Update to Ditto
         # Check if the event starts with '-DITTO_TREE_' and if there are beamsets to process
-        logging.debug(f'Event {event}')
         if 'DITTO_TREE_' in event and beamsets and match_trees:
-            on_ditto_element_click(window, values, event, beamsets)
+            on_ditto_element_click(window, values, event, beamsets, match_trees)
             # Extract the beamset name from the event key
             # beamset_parts = event.split('_')
             # beamset_name = '_'.join(beamset_parts[-3:])  # Join the last three parts to form the beamset name
@@ -376,17 +375,20 @@ def launch_physics_review_gui(rso):
             # Perform the form submission logic
             if is_valid:
                 # Save the review
-                review_file_name = save_review(rso,
-                                               get_review_gui_values(window, values, passing_tests, failed_tests,
-                                                                     check_box_copy),
-                                               quiet=True)
+                review_file_name = save_review(
+                    rso,
+                    get_review_gui_values(window, values, passing_tests, failed_tests, check_box_copy),
+                    quiet=True)
+                logging.debug(f'Finished save to {review_file_name}')
 
                 #
                 # Retrieve data from the check-boxes and automated tests
                 passing_tests, failed_tests = get_tests_from_tree(tree_children)
+                logging.debug('Got to getting tests from tree')
                 check_list = process_check_box_values(window, check_box_copy)
                 check_list.extend(process_auto_tests(window, failed_tests))
                 check_list.extend(process_auto_tests(window, passing_tests))
+                logging.debug('Extended check boxes')
                 #
                 # Retrieve data from the first tab and side panel
                 preplan_data = extract_values_preplan_tab(window)
