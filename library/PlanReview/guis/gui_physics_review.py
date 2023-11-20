@@ -38,7 +38,6 @@ import json
 
 
 def save_review(rso, values, quiet=False):
-    # logging.debug(f'Values in Save {tuple_key_to_str(values)}')
     patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
     if not os.path.exists(patient_output_dir):
         os.makedirs(patient_output_dir)
@@ -341,20 +340,6 @@ def launch_physics_review_gui(rso):
         # Check if the event starts with '-DITTO_TREE_' and if there are beamsets to process
         if 'DITTO_TREE_' in event and beamsets and match_trees:
             on_ditto_element_click(window, values, event, beamsets, match_trees)
-            # Extract the beamset name from the event key
-            # beamset_parts = event.split('_')
-            # beamset_name = '_'.join(beamset_parts[-3:])  # Join the last three parts to form the beamset name
-            # if beamset_name in beamsets:  # Check if the extracted name is in the list of beamsets
-            #     on_ditto_tab_click(window, values,event)
-                # tree_key = values[event][0]
-                # dicom_match_tree = match_trees[beamset_name]
-                # value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
-                # element = dicom_match_tree.get_element_from_key(tree_key[1:])
-
-                # Update the values in the window
-                # window[f"-DITTO_TREE_VALUE1_{beamset_name}"].update(value1 if value1 is not None else "")
-                # window[f"-DITTO_TREE_VALUE2_{beamset_name}"].update(value2 if value2 is not None else "")
-                # window[f"-DITTO_TREE_DEBUG_{beamset_name}"].update(element.parent.get_name() if element.parent else "")
 
         #
         # Plan Revision Events
@@ -379,16 +364,13 @@ def launch_physics_review_gui(rso):
                     rso,
                     get_review_gui_values(window, values, passing_tests, failed_tests, check_box_copy),
                     quiet=True)
-                logging.debug(f'Finished save to {review_file_name}')
 
                 #
                 # Retrieve data from the check-boxes and automated tests
                 passing_tests, failed_tests = get_tests_from_tree(tree_children)
-                logging.debug('Got to getting tests from tree')
-                check_list = process_check_box_values(window, check_box_copy)
+                check_list = process_check_box_values(window, values, check_box_copy)
                 check_list.extend(process_auto_tests(window, failed_tests))
                 check_list.extend(process_auto_tests(window, passing_tests))
-                logging.debug('Extended check boxes')
                 #
                 # Retrieve data from the first tab and side panel
                 preplan_data = extract_values_preplan_tab(window)
