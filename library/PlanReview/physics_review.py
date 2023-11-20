@@ -112,7 +112,11 @@
 
     Version history:
     0.0.0: Testing version
-    0.1.0: Initial version executed on over 150 beamsets. Clinically released.
+    1.0.0: Initial version executed on over 150 beamsets. Clinically released.
+    1.0.1: Code Clean-up.
+           * Deleted extraneous code from physics_review.py
+           * Refactor sg as Sg
+           * Corrected a bug mapping VMAT optimization to Tomo3D Plan Check.
 
 
     This program is free software: you can redistribute it and/or modify it
@@ -135,7 +139,7 @@
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2023-Nov-18'
-__version__ = '0.1.0'
+__version__ = '1.0.1'
 __status__ = 'Clinical'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
@@ -150,185 +154,17 @@ __credits__ = ['']
 
 import sys
 import os
-import PySimpleGUI as sg
+import PySimpleGUI as Sg
 import logging
 from collections import namedtuple
 from GeneralOperations import find_scope
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
-from PlanReview.guis import (build_tree_element, build_review_tree, launch_physics_review_gui)
+from PlanReview.guis import launch_physics_review_gui
 from PlanReview.utils.get_user_name import get_user_name
-from PlanReview.review_definitions import DOMAIN_TYPE
-from PlanReview.documentation.generate_physics_document import generate_doc
 from PlanReview.documentation.generate_physics_pdf import generate_pdf
-from PlanReview.qa_tests.test_examination import get_exam_level_tests
-from PlanReview.qa_tests.test_plan import get_plan_level_tests
-from PlanReview.qa_tests.test_beamset import get_beamset_level_tests
-from PlanReview.qa_tests.test_beamset import parse_beamset_selection
-from PlanReview.qa_tests.test_plan import parse_order_selection
-from PlanReview.qa_tests.analyze_logs import retrieve_logs
 
 
-def automated_check_tree(rso, do_physics_review, beamsets=None):
-    """
-        Builds and returns a review tree for a radiotherapy treatment plan
-        using PySimpleGUI.
-
-        Args:
-            rso: The radiotherapy structure object.
-            do_physics_review: A boolean value indicating whether to
-            perform physics review.
-
-        Returns:
-            A tuple containing the tree data and tree children.
-    """
-
-    # Tree Levels (move these to tree building)
-    patient_key = (DOMAIN_TYPE['PATIENT_KEY'], "Patient: " + rso.patient.PatientID)
-    exam_key = (DOMAIN_TYPE['EXAM_KEY'], "Exam: " + rso.exam.Name)
-    plan_key = (DOMAIN_TYPE['PLAN_KEY'], "Plan: " + rso.plan.Name)
-    beamset_key = (
-        DOMAIN_TYPE['BEAMSET_KEY'], "Beam Set: " + rso.beamset.DicomPlanLabel)
-    rx_key = (DOMAIN_TYPE['RX_KEY'], "Prescription")
-    log_key = (DOMAIN_TYPE['LOG_KEY'], "Logging")
-    #
-
-    tree_children = []
-
-    """
-    Gather Patient Level Checks
-    """
-    patient_checks_dict = get_exam_level_tests(rso)
-    """
-    Gather Plan Level Checks
-    """
-    plan_checks_dict = get_plan_level_tests(rso, do_physics_review)
-    """
-    Gather BeamSet Level Checks
-    """
-    beamset_checks_dict = get_beamset_level_tests(rso, do_physics_review)
-    """
-    Parse logs
-    """
-    message_logs = retrieve_logs(rso, log_key)
-
-    # Execute qa_tests
-    exam_level_tests = []
-    for key, p_func in patient_checks_dict.items():
-        pass_result, message = p_func[0](rso=rso, **p_func[1])
-        node, child = build_tree_element(parent_key=exam_key[0],
-                                         child_key=key,
-                                         pass_result=pass_result,
-                                         message_str=message)
-        exam_level_tests.extend([node, child])
-        tree_children.append(child)
-
-    """
-    Execute Plan Level Checks
-    """
-    # Plan LevelChecks
-    plan_level_tests = []
-    # Parse the log file for the treatment planning order selected.
-    dialog_key = 'Treatment Planning Order Selection'
-    tpo_dialog = parse_order_selection(
-        beamset_name=rso.beamset.DicomPlanLabel,
-        messages=message_logs,
-        dialog_key=dialog_key)
-    node, child = build_tree_element(parent_key=plan_key[0],
-                                     child_key=dialog_key,
-                                     pass_result=tpo_dialog[dialog_key][0],
-                                     message_str=tpo_dialog[dialog_key][1])
-    plan_level_tests.extend([node, child])
-    for k, v in tpo_dialog.items():
-        if k != dialog_key and all(v):
-            node, child = build_tree_element(parent_key=dialog_key,
-                                             child_key=k,
-                                             pass_result=v[0],
-                                             message_str=v[1])
-            plan_level_tests.extend([node, child])
-            tree_children.append(child)
-    # FINISH PLAN LEVEL CHECKS DEFINED IN plan_checks_dict
-    for key, pl_func in plan_checks_dict.items():
-        pass_result, message = pl_func[0](rso=rso, **pl_func[1])
-        node, child = build_tree_element(parent_key=plan_key[0],
-                                         child_key=key,
-                                         pass_result=pass_result,
-                                         message_str=message)
-        plan_level_tests.extend([node, child])
-        tree_children.append(child)
-
-    #
-    # BEAMSET LEVEL CHECKS
-    beamset_level_tests = []
-
-    #
-    # Run dialog parse
-    dialog_key = 'Beamset Template Selection'
-    beamset_dialog = parse_beamset_selection(
-        beamset_name=rso.beamset.DicomPlanLabel,
-        messages=message_logs,
-        beamset_id=rso.beamset.UniqueId)
-    node, child = build_tree_element(parent_key=beamset_key[0],
-                                     child_key=dialog_key,
-                                     pass_result=beamset_dialog[dialog_key][0],
-                                     message_str=beamset_dialog[dialog_key][1])
-    beamset_level_tests.extend([node, child])
-    for k, v in beamset_dialog.items():
-        if k != dialog_key and all(v):
-            node, child = build_tree_element(parent_key=dialog_key,
-                                             child_key=k,
-                                             pass_result=v[0],
-                                             message_str=v[1])
-            beamset_level_tests.extend([node, child])
-            tree_children.append(child)
-
-    # Run others
-    for key, b_func in beamset_checks_dict.items():
-        pass_result, message = b_func[0](rso=rso, **b_func[1])
-        node, child = build_tree_element(parent_key=beamset_key[0],
-                                         child_key=key,
-                                         pass_result=pass_result,
-                                         message_str=message)
-        beamset_level_tests.extend([node, child])
-        tree_children.append(child)
-
-    tree_data = build_review_tree(rso, exam_level_tests,
-                                  plan_level_tests,
-                                  beamset_level_tests,
-                                  message_logs)
-    return tree_data, tree_children
-
-
-def perform_exam_tests(rso):
-    tests = []
-    exam_level_tests = get_exam_level_tests(rso)
-    for key, p_func in exam_level_tests.items():
-        pass_result, message = p_func[0](rso=rso, **p_func[1])
-        node, child = build_tree_element(key[0], key[1], pass_result, message)
-        tests.append({"exam_level_tests": [node, child]})
-    return tests
-
-
-def perform_plan_tests(rso, do_physics_review):
-    tests = []
-    plan_level_tests = get_plan_level_tests(rso, do_physics_review)
-    for key, p_func in plan_level_tests.items():
-        pass_result, message = p_func[0](rso=rso, **p_func[1])
-        node, child = build_tree_element(key[0], key[1], pass_result, message)
-        tests.append({"plan_level_tests": [node, child]})
-    return tests
-
-
-def perform_beamset_tests(rso, do_physics_review):
-    tests = []
-    beamset_level_tests = get_beamset_level_tests(rso, do_physics_review)
-    for key, b_func in beamset_level_tests.items():
-        pass_result, message = b_func[0](rso=rso, **b_func[1])
-        node, child = build_tree_element(key[0], key[1], pass_result, message)
-        tests.append({"beamset_level_tests": [node, child]})
-    return tests
-
-
-def physics_review(do_physics_review=True, rso=None):
+def physics_review(do_physics_review=True):
     """
         patient_key
             |
@@ -397,4 +233,4 @@ def physics_review(do_physics_review=True, rso=None):
     if do_physics_review:
         # generate_doc(rso, ata=header, test_mode=doc_only)
         generate_pdf(rso, review_data=review_data, test_mode=doc_only)
-        sg.popup('Form submitted successfully.')
+        Sg.popup('Form submitted successfully.')
