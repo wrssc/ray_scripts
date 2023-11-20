@@ -6,7 +6,6 @@
 
     Example Usage:
 
-    Script Created by RAB May 1st 2022
     Prerequisites:
 
 
@@ -111,13 +110,12 @@
     TODO: Contour gap check need only include human-drawn contours
 
     Version history:
-    0.0.0: Testing version
+    0.0.0: Testing version, Script created by RAB on May 1st 2022
     1.0.0: Initial version executed on over 150 beamsets. Clinically released.
     1.0.1: Code Clean-up.
            * Deleted extraneous code from physics_review.py
            * Refactor sg as Sg
            * Corrected a bug mapping VMAT optimization to Tomo3D Plan Check.
-
 
     This program is free software: you can redistribute it and/or modify it
     under
@@ -138,7 +136,7 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2023-Nov-18'
+__date__ = '2023-Nov-20'
 __version__ = '1.0.1'
 __status__ = 'Clinical'
 __deprecated__ = False
@@ -221,8 +219,6 @@ def physics_review(do_physics_review=True):
                  beamset=find_scope(level='BeamSet'))
     doc_only = False
     if doc_only:
-        tests = None
-        header = None
         review_data = None
     else:
         # Gui
