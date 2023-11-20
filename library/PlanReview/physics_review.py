@@ -116,6 +116,8 @@
            * Deleted extraneous code from physics_review.py
            * Refactor sg as Sg
            * Corrected a bug mapping VMAT optimization to Tomo3D Plan Check.
+           * Eliminating unused logging statements in manual tab
+           * Fixed a bug causing Report button to need to be pressed twice
 
     This program is free software: you can redistribute it and/or modify it
     under
