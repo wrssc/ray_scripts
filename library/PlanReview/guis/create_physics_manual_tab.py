@@ -267,9 +267,6 @@ class FrameSettings:
         return int((check_count + 0.60 * user_line_count) * self.checks_pix_per_line)
 
     def calculate_subframe_pixel_height(self, n_items):
-        # logging.debug(f'            n*a_ppl + d_ppl = {n_items} * {self.auto_pix_per_line} + '
-        #               f'{self.domain_pix_per_line} = '
-        #               f'{int(n_items * self.auto_pix_per_line + self.domain_pix_per_line)}')
         return int(n_items * self.auto_pix_per_line + self.domain_pix_per_line)
 
     def calculate_frame_height(self):
@@ -299,18 +296,18 @@ class FrameSettings:
         return height
 
     def calculate_initial_settings(self):
-        logging.debug(f'---Initial frame settings calculated:')
-        logging.debug(f'    User Frame:')
+        # logging.debug(f'---Initial frame settings calculated:')
+        # logging.debug(f'    User Frame:')
         self.height_user = self.calculate_pixel_height()
-        logging.debug(f'  User Frame Height: {self.height_user}')
-        logging.debug(f'    Pass Frame:')
+        # logging.debug(f'  User Frame Height: {self.height_user}')
+        # logging.debug(f'    Pass Frame:')
         self.height_pass = self.calculate_auto_frame_pixel_height(tests=self.passing)
-        logging.debug(f'  Pass Frame Height: {self.height_pass}')
-        logging.debug(f'    Fail Frame:')
+        # logging.debug(f'  Pass Frame Height: {self.height_pass}')
+        # logging.debug(f'    Fail Frame:')
         self.height_fail = self.calculate_auto_frame_pixel_height(tests=self.failing)
-        logging.debug(f'  Fail Frame Height: {self.height_fail}')
+        # logging.debug(f'  Fail Frame Height: {self.height_fail}')
         self.height = self.calculate_frame_height()
-        logging.debug(f'  Total Frame Height: {self.height}')
+        # logging.debug(f'  Total Frame Height: {self.height}')
 
 
 def adjust_each_frame_height(frame_settings):
@@ -910,19 +907,19 @@ def get_key(components, window):
         return False
 
 
-def process_check_box_values(window, checks):
+def process_check_box_values(window, values, checks):
     """
     Parses the resulting window values and sorts the checkbox values.
 
     Args:
         window (PySimpleGUI.Window): The PySimpleGUI window object.
+        values (dict): A dictionary containing the window values
         checks (dict): A dictionary containing the checkbox data.
 
     Returns:
         list: A sorted list containing the checkbox values.
     """
     sorted_results = []
-    _, values = window.read()
     for test_level in checks:
         for item in checks[test_level]:
             parsed_item = {KEY_OUT_DESC: item[KEY_OUT_DESC]}
