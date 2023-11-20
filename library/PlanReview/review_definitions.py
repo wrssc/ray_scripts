@@ -817,8 +817,8 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
         {
             KEY_OUT_TEST: 'objective_type',
             KEY_OUT_DESC: 'Objective type is correct for targets/OAR',
-            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
-                                  'KEY': 'tomo_3d_opt'},
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'VMAT-IMRT Optimization performed:',
+                                  'KEY': 'vmat_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
