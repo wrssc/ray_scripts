@@ -22,6 +22,8 @@
     2.0.0 Added intregration of the review script in to replace some of the checks performed in
           FinalDose steps
 
+    2.0.1 Reformatted import of FinalDose to move the launching function to OldPlanReview
+
 
     Validation Notes:
     Test Patient:
@@ -48,7 +50,7 @@ __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
 __date__ = '2022-Sep-22'
 
-__version__ = '2.0.0'
+__version__ = '2.0.1'
 __status__ = 'Production'
 __deprecated__ = False
 __reviewer__ = 'Adam Bayliss'
@@ -74,7 +76,7 @@ import StructureOperations
 import clr
 import os
 
-sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../helper_scripts'))
+sys.path.insert(1, os.path.join(os.path.dirname(__file__), r'../library/OldPlanReview'))
 import init_physics_19Jun2023
 
 clr.AddReference("System.Xml")
