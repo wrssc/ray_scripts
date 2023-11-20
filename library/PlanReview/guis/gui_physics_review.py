@@ -8,6 +8,8 @@ from PlanReview.utils import (get_user_name, get_roi_names_from_type,
 from PlanReview.utils.protocol_loading import load_protocols, \
     get_sites, get_all_orders, get_unique_instructions
 from PlanReview.utils.constants import *
+from PlanReview.utils.python_utilities import (
+    tuple_key_to_str, str_key_to_tuple, update_window_key_dict, merge_dicts)
 from PlanReview.guis.gui_report_script_error import report_script_error
 from PlanReview.guis.create_side_panel import (
     create_side_panel, load_side_panel, extract_values_side_panel,
@@ -27,35 +29,12 @@ from PlanReview.guis.create_physics_manual_tab import (
     extract_values_manual_tab, load_manual, process_auto_tests,
     process_check_box_values, is_valid_manual_tab, is_visible_tab)
 from PlanReview.guis.gui_top_buttons import build_top_buttons
-from PlanReview.guis.gui_ditto_wrapper import run_dicom_integrity_tool_physics_review
+from PlanReview.guis.gui_ditto_wrapper import get_ditto_tab, on_ditto_element_click
 import json
 
 """
 
 """
-
-
-def tuple_key_to_str(value):
-    if isinstance(value, dict):
-        return {tuple_key_to_str(k): tuple_key_to_str(v) for k, v in value.items()}
-    elif isinstance(value, tuple):
-        return '||'.join(map(str, value))
-    return value
-
-
-def str_key_to_tuple(value):
-    if isinstance(value, dict):
-        return {
-            str_key_to_tuple(k): str_key_to_tuple(v) for k, v in value.items()}
-    elif isinstance(value, str) and '||' in value:
-        return tuple(int(x) if x.isdigit() else x for x in value.split('||'))
-    return value
-
-
-def update_window_key_dict(window, keys):
-    for key in keys:
-        if key not in window.key_dict:
-            window.key_dict[key] = None
 
 
 def save_review(rso, values, quiet=False):
@@ -175,42 +154,6 @@ def on_submit_build_tree(tree_data, tab_width, tab_height, pix_per_char_width, p
     return tree_layout
 
 
-def get_ditto_tab(tab_width, tab_height, beamsets):
-    tab_list = []
-    match_trees = {}
-    count = 1
-    for beamset in beamsets:
-        ditto_layout, match_tree = run_dicom_integrity_tool_physics_review(
-            tab_width=tab_width, tab_height=tab_height, beamset_name=beamset,
-            use_progress_bar=True)
-        if ditto_layout is None and match_tree is None:
-            continue
-        tab_ditto = Sg.Tab(f'DI: {count}', ditto_layout,
-                           key='DITTO',
-                           tooltip=f'Review and log DITTO results for {beamset}')
-        tab_list.append(tab_ditto)
-        match_trees[beamset] = match_tree
-        count += 1
-    return tab_list, match_trees
-
-
-def merge_dicts(dict1, dict2):
-    merged = dict1.copy()  # Start with a copy of dict1
-
-    for key, value in dict2.items():
-        if key in merged:
-            # Merge unique items from dict2[key] into merged[key]
-            merged[key] = [x for x in merged[key] if x not in value] + value
-        else:
-            # Add key and value from dict2 if not in dict1
-            merged[key] = value
-
-    # Remove outer level keys with empty lists
-    merged = {k: v for k, v in merged.items() if v}
-
-    return merged
-
-
 def launch_physics_review_gui(rso):
     """
     Function to launch a GUI for reviewing physics checks and logs.
@@ -224,9 +167,11 @@ def launch_physics_review_gui(rso):
     qa_form_accessible = True
     # Variable initialization
     ui = connect.get_current('ui')
+    # TODO: Move initializations to own file
     failed_tests = []
     passing_tests = []
     check_box_copy = {}
+    match_trees = None
     # GUI setup
     Sg.theme('DefaultNoMoreNagging')
     window_width, window_height, save_space, pix_per_char_width, pix_per_char_height = \
@@ -395,22 +340,22 @@ def launch_physics_review_gui(rso):
         # Update to Ditto
         # Check if the event starts with '-DITTO_TREE_' and if there are beamsets to process
         logging.debug(f'Event {event}')
-        if beamsets and 'DITTO_TREE_' in event:
+        if 'DITTO_TREE_' in event and beamsets and match_trees:
+            on_ditto_element_click(window, values, event, beamsets)
             # Extract the beamset name from the event key
-            beamset_parts = event.split('_')
-            beamset_name = '_'.join(beamset_parts[-3:])  # Join the last three parts to form the beamset name
-            logging.debug(f'Beamset name: {beamset_name}')
-            if beamset_name in beamsets:  # Check if the extracted name is in the list of beamsets
-                tree_key = values[event][0]
-                logging.debug(f'Tree key: {tree_key}')
-                dicom_match_tree = match_trees[beamset_name]
-                value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
-                element = dicom_match_tree.get_element_from_key(tree_key[1:])
+            # beamset_parts = event.split('_')
+            # beamset_name = '_'.join(beamset_parts[-3:])  # Join the last three parts to form the beamset name
+            # if beamset_name in beamsets:  # Check if the extracted name is in the list of beamsets
+            #     on_ditto_tab_click(window, values,event)
+                # tree_key = values[event][0]
+                # dicom_match_tree = match_trees[beamset_name]
+                # value1, value2 = dicom_match_tree.get_valuepair_from_key(tree_key[1:])
+                # element = dicom_match_tree.get_element_from_key(tree_key[1:])
 
                 # Update the values in the window
-                window[f"-DITTO_TREE_VALUE1_{beamset_name}"].update(value1 if value1 is not None else "")
-                window[f"-DITTO_TREE_VALUE2_{beamset_name}"].update(value2 if value2 is not None else "")
-                window[f"-DITTO_TREE_DEBUG_{beamset_name}"].update(element.parent.get_name() if element.parent else "")
+                # window[f"-DITTO_TREE_VALUE1_{beamset_name}"].update(value1 if value1 is not None else "")
+                # window[f"-DITTO_TREE_VALUE2_{beamset_name}"].update(value2 if value2 is not None else "")
+                # window[f"-DITTO_TREE_DEBUG_{beamset_name}"].update(element.parent.get_name() if element.parent else "")
 
         #
         # Plan Revision Events
