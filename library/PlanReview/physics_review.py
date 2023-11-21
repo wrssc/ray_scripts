@@ -118,6 +118,8 @@
            * Corrected a bug mapping VMAT optimization to Tomo3D Plan Check.
            * Eliminating unused logging statements in manual tab
            * Fixed a bug causing Report button to need to be pressed twice
+           Added features:
+           * New column in the review document for user-entered special treatment instructions
 
     This program is free software: you can redistribute it and/or modify it
     under
