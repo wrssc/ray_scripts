@@ -1839,7 +1839,7 @@ CHECK_BOXES_DOSE_VMAT = {
 LOG_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
 DEV_LOG_DIR = r"Q:\\RadOnc\RayStation\RayScripts\dev_logs"
 KEEP_PHRASES = [("Critical", "CRITICAL"), ("Warnings", "WARNING"),
-                ("Info", "INFO"), ("Debug", "DEBUG")]
+                ("Info", "INFO")]  # ("Debug", "DEBUG")]
 #
 # EXAM DEFAULTS
 # TIME ELAPSED BETWEEN PLAN AND CT
