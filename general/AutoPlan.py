@@ -137,7 +137,8 @@ def build_target_inputs(protocol_targets, plan_targets):
         target_inputs[k_dose] = f'Provide dose for protocol target: {p} Dose in cGy'
         target_options[k_name] = plan_targets
         target_datatype[k_name] = 'combo'
-        target_required.extend([k_name, k_dose])
+        if i == 1:
+            target_required.extend([k_name, k_dose])
         if p in plan_targets:
             target_initial[k_name] = p
         i += 1
