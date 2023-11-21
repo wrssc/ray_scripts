@@ -1,4 +1,3 @@
-import logging
 import os
 from dataclasses import dataclass
 from functools import partial
@@ -14,7 +13,7 @@ from PlanReview.utils.constants import (
     KEY_PROCEED_REVISE, KEY_REVISION_INFO, KEY_BEAMSET_COUNT, KEY_BEAMSET_SELECT, KEY_BEAMSET_FRACTION_COUNT,
     KEY_BEAMSET_TARGET_NAME, KEY_BEAMSET_DOSE, KEY_BEAMSET_FRACTION_DOSE, KEY_BEAMSET_TARGET_COUNT,
     KEY_IMD, KEY_PRIOR_RT, KEY_IMAGING_FREQ, KEY_TREAT_FREQ, KEY_PATIENT_ORIENTATION, KEY_SIM_DATE,
-    KEY_SIMULATION_DATA, KEY_HEADER, KEY_TESTS
+    KEY_SIMULATION_DATA, KEY_HEADER, KEY_TESTS, KEY_TX_INST, KEY_TX_INST_SET, KEY_RADIO, KEY_COMBO
 )
 from PlanReview.utils.io_file_utils import *
 from reportlab.lib.pagesizes import landscape, letter
@@ -130,7 +129,9 @@ def generate_pdf(rso, review_data, test_mode=False):
     main_table = create_beamset_data_table(header_data[KEY_BEAMSET], rso, config)
     story.append(main_table)
     # Create the treatment instructions table
-    instructions_table = add_treatment_instructions_table(header_data[KEY_SIMULATION_DATA], config)
+    instructions_table = add_treatment_instructions_table(header_data[KEY_SIMULATION_DATA],
+                                                          header_data[KEY_TX_INST_SET],
+                                                          config)
     story.append(instructions_table)
     # Add reviewer comments
     review_table = add_reviewer_approval(header_data[KEY_SIDE_PANEL], config)
@@ -164,7 +165,6 @@ def generate_tables_from_dataframe(df, story, config):
     # Define custom ordering for 'RESULT'
     result_order = {FAIL: 0, ALERT: 1, PASS: 2}
     unique_test_levels = df[KEY_OUT_TAB].unique()
-    logging.debug(unique_test_levels)
 
     for test_level in unique_test_levels:
         if test_level in excluded_review_levels:
@@ -251,7 +251,6 @@ def make_paragraph(text, style=None):
         style = getSampleStyleSheet()['Normal']
 
     return Paragraph(text, style)
-
 
 
 def add_check_list_table(df, story, config, title=None,display_domain_name=False):
@@ -388,7 +387,28 @@ def parse_high_risk_boolean(value, config):
         return "No", getSampleStyleSheet()['Normal']
 
 
-def add_treatment_instructions_table(data, config):
+def parse_special_instructions(data):
+    special_instructions_text = ""
+    for tuple_key, value in data.items():
+        key, instruction_number = tuple_key
+        if key.startswith(KEY_TX_INST):
+            if KEY_RADIO in key:
+                # Extract the instruction name and type
+                _, instruction_name, response_type,radio_value = key.split('-')[1:]
+                if value == "false":
+                    continue
+                elif value == "true":
+                    if radio_value == "Yes":
+                        special_instructions_text += f"* {instruction_name}\n"
+                    else:
+                        continue
+            elif KEY_COMBO in key:
+                inst_key, _, comb_key, instruction_name = key.split('-')[1:]
+                special_instructions_text += f"* {instruction_name}: {value}\n"
+    return special_instructions_text
+
+
+def add_treatment_instructions_table(simulation_set, special_instructions, config):
     hstyle = getSampleStyleSheet()['Normal']
     hstyle.textColor = config.UW_WHITE
     hstyle.fontName = 'Helvetica-Bold'
@@ -399,19 +419,23 @@ def add_treatment_instructions_table(data, config):
             make_paragraph("Prior Radiotherapy", hstyle),
             make_paragraph("Implanted Medical Device", hstyle),
             make_paragraph("Imaging Frequency", hstyle),
-            make_paragraph("Treatment Frequency", hstyle)]
+            make_paragraph("Treatment Frequency", hstyle),
+            make_paragraph("Special Instructions", hstyle)]
     ]
 
     # Extract data from the header dictionary
-    simulation_date = data.get(KEY_SIM_DATE, "Not Specified")
-    patient_orientation = data.get(KEY_PATIENT_ORIENTATION, "Not Specified")
-    prior_radiotherapy = data.get(KEY_PRIOR_RT, "Not Specified")
-    implanted_medical_device = data.get(KEY_IMD, "Not Specified")
-    imaging_frequency = data.get(KEY_IMAGING_FREQ, "Not Specified")
-    treatment_frequency = data.get(KEY_TREAT_FREQ, "Not Specified")
+    simulation_date = simulation_set.get(KEY_SIM_DATE, "Not Specified")
+    patient_orientation = simulation_set.get(KEY_PATIENT_ORIENTATION, "Not Specified")
+    prior_radiotherapy = simulation_set.get(KEY_PRIOR_RT, "Not Specified")
+    implanted_medical_device = simulation_set.get(KEY_IMD, "Not Specified")
+    imaging_frequency = simulation_set.get(KEY_IMAGING_FREQ, "Not Specified")
+    treatment_frequency = simulation_set.get(KEY_TREAT_FREQ, "Not Specified")
+
     # Replace the boolean with Yes/No
     prior_rt_text, prior_rt_style = parse_high_risk_boolean(prior_radiotherapy, config)
     implant_text, implant_style = parse_high_risk_boolean(implanted_medical_device, config)
+    # Look at special instructions
+    si_text = parse_special_instructions(special_instructions)
 
     table_data.append([  # make_paragraph(simulation_date),
         # make_paragraph(patient_orientation),
@@ -420,10 +444,11 @@ def add_treatment_instructions_table(data, config):
         make_paragraph(implant_text,
                        style=implant_style),
         make_paragraph(imaging_frequency),
-        make_paragraph(treatment_frequency)])
+        make_paragraph(treatment_frequency),
+        make_paragraph(si_text)])
 
     # Configure column widths and build the table
-    col_fractions = [0.25, 0.25, 0.25, 0.25]
+    col_fractions = [0.18, 0.18, 0.18, 0.18, 0.28]
     treatment_instructions_table = build_treatment_instructions_table(table_data, config, col_fractions)
 
     return treatment_instructions_table
