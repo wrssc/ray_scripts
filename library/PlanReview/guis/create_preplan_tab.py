@@ -182,7 +182,7 @@ def create_target_layout(beamset_i, targets):
 
     header_texts = ['Target Name', 'Plan Dose (Gy)', 'Fract Dose (Gy)']
     header_sizes = [max(max_combo_value_length, len(header_texts[0])),
-                    len(header_texts[1])-2, len(header_texts[2])-2]
+                    len(header_texts[1]) - 2, len(header_texts[2]) - 2]
 
     target_layout = [
         [

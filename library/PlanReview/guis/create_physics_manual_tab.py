@@ -236,7 +236,7 @@ def create_auto_check_row(comment, result, icon, key, user_text_x, save_space):
 
 
 class FrameSettings:
-    def __init__(self, tab_width, tab_height, pix_per_line, checks, passing, failing):
+    def __init__(self, tab_width, tab_height, pix_per_line, checks, passing, failing, quiet=True):
         self.width = int(tab_width)
         self.tab_height = tab_height
         self.pix_per_line = pix_per_line
@@ -250,6 +250,7 @@ class FrameSettings:
         self.failing = failing
         self.height_fail = 0
         self.scroll_fail = False
+        self.quiet = quiet
         self.checks_pix_per_line = ceil(self.pix_per_line * 1.652)
         self.domain_pix_per_line = ceil(self.pix_per_line * 1.21)
         self.auto_pix_per_line = ceil(self.pix_per_line * 1.6)
@@ -257,7 +258,8 @@ class FrameSettings:
         self.calculate_initial_settings()
 
     def calculate_pixel_height(self):
-        logging.debug(f'---Calculating frame height: {self.checks[0].get(KEY_OUT_DESC)}')
+        if not self.quiet:
+            logging.debug(f'---Calculating frame height: {self.checks[0].get(KEY_OUT_DESC)}')
         user_line_count = 0
         check_count = 0
         for check in self.checks:
@@ -296,21 +298,22 @@ class FrameSettings:
         return height
 
     def calculate_initial_settings(self):
-        # logging.debug(f'---Initial frame settings calculated:')
-        # logging.debug(f'    User Frame:')
         self.height_user = self.calculate_pixel_height()
-        # logging.debug(f'  User Frame Height: {self.height_user}')
-        # logging.debug(f'    Pass Frame:')
         self.height_pass = self.calculate_auto_frame_pixel_height(tests=self.passing)
-        # logging.debug(f'  Pass Frame Height: {self.height_pass}')
-        # logging.debug(f'    Fail Frame:')
         self.height_fail = self.calculate_auto_frame_pixel_height(tests=self.failing)
-        # logging.debug(f'  Fail Frame Height: {self.height_fail}')
         self.height = self.calculate_frame_height()
-        # logging.debug(f'  Total Frame Height: {self.height}')
+        if not self.quiet:
+            logging.debug(f'---Initial frame settings calculated:')
+            logging.debug(f'    User Frame:')
+            logging.debug(f'  User Frame Height: {self.height_user}')
+            logging.debug(f'    Pass Frame:')
+            logging.debug(f'  Pass Frame Height: {self.height_pass}')
+            logging.debug(f'    Fail Frame:')
+            logging.debug(f'  Fail Frame Height: {self.height_fail}')
+            logging.debug(f'  Total Frame Height: {self.height}')
 
 
-def adjust_each_frame_height(frame_settings):
+def adjust_each_frame_height(frame_settings,use_logging=False):
     max_user, max_pass, max_fail = 0, 0, 0
     if frame_settings.height_user and frame_settings.height_pass and frame_settings.height_fail:
         max_pass = max_fail = int(frame_settings.tab_height * 0.25)
@@ -323,13 +326,13 @@ def adjust_each_frame_height(frame_settings):
     # Evaluate tab width
     if frame_settings.width < 800:
         frame_settings.scroll_user = True
-
-    # if frame_settings.height < frame_settings.tab_height:
-    #     logging.debug(f'---Frame Settings not adjusted:')
-    #     logging.debug(f'  User Frame Height: {frame_settings.height_user}')
-    #     logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
-    #     logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
-    #     logging.debug(f'  Total Frame Height: {frame_settings.height}')
+    if use_logging:
+        if frame_settings.height < frame_settings.tab_height:
+            logging.debug(f'---Frame Settings not adjusted:')
+            logging.debug(f'  User Frame Height: {frame_settings.height_user}')
+            logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
+            logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
+            logging.debug(f'  Total Frame Height: {frame_settings.height}')
 
     while frame_settings.height > frame_settings.tab_height:
         excess = frame_settings.height - frame_settings.tab_height
@@ -343,20 +346,22 @@ def adjust_each_frame_height(frame_settings):
             frame_settings.height_user = max_user if excess >= max_user else ceil(frame_settings.height_user - excess)
             frame_settings.scroll_user = True
             if frame_settings.height > frame_settings.tab_height:
-                # logging.warning(
-                #     f'****Dialog adjustment failed: dialog height {frame_settings.height} > available space in tab {frame_settings.tab_height}')
-                # logging.warning(f'  User Frame Height: {frame_settings.height_user}')
-                # logging.warning(f'  Pass Frame Height: {frame_settings.height_pass}')
-                # logging.warning(f'  Fail Frame Height: {frame_settings.height_fail}')
-                # logging.warning(f'  Total Frame Height: {frame_settings.height}')
+                if use_logging:
+                    logging.warning(
+                        f'****Dialog adjustment failed: dialog height {frame_settings.height} > available space in tab {frame_settings.tab_height}')
+                    logging.warning(f'  User Frame Height: {frame_settings.height_user}')
+                    logging.warning(f'  Pass Frame Height: {frame_settings.height_pass}')
+                    logging.warning(f'  Fail Frame Height: {frame_settings.height_fail}')
+                    logging.warning(f'  Total Frame Height: {frame_settings.height}')
                 break
 
         frame_settings.height = frame_settings.calculate_frame_height()
-        # logging.debug(f'----Frame Settings adjusted:')
-        # logging.debug(f'  User Frame Height: {frame_settings.height_user}')
-        # logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
-        # logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
-        # logging.debug(f'  Total Frame Height: {frame_settings.height}')
+        if use_logging:
+            logging.debug(f'----Frame Settings adjusted:')
+            logging.debug(f'  User Frame Height: {frame_settings.height_user}')
+            logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
+            logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
+            logging.debug(f'  Total Frame Height: {frame_settings.height}')
 
 
 def make_subframe(input_text, content_list):
@@ -827,7 +832,8 @@ def build_manual_check_box_list(rso, beamsets):
         for item in dict1[level]:
             # Determine if this test has been replaced with automation.
             if is_replaced(item):
-                logging.info(f'This item {item[KEY_OUT_DESC]}: has been replaced.')
+                logging.info(f'This checkbox from the physics review: {item[KEY_OUT_DESC]}: '
+                             f'has been replaced with an automated test.')
                 continue
             else:
                 filtered_checklist[level].append(item)
@@ -841,35 +847,6 @@ def build_manual_check_box_list(rso, beamsets):
 def is_replaced(item):
     replaced_status = item.get(KEY_AUTOMATION, {}).get(KEY_STATUS, False)
     return replaced_status == REPLACED
-
-
-# TODO: Evaluate this object to determine if it is worthwhile to create objects for tests
-class Domain:
-    def __init__(self, domain_type, domain_name):
-        self.domain_type = domain_type
-        self.domain_name = domain_name
-        self.failed_tests = []
-        self.passed_tests = []
-
-    def add_test(self, test, pass_fail):
-        if pass_fail == PASS:
-            self.passed_tests.append(test)
-        else:
-            self.failed_tests.append(test)
-
-
-class Test:
-    def __init__(self, comment, result, icon, pass_fail):
-        review_tab, comment = search_string(comment)
-        self.comment = comment
-        self.result = result
-        self.icon = icon
-        self.pass_fail = pass_fail
-        self.review_tab = review_tab
-        self.required = False
-        self.excluded = False
-        self.exclude_from_report = False
-    # Parse item from window.
 
 
 def get_tests_from_tree(tree_children):
