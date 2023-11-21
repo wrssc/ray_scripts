@@ -24,7 +24,6 @@ def parse_order_selection(beamset_name, messages, dialog_key):
                                   f'Treatment Planning for Beamset '
                                   f'{beamset_name} goals manually defined')}
     for m in messages:
-        # logging.debug(m)
         template_search = re.search(beamset_template_searches['Dialog'], m['Message'])
         if template_search and beamset_name in m['Message']:
             # Found the TPO Dialog. Lets display it
