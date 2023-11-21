@@ -1,11 +1,10 @@
-import os
 from dataclasses import dataclass
+from typing import NamedTuple
 from functools import partial
-import json
+from datetime import datetime
 import pandas as pd
 from PlanReview.review_definitions import (
-    OUTPUT_DIR, LOG_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS, FAIL, PASS, ALERT, RED_CIRCLE,
-    GREEN_CIRCLE)
+    LOG_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS, FAIL, PASS, ALERT, RED_CIRCLE, GREEN_CIRCLE)
 from PlanReview.utils import get_approval_info
 from PlanReview.utils.constants import (
     KEY_BEAMSET, KEY_SIDE_PANEL, KEY_OUT_DOMAIN_NAME, KEY_OUT_TEST_SOURCE, SOURCE_USER, KEY_USER_COMMENT,
@@ -240,7 +239,6 @@ def make_paragraph(text, style=None):
         "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
         "* ": "&bull;&nbsp;"
     }
-
     # Convert **text** to <b>text</b>
     text = text.replace("**", "<b>", 1).replace("**", "</b>", 1)
 
@@ -295,9 +293,9 @@ def add_check_list_table(df, story, config, title=None,display_domain_name=False
             domain_header_rows.append(len(data) - 1)  # Keep track of the row index
             last_domain_name = check[KEY_OUT_DOMAIN_NAME]
             data.append([make_paragraph('Status', style=label_style),
-                 make_paragraph('Test Performed', style=label_style),
-                make_paragraph('Result', style=label_style),
-                make_paragraph('Reviewer Comment', style=label_style)])
+                         make_paragraph('Test Performed', style=label_style),
+                         make_paragraph('Result', style=label_style),
+                         make_paragraph('Reviewer Comment', style=label_style)])
         # Add regular rows
         icon_image = Image(check[KEY_OUT_ICON],
                            hAlign="CENTER", lazy=1)
@@ -310,8 +308,6 @@ def add_check_list_table(df, story, config, title=None,display_domain_name=False
     for row_idx in domain_header_rows:
         table_style.add('BACKGROUND', (0, row_idx), (-1, row_idx), config.UW_DARK_GRAY)
         table_style.add('BACKGROUND', (0, row_idx + 1), (-1, row_idx + 1), config.UW_DARK_RED)
-        # table_style.add('TEXTCOLOR', (0, row_idx), (-1, row_idx), config.UW_WHITE)
-        # table_style.add('TEXTCOLOR', (0, row_idx + 1), (-1, row_idx + 1), config.UW_WHITE)
         table_style.add('SPAN', (0, row_idx), (-1, row_idx))  # Span the columns for domain name
         table_style.add('ALIGN', (0, row_idx), (-1, row_idx), 'CENTER')
 
@@ -325,30 +321,65 @@ def add_check_list_table(df, story, config, title=None,display_domain_name=False
                   repeatRows=(0, 1),
                   spaceAfter=30,
                   )
-    # table = Table(data, splitByRow=1, hAlign='CENTER')
-
     # Apply the table style
     table.setStyle(table_style)
     story.append(table)
 
 
-def create_demographics_table(data, rso, config):
+def convert_time(time_input):
+    """
+    Converts a datetime object to a 24-hour clock format string.
+
+    Args:
+        time_input (datetime): A datetime object in any format.
+
+    Returns:
+        str: A string representation of the input datetime in 24-hour clock format (e.g., "2023-11-17 14:04:30").
+    """
+    time_str = str(time_input)
+    input_format = "%m/%d/%Y %I:%M:%S %p"  # 12-hour clock format
+    # Parse the input string into a datetime object
+    date_time_obj = datetime.strptime(time_str, input_format)
+    output_format = "%Y-%m-%d %H:%M:%S"  # 24-hour clock format
+    formatted_string = datetime.strftime(date_time_obj, output_format)
+    return formatted_string
+
+
+def create_demographics_table(data: dict, rso: NamedTuple, config: dict) -> str:
+    """
+    Creates a demographics table based on input data, RSO object, and configuration.
+
+    Args:
+        data (dict): Input data containing beamset information.
+        rso (object): RayStation named tuple
+        config (dict): Configuration parameters.
+
+    Returns:
+        str: A string representing the demographics table.
+    """
     table_data = [["Patient Name", "MRN", "Beamset Name", "Approval Date"]]
     beamset_count = data[KEY_BEAMSET_COUNT]
+
     for i in range(beamset_count):
         beamset_number = (KEY_BEAMSET_SELECT, i)
         beamset_name = data[beamset_number]
         approval_status = get_approval_info(rso.plan, rso.plan.BeamSets[beamset_name])
-        approval_date = str(
-            rso.plan.BeamSets[beamset_name].Review.ReviewTime) if approval_status.beamset_approved else 'NA'
+
+        if approval_status.beamset_approved:
+            approval_date = convert_time(rso.plan.BeamSets[beamset_name].Review.ReviewTime)
+        else:
+            approval_date = "NA"
+
         if i == 0:
             patient_name = rearrange_name(str(rso.patient.Name))
             patient_id = rso.patient.PatientID
         else:
             patient_name = ""
             patient_id = ""
+
         table_data.append([str(patient_name), str(patient_id),
                            str(beamset_name), str(approval_date)])
+
     demo_table = build_demographics_table(table_data, config)
     return demo_table
 
