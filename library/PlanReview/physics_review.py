@@ -9,6 +9,20 @@
     Prerequisites:
 
 
+    Version history:
+    0.0.0: Testing version, Script created by RAB on May 1st 2022
+    1.0.0: Initial version executed on over 150 beamsets. Clinically released.
+    1.0.1: Code Clean-up.
+           * Deleted extraneous code from physics_review.py
+           * Refactor sg as Sg
+           * Corrected a bug mapping VMAT optimization to Tomo3D Plan Check.
+           * Eliminating unused logging statements in manual tab
+           * Fixed a bug causing Report button to need to be pressed twice
+           Added features:
+           * New column in the review document for user-entered special treatment instructions
+           * Reformatted beamset approval time to match the RayStation document format.
+
+
     PRERELEASE:
     TODO: Need a required prompt for all entries in the first tab
     TESTS:
@@ -109,17 +123,7 @@
     Individual Test improvements:
     TODO: Contour gap check need only include human-drawn contours
 
-    Version history:
-    0.0.0: Testing version, Script created by RAB on May 1st 2022
-    1.0.0: Initial version executed on over 150 beamsets. Clinically released.
-    1.0.1: Code Clean-up.
-           * Deleted extraneous code from physics_review.py
-           * Refactor sg as Sg
-           * Corrected a bug mapping VMAT optimization to Tomo3D Plan Check.
-           * Eliminating unused logging statements in manual tab
-           * Fixed a bug causing Report button to need to be pressed twice
-           Added features:
-           * New column in the review document for user-entered special treatment instructions
+
 
     This program is free software: you can redistribute it and/or modify it
     under
