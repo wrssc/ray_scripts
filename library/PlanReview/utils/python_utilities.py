@@ -1,20 +1,4 @@
 
-def tuple_key_to_str(value):
-    if isinstance(value, dict):
-        return {tuple_key_to_str(k): tuple_key_to_str(v) for k, v in value.items()}
-    elif isinstance(value, tuple):
-        return '||'.join(map(str, value))
-    return value
-
-
-def str_key_to_tuple(value):
-    if isinstance(value, dict):
-        return {
-            str_key_to_tuple(k): str_key_to_tuple(v) for k, v in value.items()}
-    elif isinstance(value, str) and '||' in value:
-        return tuple(int(x) if x.isdigit() else x for x in value.split('||'))
-    return value
-
 
 def update_window_key_dict(window, keys):
     for key in keys:

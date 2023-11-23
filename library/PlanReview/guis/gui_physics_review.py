@@ -1,15 +1,16 @@
 # Import necessary modules and functions
-import PySimpleGUI as Sg
 import os
 import logging
+import json
+import PySimpleGUI as Sg
 from PlanReview.review_definitions import (PROTOCOL_DIR, OUTPUT_DIR)
 from PlanReview.utils import (get_user_name, get_roi_names_from_type,
                               get_user_display_parameters, perform_automated_checks)
 from PlanReview.utils.protocol_loading import load_protocols, \
     get_sites, get_all_orders, get_unique_instructions
 from PlanReview.utils.constants import *
-from PlanReview.utils.python_utilities import (
-    tuple_key_to_str, str_key_to_tuple, update_window_key_dict, merge_dicts)
+from PlanReview.utils.python_utilities import (update_window_key_dict, merge_dicts)
+from PlanReview.utils.io_file_utils import (str_key_to_tuple, save_review)
 from PlanReview.guis.gui_report_script_error import report_script_error
 from PlanReview.guis.create_side_panel import (
     create_side_panel, load_side_panel, extract_values_side_panel,
@@ -23,6 +24,7 @@ from PlanReview.guis.create_preplan_tab import (
     update_preplan_protocols, update_preplan_orders,
     create_tab_preplan_information, update_preplan_beamset_rows,
     update_preplan_target_rows)
+from PlanReview.guis.build_tree import on_submit_build_tree
 from PlanReview.guis.create_physics_manual_tab import (
     build_manual_check_box_list, get_tests_from_tree,
     create_tab_manual_checks, on_manual_radio_button_click,
@@ -30,27 +32,6 @@ from PlanReview.guis.create_physics_manual_tab import (
     process_check_box_values, is_valid_manual_tab, is_visible_tab)
 from PlanReview.guis.gui_top_buttons import build_top_buttons
 from PlanReview.guis.gui_ditto_wrapper import get_ditto_tab, on_ditto_element_click
-import json
-
-"""
-
-"""
-
-
-def save_review(rso, values, quiet=False):
-    patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
-    if not os.path.exists(patient_output_dir):
-        os.makedirs(patient_output_dir)
-    if os.path.exists(OUTPUT_DIR):
-        file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}_review.json"
-        with open(os.path.join(patient_output_dir, file_name), "w") as f:
-            json.dump(tuple_key_to_str(values), f)
-            if not quiet:
-                Sg.popup("Review saved successfully!")
-        return file_name
-    else:
-        logging.error("Output directory does not exist.")
-        return None
 
 
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
@@ -128,31 +109,6 @@ def on_done_button_click(window, values, check_boxes, failed_tests):
     return is_valid
 
 
-def on_submit_build_tree(tree_data, tab_width, tab_height, pix_per_char_width, pix_per_line):
-    right_width = 10
-    left_width = int((tab_width - right_width * pix_per_char_width
-                      - 60 * pix_per_char_width) / pix_per_char_width)
-    num_rows = int(tab_height / pix_per_line)
-    tree_layout = [[Sg.Frame('Automated Review:',
-                             [[Sg.Tree(
-                                 data=tree_data,
-                                 headings=['Result'],
-                                 auto_size_columns=False,
-                                 num_rows=num_rows,
-                                 col0_width=left_width,
-                                 col_widths=[right_width],
-                                 key='-TREE-',
-                                 show_expanded=True,
-                                 justification="left",
-                                 vertical_scroll_only=True,
-                                 expand_x=True,
-                                 expand_y=True,
-                                 enable_events=True)]],
-                             pad=(0, 0),
-                             size=(tab_width, tab_height))]]
-    return tree_layout
-
-
 def launch_physics_review_gui(rso):
     """
     Function to launch a GUI for reviewing physics checks and logs.
@@ -173,18 +129,28 @@ def launch_physics_review_gui(rso):
     match_trees = None
     # GUI setup
     Sg.theme('DefaultNoMoreNagging')
+
     window_width, window_height, save_space, pix_per_char_width, pix_per_char_height = \
         get_user_display_parameters()
+    # save_space = True
+    # window_width = 1100
+    # window_height = 800
+    # pix_per_char_width = 9
+    # pix_per_char_height = 15
 
     # In the tree display, set the size of the right column relative to left
     if save_space:
         tab_width = 120 * pix_per_char_width  # Based on top window width
         sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
         comment_width_chars = int(sidebar_width - 120) // pix_per_char_width  # Gap is around 6 char
+        user_text_width = 20  # Number of characters in the check box user comments
+        check_character_width = 70  # Character wrap limit in check boxes
     else:
         tab_width = 154 * pix_per_char_width  # Based on top window width
         sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
         comment_width_chars = int(sidebar_width - 200) // pix_per_char_width  # Gap is around 6 char
+        user_text_width = 24
+        check_character_width = 96
     # Top and bottom (buttons) frame height
     top_height = 2 * pix_per_char_height
     top_width = tab_width + int(5.1 * pix_per_char_width)
@@ -230,7 +196,7 @@ def launch_physics_review_gui(rso):
             Sg.Column(create_side_panel(comment_width_chars,
                                         window_height,
                                         pix_per_char_height),
-                      vertical_alignment='top',
+                      ##Qt          vertical_alignment='top',
                       size=(sidebar_width, window_height))
         ],
     ]
@@ -307,7 +273,6 @@ def launch_physics_review_gui(rso):
                 tree_data, tree_children = perform_automated_checks(
                     rso, do_physics_review=True, values=values,
                     display_progress=True, beamsets=beamsets)
-                # Call Ditto
                 rso.patient.Save()
                 ditto_tab_list, match_trees = get_ditto_tab(tab_width, tab_height, beamsets)
                 tab_group = window['tab_group']
@@ -320,13 +285,15 @@ def launch_physics_review_gui(rso):
                                          font=tab_font))
                 #
                 # Build next tab
-                check_box_copy = build_manual_check_box_list(rso, beamsets=[rso.beamset.DicomPlanLabel])
+                check_box_copy = build_manual_check_box_list(rso, beamsets=[rso.beamset.DicomPlanLabel],
+                                                             chars_per_line=check_character_width)
 
                 passing_tests, failed_tests = get_tests_from_tree(tree_children)
                 tabs = create_tab_manual_checks(check_box_copy, passing_tests,
                                                 failed_tests,
                                                 tab_width, tab_height,
-                                                pix_per_char_width, pix_per_char_height, save_space)
+                                                pix_per_char_width, pix_per_char_height, save_space,
+                                                user_text_width, check_character_width)
                 for tab in tabs:
                     if is_visible_tab(tab, window):
                         tab_group.add_tab(tab)
@@ -363,7 +330,7 @@ def launch_physics_review_gui(rso):
                 review_file_name = save_review(
                     rso,
                     get_review_gui_values(window, values, passing_tests, failed_tests, check_box_copy),
-                    quiet=True)
+                    suffix="_review.json", quiet=True)
 
                 #
                 # Retrieve data from the check-boxes and automated tests
