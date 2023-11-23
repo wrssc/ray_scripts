@@ -134,7 +134,7 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2023-Nov-20'
+__date__ = '2023-Nov-21'
 __version__ = '0.0.0'
 __status__ = 'Testing'
 __deprecated__ = False
@@ -155,10 +155,11 @@ import logging
 from collections import namedtuple
 from GeneralOperations import find_scope
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
-from PlanReview.guis import (launch_dosimetry_safety_gui)
+from PlanReview.guis import (gui_dosimetry_safety_review)
 from PlanReview.utils.get_user_name import get_user_name
 from PlanReview.documentation.generate_physics_pdf import generate_pdf
 from PlanReview.review_definitions import DOSIMETRY_OUTPUT_DIR
+
 
 def dosimetry_safety_check():
     """
@@ -220,7 +221,7 @@ def dosimetry_safety_check():
         review_data = None
     else:
         # Gui
-        review_data = launch_dosimetry_safety_gui(rso)
+        review_data = gui_dosimetry_safety_review.launch_dosimetry_review_gui(rso)
         if not review_data:
             sys.exit('Physics review canceled')
 
