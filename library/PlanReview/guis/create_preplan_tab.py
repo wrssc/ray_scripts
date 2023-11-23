@@ -119,7 +119,7 @@ def create_beamset_layout(beamsets, targets):
                                  key=create_key(KEY_BEAMSET + KEY_F, i),
                                  font=('Helvetica', 10, 'bold'),
                                  title_color='blue',
-                                 vertical_alignment='top',
+                                 ## QT vertical_alignment='top',
                                  visible=bs_visible))
         if len(row_pair) == 2:
             beamset_layout.append(row_pair)
@@ -134,7 +134,7 @@ def update_preplan_beamset_rows(main_window, values, num_beamsets, max_beamsets,
     Updates the visibility of beamset rows in the GUI based on the user's selection.
 
     Args:
-        main_window (sg.Window): The main PySimpleGUI window.
+        main_window (Sg.Window): The main PySimpleGUI window.
         values (dict): The dictionary containing the current values of the window elements.
         num_beamsets (int): The number of beamsets selected by the user.
         max_beamsets (int): The maximum number of beamsets in the plan.
@@ -615,7 +615,8 @@ def create_tab_preplan_information(protocols, sites, orders,
                                    Sg.Input('', key=KEY_SIM_DATE,
                                             size=(10, 1)),
                                    Sg.CalendarButton('Select date', target=KEY_SIM_DATE,
-                                                     format='%Y-%m-%d')],
+                                                     ## QT format='%Y-%m-%d'
+                                                     )],
                                   [Sg.Text('Number of CT Slices: ', pad=(20, 0)),
                                    Sg.Input(key=KEY_SLICES, size=(10, 1))],
                                   [Sg.Text('Patient Orientation: ', pad=(20, 0)),
@@ -663,7 +664,8 @@ def create_tab_preplan_information(protocols, sites, orders,
                               size=(column_x, int(0.95 * frame_bs_y)),
                               key='-COLUMN_BEAMSETS-',
                               scrollable=True,
-                              vertical_scroll_only=vertical_scroll)]],
+                              ## Qt vertical_scroll_only=vertical_scroll,
+                              )]],
                   size=(frame_x, frame_bs_y),
                   font=('Helvetica', 11, 'bold'),
                   element_justification='l')],
