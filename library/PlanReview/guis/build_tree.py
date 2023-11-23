@@ -1,8 +1,33 @@
 import uuid
-import PySimpleGUI as sg
+import PySimpleGUI as Sg
 from collections import namedtuple
 from PlanReview.review_definitions import FAIL, RED_CIRCLE, PASS, GREEN_CIRCLE
 from PlanReview.review_definitions import YELLOW_CIRCLE, ALERT, BLUE_CIRCLE, DOMAIN_TYPE
+
+
+def on_submit_build_tree(tree_data, tab_width, tab_height, pix_per_char_width, pix_per_line):
+    right_width = 10
+    left_width = int((tab_width - right_width * pix_per_char_width
+                      - 60 * pix_per_char_width) / pix_per_char_width)
+    num_rows = int(tab_height / pix_per_line)
+    tree_layout = [[Sg.Frame('Automated Review:',
+                             [[Sg.Tree(
+                                 data=tree_data,
+                                 headings=['Result'],
+                                 auto_size_columns=False,
+                                 num_rows=num_rows,
+                                 col0_width=left_width,
+                                 col_widths=[right_width],
+                                 key='-TREE-',
+                                 show_expanded=True,
+                                 justification="left",
+                                 vertical_scroll_only=True,
+                                 expand_x=True,
+                                 expand_y=True,
+                                 enable_events=True)]],
+                             pad=(0, 0),
+                             size=(tab_width, tab_height))]]
+    return tree_layout
 
 
 def build_tree_element(parent_key: str, child_key: str, pass_result: str,
@@ -110,7 +135,7 @@ def generate_unique_id():
 
 def build_review_tree(rso, exam_level_tests, plan_level_tests,
                       beamset_levels, sandbox_level_tests, message_logs,
-                      beamsets=[]):
+                      beamsets=None):
     # beamset_levels is now a dict {dicomplanlabel: [beamset tests]}
     test_results = []  # Something is probably going to be broken on final dose
     # Tree Levels
@@ -134,7 +159,7 @@ def build_review_tree(rso, exam_level_tests, plan_level_tests,
     rx_key = (DOMAIN_TYPE['RX_KEY'], "Prescription")
     log_key = (DOMAIN_TYPE['LOG_KEY'], "Logging")
     #
-    tree_data = sg.TreeData()
+    tree_data = Sg.TreeData()
     # TREE BUILDING
     #
     # Insert main (patient) node
