@@ -21,6 +21,13 @@
            Added features:
            * New column in the review document for user-entered special treatment instructions
            * Reformatted beamset approval time to match the RayStation document format.
+           * Refactoring the build_tree function to make it more readable and accomodate
+             dosimetry review
+           * Further adjustments to the GUI sizes and formatting for small screens
+             successfully eliminated horizontal scrolling for all but beamsets on initia
+             page
+            *Debugged and improved function of check_prv_status to now exclude very
+             low dose serial oars from warnings regarding PRV usage
 
 
     PRERELEASE:
