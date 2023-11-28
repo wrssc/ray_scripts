@@ -77,7 +77,8 @@ def save_report(patient_id, beamset_name, user_name, description, screenshot):
     doc.add_paragraph(f'User Name: {user_name}')
     doc.add_paragraph(f'Time:{now.strftime("%Y-%m-%d_%H-%M-%S")}')
     doc.add_paragraph(f'Description of Error: {description}')
-    doc.add_picture(io.BytesIO(screenshot), width=Cm(25))
+    if screenshot:
+        doc.add_picture(io.BytesIO(screenshot), width=Cm(25))
 
     # Save the document
     doc.save(os.path.join(ERROR_DIR, filename))
@@ -131,7 +132,7 @@ def report_script_error(rso):
             beamset_name = values["beamset_name"]
             user_name = values["user_name"]
             description = values["description"]
-            screenshot = img_data
+            screenshot = img_data if img_data else None
             save_report(patient_id, beamset_name, user_name, description,
                         screenshot)
             error_report_window.close()
