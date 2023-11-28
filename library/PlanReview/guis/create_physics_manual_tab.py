@@ -4,13 +4,12 @@ import logging
 from math import ceil
 from typing import NamedTuple
 from collections import defaultdict
-from dataclasses import dataclass, field
+import textwrap
 from PlanReview.review_definitions import (
-    PASS, FAIL, ALERT, NA, REVIEW_LEVELS,
-    DOMAIN_TYPE, RED_CIRCLE, GREEN_CIRCLE, YELLOW_CIRCLE, BLUE_CIRCLE,
-    CHECK_BOXES_PHYSICS_REVIEW, CHECK_BOXES_PHYSICS_REVIEW_3D,
-    CHECK_BOXES_PHYSICS_REVIEW_VMAT, CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
-    CHECK_BOXES_PHYSICS_REVIEW_TOMO3D, CHECK_BOXES_PHYSICS_REVIEW_TOMO)
+    PASS, FAIL, ALERT, NA, REVIEW_LEVELS, DOMAIN_TYPE,
+    RED_CIRCLE, GREEN_CIRCLE, YELLOW_CIRCLE, BLUE_CIRCLE,
+    CHECK_BOXES_PHYSICS_REVIEW, REVIEW_TYPES, TECHNIQUE_MAP,
+    CHECK_BOXES_DOSIMETRY_SAFETY, )
 from PlanReview.utils.constants import *
 
 
@@ -68,33 +67,29 @@ def generate_event_key(*args):
     return "_".join(str(arg) for arg in args)
 
 
-def create_manual_check_row(item, max_check, user_text_length=80, ):
+def create_manual_check_row(item, word_wrap_limit, user_text_length=80, ):
     phrases = item[KEY_OUT_OPTIONS].split(',')
     test_name = item[KEY_OUT_DESC]
+    # Count characters till a new line:
     row_key = item[KEY_OUT_TEST]
     # Count the nuber of lines in test_name
     line_count = test_name.count('\n') + 1
     input_text_function = Sg.Multiline if line_count > 1 else Sg.InputText
     radios = [Sg.Column(
-        [[Sg.Radio(
-            phrase,
-            group_id=create_key(row_key),
-            default=False,
-            key=create_key(f'{row_key}{KEY_CHECK}{KEY_RADIO}{phrase}'),
-            enable_events=True)]],
-        justification='center',
-        expand_x=False,
+        [[Sg.Radio(phrase,
+                   group_id=create_key(row_key),
+                   default=False,
+                   key=create_key(f'{row_key}{KEY_CHECK}{KEY_RADIO}{phrase}'),
+                   enable_events=True)]],
+        justification='right', expand_x=False,
         pad=(0, 0))
         for phrase in phrases
     ]
     row = [Sg.Column(
-        [[Sg.Text(
-            test_name,
-            size=(65, line_count),
-        )
-        ]],
+        [[Sg.Text(test_name, )]],
         justification='left',
-        expand_x=False),
+        expand_x=True
+    ),
         *radios,
         Sg.Column(
             [[input_text_function(
@@ -102,8 +97,8 @@ def create_manual_check_row(item, max_check, user_text_length=80, ):
                 key=create_key(f'{row_key}{KEY_CHECK}{KEY_INPUT_TEXT}'),
                 enable_events=True,
                 background_color='#E5DECE', pad=(0, 0))]],
-            justification='left',
-            expand_x=False),
+            justification='right', expand_x=False
+        ),
     ]
 
     return row, line_count
@@ -212,7 +207,7 @@ def insert_line_breaks(text, max_line_length):
 
 def create_auto_check_row(comment, result, icon, key, user_text_x, save_space):
     lines = 1
-    max_line_length = 72 if save_space else 100
+    max_line_length = 80 if save_space else 100
     if len(result) >= max_line_length:
         broken_result, lines = insert_line_breaks(result, max_line_length)
     else:
@@ -222,21 +217,27 @@ def create_auto_check_row(comment, result, icon, key, user_text_x, save_space):
         Sg.Column([
             [Sg.Image(icon), Sg.Text(broken_result,
                                      size=(int(0.78 * max_line_length), lines), justification='left')],
-        ], justification='left', pad=(0, 0), expand_x=False),
+        ], pad=(0, 0),
+            justification='left', expand_x=True
+        ),
         Sg.Column([
             [Sg.InputText(default_text=f"{comment}",
                           key=key, size=(user_text_x, lines),
                           enable_events=True, text_color='#000000',
-                          background_color='#ffffff', border_width=0, justification='left',
+                          background_color='#ffffff',
+                          ## QT border_width=0,
+                          justification='left',
                           tooltip=comment, pad=(0, 0))],
-        ], justification='left', expand_x=False),
+        ],
+            justification='left', expand_x=False
+        ),
     ]
 
     return row, lines
 
 
 class FrameSettings:
-    def __init__(self, tab_width, tab_height, pix_per_line, checks, passing, failing):
+    def __init__(self, tab_width, tab_height, pix_per_line, checks, passing, failing, quiet=True):
         self.width = int(tab_width)
         self.tab_height = tab_height
         self.pix_per_line = pix_per_line
@@ -250,6 +251,8 @@ class FrameSettings:
         self.failing = failing
         self.height_fail = 0
         self.scroll_fail = False
+        self.subframe_scroll = False
+        self.quiet = quiet
         self.checks_pix_per_line = ceil(self.pix_per_line * 1.652)
         self.domain_pix_per_line = ceil(self.pix_per_line * 1.21)
         self.auto_pix_per_line = ceil(self.pix_per_line * 1.6)
@@ -257,7 +260,8 @@ class FrameSettings:
         self.calculate_initial_settings()
 
     def calculate_pixel_height(self):
-        logging.debug(f'---Calculating frame height: {self.checks[0].get(KEY_OUT_DESC)}')
+        if not self.quiet:
+            logging.debug(f'---Calculating frame height: {self.checks[0].get(KEY_OUT_DESC)}')
         user_line_count = 0
         check_count = 0
         for check in self.checks:
@@ -267,9 +271,6 @@ class FrameSettings:
         return int((check_count + 0.60 * user_line_count) * self.checks_pix_per_line)
 
     def calculate_subframe_pixel_height(self, n_items):
-        # logging.debug(f'            n*a_ppl + d_ppl = {n_items} * {self.auto_pix_per_line} + '
-        #               f'{self.domain_pix_per_line} = '
-        #               f'{int(n_items * self.auto_pix_per_line + self.domain_pix_per_line)}')
         return int(n_items * self.auto_pix_per_line + self.domain_pix_per_line)
 
     def calculate_frame_height(self):
@@ -299,43 +300,44 @@ class FrameSettings:
         return height
 
     def calculate_initial_settings(self):
-        logging.debug(f'---Initial frame settings calculated:')
-        logging.debug(f'    User Frame:')
         self.height_user = self.calculate_pixel_height()
-        logging.debug(f'  User Frame Height: {self.height_user}')
-        logging.debug(f'    Pass Frame:')
         self.height_pass = self.calculate_auto_frame_pixel_height(tests=self.passing)
-        logging.debug(f'  Pass Frame Height: {self.height_pass}')
-        logging.debug(f'    Fail Frame:')
         self.height_fail = self.calculate_auto_frame_pixel_height(tests=self.failing)
-        logging.debug(f'  Fail Frame Height: {self.height_fail}')
         self.height = self.calculate_frame_height()
-        logging.debug(f'  Total Frame Height: {self.height}')
+        if not self.quiet:
+            logging.debug(f'---Initial frame settings calculated:')
+            logging.debug(f'    User Frame:')
+            logging.debug(f'  User Frame Height: {self.height_user}')
+            logging.debug(f'    Pass Frame:')
+            logging.debug(f'  Pass Frame Height: {self.height_pass}')
+            logging.debug(f'    Fail Frame:')
+            logging.debug(f'  Fail Frame Height: {self.height_fail}')
+            logging.debug(f'  Total Frame Height: {self.height}')
 
 
-def adjust_each_frame_height(frame_settings):
+def adjust_each_frame_height(frame_settings, use_logging=False):
     max_user, max_pass, max_fail = 0, 0, 0
     if frame_settings.height_user and frame_settings.height_pass and frame_settings.height_fail:
         max_pass = max_fail = int(frame_settings.tab_height * 0.25)
-        max_user = int(frame_settings.tab_height * 0.5)
+        max_user = int(frame_settings.tab_height * 0.35)
     elif frame_settings.height_user and (frame_settings.height_pass or frame_settings.height_fail):
-        max_pass = max_fail = int(frame_settings.tab_height * 0.4)
-        max_user = int(frame_settings.tab_height * 0.6)
+        max_pass = max_fail = int(frame_settings.tab_height * 0.45)
+        max_user = int(frame_settings.tab_height * 0.45)
     else:
-        max_user = int(frame_settings.tab_height)
+        max_user = int(frame_settings.tab_height*0.9)
     # Evaluate tab width
     if frame_settings.width < 800:
         frame_settings.scroll_user = True
-
-    # if frame_settings.height < frame_settings.tab_height:
-    #     logging.debug(f'---Frame Settings not adjusted:')
-    #     logging.debug(f'  User Frame Height: {frame_settings.height_user}')
-    #     logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
-    #     logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
-    #     logging.debug(f'  Total Frame Height: {frame_settings.height}')
+    if use_logging:
+        if frame_settings.height < frame_settings.tab_height:
+            logging.debug(f'---Frame Settings not adjusted:')
+            logging.debug(f'  User Frame Height: {frame_settings.height_user}')
+            logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
+            logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
+            logging.debug(f'  Total Frame Height: {frame_settings.height}')
 
     while frame_settings.height > frame_settings.tab_height:
-        excess = frame_settings.height - frame_settings.tab_height
+        excess = frame_settings.height - 0.9*frame_settings.tab_height
         if frame_settings.height_pass > max_pass:
             frame_settings.height_pass = max_pass if excess >= max_pass else ceil(frame_settings.height_pass - excess)
             frame_settings.scroll_pass = True
@@ -346,20 +348,22 @@ def adjust_each_frame_height(frame_settings):
             frame_settings.height_user = max_user if excess >= max_user else ceil(frame_settings.height_user - excess)
             frame_settings.scroll_user = True
             if frame_settings.height > frame_settings.tab_height:
-                # logging.warning(
-                #     f'****Dialog adjustment failed: dialog height {frame_settings.height} > available space in tab {frame_settings.tab_height}')
-                # logging.warning(f'  User Frame Height: {frame_settings.height_user}')
-                # logging.warning(f'  Pass Frame Height: {frame_settings.height_pass}')
-                # logging.warning(f'  Fail Frame Height: {frame_settings.height_fail}')
-                # logging.warning(f'  Total Frame Height: {frame_settings.height}')
+                if use_logging:
+                    logging.warning(
+                        f'****Dialog adjustment failed: dialog height {frame_settings.height} > available space in tab {frame_settings.tab_height}')
+                    logging.warning(f'  User Frame Height: {frame_settings.height_user}')
+                    logging.warning(f'  Pass Frame Height: {frame_settings.height_pass}')
+                    logging.warning(f'  Fail Frame Height: {frame_settings.height_fail}')
+                    logging.warning(f'  Total Frame Height: {frame_settings.height}')
                 break
 
         frame_settings.height = frame_settings.calculate_frame_height()
-        # logging.debug(f'----Frame Settings adjusted:')
-        # logging.debug(f'  User Frame Height: {frame_settings.height_user}')
-        # logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
-        # logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
-        # logging.debug(f'  Total Frame Height: {frame_settings.height}')
+        if use_logging:
+            logging.debug(f'----Frame Settings adjusted:')
+            logging.debug(f'  User Frame Height: {frame_settings.height_user}')
+            logging.debug(f'  Pass Frame Height: {frame_settings.height_pass}')
+            logging.debug(f'  Fail Frame Height: {frame_settings.height_fail}')
+            logging.debug(f'  Total Frame Height: {frame_settings.height}')
 
 
 def make_subframe(input_text, content_list):
@@ -381,7 +385,7 @@ def make_subframe(input_text, content_list):
                     border_width=0)
 
 
-def create_subframes_for_domain(tests_by_domain, user_text_x, width, save_space):
+def create_subframes_for_domain(tests_by_domain, user_text_x, frame_settings, save_space):
     """
     Create subframes for each domain, containing rows with test details.
 
@@ -392,7 +396,7 @@ def create_subframes_for_domain(tests_by_domain, user_text_x, width, save_space)
     Args:
         tests_by_domain (dict): A dictionary grouping tests by their domain.
         user_text_x (int): X-coordinate for positioning user-related text.
-        width (int): Width of the subframe.
+        frame_settings (obj): Width of the subframe.
         save_space (bool): Flag to determine if scrolling is to be enabled for saving space.
 
     Returns:
@@ -419,14 +423,14 @@ def create_subframes_for_domain(tests_by_domain, user_text_x, width, save_space)
 
         if rows:
             # Defining subframe characteristics
-            subframe_size = (int(0.98 * width), line_count_per_domain * 30)
-            scrollable = save_space
-            vertical_scroll_only = not save_space
+            # subframe_size = (int(0.98 * frame_settings.width), line_count_per_domain * 30)
 
             # Creating and appending subframes for each domain
             subframes.append([make_subframe(domain_name, [
-                Sg.Column(rows, size=subframe_size, scrollable=scrollable, vertical_scroll_only=vertical_scroll_only)
-            ])])
+                Sg.Column(rows,  # size=subframe_size,
+                          scrollable=frame_settings.subframe_scroll,
+                          ## QT vertical_scroll_only=vertical_scroll_only
+                          )])])
 
     return subframes
 
@@ -443,13 +447,40 @@ def sort_by_domain(tests):
     return tests_by_domain
 
 
-def create_bulleted_string(title, sentences):
-    # Create a list starting with the title
-    output_list = [f'**{title}**']
+def create_bulleted_string(title, sentences, chars_per_line):
+    """
+    Create a bulleted string with a title and list of sentences,
+    formatted with word wrapping and title padding.
 
-    # Add each sentence as a new line with a bullet point
+    Args:
+        title (str): The title of the list.
+        sentences (list of str): A list of sentences to include in the
+            bulleted list.
+        chars_per_line (int): The maximum number of characters per line.
+
+    Returns:
+        str: A formatted string with the title and bulleted list,
+            wrapped and indented as needed.
+    """
+    # Define the indentation
+    wrap_indent = ' ' * 6
+
+    # Pad the title if it's shorter than chars_per_line
+    padded_title = f"**{title}**".ljust(chars_per_line)
+    wrap_title = textwrap.fill(padded_title,
+                               width=chars_per_line)
+
+    # Create a list starting with the padded title
+    output_list = [wrap_title]
+
+    # Add each sentence as a new line with a bullet point, wrapped and indented
     for sentence in sentences:
-        output_list.append(f"    \u2022 {sentence}")
+        wrapped_text = textwrap.fill(f"\u2022 {sentence}",
+                                     width=chars_per_line,
+                                     subsequent_indent=wrap_indent,
+                                     break_long_words=True,
+                                     break_on_hyphens=False)
+        output_list.append(wrapped_text)
 
     # Join the list into a single string separated by new lines
     output_string = "\n".join(output_list)
@@ -459,7 +490,8 @@ def create_bulleted_string(title, sentences):
 
 def create_tab_manual_checks(check_boxes, passing_tests,
                              failed_tests, tab_width, tab_height,
-                             pix_per_char_width, pix_per_char_height, save_space):
+                             pix_per_char_width, pix_per_char_height, save_space,
+                             user_text_width, check_character_width):
     """
     Create a tab with manual checks, failed tests, and passed tests.
 
@@ -506,8 +538,9 @@ def create_tab_manual_checks(check_boxes, passing_tests,
     pixels_per_char = 8.3 if save_space else pix_per_char_width
 
     # Determine horizontal size for user text
-    user_text_x = int(0.18 * tab_width / pixels_per_char) if save_space else int(
-        0.20 * tab_width / pix_per_char_width)
+    # user_text_x = int(20 * tab_width / pix_per_char_width) if save_space else int(
+    #   0.20 * tab_width / pix_per_char_width)
+    user_text_x = user_text_width
 
     # Specify vertical space available for frames
     vertical_size = tab_height - 0 * pix_per_char_height if save_space \
@@ -527,7 +560,8 @@ def create_tab_manual_checks(check_boxes, passing_tests,
 
         matching_manual_checks = check_boxes[tab_key]
         # Determine the maximum length of the descriptions in check_boxes
-        max_checkbox_tab_length = 72 if save_space else 100
+        # max_checkbox_tab_length = 65 if save_space else 100
+        max_checkbox_tab_length = check_character_width
         row_count = 0
         for item in matching_manual_checks:
             description = item.get(KEY_OUT_DESC, None)
@@ -540,7 +574,8 @@ def create_tab_manual_checks(check_boxes, passing_tests,
             pix_per_line=pix_per_char_height,
             checks=check_boxes[tab_key],
             passing=passing_tests_by_domain,
-            failing=failed_tests_by_domain)
+            failing=failed_tests_by_domain,
+            quiet=True)
         # Determine properties like frame size and scroll-ability
         adjust_each_frame_height(frame_settings)
 
@@ -554,11 +589,6 @@ def create_tab_manual_checks(check_boxes, passing_tests,
 
         # Override for small screens
         if save_space:
-            ##     frame_settings.scroll_user = True
-            ##     # Turn off horizontal scrolling for small screens in the main frame
-            ##     frame_settings.scroll_fail = True
-            ##     frame_settings.scroll_pass = True
-            ##     # Turn on horizontal scrolling for small screens
             vertical_scroll = False
             sb_width = 1
             tab_font = ('Helvetica', '8', 'bold')
@@ -572,37 +602,40 @@ def create_tab_manual_checks(check_boxes, passing_tests,
                          [[Sg.Column(frame_layout,
                                      size=(frame_settings.width,
                                            frame_settings.height_user),
-                                     sbar_width=sb_width,
+                                     ## QT sbar_width=sb_width,vertical_scroll_only=vertical_scroll,
+                                     vertical_scroll_only=True,
                                      scrollable=frame_settings.scroll_user,
-                                     vertical_scroll_only=vertical_scroll)]],
+                                     )]],
                          border_width=1)
         layout.append([frame])
 
         # Create subframes for Failed Tests
         subframes_failed = create_subframes_for_domain(
-            failed_tests_by_domain, user_text_x, frame_settings.width, save_space)
+            failed_tests_by_domain, user_text_x, frame_settings, save_space)
 
         # Check if there are any subframes and construct the layout accordingly
         if subframes_failed:
             layout.append([Sg.Frame('Failed Tests',
                                     [[Sg.Column(subframes_failed,
                                                 size=(frame_settings.width, frame_settings.height_fail),
-                                                sbar_width=sb_width,
+                                                ## QT sbar_width=sb_width,vertical_scroll_only=vertical_scroll,
                                                 scrollable=frame_settings.scroll_fail,
-                                                vertical_scroll_only=vertical_scroll)]],
+                                                vertical_scroll_only=True
+                                                )]],
                                     )])
 
         # Create subframes for Passing Tests
         subframes_passing = create_subframes_for_domain(
-            passing_tests_by_domain, user_text_x, frame_settings.width, save_space)
+            passing_tests_by_domain, user_text_x, frame_settings, save_space)
         if subframes_passing:
             layout.append([Sg.Frame('Passing Tests',
                                     [[Sg.Column(subframes_passing,
                                                 size=(frame_settings.width,
                                                       frame_settings.height_pass),
-                                                sbar_width=sb_width,
+                                                ## QT sbar_width=sb_width,vertical_scroll_only=vertical_scroll,
                                                 scrollable=frame_settings.scroll_pass,
-                                                vertical_scroll_only=vertical_scroll)]],
+                                                vertical_scroll_only=True
+                                                )]],
                                     )])
         # Final tab layout
         tab_title = tab_key[:9] if save_space else tab_key[:13]
@@ -762,7 +795,7 @@ def find_domain_name(rso: NamedTuple, domain_level: str) -> str:
         return domain_level
 
 
-def consolidate_dicts(review_level):
+def consolidate_dicts(review_level, chars_per_line):
     grouped = {}
     consolidated_list = []
 
@@ -777,13 +810,15 @@ def consolidate_dicts(review_level):
         else:
             consolidated_list.append(item)
 
-    for check_group_key, descs in grouped.items():
+    for check_group_key, group_description in grouped.items():
         # Search for the first item with the matching 'KEY' in KEY_OUT_CHECK_GROUP
         first_item = next(item for item in review_level if
                           item.get(KEY_OUT_CHECK_GROUP, {}).get('KEY') == check_group_key)
         new_dict = {
             KEY_OUT_TEST: first_item[KEY_OUT_CHECK_GROUP]['KEY'],
-            KEY_OUT_DESC: create_bulleted_string(first_item[KEY_OUT_CHECK_GROUP]['TEXT'], descs),
+            KEY_OUT_DESC: create_bulleted_string(first_item[KEY_OUT_CHECK_GROUP]['TEXT'],
+                                                 sentences=group_description,
+                                                 chars_per_line=chars_per_line),
             KEY_OUT_DOMAIN_TYPE: first_item[KEY_OUT_DOMAIN_TYPE],
             KEY_OUT_OPTIONS: first_item[KEY_OUT_OPTIONS].replace("NA,", ""),
             KEY_AUTOMATION: {},
@@ -793,50 +828,53 @@ def consolidate_dicts(review_level):
     return consolidated_list
 
 
-def build_manual_check_box_list(rso, beamsets):
+def build_manual_check_box_list(rso, beamsets, review_type="Physics", chars_per_line=100):
     """
     Depending on the type of beamset we are checking, find the appropriate
     checklist from review_definitions
     :param rso:
     :param beamsets: (list): list of all beamsets
+    :param review_type: (str): "Physics" or "Dosimetry"
     :return: checks dictionary
     """
-    dict1 = CHECK_BOXES_PHYSICS_REVIEW
+    if review_type not in REVIEW_TYPES:
+        sys.exit(f'UNKNOWN REVIEW TYPE {review_type}')
+    # Initialize the checklist with the selected review type
+    checklist = CHECK_BOXES_PHYSICS_REVIEW if review_type == "Physics" else CHECK_BOXES_DOSIMETRY_SAFETY
+    # Add in technique-specific checklist
     for beamset_name in beamsets:
         technique = rso.plan.BeamSets[beamset_name].DeliveryTechnique
-        if technique == 'TomoHelical' and 'T3D' in beamset_name:
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_TOMO3D
-        elif technique == 'TomoHelical':
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_TOMO
-        elif technique == 'ApplicatorAndCutout':
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS
-        elif technique == 'DynamicArc':
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_VMAT
-        elif technique == 'SMLC':
-            dict2 = CHECK_BOXES_PHYSICS_REVIEW_3D
+        # Check if technique-specific checklist exists
+        if "T3D" in beamset_name:
+            technique_checklist = TECHNIQUE_MAP["T3D"][review_type]
+        elif technique in TECHNIQUE_MAP:
+            technique_checklist = TECHNIQUE_MAP[technique][review_type]
         else:
             sys.exit(f'UNKNOWN TREATMENT TECHNIQUE {technique}')
-        dict1 = merge_dicts(dict1, dict2)
-        for level in dict1:
-            for item in dict1[level]:
+        checklist = merge_dicts(checklist, technique_checklist)
+
+        for level in checklist:
+            for item in checklist[level]:
                 item[KEY_OUT_MESSAGE] = ""
                 item[KEY_OUT_COMMENT] = ""
                 item[KEY_OUT_ICON] = None
                 item[KEY_OUT_DOMAIN_NAME] = find_domain_name(
                     rso, item[KEY_OUT_DOMAIN_TYPE])
+    # Filter the checks that have been replaced with automation
     filtered_checklist = {}
-    for level in dict1:
+    for level in checklist:
         filtered_checklist[level] = []
-        for item in dict1[level]:
+        for item in checklist[level]:
             # Determine if this test has been replaced with automation.
             if is_replaced(item):
-                logging.info(f'This item {item[KEY_OUT_DESC]}: has been replaced.')
+                logging.info(f'This checkbox from the {review_type} review: {item[KEY_OUT_DESC]}: '
+                             f'has been replaced with an automated test.')
                 continue
             else:
                 filtered_checklist[level].append(item)
     grouped_checks = {}
     for review_level, check_list in filtered_checklist.items():
-        grouped_checks[review_level] = consolidate_dicts(check_list)
+        grouped_checks[review_level] = consolidate_dicts(check_list, chars_per_line=chars_per_line)
 
     return grouped_checks
 
@@ -844,35 +882,6 @@ def build_manual_check_box_list(rso, beamsets):
 def is_replaced(item):
     replaced_status = item.get(KEY_AUTOMATION, {}).get(KEY_STATUS, False)
     return replaced_status == REPLACED
-
-
-# TODO: Evaluate this object to determine if it is worthwhile to create objects for tests
-class Domain:
-    def __init__(self, domain_type, domain_name):
-        self.domain_type = domain_type
-        self.domain_name = domain_name
-        self.failed_tests = []
-        self.passed_tests = []
-
-    def add_test(self, test, pass_fail):
-        if pass_fail == PASS:
-            self.passed_tests.append(test)
-        else:
-            self.failed_tests.append(test)
-
-
-class Test:
-    def __init__(self, comment, result, icon, pass_fail):
-        review_tab, comment = search_string(comment)
-        self.comment = comment
-        self.result = result
-        self.icon = icon
-        self.pass_fail = pass_fail
-        self.review_tab = review_tab
-        self.required = False
-        self.excluded = False
-        self.exclude_from_report = False
-    # Parse item from window.
 
 
 def get_tests_from_tree(tree_children):
@@ -910,19 +919,19 @@ def get_key(components, window):
         return False
 
 
-def process_check_box_values(window, checks):
+def process_check_box_values(window, values, checks):
     """
     Parses the resulting window values and sorts the checkbox values.
 
     Args:
         window (PySimpleGUI.Window): The PySimpleGUI window object.
+        values (dict): A dictionary containing the window values
         checks (dict): A dictionary containing the checkbox data.
 
     Returns:
         list: A sorted list containing the checkbox values.
     """
     sorted_results = []
-    _, values = window.read()
     for test_level in checks:
         for item in checks[test_level]:
             parsed_item = {KEY_OUT_DESC: item[KEY_OUT_DESC]}

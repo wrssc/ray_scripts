@@ -8,6 +8,7 @@ def pil_get_element_size(text, font_size, font_name):
     size = font.getsize(text)
     return size
 
+
 def get_text_element_size(text: str) -> Tuple[int, int]:
     """
     Given a text, this function creates an invisible window with the text, and
@@ -19,7 +20,9 @@ def get_text_element_size(text: str) -> Tuple[int, int]:
     Returns:
         size_text (Tuple[int, int]): The width and height of the text in pixels.
     """
-    window = Sg.Window('Invisible Window', [[Sg.Text(text, key='text')]],
+    layout = [[Sg.Text(text, key='text')]]
+    window = Sg.Window('Invisible Window',
+                       layout,
                        alpha_channel=0, finalize=True)
     window.read(timeout=0)
     size_text = window['text'].get_size()
@@ -49,6 +52,10 @@ def get_user_display_parameters() -> Tuple[int, int, bool, int, int]:
     # calculating the number of pixels per character
     pixels_per_char = width_pixels // len(sample_sentence)
     screen_width, screen_height = Sg.Window.get_screen_size()
+    ## # Create a QPoint object with (0, 0) coordinates
+    ## point = Sg.QtCore.QPoint()
+    ## screen_width = Sg.QtWidgets.QDesktopWidget().screenGeometry(point).width()
+    ## screen_height = Sg.QtWidgets.QDesktopWidget().screenGeometry(point).height()
 
     window_height = 800 if screen_height<minimum_vertical_resolution else 1000
     window_width = 1100 if screen_height<minimum_vertical_resolution else 1310

@@ -24,14 +24,12 @@ from PlanReview.guis.create_preplan_tab import (
     update_preplan_protocols, update_preplan_orders,
     create_tab_preplan_information, update_preplan_beamset_rows,
     update_preplan_target_rows)
-from PlanReview.guis.build_tree import on_submit_build_tree
 from PlanReview.guis.create_physics_manual_tab import (
     build_manual_check_box_list, get_tests_from_tree,
     create_tab_manual_checks, on_manual_radio_button_click,
     extract_values_manual_tab, load_manual, process_auto_tests,
     process_check_box_values, is_valid_manual_tab, is_visible_tab)
 from PlanReview.guis.gui_top_buttons import build_top_buttons
-from PlanReview.guis.gui_ditto_wrapper import get_ditto_tab, on_ditto_element_click
 
 
 def load_review(window, rso, sites, protocols, instructions, maximum_target_number,
@@ -109,7 +107,32 @@ def on_done_button_click(window, values, check_boxes, failed_tests):
     return is_valid
 
 
-def launch_physics_review_gui(rso):
+def on_submit_build_tree(tree_data, tab_width, tab_height, pix_per_char_width, pix_per_line):
+    right_width = 10
+    left_width = int((tab_width - right_width * pix_per_char_width
+                      - 60 * pix_per_char_width) / pix_per_char_width)
+    num_rows = int(tab_height / pix_per_line)
+    tree_layout = [[Sg.Frame('Automated Review:',
+                             [[Sg.Tree(
+                                 data=tree_data,
+                                 headings=['Result'],
+                                 auto_size_columns=False,
+                                 num_rows=num_rows,
+                                 col0_width=left_width,
+                                 col_widths=[right_width],
+                                 key='-TREE-',
+                                 show_expanded=True,
+                                 justification="left",
+                                 vertical_scroll_only=True,
+                                 expand_x=True,
+                                 expand_y=True,
+                                 enable_events=True)]],
+                             pad=(0, 0),
+                             size=(tab_width, tab_height))]]
+    return tree_layout
+
+
+def launch_dosimetry_review_gui(rso):
     """
     Function to launch a GUI for reviewing physics checks and logs.
 
@@ -128,36 +151,26 @@ def launch_physics_review_gui(rso):
     check_box_copy = {}
     match_trees = None
     # GUI setup
-    Sg.theme('DefaultNoMoreNagging')
-
+    Sg.theme('DarkAmber')
     window_width, window_height, save_space, pix_per_char_width, pix_per_char_height = \
         get_user_display_parameters()
-    # save_space = True
-    # window_width = 1100
-    # window_height = 800
-    # pix_per_char_width = 9
-    # pix_per_char_height = 15
 
     # In the tree display, set the size of the right column relative to left
     if save_space:
         tab_width = 120 * pix_per_char_width  # Based on top window width
         sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
         comment_width_chars = int(sidebar_width - 120) // pix_per_char_width  # Gap is around 6 char
-        user_text_width = 20  # Number of characters in the check box user comments
-        check_character_width = 70  # Character wrap limit in check boxes
     else:
         tab_width = 154 * pix_per_char_width  # Based on top window width
         sidebar_width = int(window_width - tab_width - 30)  # Width of sidebar with 30 pix of greyspace
         comment_width_chars = int(sidebar_width - 200) // pix_per_char_width  # Gap is around 6 char
-        user_text_width = 24
-        check_character_width = 96
     # Top and bottom (buttons) frame height
     top_height = 2 * pix_per_char_height
     top_width = tab_width + int(5.1 * pix_per_char_width)
     tab_font = ('Helvetica', '8', 'bold') if save_space else None
     # Tab sizing
     tab_height = window_height - top_height - 4 * pix_per_char_height
-    logging.info(f'physics review gui launched with '
+    logging.info(f'dosimetry safety gui launched with '
                  f'screen width x height: {window_width} x {window_height}. '
                  f'Pixel character width x height: {pix_per_char_width} x'
                  f'{pix_per_char_height}. Space Save {save_space}')
@@ -196,13 +209,13 @@ def launch_physics_review_gui(rso):
             Sg.Column(create_side_panel(comment_width_chars,
                                         window_height,
                                         pix_per_char_height),
-                      ##Qt          vertical_alignment='top',
+                      vertical_alignment='top',
                       size=(sidebar_width, window_height))
         ],
     ]
 
     window = Sg.Window(
-        f'{get_user_name()}> Plan Review:{" " * 5}{rso.patient.Name}{" " * 5}{rso.patient.PatientID}',
+        f'{get_user_name()}> Dosimetry Safety Review:{" " * 5}{rso.patient.Name}{" " * 5}{rso.patient.PatientID}',
         layout,
         resizable=True,
         size=(window_width, window_height))
@@ -271,10 +284,8 @@ def launch_physics_review_gui(rso):
             if preplan_valid:
                 # Get the beamset info for review
                 tree_data, tree_children = perform_automated_checks(
-                    rso, do_physics_review=True, values=values,
+                    rso, do_physics_review=False, values=values,
                     display_progress=True, beamsets=beamsets)
-                rso.patient.Save()
-                ditto_tab_list, match_trees = get_ditto_tab(tab_width, tab_height, beamsets)
                 tab_group = window['tab_group']
                 tab1 = on_submit_build_tree(
                     tree_data, tab_width, tab_height, pix_per_char_width, pix_per_char_height)
@@ -285,28 +296,20 @@ def launch_physics_review_gui(rso):
                                          font=tab_font))
                 #
                 # Build next tab
-                check_box_copy = build_manual_check_box_list(rso, beamsets=[rso.beamset.DicomPlanLabel],
-                                                             chars_per_line=check_character_width)
+                check_box_copy = build_manual_check_box_list(rso,
+                                                             beamsets=[rso.beamset.DicomPlanLabel],
+                                                             review_type="Dosimetry")
 
                 passing_tests, failed_tests = get_tests_from_tree(tree_children)
                 tabs = create_tab_manual_checks(check_box_copy, passing_tests,
                                                 failed_tests,
                                                 tab_width, tab_height,
-                                                pix_per_char_width, pix_per_char_height, save_space,
-                                                user_text_width, check_character_width)
+                                                pix_per_char_width, pix_per_char_height, save_space)
                 for tab in tabs:
                     if is_visible_tab(tab, window):
                         tab_group.add_tab(tab)
-                for tab in ditto_tab_list:
-                    if tab:
-                        tab_group.add_tab(tab)
 
                 window['Review and Logs'].select()
-
-        # Update to Ditto
-        # Check if the event starts with '-DITTO_TREE_' and if there are beamsets to process
-        if 'DITTO_TREE_' in event and beamsets and match_trees:
-            on_ditto_element_click(window, values, event, beamsets, match_trees)
 
         #
         # Plan Revision Events
@@ -330,7 +333,7 @@ def launch_physics_review_gui(rso):
                 review_file_name = save_review(
                     rso,
                     get_review_gui_values(window, values, passing_tests, failed_tests, check_box_copy),
-                    suffix="_review.json", quiet=True)
+                    suffix="_review.json",quiet=True)
 
                 #
                 # Retrieve data from the check-boxes and automated tests

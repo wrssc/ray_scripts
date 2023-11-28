@@ -19,6 +19,7 @@ log_dir = os.getenv('LOG_DIR')
 OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
 ERROR_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs\Errors\ReviewScript"
 PROTECTED_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Protect"
+DOSIMETRY_OUTPUT_DIR = r"Q:\\RadOnc\RayStation\RayScripts\Reports\DosimetrySafetySheets"
 # From ARIA User Admin in the ARIA Web Portal Export all users to a
 # non-GitSync directory
 STAFF_XML_PATH = os.path.join(PROTECTED_DIR, "VAUsersandGroupsExport_30Sep2023.xml")
@@ -86,6 +87,8 @@ REVIEW_LEVELS = {
     'MOBIUS': 'Mobius',
     'SANDBOX': 'Sandbox',
 }
+REVIEW_TYPES = {"Physics", "Dosimetry"}
+
 # CHECKBOXES are qa_tests that must be manually performed for physics review
 CHECK_BOXES_PHYSICS_REVIEW = {
     KEY_REVIEW_TYPE: 'General Physics Review',
@@ -1245,7 +1248,7 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO = {
     REVIEW_LEVELS['MOBIUS']: [],
 }
 # SAFETY REVIEWS FOR DOSE
-CHECK_BOXES_DOSE = {
+CHECK_BOXES_DOSIMETRY_SAFETY = {
     KEY_REVIEW_TYPE: 'General Dosimetry Review',
     REVIEW_LEVELS['PREPLAN_DATA']: [
         {
@@ -1393,7 +1396,137 @@ CHECK_BOXES_DOSE = {
         },
     ]
 }
-CHECK_BOXES_DOSE_ELECTRON = {
+CHECK_BOXES_DOSIMETRY_SAFETY_3D = {
+    KEY_REVIEW_TYPE: '3D Conformal Dosimetry Review',
+    REVIEW_LEVELS['PREPLAN_DATA']: [
+    ],
+    REVIEW_LEVELS['PATIENT_MODEL']: [
+        {
+            KEY_OUT_TEST: 'highz_artifacts',
+            KEY_OUT_DESC: 'High-Z artifacts & density overrides addressed: Choose One',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'couch_structure',
+            KEY_OUT_DESC: 'TrueBeam couch structure present and set to correct height',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+    ],
+    REVIEW_LEVELS['PLAN_DESIGN']: [
+        {
+            KEY_OUT_TEST: 'btv_created',
+            KEY_OUT_DESC: 'BTV created and derived based on PTV',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'beam_template_used',
+            KEY_OUT_DESC: 'Beam template used: Choose One ',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'no_low_repro_objects',
+            KEY_OUT_DESC: 'Beam(s) do not pass through low-reproducibility objects (ie: head of '
+                          'table)',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'treat_protect',
+            KEY_OUT_DESC: 'Treat & Protect settings used',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'prescription_type',
+            KEY_OUT_DESC: 'Prescription based on volume or isodose line',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+    ]
+}
+CHECK_BOXES_DOSIMETRY_SAFETY_VMAT = {
+    KEY_REVIEW_TYPE: 'VMAT Dosimetry Review',
+    REVIEW_LEVELS['PATIENT_MODEL']: [
+    ],
+    REVIEW_LEVELS['PATIENT_MODEL']: [
+        {
+            KEY_OUT_TEST: 'planning_structure_script',
+            KEY_OUT_DESC: 'Generate planning structure script used',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+    ],
+    REVIEW_LEVELS['PLAN_DESIGN']: [
+        {
+            KEY_OUT_TEST: 'dose_grid_resolution_SBRT',
+            KEY_OUT_DESC: 'Dose grid resolution set to 0.2 (or 0.15 for SBRT)',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {
+                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_dose_grid'],
+                KEY_STATUS: 'Needs Review',
+                KEY_AUTO_REVIEW_DATE: '01Sep2023',
+            },
+        },
+        {
+            KEY_OUT_TEST: 'isocenter_lateral_offset',
+            KEY_OUT_DESC: 'Isocenter lateral offset < 5 cm for plans using full arcs',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+    ],
+    REVIEW_LEVELS['OPTIMIZATION']: [
+        {
+            KEY_OUT_TEST: 'clinical_goals_script_tpo',
+            KEY_OUT_DESC: 'Clinical goals script used and matches TPO template name',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'treat_setting',
+            KEY_OUT_DESC: 'Treat setting used',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'automated_plan_optimization',
+            KEY_OUT_DESC: 'Automated Plan Optimization script used',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'beam_weights',
+            KEY_OUT_DESC: 'Beam weights > 5%',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'couch_angle_rpm',
+            KEY_OUT_DESC: 'Couch angle < 45 degrees for RPM gating plans',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+    ]
+}
+CHECK_BOXES_DOSIMETRY_SAFETY_ELECTRONS = {
     KEY_REVIEW_TYPE: 'Electron Dosimetry Review',
     REVIEW_LEVELS['PREPLAN_DATA']: [
     ],
@@ -1504,7 +1637,7 @@ CHECK_BOXES_DOSE_ELECTRON = {
         },
     ]
 }
-CHECK_BOXES_DOSE_TOMO = {
+CHECK_BOXES_DOSIMETRY_SAFETY_TOMO = {
     KEY_REVIEW_TYPE: 'TomoTherapy Dosimetry Review',
     REVIEW_LEVELS['PREPLAN_DATA']: [
     ],
@@ -1617,66 +1750,7 @@ CHECK_BOXES_DOSE_TOMO = {
         },
     ]
 }
-CHECK_BOXES_DOSE_3D = {
-    KEY_REVIEW_TYPE: '3D Conformal Dosimetry Review',
-    REVIEW_LEVELS['PREPLAN_DATA']: [
-    ],
-    REVIEW_LEVELS['PATIENT_MODEL']: [
-        {
-            KEY_OUT_TEST: 'highz_artifacts',
-            KEY_OUT_DESC: 'High-Z artifacts & density overrides addressed: Choose One',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'couch_structure',
-            KEY_OUT_DESC: 'TrueBeam couch structure present and set to correct height',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-    ],
-    REVIEW_LEVELS['PLAN_DESIGN']: [
-        {
-            KEY_OUT_TEST: 'btv_created',
-            KEY_OUT_DESC: 'BTV created and derived based on PTV',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'beam_template_used',
-            KEY_OUT_DESC: 'Beam template used: Choose One ',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'no_low_repro_objects',
-            KEY_OUT_DESC: 'Beam(s) do not pass through low-reproducibility objects (ie: head of '
-                          'table)',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'treat_protect',
-            KEY_OUT_DESC: 'Treat & Protect settings used',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'prescription_type',
-            KEY_OUT_DESC: 'Prescription based on volume or isodose line',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-    ]
-}
-CHECK_BOXES_DOSE_TOMO_3D = {
+CHECK_BOXES_DOSIMETRY_SAFETY_TOMO3D = {
     KEY_REVIEW_TYPE: '3D Conformal TomoTherapy Dosimetry Review',
     REVIEW_LEVELS['PREPLAN_DATA']: [
     ],
@@ -1763,82 +1837,34 @@ CHECK_BOXES_DOSE_TOMO_3D = {
         },
     ]
 }
-CHECK_BOXES_DOSE_VMAT = {
-    KEY_REVIEW_TYPE: 'VMAT Dosimetry Review',
-    REVIEW_LEVELS['PATIENT_MODEL']: [
-    ],
-    REVIEW_LEVELS['PATIENT_MODEL']: [
-        {
-            KEY_OUT_TEST: 'planning_structure_script',
-            KEY_OUT_DESC: 'Generate planning structure script used',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['EXAM_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+
+TECHNIQUE_MAP = {
+        'TomoHelical': {
+            "Physics": CHECK_BOXES_PHYSICS_REVIEW_TOMO,
+            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_TOMO,
         },
-    ],
-    REVIEW_LEVELS['PLAN_DESIGN']: [
-        {
-            KEY_OUT_TEST: 'dose_grid_resolution_SBRT',
-            KEY_OUT_DESC: 'Dose grid resolution set to 0.2 (or 0.15 for SBRT)',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {
-                KEY_AUTOMATED_TESTS: ['qa_tests.test_beamset.check_dose_grid'],
-                KEY_STATUS: 'Needs Review',
-                KEY_AUTO_REVIEW_DATE: '01Sep2023',
-            },
+        'ApplicatorAndCutout': {
+            "Physics": CHECK_BOXES_PHYSICS_REVIEW_ELECTRONS,
+            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_ELECTRONS,
         },
-        {
-            KEY_OUT_TEST: 'isocenter_lateral_offset',
-            KEY_OUT_DESC: 'Isocenter lateral offset < 5 cm for plans using full arcs',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+        'DynamicArc': {
+            "Physics": CHECK_BOXES_PHYSICS_REVIEW_VMAT,
+            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_VMAT,
         },
-    ],
-    REVIEW_LEVELS['OPTIMIZATION']: [
-        {
-            KEY_OUT_TEST: 'clinical_goals_script_tpo',
-            KEY_OUT_DESC: 'Clinical goals script used and matches TPO template name',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
+        'SMLC': {
+            "Physics": CHECK_BOXES_PHYSICS_REVIEW_3D,
+            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_3D,
         },
-        {
-            KEY_OUT_TEST: 'treat_setting',
-            KEY_OUT_DESC: 'Treat setting used',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'automated_plan_optimization',
-            KEY_OUT_DESC: 'Automated Plan Optimization script used',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'beam_weights',
-            KEY_OUT_DESC: 'Beam weights > 5%',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-        {
-            KEY_OUT_TEST: 'couch_angle_rpm',
-            KEY_OUT_DESC: 'Couch angle < 45 degrees for RPM gating plans',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
-    ]
-}
+        'T3D': {
+            "Physics": CHECK_BOXES_PHYSICS_REVIEW_TOMO3D,
+            "Dosimetry": CHECK_BOXES_DOSIMETRY_SAFETY_TOMO3D,
+        }
+    }
 # LOG PARSING INFO
 LOG_DIR = r"Q:\\RadOnc\RayStation\RayScripts\logs"
 DEV_LOG_DIR = r"Q:\\RadOnc\RayStation\RayScripts\dev_logs"
 KEEP_PHRASES = [("Critical", "CRITICAL"), ("Warnings", "WARNING"),
-                ("Info", "INFO"), ("Debug", "DEBUG")]
+                ("Info", "INFO")]  # ("Debug", "DEBUG")]
 #
 # EXAM DEFAULTS
 # TIME ELAPSED BETWEEN PLAN AND CT

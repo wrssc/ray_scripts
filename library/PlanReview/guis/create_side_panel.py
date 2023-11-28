@@ -1,4 +1,4 @@
-from typing import List, Dict, Union, Any, NamedTuple
+from typing import List, Dict, Union, Any
 import PySimpleGUI as Sg
 from PlanReview.review_definitions import ICON_CHECKER
 from PlanReview.utils.constants import (
@@ -41,7 +41,8 @@ def create_side_panel(comment_width_chars: int, window_height: int,
         # User comments
         [Sg.Text('Comments', text_color='blue', font=('Helvetica', 12, 'bold'))],
         [Sg.Multiline(default_text='', size=(comments_width, comment_line_count),
-                      autoscroll=True, auto_size_text=True, key=KEY_USER_COMMENT, expand_x=True, expand_y=True)],
+                      autoscroll=True, auto_size_text=True, key=KEY_USER_COMMENT, ## QT expand_x=True, expand_y=True,
+                      )],
         # Create a row for "Proceed" radio button
         [Sg.Radio(
             "Proceed", group_id="RADIO_SIDE_PANEL",
@@ -50,20 +51,25 @@ def create_side_panel(comment_width_chars: int, window_height: int,
         # Create a row for "Proceed (QI Issue)" radio button
         [Sg.Radio("Proceed (QI Issue)", group_id="RADIO_SIDE_PANEL", default=False,
                   key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}QIProceed", enable_events=True)],
-        [Sg.Text("Brief Synopsis of \n QI Issue:", enable_events=True, visible=False, key="-QI_TEXT-", expand_x=False,
-                 expand_y=False),
+        [Sg.Text("Brief Synopsis of \n QI Issue:", enable_events=True, visible=False, key="-QI_TEXT-",
+                 ## QT expand_x=False, expand_y=False
+                 ),
          Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
-                      auto_size_text=True, enable_events=True, key=KEY_QI_INFO, visible=False, expand_x=True,
-                      expand_y=True)
+                      auto_size_text=True, enable_events=True, key=KEY_QI_INFO, visible=False,
+                      ## QT expand_x=True, expand_y=True
+                      )
          ],
         # Create a row for "Revise" radio button
         [Sg.Radio("Revise", group_id="RADIO_SIDE_PANEL", default=False,
                   key=f"{KEY_PROCEED_REVISE}{KEY_RADIO}Revise", enable_events=True)],
         [Sg.Text("Synopsis of reason \n for Revision:", enable_events=True, justification='left',
-                 visible=False, key="-REVISION_TEXT-", expand_x=False, expand_y=False),
+                 visible=False, key="-REVISION_TEXT-",
+                 ## QT expand_x=False, expand_y=False
+                 ),
          Sg.Multiline(default_text='', size=(revision_width, 2), autoscroll=True,
-                      auto_size_text=True, enable_events=True, key=KEY_REVISION_INFO, visible=False, expand_x=True,
-                      expand_y=True)],
+                      auto_size_text=True, enable_events=True, key=KEY_REVISION_INFO, visible=False,
+                      ## QT expand_x=True, expand_y=True
+                      )],
     ]
     # Add the QA form components
     # Add the QA form components to an invisible frame

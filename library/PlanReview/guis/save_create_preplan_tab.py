@@ -1,7 +1,7 @@
 """
 Create the information entry prompt for the dose and physics review
 """
-import PySimpleGUI as sg
+import PySimpleGUI as Sg
 import sys
 from PlanReview.utils.protocol_loading import get_order_instructions, \
     site_protocol_list, order_dict, load_plan_names, get_frequencies
@@ -59,29 +59,29 @@ def create_beamset_layout(beamsets, targets):
     # Create layout for each beamset
     for i in range(num_beamsets):
         single_beamset_layout = [
-            [sg.Text(f'Beamset {i + 1}',
+            [Sg.Text(f'Beamset {i + 1}',
                      visible=bs_visible,
                      key=create_key(KEY_BEAMSET_COUNT + KEY_T, i)),
-             sg.Combo(values=beamsets, key=create_key(KEY_BEAMSET_SELECT, i),
+             Sg.Combo(values=beamsets, key=create_key(KEY_BEAMSET_SELECT, i),
                       visible=bs_visible, size=(header_sizes[0], 1))],
-            [sg.Text(f'Number of targets in Beamset {i + 1}',
+            [Sg.Text(f'Number of targets in Beamset {i + 1}',
                      visible=bs_visible,
                      key=create_key(KEY_BEAMSET_TARGET_COUNT + KEY_T, i)),
-             sg.Combo(values=list(range(1, max_targets + 1)),
+             Sg.Combo(values=list(range(1, max_targets + 1)),
                       key=create_key(KEY_BEAMSET_TARGET_COUNT, i),
                       visible=bs_visible,
                       size=(header_sizes[1], 1),
                       enable_events=True)],
-            [sg.Text(f'Number of Fractions',
+            [Sg.Text(f'Number of Fractions',
                      visible=bs_visible,
                      key=create_key(KEY_BEAMSET + KEY_FRACTIONS + KEY_T, i)),
-             sg.Input(key=create_key(KEY_BEAMSET + KEY_FRACTIONS, i),
+             Sg.Input(key=create_key(KEY_BEAMSET + KEY_FRACTIONS, i),
                       visible=bs_visible, size=(header_sizes[2], 1),
                       enable_events=True), ]
         ]
         # Add target layout to the beamset layout
         single_beamset_layout.extend(create_target_layout(i, targets))
-        beamset_layout.append(sg.Frame(f'Beamset {i + 1}',
+        beamset_layout.append(Sg.Frame(f'Beamset {i + 1}',
                                        single_beamset_layout,
                                        key=create_key(KEY_BEAMSET + KEY_F, i),
                                        font=('Helvetica', 10, 'bold'),
@@ -150,28 +150,28 @@ def create_target_layout(beamset_i, targets):
 
     target_layout = [
         [
-            sg.Text('', size=(10, 1)),  # Empty space
-            sg.Text(header_texts[0], size=(header_sizes[0], 1),
+            Sg.Text('', size=(10, 1)),  # Empty space
+            Sg.Text(header_texts[0], size=(header_sizes[0], 1),
                     key=create_key('beamset_header', beamset_i, 0), visible=False),
-            sg.Text(header_texts[1], size=(header_sizes[1], 1),
+            Sg.Text(header_texts[1], size=(header_sizes[1], 1),
                     key=create_key('beamset_header', beamset_i, 1), visible=False),
-            sg.Text(header_texts[2], size=(header_sizes[2], 1),
+            Sg.Text(header_texts[2], size=(header_sizes[2], 1),
                     key=create_key('beamset_header', beamset_i, 2), visible=False),
         ]
     ]
 
     for i in range(max_targets):
         target_layout.append([
-            sg.Text(f'Target {i + 1}: ', visible=False,
+            Sg.Text(f'Target {i + 1}: ', visible=False,
                     key=create_key(KEY_BEAMSET_TARGET_NAME + KEY_T, beamset_i, i)),
-            sg.Combo(values=target_combo_values,
+            Sg.Combo(values=target_combo_values,
                      key=create_key(KEY_BEAMSET_TARGET_NAME, beamset_i, i),
                      visible=False,
                      size=(header_sizes[0], 1)),
-            sg.Input(key=create_key(KEY_BEAMSET_DOSE, beamset_i, i), visible=False,
+            Sg.Input(key=create_key(KEY_BEAMSET_DOSE, beamset_i, i), visible=False,
                      size=(header_sizes[1], 1),
                      enable_events=True),
-            sg.Text('', key=create_key(KEY_BEAMSET_FRACTION_DOSE, beamset_i, i),
+            Sg.Text('', key=create_key(KEY_BEAMSET_FRACTION_DOSE, beamset_i, i),
                     visible=False,
                     justification='c',
                     size=(header_sizes[2], 1))
@@ -260,7 +260,7 @@ def calculate_preplan_dose_per_fraction(values, main_window, beamset_i, target_i
 
 def create_radio_buttons(radio_phrases, text, indx):
     phrases = radio_phrases.split(',')
-    radio_buttons = [sg.Radio(text=phrase,
+    radio_buttons = [Sg.Radio(text=phrase,
                               group_id=create_key(text + '-RADIO-', indx),
                               key=create_key(text + '-RADIO-' + phrase, indx),
                               enable_events=True,
@@ -298,13 +298,13 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
     #
     # Site Selection
     site_combo = [
-        sg.Text(
+        Sg.Text(
             text_entries['site'],
             justification=text_just,
             size=max_row_size([text_entries['site']]),
             key=KEY_SITE_SELECT + KEY_T,
         ),
-        sg.Combo(
+        Sg.Combo(
             sites,
             default_value='Select Site',
             key=KEY_SITE_SELECT,
@@ -315,7 +315,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
     #
     # Protocol Selection
     protocol_combo = [
-        sg.Text(
+        Sg.Text(
             text_entries['protocol'],
             justification=text_just,
             size=max_row_size([text_entries['protocol']]),
@@ -323,7 +323,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
             key=KEY_PROTOCOL_SELECT + KEY_T,
             visible=False
         ),
-        sg.Combo(
+        Sg.Combo(
             protocols,
             default_value='',
             size=max_row_size(protocols.keys()),
@@ -334,7 +334,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
     #
     # Order Selection
     order_combo = [
-        sg.Text(
+        Sg.Text(
             text_entries['tpo'],
             justification=text_just,
             size=max_row_size([text_entries['tpo']]),
@@ -342,7 +342,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
             key=KEY_ORDER_SELECT + KEY_T,
             visible=False
         ),
-        sg.Combo(
+        Sg.Combo(
             orders,
             default_value='',
             size=max_row_size(orders.keys()),
@@ -353,7 +353,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
     #
     # Treatment and imaging frequency
     tf_combo = [
-        sg.Text(
+        Sg.Text(
             text_entries['tf'],
             justification=text_just,
             size=max_row_size([text_entries['tf']]),
@@ -361,14 +361,14 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
             key=KEY_TREAT_FREQ + KEY_T,
             visible=False
         ),
-        sg.Combo(
+        Sg.Combo(
             [],
             key=KEY_TREAT_FREQ,
             size=(16, 1),
             visible=False)
     ]
     if_combo = [
-        sg.Text(
+        Sg.Text(
             text_entries['sf'],
             justification=text_just,
             size=max_row_size([text_entries['tf']]),
@@ -376,7 +376,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
             key=KEY_IMAGING_FREQ + KEY_T,
             visible=False
         ),
-        sg.Combo([],
+        Sg.Combo([],
                  size=(16, 1),
                  key=KEY_IMAGING_FREQ,
                  visible=False)
@@ -390,7 +390,7 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
         row = None
         if inst['radio']:
             row = [
-                sg.T(
+                Sg.T(
                     inst['text'],
                     justification=text_just,
                     size=instruction_size,
@@ -402,14 +402,14 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
             ]
         elif inst['comment']:
             row = [
-                sg.T(
+                Sg.T(
                     inst['text'],
                     justification=text_just,
                     size=instruction_size,
                     enable_events=True,
                     key=create_key(KEY_TX_INST + KEY_T, inst['indx']),
                     visible=False, ),
-                sg.InputText(
+                Sg.InputText(
                     "Notes",
                     size=(20, 1),
                     enable_events=True,
@@ -420,14 +420,14 @@ def create_order_selection_layout(protocols, sites, orders, instructions):
         elif inst['combo']:
             phrases = inst['combo'].split(',')
             row = [
-                sg.T(
+                Sg.T(
                     inst['text'],
                     justification=text_just,
                     size=instruction_size,
                     enable_events=True,
                     key=create_key(KEY_TX_INST + KEY_T, inst['indx']),
                     visible=False, ),
-                sg.Combo(
+                Sg.Combo(
                     phrases,
                     default_value='',
                     size=max_row_size(phrases),
@@ -549,25 +549,26 @@ def create_preplan_information_tab(protocols, sites, orders, instructions, beams
     # Create the overall layout for the CT Scan tab
     ct_scan_layout = [
         # CT Information frame
-        [sg.Frame('CT Information',
+        [Sg.Frame('CT Information',
                   [
-                      [sg.Text('', size=(5, 1))],  # Empty space
-                      [sg.Text('CT Scan Date:', pad=(20, 0)), sg.Text('', key=KEY_SIM_DATE),
-                       sg.CalendarButton('Select date', target=KEY_SIM_DATE, key='calendar',
-                                         format='%Y-%m-%d')],
-                      [sg.Text('Number of CT Slices: ', pad=(20, 0)),
-                       sg.Input(key=KEY_SLICES, size=(10, 1))],
-                      [sg.Text('', size=(5, 1))],  # Empty space
+                      [Sg.Text('', size=(5, 1))],  # Empty space
+                      [Sg.Text('CT Scan Date:', pad=(20, 0)), Sg.Text('', key=KEY_SIM_DATE),
+                       Sg.CalendarButton('Select date', target=KEY_SIM_DATE, key='calendar',
+                                         ## QT format='%Y-%m-%d',
+                                         )],
+                      [Sg.Text('Number of CT Slices: ', pad=(20, 0)),
+                       Sg.Input(key=KEY_SLICES, size=(10, 1))],
+                      [Sg.Text('', size=(5, 1))],  # Empty space
                   ],
                   element_justification='l',
                   font=('Helvetica', 11, 'bold'))
          ],
 
         # Treatment Instructions frame
-        [sg.Frame('Treatment Planning Order Information',
-                  [[sg.Column(order_selection_layout,
+        [Sg.Frame('Treatment Planning Order Information',
+                  [[Sg.Column(order_selection_layout,
                               scrollable=True,
-                              vertical_scroll_only=True,
+                              ## QT vertical_scroll_only=True,
                               size=(800, 400))]],
                   font=('Helvetica', 11, 'bold'),
                   element_justification='l',
@@ -576,19 +577,19 @@ def create_preplan_information_tab(protocols, sites, orders, instructions, beams
          ],
 
         # Beamset Information frame
-        [sg.Frame('Beamset Information',
+        [Sg.Frame('Beamset Information',
                   [
-                      [sg.Text('', size=(5, 1))],  # Empty space
-                      [sg.Text('Number of BeamSets: '),
-                       sg.Combo(list(range(1, maximum_beamset_count + 1)),
+                      [Sg.Text('', size=(5, 1))],  # Empty space
+                      [Sg.Text('Number of BeamSets: '),
+                       Sg.Combo(list(range(1, maximum_beamset_count + 1)),
                                 key=KEY_BEAMSET_COUNT,
                                 default_value=1,
                                 size=(10, 1),
                                 enable_events=True)
                        ],
-                      [sg.Text('', size=(5, 1))],  # Empty space
+                      [Sg.Text('', size=(5, 1))],  # Empty space
                       beamset_layout,
-                      [sg.Text('', size=(5, 1))],  # Empty space
+                      [Sg.Text('', size=(5, 1))],  # Empty space
                   ],
                   font=('Helvetica', 11, 'bold'),
                   element_justification='l')],
@@ -596,7 +597,7 @@ def create_preplan_information_tab(protocols, sites, orders, instructions, beams
     ]
 
     # Add a submit button column on the right
-    ct_scan_layout_with_submit = [[sg.Column(ct_scan_layout,
+    ct_scan_layout_with_submit = [[Sg.Column(ct_scan_layout,
                                              element_justification='l',
                                              pad=(10, 0)),
                                    ]]
@@ -649,11 +650,11 @@ def extract_preplan_values(main_window, num_beamsets=1):
             instruction_key, instruction_idx = key
             if KEY_TX_INST in instruction_key:
                 instruction_element = main_window[key]
-                if isinstance(instruction_element, sg.Input):
+                if isinstance(instruction_element, Sg.Input):
                     treatment_instructions[key] = value.get()
-                elif isinstance(instruction_element, sg.Combo):
+                elif isinstance(instruction_element, Sg.Combo):
                     treatment_instructions[key] = value.get()
-                elif isinstance(instruction_element, sg.Radio):
+                elif isinstance(instruction_element, Sg.Radio):
                     treatment_instructions[key] = value.get()
 
     # Get the Beamset Information values

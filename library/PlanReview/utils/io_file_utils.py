@@ -1,6 +1,8 @@
 import os
 import glob
 import re
+import logging
+import PySimpleGUI as Sg
 from datetime import datetime
 import json
 from PlanReview.review_definitions import OUTPUT_DIR
@@ -65,3 +67,19 @@ def str_key_to_tuple(value):
     elif isinstance(value, str) and '||' in value:
         return tuple(int(x) if x.isdigit() else x for x in value.split('||'))
     return value
+
+
+def save_review(rso, values, suffix="_review.json", quiet=False):
+    patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
+    if not os.path.exists(patient_output_dir):
+        os.makedirs(patient_output_dir)
+    if os.path.exists(OUTPUT_DIR):
+        file_name = f"{rso.patient.PatientID}_{rso.beamset.DicomPlanLabel}{suffix}"
+        with open(os.path.join(patient_output_dir, file_name), "w") as f:
+            json.dump(tuple_key_to_str(values), f)
+            if not quiet:
+                Sg.popup("Review saved successfully!")
+        return file_name
+    else:
+        logging.error("Output directory does not exist.")
+        return None

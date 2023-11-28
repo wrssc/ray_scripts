@@ -1,10 +1,19 @@
+import os
+import json
+import logging
 from dataclasses import dataclass
-from typing import NamedTuple
 from functools import partial
-from datetime import datetime
+# ReportLab imports
+from reportlab.lib.pagesizes import landscape, letter
+from reportlab.platypus import Table, TableStyle, Image
+from reportlab.platypus import (SimpleDocTemplate, PageTemplate, Frame, PageBreak, Paragraph)
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 import pandas as pd
 from PlanReview.review_definitions import (
-    LOG_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS, FAIL, PASS, ALERT, RED_CIRCLE, GREEN_CIRCLE)
+    DOSIMETRY_OUTPUT_DIR, LOG_DIR, UW_HEALTH_LOGO, REVIEW_LEVELS, FAIL, PASS, ALERT, RED_CIRCLE,
+    GREEN_CIRCLE)
 from PlanReview.utils import get_approval_info
 from PlanReview.utils.constants import (
     KEY_BEAMSET, KEY_SIDE_PANEL, KEY_OUT_DOMAIN_NAME, KEY_OUT_TEST_SOURCE, SOURCE_USER, KEY_USER_COMMENT,
@@ -12,15 +21,96 @@ from PlanReview.utils.constants import (
     KEY_PROCEED_REVISE, KEY_REVISION_INFO, KEY_BEAMSET_COUNT, KEY_BEAMSET_SELECT, KEY_BEAMSET_FRACTION_COUNT,
     KEY_BEAMSET_TARGET_NAME, KEY_BEAMSET_DOSE, KEY_BEAMSET_FRACTION_DOSE, KEY_BEAMSET_TARGET_COUNT,
     KEY_IMD, KEY_PRIOR_RT, KEY_IMAGING_FREQ, KEY_TREAT_FREQ, KEY_PATIENT_ORIENTATION, KEY_SIM_DATE,
-    KEY_SIMULATION_DATA, KEY_HEADER, KEY_TESTS, KEY_TX_INST, KEY_TX_INST_SET, KEY_RADIO, KEY_COMBO
+    KEY_SIMULATION_DATA, KEY_HEADER, KEY_TESTS
 )
 from PlanReview.utils.io_file_utils import *
-from reportlab.lib.pagesizes import landscape, letter
-from reportlab.platypus import Table, TableStyle, Image
-from reportlab.platypus import (SimpleDocTemplate, PageTemplate, Frame, PageBreak, Paragraph)
-from reportlab.lib.units import inch
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
+
+
+def generate_pdf(rso, review_data, test_mode=False):
+    config = ReportConfig()
+    dosimetry_safety_dir = os.path.join(LOG_DIR, "DosimetrySafetyChecks")
+    patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
+    report_output_dir = DOSIMETRY_OUTPUT_DIR
+    patient_output_prefix = f"{rso.patient.PatientID}_" \
+                            f"{rso.beamset.DicomPlanLabel}_" \
+                            f"{generate_filename()}"
+
+    if test_mode:
+        latest_test_file = find_latest_file(
+            patient_output_dir,
+            f"{rso.patient.PatientID}", f"{rso.beamset.DicomPlanLabel}", "dosimetry_data.json")
+        patient_data = read_tests_from_json(latest_test_file)
+        tests = patient_data[KEY_TESTS] if patient_data else None
+        header_data = patient_data[KEY_HEADER] if patient_data else None
+    else:
+        if not review_data:
+            return
+        review_files = [
+            generate_file_path(
+                patient_output_dir, patient_output_prefix, "_dosimetry_data.json"),
+            generate_file_path(
+                dosimetry_safety_dir, patient_output_prefix, "_dosimetry_data.json")
+        ]
+        dump_tests_to_json(review_data, file_names=review_files)
+        tests = read_tests_from_json(review_files[0])[KEY_TESTS]
+        header_data = read_tests_from_json(review_files[0])[KEY_HEADER]
+        # dump_tests_to_json(header_data, file_names=header_files)
+
+    tests_df = read_data(tests)
+
+    # Output file
+    # output_file = generate_file_path(
+    #     patient_output_dir, patient_output_prefix, ".pdf")
+    output_file = generate_file_path(
+        report_output_dir, patient_output_prefix, ".pdf"
+    )
+
+    # Create a PDF document
+    pdf_filename = output_file
+    doc = SimpleDocTemplate(pdf_filename,
+                            pagesize=(config.PAGE_WIDTH, config.PAGE_HEIGHT),
+                            topMargin=config.TOP_MARGIN,
+                            bottomMargin=config.BOTTOM_MARGIN,
+                            leftMargin=config.LEFT_MARGIN,
+                            rightMagin=config.RIGHT_MARGIN)
+
+    # Create a custom PageTemplate for the header and footer
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
+                  doc.height - 0.75 * inch, id='header')
+    footer_frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
+                         doc.height, id='footer')
+
+    # Use functools.partial to create a partially applied function with custom data (rso)
+    first_page_template = PageTemplate(id='first', frames=[frame],
+                                       onPage=partial(my_first_page, rso=rso))
+    later_page_template = PageTemplate(frames=[footer_frame], id="laterPages",
+                                       onPage=partial(myLaterPages, rso, header_data[KEY_BEAMSET]))
+    # Add the template to the document
+    doc.addPageTemplates([first_page_template, later_page_template])
+
+    # Create a list to store flowables (elements that go into the PDF)
+    story = []
+    # Create demographics table
+    demo_table = create_demographics_table(header_data[KEY_BEAMSET], rso, config)
+    story.append(demo_table)
+    # Create a table and apply the custom style
+    main_table = create_beamset_data_table(header_data[KEY_BEAMSET], rso, config)
+    story.append(main_table)
+    # Create the treatment instructions table
+    instructions_table = add_treatment_instructions_table(header_data[KEY_SIMULATION_DATA], config)
+    story.append(instructions_table)
+    # Add reviewer comments
+    review_table = add_reviewer_approval(header_data[KEY_SIDE_PANEL], config)
+    story.append(review_table)
+    # story.append(Spacer(1, 12))  # Add space between sections
+    story.append(PageBreak())
+
+    # Add table using add_check_list_table function
+    generate_tables_from_dataframe(tests_df, story, config)  # Pass centered_frame
+
+    # Build the PDF document
+    doc.build(story, onFirstPage=partial(my_first_page, rso=rso),
+              onLaterPages=partial(myLaterPages, rso=rso, data=header_data[KEY_BEAMSET]))
 
 
 def hex_to_reportlab_color(str_color):
@@ -57,95 +147,6 @@ class ReportConfig:
     UW_TEXT = hex_to_reportlab_color("#333333")
 
 
-def generate_pdf(rso, review_data, test_mode=False):
-    config = ReportConfig()
-    physics_review_dir = os.path.join(LOG_DIR, "PhysicsReviews")
-    patient_output_dir = os.path.join(OUTPUT_DIR, rso.patient.PatientID)
-    report_output_dir = r"Q:\\RadOnc\RayStation\Reports\PhysicsReview"
-    patient_output_prefix = f"{rso.patient.PatientID}_" \
-                            f"{rso.beamset.DicomPlanLabel}_" \
-                            f"{generate_filename()}"
-
-    if test_mode:
-        latest_test_file = find_latest_file(
-            patient_output_dir,
-            f"{rso.patient.PatientID}",f"{rso.beamset.DicomPlanLabel}","review_data.json")
-        patient_data = read_tests_from_json(latest_test_file)
-        tests = patient_data[KEY_TESTS] if patient_data else None
-        header_data = patient_data[KEY_HEADER] if patient_data else None
-    else:
-        if not review_data:
-            return
-        review_files = [
-            generate_file_path(
-                patient_output_dir, patient_output_prefix, "_review_data.json"),
-            generate_file_path(
-                physics_review_dir, patient_output_prefix, "_review_data.json")
-        ]
-        dump_tests_to_json(review_data, file_names=review_files)
-        tests = read_tests_from_json(review_files[0])[KEY_TESTS]
-        header_data = read_tests_from_json(review_files[0])[KEY_HEADER]
-        # dump_tests_to_json(header_data, file_names=header_files)
-
-    tests_df = read_data(tests)
-
-    # Output file
-    # output_file = generate_file_path(
-    #     patient_output_dir, patient_output_prefix, ".pdf")
-    output_file = generate_file_path(
-        report_output_dir, patient_output_prefix, ".pdf"
-      )
-
-    # Create a PDF document
-    pdf_filename = output_file
-    doc = SimpleDocTemplate(pdf_filename,
-                            pagesize=(config.PAGE_WIDTH, config.PAGE_HEIGHT),
-                            topMargin=config.TOP_MARGIN,
-                            bottomMargin=config.BOTTOM_MARGIN,
-                            leftMargin=config.LEFT_MARGIN,
-                            rightMagin=config.RIGHT_MARGIN)
-
-    # Create a custom PageTemplate for the header and footer
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
-                  doc.height - 0.75 * inch, id='header')
-    footer_frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width,
-                         doc.height, id='footer')
-
-    # Use functools.partial to create a partially applied function with custom data (rso)
-    first_page_template = PageTemplate(id='first', frames=[frame],
-                                       onPage=partial(my_first_page, rso=rso))
-    later_page_template = PageTemplate(frames=[footer_frame], id="laterPages",
-                                       onPage=partial(myLaterPages, rso, header_data[KEY_BEAMSET]))
-    # Add the template to the document
-    doc.addPageTemplates([first_page_template, later_page_template])
-
-    # Create a list to store flowables (elements that go into the PDF)
-    story = []
-    # Create demographics table
-    demo_table = create_demographics_table(header_data[KEY_BEAMSET], rso, config)
-    story.append(demo_table)
-    # Create a table and apply the custom style
-    main_table = create_beamset_data_table(header_data[KEY_BEAMSET], rso, config)
-    story.append(main_table)
-    # Create the treatment instructions table
-    instructions_table = add_treatment_instructions_table(header_data[KEY_SIMULATION_DATA],
-                                                          header_data[KEY_TX_INST_SET],
-                                                          config)
-    story.append(instructions_table)
-    # Add reviewer comments
-    review_table = add_reviewer_approval(header_data[KEY_SIDE_PANEL], config)
-    story.append(review_table)
-    # story.append(Spacer(1, 12))  # Add space between sections
-    story.append(PageBreak())
-
-    # Add table using add_check_list_table function
-    generate_tables_from_dataframe(tests_df, story, config)  # Pass centered_frame
-
-    # Build the PDF document
-    doc.build(story, onFirstPage=partial(my_first_page, rso=rso),
-              onLaterPages=partial(myLaterPages, rso=rso, data=header_data[KEY_BEAMSET]))
-
-
 def read_data(data):
     return pd.DataFrame(data)
 
@@ -164,6 +165,7 @@ def generate_tables_from_dataframe(df, story, config):
     # Define custom ordering for 'RESULT'
     result_order = {FAIL: 0, ALERT: 1, PASS: 2}
     unique_test_levels = df[KEY_OUT_TAB].unique()
+    logging.debug(unique_test_levels)
 
     for test_level in unique_test_levels:
         if test_level in excluded_review_levels:
@@ -239,6 +241,7 @@ def make_paragraph(text, style=None):
         "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
         "* ": "&bull;&nbsp;"
     }
+
     # Convert **text** to <b>text</b>
     text = text.replace("**", "<b>", 1).replace("**", "</b>", 1)
 
@@ -251,7 +254,7 @@ def make_paragraph(text, style=None):
     return Paragraph(text, style)
 
 
-def add_check_list_table(df, story, config, title=None,display_domain_name=False):
+def add_check_list_table(df, story, config, title=None, display_domain_name=False):
     # Define table styles
     style = getSampleStyleSheet()
     label_style = style['Heading6']
@@ -277,10 +280,10 @@ def add_check_list_table(df, story, config, title=None,display_domain_name=False
         data = [[title, "", "", ""],
                 [make_paragraph('Status', style=label_style),
                  make_paragraph('Test Performed', style=label_style),
-                make_paragraph('Result', style=label_style),
-                make_paragraph('Reviewer Comment', style=label_style)]]
+                 make_paragraph('Result', style=label_style),
+                 make_paragraph('Reviewer Comment', style=label_style)]]
     else:
-        data = [[title, "", "", ""],]
+        data = [[title, "", "", ""], ]
 
     last_domain_name = None  # to keep track of domain name changes
     domain_header_rows = []  # to keep track of rows with domain headers
@@ -308,6 +311,8 @@ def add_check_list_table(df, story, config, title=None,display_domain_name=False
     for row_idx in domain_header_rows:
         table_style.add('BACKGROUND', (0, row_idx), (-1, row_idx), config.UW_DARK_GRAY)
         table_style.add('BACKGROUND', (0, row_idx + 1), (-1, row_idx + 1), config.UW_DARK_RED)
+        # table_style.add('TEXTCOLOR', (0, row_idx), (-1, row_idx), config.UW_WHITE)
+        # table_style.add('TEXTCOLOR', (0, row_idx + 1), (-1, row_idx + 1), config.UW_WHITE)
         table_style.add('SPAN', (0, row_idx), (-1, row_idx))  # Span the columns for domain name
         table_style.add('ALIGN', (0, row_idx), (-1, row_idx), 'CENTER')
 
@@ -321,65 +326,30 @@ def add_check_list_table(df, story, config, title=None,display_domain_name=False
                   repeatRows=(0, 1),
                   spaceAfter=30,
                   )
+    # table = Table(data, splitByRow=1, hAlign='CENTER')
+
     # Apply the table style
     table.setStyle(table_style)
     story.append(table)
 
 
-def convert_time(time_input):
-    """
-    Converts a datetime object to a 24-hour clock format string.
-
-    Args:
-        time_input (datetime): A datetime object in any format.
-
-    Returns:
-        str: A string representation of the input datetime in 24-hour clock format (e.g., "2023-11-17 14:04:30").
-    """
-    time_str = str(time_input)
-    input_format = "%m/%d/%Y %I:%M:%S %p"  # 12-hour clock format
-    # Parse the input string into a datetime object
-    date_time_obj = datetime.strptime(time_str, input_format)
-    output_format = "%Y-%m-%d %H:%M:%S"  # 24-hour clock format
-    formatted_string = datetime.strftime(date_time_obj, output_format)
-    return formatted_string
-
-
-def create_demographics_table(data: dict, rso: NamedTuple, config: dict) -> str:
-    """
-    Creates a demographics table based on input data, RSO object, and configuration.
-
-    Args:
-        data (dict): Input data containing beamset information.
-        rso (object): RayStation named tuple
-        config (dict): Configuration parameters.
-
-    Returns:
-        str: A string representing the demographics table.
-    """
+def create_demographics_table(data, rso, config):
     table_data = [["Patient Name", "MRN", "Beamset Name", "Approval Date"]]
     beamset_count = data[KEY_BEAMSET_COUNT]
-
     for i in range(beamset_count):
         beamset_number = (KEY_BEAMSET_SELECT, i)
         beamset_name = data[beamset_number]
         approval_status = get_approval_info(rso.plan, rso.plan.BeamSets[beamset_name])
-
-        if approval_status.beamset_approved:
-            approval_date = convert_time(rso.plan.BeamSets[beamset_name].Review.ReviewTime)
-        else:
-            approval_date = "NA"
-
+        approval_date = str(
+            rso.plan.BeamSets[beamset_name].Review.ReviewTime) if approval_status.beamset_approved else 'NA'
         if i == 0:
             patient_name = rearrange_name(str(rso.patient.Name))
             patient_id = rso.patient.PatientID
         else:
             patient_name = ""
             patient_id = ""
-
         table_data.append([str(patient_name), str(patient_id),
                            str(beamset_name), str(approval_date)])
-
     demo_table = build_demographics_table(table_data, config)
     return demo_table
 
@@ -418,28 +388,7 @@ def parse_high_risk_boolean(value, config):
         return "No", getSampleStyleSheet()['Normal']
 
 
-def parse_special_instructions(data):
-    special_instructions_text = ""
-    for tuple_key, value in data.items():
-        key, instruction_number = tuple_key
-        if key.startswith(KEY_TX_INST):
-            if KEY_RADIO in key:
-                # Extract the instruction name and type
-                _, instruction_name, response_type,radio_value = key.split('-')[1:]
-                if value == "false":
-                    continue
-                elif value == "true":
-                    if radio_value == "Yes":
-                        special_instructions_text += f"* {instruction_name}\n"
-                    else:
-                        continue
-            elif KEY_COMBO in key:
-                inst_key, _, comb_key, instruction_name = key.split('-')[1:]
-                special_instructions_text += f"* {instruction_name}: {value}\n"
-    return special_instructions_text
-
-
-def add_treatment_instructions_table(simulation_set, special_instructions, config):
+def add_treatment_instructions_table(data, config):
     hstyle = getSampleStyleSheet()['Normal']
     hstyle.textColor = config.UW_WHITE
     hstyle.fontName = 'Helvetica-Bold'
@@ -450,23 +399,19 @@ def add_treatment_instructions_table(simulation_set, special_instructions, confi
             make_paragraph("Prior Radiotherapy", hstyle),
             make_paragraph("Implanted Medical Device", hstyle),
             make_paragraph("Imaging Frequency", hstyle),
-            make_paragraph("Treatment Frequency", hstyle),
-            make_paragraph("Special Instructions", hstyle)]
+            make_paragraph("Treatment Frequency", hstyle)]
     ]
 
     # Extract data from the header dictionary
-    simulation_date = simulation_set.get(KEY_SIM_DATE, "Not Specified")
-    patient_orientation = simulation_set.get(KEY_PATIENT_ORIENTATION, "Not Specified")
-    prior_radiotherapy = simulation_set.get(KEY_PRIOR_RT, "Not Specified")
-    implanted_medical_device = simulation_set.get(KEY_IMD, "Not Specified")
-    imaging_frequency = simulation_set.get(KEY_IMAGING_FREQ, "Not Specified")
-    treatment_frequency = simulation_set.get(KEY_TREAT_FREQ, "Not Specified")
-
+    simulation_date = data.get(KEY_SIM_DATE, "Not Specified")
+    patient_orientation = data.get(KEY_PATIENT_ORIENTATION, "Not Specified")
+    prior_radiotherapy = data.get(KEY_PRIOR_RT, "Not Specified")
+    implanted_medical_device = data.get(KEY_IMD, "Not Specified")
+    imaging_frequency = data.get(KEY_IMAGING_FREQ, "Not Specified")
+    treatment_frequency = data.get(KEY_TREAT_FREQ, "Not Specified")
     # Replace the boolean with Yes/No
     prior_rt_text, prior_rt_style = parse_high_risk_boolean(prior_radiotherapy, config)
     implant_text, implant_style = parse_high_risk_boolean(implanted_medical_device, config)
-    # Look at special instructions
-    si_text = parse_special_instructions(special_instructions)
 
     table_data.append([  # make_paragraph(simulation_date),
         # make_paragraph(patient_orientation),
@@ -475,11 +420,10 @@ def add_treatment_instructions_table(simulation_set, special_instructions, confi
         make_paragraph(implant_text,
                        style=implant_style),
         make_paragraph(imaging_frequency),
-        make_paragraph(treatment_frequency),
-        make_paragraph(si_text)])
+        make_paragraph(treatment_frequency)])
 
     # Configure column widths and build the table
-    col_fractions = [0.18, 0.18, 0.18, 0.18, 0.28]
+    col_fractions = [0.25, 0.25, 0.25, 0.25]
     treatment_instructions_table = build_treatment_instructions_table(table_data, config, col_fractions)
 
     return treatment_instructions_table

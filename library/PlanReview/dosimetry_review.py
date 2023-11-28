@@ -1,4 +1,4 @@
-""" Physics Review with Document
+""" Dosimetry Safety Check with PDF
     Run basic plan integrity checks and parse the log file. Meant to be run
     on completed plans.
 
@@ -6,28 +6,8 @@
 
     Example Usage:
 
+    Script Created by RAB Nov 20th 2023
     Prerequisites:
-
-
-    Version history:
-    0.0.0: Testing version, Script created by RAB on May 1st 2022
-    1.0.0: Initial version executed on over 150 beamsets. Clinically released.
-    1.0.1: Code Clean-up.
-           * Deleted extraneous code from physics_review.py
-           * Refactor sg as Sg
-           * Corrected a bug mapping VMAT optimization to Tomo3D Plan Check.
-           * Eliminating unused logging statements in manual tab
-           * Fixed a bug causing Report button to need to be pressed twice
-           Added features:
-           * New column in the review document for user-entered special treatment instructions
-           * Reformatted beamset approval time to match the RayStation document format.
-           * Refactoring the build_tree function to make it more readable and accomodate
-             dosimetry review
-           * Further adjustments to the GUI sizes and formatting for small screens
-             successfully eliminated horizontal scrolling for all but beamsets on initia
-             page
-            *Debugged and improved function of check_prv_status to now exclude very
-             low dose serial oars from warnings regarding PRV usage
 
 
     PRERELEASE:
@@ -130,6 +110,9 @@
     Individual Test improvements:
     TODO: Contour gap check need only include human-drawn contours
 
+    Version history:
+    0.0.0: Testing version
+    0.1.0: Initial version executed on over 150 beamsets. Clinically released.
 
 
     This program is free software: you can redistribute it and/or modify it
@@ -151,9 +134,9 @@
 
 __author__ = 'Adam Bayliss'
 __contact__ = 'rabayliss@wisc.edu'
-__date__ = '2023-Nov-20'
-__version__ = '1.0.1'
-__status__ = 'Clinical'
+__date__ = '2023-Nov-21'
+__version__ = '0.0.0'
+__status__ = 'Testing'
 __deprecated__ = False
 __reviewer__ = 'Someone else'
 __reviewed__ = 'YYYY-MM-DD'
@@ -172,12 +155,13 @@ import logging
 from collections import namedtuple
 from GeneralOperations import find_scope
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '.'))
-from PlanReview.guis import launch_physics_review_gui
+from PlanReview.guis import (gui_dosimetry_safety_review)
 from PlanReview.utils.get_user_name import get_user_name
 from PlanReview.documentation.generate_physics_pdf import generate_pdf
+from PlanReview.review_definitions import DOSIMETRY_OUTPUT_DIR
 
 
-def physics_review(do_physics_review=True):
+def dosimetry_safety_check():
     """
         patient_key
             |
@@ -215,7 +199,7 @@ def physics_review(do_physics_review=True):
              beamset=find_scope(level='BeamSet'))
     #
     user_name = get_user_name()
-    logging.info(f'Physics review script launched by {user_name}')
+    logging.info(f'Dosimetry safety sheet launched by {user_name}')
 
     # Uncomment to simply run the tree
     # tree_data = Sg.TreeData()
@@ -237,11 +221,10 @@ def physics_review(do_physics_review=True):
         review_data = None
     else:
         # Gui
-        review_data = launch_physics_review_gui(rso)
+        review_data = gui_dosimetry_safety_review.launch_dosimetry_review_gui(rso)
         if not review_data:
             sys.exit('Physics review canceled')
 
-    if do_physics_review:
-        # generate_doc(rso, ata=header, test_mode=doc_only)
-        generate_pdf(rso, review_data=review_data, test_mode=doc_only)
-        Sg.popup('Form submitted successfully.')
+    generate_pdf(rso, review_data=review_data, test_mode=doc_only)
+    Sg.popup(f'Safety sheet submitted successfully. Find it at {DOSIMETRY_OUTPUT_DIR}')
+    logging.info('Dosimetry safety sheet completed.')

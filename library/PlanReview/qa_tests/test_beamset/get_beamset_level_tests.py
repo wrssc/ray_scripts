@@ -9,7 +9,7 @@ from .check_prv_status import check_prv_status
 from .check_common_isocenter import check_common_isocenter
 from .check_bolus_included import check_bolus_included
 from .check_dose_grid import check_dose_grid
-from .compute_vmat_beam_properties import compute_vmat_beam_properties
+from PlanReview.qa_tests.test_sandbox.compute_vmat_beam_properties import compute_vmat_beam_properties
 from .check_tomo_isocenter import check_tomo_isocenter
 from .check_mod_factor import check_mod_factor
 from .check_fraction_size import check_fraction_size
@@ -58,8 +58,9 @@ def get_beamset_level_tests(rso, physics_review=True, log_messages=None):
             if rso.beamset.Beams[0].HasValidSegments:
                 beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Control Point Spacing"] = (
                     check_control_point_spacing, {'expected': 2.})
-                beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
-                    compute_vmat_beam_properties, {})
+                ## TODO: Add after more testing
+                ## beamset_checks_dict[f"{REVIEW_LEVELS['PLAN_DESIGN']}::Beamset Complexity"] = (
+                ##     compute_vmat_beam_properties, {})
                 beamset_checks_dict[f"{REVIEW_LEVELS['OPTIMIZATION']}::Planning Risk Volume Assessment"] = \
                     (check_prv_status, {})
         except Exception as e:

@@ -30,10 +30,10 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
             6. Return the result and message
 
         Test Patients:
-            Pass: Needed
-            Fail: Needed
+            Pass: Script_Testing^PRV_Script, ZZUWQA_ScTest_23Nov2023
+            Fail: Script_Testing^PRV_Script, ZZUWQA_ScTest_23Nov2023
     """
-
+    tolerance = 50
     rois = [r.Name for r in rso.case.PatientModel.RegionsOfInterest if
             r.OrganData.OrganType != 'Target']
     exclusions = ['Normal', 'Ring', 'PRV', 'Chestwall', 'Brain-PTV', 'Bag_Bowel']
@@ -51,7 +51,7 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
                 for ex in exclusions:
                     if re.match("^.*" + ex + ".*$", roi_name):
                         include = False
-                if include:
+                if include and e.ForRegionOfInterest.Name not in serial_oars:
                     serial_oars.append(e.ForRegionOfInterest.Name)
     except:
         message_str = 'No evaluation goals found'
@@ -69,26 +69,35 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
             if re.match("^" + so + "_PRV.*", r):
                 match = r
         if match:
-            prvs.append((so, match, False, False))
+            prvs.append([so, match, False, False])
         else:
             no_prvs.append(so)
     # Serial organ does not have a PRV defined!
     if no_prvs:
         message_str = f'Serial Organs lacking PRV: {", ".join(map(str,no_prvs))}. '
         pass_result = FAIL
+    # Find the plan optimization
+    plan_optimization = None
+    for po in rso.plan.PlanOptimizations:
+        for opt_bs in po.OptimizedBeamSets:
+            if opt_bs.DicomPlanLabel == rso.beamset.DicomPlanLabel:
+                plan_optimization = po
+                break
+    if not plan_optimization:
+        return ALERT, f'No plan optimization found for {rso.beamset.DicomPlanLabel}'
+
     # Look for an objective on the serial organ, if one is present, then look for one on the prv
     for p in prvs:
-        for po in rso.plan.PlanOptimizations:
-            if po.OptimizedBeamSets.DicomPlanLabel == rso.beamset.DicomPlanLabel:
-                for cf in po.Objective.ConsituentFunctions:
-                    if cf.ForRegionOfInterest.Name == p[1]:
-                        p[3] = True  # The prv was used in the optimization
-                    elif cf.ForRegionOfInterest.Name == p[0]:
-                        p[2] = True  # The oar was used in the optimization
+        for cf in plan_optimization.Objective.ConstituentFunctions:
+            if cf.ForRegionOfInterest.Name == p[1]:
+                p[3] = True  # The prv was used in the optimization
+            elif cf.ForRegionOfInterest.Name == p[0]:
+                p[2] = True  # The oar was used in the optimization
+    # PRVs is then: [serial_oar, oar_prv, oar_used_in_optimization, prv_used_in_optimization]
     # Test if Serial organ used in optimization, but the prv was not!
     not_used_str = []
-    used_str = []
-    serial_not_used = []
+    used_str = []  # PRVs used in optimization
+    serial_not_used = []  # Serial oars not used in optimization
     for p in prvs:
         if p[2]:
             if p[3]:
@@ -108,7 +117,47 @@ def check_prv_status(rso: NamedTuple) -> Tuple[str, str]:
         pass_result = FAIL
     else:
         if serial_not_used:
-            message_str += f"For {', '.join(map(str,serial_not_used))}: goals with high" \
-                           f" (or undefined) priority were excluded from optimization."
-            pass_result = ALERT
+            serial_negligible = {}
+            serial_not_negligible = {}
+            for s in serial_not_used:
+                for e in rso.plan.TreatmentCourse.EvaluationSetup.EvaluationFunctions:
+                    if e.ForRegionOfInterest.Name == s:
+                        pg = e.PlanningGoal
+                        if pg.GoalCriteria == 'AtMost' and \
+                                (pg.Priority == 1 or pg.Priority > 1000) and \
+                                (pg.Type == 'DoseAtAbsoluteVolume' or pg.Type == 'DoseAtVolume'):
+                            goal_value = e.GetClinicalGoalValue()
+                            pass_level = e.PlanningGoal.AcceptanceLevel
+                            if goal_value < pass_level * tolerance / 100.:
+                                serial_negligible[s] = goal_value
+                            else:
+                                serial_not_negligible[s] = goal_value
+            if serial_not_negligible:
+                message_str += f"Unused OARS have high dose"\
+                               f" \u2265 {int(tolerance)}% clinical goal: " \
+                               + format_oars_dict(serial_not_negligible)
+                pass_result = FAIL
+            else:
+                message_str += f"Unused OARS have negligible dose"\
+                               f" \u2264 {int(tolerance)}% clinical goal: "\
+                               + format_oars_dict(serial_negligible)
     return pass_result, message_str
+
+
+def format_oars_dict(oars_dict):
+    """
+    Format a dictionary of OARs (Organs at Risk) with their doses in cGy
+    to a string representation with doses in Gy.
+
+    Args:
+        oars_dict (dict): A dictionary with organ names as keys and doses in cGy as values.
+
+    Returns:
+        str: A formatted string representation of the OARs with doses in Gy.
+    """
+    formatted_items = []
+    for organ, dose_cgy in oars_dict.items():
+        dose_gy = dose_cgy / 100  # Convert from cGy to Gy
+        formatted_items.append(f"[{organ}, {dose_gy:.1f} Gy]")
+
+    return ', '.join(formatted_items)

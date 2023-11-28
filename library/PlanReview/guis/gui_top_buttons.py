@@ -11,7 +11,7 @@ def build_top_buttons(top_width, top_height, save_space):
     top_image_size = (90, 25) if save_space else (110, 30)
     top_subsample = 1 if save_space else 1
     top_border = 0 if save_space else 0  # 2
-    top_pad = ((6, 6), (3, 0)) if save_space else ((12, 12), (3, 0))
+    top_pad = ((8, 7), (0, 0)) if save_space else ((12, 12), (0, 0))
     #
     small_icons = {
         "-SAVE-": (ICON_SMALL_SAVE, "Save the current view"),
@@ -45,8 +45,8 @@ def build_top_buttons(top_width, top_height, save_space):
                    for key in icons.keys()]
     top = Sg.Frame('',
                    [top_buttons],
-                   vertical_alignment='center',
-                   size=(top_width, top_height),
+                   ## QT vertical_alignment='center',
+                   ## size=(top_width, top_height),
                    )
 
     return top

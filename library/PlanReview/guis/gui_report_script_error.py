@@ -3,7 +3,7 @@ import platform
 from PIL import ImageGrab
 import io
 import os
-import PySimpleGUI as sg
+import PySimpleGUI as Sg
 from datetime import datetime
 from docx import Document
 from docx.enum.section import WD_ORIENT
@@ -77,13 +77,14 @@ def save_report(patient_id, beamset_name, user_name, description, screenshot):
     doc.add_paragraph(f'User Name: {user_name}')
     doc.add_paragraph(f'Time:{now.strftime("%Y-%m-%d_%H-%M-%S")}')
     doc.add_paragraph(f'Description of Error: {description}')
-    doc.add_picture(io.BytesIO(screenshot), width=Cm(25))
+    if screenshot:
+        doc.add_picture(io.BytesIO(screenshot), width=Cm(25))
 
     # Save the document
     doc.save(os.path.join(ERROR_DIR, filename))
 
     # Show success message
-    sg.popup(f'Error report saved as {filename}')
+    Sg.popup(f'Error report saved as {filename}')
 
 
 def report_script_error(rso):
@@ -91,38 +92,38 @@ def report_script_error(rso):
     user_name = get_user_name()
 
     error_report_layout = [
-        [sg.Text('Patient ID'), sg.Input(default_text=rso.patient.PatientID,
+        [Sg.Text('Patient ID'), Sg.Input(default_text=rso.patient.PatientID,
                                          key='patient_id')],
-        [sg.Text('Beamset Name:'),
-         sg.Input(default_text=rso.beamset.DicomPlanLabel,
+        [Sg.Text('Beamset Name:'),
+         Sg.Input(default_text=rso.beamset.DicomPlanLabel,
                   key='beamset_name')],
-        [sg.Text('User Name:'),
-         sg.Input(default_text=user_name, key='user_name')],
-        [sg.Text('Description:')],
-        [sg.Multiline(key='description', size=(50, 10))],
-        [sg.Button("Capture",
+        [Sg.Text('User Name:'),
+         Sg.Input(default_text=user_name, key='user_name')],
+        [Sg.Text('Description:')],
+        [Sg.Multiline(key='description', size=(50, 10))],
+        [Sg.Button("Capture",
                    tooltip='Capture a screenshot with Snipping Tool: select '
                            '"New",'
                            + ' capture your screen, and press "Ctrl-C" to '
                              'save to clipboard.'),
-         sg.Button("Finish")],
+         Sg.Button("Finish")],
     ]
 
     # Create the dialog window
-    error_report_window = sg.Window('Error Report', error_report_layout)
+    error_report_window = Sg.Window('Error Report', error_report_layout)
     img_data = None
     # Event loop for the dialog window
     while True:
         event, values = error_report_window.read()
-        if event == sg.WIN_CLOSED:
+        if event == Sg.WIN_CLOSED:
             break
         elif event == 'Capture':
             # Take a screenshot
             img_data = capture_screen(error_report_window)
             if img_data:
-                sg.popup_ok('Screenshot captured!')
+                Sg.popup_ok('Screenshot captured!')
             else:
-                sg.popup_ok(
+                Sg.popup_ok(
                     'Oops I missed it. Try hitting Ctrl-C after you capture')
                 img_data = capture_screen(error_report_window)
         elif event == 'Finish':
@@ -131,7 +132,7 @@ def report_script_error(rso):
             beamset_name = values["beamset_name"]
             user_name = values["user_name"]
             description = values["description"]
-            screenshot = img_data
+            screenshot = img_data if img_data else None
             save_report(patient_id, beamset_name, user_name, description,
                         screenshot)
             error_report_window.close()
