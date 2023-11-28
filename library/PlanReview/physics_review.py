@@ -18,16 +18,22 @@
            * Corrected a bug mapping VMAT optimization to Tomo3D Plan Check.
            * Eliminating unused logging statements in manual tab
            * Fixed a bug causing Report button to need to be pressed twice
+           * Added a test on screenshot when reporting errors to handle an empty screenshot
+           * Fixed a small-screen scaling issue preventing all dialogs from being displayed
+           * Moved "Jaw opening" and "Blocking checks" to more appropriate tabs
+
            Added features:
            * New column in the review document for user-entered special treatment instructions
            * Reformatted beamset approval time to match the RayStation document format.
-           * Refactoring the build_tree function to make it more readable and accomodate
+           * Refactoring the build_tree function to make it more readable and accommodate
              dosimetry review
            * Further adjustments to the GUI sizes and formatting for small screens
-             successfully eliminated horizontal scrolling for all but beamsets on initia
+             successfully eliminated horizontal scrolling for all but beamsets on initial
              page
-            *Debugged and improved function of check_prv_status to now exclude very
+           * Debugged and improved function of check_prv_status to now exclude very
              low dose serial oars from warnings regarding PRV usage
+           * Moving the modulation complexity score to sandbox until plan-specific benchmarks for MCS
+             are available.
 
 
     PRERELEASE:

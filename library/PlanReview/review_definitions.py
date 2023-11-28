@@ -773,21 +773,12 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_TEST: 'jaw_opening',
             KEY_OUT_DESC: 'Jaw opening is sensible for target size',
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
-                                  'KEY': 'beams_ok'},
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam modifiers and collimation verified:',
+                                  'KEY': 'modifiers_collimation_verified'},
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
         },
-        {
-            KEY_OUT_TEST: 'arc_protect_blocking',
-            KEY_OUT_DESC: 'Arc protect or dosimetric Blocking is used to avoid'
-                          ' low-reproducibility objects',
-            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
-            KEY_OUT_CHECK_GROUP: {'TEXT': 'Beam placement and characteristics are verified for accuracy and safety:',
-                                  'KEY': 'beams_ok'},
-            KEY_OUT_OPTIONS: 'Yes,NA,No',
-            KEY_AUTOMATION: {},
-        },
+
         {
             KEY_OUT_TEST: 'beam_mu',
             KEY_OUT_DESC: 'Beam MU is reasonable',
@@ -823,6 +814,16 @@ CHECK_BOXES_PHYSICS_REVIEW_VMAT = {
             KEY_OUT_CHECK_GROUP: {'TEXT': 'VMAT-IMRT Optimization performed:',
                                   'KEY': 'vmat_imrt_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_OPTIONS: 'Yes,NA,No',
+            KEY_AUTOMATION: {},
+        },
+        {
+            KEY_OUT_TEST: 'arc_protect_blocking',
+            KEY_OUT_DESC: 'Arc protect or dosimetric Blocking is used to avoid'
+                          ' low-reproducibility objects',
+            KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'VMAT-IMRT Optimization performed:',
+                                  'KEY': 'vmat_imrt_opt'},
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
         },
@@ -1059,6 +1060,8 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_TEST: 'protect_entry_exit_blocking',
             KEY_OUT_DESC: 'Protect: "Entry" and "Entry/Exit" used to '
                           'block appropriate OARs',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
+                                  'KEY': 'tomo_3d_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1066,6 +1069,8 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
         {
             KEY_OUT_TEST: 'fov_artifacts_addressed_blocked',
             KEY_OUT_DESC: 'FOV artifacts are addressed or blocked',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
+                                  'KEY': 'tomo_3d_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {
@@ -1077,6 +1082,8 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
             KEY_OUT_TEST: 'low_reproducibility_anatomy_blocked',
             KEY_OUT_DESC: 'Low reproducibility anatomy is blocked '
                           'with a margin of > 2 cm',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
+                                  'KEY': 'tomo_3d_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
@@ -1084,6 +1091,8 @@ CHECK_BOXES_PHYSICS_REVIEW_TOMO3D = {
         {
             KEY_OUT_TEST: 'jaw_mode_dynamic',
             KEY_OUT_DESC: 'Jaw mode is Dynamic',
+            KEY_OUT_CHECK_GROUP: {'TEXT': 'Tomo3D Optimization performed:',
+                                  'KEY': 'tomo_3d_opt'},
             KEY_OUT_DOMAIN_TYPE: DOMAIN_TYPE['BEAMSET_KEY'],
             KEY_OUT_OPTIONS: 'Yes,NA,No',
             KEY_AUTOMATION: {},
